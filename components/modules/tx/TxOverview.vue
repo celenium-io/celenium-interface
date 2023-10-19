@@ -149,7 +149,9 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 				<Flex direction="column">
 					<Flex align="center" gap="8" :class="$style.message_types">
 						<Icon name="message" size="14" color="secondary" />
-						<Text size="12" weight="600" color="primary">{{ tx.message_types.join(", ") }}</Text>
+						<Text size="12" weight="600" color="primary">
+							{{ tx.message_types.map((type) => type.replace("Msg", "")).join(", ") }}
+						</Text>
 					</Flex>
 
 					<Flex v-for="(event, idx) in events" align="center" gap="12" :class="$style.event">
@@ -439,13 +441,14 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 
 .gas_bar {
 	width: 100%;
-	height: 6px;
+	height: 8px;
 
 	border-radius: 50px;
-	background: var(--op-5);
+	background: linear-gradient(var(--op-10), var(--op-5));
+	box-shadow: inset 0 0 0 1px var(--op-10);
 
 	& .gas_used {
-		height: 6px;
+		height: 8px;
 
 		border-radius: 50px;
 		background: var(--neutral-green);
