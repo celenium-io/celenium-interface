@@ -62,23 +62,21 @@ const handleCopy = (target) => {
 						<tr v-for="pfb in pfbs" @click="router.push(`/tx/${pfb.hash}`)">
 							<td style="width: 1px">
 								<Tooltip position="start" delay="500">
-									<Outline @click.stop="handleCopy(pfb.hash.toUpperCase())" class="copyable">
-										<Flex align="center" gap="8">
-											<Icon name="zap" size="12" color="green" />
+									<Flex @click.stop="handleCopy(pfb.hash.toUpperCase())" class="copyable" align="center" gap="8">
+										<Icon name="zap" size="12" :color="pfb.status === 'success' ? 'green' : 'red'" />
 
-											<Text size="13" weight="700" color="secondary" mono>
-												{{ pfb.hash.slice(0, 4).toUpperCase() }}
-											</Text>
+										<Text size="13" weight="600" color="primary">
+											{{ pfb.hash.slice(0, 4).toUpperCase() }}
+										</Text>
 
-											<Flex align="center" gap="3">
-												<div v-for="dot in 3" class="dot" />
-											</Flex>
-
-											<Text size="13" weight="700" color="secondary" mono>
-												{{ pfb.hash.slice(pfb.hash.length - 4, pfb.hash.length).toUpperCase() }}
-											</Text>
+										<Flex align="center" gap="3">
+											<div v-for="dot in 3" class="dot" />
 										</Flex>
-									</Outline>
+
+										<Text size="13" weight="600" color="primary">
+											{{ pfb.hash.slice(pfb.hash.length - 4, pfb.hash.length).toUpperCase() }}
+										</Text>
+									</Flex>
 
 									<template #content>
 										{{ space(pfb.hash.toUpperCase()) }}
@@ -88,7 +86,7 @@ const handleCopy = (target) => {
 							<td>
 								<Outline @click.stop="router.push(`/block/${pfb.height}`)">
 									<Flex align="center" gap="6">
-										<Icon name="block" size="14" color="tertiary" />
+										<Icon name="block" size="14" color="secondary" />
 
 										<Text size="13" weight="600" color="primary">{{ comma(pfb.height) }}</Text>
 									</Flex>

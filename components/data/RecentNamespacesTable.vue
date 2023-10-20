@@ -60,15 +60,13 @@ const handleCopy = (target) => {
 						<tr v-for="ns in namespaces">
 							<td style="width: 1px">
 								<Tooltip position="start" delay="500">
-									<Outline @click="handleCopy(ns.hash)" class="copyable">
-										<Flex align="center" gap="8">
-											<Icon name="block" size="14" color="tertiary" />
+									<Flex @click="handleCopy(ns.hash)" class="copyable" align="center" gap="8">
+										<Icon name="blob" size="14" color="secondary" />
 
-											<Text size="13" weight="700" color="secondary" mono>
-												{{ ns.hash.slice(ns.hash.length - 6, ns.hash.length) }}
-											</Text>
-										</Flex>
-									</Outline>
+										<Text size="13" weight="600" color="primary">
+											{{ ns.hash.slice(ns.hash.length - 6, ns.hash.length) }}
+										</Text>
+									</Flex>
 
 									<template #content> {{ ns.hash }} </template>
 								</Tooltip>
@@ -77,7 +75,7 @@ const handleCopy = (target) => {
 								<NuxtLink :to="`/block/${ns.height}`">
 									<Outline>
 										<Flex align="center" gap="6">
-											<Icon name="block" size="14" color="tertiary" />
+											<Icon name="block" size="14" color="secondary" />
 
 											<Text size="13" weight="600" color="primary">{{ comma(ns.height) }}</Text>
 										</Flex>

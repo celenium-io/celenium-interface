@@ -5,9 +5,11 @@ import { DateTime } from "luxon"
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 import Button from "@/components/ui/Button.vue"
+import Plate from "@/components/ui/Plate.vue"
 
 /** Services */
 import { tia, comma, space, formatBytes } from "@/services/utils"
+import { MessageIconMap } from "@/services/constants/mapping"
 
 /** API */
 import { fetchTransactionsByBlock } from "@/services/api/tx"
@@ -243,23 +245,19 @@ const handleCopy = (target) => {
 								<tr v-for="tx in filteredTransactions" @click="router.push(`/tx/${tx.hash}`)">
 									<td style="width: 1px">
 										<Tooltip position="start" delay="500">
-											<Outline @click.stop="handleCopy(tx.hash)" class="copyable">
-												<Flex align="center" gap="8">
-													<Icon name="zap" size="12" :color="tx.status === 'success' ? 'green' : 'red'" />
+											<Flex @click.stop="handleCopy(tx.hash)" class="copyable" align="center" gap="8">
+												<Icon name="zap" size="12" :color="tx.status === 'success' ? 'green' : 'red'" />
 
-													<Text size="13" weight="700" color="secondary" mono>{{
-														tx.hash.slice(0, 4).toUpperCase()
-													}}</Text>
+												<Text size="13" weight="600" color="primary">{{ tx.hash.slice(0, 4).toUpperCase() }}</Text>
 
-													<Flex align="center" gap="3">
-														<div v-for="dot in 3" class="dot" />
-													</Flex>
-
-													<Text size="13" weight="700" color="secondary" mono>{{
-														tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase()
-													}}</Text>
+												<Flex align="center" gap="3">
+													<div v-for="dot in 3" class="dot" />
 												</Flex>
-											</Outline>
+
+												<Text size="13" weight="600" color="primary">{{
+													tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase()
+												}}</Text>
+											</Flex>
 
 											<template #content>
 												{{ space(tx.hash).toUpperCase() }}
@@ -268,8 +266,18 @@ const handleCopy = (target) => {
 									</td>
 									<td>
 										<Tooltip position="start" textAlign="left">
-											<Flex align="center" gap="6">
-												<Text size="13" height="160" weight="600" color="primary" :class="$style.message_type">
+											<Plate>
+												<Icon
+													:name="
+														MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
+															? MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
+															: 'zap'
+													"
+													size="14"
+													color="secondary"
+												/>
+
+												<Text size="13" height="160" weight="600" color="primary" :class="$style.message_type_text">
 													{{ tx.message_types[0].replace("Msg", "") }}
 												</Text>
 												<Text
@@ -281,7 +289,7 @@ const handleCopy = (target) => {
 												>
 													+{{ tx.message_types.length - 1 }}
 												</Text>
-											</Flex>
+											</Plate>
 
 											<template #content>
 												<Flex direction="column" gap="8">

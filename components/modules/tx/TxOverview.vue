@@ -2,9 +2,13 @@
 /** Vendor */
 import { DateTime } from "luxon"
 
+/** UI */
+import Plate from "@/components/ui/Plate.vue"
+import Tooltip from "~/components/ui/Tooltip.vue"
+
 /** Services */
 import { comma, tia } from "@/services/utils"
-import Tooltip from "~/components/ui/Tooltip.vue"
+import { MessageIconMap } from "@/services/constants/mapping"
 
 /** API */
 import { fetchTxEvents } from "@/services/api/tx"
@@ -46,7 +50,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 							<Text size="12" weight="600" color="secondary">Status</Text>
 
 							<Flex align="center" gap="6">
-								<Icon name="zap" size="12" :color="tx.status === 'success' ? 'green' : 'error'" />
+								<Icon name="zap" size="12" :color="tx.status === 'success' ? 'green' : 'red'" />
 								<Text size="13" weight="600" color="primary" style="text-transform: capitalize">
 									{{ tx.status }}
 								</Text>
@@ -79,22 +83,24 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 						<Flex direction="column" gap="10" :class="$style.key_value">
 							<Text size="12" weight="600" color="secondary">Type</Text>
 
-							<Flex align="center" gap="6">
-								<Text size="13" weight="600" color="primary">
+							<Plate>
+								<Icon
+									:name="
+										MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
+											? MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
+											: 'zap'
+									"
+									size="14"
+									color="secondary"
+								/>
+
+								<Text size="13" height="160" weight="600" color="primary" :class="$style.message_type_text">
 									{{ tx.message_types[0].replace("Msg", "") }}
 								</Text>
-
-								<Text
-									v-if="tx.message_types.length > 1"
-									size="11"
-									height="110"
-									weight="600"
-									color="primary"
-									:class="$style.badge"
-								>
+								<Text v-if="tx.message_types.length > 1" size="12" weight="600" color="primary" :class="$style.badge">
 									+{{ tx.message_types.length - 1 }}
 								</Text>
-							</Flex>
+							</Plate>
 						</Flex>
 
 						<template #content>
@@ -148,7 +154,15 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 
 				<Flex direction="column">
 					<Flex align="center" gap="8" :class="$style.message_types">
-						<Icon name="message" size="14" color="secondary" />
+						<Icon
+							:name="
+								MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
+									? MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
+									: 'zap'
+							"
+							size="14"
+							color="secondary"
+						/>
 						<Text size="12" weight="600" color="primary">
 							{{ tx.message_types.map((type) => type.replace("Msg", "")).join(", ") }}
 						</Text>
@@ -172,9 +186,11 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 								<Text size="12" weight="500" color="secondary">Address</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<Text size="12" weight="500" color="primary" mono>
-										{{ event.data.spender.slice(event.data.spender.length - 4, event.data.spender.length) }}
-									</Text>
+									<NuxtLink :to="`/address/${event.data.spender}`">
+										<Text size="12" weight="500" color="primary" mono>
+											{{ event.data.spender.slice(event.data.spender.length - 4, event.data.spender.length) }}
+										</Text>
+									</NuxtLink>
 
 									<template #content>
 										{{ event.data.spender }}
@@ -192,9 +208,11 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 								<Text size="12" weight="500" color="secondary">Address</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<Text size="12" weight="500" color="primary" mono>
-										{{ event.data.receiver.slice(event.data.receiver.length - 4, event.data.receiver.length) }}
-									</Text>
+									<NuxtLink :to="`/address/${event.data.receiver}`">
+										<Text size="12" weight="500" color="primary" mono>
+											{{ event.data.receiver.slice(event.data.receiver.length - 4, event.data.receiver.length) }}
+										</Text>
+									</NuxtLink>
 
 									<template #content>
 										{{ event.data.receiver }}
@@ -232,9 +250,11 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 								<Text size="12" weight="500" color="secondary">Address</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<Text size="12" weight="500" color="primary" mono>
-										{{ event.data.sender.slice(event.data.sender.length - 4, event.data.sender.length) }}
-									</Text>
+									<NuxtLink :to="`/address/${event.data.sender}`">
+										<Text size="12" weight="500" color="primary" mono>
+											{{ event.data.sender.slice(event.data.sender.length - 4, event.data.sender.length) }}
+										</Text>
+									</NuxtLink>
 
 									<template #content>
 										{{ event.data.sender }}
@@ -250,9 +270,11 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 								<Text size="12" weight="500" color="secondary">to</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<Text size="12" weight="500" color="primary" mono>
-										{{ event.data.recipient.slice(event.data.recipient.length - 4, event.data.recipient.length) }}
-									</Text>
+									<NuxtLink :to="`/address/${event.data.recipient}`">
+										<Text size="12" weight="500" color="primary" mono>
+											{{ event.data.recipient.slice(event.data.recipient.length - 4, event.data.recipient.length) }}
+										</Text>
+									</NuxtLink>
 
 									<template #content>
 										{{ event.data.recipient }}
@@ -294,9 +316,13 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 									<Text size="12" weight="500" color="secondary">Address</Text>
 
 									<Tooltip :class="$style.tooltip">
-										<Text size="12" weight="500" color="primary" mono>
-											{{ event.data.fee_payer.slice(event.data.fee_payer.length - 4, event.data.fee_payer.length) }}
-										</Text>
+										<NuxtLink :to="`/address/${event.data.fee_payer}`">
+											<Text size="12" weight="500" color="primary" mono>
+												{{
+													event.data.fee_payer.slice(event.data.fee_payer.length - 4, event.data.fee_payer.length)
+												}}
+											</Text>
+										</NuxtLink>
 
 										<template #content>
 											{{ event.data.fee_payer }}

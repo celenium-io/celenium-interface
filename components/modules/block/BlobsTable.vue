@@ -144,15 +144,18 @@ const handleCopy = (target) => {
 						<tr v-for="blob in blobs">
 							<td style="width: 1px">
 								<Tooltip position="start" delay="500">
-									<Outline @click="handleCopy(getNamespaceID(blob.namespace.namespace_id))" class="copyable">
-										<Flex align="center" gap="8">
-											<Icon name="blob" size="12" color="tertiary" />
+									<Flex
+										@click="handleCopy(getNamespaceID(blob.namespace.namespace_id))"
+										class="copyable"
+										align="center"
+										gap="8"
+									>
+										<Icon name="blob" size="12" color="secondary" />
 
-											<Text size="13" weight="700" color="secondary" mono>
-												{{ getNamespaceID(blob.namespace.namespace_id).slice(0, 4) }}
-											</Text>
-										</Flex>
-									</Outline>
+										<Text size="13" weight="600" color="primary">
+											{{ getNamespaceID(blob.namespace.namespace_id).slice(0, 4) }}
+										</Text>
+									</Flex>
 
 									<template #content>
 										{{ getNamespaceID(blob.namespace.namespace_id) }}

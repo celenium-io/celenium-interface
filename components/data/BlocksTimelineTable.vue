@@ -93,7 +93,7 @@ const handleCopy = (target) => {
 											<Icon
 												:name="block.height === preview.block.height ? 'check' : 'block'"
 												size="14"
-												:color="block.height === preview.block.height ? 'primary' : 'tertiary'"
+												:color="block.height === preview.block.height ? 'primary' : 'secondary'"
 											/>
 
 											<Text size="13" weight="600" color="primary">{{ comma(block.height) }}</Text>

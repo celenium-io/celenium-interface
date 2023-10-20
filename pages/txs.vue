@@ -5,9 +5,11 @@ import { DateTime } from "luxon"
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
+import Plate from "@/components/ui/Plate.vue"
 
 /** Services */
 import { comma, space } from "@/services/utils"
+import { MessageIconMap } from "@/services/constants/mapping"
 
 /** API */
 import { fetchTransactions } from "@/services/api/tx"
@@ -147,28 +149,24 @@ const handleCopy = (target) => {
 							>
 								<td style="width: 1px">
 									<Tooltip position="start">
-										<Outline @click="handleCopy(tx.hash)" class="copyable">
-											<Flex align="center" gap="8">
-												<Icon name="zap" size="14" :color="tx.status === 'success' ? 'green' : 'red'" />
+										<Flex @click="handleCopy(tx.hash)" class="copyable" align="center" gap="8">
+											<Icon name="zap" size="14" :color="tx.status === 'success' ? 'green' : 'red'" />
 
-												<template v-if="tx.hash">
-													<Text size="13" weight="700" color="secondary" mono>{{
-														tx.hash.slice(0, 4).toUpperCase()
-													}}</Text>
+											<template v-if="tx.hash">
+												<Text size="13" weight="600" color="primary">{{ tx.hash.slice(0, 4).toUpperCase() }}</Text>
 
-													<Flex align="center" gap="3">
-														<div v-for="dot in 3" class="dot" />
-													</Flex>
+												<Flex align="center" gap="3">
+													<div v-for="dot in 3" class="dot" />
+												</Flex>
 
-													<Text size="13" weight="700" color="secondary" mono>
-														{{ tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase() }}
-													</Text>
-												</template>
-												<template v-else>
-													<Text size="13" weight="700" color="secondary" mono>Genesis</Text>
-												</template>
-											</Flex>
-										</Outline>
+												<Text size="13" weight="600" color="primary">
+													{{ tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase() }}
+												</Text>
+											</template>
+											<template v-else>
+												<Text size="13" weight="600" color="primary">Genesis</Text>
+											</template>
+										</Flex>
 
 										<template #content>
 											{{ space(tx.hash).toUpperCase() }}
@@ -177,8 +175,18 @@ const handleCopy = (target) => {
 								</td>
 								<td style="width: 1px">
 									<Tooltip v-if="tx.message_types.length" position="start" textAlign="left">
-										<Flex align="center" gap="6">
-											<Text size="13" height="160" weight="600" color="primary" :class="$style.message_type">
+										<Plate>
+											<Icon
+												:name="
+													MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
+														? MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
+														: 'zap'
+												"
+												size="14"
+												color="secondary"
+											/>
+
+											<Text size="13" height="160" weight="600" color="primary" :class="$style.message_type_text">
 												{{ tx.message_types[0].replace("Msg", "") }}
 											</Text>
 											<Text
@@ -190,7 +198,7 @@ const handleCopy = (target) => {
 											>
 												+{{ tx.message_types.length - 1 }}
 											</Text>
-										</Flex>
+										</Plate>
 
 										<template #content>
 											<Flex direction="column" gap="8">
@@ -211,7 +219,7 @@ const handleCopy = (target) => {
 								<td>
 									<Outline @click.stop="router.push(`/block/${tx.height}`)">
 										<Flex align="center" gap="6">
-											<Icon name="block" size="14" color="tertiary" />
+											<Icon name="block" size="14" color="secondary" />
 
 											<Text size="13" weight="600" color="primary">{{ comma(tx.height) }}</Text>
 										</Flex>
@@ -355,18 +363,18 @@ const handleCopy = (target) => {
 	pointer-events: none;
 }
 
-.message_type {
-	max-width: 100px;
-	text-overflow: ellipsis;
-	overflow: hidden;
-}
-
 .badge {
 	border-radius: 5px;
 	background: var(--op-5);
 	box-shadow: inset 0 0 0 1px var(--op-10);
 
 	padding: 4px 6px;
+}
+
+.message_type_text {
+	max-width: 100px;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 @media (max-width: 500px) {
