@@ -132,20 +132,18 @@ const handleCopy = (target) => {
 							<tr v-for="ns in namespaces">
 								<td style="width: 1px">
 									<Tooltip position="start">
-										<Outline @click="handleCopy(ns.hash)" class="copyable">
-											<Flex align="center" gap="8">
-												<Icon name="block" size="14" color="tertiary" />
+										<Flex @click="handleCopy(ns.hash)" class="copyable" align="center" gap="8">
+											<Icon name="blob" size="14" color="secondary" />
 
-												<template v-if="ns.hash">
-													<Text size="13" weight="700" color="secondary" mono>
-														{{ ns.hash.slice(ns.hash.length - 6, ns.hash.length) }}
-													</Text>
-												</template>
-												<template v-else>
-													<Text size="13" weight="700" color="secondary" mono>Genesis</Text>
-												</template>
-											</Flex>
-										</Outline>
+											<template v-if="ns.hash">
+												<Text size="13" weight="600" color="primary">
+													{{ ns.hash.slice(ns.hash.length - 6, ns.hash.length) }}
+												</Text>
+											</template>
+											<template v-else>
+												<Text size="13" weight="700" color="secondary" mono>Genesis</Text>
+											</template>
+										</Flex>
 
 										<template #content>
 											{{ space(ns.hash) }}
@@ -236,8 +234,8 @@ const handleCopy = (target) => {
 		& tr td {
 			padding: 0;
 			padding-right: 24px;
-			padding-top: 6px;
-			padding-bottom: 6px;
+			padding-top: 12px;
+			padding-bottom: 12px;
 
 			white-space: nowrap;
 		}
