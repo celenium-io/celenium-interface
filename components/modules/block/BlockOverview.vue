@@ -152,26 +152,31 @@ const handleCopy = (target) => {
 						</Text>
 					</Flex>
 
-					<Flex align="center" justify="between" :class="$style.timing">
-						<Text size="12" weight="600" color="secondary" :class="$style.fixed_width">
-							{{
-								DateTime.fromISO(block.time).minus({ milliseconds: block.stats.block_time }).setLocale("en").toFormat("TT")
-							}}
-						</Text>
+					<Plate>
+						<Flex align="center" justify="between" wide>
+							<Text size="12" weight="600" color="secondary">
+								{{
+									DateTime.fromISO(block.time)
+										.minus({ milliseconds: block.stats.block_time })
+										.setLocale("en")
+										.toFormat("TT")
+								}}
+							</Text>
 
-						<div v-for="dot in 5" class="dot" />
+							<div v-for="dot in 5" class="dot" />
 
-						<Flex align="center" gap="6" :class="$style.fixed_width">
-							<Icon name="time" size="12" color="secondary" />
-							<Text size="12" weight="600" color="primary"> {{ (block.stats.block_time / 1_000).toFixed(2) }}s </Text>
+							<Flex align="center" gap="6">
+								<Icon name="time" size="12" color="secondary" />
+								<Text size="12" weight="600" color="primary"> {{ (block.stats.block_time / 1_000).toFixed(2) }}s </Text>
+							</Flex>
+
+							<div v-for="dot in 5" class="dot" />
+
+							<Text size="12" weight="600" color="secondary" align="right">
+								{{ DateTime.fromISO(block.time).setLocale("en").toFormat("TT") }}</Text
+							>
 						</Flex>
-
-						<div v-for="dot in 5" class="dot" />
-
-						<Text size="12" weight="600" color="secondary" align="right" :class="$style.fixed_width">
-							{{ DateTime.fromISO(block.time).setLocale("en").toFormat("TT") }}</Text
-						>
-					</Flex>
+					</Plate>
 				</Flex>
 
 				<Flex direction="column" gap="24" :class="$style.main">
@@ -375,20 +380,6 @@ const handleCopy = (target) => {
 		padding: 16px;
 
 		border-bottom: 1px solid var(--op-5);
-	}
-
-	.timing {
-		height: 28px;
-
-		border-radius: 6px;
-		background: linear-gradient(var(--op-8), var(--op-3));
-		box-shadow: inset 0 0 0 1px var(--op-5);
-
-		padding: 0 8px;
-
-		.fixed_width {
-			width: 60px;
-		}
 	}
 
 	.main {
