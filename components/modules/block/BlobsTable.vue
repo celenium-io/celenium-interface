@@ -24,6 +24,9 @@ const props = defineProps({
 	loading: {
 		type: Boolean,
 	},
+	description: {
+		type: String,
+	},
 })
 
 const router = useRouter()

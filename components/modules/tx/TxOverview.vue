@@ -230,9 +230,11 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 								<Text size="12" weight="500" color="secondary">Validator</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<Text size="12" weight="500" color="primary" mono>
-										{{ event.data.validator.slice(event.data.validator.length - 4, event.data.validator.length) }}
-									</Text>
+									<NuxtLink :to="`/address/${event.data.validator}`">
+										<Text size="12" weight="500" color="primary" mono>
+											{{ event.data.validator.slice(event.data.validator.length - 4, event.data.validator.length) }}
+										</Text>
+									</NuxtLink>
 
 									<template #content>
 										{{ event.data.validator }}
@@ -386,9 +388,11 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 								<Text size="12" weight="500" color="secondary">Delegator</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<Text size="12" weight="500" color="primary" mono>
-										{{ event.data.delegator.slice(event.data.delegator.length - 4, event.data.delegator.length) }}
-									</Text>
+									<NuxtLink :to="`/address/${event.data.delegator}`">
+										<Text size="12" weight="500" color="primary" mono>
+											{{ event.data.delegator.slice(event.data.delegator.length - 4, event.data.delegator.length) }}
+										</Text>
+									</NuxtLink>
 
 									<template #content>
 										{{ event.data.delegator }}
@@ -398,9 +402,11 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 								<Text size="12" weight="500" color="secondary">validator</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<Text size="12" weight="500" color="primary" mono>
-										{{ event.data.validator.slice(event.data.validator.length - 4, event.data.validator.length) }}
-									</Text>
+									<NuxtLink :to="`/address/${event.data.validator}`">
+										<Text size="12" weight="500" color="primary" mono>
+											{{ event.data.validator.slice(event.data.validator.length - 4, event.data.validator.length) }}
+										</Text>
+									</NuxtLink>
 
 									<template #content>
 										{{ event.data.validator }}
