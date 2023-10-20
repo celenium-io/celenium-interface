@@ -5,9 +5,11 @@ import { DateTime } from "luxon"
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 import Button from "@/components/ui/Button.vue"
+import Plate from "@/components/ui/Plate.vue"
 
 /** Services */
-import { tia, comma, space, formatBytes } from "@/services/utils"
+import { tia, comma, space } from "@/services/utils"
+import { MessageIconMap } from "@/services/constants/mapping"
 
 /** API */
 import { fetchTxsByAddressHash } from "@/services/api/address"
@@ -223,8 +225,18 @@ const handleCopy = (target) => {
 									</td>
 									<td>
 										<Tooltip position="start" textAlign="left">
-											<Flex align="center" gap="6">
-												<Text size="13" height="160" weight="600" color="primary" :class="$style.message_type">
+											<Plate>
+												<Icon
+													:name="
+														MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
+															? MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
+															: 'zap'
+													"
+													size="14"
+													color="secondary"
+												/>
+
+												<Text size="13" height="160" weight="600" color="primary" :class="$style.message_type_text">
 													{{ tx.message_types[0].replace("Msg", "") }}
 												</Text>
 												<Text
@@ -236,7 +248,7 @@ const handleCopy = (target) => {
 												>
 													+{{ tx.message_types.length - 1 }}
 												</Text>
-											</Flex>
+											</Plate>
 
 											<template #content>
 												<Flex direction="column" gap="8">
