@@ -334,7 +334,7 @@ const handleCopy = (target) => {
 					</Flex>
 
 					<!-- Pagination -->
-					<Flex v-if="filteredTransactions.length && pages > 1" align="center" gap="6">
+					<Flex v-if="filteredTransactions.length && pages > 1" align="center" gap="6" :class="$style.pagination">
 						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1"> First </Button>
 						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
 							<Icon name="arrow-narrow-left" size="12" color="primary" />
@@ -533,6 +533,10 @@ const handleCopy = (target) => {
 
 .empty {
 	padding: 16px 0;
+}
+
+.pagination {
+	padding: 0 16px 16px 16px;
 }
 
 @media (max-width: 800px) {
