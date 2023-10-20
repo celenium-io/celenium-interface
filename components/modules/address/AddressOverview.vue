@@ -285,10 +285,10 @@ const handleCopy = (target) => {
 						</table>
 					</div>
 
-					<Flex v-else align="center" justify="center" direction="column" gap="8" wide>
+					<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 						<Text size="13" weight="600" color="secondary" align="center"> No transactions </Text>
 						<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-							This block does not contain transactions of the selected type
+							This address does not contain transactions of the selected type
 						</Text>
 					</Flex>
 
@@ -470,6 +470,10 @@ const handleCopy = (target) => {
 	box-shadow: inset 0 0 0 1px var(--op-10);
 
 	padding: 4px 6px;
+}
+
+.empty {
+	padding-top: 16px;
 }
 
 @media (max-width: 800px) {
