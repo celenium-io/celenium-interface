@@ -1,15 +1,13 @@
 <script setup>
-/** Vendor */
-import { DateTime } from "luxon"
-
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 import Button from "@/components/ui/Button.vue"
-import Plate from "@/components/ui/Plate.vue"
+
+/** Shared Components */
+import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 
 /** Services */
 import { tia, comma, space } from "@/services/utils"
-import { MessageIconMap } from "@/services/constants/mapping"
 
 /** API */
 import { fetchTxsByAddressHash } from "@/services/api/address"
@@ -225,30 +223,7 @@ const handleCopy = (target) => {
 									</td>
 									<td>
 										<Tooltip position="start" textAlign="left">
-											<Plate>
-												<Icon
-													:name="
-														MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
-															? MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
-															: 'zap'
-													"
-													size="14"
-													color="secondary"
-												/>
-
-												<Text size="13" height="160" weight="600" color="primary" :class="$style.message_type_text">
-													{{ tx.message_types[0].replace("Msg", "") }}
-												</Text>
-												<Text
-													v-if="tx.message_types.length > 1"
-													size="12"
-													weight="600"
-													color="primary"
-													:class="$style.badge"
-												>
-													+{{ tx.message_types.length - 1 }}
-												</Text>
-											</Plate>
+											<MessageTypeBadge :types="tx.message_types" />
 
 											<template #content>
 												<Flex direction="column" gap="8">

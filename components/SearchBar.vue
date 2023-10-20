@@ -26,7 +26,6 @@ let history = []
 const showHistory = ref(false)
 
 let removeOutside = null
-const trap = ref({})
 const itemsEl = ref(null)
 
 onMounted(() => {
@@ -124,7 +123,9 @@ const onFocus = () => {
 }
 
 const handleBlur = () => {
-	if (removeOutside) removeOutside()
+	if (removeOutside) {
+		removeOutside()
+	}
 
 	isActive.value = false
 	showHistory.value = false

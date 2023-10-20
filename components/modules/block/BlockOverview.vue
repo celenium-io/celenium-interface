@@ -5,11 +5,13 @@ import { DateTime } from "luxon"
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 import Button from "@/components/ui/Button.vue"
-import Plate from "@/components/ui/Plate.vue"
+import Badge from "@/components/ui/Badge.vue"
+
+/** Shared Components */
+import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 
 /** Services */
 import { tia, comma, space, formatBytes } from "@/services/utils"
-import { MessageIconMap } from "@/services/constants/mapping"
 
 /** API */
 import { fetchTransactionsByBlock } from "@/services/api/tx"
@@ -152,7 +154,7 @@ const handleCopy = (target) => {
 						</Text>
 					</Flex>
 
-					<Plate>
+					<Badge>
 						<Flex align="center" justify="between" wide>
 							<Text size="12" weight="600" color="secondary">
 								{{
@@ -176,7 +178,7 @@ const handleCopy = (target) => {
 								{{ DateTime.fromISO(block.time).setLocale("en").toFormat("TT") }}</Text
 							>
 						</Flex>
-					</Plate>
+					</Badge>
 				</Flex>
 
 				<Flex direction="column" gap="24" :class="$style.main">
@@ -271,30 +273,7 @@ const handleCopy = (target) => {
 									</td>
 									<td>
 										<Tooltip position="start" textAlign="left">
-											<Plate>
-												<Icon
-													:name="
-														MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
-															? MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
-															: 'zap'
-													"
-													size="14"
-													color="secondary"
-												/>
-
-												<Text size="13" height="160" weight="600" color="primary" :class="$style.message_type_text">
-													{{ tx.message_types[0].replace("Msg", "") }}
-												</Text>
-												<Text
-													v-if="tx.message_types.length > 1"
-													size="12"
-													weight="600"
-													color="primary"
-													:class="$style.badge"
-												>
-													+{{ tx.message_types.length - 1 }}
-												</Text>
-											</Plate>
+											<MessageTypeBadge :types="tx.message_types" />
 
 											<template #content>
 												<Flex direction="column" gap="8">

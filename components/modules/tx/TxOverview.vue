@@ -3,8 +3,10 @@
 import { DateTime } from "luxon"
 
 /** UI */
-import Plate from "@/components/ui/Plate.vue"
 import Tooltip from "~/components/ui/Tooltip.vue"
+
+/** Shared Components */
+import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 
 /** Services */
 import { comma, tia } from "@/services/utils"
@@ -83,24 +85,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 						<Flex direction="column" gap="10" :class="$style.key_value">
 							<Text size="12" weight="600" color="secondary">Type</Text>
 
-							<Plate>
-								<Icon
-									:name="
-										MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
-											? MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
-											: 'zap'
-									"
-									size="14"
-									color="secondary"
-								/>
-
-								<Text size="13" height="160" weight="600" color="primary" :class="$style.message_type_text">
-									{{ tx.message_types[0].replace("Msg", "") }}
-								</Text>
-								<Text v-if="tx.message_types.length > 1" size="12" weight="600" color="primary" :class="$style.badge">
-									+{{ tx.message_types.length - 1 }}
-								</Text>
-							</Plate>
+							<MessageTypeBadge :types="tx.message_types" />
 						</Flex>
 
 						<template #content>
