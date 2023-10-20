@@ -392,6 +392,8 @@ const handleCopy = (target) => {
 	border-radius: 4px 4px 8px 4px;
 	background: var(--card-background);
 
+	padding-bottom: 12px;
+
 	& table {
 		width: 100%;
 		height: fit-content;
