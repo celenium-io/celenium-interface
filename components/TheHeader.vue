@@ -103,9 +103,9 @@
 
 	.container {
 		flex-direction: column;
-		gap: 16px;
+		gap: 24px;
 
-		margin: 12px;
+		margin: 24px 12px 12px 12px;
 	}
 
 	.empty_icon {
