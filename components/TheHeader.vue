@@ -1,3 +1,28 @@
+<script setup>
+const route = useRoute()
+
+const isActive = (link) => {
+	const splittedPath = route.path.split("/").filter(Boolean)
+
+	switch (link) {
+		case "index":
+			return route.path === "/"
+
+		case "txs":
+			return splittedPath.includes("tx") || splittedPath.includes("txs")
+
+		case "blocks":
+			return splittedPath.includes("block") || splittedPath.includes("blocks")
+
+		case "namespaces":
+			return splittedPath.includes("namespace") || splittedPath.includes("namespaces")
+
+		default:
+			break
+	}
+}
+</script>
+
 <template>
 	<Flex tag="header" justify="center" wide :class="$style.wrapper">
 		<Flex align="center" justify="between" wide :class="$style.container">
@@ -8,19 +33,19 @@
 			</NuxtLink>
 
 			<Flex justify="center" align="center" wrap="wrap" gap="8" :class="$style.links">
-				<NuxtLink to="/" :activeClass="$style.active_link" :class="$style.link">
+				<NuxtLink to="/" :class="[$style.link, isActive('index') && $style.active]">
 					<Text size="13" weight="600" color="tertiary">Explorer</Text>
 				</NuxtLink>
 
-				<NuxtLink to="/txs" :activeClass="$style.active_link" :class="$style.link">
+				<NuxtLink to="/txs" :class="[$style.link, isActive('txs') && $style.active]">
 					<Text size="13" weight="600" color="tertiary">Transactions</Text>
 				</NuxtLink>
 
-				<NuxtLink to="/blocks" :activeClass="$style.active_link" :class="$style.link">
+				<NuxtLink to="/blocks" :class="[$style.link, isActive('blocks') && $style.active]">
 					<Text size="13" weight="600" color="tertiary">Blocks</Text>
 				</NuxtLink>
 
-				<NuxtLink to="/namespaces" :activeClass="$style.active_link" :class="$style.link">
+				<NuxtLink to="/namespaces" :class="[$style.link, isActive('namespaces') && $style.active]">
 					<Text size="13" weight="600" color="tertiary">Namespaces</Text>
 				</NuxtLink>
 			</Flex>
@@ -78,21 +103,21 @@
 	& span {
 		transition: all 0.1s ease;
 	}
-}
 
-.active_link {
-	background: rgba(255, 255, 255, 90%);
-
-	&:hover {
+	&.active {
 		background: rgba(255, 255, 255, 90%);
+
+		&:hover {
+			background: rgba(255, 255, 255, 90%);
+
+			& span {
+				color: var(--txt-black);
+			}
+		}
 
 		& span {
 			color: var(--txt-black);
 		}
-	}
-
-	& span {
-		color: var(--txt-black);
 	}
 }
 
