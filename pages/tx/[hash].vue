@@ -3,11 +3,8 @@
 import TxOverview from "@/components/modules/tx/TxOverview.vue"
 import BlobsTable from "@/components/modules/block/BlobsTable.vue"
 
-/** Services */
-import { comma } from "@/services/utils"
-
 /** API */
-import { fetchTxByHash, fetchTxMessages, fetchTxEvents } from "@/services/api/tx"
+import { fetchTxByHash } from "@/services/api/tx"
 
 const route = useRoute()
 const router = useRouter()
@@ -82,7 +79,12 @@ useHead({
 			:items="[
 				{ link: '/', name: 'Explore' },
 				{ link: '/txs', name: 'Transactions' },
-				{ link: route.fullPath, name: `Transaction ${tx.hash.slice(tx.hash.length - 4, tx.hash.length)}` },
+				{
+					link: route.fullPath,
+					name: `Transaction ${tx.hash.toUpperCase().slice(tx.hash.length - 4, tx.hash.length)} ••• ${tx.hash
+						.toUpperCase()
+						.slice(0, 4)}`,
+				},
 			]"
 			:class="$style.breadcrumbs"
 		/>
