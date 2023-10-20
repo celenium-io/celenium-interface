@@ -302,9 +302,11 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 									<Text size="12" weight="500" color="secondary">Acc Seq</Text>
 
 									<Tooltip :class="$style.tooltip">
-										<Text size="12" weight="500" color="primary" mono>
-											{{ event.data.acc_seq.slice(event.data.acc_seq.length - 4, event.data.acc_seq.length) }}
-										</Text>
+										<NuxtLink :to="`/address/${event.data.acc_seq}`">
+											<Text size="12" weight="500" color="primary" mono>
+												{{ event.data.acc_seq.slice(event.data.acc_seq.length - 4, event.data.acc_seq.length) }}
+											</Text>
+										</NuxtLink>
 
 										<template #content>
 											{{ event.data.acc_seq }}
@@ -353,9 +355,11 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 									<Text size="12" weight="500" color="secondary">Sender</Text>
 
 									<Tooltip :class="$style.tooltip">
-										<Text size="12" weight="500" color="primary" mono>
-											{{ event.data.sender.slice(event.data.sender.length - 4, event.data.sender.length) }}
-										</Text>
+										<NuxtLink :to="`/address/${event.data.sender}`">
+											<Text size="12" weight="500" color="primary" mono>
+												{{ event.data.sender.slice(event.data.sender.length - 4, event.data.sender.length) }}
+											</Text>
+										</NuxtLink>
 
 										<template #content>
 											{{ event.data.sender }}
