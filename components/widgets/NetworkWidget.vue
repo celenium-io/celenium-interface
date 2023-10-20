@@ -29,7 +29,7 @@ const pos = (100 * (tph - lowLevel)) / (highLevel - lowLevel)
 						<Flex align="center" gap="6">
 							<Icon name="zap-circle" size="20" color="primary" />
 							<Flex gap="4" align="end">
-								<Text size="20" weight="600" color="primary">{{ tph > 100 ? tph.toFixed(0) : tph.toFixed(2) }}</Text>
+								<Text size="20" weight="600" color="primary">{{ tph.toFixed(0) }}</Text>
 								<Text size="14" weight="700" color="tertiary">TPH</Text>
 							</Flex>
 						</Flex>
