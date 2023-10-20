@@ -434,7 +434,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 								</Text>
 							</Flex>
 
-							<Text size="11" weight="600" color="support" mono>
+							<Text size="12" weight="600" color="tertiary" mono>
 								{{ event.type }}
 							</Text>
 						</Flex>
