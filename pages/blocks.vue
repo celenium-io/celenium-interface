@@ -143,7 +143,7 @@ const handleCopy = (target) => {
 									}}</Text>
 								</td>
 								<td>
-									<Tooltip delay="500">
+									<Tooltip v-if="block.hash" delay="500">
 										<template #default>
 											<Flex @click.stop="handleCopy(block.hash)" align="center" gap="6" class="copyable">
 												<Text size="13" weight="600" color="secondary">{{ block.hash.slice(0, 4) }}</Text>
@@ -160,9 +160,10 @@ const handleCopy = (target) => {
 
 										<template #content> {{ space(block.hash) }} </template>
 									</Tooltip>
+									<Text v-else size="13" weight="600" color="secondary">Genesis</Text>
 								</td>
 								<td>
-									<Tooltip delay="500">
+									<Tooltip v-if="block.hash" delay="500">
 										<template #default>
 											<Flex @click.stop="handleCopy(block.proposer_address)" align="center" gap="6" class="copyable">
 												<Text size="13" weight="600" color="secondary">{{
@@ -184,6 +185,7 @@ const handleCopy = (target) => {
 
 										<template #content> {{ space(block.proposer_address) }} </template>
 									</Tooltip>
+									<Text v-else size="13" weight="600" color="secondary">Genesis</Text>
 								</td>
 								<td>
 									<Text size="13" weight="600" color="primary">
