@@ -73,7 +73,10 @@ const handleDownload = () => {
 
 	const a = window.document.createElement("a")
 	a.href = window.URL.createObjectURL(new Blob([byteArray], { type: "application/octet-stream" }))
-	a.download = `${props.item.namespace.hash}.bin`
+	a.download = `${getNamespaceID(props.item.namespace.namespace_id)}_${props.item.data.ShareCommitments[0].slice(
+		props.item.data.ShareCommitments[0].length - 8,
+		props.item.data.ShareCommitments[0].length,
+	)}.bin`
 	document.body.appendChild(a)
 	a.click()
 	document.body.removeChild(a)
