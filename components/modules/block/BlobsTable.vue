@@ -242,8 +242,8 @@ const handleCopy = (target) => {
 
 			<Flex v-else align="center" justify="center" direction="column" gap="8" wide>
 				<Text size="13" weight="600" color="secondary" align="center"> No blobs </Text>
-				<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-					This height does not contain blobs
+				<Text size="12" weight="500" height="160" color="tertiary" align="center">
+					{{ description }}
 				</Text>
 			</Flex>
 		</Flex>

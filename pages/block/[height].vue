@@ -88,7 +88,7 @@ useHead({
 		<Flex v-if="block" direction="column" gap="40">
 			<BlockOverview :block="block" />
 
-			<BlobsTable :height="block.height" />
+			<BlobsTable :height="block.height" description="This height does not contain blobs" />
 		</Flex>
 	</Flex>
 </template>

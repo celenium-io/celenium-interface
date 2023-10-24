@@ -105,7 +105,7 @@ useHead({
 		<Flex v-if="tx" direction="column" gap="40">
 			<TxOverview :tx="tx" />
 
-			<BlobsTable :height="tx.height" />
+			<BlobsTable :height="tx.height" description="This transaction does not contain any blobs" />
 		</Flex>
 	</Flex>
 </template>
