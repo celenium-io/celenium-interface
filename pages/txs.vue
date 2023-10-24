@@ -118,7 +118,7 @@ const handleCopy = (target) => {
 					</Button>
 
 					<Button type="secondary" size="mini" disabled>
-						<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
+						<Text size="12" weight="600" color="primary"> {{ comma(page) }} of {{ comma(pages) }} </Text>
 					</Button>
 
 					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
