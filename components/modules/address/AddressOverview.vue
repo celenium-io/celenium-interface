@@ -147,7 +147,7 @@ const handleCopy = (target) => {
 					<Flex direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Balance</Text>
 
-						<Text size="13" weight="600" color="primary">{{ tia(address.balance.value) }} TIA</Text>
+						<Text size="13" weight="600" color="primary">{{ comma(tia(address.balance.value)) }} TIA</Text>
 					</Flex>
 
 					<Flex direction="column" gap="16">
