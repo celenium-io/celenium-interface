@@ -8,7 +8,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
-import { comma, formatBytes } from "@/services/utils"
+import { comma, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
 import { fetchRecentNamespaces } from "@/services/api/namespace"
@@ -64,7 +64,7 @@ const handleCopy = (target) => {
 										<Icon name="blob" size="14" color="secondary" />
 
 										<Text size="13" weight="600" color="primary">
-											{{ ns.hash.slice(ns.hash.length - 6, ns.hash.length) }}
+											{{ getNamespaceID(ns.namespace_id).slice(-4) }}
 										</Text>
 									</Flex>
 
