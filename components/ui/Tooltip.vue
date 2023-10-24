@@ -133,6 +133,8 @@ watch(
 )
 
 const handleMouseEnter = () => {
+	if (props.disabled) return
+
 	if (props.delay) {
 		delayedHover.value = setTimeout(() => {
 			isHovered.value = true

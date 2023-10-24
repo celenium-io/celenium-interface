@@ -146,11 +146,11 @@ const handleCopy = (target) => {
 							<tr
 								v-for="tx in transactions"
 								:class="findPFB && !tx.message_types.includes('MsgPayForBlobs') && $style.hide"
-								@click="router.push(`/tx/${tx.hash}`)"
+								@click="tx.hash && router.push(`/tx/${tx.hash}`)"
 							>
 								<td style="width: 1px">
-									<Tooltip position="start">
-										<Flex @click="handleCopy(tx.hash)" class="copyable" align="center" gap="8">
+									<Tooltip :disabled="!tx.hash" position="start">
+										<Flex @click.stop="handleCopy(tx.hash)" class="copyable" align="center" gap="8">
 											<Icon name="zap" size="14" :color="tx.status === 'success' ? 'green' : 'red'" />
 
 											<template v-if="tx.hash">
