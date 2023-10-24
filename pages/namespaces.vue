@@ -1,13 +1,10 @@
 <script setup>
-/** Vendor */
-import { DateTime } from "luxon"
-
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { space, formatBytes } from "@/services/utils"
+import { space, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
 import { fetchNamespaces, fetchNamespacesCount } from "@/services/api/namespace"
@@ -137,7 +134,7 @@ const handleCopy = (target) => {
 
 											<template v-if="ns.hash">
 												<Text size="13" weight="600" color="primary">
-													{{ ns.hash.slice(ns.hash.length - 6, ns.hash.length) }}
+													{{ getNamespaceID(ns.namespace_id).slice(-4) }}
 												</Text>
 											</template>
 											<template v-else>
