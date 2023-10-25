@@ -4,7 +4,7 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { space, formatBytes, getNamespaceID } from "@/services/utils"
+import { space, formatBytes, comma, getNamespaceID } from "@/services/utils"
 
 /** API */
 import { fetchNamespaces, fetchNamespacesCount } from "@/services/api/namespace"
@@ -162,7 +162,7 @@ const handleCopy = (target) => {
 								</td>
 								<td>
 									<Flex>
-										<Text size="13" weight="600" color="primary">{{ ns.pfb_count }}</Text>
+										<Text size="13" weight="600" color="primary">{{ comma(ns.pfb_count) }}</Text>
 									</Flex>
 								</td>
 							</tr>
