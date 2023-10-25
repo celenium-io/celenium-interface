@@ -31,9 +31,9 @@ const head = computed(() => appStore.head)
 						<Icon name="coins" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Supply:</Text>
-							<Text size="12" weight="600" noWrap :class="$style.value"
-								>{{ abbreviate(head.total_supply / 1_000_000) }} TIA</Text
-							>
+							<Text size="12" weight="600" noWrap :class="$style.value">
+								{{ abbreviate(head.total_supply / 1_000_000, 2) }} TIA
+							</Text>
 						</Flex>
 					</Flex>
 
