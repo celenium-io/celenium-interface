@@ -122,12 +122,14 @@ const handleCopy = (target) => {
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Namespace</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Size</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Version</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Pay For Blobs</Text></th>
 							</tr>
 						</thead>
 
 						<tbody>
 							<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.hash}`)">
-								<td style="width: 1px">
+								<td>
 									<Tooltip position="start">
 										<Flex @click="handleCopy(ns.hash)" class="copyable" align="center" gap="8">
 											<Icon name="blob" size="14" color="secondary" />
@@ -147,21 +149,20 @@ const handleCopy = (target) => {
 										</template>
 									</Tooltip>
 								</td>
-								<!-- <td>
-									<NuxtLink :to="`/block/${ns.height}`">
-										<Outline>
-											<Flex align="center" gap="6">
-												<Icon name="block" size="14" color="tertiary" />
-
-												<Text size="13" weight="600" color="primary">{{ comma(ns.height) }}</Text>
-											</Flex>
-										</Outline>
-									</NuxtLink>
-								</td> -->
 								<td>
 									<Flex align="center" gap="6">
 										<Text size="13" weight="600" color="primary">{{ formatBytes(ns.size) }}</Text>
 										<Text size="13" weight="600" color="tertiary">({{ ns.pfb_count }})</Text>
+									</Flex>
+								</td>
+								<td>
+									<Flex>
+										<Text size="13" weight="600" color="primary">{{ ns.version }}</Text>
+									</Flex>
+								</td>
+								<td>
+									<Flex>
+										<Text size="13" weight="600" color="primary">{{ ns.pfb_count }}</Text>
 									</Flex>
 								</td>
 							</tr>
