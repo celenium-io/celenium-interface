@@ -29,38 +29,36 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-	<NuxtLink :to="`/block/${head.last_height}`">
-		<Flex direction="column" justify="between" wide :class="$style.wrapper">
-			<Flex justify="between">
-				<Flex direction="column" gap="8">
-					<Flex align="center" gap="4">
-						<Text size="16" weight="600" color="primary"> Block </Text>
-						<Text size="16" weight="600" color="green"> {{ comma(lastBlock.height + 1) }}</Text>
-					</Flex>
-
-					<Text size="13" weight="500" color="tertiary"> Chain Mocha-4 </Text>
+	<Flex direction="column" justify="between" wide :class="$style.wrapper">
+		<Flex justify="between">
+			<Flex direction="column" gap="8">
+				<Flex align="center" gap="4">
+					<Text size="16" weight="600" color="primary"> Block </Text>
+					<Text size="16" weight="600" color="green"> {{ comma(lastBlock.height + 1) }}</Text>
 				</Flex>
 
-				<Flex direction="column" gap="8" align="end">
-					<Text size="14" weight="600" color="primary"> {{ (lastBlock.stats.block_time / 1_000).toFixed(2) }}s </Text>
-					<Text size="12" weight="500" color="tertiary"> Previous Block </Text>
-				</Flex>
+				<Text size="13" weight="500" color="tertiary"> Chain Mocha-4 </Text>
 			</Flex>
 
-			<Flex align="center" justify="between" :class="$style.bar">
-				<Icon name="block" size="16" color="primary" />
-
-				<div v-for="item in 14" :class="$style.dot" />
-
-				<Flex justify="end" :class="$style.timer">
-					<Text size="13" weight="600" color="primary">{{ blockProgress }}</Text>
-					<Text size="13" weight="600" color="tertiary">s</Text>
-				</Flex>
-
-				<div :style="{ transform: `translateX(${-(100 - (100 * blockProgress) / baseBlockTime)}%)` }" :class="$style.fill" />
+			<Flex direction="column" gap="8" align="end">
+				<Text size="14" weight="600" color="primary"> {{ (lastBlock.stats.block_time / 1_000).toFixed(2) }}s </Text>
+				<Text size="12" weight="500" color="tertiary"> Previous Block </Text>
 			</Flex>
 		</Flex>
-	</NuxtLink>
+
+		<Flex align="center" justify="between" :class="$style.bar">
+			<Icon name="block" size="16" color="primary" />
+
+			<div v-for="item in 14" :class="$style.dot" />
+
+			<Flex justify="end" :class="$style.timer">
+				<Text size="13" weight="600" color="primary">{{ blockProgress }}</Text>
+				<Text size="13" weight="600" color="tertiary">s</Text>
+			</Flex>
+
+			<div :style="{ transform: `translateX(${-(100 - (100 * blockProgress) / baseBlockTime)}%)` }" :class="$style.fill" />
+		</Flex>
+	</Flex>
 </template>
 
 <style module>
