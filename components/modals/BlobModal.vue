@@ -7,7 +7,7 @@ import Button from "@/components/ui/Button.vue"
 import { formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
-import { fetchNamespaceByHash } from "@/services/api/namespace"
+import { fetchNamespaceByMetadata } from "@/services/api/namespace"
 
 /** Store */
 import { useNotificationsStore } from "@/store/notifications"
@@ -44,7 +44,7 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
-			const { data } = await fetchNamespaceByHash({
+			const { data } = await fetchNamespaceByMetadata({
 				hash: props.item.namespace.hash,
 				height: props.item.height,
 				commitment: props.item.data.ShareCommitments[0],

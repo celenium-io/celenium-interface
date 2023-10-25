@@ -38,7 +38,32 @@ export const fetchRecentNamespaces = async () => {
 	}
 }
 
-export const fetchNamespaceByHash = async ({ hash, height, commitment }) => {
+export const fetchNamespaceByHash = async (hash) => {
+	try {
+		const url = new URL(`${Server.API}/namespace_by_hash/${hash}`)
+
+		const data = await useFetch(encodeURI(url.href))
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchNamespaceMessagesById = async ({ id, version, limit, offset }) => {
+	try {
+		const url = new URL(`${Server.API}/namespace/${id}/${version}/messages`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+
+		const data = await useFetch(encodeURI(url.href))
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchNamespaceByMetadata = async ({ hash, height, commitment }) => {
 	try {
 		const url = new URL(`${Server.API}/namespace_by_hash/${hash}/${height}/${commitment}`)
 

@@ -126,7 +126,7 @@ const handleCopy = (target) => {
 						</thead>
 
 						<tbody>
-							<tr v-for="ns in namespaces">
+							<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.hash}`)">
 								<td style="width: 1px">
 									<Tooltip position="start">
 										<Flex @click="handleCopy(ns.hash)" class="copyable" align="center" gap="8">
@@ -198,10 +198,10 @@ const handleCopy = (target) => {
 }
 
 .table {
-	border-radius: 4px;
+	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 
-	padding: 16px 16px 12px 16px;
+	padding-bottom: 12px;
 
 	transition: all 0.2s ease;
 
@@ -214,6 +214,16 @@ const handleCopy = (target) => {
 		& tbody {
 			& tr {
 				cursor: pointer;
+
+				transition: all 0.05s ease;
+
+				&:hover {
+					background: var(--op-5);
+				}
+
+				&:active {
+					background: var(--op-8);
+				}
 			}
 		}
 
@@ -221,10 +231,15 @@ const handleCopy = (target) => {
 			text-align: left;
 			padding: 0;
 			padding-right: 16px;
+			padding-top: 16px;
 			padding-bottom: 8px;
 
 			& span {
 				display: flex;
+			}
+
+			&:first-child {
+				padding-left: 16px;
 			}
 		}
 
@@ -235,6 +250,10 @@ const handleCopy = (target) => {
 			padding-bottom: 12px;
 
 			white-space: nowrap;
+
+			&:first-child {
+				padding-left: 16px;
+			}
 		}
 	}
 }

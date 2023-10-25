@@ -60,34 +60,26 @@ appStore.latestBlocks = blocks.value
 </script>
 
 <template>
-	<Flex justify="center" wide :class="$style.wrapper">
-		<Flex direction="column" wide :class="$style.container">
-			<Flex direction="column" gap="20" :class="$style.main">
-				<SearchBar />
+	<Flex direction="column" wide :class="$style.wrapper">
+		<Flex direction="column" gap="20" :class="$style.main">
+			<SearchBar />
 
-				<Widgets :class="$style.widgets" />
-			</Flex>
-
-			<Flex direction="column" gap="40">
-				<Flex gap="20" :class="$style.small_tables">
-					<RecentNamespacesTable />
-					<LatestPFBTable />
-				</Flex>
-
-				<BlocksTimelineTable />
-			</Flex>
+			<Widgets :class="$style.widgets" />
 		</Flex>
 
-		<div :class="$style.bg" />
+		<Flex direction="column" gap="40">
+			<Flex gap="20" :class="$style.small_tables">
+				<RecentNamespacesTable />
+				<LatestPFBTable />
+			</Flex>
+
+			<BlocksTimelineTable />
+		</Flex>
 	</Flex>
 </template>
 
 <style module>
 .wrapper {
-	position: relative;
-}
-
-.container {
 	max-width: calc(var(--base-width) + 48px);
 
 	padding: 0 24px;
@@ -96,18 +88,6 @@ appStore.latestBlocks = blocks.value
 
 .main {
 	padding: 60px 0;
-}
-
-.bg {
-	position: absolute;
-	top: 28px;
-	left: 40px;
-	right: 40px;
-	height: 400px;
-	z-index: -1;
-
-	background-image: radial-gradient(circle at 2px 2px, var(--op-5) 2px, transparent 0);
-	background-size: 48px 48px;
 }
 
 @media (max-width: 1100px) {

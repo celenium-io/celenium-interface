@@ -67,8 +67,8 @@ const isActive = (link) => {
 }
 
 .logo {
-	background: linear-gradient(225deg, #1e804d, #022312);
-	box-shadow: inset 0 0 0 2px var(--op-10);
+	background: linear-gradient(225deg, #1e804d, #093a21);
+	box-shadow: inset 0 0 0 1px var(--op-10);
 	cursor: pointer;
 	border-radius: 8px;
 
