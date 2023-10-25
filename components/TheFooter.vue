@@ -50,6 +50,9 @@ const handleChangeTheme = () => {
 				<NuxtLink to="/namespaces" :class="$style.link">
 					<Text size="12" weight="500" color="tertiary"> Namespaces </Text>
 				</NuxtLink>
+				<NuxtLink to="/addresses" :class="$style.link">
+					<Text size="12" weight="500" color="tertiary"> Addresses </Text>
+				</NuxtLink>
 
 				<Icon
 					@click="handleChangeTheme"

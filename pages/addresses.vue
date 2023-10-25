@@ -239,8 +239,8 @@ const handleCopy = (target) => {
 		& tr td {
 			padding: 0;
 			padding-right: 24px;
-			padding-top: 12px;
-			padding-bottom: 12px;
+			padding-top: 10px;
+			padding-bottom: 10px;
 
 			white-space: nowrap;
 
