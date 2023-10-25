@@ -71,13 +71,10 @@ const head = computed(() => appStore.head)
 				</Tooltip>
 			</Flex>
 
-			<!-- <Flex align="center" gap="6" :class="$style.stat">
-				<Icon name="price" size="12" color="tertiary" :class="$style.icon" />
-				<Flex align="center" gap="4">
-					<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">TIA:</Text>
-					<Text size="12" weight="600" noWrap :class="$style.value">TBD</Text>
-				</Flex>
-			</Flex> -->
+			<Flex align="center" gap="6">
+				<Icon name="globe" size="12" color="tertiary" />
+				<Text size="12" weight="500" color="tertiary"> Mocha-4 </Text>
+			</Flex>
 		</Flex>
 	</Flex>
 </template>
