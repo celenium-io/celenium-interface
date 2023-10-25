@@ -17,6 +17,8 @@ import { fetchRecentNamespaces } from "@/services/api/namespace"
 import { useNotificationsStore } from "@/store/notifications"
 const notificationsStore = useNotificationsStore()
 
+const router = useRouter()
+
 const isLoading = ref(true)
 const namespaces = ref([])
 
@@ -57,10 +59,10 @@ const handleCopy = (target) => {
 					</thead>
 
 					<tbody>
-						<tr v-for="ns in namespaces">
+						<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.hash}`)">
 							<td style="width: 1px">
 								<Tooltip position="start" delay="500">
-									<Flex @click="handleCopy(ns.hash)" class="copyable" align="center" gap="8">
+									<Flex @click.stop="handleCopy(getNamespaceID(ns.namespace_id))" class="copyable" align="center" gap="8">
 										<Icon name="blob" size="14" color="secondary" />
 
 										<Text size="13" weight="600" color="primary">
@@ -72,7 +74,7 @@ const handleCopy = (target) => {
 								</Tooltip>
 							</td>
 							<td>
-								<NuxtLink :to="`/block/${ns.height}`">
+								<NuxtLink :to="`/block/${ns.height}`" @click.stop>
 									<Outline>
 										<Flex align="center" gap="6">
 											<Icon name="block" size="14" color="secondary" />
@@ -109,10 +111,12 @@ const handleCopy = (target) => {
 				</Text>
 			</Flex>
 
-			<Button link="/namespaces" type="secondary" size="small" wide>
-				<Text size="12" weight="600" color="primary">View all namespaces</Text>
-				<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
-			</Button>
+			<div :class="$style.bottom">
+				<Button link="/namespaces" type="secondary" size="small" wide>
+					<Text size="12" weight="600" color="primary">View all namespaces</Text>
+					<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
+				</Button>
+			</div>
 		</Flex>
 	</Flex>
 </template>
@@ -131,17 +135,37 @@ const handleCopy = (target) => {
 	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 
-	padding: 16px;
-
 	& table {
 		width: 100%;
 
 		border-spacing: 0px;
 
+		& tbody {
+			& tr {
+				cursor: pointer;
+
+				transition: all 0.05s ease;
+
+				&:hover {
+					background: var(--op-5);
+				}
+
+				&:active {
+					background: var(--op-8);
+				}
+			}
+		}
+
 		& tr th {
 			text-align: left;
 			padding: 0;
+			padding-right: 16px;
+			padding-top: 16px;
 			padding-bottom: 8px;
+
+			&:first-child {
+				padding-left: 16px;
+			}
 
 			& span {
 				display: flex;
@@ -155,8 +179,16 @@ const handleCopy = (target) => {
 			padding-bottom: 6px;
 
 			white-space: nowrap;
+
+			&:first-child {
+				padding-left: 16px;
+			}
 		}
 	}
+}
+
+.bottom {
+	padding: 0 16px 16px 16px;
 }
 
 .table_scroller {

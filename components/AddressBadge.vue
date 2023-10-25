@@ -8,7 +8,7 @@ defineProps({
 </script>
 
 <template>
-	<NuxtLink :to="`/address/${hash}`">
+	<NuxtLink :to="`/address/${hash}`" @click.stop>
 		<Flex align="center" gap="6">
 			<template v-if="hash.startsWith('celestiavaloper')">
 				<Text size="13" weight="600" color="primary"> celestiavaloper </Text>

@@ -144,7 +144,7 @@ const handleCopy = (target) => {
 					</thead>
 
 					<tbody>
-						<tr v-for="blob in blobs">
+						<tr v-for="blob in blobs" @click="router.push(`/namespace/${blob.namespace.hash}`)">
 							<td style="width: 1px">
 								<Tooltip position="start" delay="500">
 									<Flex
@@ -156,7 +156,7 @@ const handleCopy = (target) => {
 										<Icon name="blob" size="12" color="secondary" />
 
 										<Text size="13" weight="600" color="primary">
-											{{ getNamespaceID(blob.namespace.namespace_id).slice(0, 4) }}
+											{{ getNamespaceID(blob.namespace.namespace_id).slice(-4) }}
 										</Text>
 									</Flex>
 
@@ -229,7 +229,7 @@ const handleCopy = (target) => {
 								<Text size="13" weight="600" color="primary">{{ blob.namespace.version }}</Text>
 							</td>
 							<td style="width: 1px">
-								<Button @click="handleViewBlob(blob)" type="secondary" size="mini">View</Button>
+								<Button @click.stop="handleViewBlob(blob)" type="secondary" size="mini">View</Button>
 							</td>
 						</tr>
 					</tbody>
@@ -270,19 +270,40 @@ const handleCopy = (target) => {
 	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 
-	padding: 16px;
-
 	& table {
 		width: 100%;
 		height: fit-content;
 
 		border-spacing: 0px;
 
+		padding-bottom: 12px;
+
+		& tbody {
+			& tr {
+				cursor: pointer;
+
+				transition: all 0.05s ease;
+
+				&:hover {
+					background: var(--op-5);
+				}
+
+				&:active {
+					background: var(--op-8);
+				}
+			}
+		}
+
 		& tr th {
 			text-align: left;
 			padding: 0;
 			padding-right: 16px;
+			padding-top: 16px;
 			padding-bottom: 8px;
+
+			&:first-child {
+				padding-left: 16px;
+			}
 
 			& span {
 				display: flex;
@@ -296,6 +317,10 @@ const handleCopy = (target) => {
 			padding-bottom: 6px;
 
 			white-space: nowrap;
+
+			&:first-child {
+				padding-left: 16px;
+			}
 		}
 	}
 }
