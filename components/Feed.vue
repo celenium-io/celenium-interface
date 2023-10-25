@@ -62,7 +62,7 @@ const head = computed(() => appStore.head)
 						<Flex align="center" gap="4">
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Fees:</Text>
 							<Text size="12" weight="600" noWrap :class="$style.value">
-								{{ comma(parseInt(head.total_fee / 1_000_000)) }} TIA
+								{{ abbreviate(parseInt(head.total_fee / 1_000_000)) }} TIA
 							</Text>
 						</Flex>
 					</Flex>
