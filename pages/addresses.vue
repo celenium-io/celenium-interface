@@ -4,52 +4,52 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { space, formatBytes, getNamespaceID } from "@/services/utils"
+import { comma, tia } from "@/services/utils"
 
 /** API */
-import { fetchNamespaces, fetchNamespacesCount } from "@/services/api/namespace"
+import { fetchAddresses, fetchAddressesCount } from "@/services/api/address"
 
 /** Store */
 import { useNotificationsStore } from "@/store/notifications"
 const notificationsStore = useNotificationsStore()
 
 useHead({
-	title: "All Namespaces - Celestia Explorer",
+	title: "All Addresses - Celestia Explorer",
 })
 
 const route = useRoute()
 const router = useRouter()
 
 const isRefetching = ref(false)
-const namespaces = ref([])
+const addresses = ref([])
 const count = ref(0)
 
-const { data: namespacesCount } = await fetchNamespacesCount()
-count.value = namespacesCount.value
+const { data: addressesCount } = await fetchAddressesCount()
+count.value = addressesCount.value
 
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
 const pages = ref(Math.ceil(count.value / 20))
 
-const getNamespaces = async () => {
+const getAddresses = async () => {
 	isRefetching.value = true
 
-	const { data } = await fetchNamespaces({
+	const { data } = await fetchAddresses({
 		limit: 20,
 		offset: (page.value - 1) * 20,
 		sort: "desc",
 	})
-	namespaces.value = data.value
+	addresses.value = data.value
 
 	isRefetching.value = false
 }
 
-getNamespaces()
+getAddresses()
 
-/** Refetch namespaces */
+/** Refetch addresses */
 watch(
 	() => page.value,
 	async () => {
-		getNamespaces()
+		getAddresses()
 
 		router.replace({ query: { page: page.value } })
 	},
@@ -86,7 +86,7 @@ const handleCopy = (target) => {
 		<Breadcrumbs
 			:items="[
 				{ link: '/', name: 'Explore' },
-				{ link: '/namespaces', name: `Namespaces` },
+				{ link: '/addresses', name: `Addresses` },
 			]"
 			:class="$style.breadcrumbs"
 		/>
@@ -94,8 +94,8 @@ const handleCopy = (target) => {
 		<Flex wide direction="column" gap="4">
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
-					<Icon name="blob" size="16" color="secondary" />
-					<Text size="14" weight="600" color="primary">Namespaces</Text>
+					<Icon name="addresses" size="16" color="secondary" />
+					<Text size="14" weight="600" color="primary">Addresses</Text>
 				</Flex>
 
 				<Flex align="center" gap="6">
@@ -105,7 +105,7 @@ const handleCopy = (target) => {
 					</Button>
 
 					<Button type="secondary" size="mini" disabled>
-						<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
+						<Text size="12" weight="600" color="primary"> {{ comma(page) }} of {{ comma(pages) }} </Text>
 					</Button>
 
 					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
@@ -120,50 +120,42 @@ const handleCopy = (target) => {
 					<table>
 						<thead>
 							<tr>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Namespace</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Size</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Version</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Pay For Blobs</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Balance</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>First Height</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Last Height</Text></th>
 							</tr>
 						</thead>
 
 						<tbody>
-							<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.hash}`)">
-								<td>
-									<Tooltip position="start">
-										<Flex @click="handleCopy(ns.hash)" class="copyable" align="center" gap="8">
-											<Icon name="blob" size="14" color="secondary" />
+							<tr v-for="address in addresses" @click="router.push(`/address/${address.hash}`)">
+								<td style="width: 1px">
+									<Tooltip position="start" delay="500">
+										<Flex align="center" gap="10">
+											<AddressBadge :hash="address.hash" />
 
-											<template v-if="ns.hash">
-												<Text size="13" weight="600" color="primary">
-													{{ getNamespaceID(ns.namespace_id).slice(-4) }}
-												</Text>
-											</template>
-											<template v-else>
-												<Text size="13" weight="700" color="secondary" mono>Genesis</Text>
-											</template>
+											<Icon
+												@click.stop="handleCopy(address.hash)"
+												name="copy"
+												size="12"
+												color="secondary"
+												class="copyable"
+											/>
 										</Flex>
 
 										<template #content>
-											{{ space(ns.hash) }}
+											{{ address.hash }}
 										</template>
 									</Tooltip>
 								</td>
 								<td>
-									<Flex align="center" gap="6">
-										<Text size="13" weight="600" color="primary">{{ formatBytes(ns.size) }}</Text>
-										<Text size="13" weight="600" color="tertiary">({{ ns.pfb_count }})</Text>
-									</Flex>
+									<Text size="13" weight="600" color="primary"> {{ comma(tia(address.balance.value)) }} TIA </Text>
 								</td>
 								<td>
-									<Flex>
-										<Text size="13" weight="600" color="primary">{{ ns.version }}</Text>
-									</Flex>
+									<Text size="13" weight="600" color="primary"> {{ comma(address.first_height) }} </Text>
 								</td>
 								<td>
-									<Flex>
-										<Text size="13" weight="600" color="primary">{{ ns.pfb_count }}</Text>
-									</Flex>
+									<Text size="13" weight="600" color="primary"> {{ comma(address.last_height) }} </Text>
 								</td>
 							</tr>
 						</tbody>
