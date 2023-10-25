@@ -122,6 +122,18 @@ const handleCopy = (target) => {
 							<Text size="12" weight="600" color="tertiary"> Pay For Blobs</Text>
 							<Text size="12" weight="600" color="secondary"> {{ comma(namespace.pfb_count) }} </Text>
 						</Flex>
+
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary"> Version</Text>
+							<Text size="12" weight="600" color="secondary"> {{ namespace.version }} </Text>
+						</Flex>
+
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary"> Reserved</Text>
+							<Text size="12" weight="600" color="secondary" :style="{ textTransform: 'capitalize' }">
+								{{ namespace.reserved }}
+							</Text>
+						</Flex>
 					</Flex>
 				</Flex>
 			</Flex>
