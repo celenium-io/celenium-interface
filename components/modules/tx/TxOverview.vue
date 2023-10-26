@@ -52,7 +52,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 							<Text size="12" weight="600" color="secondary">Status</Text>
 
 							<Flex align="center" gap="6">
-								<Icon name="zap" size="12" :color="tx.status === 'success' ? 'green' : 'red'" />
+								<Icon :name="tx.status === 'success' ? 'tx_success' : 'tx_error'" size="14" color="secondary" />
 								<Text size="13" weight="600" color="primary" style="text-transform: capitalize">
 									{{ tx.status }}
 								</Text>

@@ -43,7 +43,12 @@ const isSplitted = () => {
 			<path v-if="!Array.isArray(getIcon(name))" :d="getIcon(name)" :style="{ opacity: path.opacity }" />
 
 			<template v-else>
-				<path v-for="(icon, i) in getIcon(name)" :key="i" :d="icon.path" :style="{ opacity: fill ? 1 : icon.opacity }" />
+				<path
+					v-for="(icon, i) in getIcon(name)"
+					:key="i"
+					:d="icon.path"
+					:style="{ opacity: fill ? 1 : icon.opacity, fill: icon.color && icon.color }"
+				/>
 			</template>
 		</template>
 	</svg>

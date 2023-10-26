@@ -40,7 +40,7 @@ const getSectorName = (idx) => {
 	<Flex direction="column" gap="20" :class="$style.wrapper">
 		<Flex justify="between">
 			<Flex align="center" gap="6">
-				<Icon name="zap" size="16" color="primary" />
+				<Icon name="tx" size="16" color="primary" />
 				<Flex gap="4" align="end">
 					<Text size="16" weight="600" color="primary">{{ txCounter }}</Text>
 					<Text size="12" weight="700" color="tertiary">TXs</Text>

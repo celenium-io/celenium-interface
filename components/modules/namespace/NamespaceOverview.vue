@@ -170,7 +170,11 @@ const handleCopy = (target) => {
 									<td style="width: 1px">
 										<Tooltip position="start" delay="500">
 											<Flex @click.stop="handleCopy(message.tx.hash)" class="copyable" align="center" gap="8">
-												<Icon name="zap" size="12" :color="message.tx.status === 'success' ? 'green' : 'red'" />
+												<Icon
+													:name="message.tx.status === 'success' ? 'tx_success' : 'tx_error'"
+													size="14"
+													color="secondary"
+												/>
 
 												<Text size="13" weight="600" color="primary">{{
 													message.tx.hash.slice(0, 4).toUpperCase()

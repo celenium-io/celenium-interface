@@ -269,7 +269,11 @@ const handleCopy = (target) => {
 							<Outline v-for="transaction in preview.transactions.slice(0, 3)" wide height="32" padding="8" radius="6">
 								<Flex justify="between" align="center" wide>
 									<Flex align="center" gap="8">
-										<Icon name="zap" size="12" color="green" />
+										<Icon
+											:name="transaction.status === 'success' ? 'tx_success' : 'tx_error'"
+											size="12"
+											color="secondary"
+										/>
 
 										<Text size="13" weight="700" color="primary" mono>{{ transaction.hash.slice(0, 4) }}</Text>
 

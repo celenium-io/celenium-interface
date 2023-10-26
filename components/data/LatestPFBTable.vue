@@ -63,7 +63,7 @@ const handleCopy = (target) => {
 							<td style="width: 1px">
 								<Tooltip position="start" delay="500">
 									<Flex @click.stop="handleCopy(pfb.hash.toUpperCase())" class="copyable" align="center" gap="8">
-										<Icon name="zap" size="12" :color="pfb.status === 'success' ? 'green' : 'red'" />
+										<Icon :name="pfb.status === 'success' ? 'tx_success' : 'tx_error'" size="14" color="secondary" />
 
 										<Text size="13" weight="600" color="primary">
 											{{ pfb.hash.slice(0, 4).toUpperCase() }}

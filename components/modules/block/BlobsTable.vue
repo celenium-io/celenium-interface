@@ -148,7 +148,7 @@ const handleCopy = (target) => {
 							<td style="width: 1px">
 								<Tooltip position="start" delay="500">
 									<Flex
-										@click="handleCopy(getNamespaceID(blob.namespace.namespace_id))"
+										@click.stop="handleCopy(getNamespaceID(blob.namespace.namespace_id))"
 										class="copyable"
 										align="center"
 										gap="8"
@@ -171,7 +171,7 @@ const handleCopy = (target) => {
 										<AddressBadge :hash="blob.data.Signer" />
 
 										<Icon
-											@click="handleCopy(blob.data.Signer)"
+											@click.stop="handleCopy(blob.data.Signer)"
 											name="copy"
 											size="12"
 											color="secondary"
@@ -207,7 +207,7 @@ const handleCopy = (target) => {
 										</Flex>
 
 										<Icon
-											@click="handleCopy(blob.data.ShareCommitments[0])"
+											@click.stop="handleCopy(blob.data.ShareCommitments[0])"
 											name="copy"
 											size="12"
 											color="secondary"

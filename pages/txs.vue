@@ -107,7 +107,7 @@ const handleCopy = (target) => {
 		<Flex wide direction="column" gap="4">
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
-					<Icon name="zap" size="16" color="secondary" />
+					<Icon name="tx" size="16" color="secondary" />
 					<Text size="14" weight="600" color="primary">Transactions</Text>
 				</Flex>
 
@@ -151,7 +151,7 @@ const handleCopy = (target) => {
 								<td style="width: 1px">
 									<Tooltip :disabled="!tx.hash" position="start">
 										<Flex @click.stop="handleCopy(tx.hash)" class="copyable" align="center" gap="8">
-											<Icon name="zap" size="14" :color="tx.status === 'success' ? 'green' : 'red'" />
+											<Icon :name="tx.status === 'success' ? 'tx_success' : 'tx_error'" size="14" color="secondary" />
 
 											<template v-if="tx.hash">
 												<Text size="13" weight="600" color="primary">{{ tx.hash.slice(0, 4).toUpperCase() }}</Text>

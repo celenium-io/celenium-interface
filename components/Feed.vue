@@ -17,7 +17,7 @@ const head = computed(() => appStore.head)
 		<Flex align="center" justify="between" gap="24" wide :class="$style.container">
 			<Flex align="center" gap="20">
 				<Flex align="center" gap="6" :class="$style.stat">
-					<Icon name="zap" size="12" color="secondary" :class="$style.icon" />
+					<Icon name="tx" size="12" color="secondary" :class="$style.icon" />
 					<Flex align="center" gap="4">
 						<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Txs:</Text>
 						<Text size="12" weight="600" noWrap :class="$style.value">{{ comma(head.total_tx) }}</Text>
