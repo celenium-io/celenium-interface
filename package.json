@@ -13,16 +13,17 @@
 	},
 	"devDependencies": {
 		"@nuxt/devtools": "latest",
-		"nuxt": "^3.7.3",
-		"nuxt-og-image": "^2.0.28",
-		"sass": "^1.66.1",
-		"sass-loader": "^13.3.2"
+		"nuxt": "3.7.3",
+		"nuxt-og-image": "2.0.28",
+		"sass": "1.66.1",
+		"sass-loader": "13.3.2",
+		"sitemap": "7.1.1"
 	},
 	"dependencies": {
-		"@pinia/nuxt": "^0.4.11",
-		"focus-trap": "^7.5.2",
-		"luxon": "^3.4.3",
-		"pinia": "^2.1.6",
-		"uuid": "^9.0.1"
+		"@pinia/nuxt": "0.4.11",
+		"focus-trap": "7.5.2",
+		"luxon": "3.4.3",
+		"pinia": "2.1.6",
+		"uuid": "9.0.1"
 	}
 }
