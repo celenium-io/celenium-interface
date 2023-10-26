@@ -85,7 +85,8 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 						<Flex direction="column" gap="10" :class="$style.key_value">
 							<Text size="12" weight="600" color="secondary">Type</Text>
 
-							<MessageTypeBadge :types="tx.message_types" />
+							<MessageTypeBadge v-if="tx.message_types.length" :types="tx.message_types" />
+							<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
 						</Flex>
 
 						<template #content>
@@ -139,18 +140,22 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 
 				<Flex direction="column">
 					<Flex align="center" gap="8" :class="$style.message_types">
-						<Icon
-							:name="
-								MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
-									? MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
-									: 'zap'
-							"
-							size="14"
-							color="secondary"
-						/>
-						<Text size="12" weight="600" color="primary">
-							{{ tx.message_types.map((type) => type.replace("Msg", "")).join(", ") }}
-						</Text>
+						<template v-if="tx.message_types.length">
+							<Icon
+								:name="
+									MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
+										? MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
+										: 'zap'
+								"
+								size="14"
+								color="secondary"
+							/>
+							<Text size="12" weight="600" color="primary">
+								{{ tx.message_types.map((type) => type.replace("Msg", "")).join(", ") }}
+							</Text>
+						</template>
+
+						<Text v-else size="12" weight="600" color="tertiary">No Message Types</Text>
 					</Flex>
 
 					<Flex v-for="(event, idx) in events" align="center" gap="12" :class="$style.event">
