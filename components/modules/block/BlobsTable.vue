@@ -235,12 +235,12 @@ const handleCopy = (target) => {
 					</tbody>
 				</table>
 			</div>
-			<Flex v-else-if="loading" align="center" justify="center" gap="8" wide>
+			<Flex v-else-if="loading" align="center" justify="center" gap="8" wide :class="$style.empty">
 				<Spinner size="14" />
 				<Text size="13" weight="500" color="secondary"> Loading blobs </Text>
 			</Flex>
 
-			<Flex v-else align="center" justify="center" direction="column" gap="8" wide>
+			<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 				<Text size="13" weight="600" color="secondary" align="center"> No blobs </Text>
 				<Text size="12" weight="500" height="160" color="tertiary" align="center">
 					{{ description }}
@@ -328,5 +328,9 @@ const handleCopy = (target) => {
 .table.disabled {
 	opacity: 0.5;
 	pointer-events: none;
+}
+
+.empty {
+	padding: 16px 0;
 }
 </style>

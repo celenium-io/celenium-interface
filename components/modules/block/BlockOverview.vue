@@ -236,7 +236,7 @@ const handleCopy = (target) => {
 					</Flex>
 				</Flex>
 
-				<Flex direction="column" justify="center" gap="16" :class="[$style.table, isRefetching && $style.disabled]">
+				<Flex direction="column" justify="center" gap="8" :class="[$style.table, isRefetching && $style.disabled]">
 					<div v-if="filteredTransactions.length" :class="$style.table_scroller">
 						<table>
 							<thead>
@@ -444,6 +444,8 @@ const handleCopy = (target) => {
 		height: fit-content;
 
 		border-spacing: 0px;
+
+		padding-bottom: 8px;
 
 		& tbody {
 			& tr {
