@@ -1,4 +1,7 @@
 <script setup>
+/** Vendor */
+import { DateTime } from "luxon"
+
 /** Services */
 import { comma } from "@/services/utils"
 
@@ -10,18 +13,33 @@ let blockProgressInterval = null
 const baseBlockTime = 12
 const blockProgress = ref(0)
 
-const head = computed(() => appStore.head)
+const isDelayed = ref(false)
+
 const lastBlock = computed(() => appStore.latestBlocks[0])
 
-onMounted(() => {
-	blockProgressInterval = setInterval(() => {
-		blockProgress.value += 1
+// const checkDelay = () => {
+// 	if (-DateTime.fromISO(lastBlock.value.time).diffNow("seconds").values.seconds > 12) {
+// 		isDelayed.value = true
+// 	}
+// }
 
-		if (blockProgress.value > baseBlockTime) {
-			blockProgress.value = 0
-		}
-	}, 1_000)
-})
+// checkDelay()
+
+blockProgressInterval = setInterval(() => {
+	blockProgress.value += 1
+
+	if (blockProgress.value > baseBlockTime) {
+		blockProgress.value = 0
+	}
+}, 1_000)
+
+// watch(
+// 	() => lastBlock.value,
+// 	() => {
+// 		isDelayed.value = false
+
+// 	},
+// )
 
 onBeforeUnmount(() => {
 	clearInterval(blockProgressInterval)
@@ -51,12 +69,18 @@ onBeforeUnmount(() => {
 
 			<div v-for="item in 14" :class="$style.dot" />
 
-			<Flex justify="end" :class="$style.timer">
+			<Flex v-if="!isDelayed" justify="end" :class="$style.timer">
 				<Text size="13" weight="600" color="primary">{{ blockProgress }}</Text>
 				<Text size="13" weight="600" color="tertiary">s</Text>
 			</Flex>
+			<Text v-else size="13" weight="600" color="secondary">Delayed</Text>
 
-			<div :style="{ transform: `translateX(${-(100 - (100 * blockProgress) / baseBlockTime)}%)` }" :class="$style.fill" />
+			<div
+				v-if="!isDelayed"
+				:style="{ transform: `translateX(${-(100 - (100 * blockProgress) / baseBlockTime)}%)` }"
+				:class="$style.fill"
+			/>
+			<div v-else :class="[$style.fill, $style.delayed]" />
 		</Flex>
 	</Flex>
 </template>
@@ -108,5 +132,9 @@ onBeforeUnmount(() => {
 
 	will-change: transform;
 	transition: transform 0.9s ease;
+
+	&.delayed {
+		background: var(--txt-support);
+	}
 }
 </style>

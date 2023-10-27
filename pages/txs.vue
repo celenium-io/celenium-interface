@@ -23,6 +23,50 @@ const notificationsStore = useNotificationsStore()
 
 useHead({
 	title: "All Transactions - Celestia Explorer",
+	link: [
+		{
+			rel: "canonical",
+			href: "https://celenium.io/transactions",
+		},
+	],
+	meta: [
+		{
+			name: "description",
+			content: "Transactions in the Celestia Blockchain. Hash, messages, timestamp, block height, gas usage, events count are shown.",
+		},
+		{
+			property: "og:title",
+			content: "All Transactions - Celestia Explorer",
+		},
+		{
+			property: "og:description",
+			content: "Transactions in the Celestia Blockchain. Hash, messages, timestamp, block height, gas usage, events count are shown.",
+		},
+		{
+			property: "og:url",
+			content: `https://celenium.io/transactions`,
+		},
+		{
+			property: "og:image",
+			content: "/img/seo/txs.png",
+		},
+		{
+			name: "twitter:title",
+			content: "All Transactions - Celestia Explorer",
+		},
+		{
+			name: "twitter:description",
+			content: "Transactions in the Celestia Blockchain. Hash, messages, timestamp, block height, gas usage, events count are shown.",
+		},
+		{
+			name: "twitter:card",
+			content: "summary_large_image",
+		},
+		{
+			name: "twitter:image",
+			content: "https://celenium.io/img/seo/txs.png",
+		},
+	],
 })
 
 const route = useRoute()

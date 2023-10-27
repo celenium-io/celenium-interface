@@ -1,4 +1,5 @@
 <script setup>
+import { DateTime } from "luxon"
 /** Components */
 import Widgets from "@/components/widgets/Widgets.vue"
 import RecentNamespacesTable from "@/components/data/RecentNamespacesTable.vue"
@@ -17,7 +18,7 @@ definePageMeta({
 })
 
 useHead({
-	title: "Celenium - Celestia Blockchain Explorer",
+	title: "Celenium - Celestia Explorer",
 	link: [
 		{
 			rel: "canonical",
@@ -32,7 +33,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: "Celestia Blockchain Explorer",
+			content: "Celenium - Celestia Explorer",
 		},
 		{
 			property: "og:description",
@@ -44,13 +45,25 @@ useHead({
 			content: `https://celenium.io/`,
 		},
 		{
+			property: "og:image",
+			content: "/img/seo/main.png",
+		},
+		{
 			name: "twitter:title",
-			content: "Celestia Blockchain Explorer",
+			content: "Celenium - Celestia Explorer",
 		},
 		{
 			name: "twitter:description",
 			content:
 				"Celenium allows you to explore and search the Celestia blockchain for transactions, addresses, blocks, namespaces, blobs.",
+		},
+		{
+			name: "twitter:card",
+			content: "summary_large_image",
+		},
+		{
+			name: "twitter:image",
+			content: "https://celenium.io/img/seo/main.png",
 		},
 	],
 })

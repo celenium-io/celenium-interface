@@ -15,6 +15,50 @@ const notificationsStore = useNotificationsStore()
 
 useHead({
 	title: "All Namespaces - Celestia Explorer",
+	link: [
+		{
+			rel: "canonical",
+			href: "https://celenium.io/namespaces",
+		},
+	],
+	meta: [
+		{
+			name: "description",
+			content: "Namespaces in the Celestia Blockchain. Namespace ID, size, version, pay for blobs are shown.",
+		},
+		{
+			property: "og:title",
+			content: "All Namespaces - Celestia Explorer",
+		},
+		{
+			property: "og:description",
+			content: "Namespaces in the Celestia Blockchain. Namespace ID, size, version, pay for blobs are shown.",
+		},
+		{
+			property: "og:url",
+			content: `https://celenium.io/namespaces`,
+		},
+		{
+			property: "og:image",
+			content: "/img/seo/namespaces.png",
+		},
+		{
+			name: "twitter:title",
+			content: "All Namespaces - Celestia Explorer",
+		},
+		{
+			name: "twitter:description",
+			content: "Namespaces in the Celestia Blockchain. Namespace ID, size, version, pay for blobs are shown.",
+		},
+		{
+			name: "twitter:card",
+			content: "summary_large_image",
+		},
+		{
+			name: "twitter:image",
+			content: "https://celenium.io/img/seo/namespaces.png",
+		},
+	],
 })
 
 const route = useRoute()
