@@ -112,7 +112,7 @@ const handleCopy = (target) => {
 				<Text size="13" weight="500" color="secondary"> Loading latest PFBs </Text>
 			</Flex>
 
-			<Flex v-else align="center" justify="center" direction="column" gap="8" wide style="margin: 16px 0">
+			<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 				<Text size="13" weight="600" color="secondary" align="center"> Latest PFBs not found </Text>
 				<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
 					This data is temporarily unavailable
@@ -192,6 +192,10 @@ const handleCopy = (target) => {
 			}
 		}
 	}
+}
+
+.empty {
+	margin: 32px 0 16px 0;
 }
 
 .bottom {
