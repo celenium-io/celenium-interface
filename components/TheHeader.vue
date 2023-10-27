@@ -50,7 +50,9 @@ const isActive = (link) => {
 				</NuxtLink>
 			</Flex>
 
-			<Icon name="empty" :class="$style.empty_icon" />
+			<Flex align="center" gap="8" :class="$style.command_button">
+				<Icon name="search" size="16" color="secondary" />
+			</Flex>
 		</Flex>
 	</Flex>
 </template>
@@ -118,6 +120,26 @@ const isActive = (link) => {
 		& span {
 			color: var(--txt-black);
 		}
+	}
+}
+
+.command_button {
+	height: 28px;
+
+	border-radius: 6px;
+	background: var(--op-5);
+	cursor: pointer;
+
+	padding: 0 8px;
+
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: var(--op-8);
+	}
+
+	&:active {
+		background: var(--op-10);
 	}
 }
 

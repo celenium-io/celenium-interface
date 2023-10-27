@@ -4,7 +4,7 @@ import Modal from "@/components/ui/Modal.vue"
 import Button from "@/components/ui/Button.vue"
 
 /** Services */
-import { formatBytes, getNamespaceID } from "@/services/utils"
+import { formatBytes, getNamespaceID, strToHex } from "@/services/utils"
 
 /** API */
 import { fetchNamespaceByMetadata } from "@/services/api/namespace"
@@ -65,8 +65,7 @@ watch(
 
 const handleDownload = () => {
 	const byteArray = new Uint8Array(
-		decodedData.value
-			.replaceAll(" ", "")
+		strToHex(atob(blob.value.data))
 			.match(/.{2}/g)
 			.map((e) => parseInt(e, 16)),
 	)
