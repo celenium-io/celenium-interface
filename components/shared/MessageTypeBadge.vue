@@ -35,7 +35,6 @@ defineProps({
 
 <style module>
 .text {
-	max-width: 100px;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }

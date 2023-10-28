@@ -178,8 +178,8 @@ const handleCopy = (target) => {
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Messages</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>When</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Messages</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Block</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Gas</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Events</Text></th>
