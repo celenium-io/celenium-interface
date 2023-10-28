@@ -13,10 +13,6 @@ import { formatBytes, getNamespaceID } from "@/services/utils"
 /** API */
 import { fetchBlockNamespaces, fetchBlockNamespacesCount } from "@/services/api/block"
 
-/** Store */
-import { useNotificationsStore } from "@/store/notifications"
-const notificationsStore = useNotificationsStore()
-
 const props = defineProps({
 	height: {
 		type: Number,
@@ -91,19 +87,6 @@ const handlePrev = () => {
 
 	page.value -= 1
 }
-
-const handleCopy = (target) => {
-	window.navigator.clipboard.writeText(target)
-
-	notificationsStore.create({
-		notification: {
-			type: "info",
-			icon: "check",
-			title: "Successfully copied to clipboard",
-			autoDestroy: true,
-		},
-	})
-}
 </script>
 
 <template>
@@ -147,17 +130,16 @@ const handleCopy = (target) => {
 						<tr v-for="blob in blobs" @click="router.push(`/namespace/${blob.namespace.hash}`)">
 							<td style="width: 1px">
 								<Tooltip position="start" delay="500">
-									<Flex
-										@click.stop="handleCopy(getNamespaceID(blob.namespace.namespace_id))"
-										class="copyable"
-										align="center"
-										gap="8"
-									>
-										<Icon name="blob" size="12" color="secondary" />
+									<Flex align="center" gap="10">
+										<Flex align="center" gap="8">
+											<Icon name="blob" size="12" color="secondary" />
 
-										<Text size="13" weight="600" color="primary">
-											{{ getNamespaceID(blob.namespace.namespace_id).slice(-4) }}
-										</Text>
+											<Text size="13" weight="600" color="primary">
+												{{ getNamespaceID(blob.namespace.namespace_id).slice(-4) }}
+											</Text>
+										</Flex>
+
+										<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
 									</Flex>
 
 									<template #content>
@@ -170,13 +152,7 @@ const handleCopy = (target) => {
 									<Flex align="center" gap="10">
 										<AddressBadge :hash="blob.data.Signer" />
 
-										<Icon
-											@click.stop="handleCopy(blob.data.Signer)"
-											name="copy"
-											size="12"
-											color="secondary"
-											class="copyable"
-										/>
+										<CopyButton :text="blob.data.Signer" />
 									</Flex>
 
 									<template #content>
@@ -206,13 +182,7 @@ const handleCopy = (target) => {
 											</Text>
 										</Flex>
 
-										<Icon
-											@click.stop="handleCopy(blob.data.ShareCommitments[0])"
-											name="copy"
-											size="12"
-											color="secondary"
-											class="copyable"
-										/>
+										<CopyButton :text="blob.data.ShareCommitments[0]" />
 									</Flex>
 
 									<template #content>
