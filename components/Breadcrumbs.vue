@@ -10,7 +10,7 @@ const props = defineProps({
 <template>
 	<Flex align="center" gap="6" :class="$style.items">
 		<Flex v-for="(item, idx) in items" align="center" gap="6" :class="$style.item">
-			<NuxtLink :to="item.link">
+			<NuxtLink :to="idx !== items.length - 1 ? item.link : null">
 				<Text size="12" weight="600" :color="idx < items.length - 1 ? 'secondary' : 'primary'">{{ item.name }}</Text>
 			</NuxtLink>
 
