@@ -19,9 +19,7 @@ if (!rawTx.value) {
 }
 
 useHead({
-	title: `Transaction ${tx.value?.hash.toUpperCase().slice(tx.value?.hash.length - 4, tx.value?.hash.length)} ••• ${tx.value?.hash
-		.toUpperCase()
-		.slice(0, 4)} - Celestia Explorer`,
+	title: `Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash.toUpperCase().slice(-4)} - Celestia Explorer`,
 	link: [
 		{
 			rel: "canonical",
@@ -31,27 +29,21 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: `Celestia Transaction ${tx.value?.hash
+			content: `Celestia Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash
 				.toUpperCase()
-				.slice(tx.value?.hash.length - 4, tx.value?.hash.length)} ••• ${tx.value?.hash
-				.toUpperCase()
-				.slice(0, 4)}. The timestamp, hash, events, messages, metadata, gas used.`,
+				.slice(-4)}. The timestamp, hash, events, messages, metadata, gas used.`,
 		},
 		{
 			property: "og:title",
-			content: `Transaction ${tx.value?.hash
+			content: `Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash
 				.toUpperCase()
-				.slice(tx.value?.hash.length - 4, tx.value?.hash.length)} ••• ${tx.value?.hash
-				.toUpperCase()
-				.slice(0, 4)} - Celestia Explorer`,
+				.slice(-4)} - Celestia Explorer`,
 		},
 		{
 			property: "og:description",
-			content: `Celestia Transaction ${tx.value?.hash
+			content: `Celestia Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash
 				.toUpperCase()
-				.slice(tx.value?.hash.length - 4, tx.value?.hash.length)} ••• ${tx.value?.hash
-				.toUpperCase()
-				.slice(0, 4)}. The timestamp, hash, events, messages, metadata, gas used.`,
+				.slice(-4)}. The timestamp, hash, events, messages, metadata, gas used.`,
 		},
 		{
 			property: "og:url",
@@ -63,19 +55,15 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: `Transaction ${tx.value?.hash
+			content: `Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash
 				.toUpperCase()
-				.slice(tx.value?.hash.length - 4, tx.value?.hash.length)} ••• ${tx.value?.hash
-				.toUpperCase()
-				.slice(0, 4)} - Celestia Explorer`,
+				.slice(-4)} - Celestia Explorer`,
 		},
 		{
 			name: "twitter:description",
-			content: `Celestia Transaction ${tx.value?.hash
+			content: `Celestia Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash
 				.toUpperCase()
-				.slice(tx.value?.hash.length - 4, tx.value?.hash.length)} ••• ${tx.value?.hash
-				.toUpperCase()
-				.slice(0, 4)}. The timestamp, hash, events, messages, metadata, gas used.`,
+				.slice(-4)}. The timestamp, hash, events, messages, metadata, gas used.`,
 		},
 		{
 			name: "twitter:card",
@@ -94,9 +82,7 @@ useHead({
 				{ link: '/txs', name: 'Transactions' },
 				{
 					link: route.fullPath,
-					name: `Transaction ${tx.hash.toUpperCase().slice(tx.hash.length - 4, tx.hash.length)} ••• ${tx.hash
-						.toUpperCase()
-						.slice(0, 4)}`,
+					name: `Transaction ${tx.hash.toUpperCase().slice(0, 4)} ••• ${tx.hash.toUpperCase().slice(-4)}`,
 				},
 			]"
 			:class="$style.breadcrumbs"
