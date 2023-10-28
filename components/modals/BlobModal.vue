@@ -118,36 +118,48 @@ const handleCopy = (target) => {
 					<Flex align="center" justify="between" wide :class="$style.metadata">
 						<Text size="12" weight="500" color="tertiary">Namespace:</Text>
 
-						<Text
-							@click="handleCopy(getNamespaceID(props.item.namespace.namespace_id))"
-							size="13"
-							weight="600"
-							color="primary"
-							class="copyable"
-						>
-							{{ getNamespaceID(props.item.namespace.namespace_id) }}
-						</Text>
+						<Flex align="center" gap="8" :class="$style.value_wrapper">
+							<CopyButton :text="getNamespaceID(props.item.namespace.namespace_id)" />
+
+							<Text size="13" weight="600" color="primary" :class="$style.value">
+								{{ getNamespaceID(props.item.namespace.namespace_id) }}
+							</Text>
+						</Flex>
 					</Flex>
 
 					<Flex align="center" justify="between" wide :class="$style.metadata">
 						<Text size="12" weight="500" color="tertiary">Commitment:</Text>
 
-						<Text @click="handleCopy(item.data.ShareCommitments[0])" size="13" weight="600" color="primary" class="copyable">
-							{{ item.data.ShareCommitments[0] }}
-						</Text>
+						<Flex align="center" gap="8" :class="$style.value_wrapper">
+							<CopyButton :text="item.data.ShareCommitments[0]" />
+
+							<Text size="13" weight="600" color="primary" :class="$style.value">
+								{{ item.data.ShareCommitments[0] }}
+							</Text>
+						</Flex>
 					</Flex>
 
 					<Flex align="center" justify="between" wide :class="$style.metadata">
 						<Text size="12" weight="500" color="tertiary">Signer:</Text>
 
-						<Text @click="handleCopy(item.data.Signer)" size="13" weight="600" color="primary" class="copyable">
-							{{ item.data.Signer }}
-						</Text>
+						<Flex align="center" gap="8" :class="$style.value_wrapper">
+							<CopyButton :text="item.data.Signer" />
+
+							<NuxtLink :to="`/address/${item.data.Signer}`" target="_blank">
+								<Flex align="center" gap="6">
+									<Text size="13" weight="600" color="primary" :class="$style.value">
+										{{ item.data.Signer }}
+									</Text>
+
+									<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
+								</Flex>
+							</NuxtLink>
+						</Flex>
 					</Flex>
 				</Flex>
 			</Flex>
 
-			<Flex v-if="blob.data" align="center" gap="8">
+			<Flex v-if="blob.data" align="center" gap="8" :class="$style.buttons">
 				<Button @click="handleDownload" type="secondary" size="small">
 					<Icon name="download" size="14" color="secondary" />
 					<Flex align="center" gap="6">
@@ -194,17 +206,33 @@ const handleCopy = (target) => {
 	}
 }
 
+.value_wrapper {
+	max-width: 100%;
+
+	& a {
+		text-overflow: ellipsis;
+		overflow: hidden;
+	}
+}
+
+.value {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	max-width: 100%;
+}
+
 @media (max-width: 550px) {
 	.metadata {
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 8px;
+	}
+}
 
-		& span:last-child {
-			text-overflow: ellipsis;
-			overflow: hidden;
-			max-width: 100%;
-		}
+@media (max-width: 400px) {
+	.buttons {
+		flex-direction: column;
+		align-items: flex-start;
 	}
 }
 </style>
