@@ -1,6 +1,8 @@
 <script setup>
 const route = useRoute()
 
+const showPopup = ref(false)
+
 const isActive = (link) => {
 	const splittedPath = route.path.split("/").filter(Boolean)
 
@@ -26,11 +28,17 @@ const isActive = (link) => {
 <template>
 	<Flex tag="header" justify="center" wide :class="$style.wrapper">
 		<Flex align="center" justify="between" wide :class="$style.container">
-			<NuxtLink to="/">
-				<Flex align="center" gap="8" :class="$style.logo">
-					<Icon name="logo" size="18" color="primary" />
+			<Flex align="center" gap="8">
+				<Flex @click="showPopup = !showPopup" align="center" gap="8" :class="[$style.button, $style.menu]">
+					<Icon :name="!showPopup ? 'menu' : 'close'" size="16" color="secondary" />
 				</Flex>
-			</NuxtLink>
+
+				<NuxtLink to="/">
+					<Flex align="center" gap="8" :class="$style.logo">
+						<Icon name="logo" size="18" color="primary" />
+					</Flex>
+				</NuxtLink>
+			</Flex>
 
 			<Flex justify="center" align="center" wrap="wrap" gap="8" :class="$style.links">
 				<NuxtLink to="/" :class="[$style.link, isActive('index') && $style.active]">
@@ -50,15 +58,35 @@ const isActive = (link) => {
 				</NuxtLink>
 			</Flex>
 
-			<Flex align="center" gap="8" :class="$style.command_button">
+			<Flex align="center" gap="8" :class="$style.button">
 				<Icon name="search" size="16" color="secondary" />
 			</Flex>
+		</Flex>
+
+		<Flex v-if="showPopup" direction="column" gap="8" :class="$style.menu_popup">
+			<NuxtLink to="/" :class="[$style.link, isActive('index') && $style.active]">
+				<Text size="13" weight="600" color="tertiary">Explorer</Text>
+			</NuxtLink>
+
+			<NuxtLink to="/txs" :class="[$style.link, isActive('txs') && $style.active]">
+				<Text size="13" weight="600" color="tertiary">Transactions</Text>
+			</NuxtLink>
+
+			<NuxtLink to="/blocks" :class="[$style.link, isActive('blocks') && $style.active]">
+				<Text size="13" weight="600" color="tertiary">Blocks</Text>
+			</NuxtLink>
+
+			<NuxtLink to="/namespaces" :class="[$style.link, isActive('namespaces') && $style.active]">
+				<Text size="13" weight="600" color="tertiary">Namespaces</Text>
+			</NuxtLink>
 		</Flex>
 	</Flex>
 </template>
 
 <style module>
 .wrapper {
+	position: relative;
+
 	height: 52px;
 }
 
@@ -123,7 +151,24 @@ const isActive = (link) => {
 	}
 }
 
-.command_button {
+.menu_popup {
+	position: absolute;
+	top: 52px;
+	left: 0;
+	right: 0;
+
+	display: none;
+
+	background: var(--app-background);
+	border-top: 2px solid var(--op-5);
+	border-bottom: 2px solid var(--op-5);
+
+	padding: 16px;
+
+	z-index: 100;
+}
+
+.button {
 	height: 28px;
 
 	border-radius: 6px;
@@ -141,22 +186,29 @@ const isActive = (link) => {
 	&:active {
 		background: var(--op-10);
 	}
+
+	&.menu {
+		display: none;
+	}
 }
 
 @media (max-width: 600px) {
-	.wrapper {
-		height: initial;
-	}
-
-	.container {
-		flex-direction: column;
-		gap: 24px;
-
-		margin: 24px 12px 12px 12px;
-	}
-
-	.empty_icon {
+	.links {
 		display: none;
+	}
+
+	.button.menu {
+		display: flex;
+	}
+
+	.menu_popup {
+		display: flex;
+	}
+}
+
+@media (max-width: 500px) {
+	.container {
+		margin: 0 12px;
 	}
 }
 </style>

@@ -120,7 +120,7 @@ appStore.latestBlocks = blocks.value
 		padding-top: 32px;
 	}
 
-	.container {
+	.wrapper {
 		padding: 0 12px;
 	}
 }
