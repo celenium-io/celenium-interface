@@ -196,7 +196,7 @@ const handleCopy = (target) => {
 								<td>
 									<Flex align="center" gap="6">
 										<Text size="13" weight="600" color="primary">{{ formatBytes(ns.size) }}</Text>
-										<Text size="13" weight="600" color="tertiary">({{ ns.pfb_count }})</Text>
+										<Text size="13" weight="600" color="tertiary">({{ comma(ns.pfb_count) }})</Text>
 									</Flex>
 								</td>
 								<td>
