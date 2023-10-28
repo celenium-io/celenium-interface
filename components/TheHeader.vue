@@ -35,7 +35,7 @@ const isActive = (link) => {
 
 				<NuxtLink to="/">
 					<Flex align="center" gap="8" :class="$style.logo">
-						<Icon name="logo" size="18" color="primary" />
+						<Icon name="logo" size="18" color="white" />
 					</Flex>
 				</NuxtLink>
 			</Flex>
