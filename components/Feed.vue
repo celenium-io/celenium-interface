@@ -15,7 +15,7 @@ const head = computed(() => appStore.head)
 <template>
 	<Flex tag="section" justify="center" wide :class="$style.wrapper">
 		<Flex align="center" justify="between" gap="24" wide :class="$style.container">
-			<Flex align="center" gap="20">
+			<Flex align="center" gap="20" :class="$style.stats">
 				<Flex align="center" gap="6" :class="$style.stat">
 					<Icon name="tx" size="12" color="secondary" :class="$style.icon" />
 					<Flex align="center" gap="4">
@@ -93,8 +93,6 @@ const head = computed(() => appStore.head)
 	max-width: var(--base-width);
 	height: 100%;
 
-	overflow: auto;
-
 	margin: 0 24px;
 
 	&::-webkit-scrollbar {
@@ -130,6 +128,24 @@ const head = computed(() => appStore.head)
 
 	.value {
 		color: var(--txt-secondary);
+	}
+}
+
+@media (max-width: 900px) {
+	.wrapper {
+		height: initial;
+
+		padding: 12px 0;
+	}
+
+	.container {
+		flex-direction: column;
+	}
+
+	.stats {
+		width: 100%;
+		justify-content: center;
+		flex-wrap: wrap;
 	}
 }
 
