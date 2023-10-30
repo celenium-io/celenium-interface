@@ -36,7 +36,7 @@ const isRefetching = ref(false)
 const messages = ref([])
 
 const page = ref(1)
-const pages = computed(() => Math.ceil(props.namespace.pfb_count / 5))
+const pages = computed(() => Math.ceil(props.namespace.pfb_count / 10))
 const handleNext = () => {
 	if (page.value === pages.value) return
 	page.value += 1
@@ -52,8 +52,8 @@ const getMessages = async () => {
 	const { data } = await fetchNamespaceMessagesById({
 		id: props.namespace.namespace_id,
 		version: props.namespace.version,
-		offset: (page.value - 1) * 5,
-		limit: 5,
+		offset: (page.value - 1) * 10,
+		limit: 10,
 	})
 
 	if (data.value?.length) {
