@@ -175,21 +175,27 @@ const handleCopy = (target) => {
 							<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.hash}`)">
 								<td>
 									<Tooltip position="start">
-										<Flex @click="handleCopy(ns.hash)" class="copyable" align="center" gap="6">
+										<Flex align="center" gap="6">
 											<Icon name="folder" size="14" color="secondary" />
 
 											<template v-if="ns.hash">
-												<Text size="13" weight="600" color="primary">
-													{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
-												</Text>
+												<Flex align="center" gap="10">
+													<Flex align="center" gap="6">
+														<Text size="13" weight="600" color="primary">
+															{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
+														</Text>
 
-												<Flex align="center" gap="3">
-													<div v-for="dot in 3" class="dot" />
+														<Flex align="center" gap="3">
+															<div v-for="dot in 3" class="dot" />
+														</Flex>
+
+														<Text size="13" weight="600" color="primary">
+															{{ getNamespaceID(ns.namespace_id).slice(-4) }}
+														</Text>
+													</Flex>
+
+													<CopyButton :text="getNamespaceID(ns.namespace_id)" />
 												</Flex>
-
-												<Text size="13" weight="600" color="primary">
-													{{ getNamespaceID(ns.namespace_id).slice(-4) }}
-												</Text>
 											</template>
 											<template v-else>
 												<Text size="13" weight="700" color="secondary" mono>Genesis</Text>
