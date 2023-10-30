@@ -31,36 +31,53 @@ const handleChangeTheme = () => {
 					<Text size="13" weight="500" color="tertiary">- Celestia Explorer, {{ new Date().getFullYear() }}</Text>
 				</Flex>
 
-				<a :href="`https://github.com/dipdup-io/celestia-explorer/releases/tag/v${appConfig.version}`" target="_blank">
-					<Flex>
-						<Text size="12" weight="600" color="support">
-							Version <Text color="tertiary">{{ appConfig.version }}</Text>
-						</Text>
-					</Flex>
-				</a>
+				<Flex align="center" gap="16">
+					<a :href="`https://github.com/dipdup-io/celestia-explorer/releases/tag/v${appConfig.version}`" target="_blank">
+						<Flex>
+							<Text size="12" weight="600" color="support">
+								Version <Text color="tertiary">{{ appConfig.version }}</Text>
+							</Text>
+						</Flex>
+					</a>
+				</Flex>
 			</Flex>
 
-			<Flex align="center" gap="16">
-				<NuxtLink to="/blocks" :class="$style.link">
-					<Text size="12" weight="500" color="tertiary"> Blocks </Text>
-				</NuxtLink>
-				<NuxtLink to="/txs" :class="$style.link">
-					<Text size="12" weight="500" color="tertiary"> Transactions </Text>
-				</NuxtLink>
-				<NuxtLink to="/namespaces" :class="$style.link">
-					<Text size="12" weight="500" color="tertiary"> Namespaces </Text>
-				</NuxtLink>
-				<NuxtLink to="/addresses" :class="$style.link">
-					<Text size="12" weight="500" color="tertiary"> Addresses </Text>
-				</NuxtLink>
+			<Flex direction="column" align="end" gap="16">
+				<Flex align="center" gap="16">
+					<Flex @click="handleChangeTheme" align="center" gap="6" :class="$style.btn">
+						<Icon :name="currentTheme === 'light' ? 'moon' : 'sun'" size="12" color="secondary" />
+						<Text size="12" weight="600" color="secondary">Switch to {{ currentTheme === "light" ? "Dark" : "Light" }}</Text>
+					</Flex>
 
-				<Icon
-					@click="handleChangeTheme"
-					:name="currentTheme === 'dark' ? 'moon' : 'sun'"
-					size="14"
-					color="secondary"
-					:class="$style.btn"
-				/>
+					<Text size="12" weight="700" color="support">/</Text>
+
+					<Flex align="center" gap="8">
+						<a href="https://twitter.com/celenium_io" target="_blank">
+							<Icon name="twitter" size="14" color="secondary" :class="$style.btn" />
+						</a>
+						<a href="https://github.com/celenium-io" target="_blank">
+							<Icon name="github" size="14" color="secondary" :class="$style.btn" />
+						</a>
+						<a href="https://twitter.com/celenium_io" target="_blank">
+							<Icon name="discord" size="14" color="secondary" :class="$style.btn" />
+						</a>
+					</Flex>
+				</Flex>
+
+				<Flex align="center" gap="16">
+					<NuxtLink to="/blocks" :class="$style.link">
+						<Text size="12" weight="500" color="tertiary"> Blocks </Text>
+					</NuxtLink>
+					<NuxtLink to="/txs" :class="$style.link">
+						<Text size="12" weight="500" color="tertiary"> Transactions </Text>
+					</NuxtLink>
+					<NuxtLink to="/namespaces" :class="$style.link">
+						<Text size="12" weight="500" color="tertiary"> Namespaces </Text>
+					</NuxtLink>
+					<NuxtLink to="/addresses" :class="$style.link">
+						<Text size="12" weight="500" color="tertiary"> Addresses </Text>
+					</NuxtLink>
+				</Flex>
 			</Flex>
 		</Flex>
 	</Flex>
