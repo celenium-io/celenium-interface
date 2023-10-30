@@ -29,3 +29,13 @@ export const strToHex = (str) => {
 	}
 	return hex
 }
+
+export const splitAddress = (address, format = "string") => {
+	if (address.startsWith("celestiavaloper")) {
+		return format === "array" ? [`celestiavaloper`, address.slice(-4)] : `celestiavaloper ••• ${address.slice(-4)}`
+	} else if (address.startsWith("celestiavalcons")) {
+		return format === "array" ? [`celestiavalcons`, address.slice(-4)] : `celestiavalcons ••• ${address.slice(-4)}`
+	} else {
+		return format === "array" ? ["celestia", address.slice(-4)] : `celestia ••• ${address.slice(-4)}`
+	}
+}

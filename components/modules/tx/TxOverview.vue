@@ -10,7 +10,7 @@ import Button from "~/components/ui/Button.vue"
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 
 /** Services */
-import { comma, tia } from "@/services/utils"
+import { comma, tia, splitAddress } from "@/services/utils"
 import { MessageIconMap } from "@/services/constants/mapping"
 
 /** API */
@@ -181,7 +181,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 								<Tooltip :class="$style.tooltip">
 									<NuxtLink :to="`/address/${event.data.spender}`">
 										<Text size="12" weight="500" color="primary" mono>
-											{{ event.data.spender.slice(event.data.spender.length - 4, event.data.spender.length) }}
+											{{ splitAddress(event.data.spender) }}
 										</Text>
 									</NuxtLink>
 
@@ -203,7 +203,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 								<Tooltip :class="$style.tooltip">
 									<NuxtLink :to="`/address/${event.data.receiver}`">
 										<Text size="12" weight="500" color="primary" mono>
-											{{ event.data.receiver.slice(event.data.receiver.length - 4, event.data.receiver.length) }}
+											{{ splitAddress(event.data.receiver) }}
 										</Text>
 									</NuxtLink>
 
@@ -225,7 +225,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 								<Tooltip :class="$style.tooltip">
 									<NuxtLink :to="`/address/${event.data.validator}`">
 										<Text size="12" weight="500" color="primary" mono>
-											{{ event.data.validator.slice(event.data.validator.length - 4, event.data.validator.length) }}
+											{{ splitAddress(event.data.validator) }}
 										</Text>
 									</NuxtLink>
 
@@ -247,7 +247,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 								<Tooltip :class="$style.tooltip">
 									<NuxtLink :to="`/address/${event.data.sender}`">
 										<Text size="12" weight="500" color="primary" mono>
-											{{ event.data.sender.slice(event.data.sender.length - 4, event.data.sender.length) }}
+											{{ splitAddress(event.data.sender) }}
 										</Text>
 									</NuxtLink>
 
@@ -267,7 +267,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 								<Tooltip :class="$style.tooltip">
 									<NuxtLink :to="`/address/${event.data.recipient}`">
 										<Text size="12" weight="500" color="primary" mono>
-											{{ event.data.recipient.slice(event.data.recipient.length - 4, event.data.recipient.length) }}
+											{{ splitAddress(event.data.recipient) }}
 										</Text>
 									</NuxtLink>
 
@@ -299,7 +299,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 									<Tooltip :class="$style.tooltip">
 										<NuxtLink :to="`/address/${event.data.acc_seq.split('/')[0]}`">
 											<Text size="12" weight="500" color="primary" mono>
-												{{ event.data.acc_seq.split("/")[0].slice(-4) }}
+												{{ splitAddress(event.data.acc_seq.split("/")[0]) }}
 											</Text>
 										</NuxtLink>
 
@@ -323,9 +323,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 									<Tooltip :class="$style.tooltip">
 										<NuxtLink :to="`/address/${event.data.fee_payer}`">
 											<Text size="12" weight="500" color="primary" mono>
-												{{
-													event.data.fee_payer.slice(event.data.fee_payer.length - 4, event.data.fee_payer.length)
-												}}
+												{{ splitAddress(event.data.fee_payer) }}
 											</Text>
 										</NuxtLink>
 
@@ -360,7 +358,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 									<Tooltip :class="$style.tooltip">
 										<NuxtLink :to="`/address/${event.data.sender}`">
 											<Text size="12" weight="500" color="primary" mono>
-												{{ event.data.sender.slice(event.data.sender.length - 4, event.data.sender.length) }}
+												{{ splitAddress(event.data.sender) }}
 											</Text>
 										</NuxtLink>
 
@@ -391,7 +389,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 								<Tooltip :class="$style.tooltip">
 									<NuxtLink :to="`/address/${event.data.delegator}`">
 										<Text size="12" weight="500" color="primary" mono>
-											{{ event.data.delegator.slice(event.data.delegator.length - 4, event.data.delegator.length) }}
+											{{ splitAddress(event.data.delegator) }}
 										</Text>
 									</NuxtLink>
 
@@ -405,7 +403,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 								<Tooltip :class="$style.tooltip">
 									<NuxtLink :to="`/address/${event.data.validator}`">
 										<Text size="12" weight="500" color="primary" mono>
-											{{ event.data.validator.slice(event.data.validator.length - 4, event.data.validator.length) }}
+											{{ splitAddress(event.data.validator) }}
 										</Text>
 									</NuxtLink>
 
