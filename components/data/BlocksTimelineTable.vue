@@ -125,13 +125,13 @@ const handleCopy = (target) => {
 									<Tooltip delay="500">
 										<template #default>
 											<Flex align="center" gap="6">
-												<Text size="13" weight="600" color="secondary">{{ block.hash.slice(0, 4) }}</Text>
+												<Text size="13" weight="600" color="primary">{{ block.hash.slice(0, 4) }}</Text>
 
 												<Flex align="center" gap="3">
 													<div v-for="dot in 3" class="dot" />
 												</Flex>
 
-												<Text size="13" weight="600" color="secondary">
+												<Text size="13" weight="600" color="primary">
 													{{ block.hash.slice(block.hash.length - 4, block.hash.length) }}
 												</Text>
 											</Flex>
@@ -144,15 +144,13 @@ const handleCopy = (target) => {
 									<Tooltip delay="500">
 										<template #default>
 											<Flex align="center" gap="6">
-												<Text size="13" weight="600" color="secondary">{{
-													block.proposer_address.slice(0, 4)
-												}}</Text>
+												<Text size="13" weight="600" color="primary">{{ block.proposer_address.slice(0, 4) }}</Text>
 
 												<Flex align="center" gap="3">
 													<div v-for="dot in 3" class="dot" />
 												</Flex>
 
-												<Text size="13" weight="600" color="secondary">{{
+												<Text size="13" weight="600" color="primary">{{
 													block.proposer_address.slice(
 														block.proposer_address.length - 4,
 														block.proposer_address.length,
@@ -226,19 +224,23 @@ const handleCopy = (target) => {
 				<Flex direction="column" gap="32" :class="$style.main">
 					<Flex align="center" gap="40">
 						<Tooltip delay="500">
-							<Flex @click="handleCopy(preview.block.hash)" direction="column" gap="12" class="copyable">
+							<Flex direction="column" gap="12">
 								<Text size="12" weight="600" color="tertiary">Hash</Text>
 
-								<Flex align="center" gap="6">
-									<Text size="13" weight="600" color="primary">{{ preview.block.hash.slice(0, 4) }}</Text>
+								<Flex align="center" gap="10">
+									<Flex align="center" gap="6">
+										<Text size="13" weight="600" color="primary">{{ preview.block.hash.slice(0, 4) }}</Text>
 
-									<Flex align="center" gap="3">
-										<div v-for="dot in 3" class="dot" />
+										<Flex align="center" gap="3">
+											<div v-for="dot in 3" class="dot" />
+										</Flex>
+
+										<Text size="13" weight="600" color="primary">
+											{{ preview.block.hash.slice(preview.block.hash.length - 4, preview.block.hash.length) }}
+										</Text>
 									</Flex>
 
-									<Text size="13" weight="600" color="primary">{{
-										preview.block.hash.slice(preview.block.hash.length - 4, preview.block.hash.length)
-									}}</Text>
+									<CopyButton :text="preview.block.hash" />
 								</Flex>
 							</Flex>
 
@@ -248,22 +250,28 @@ const handleCopy = (target) => {
 						</Tooltip>
 
 						<Tooltip delay="500">
-							<Flex @click="handleCopy(preview.block.proposer_address)" direction="column" gap="12" class="copyable">
+							<Flex direction="column" gap="12">
 								<Text size="12" weight="600" color="tertiary">Proposer</Text>
 
-								<Flex align="center" gap="6">
-									<Text size="13" weight="600" color="primary">{{ preview.block.proposer_address.slice(0, 4) }}</Text>
+								<Flex align="center" gap="10">
+									<Flex align="center" gap="6">
+										<Text size="13" weight="600" color="primary">{{ preview.block.proposer_address.slice(0, 4) }}</Text>
 
-									<Flex align="center" gap="3">
-										<div v-for="dot in 3" class="dot" />
+										<Flex align="center" gap="3">
+											<div v-for="dot in 3" class="dot" />
+										</Flex>
+
+										<Text size="13" weight="600" color="primary">
+											{{
+												preview.block.proposer_address.slice(
+													preview.block.proposer_address.length - 4,
+													preview.block.proposer_address.length,
+												)
+											}}
+										</Text>
 									</Flex>
 
-									<Text size="13" weight="600" color="primary">{{
-										preview.block.proposer_address.slice(
-											preview.block.proposer_address.length - 4,
-											preview.block.proposer_address.length,
-										)
-									}}</Text>
+									<CopyButton :text="preview.block.proposer_address" />
 								</Flex>
 							</Flex>
 
