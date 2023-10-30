@@ -62,15 +62,23 @@ const handleCopy = (target) => {
 						<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.hash}`)">
 							<td style="width: 1px">
 								<Tooltip position="start" delay="500">
-									<Flex @click.stop="handleCopy(getNamespaceID(ns.namespace_id))" class="copyable" align="center" gap="8">
-										<Icon name="blob" size="14" color="secondary" />
+									<Flex @click.stop="handleCopy(getNamespaceID(ns.namespace_id))" class="copyable" align="center" gap="6">
+										<Icon name="folder" size="14" color="secondary" />
+
+										<Text size="13" weight="600" color="primary">
+											{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
+										</Text>
+
+										<Flex align="center" gap="3">
+											<div v-for="dot in 3" class="dot" />
+										</Flex>
 
 										<Text size="13" weight="600" color="primary">
 											{{ getNamespaceID(ns.namespace_id).slice(-4) }}
 										</Text>
 									</Flex>
 
-									<template #content> {{ ns.hash }} </template>
+									<template #content> {{ getNamespaceID(ns.namespace_id) }} </template>
 								</Tooltip>
 							</td>
 							<td>
@@ -92,7 +100,7 @@ const handleCopy = (target) => {
 							<td>
 								<Flex align="center" gap="6">
 									<Text size="13" weight="600" color="primary">{{ formatBytes(ns.size) }}</Text>
-									<Text size="13" weight="600" color="tertiary">({{ ns.pfb_count }})</Text>
+									<Text size="13" weight="600" color="tertiary">({{ comma(ns.pfb_count) }})</Text>
 								</Flex>
 							</td>
 						</tr>
