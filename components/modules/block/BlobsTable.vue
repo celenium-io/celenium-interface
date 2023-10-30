@@ -94,7 +94,15 @@ const handlePrev = () => {
 
 	<Flex v-if="!isBlobsLoading" direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
-			<Text size="14" weight="600" color="primary">Blobs</Text>
+			<Flex align="center" gap="8">
+				<Text size="14" weight="600" color="primary">Blobs</Text>
+
+				<Tooltip side="right">
+					<Icon name="info" size="14" color="tertiary" />
+
+					<template #content> Click on an item in the list to see the blob </template>
+				</Tooltip>
+			</Flex>
 
 			<Flex v-if="pages" align="center" gap="6">
 				<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1"> First </Button>
@@ -127,25 +135,27 @@ const handlePrev = () => {
 					</thead>
 
 					<tbody>
-						<tr v-for="blob in blobs" @click="router.push(`/namespace/${blob.namespace.hash}`)">
-							<td style="width: 1px">
+						<tr v-for="blob in blobs" @click.stop="handleViewBlob(blob)">
+							<td>
 								<Tooltip position="start" delay="500">
 									<Flex align="center" gap="10">
-										<Flex align="center" gap="8">
-											<Icon name="blob" size="12" color="secondary" />
+										<NuxtLink :to="`/namespace/${blob.namespace.hash}`" @click.stop>
+											<Flex align="center" gap="8">
+												<Icon name="blob" size="12" color="secondary" />
 
-											<Text size="13" weight="600" color="primary">
-												{{ getNamespaceID(blob.namespace.namespace_id).slice(0, 4) }}
-											</Text>
+												<Text size="13" weight="600" color="primary">
+													{{ getNamespaceID(blob.namespace.namespace_id).slice(0, 4) }}
+												</Text>
 
-											<Flex align="center" gap="3">
-												<div v-for="dot in 3" class="dot" />
+												<Flex align="center" gap="3">
+													<div v-for="dot in 3" class="dot" />
+												</Flex>
+
+												<Text size="13" weight="600" color="primary">
+													{{ getNamespaceID(blob.namespace.namespace_id).slice(-4) }}
+												</Text>
 											</Flex>
-
-											<Text size="13" weight="600" color="primary">
-												{{ getNamespaceID(blob.namespace.namespace_id).slice(-4) }}
-											</Text>
-										</Flex>
+										</NuxtLink>
 
 										<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
 									</Flex>
@@ -207,7 +217,7 @@ const handlePrev = () => {
 								<Text size="13" weight="600" color="primary">{{ blob.namespace.version }}</Text>
 							</td>
 							<td style="width: 1px">
-								<Button @click.stop="handleViewBlob(blob)" type="secondary" size="mini">View</Button>
+								<Icon name="arrow-narrow-up-right" size="14" color="tertiary" />
 							</td>
 						</tr>
 					</tbody>
