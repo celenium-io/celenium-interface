@@ -7,7 +7,7 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { tia, comma, space, formatBytes } from "@/services/utils"
+import { tia, comma, space, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
 import { fetchBlockNamespaces } from "@/services/api/block"
@@ -282,42 +282,44 @@ const handleCopy = (target) => {
 						</Flex>
 
 						<Flex v-if="preview.block.stats.tx_count" direction="column" gap="8">
-							<Outline v-for="transaction in preview.transactions.slice(0, 3)" wide height="32" padding="8" radius="6">
-								<Flex justify="between" align="center" wide>
-									<Flex align="center" gap="8">
-										<Icon
-											:name="transaction.status === 'success' ? 'tx_success' : 'tx_error'"
-											size="12"
-											color="secondary"
-										/>
+							<NuxtLink v-for="transaction in preview.transactions.slice(0, 3)" :to="`/tx/${transaction.hash}`">
+								<Outline wide height="32" padding="8" radius="6">
+									<Flex justify="between" align="center" wide>
+										<Flex align="center" gap="8">
+											<Icon
+												:name="transaction.status === 'success' ? 'tx_success' : 'tx_error'"
+												size="12"
+												color="secondary"
+											/>
 
-										<Text size="13" weight="700" color="primary" mono>{{ transaction.hash.slice(0, 4) }}</Text>
+											<Text size="13" weight="600" color="primary">{{ transaction.hash.slice(0, 4) }}</Text>
 
-										<Flex align="center" gap="3">
-											<div v-for="dot in 3" class="dot" />
+											<Flex align="center" gap="3">
+												<div v-for="dot in 3" class="dot" />
+											</Flex>
+
+											<Text size="13" weight="600" color="primary">
+												{{ transaction.hash.slice(transaction.hash.length - 4, transaction.hash.length) }}
+											</Text>
 										</Flex>
 
-										<Text size="13" weight="700" color="primary" mono>
-											{{ transaction.hash.slice(transaction.hash.length - 4, transaction.hash.length) }}
-										</Text>
+										<Flex v-if="transaction.message_types.length" align="center" gap="6">
+											<Text size="12" height="160" weight="600" color="tertiary" :class="$style.message_type">
+												{{ transaction.message_types[0].replace("Msg", "") }}
+											</Text>
+											<Text
+												v-if="transaction.message_types.length > 1"
+												size="12"
+												weight="600"
+												color="primary"
+												:class="$style.badge"
+											>
+												+{{ transaction.message_types.length - 1 }}
+											</Text>
+										</Flex>
 									</Flex>
-
-									<Flex v-if="transaction.message_types.length" align="center" gap="6">
-										<Text size="12" height="160" weight="600" color="tertiary" :class="$style.message_type">
-											{{ transaction.message_types[0].replace("Msg", "") }}
-										</Text>
-										<Text
-											v-if="transaction.message_types.length > 1"
-											size="12"
-											weight="600"
-											color="primary"
-											:class="$style.badge"
-										>
-											+{{ transaction.message_types.length - 1 }}
-										</Text>
-									</Flex>
-								</Flex>
-							</Outline>
+								</Outline>
+							</NuxtLink>
 						</Flex>
 						<Text v-else size="12" weight="600" color="tertiary" align="center" :class="$style.empty_state">
 							No transactions
@@ -343,25 +345,29 @@ const handleCopy = (target) => {
 							Loading namespaces..
 						</Text>
 						<Flex v-else-if="preview.pfbs?.length" direction="column" gap="8">
-							<Outline v-for="pfb in preview.pfbs.slice(0, 3)" wide height="32" padding="8" radius="6">
-								<Flex align="center" justify="between" wide>
-									<Flex align="center" gap="8">
-										<Icon name="blob" size="12" color="secondary" />
+							<NuxtLink v-for="pfb in preview.pfbs.slice(0, 3)" :to="`/namespace/${pfb.namespace.hash}`">
+								<Outline wide height="32" padding="8" radius="6">
+									<Flex align="center" justify="between" wide>
+										<Flex align="center" gap="8">
+											<Icon name="folder" size="12" color="secondary" />
 
-										<Text size="13" weight="700" color="primary" mono>{{ pfb.namespace.hash.slice(0, 4) }}</Text>
+											<Text size="13" weight="600" color="primary">
+												{{ getNamespaceID(pfb.namespace.namespace_id).slice(0, 4) }}
+											</Text>
 
-										<Flex align="center" gap="3">
-											<div v-for="dot in 3" class="dot" />
+											<Flex align="center" gap="3">
+												<div v-for="dot in 3" class="dot" />
+											</Flex>
+
+											<Text size="13" weight="600" color="primary">
+												{{ getNamespaceID(pfb.namespace.namespace_id).slice(-4) }}
+											</Text>
 										</Flex>
 
-										<Text size="13" weight="700" color="primary" mono>
-											{{ space(pfb.namespace.hash.slice(pfb.namespace.hash.length - 8, pfb.namespace.hash.length)) }}
-										</Text>
+										<Text size="12" weight="600" color="tertiary">{{ formatBytes(pfb.namespace.size) }}</Text>
 									</Flex>
-
-									<Text size="12" weight="600" color="tertiary">{{ formatBytes(pfb.namespace.size) }}</Text>
-								</Flex>
-							</Outline>
+								</Outline>
+							</NuxtLink>
 						</Flex>
 						<Text v-else size="12" weight="600" color="tertiary" align="center" :class="$style.empty_state">
 							No namespaces

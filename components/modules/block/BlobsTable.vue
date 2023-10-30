@@ -48,13 +48,13 @@ onMounted(async () => {
 const getNamespaces = async () => {
 	isRefetching.value = true
 
-	const { data } = await fetchBlockNamespaces({
+	const data = await fetchBlockNamespaces({
 		height: props.height,
 		limit: 5,
 		offset: (page.value - 1) * 5,
 		sort: "desc",
 	})
-	blobs.value = data.value
+	blobs.value = data
 
 	isRefetching.value = false
 
@@ -133,6 +133,14 @@ const handlePrev = () => {
 									<Flex align="center" gap="10">
 										<Flex align="center" gap="8">
 											<Icon name="blob" size="12" color="secondary" />
+
+											<Text size="13" weight="600" color="primary">
+												{{ getNamespaceID(blob.namespace.namespace_id).slice(0, 4) }}
+											</Text>
+
+											<Flex align="center" gap="3">
+												<div v-for="dot in 3" class="dot" />
+											</Flex>
 
 											<Text size="13" weight="600" color="primary">
 												{{ getNamespaceID(blob.namespace.namespace_id).slice(-4) }}
