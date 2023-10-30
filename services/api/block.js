@@ -35,8 +35,7 @@ export const fetchBlockNamespaces = async ({ height, limit, offset, sort }) => {
 		if (offset) url.searchParams.append("offset", offset)
 		if (sort) url.searchParams.append("sort", sort)
 
-		const data = await useLazyFetch(url.href)
-		if (data.status.value === "idle") await data.execute()
+		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
 		console.error(error)

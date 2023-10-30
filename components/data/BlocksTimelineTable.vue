@@ -24,18 +24,30 @@ const preview = reactive({
 	block: blocks.value[0],
 	transactions: [],
 	pfbs: [],
+
+	isLoadingPfbs: true,
 })
 
 const handleSelectBlock = (b) => {
+	if (preview.block.height === b.height) return
+
 	preview.block = b
+
+	preview.pfbs = []
+	preview.isLoadingPfbs = true
 }
+
+const getTransactionsByBlock = async () => {
+	const { data } = await fetchTransactionsByBlock({ height: preview.block.height })
+	preview.transactions = data.value
+}
+getTransactionsByBlock()
 
 watch(
 	() => preview.block,
 	async () => {
 		if (preview.block.stats.tx_count) {
-			const { data } = await fetchTransactionsByBlock({ height: preview.block.height })
-			preview.transactions = data.value
+			getTransactionsByBlock()
 		}
 	},
 )
@@ -44,10 +56,14 @@ watch(
 	() => preview.transactions,
 	async () => {
 		const hasPFB = !!preview.transactions.filter((t) => t.message_types.includes("MsgPayForBlobs"))
-		if (!hasPFB) return
+		if (!hasPFB) {
+			preview.isLoadingPfbs = false
+			return
+		}
 
-		const { data } = await fetchBlockNamespaces({ height: preview.block.height })
-		preview.pfbs = data.value
+		const data = await fetchBlockNamespaces({ height: preview.block.height })
+		preview.pfbs = data
+		preview.isLoadingPfbs = false
 	},
 )
 
@@ -310,13 +326,23 @@ const handleCopy = (target) => {
 
 					<Flex direction="column" gap="12">
 						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Blobs</Text>
+							<Text size="12" weight="600" color="tertiary">Namespaces</Text>
 							<Text size="12" weight="600" color="secondary">
-								{{ preview.pfbs.length > 3 ? "3 /" : "" }} {{ preview.pfbs.length }}
+								{{ preview.pfbs?.length > 3 ? "3 /" : "" }} {{ preview.pfbs?.length }}
 							</Text>
 						</Flex>
 
-						<Flex v-if="preview.pfbs.length" direction="column" gap="8">
+						<Text
+							v-if="preview.isLoadingPfbs"
+							size="12"
+							weight="600"
+							color="tertiary"
+							align="center"
+							:class="$style.empty_state"
+						>
+							Loading namespaces..
+						</Text>
+						<Flex v-else-if="preview.pfbs?.length" direction="column" gap="8">
 							<Outline v-for="pfb in preview.pfbs.slice(0, 3)" wide height="32" padding="8" radius="6">
 								<Flex align="center" justify="between" wide>
 									<Flex align="center" gap="8">
@@ -337,7 +363,9 @@ const handleCopy = (target) => {
 								</Flex>
 							</Outline>
 						</Flex>
-						<Text v-else size="12" weight="600" color="tertiary" align="center" :class="$style.empty_state"> No blobs </Text>
+						<Text v-else size="12" weight="600" color="tertiary" align="center" :class="$style.empty_state">
+							No namespaces
+						</Text>
 					</Flex>
 
 					<Flex direction="column" gap="16">
