@@ -14,9 +14,7 @@ import { fetchBlocks } from "@/services/api/block"
 
 /** Store */
 import { useAppStore } from "@/store/app"
-import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
-const notificationsStore = useNotificationsStore()
 
 useHead({
 	title: "All Blocks - Celestia Explorer",
@@ -105,19 +103,6 @@ const handlePrev = () => {
 
 	page.value -= 1
 }
-
-const handleCopy = (target) => {
-	window.navigator.clipboard.writeText(target)
-
-	notificationsStore.create({
-		notification: {
-			type: "info",
-			icon: "check",
-			title: "Successfully copied to clipboard",
-			autoDestroy: true,
-		},
-	})
-}
 </script>
 
 <template>
@@ -189,16 +174,20 @@ const handleCopy = (target) => {
 								<td>
 									<Tooltip v-if="block.hash" delay="500">
 										<template #default>
-											<Flex @click.stop="handleCopy(block.hash)" align="center" gap="6" class="copyable">
-												<Text size="13" weight="600" color="secondary">{{ block.hash.slice(0, 4) }}</Text>
+											<Flex align="center" gap="10">
+												<Flex align="center" gap="6">
+													<Text size="13" weight="600" color="primary">{{ block.hash.slice(0, 4) }}</Text>
 
-												<Flex align="center" gap="3">
-													<div v-for="dot in 3" class="dot" />
+													<Flex align="center" gap="3">
+														<div v-for="dot in 3" class="dot" />
+													</Flex>
+
+													<Text size="13" weight="600" color="primary">
+														{{ block.hash.slice(block.hash.length - 4, block.hash.length) }}
+													</Text>
 												</Flex>
 
-												<Text size="13" weight="600" color="secondary">
-													{{ block.hash.slice(block.hash.length - 4, block.hash.length) }}
-												</Text>
+												<CopyButton :text="block.hash" />
 											</Flex>
 										</template>
 
@@ -209,21 +198,25 @@ const handleCopy = (target) => {
 								<td>
 									<Tooltip v-if="block.hash" delay="500">
 										<template #default>
-											<Flex @click.stop="handleCopy(block.proposer_address)" align="center" gap="6" class="copyable">
-												<Text size="13" weight="600" color="secondary">{{
-													block.proposer_address.slice(0, 4)
-												}}</Text>
+											<Flex align="center" gap="10">
+												<Flex align="center" gap="6">
+													<Text size="13" weight="600" color="primary">{{
+														block.proposer_address.slice(0, 4)
+													}}</Text>
 
-												<Flex align="center" gap="3">
-													<div v-for="dot in 3" class="dot" />
+													<Flex align="center" gap="3">
+														<div v-for="dot in 3" class="dot" />
+													</Flex>
+
+													<Text size="13" weight="600" color="primary">{{
+														block.proposer_address.slice(
+															block.proposer_address.length - 4,
+															block.proposer_address.length,
+														)
+													}}</Text>
 												</Flex>
 
-												<Text size="13" weight="600" color="secondary">{{
-													block.proposer_address.slice(
-														block.proposer_address.length - 4,
-														block.proposer_address.length,
-													)
-												}}</Text>
+												<CopyButton :text="block.proposer_address" />
 											</Flex>
 										</template>
 
