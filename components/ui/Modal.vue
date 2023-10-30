@@ -7,7 +7,7 @@ import * as focusTrap from "focus-trap"
 /**
  * Composable
  */
-import { useOutside } from "@/composable/outside"
+import { useOutside } from "@/composables/outside"
 
 const emit = defineEmits(["onClose"])
 const props = defineProps({

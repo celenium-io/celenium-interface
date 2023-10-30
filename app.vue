@@ -1,7 +1,8 @@
 <script setup>
-/** API */
+/** Services */
 import Socket from "@/services/api/socket"
 import { fetchHead } from "@/services/api/main"
+import amp from "@/services/amp"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -11,6 +12,9 @@ const { data } = await fetchHead()
 if (data.value) appStore.head = data.value
 
 onMounted(() => {
+	const runtimeConfig = useRuntimeConfig()
+	amp.init(runtimeConfig.public.AMP)
+
 	Socket.init()
 
 	window.onbeforeunload = function () {

@@ -12,6 +12,7 @@ import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 /** Services */
 import { comma, tia, splitAddress } from "@/services/utils"
 import { MessageIconMap } from "@/services/constants/mapping"
+import amp from "@/services/amp"
 
 /** API */
 import { fetchTxEvents } from "@/services/api/tx"
@@ -33,8 +34,14 @@ const props = defineProps({
 	},
 })
 
-const events = ref([])
 const showAll = ref(false)
+const handleShowAll = () => {
+	showAll.value = !showAll.value
+
+	amp.log("toggleShowAll")
+}
+
+const events = ref([])
 const filteredEvents = computed(() => (showAll.value ? events.value : events.value.slice(0, 10)))
 
 const { data: rawEvents } = await fetchTxEvents(props.tx.hash)
@@ -440,7 +447,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 					</Flex>
 				</Flex>
 
-				<Button v-if="events.length > 10" @click="showAll = !showAll" type="secondary" size="mini">
+				<Button v-if="events.length > 10" @click="handleShowAll" type="secondary" size="mini">
 					{{ !showAll ? "View More" : "Hide" }}
 				</Button>
 			</Flex>

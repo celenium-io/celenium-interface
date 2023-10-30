@@ -1,7 +1,4 @@
 <script setup>
-/** Vendor */
-import { DateTime } from "luxon"
-
 /** Services */
 import { comma } from "@/services/utils"
 

@@ -1,6 +1,12 @@
 export default defineNuxtConfig({
 	modules: ["@pinia/nuxt", "nuxt-og-image"],
 
+	runtimeConfig: {
+		public: {
+			AMP: process.env.AMP,
+		},
+	},
+
 	app: {
 		head: {
 			htmlAttrs: {

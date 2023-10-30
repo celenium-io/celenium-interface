@@ -58,9 +58,6 @@ const handleChangeTheme = () => {
 						<a href="https://github.com/celenium-io" target="_blank">
 							<Icon name="github" size="14" color="secondary" :class="$style.btn" />
 						</a>
-						<a href="https://twitter.com/celenium_io" target="_blank">
-							<Icon name="discord" size="14" color="secondary" :class="$style.btn" />
-						</a>
 					</Flex>
 				</Flex>
 

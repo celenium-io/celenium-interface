@@ -5,7 +5,7 @@ import { search } from "@/services/api/search"
 /**
  * Composable
  */
-import { useOutside } from "@/composable/outside"
+import { useOutside } from "@/composables/outside"
 
 /**
  * Store
