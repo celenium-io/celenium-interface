@@ -9,10 +9,6 @@ import { space, formatBytes, comma, getNamespaceID } from "@/services/utils"
 /** API */
 import { fetchNamespaces, fetchNamespacesCount } from "@/services/api/namespace"
 
-/** Store */
-import { useNotificationsStore } from "@/store/notifications"
-const notificationsStore = useNotificationsStore()
-
 useHead({
 	title: "All Namespaces - Celestia Explorer",
 	link: [
@@ -109,19 +105,6 @@ const handlePrev = () => {
 	if (page.value === 1) return
 
 	page.value -= 1
-}
-
-const handleCopy = (target) => {
-	window.navigator.clipboard.writeText(target)
-
-	notificationsStore.create({
-		notification: {
-			type: "info",
-			icon: "check",
-			title: "Successfully copied to clipboard",
-			autoDestroy: true,
-		},
-	})
 }
 </script>
 

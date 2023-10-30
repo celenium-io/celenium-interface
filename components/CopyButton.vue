@@ -35,7 +35,7 @@ const handleCopy = (target) => {
 		@click.stop="handleCopy(text)"
 		:name="!isCopied ? 'copy' : 'check'"
 		size="12"
-		:color="!isCopied ? 'secondary' : 'green'"
+		:color="!isCopied ? 'tertiary' : 'green'"
 		class="copyable"
 	/>
 </template>

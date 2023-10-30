@@ -17,9 +17,7 @@ import { fetchTransactions } from "@/services/api/tx"
 
 /** Store */
 import { useAppStore } from "@/store/app"
-import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
-const notificationsStore = useNotificationsStore()
 
 useHead({
 	title: "All Transactions - Celestia Explorer",
@@ -123,19 +121,6 @@ const handlePrev = () => {
 
 	page.value -= 1
 }
-
-const handleCopy = (target) => {
-	window.navigator.clipboard.writeText(target)
-
-	notificationsStore.create({
-		notification: {
-			type: "info",
-			icon: "check",
-			title: "Successfully copied to clipboard",
-			autoDestroy: true,
-		},
-	})
-}
 </script>
 
 <template>
@@ -194,24 +179,37 @@ const handleCopy = (target) => {
 							>
 								<td style="width: 1px">
 									<Tooltip :disabled="!tx.hash" position="start">
-										<Flex @click.stop="handleCopy(tx.hash)" class="copyable" align="center" gap="8">
-											<Icon :name="tx.status === 'success' ? 'tx_success' : 'tx_error'" size="14" color="secondary" />
+										<template v-if="tx.hash">
+											<Flex align="center" gap="10">
+												<Flex align="center" gap="6">
+													<Icon
+														:name="tx.status === 'success' ? 'tx_success' : 'tx_error'"
+														size="14"
+														color="secondary"
+													/>
 
-											<template v-if="tx.hash">
-												<Text size="13" weight="600" color="primary">{{ tx.hash.slice(0, 4).toUpperCase() }}</Text>
+													<Text size="13" weight="600" color="primary">{{
+														tx.hash.slice(0, 4).toUpperCase()
+													}}</Text>
 
-												<Flex align="center" gap="3">
-													<div v-for="dot in 3" class="dot" />
+													<Flex align="center" gap="3">
+														<div v-for="dot in 3" class="dot" />
+													</Flex>
+
+													<Text size="13" weight="600" color="primary">
+														{{ tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase() }}
+													</Text>
 												</Flex>
 
-												<Text size="13" weight="600" color="primary">
-													{{ tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase() }}
-												</Text>
-											</template>
-											<template v-else>
+												<CopyButton :text="tx.hash" />
+											</Flex>
+										</template>
+										<template v-else>
+											<Flex align="center" gap="8">
+												<Icon name="tx" size="14" color="secondary" />
 												<Text size="13" weight="600" color="primary">Genesis</Text>
-											</template>
-										</Flex>
+											</Flex>
+										</template>
 
 										<template #content>
 											{{ space(tx.hash).toUpperCase() }}
