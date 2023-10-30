@@ -440,7 +440,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 					</Flex>
 				</Flex>
 
-				<Button @click="showAll = !showAll" type="secondary" size="mini">
+				<Button v-if="events.length > 10" @click="showAll = !showAll" type="secondary" size="mini">
 					{{ !showAll ? "View More" : "Hide" }}
 				</Button>
 			</Flex>
