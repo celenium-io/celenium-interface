@@ -4,6 +4,7 @@ import { DateTime } from "luxon"
 
 /** UI */
 import Tooltip from "~/components/ui/Tooltip.vue"
+import Button from "~/components/ui/Button.vue"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
@@ -33,6 +34,8 @@ const props = defineProps({
 })
 
 const events = ref([])
+const showAll = ref(false)
+const filteredEvents = computed(() => (showAll.value ? events.value : events.value.slice(0, 10)))
 
 const { data: rawEvents } = await fetchTxEvents(props.tx.hash)
 events.value = rawEvents.value.sort((a, b) => a.position - b.position)
@@ -158,7 +161,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 						<Text v-else size="12" weight="600" color="tertiary">No Message Types</Text>
 					</Flex>
 
-					<Flex v-for="(event, idx) in events" align="center" gap="12" :class="$style.event">
+					<Flex v-for="(event, idx) in filteredEvents" align="center" gap="12" :class="$style.event">
 						<Flex
 							direction="column"
 							align="center"
@@ -438,6 +441,10 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 						</Flex>
 					</Flex>
 				</Flex>
+
+				<Button @click="showAll = !showAll" type="secondary" size="mini">
+					{{ !showAll ? "View More" : "Hide" }}
+				</Button>
 			</Flex>
 		</Flex>
 	</Flex>
