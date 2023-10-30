@@ -291,19 +291,27 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 								</template>
 								<!-- acc_seq -->
 								<template v-if="event.data.acc_seq">
-									<Text size="12" weight="500" color="secondary">Acc Seq</Text>
+									<Text size="12" weight="500" color="secondary">Acc</Text>
 
 									<Tooltip :class="$style.tooltip">
-										<NuxtLink :to="`/address/${event.data.acc_seq}`">
+										<NuxtLink :to="`/address/${event.data.acc_seq.split('/')[0]}`">
 											<Text size="12" weight="500" color="primary" mono>
-												{{ event.data.acc_seq.slice(event.data.acc_seq.length - 4, event.data.acc_seq.length) }}
+												{{ event.data.acc_seq.split("/")[0].slice(-4) }}
 											</Text>
 										</NuxtLink>
 
 										<template #content>
-											{{ event.data.acc_seq }}
+											{{ event.data.acc_seq.split("/")[0] }}
 										</template>
 									</Tooltip>
+
+									<template v-if="event.data.acc_seq.split('/')[1]">
+										<Text size="12" weight="500" color="secondary">Seq</Text>
+
+										<Text size="12" weight="500" color="primary" mono>
+											{{ event.data.acc_seq.split("/")[1] }}
+										</Text>
+									</template>
 								</template>
 								<!-- fee -->
 								<template v-if="event.data.fee">
