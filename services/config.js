@@ -17,6 +17,6 @@ export const useServerURL = () => {
 			return Server.API.mocha
 
 		default:
-			return Server.API.mocha
+			return Server.API.mainnet
 	}
 }

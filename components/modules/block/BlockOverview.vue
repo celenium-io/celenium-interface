@@ -20,6 +20,13 @@ import { fetchTransactionsByBlock } from "@/services/api/tx"
 import { useNotificationsStore } from "@/store/notifications"
 const notificationsStore = useNotificationsStore()
 
+const MapTabsTypes = {
+	PFBs: "MsgPayForBlobs",
+	Transfers: "MsgSend",
+	Register: "MsgRegisterEVMAddress",
+	Delegate: "MsgDelegate",
+}
+
 const router = useRouter()
 
 const props = defineProps({
@@ -57,6 +64,7 @@ const getTransactions = async () => {
 		limit: 10,
 		offset: (page.value - 1) * 10,
 		sort: "desc",
+		type: MapTabsTypes[activeTab.value],
 	})
 	if (data.value?.length) {
 		transactions.value = data.value
@@ -72,12 +80,10 @@ watch(
 	() => getTransactions(),
 )
 
-const MapTabsTypes = {
-	PFBs: "MsgPayForBlobs",
-	Transfers: "MsgSend",
-	Register: "MsgRegisterEVMAddress",
-	Delegate: "MsgDelegate",
-}
+watch(
+	() => activeTab.value,
+	() => getTransactions(),
+)
 
 const filteredTransactions = computed(() => {
 	const supportedTypes = Object.values(MapTabsTypes)
@@ -314,7 +320,7 @@ const handleCopy = (target) => {
 						</table>
 					</div>
 
-					<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+					<Flex v-else-if="!isRefetching" align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 						<Text size="13" weight="600" color="secondary" align="center"> No transactions </Text>
 						<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
 							This block does not contain transactions of the selected type
