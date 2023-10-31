@@ -54,6 +54,8 @@ const handleCopy = () => {
 	transition: all 0.2s ease;
 
 	& span {
+		width: 100%;
+
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
