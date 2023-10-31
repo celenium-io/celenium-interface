@@ -11,7 +11,7 @@ import Button from "@/components/ui/Button.vue"
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 
 /** Services */
-import { tia, comma, space, formatBytes, getNamespaceID } from "@/services/utils"
+import { comma, space, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
 import { fetchNamespaceMessagesById } from "@/services/api/namespace"
