@@ -41,6 +41,24 @@ blockProgressInterval = setInterval(() => {
 onBeforeUnmount(() => {
 	clearInterval(blockProgressInterval)
 })
+
+const { hostname } = useRequestURL()
+
+const getNetworkName = () => {
+	switch (hostname) {
+		case "celenium.io":
+			return "Mainnet"
+
+		case "mocha-4.celenium.io":
+			return "Mocha-4"
+
+		case "localhost":
+			return "Local Environment"
+
+		default:
+			return "Unknown"
+	}
+}
 </script>
 
 <template>
@@ -52,7 +70,7 @@ onBeforeUnmount(() => {
 					<Text size="16" weight="600" color="green"> {{ comma(lastBlock.height + 1) }}</Text>
 				</Flex>
 
-				<Text size="13" weight="500" color="tertiary"> Chain Mocha-4 </Text>
+				<Text size="13" weight="500" color="tertiary"> Chain {{ getNetworkName() }} </Text>
 			</Flex>
 
 			<Flex direction="column" gap="8" align="end">
