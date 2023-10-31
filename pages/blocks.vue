@@ -151,7 +151,7 @@ const handlePrev = () => {
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Txs</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Events</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Blobs Size</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Fee</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Total Fees</Text></th>
 							</tr>
 						</thead>
 

@@ -216,7 +216,7 @@ const handleCopy = (target) => {
 							<Text size="12" weight="600" color="secondary"> {{ block.stats.tx_count }} </Text>
 						</Flex>
 						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary"> Fee </Text>
+							<Text size="12" weight="600" color="tertiary"> Total Fees </Text>
 							<Text size="12" weight="600" color="secondary"> {{ tia(block.stats.fee) }} TIA</Text>
 						</Flex>
 					</Flex>
