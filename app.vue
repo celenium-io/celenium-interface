@@ -15,11 +15,11 @@ onMounted(() => {
 	const runtimeConfig = useRuntimeConfig()
 	amp.init(runtimeConfig.public.AMP)
 
-	Socket.init()
+	// Socket.init()
 
-	window.onbeforeunload = function () {
-		Socket.close()
-	}
+	// window.onbeforeunload = function () {
+	// 	Socket.close()
+	// }
 })
 </script>
 
