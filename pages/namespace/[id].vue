@@ -6,18 +6,18 @@ import NamespaceOverview from "@/components/modules/namespace/NamespaceOverview.
 import { getNamespaceID } from "@/services/utils"
 
 /** API */
-import { fetchNamespaceByHash } from "@/services/api/namespace"
+import { fetchNamespaceByID } from "@/services/api/namespace"
 
 const route = useRoute()
 const router = useRouter()
 
 const namespace = ref()
-const { data: rawNamespace } = await fetchNamespaceByHash(route.params.hash)
+const { data: rawNamespace } = await fetchNamespaceByID(route.params.id)
 
 if (!rawNamespace.value) {
 	router.push("/")
 } else {
-	namespace.value = rawNamespace.value
+	namespace.value = rawNamespace.value[0]
 }
 
 useHead({
@@ -72,7 +72,7 @@ useHead({
 			:items="[
 				{ link: '/', name: 'Explore' },
 				{ link: '/namespaces', name: 'Namespaces' },
-				{ link: route.fullPath, name: `${namespace.hash}` },
+				{ link: route.fullPath, name: `${getNamespaceID(namespace.namespace_id)}` },
 			]"
 			:class="$style.breadcrumbs"
 		/>

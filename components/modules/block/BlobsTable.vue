@@ -139,7 +139,7 @@ const handlePrev = () => {
 							<td>
 								<Tooltip position="start" delay="500">
 									<Flex align="center" gap="10">
-										<NuxtLink :to="`/namespace/${blob.namespace.hash}`" @click.stop>
+										<NuxtLink :to="`/namespace/${blob.namespace.namespace_id}`" @click.stop>
 											<Flex align="center" gap="8">
 												<Icon name="blob" size="12" color="secondary" />
 

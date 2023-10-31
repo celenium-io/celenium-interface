@@ -38,6 +38,17 @@ export const fetchRecentNamespaces = async () => {
 	}
 }
 
+export const fetchNamespaceByID = async (id) => {
+	try {
+		const url = new URL(`${useServerURL()}/namespace/${id}`)
+
+		const data = await useFetch(encodeURI(url.href))
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchNamespaceByHash = async (hash) => {
 	try {
 		const url = new URL(`${useServerURL()}/namespace_by_hash/${hash}`)

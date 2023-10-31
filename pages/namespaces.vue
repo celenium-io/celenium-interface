@@ -155,7 +155,7 @@ const handlePrev = () => {
 						</thead>
 
 						<tbody>
-							<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.hash}`)">
+							<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.namespace_id}`)">
 								<td>
 									<Tooltip position="start">
 										<Flex align="center" gap="6">

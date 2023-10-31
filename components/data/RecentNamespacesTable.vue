@@ -59,7 +59,7 @@ const handleCopy = (target) => {
 					</thead>
 
 					<tbody>
-						<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.hash}`)">
+						<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.namespace_id}`)">
 							<td style="width: 1px">
 								<Tooltip position="start" delay="500">
 									<Flex @click.stop="handleCopy(getNamespaceID(ns.namespace_id))" class="copyable" align="center" gap="6">

@@ -353,7 +353,7 @@ const handleCopy = (target) => {
 							Loading namespaces..
 						</Text>
 						<Flex v-else-if="preview.pfbs?.length" direction="column" gap="8">
-							<NuxtLink v-for="pfb in preview.pfbs.slice(0, 3)" :to="`/namespace/${pfb.namespace.hash}`">
+							<NuxtLink v-for="pfb in preview.pfbs.slice(0, 3)" :to="`/namespace/${pfb.namespace.namespace_id}`">
 								<Outline wide height="32" padding="8" radius="6">
 									<Flex align="center" justify="between" wide>
 										<Flex align="center" gap="8">
