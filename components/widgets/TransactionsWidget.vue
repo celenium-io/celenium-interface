@@ -22,8 +22,8 @@ histogram.value.forEach((item, idx) => {
 		sectors.push(histogram.value.slice(rSix - 6, rSix))
 	}
 })
-if (sectors.length !== 4) {
-	isDataAvailable.value = false
+if (sectors.length === 4) {
+	isDataAvailable.value = true
 }
 
 const min = Math.min(...histogram.value.map((item) => parseInt(item.value)))
