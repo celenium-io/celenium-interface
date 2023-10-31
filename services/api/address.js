@@ -1,9 +1,9 @@
 /** Services */
-import { Server } from "@/services/config"
+import { useServerURL } from "@/services/config"
 
 export const fetchAddresses = async ({ limit, offset, sort }) => {
 	try {
-		const url = new URL(`${Server.API}/address`)
+		const url = new URL(`${useServerURL()}/address`)
 
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
@@ -18,7 +18,7 @@ export const fetchAddresses = async ({ limit, offset, sort }) => {
 
 export const fetchAddressesCount = async () => {
 	try {
-		const url = new URL(`${Server.API}/address/count`)
+		const url = new URL(`${useServerURL()}/address/count`)
 
 		const data = await useFetch(url.href)
 		return data
@@ -29,7 +29,7 @@ export const fetchAddressesCount = async () => {
 
 export const fetchAddressByHash = async (hash) => {
 	try {
-		const url = new URL(`${Server.API}/address/${hash}`)
+		const url = new URL(`${useServerURL()}/address/${hash}`)
 
 		const data = await useFetch(url.href)
 		return data
@@ -40,7 +40,7 @@ export const fetchAddressByHash = async (hash) => {
 
 export const fetchTxsByAddressHash = async ({ limit, offset, sort, hash }) => {
 	try {
-		const url = new URL(`${Server.API}/address/${hash}/txs`)
+		const url = new URL(`${useServerURL()}/address/${hash}/txs`)
 
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)

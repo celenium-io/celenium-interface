@@ -10,6 +10,24 @@ import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
 
 const head = computed(() => appStore.head)
+
+const { hostname } = useRequestURL()
+
+const getNetworkName = () => {
+	switch (hostname) {
+		case "celenium.io":
+			return "Mainnet"
+
+		case "mocha-4.celenium.io":
+			return "Mocha-4"
+
+		case "localhost":
+			return "Local Environment"
+
+		default:
+			return "Unknown"
+	}
+}
 </script>
 
 <template>
@@ -73,7 +91,7 @@ const head = computed(() => appStore.head)
 
 			<Flex align="center" gap="6">
 				<Icon name="globe" size="12" color="tertiary" />
-				<Text size="12" weight="500" color="tertiary"> Mocha-4 </Text>
+				<Text size="12" weight="500" color="tertiary"> {{ getNetworkName() }} </Text>
 			</Flex>
 		</Flex>
 	</Flex>

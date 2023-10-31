@@ -1,9 +1,9 @@
 /** Services */
-import { Server } from "@/services/config"
+import { useServerURL } from "@/services/config"
 
 export const fetchTransactions = async ({ limit, offset, sort, msg_type }) => {
 	try {
-		const url = new URL(`${Server.API}/tx`)
+		const url = new URL(`${useServerURL()}/tx`)
 
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
@@ -19,7 +19,7 @@ export const fetchTransactions = async ({ limit, offset, sort, msg_type }) => {
 
 export const fetchTxByHash = async (hash) => {
 	try {
-		const url = new URL(`${Server.API}/tx/${hash}`)
+		const url = new URL(`${useServerURL()}/tx/${hash}`)
 
 		const data = await useFetch(url.href)
 		return data
@@ -30,7 +30,7 @@ export const fetchTxByHash = async (hash) => {
 
 export const fetchTxMessages = async (hash) => {
 	try {
-		const url = new URL(`${Server.API}/tx/${hash}/messages`)
+		const url = new URL(`${useServerURL()}/tx/${hash}/messages`)
 
 		const data = await useFetch(url.href)
 		return data
@@ -41,7 +41,7 @@ export const fetchTxMessages = async (hash) => {
 
 export const fetchTxEvents = async (hash) => {
 	try {
-		const url = new URL(`${Server.API}/tx/${hash}/events`)
+		const url = new URL(`${useServerURL()}/tx/${hash}/events`)
 
 		const data = await useFetch(url.href)
 		return data
@@ -53,7 +53,7 @@ export const fetchTxEvents = async (hash) => {
 /** Latest PayForBlobs */
 export const fetchLatestPFBs = async (height) => {
 	try {
-		const data = await useFetch(`${Server.API}/tx?msg_type=MsgPayForBlobs&sort=desc&limit=5`)
+		const data = await useFetch(`${useServerURL()}/tx?msg_type=MsgPayForBlobs&sort=desc&limit=5`)
 		return data
 	} catch (error) {
 		console.error(error)
@@ -62,7 +62,7 @@ export const fetchLatestPFBs = async (height) => {
 
 export const fetchTransactionsByBlock = async ({ limit, offset, sort, height }) => {
 	try {
-		const url = new URL(`${Server.API}/tx`)
+		const url = new URL(`${useServerURL()}/tx`)
 
 		url.searchParams.append("height", height)
 		if (limit) url.searchParams.append("limit", limit)

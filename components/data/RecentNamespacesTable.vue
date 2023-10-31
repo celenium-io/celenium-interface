@@ -140,6 +140,8 @@ const handleCopy = (target) => {
 }
 
 .namespaces_body {
+	flex: 1;
+
 	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 
@@ -204,6 +206,8 @@ const handleCopy = (target) => {
 }
 
 .table_scroller {
+	flex: 1;
+
 	overflow-x: auto;
 }
 </style>

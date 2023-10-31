@@ -13,6 +13,8 @@ const histogram = ref([])
 const { data } = await fetchHistogram({ table: "tx", func: "count", period: "hour" })
 histogram.value = data.value.slice(0, 24).reverse()
 
+const isDataAvailable = ref(false)
+
 let sectors = []
 histogram.value.forEach((item, idx) => {
 	const rSix = Math.ceil((idx + 1) / 6) * 6
@@ -20,6 +22,9 @@ histogram.value.forEach((item, idx) => {
 		sectors.push(histogram.value.slice(rSix - 6, rSix))
 	}
 })
+if (sectors.length !== 4) {
+	isDataAvailable.value = false
+}
 
 const min = Math.min(...histogram.value.map((item) => parseInt(item.value)))
 const max = Math.max(...histogram.value.map((item) => parseInt(item.value)))
@@ -54,11 +59,11 @@ const getSectorName = (idx) => {
 		</Flex>
 
 		<!-- Chart -->
-		<Flex gap="16" :class="$style.chart">
+		<Flex v-if="isDataAvailable" gap="16" :class="$style.chart">
 			<Flex direction="column" justify="between" :class="$style.yAxis">
-				<Text size="12" weight="600" color="secondary">{{ roundedMax }}</Text>
-				<Text size="12" weight="600" color="secondary">{{ Math.ceil(roundedMax / 2) }}</Text>
-				<Text size="12" weight="600" color="secondary">{{ min }}</Text>
+				<Text size="12" weight="600" color="secondary">{{ comma(roundedMax) }}</Text>
+				<Text size="12" weight="600" color="secondary">{{ comma(Math.ceil(roundedMax / 2)) }}</Text>
+				<Text size="12" weight="600" color="secondary">{{ comma(min) }}</Text>
 			</Flex>
 
 			<Flex wide :class="$style.sectors">
@@ -78,6 +83,11 @@ const getSectorName = (idx) => {
 					</Text>
 				</Flex>
 			</Flex>
+		</Flex>
+
+		<Flex v-else align="center" justify="center" direction="column" gap="6" wide :class="$style.empty">
+			<Text size="13" weight="600" color="secondary" align="center"> Data temporarily unavailable </Text>
+			<Text size="12" weight="500" height="160" color="tertiary" align="center"> Transaction widget will be available soon </Text>
 		</Flex>
 	</Flex>
 </template>
@@ -135,5 +145,9 @@ const getSectorName = (idx) => {
 
 	border-radius: 50%;
 	background: var(--op-5);
+}
+
+.empty {
+	height: 100%;
 }
 </style>
