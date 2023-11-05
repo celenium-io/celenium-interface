@@ -22,9 +22,9 @@ if (!rawBlock.value) {
 }
 
 defineOgImage({
-	title: "Test",
+	title: "Block",
 	block: block.value,
-	component: "Custom",
+	component: "BlockImage",
 	cacheKey: `${block.value.height}`,
 })
 
