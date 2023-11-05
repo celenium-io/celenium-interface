@@ -13,10 +13,33 @@ const props = defineProps({
 	title: String,
 	block: Object,
 })
+
+const test = computed(() => {
+	return {
+		style: {
+			fontFamily: "IBM+Plex+Mono",
+			color: "rgba(255, 255, 255, 0.3)",
+		},
+	}
+})
+
+const bgStyles = computed(() => {
+	return {
+		style: {
+			position: "absolute",
+			top: "0",
+			left: "0",
+			filter: "grayscale(1)",
+			opacity: "0.08",
+		},
+	}
+})
 </script>
 
 <template>
-	<div class="w-full h-full" :style="{ background: '#17191b', padding: '60px' }">
+	<div class="w-full h-full" :style="{ background: '#111111', padding: '60px' }">
+		<img src="/img/bg.png" v-bind="bgStyles" />
+
 		<div :style="{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }">
 			<div :style="{ display: 'flex', alignItems: 'center', gap: '16px' }">
 				<Icon name="logo" size="40" :style="{ fill: '#0ade71' }" />
@@ -30,8 +53,8 @@ const props = defineProps({
 			</div>
 
 			<div :style="{ display: 'flex', flexDirection: 'column', gap: '16px' }">
-				<span :style="{ fontSize: '40px', fontWeight: '500', color: 'rgba(255,255,255,30%)' }">Block</span>
-				<h1 :style="{ fontSize: '80px', fontWeight: '500', color: 'rgba(255,255,255,90%)', margin: '0' }">
+				<span v-bind="test" :style="{ fontSize: '40px', fontWeight: '500' }">Block</span>
+				<h1 :style="{ fontSize: '80px', fontWeight: '500', color: 'rgba(255,255,255,0.9)', margin: '0' }">
 					{{ comma(block.height) }}
 				</h1>
 
