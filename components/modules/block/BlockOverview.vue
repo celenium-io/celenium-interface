@@ -16,10 +16,6 @@ import { tia, comma, space, formatBytes } from "@/services/utils"
 /** API */
 import { fetchTransactionsByBlock } from "@/services/api/tx"
 
-/** Store */
-import { useNotificationsStore } from "@/store/notifications"
-const notificationsStore = useNotificationsStore()
-
 const MapTabsTypes = {
 	PFBs: "MsgPayForBlobs",
 	Transfers: "MsgSend",
@@ -120,19 +116,6 @@ const getTxnsCountByTab = (tab) => {
 
 		return unsupportedCounter
 	}
-}
-
-const handleCopy = (target) => {
-	window.navigator.clipboard.writeText(target)
-
-	notificationsStore.create({
-		notification: {
-			type: "info",
-			icon: "check",
-			title: "Successfully copied to clipboard",
-			autoDestroy: true,
-		},
-	})
 }
 </script>
 
@@ -258,22 +241,28 @@ const handleCopy = (target) => {
 								<tr v-for="tx in filteredTransactions" @click="router.push(`/tx/${tx.hash}`)">
 									<td style="width: 1px">
 										<Tooltip position="start" delay="500">
-											<Flex @click.stop="handleCopy(tx.hash)" class="copyable" align="center" gap="8">
-												<Icon
-													:name="tx.status === 'success' ? 'tx_success' : 'tx_error'"
-													size="14"
-													color="secondary"
-												/>
+											<Flex align="center" gap="10">
+												<Flex align="center" gap="8">
+													<Icon
+														:name="tx.status === 'success' ? 'tx_success' : 'tx_error'"
+														size="14"
+														color="secondary"
+													/>
 
-												<Text size="13" weight="600" color="primary">{{ tx.hash.slice(0, 4).toUpperCase() }}</Text>
+													<Text size="13" weight="600" color="primary">{{
+														tx.hash.slice(0, 4).toUpperCase()
+													}}</Text>
 
-												<Flex align="center" gap="3">
-													<div v-for="dot in 3" class="dot" />
+													<Flex align="center" gap="3">
+														<div v-for="dot in 3" class="dot" />
+													</Flex>
+
+													<Text size="13" weight="600" color="primary">{{
+														tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase()
+													}}</Text>
 												</Flex>
 
-												<Text size="13" weight="600" color="primary">{{
-													tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase()
-												}}</Text>
+												<CopyButton :text="tx.hash" />
 											</Flex>
 
 											<template #content>
