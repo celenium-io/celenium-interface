@@ -97,7 +97,7 @@ const handleCopy = (target) => {
 								<th><Text size="12" weight="600" color="tertiary">When</Text></th>
 								<th><Text size="12" weight="600" color="tertiary">Hash</Text></th>
 								<th><Text size="12" weight="600" color="tertiary">Proposer</Text></th>
-								<th><Text size="12" weight="600" color="tertiary">Fee</Text></th>
+								<th><Text size="12" weight="600" color="tertiary">Total Fees</Text></th>
 							</tr>
 						</thead>
 
@@ -394,7 +394,7 @@ const handleCopy = (target) => {
 							<Text size="12" weight="600" color="secondary"> {{ formatBytes(preview.block.stats.blobs_size) }} </Text>
 						</Flex>
 						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary"> Fee </Text>
+							<Text size="12" weight="600" color="tertiary"> Total Fees </Text>
 							<Text size="12" weight="600" color="secondary"> {{ tia(preview.block.stats.fee) }} TIA </Text>
 						</Flex>
 					</Flex>
