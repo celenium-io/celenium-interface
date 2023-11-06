@@ -41,7 +41,7 @@ const getNetworkName = () => {
 					<Icon name="tx" size="12" color="secondary" :class="$style.icon" />
 					<Flex align="center" gap="4">
 						<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Txs:</Text>
-						<Text size="12" weight="600" noWrap :class="$style.value">{{ comma(head.total_tx) }}</Text>
+						<Text size="12" weight="600" noWrap :class="$style.value">{{ abbreviate(head.total_tx) }}</Text>
 					</Flex>
 				</Flex>
 

@@ -202,9 +202,7 @@ const handleCopy = (target) => {
 	padding: 0 16px 16px 16px;
 }
 
-@media (max-width: 500px) {
-	.table_scroller {
-		overflow-x: auto;
-	}
+.table_scroller {
+	overflow-x: auto;
 }
 </style>

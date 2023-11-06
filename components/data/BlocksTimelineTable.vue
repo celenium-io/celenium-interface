@@ -533,7 +533,7 @@ const handleCopy = (target) => {
 	padding: 4px 6px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
 	.content {
 		flex-direction: column-reverse;
 	}
