@@ -163,8 +163,8 @@ const handlePrev = () => {
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>When</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Messages</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>When</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Block</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Gas</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Events</Text></th>
@@ -232,9 +232,14 @@ const handlePrev = () => {
 									<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
 								</td>
 								<td>
-									<Text size="13" weight="600" color="primary">
-										{{ DateTime.fromISO(tx.time).toRelative({ locale: "en", style: "short" }) }}
-									</Text>
+									<Flex direction="column" gap="4">
+										<Text size="12" weight="600" color="primary">
+											{{ DateTime.fromISO(tx.time).toRelative({ locale: "en", style: "short" }) }}
+										</Text>
+										<Text size="12" weight="600" color="tertiary">
+											{{ DateTime.fromISO(tx.time).setLocale("en").toFormat("ff") }}
+										</Text>
+									</Flex>
 								</td>
 								<td>
 									<Outline @click.stop="router.push(`/block/${tx.height}`)">
@@ -362,8 +367,8 @@ const handlePrev = () => {
 		& tr td {
 			padding: 0;
 			padding-right: 24px;
-			padding-top: 6px;
-			padding-bottom: 6px;
+			padding-top: 8px;
+			padding-bottom: 8px;
 
 			white-space: nowrap;
 
