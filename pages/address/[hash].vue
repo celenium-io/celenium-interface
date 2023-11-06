@@ -20,6 +20,15 @@ if (!rawAddress.value) {
 	address.value = rawAddress.value
 }
 
+defineOgImage({
+	title: "Address",
+	address: address.value,
+	component: "AddressImage",
+	cacheKey: `${address.value?.hash.slice(-4)}-${address.value?.balance.value}-${address.value?.first_height}-${
+		address.value?.last_height
+	}`,
+})
+
 useHead({
 	title: `Address ${address.value?.hash} - Celestia Explorer`,
 	link: [
@@ -35,7 +44,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: `Address ${address.value?.height} - Celestia Explorer`,
+			content: `Address ${address.value?.hash} - Celestia Explorer`,
 		},
 		{
 			property: "og:description",
@@ -51,7 +60,7 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: `Address ${address.value?.height} - Celestia Explorer`,
+			content: `Address ${address.value?.hash} - Celestia Explorer`,
 		},
 		{
 			name: "twitter:description",

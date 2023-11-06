@@ -43,7 +43,7 @@ const messages = computed(() => [...new Set(props.block.message_types)])
 
 			<div :style="{ display: 'flex' }">
 				<span :style="{ fontSize: '40px', color: 'rgba(255,255,255, 0.7)' }">
-					{{ messages.slice(0, 4).join(", ") }} {{ messages.length > 4 && `and ${messages.length - 4} more` }}
+					{{ messages.slice(0, 4).join(", ") }} {{ messages.length > 4 ? `and ${messages.length - 4} more` : "" }}
 				</span>
 			</div>
 
