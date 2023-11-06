@@ -3,7 +3,7 @@
 import { DateTime } from "luxon"
 
 /** Services */
-import { comma } from "@/services/utils"
+import { comma, abbreviate } from "@/services/utils"
 
 /** API */
 import { fetchHistogram } from "@/services/api/histogram"
@@ -50,7 +50,7 @@ const getSectorName = (idx) => {
 			<Flex align="center" gap="6">
 				<Icon name="tx" size="16" color="primary" />
 				<Flex gap="4" align="end">
-					<Text size="16" weight="600" color="primary">{{ comma(txCounter) }}</Text>
+					<Text size="16" weight="600" color="primary">{{ abbreviate(txCounter) }}</Text>
 					<Text size="12" weight="700" color="tertiary">TXs</Text>
 				</Flex>
 			</Flex>
