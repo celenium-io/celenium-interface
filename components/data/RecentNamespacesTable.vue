@@ -13,10 +13,6 @@ import { comma, formatBytes, getNamespaceID } from "@/services/utils"
 /** API */
 import { fetchRecentNamespaces } from "@/services/api/namespace"
 
-/** Store */
-import { useNotificationsStore } from "@/store/notifications"
-const notificationsStore = useNotificationsStore()
-
 const router = useRouter()
 
 const isLoading = ref(true)
@@ -25,19 +21,6 @@ const namespaces = ref([])
 const { data } = await fetchRecentNamespaces()
 namespaces.value = data.value
 isLoading.value = false
-
-const handleCopy = (target) => {
-	window.navigator.clipboard.writeText(target)
-
-	notificationsStore.create({
-		notification: {
-			type: "info",
-			icon: "check",
-			title: "Successfully copied to clipboard",
-			autoDestroy: true,
-		},
-	})
-}
 </script>
 
 <template>
@@ -62,20 +45,24 @@ const handleCopy = (target) => {
 						<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.namespace_id}`)">
 							<td style="width: 1px">
 								<Tooltip position="start" delay="500">
-									<Flex @click.stop="handleCopy(getNamespaceID(ns.namespace_id))" class="copyable" align="center" gap="6">
-										<Icon name="folder" size="14" color="secondary" />
+									<Flex align="center" gap="10">
+										<Flex align="center" gap="6">
+											<Icon name="folder" size="14" color="secondary" />
 
-										<Text size="13" weight="600" color="primary">
-											{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
-										</Text>
+											<Text size="13" weight="600" color="primary">
+												{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
+											</Text>
 
-										<Flex align="center" gap="3">
-											<div v-for="dot in 3" class="dot" />
+											<Flex align="center" gap="3">
+												<div v-for="dot in 3" class="dot" />
+											</Flex>
+
+											<Text size="13" weight="600" color="primary">
+												{{ getNamespaceID(ns.namespace_id).slice(-4) }}
+											</Text>
 										</Flex>
 
-										<Text size="13" weight="600" color="primary">
-											{{ getNamespaceID(ns.namespace_id).slice(-4) }}
-										</Text>
+										<CopyButton :text="getNamespaceID(ns.namespace_id)" />
 									</Flex>
 
 									<template #content> {{ getNamespaceID(ns.namespace_id) }} </template>

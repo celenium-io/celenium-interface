@@ -13,10 +13,6 @@ import { tia, space, comma } from "@/services/utils"
 /** API */
 import { fetchLatestPFBs } from "@/services/api/tx"
 
-/** Store */
-import { useNotificationsStore } from "@/store/notifications"
-const notificationsStore = useNotificationsStore()
-
 const router = useRouter()
 
 const isLoading = ref(true)
@@ -25,19 +21,6 @@ const pfbs = ref([])
 const { data } = await fetchLatestPFBs()
 pfbs.value = data.value
 isLoading.value = false
-
-const handleCopy = (target) => {
-	window.navigator.clipboard.writeText(target)
-
-	notificationsStore.create({
-		notification: {
-			type: "info",
-			icon: "check",
-			title: "Successfully copied to clipboard",
-			autoDestroy: true,
-		},
-	})
-}
 </script>
 
 <template>
@@ -62,20 +45,28 @@ const handleCopy = (target) => {
 						<tr v-for="pfb in pfbs" @click="router.push(`/tx/${pfb.hash}`)">
 							<td style="width: 1px">
 								<Tooltip position="start" delay="500">
-									<Flex @click.stop="handleCopy(pfb.hash.toUpperCase())" class="copyable" align="center" gap="8">
-										<Icon :name="pfb.status === 'success' ? 'tx_success' : 'tx_error'" size="14" color="secondary" />
+									<Flex align="center" gap="10">
+										<Flex align="center" gap="8">
+											<Icon
+												:name="pfb.status === 'success' ? 'tx_success' : 'tx_error'"
+												size="14"
+												color="secondary"
+											/>
 
-										<Text size="13" weight="600" color="primary">
-											{{ pfb.hash.slice(0, 4).toUpperCase() }}
-										</Text>
+											<Text size="13" weight="600" color="primary">
+												{{ pfb.hash.slice(0, 4).toUpperCase() }}
+											</Text>
 
-										<Flex align="center" gap="3">
-											<div v-for="dot in 3" class="dot" />
+											<Flex align="center" gap="3">
+												<div v-for="dot in 3" class="dot" />
+											</Flex>
+
+											<Text size="13" weight="600" color="primary">
+												{{ pfb.hash.slice(pfb.hash.length - 4, pfb.hash.length).toUpperCase() }}
+											</Text>
 										</Flex>
 
-										<Text size="13" weight="600" color="primary">
-											{{ pfb.hash.slice(pfb.hash.length - 4, pfb.hash.length).toUpperCase() }}
-										</Text>
+										<CopyButton :text="pfb.hash.toUpperCase()" />
 									</Flex>
 
 									<template #content>
