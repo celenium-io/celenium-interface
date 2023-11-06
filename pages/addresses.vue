@@ -14,7 +14,7 @@ import { useNotificationsStore } from "@/store/notifications"
 const notificationsStore = useNotificationsStore()
 
 useHead({
-	title: "All Addresses - Celestia Explorer",
+	title: "Addresses - Celestia Explorer",
 	link: [
 		{
 			rel: "canonical",
@@ -28,7 +28,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: "All Addresses - Celestia Explorer",
+			content: "Addresses - Celestia Explorer",
 		},
 		{
 			property: "og:description",
@@ -44,7 +44,7 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: "All Addresses - Celestia Explorer",
+			content: "Addresses - Celestia Explorer",
 		},
 		{
 			name: "twitter:description",

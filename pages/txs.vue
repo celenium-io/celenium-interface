@@ -20,7 +20,7 @@ import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
 
 useHead({
-	title: "All Transactions - Celestia Explorer",
+	title: "Transactions - Celestia Explorer",
 	link: [
 		{
 			rel: "canonical",
@@ -34,7 +34,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: "All Transactions - Celestia Explorer",
+			content: "Transactions - Celestia Explorer",
 		},
 		{
 			property: "og:description",
@@ -50,7 +50,7 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: "All Transactions - Celestia Explorer",
+			content: "Transactions - Celestia Explorer",
 		},
 		{
 			name: "twitter:description",

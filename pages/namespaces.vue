@@ -10,7 +10,7 @@ import { space, formatBytes, comma, getNamespaceID } from "@/services/utils"
 import { fetchNamespaces, fetchNamespacesCount } from "@/services/api/namespace"
 
 useHead({
-	title: "All Namespaces - Celestia Explorer",
+	title: "Namespaces - Celestia Explorer",
 	link: [
 		{
 			rel: "canonical",
@@ -24,7 +24,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: "All Namespaces - Celestia Explorer",
+			content: "Namespaces - Celestia Explorer",
 		},
 		{
 			property: "og:description",
@@ -40,7 +40,7 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: "All Namespaces - Celestia Explorer",
+			content: "Namespaces - Celestia Explorer",
 		},
 		{
 			name: "twitter:description",
