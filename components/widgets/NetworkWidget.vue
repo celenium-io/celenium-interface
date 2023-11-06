@@ -43,7 +43,9 @@ const pos = (100 * (tph - lowLevel)) / (highLevel - lowLevel)
 								:color="tph - prevTph > 0 ? 'green' : 'red'"
 								:style="{ transform: `scaleY(${tph - prevTph > 0 ? '1' : '-1'})` }"
 							/>
-							<Text size="16" weight="600" :color="tph - prevTph > 0 ? 'green' : 'red'">{{ diff.toFixed(0) }}%</Text>
+							<Text size="16" weight="600" :color="tph - prevTph > 0 ? 'green' : 'red'"
+								>{{ diff.toFixed(diff < 1 ? 2 : 0) }}%</Text
+							>
 						</Flex>
 					</Flex>
 
