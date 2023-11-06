@@ -236,7 +236,7 @@ const handlePrev = () => {
 										<Text size="12" weight="600" color="primary">
 											{{ DateTime.fromISO(tx.time).toRelative({ locale: "en", style: "short" }) }}
 										</Text>
-										<Text size="12" weight="600" color="tertiary">
+										<Text size="12" weight="500" color="tertiary">
 											{{ DateTime.fromISO(tx.time).setLocale("en").toFormat("LLL d, t") }}
 										</Text>
 									</Flex>

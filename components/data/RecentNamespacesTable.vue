@@ -80,7 +80,7 @@ isLoading.value = false
 								</NuxtLink>
 							</td>
 							<td>
-								<Text size="13" weight="600" color="primary">{{
+								<Text size="12" weight="600" color="primary">{{
 									DateTime.fromISO(ns.time).toRelative({ locale: "en", style: "short" })
 								}}</Text>
 							</td>

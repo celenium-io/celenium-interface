@@ -130,6 +130,10 @@ $grayscale: (
 
 a {
 	text-decoration: none;
+
+	&:focus {
+		outline: none;
+	}
 }
 
 button,

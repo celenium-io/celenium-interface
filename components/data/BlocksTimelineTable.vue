@@ -121,7 +121,7 @@ const handleCopy = (target) => {
 										<Text size="12" weight="600" color="primary">
 											{{ DateTime.fromISO(block.time).toRelative({ locale: "en", style: "short" }) }}
 										</Text>
-										<Text size="12" weight="600" color="tertiary">
+										<Text size="12" weight="500" color="tertiary">
 											{{ DateTime.fromISO(block.time).setLocale("en").toFormat("LLL d, t") }}
 										</Text>
 									</Flex>

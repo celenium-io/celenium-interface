@@ -29,7 +29,7 @@ useHead({
 		{
 			name: "description",
 			content:
-				"Celenium allows you to explore and search the Celestia blockchain for transactions, addresses, blocks, namespaces, blobs.",
+				"Celenium allows you to explore and search the Celestia blockchain for transactions, addresses, blocks, namespaces and blobs.",
 		},
 		{
 			property: "og:title",
@@ -38,7 +38,7 @@ useHead({
 		{
 			property: "og:description",
 			content:
-				"Celenium allows you to explore and search the Celestia blockchain for transactions, addresses, blocks, namespaces, blobs.",
+				"Celenium allows you to explore and search the Celestia blockchain for transactions, addresses, blocks, namespaces and blobs.",
 		},
 		{
 			property: "og:url",
@@ -55,7 +55,7 @@ useHead({
 		{
 			name: "twitter:description",
 			content:
-				"Celenium allows you to explore and search the Celestia blockchain for transactions, addresses, blocks, namespaces, blobs.",
+				"Celenium allows you to explore and search the Celestia blockchain for transactions, addresses, blocks, namespaces and blobs.",
 		},
 		{
 			name: "twitter:card",

@@ -27,7 +27,7 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: "Blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size, fee are shown.",
+			content: "Blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size and fee are shown.",
 		},
 		{
 			property: "og:title",
@@ -35,7 +35,7 @@ useHead({
 		},
 		{
 			property: "og:description",
-			content: "Blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size, fee are shown.",
+			content: "Blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size and fee are shown.",
 		},
 		{
 			property: "og:url",
@@ -51,7 +51,7 @@ useHead({
 		},
 		{
 			name: "twitter:description",
-			content: "Blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size, fee are shown.",
+			content: "Blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size and fee are shown.",
 		},
 		{
 			name: "twitter:card",
@@ -171,7 +171,7 @@ const handlePrev = () => {
 										<Text size="12" weight="600" color="primary">
 											{{ DateTime.fromISO(block.time).toRelative({ locale: "en", style: "short" }) }}
 										</Text>
-										<Text size="12" weight="600" color="tertiary">
+										<Text size="12" weight="500" color="tertiary">
 											{{ DateTime.fromISO(block.time).setLocale("en").toFormat("LLL d, t") }}
 										</Text>
 									</Flex>

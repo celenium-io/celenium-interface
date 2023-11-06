@@ -65,12 +65,12 @@ const getNetworkName = () => {
 </script>
 
 <template>
-	<Flex direction="column" justify="between" wide :class="$style.wrapper">
+	<NuxtLink :to="`/block/${lastBlock.height}`" :class="$style.wrapper">
 		<Flex justify="between">
 			<Flex direction="column" gap="8">
 				<Flex align="center" gap="4">
 					<Text size="16" weight="600" color="primary"> Block </Text>
-					<Text size="16" weight="600" color="green"> {{ comma(lastBlock.height + 1) }}</Text>
+					<Text size="16" weight="600" color="green"> {{ comma(lastBlock.height) }}</Text>
 				</Flex>
 
 				<Text size="13" weight="500" color="tertiary"> Chain {{ getNetworkName() }} </Text>
@@ -78,7 +78,7 @@ const getNetworkName = () => {
 
 			<Flex direction="column" gap="8" align="end">
 				<Text size="14" weight="600" color="primary"> {{ (lastBlock.stats.block_time / 1_000).toFixed(2) }}s </Text>
-				<Text size="12" weight="500" color="tertiary"> Previous Block </Text>
+				<Text size="12" weight="500" color="tertiary"> Block Time </Text>
 			</Flex>
 		</Flex>
 
@@ -100,17 +100,35 @@ const getNetworkName = () => {
 			/>
 			<div v-else :class="[$style.fill, $style.delayed]" />
 		</Flex>
-	</Flex>
+	</NuxtLink>
 </template>
 
 <style module>
 .wrapper {
+	display: flex;
+	justify-content: space-between;
+	flex-direction: column;
+
 	height: 122px;
 
 	border-radius: 12px;
 	background: var(--card-background);
 
 	padding: 16px;
+
+	transition: all 0.2s ease;
+
+	&:hover {
+		box-shadow: inset 0 0 0 2px var(--op-5);
+	}
+
+	&:focus-visible {
+		box-shadow: inset 0 0 0 2px var(--op-8);
+	}
+
+	&:active {
+		box-shadow: inset 0 0 0 2px var(--op-10);
+	}
 }
 
 .bar {
