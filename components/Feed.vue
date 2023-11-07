@@ -1,6 +1,6 @@
 <script setup>
 /** Services */
-import { comma, formatBytes, abbreviate } from "@/services/utils"
+import { comma, formatBytes, abbreviate, getNetworkName } from "@/services/utils"
 
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
@@ -10,27 +10,6 @@ import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
 
 const head = computed(() => appStore.head)
-
-const { hostname } = useRequestURL()
-
-const getNetworkName = () => {
-	switch (hostname) {
-		case "celenium.io":
-			return "Mainnet"
-
-		case "mocha-4.celenium.io":
-			return "Mocha-4"
-
-		case "dev.celenium.io":
-			return "Development"
-
-		case "localhost":
-			return "Local Environment"
-
-		default:
-			return "Unknown"
-	}
-}
 </script>
 
 <template>

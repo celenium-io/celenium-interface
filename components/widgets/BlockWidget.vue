@@ -1,6 +1,6 @@
 <script setup>
 /** Services */
-import { comma } from "@/services/utils"
+import { comma, getNetworkName } from "@/services/utils"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -41,27 +41,6 @@ blockProgressInterval = setInterval(() => {
 onBeforeUnmount(() => {
 	clearInterval(blockProgressInterval)
 })
-
-const { hostname } = useRequestURL()
-
-const getNetworkName = () => {
-	switch (hostname) {
-		case "celenium.io":
-			return "Mainnet"
-
-		case "mocha-4.celenium.io":
-			return "Mocha-4"
-
-		case "dev.celenium.io":
-			return "Development"
-
-		case "localhost":
-			return "Local Environment"
-
-		default:
-			return "Unknown"
-	}
-}
 </script>
 
 <template>

@@ -29,6 +29,7 @@ onMounted(() => {
 
 		<div id="tooltip" />
 		<div id="modal" />
+		<div id="dropdown" />
 
 		<Notifications />
 	</NuxtLayout>
