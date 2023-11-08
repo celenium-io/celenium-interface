@@ -37,7 +37,7 @@ const handleChangeTheme = (theme) => {
 				</Flex>
 
 				<Flex align="center" gap="16">
-					<a :href="`https://github.com/dipdup-io/celestia-explorer/releases/tag/v${appConfig.version}`" target="_blank">
+					<a :href="`https://github.com/celenium-io/celenium-interface/releases/tag/v${appConfig.version}`" target="_blank">
 						<Flex>
 							<Text size="12" weight="600" color="support">
 								Version <Text color="tertiary">{{ appConfig.version }}</Text>

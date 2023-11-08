@@ -11,5 +11,7 @@ export const useAppStore = defineStore("app", () => {
 	})
 	const latestBlocks = ref([])
 
-	return { head, latestBlocks }
+	const showCmd = ref(false)
+
+	return { head, latestBlocks, showCmd }
 })

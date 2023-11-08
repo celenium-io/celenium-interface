@@ -4,6 +4,14 @@
  */
 import { useOutside } from "@/composables/outside"
 
+/** UI */
+import Tooltip from "@/components/ui/Tooltip.vue"
+import Kbd from "@/components/ui/Kbd.vue"
+
+/** Store */
+import { useAppStore } from "@/store/app"
+const appStore = useAppStore()
+
 const route = useRoute()
 
 let removeOutside = null
@@ -88,9 +96,21 @@ const isActive = (link) => {
 				</NuxtLink>
 			</Flex>
 
-			<Flex align="center" gap="8" :class="$style.button">
-				<Icon name="search" size="16" color="secondary" />
-			</Flex>
+			<Tooltip position="end">
+				<Flex @click="appStore.showCmd = true" align="center" gap="8" :class="$style.button">
+					<Icon name="search" size="16" color="secondary" />
+				</Flex>
+
+				<template #content>
+					<Flex align="center" gap="8">
+						Explore Celestia Blockchain
+						<Flex align="center" gap="4">
+							<Kbd>Cmd</Kbd>
+							<Kbd>K</Kbd>
+						</Flex>
+					</Flex>
+				</template>
+			</Tooltip>
 		</Flex>
 
 		<Flex v-if="showPopup" @click="showPopup = false" ref="popupEl" direction="column" gap="8" :class="$style.menu_popup">
@@ -203,7 +223,7 @@ const isActive = (link) => {
 	height: 28px;
 
 	border-radius: 6px;
-	background: var(--op-5);
+	background: var(--op-8);
 	cursor: pointer;
 
 	padding: 0 8px;

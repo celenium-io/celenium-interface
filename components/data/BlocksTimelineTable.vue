@@ -15,9 +15,7 @@ import { fetchTransactionsByBlock } from "@/services/api/tx"
 
 /** Store */
 import { useAppStore } from "@/store/app"
-import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
-const notificationsStore = useNotificationsStore()
 
 const blocks = computed(() => appStore.latestBlocks)
 const preview = reactive({
@@ -66,19 +64,6 @@ watch(
 		preview.isLoadingPfbs = false
 	},
 )
-
-const handleCopy = (target) => {
-	window.navigator.clipboard.writeText(target)
-
-	notificationsStore.create({
-		notification: {
-			type: "info",
-			icon: "check",
-			title: "Successfully copied to clipboard",
-			autoDestroy: true,
-		},
-	})
-}
 </script>
 
 <template>

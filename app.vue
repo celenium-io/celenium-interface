@@ -4,6 +4,9 @@ import Socket from "@/services/api/socket"
 import { fetchHead } from "@/services/api/main"
 import amp from "@/services/amp"
 
+/** Components */
+import CommandMenu from "@/components/cmd/CommandMenu.vue"
+
 /** Store */
 import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
@@ -24,6 +27,8 @@ onMounted(() => {
 </script>
 
 <template>
+	<CommandMenu :show="appStore.showCmd" />
+
 	<NuxtLayout>
 		<NuxtPage />
 
