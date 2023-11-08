@@ -36,8 +36,8 @@ isLoading.value = false
 						<tr>
 							<th><Text size="12" weight="600" color="tertiary">Namespace</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Height</Text></th>
-							<th><Text size="12" weight="600" color="tertiary">When</Text></th>
-							<th><Text size="12" weight="600" color="tertiary">Size & Count</Text></th>
+							<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
+							<th><Text size="12" weight="600" color="tertiary">Size </Text></th>
 						</tr>
 					</thead>
 
@@ -85,10 +85,7 @@ isLoading.value = false
 								}}</Text>
 							</td>
 							<td>
-								<Flex align="center" gap="6">
-									<Text size="13" weight="600" color="primary">{{ formatBytes(ns.size) }}</Text>
-									<Text size="13" weight="600" color="tertiary">({{ comma(ns.pfb_count) }})</Text>
-								</Flex>
+								<Text size="13" weight="600" color="primary">{{ formatBytes(ns.size) }}</Text>
 							</td>
 						</tr>
 					</tbody>
