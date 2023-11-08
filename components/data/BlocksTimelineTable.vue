@@ -18,6 +18,7 @@ import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
 
 const blocks = computed(() => appStore.latestBlocks)
+const lastBlock = computed(() => appStore.latestBlocks[0])
 const preview = reactive({
 	block: blocks.value[0],
 	transactions: [],
@@ -64,6 +65,13 @@ watch(
 		preview.isLoadingPfbs = false
 	},
 )
+
+watch(
+	() => lastBlock.value,
+	() => {
+		handleSelectBlock(lastBlock.value)
+	},
+)
 </script>
 
 <template>
@@ -87,7 +95,7 @@ watch(
 						</thead>
 
 						<tbody>
-							<tr v-for="block in blocks" @click="handleSelectBlock(block)">
+							<tr v-for="block in blocks.slice(0, 15)" @click="handleSelectBlock(block)">
 								<td style="width: 1px">
 									<Outline>
 										<Flex align="center" gap="6">

@@ -4,7 +4,7 @@ export const Server = {
 		mocha: "https://api-mocha-4.celenium.io/v1",
 		dev: "https://api-dev.celenium.io/v1",
 	},
-	WSS: "wss://api.celestia.dipdup.net/v1/ws",
+	WSS: "wss://api-dev.celenium.io/v1/ws",
 }
 
 export const useServerURL = () => {
@@ -21,6 +21,6 @@ export const useServerURL = () => {
 			return Server.API.dev
 
 		default:
-			return Server.API.mainnet
+			return Server.API.dev
 	}
 }

@@ -71,10 +71,23 @@ const head = computed(() => appStore.head)
 				</Tooltip>
 			</Flex>
 
-			<Flex align="center" gap="6">
-				<Icon name="globe" size="12" color="tertiary" />
-				<Text size="12" weight="500" color="tertiary"> {{ getNetworkName() }} </Text>
-			</Flex>
+			<Tooltip position="end">
+				<Flex align="center" gap="6" :class="$style.network">
+					<Icon name="zap" size="12" :color="head.synced ? 'green' : 'red'" />
+					<Text size="12" weight="500" color="tertiary" :class="$style.name"> {{ getNetworkName() }} </Text>
+				</Flex>
+
+				<template #content>
+					<Flex align="center" gap="6">
+						<Text color="secondary">Current Network:</Text>
+						<Flex align="center" gap="4">
+							<Icon name="zap" size="12" :color="head.synced ? 'green' : 'red'" />
+							<template v-if="!head.synced">Not</template>
+							<Text color="primary"> Synced </Text>
+						</Flex>
+					</Flex>
+				</template>
+			</Tooltip>
 		</Flex>
 	</Flex>
 </template>
@@ -128,6 +141,14 @@ const head = computed(() => appStore.head)
 
 	.value {
 		color: var(--txt-secondary);
+	}
+}
+
+.network {
+	&:hover {
+		.name {
+			color: var(--txt-secondary);
+		}
 	}
 }
 

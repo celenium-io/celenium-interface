@@ -302,3 +302,13 @@ body {
 .fastfade-leave-to {
 	opacity: 0;
 }
+
+.slide-enter-active,
+.slide-leave-active {
+	transition: ease-in 0.05s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.slide-enter-from,
+.slide-leave-to {
+	transform: translateY(-25px);
+}

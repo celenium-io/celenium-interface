@@ -25,7 +25,10 @@ export const init = () => {
 
 	socket.addEventListener("message", (e) => {
 		const data = JSON.parse(e.data)
-		// appStore.latestBlocks.unshift(data)
+		appStore.latestBlocks.unshift(data)
+		setTimeout(() => {
+			appStore.latestBlocks.pop()
+		}, 1_000)
 	})
 }
 
