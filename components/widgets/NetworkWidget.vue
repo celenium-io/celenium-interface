@@ -5,7 +5,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { abbreviate, comma } from "@/services/utils"
 
 /** API */
-import { fetchHistogram } from "@/services/api/histogram"
+import { fetchHistogram } from "@/services/api/stats"
 
 const { data: hourHistagram } = await fetchHistogram({ table: "tx", func: "count", period: "hour" })
 const { data: dayHistagram } = await fetchHistogram({ table: "tx", func: "count", period: "day" })

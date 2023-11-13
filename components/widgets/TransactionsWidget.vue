@@ -6,7 +6,7 @@ import { DateTime } from "luxon"
 import { comma, abbreviate } from "@/services/utils"
 
 /** API */
-import { fetchHistogram } from "@/services/api/histogram"
+import { fetchHistogram } from "@/services/api/stats"
 
 const histogram = ref([])
 

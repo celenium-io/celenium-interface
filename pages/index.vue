@@ -1,5 +1,4 @@
 <script setup>
-import { DateTime } from "luxon"
 /** Components */
 import Widgets from "@/components/widgets/Widgets.vue"
 import RecentNamespacesTable from "@/components/data/RecentNamespacesTable.vue"
@@ -7,7 +6,7 @@ import LatestPFBTable from "@/components/data/LatestPFBTable.vue"
 import BlocksTimelineTable from "@/components/data/BlocksTimelineTable.vue"
 
 /** API */
-import { fetchBlocks } from "@/services/api/block"
+import { fetchLatestBlocks } from "@/services/api/block"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -68,13 +67,15 @@ useHead({
 	],
 })
 
-const { data: blocks } = await fetchBlocks({ limit: 15 })
-appStore.latestBlocks = blocks.value
+onBeforeMount(async () => {
+	const { data } = await fetchLatestBlocks({ limit: 15 })
+	appStore.latestBlocks = data.value
+})
 </script>
 
 <template>
 	<Flex direction="column" wide :class="$style.wrapper">
-		<Widgets :class="$style.widgets" />
+		<Widgets v-if="appStore.latestBlocks.length" :class="$style.widgets" />
 
 		<Flex direction="column" gap="40" :class="$style.main">
 			<Flex gap="20" :class="$style.small_tables">
@@ -82,7 +83,7 @@ appStore.latestBlocks = blocks.value
 				<LatestPFBTable />
 			</Flex>
 
-			<BlocksTimelineTable />
+			<BlocksTimelineTable v-if="appStore.latestBlocks.length" />
 		</Flex>
 	</Flex>
 </template>

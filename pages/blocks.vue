@@ -83,8 +83,8 @@ watch(
 	async () => {
 		isRefetching.value = true
 
-		const { data } = await fetchBlocks({ limit: 20, offset: (page.value - 1) * 20 })
-		blocks.value = data.value
+		const data = await fetchBlocks({ limit: 20, offset: (page.value - 1) * 20 })
+		blocks.value = data
 
 		isRefetching.value = false
 
