@@ -39,3 +39,24 @@ export const splitAddress = (address, format = "string") => {
 		return format === "array" ? ["celestia", address.slice(-4)] : `celestia ••• ${address.slice(-4)}`
 	}
 }
+
+export const getNetworkName = () => {
+	const { hostname } = useRequestURL()
+
+	switch (hostname) {
+		case "celenium.io":
+			return "Mainnet"
+
+		case "mocha-4.celenium.io":
+			return "Mocha-4"
+
+		case "dev.celenium.io":
+			return "Development"
+
+		case "localhost":
+			return "Local Environment"
+
+		default:
+			return "Unknown"
+	}
+}

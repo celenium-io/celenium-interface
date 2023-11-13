@@ -20,6 +20,13 @@ if (!rawNamespace.value) {
 	namespace.value = rawNamespace.value[0]
 }
 
+defineOgImage({
+	title: "Namespace",
+	namespace: namespace.value,
+	component: "NamespaceImage",
+	cacheKey: `${namespace.value?.hash}`,
+})
+
 useHead({
 	title: `Namespace ${getNamespaceID(namespace.value?.namespace_id)} - Celestia Explorer`,
 	link: [

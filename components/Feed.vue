@@ -1,6 +1,6 @@
 <script setup>
 /** Services */
-import { comma, formatBytes, abbreviate } from "@/services/utils"
+import { comma, formatBytes, abbreviate, getNetworkName } from "@/services/utils"
 
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
@@ -10,27 +10,6 @@ import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
 
 const head = computed(() => appStore.head)
-
-const { hostname } = useRequestURL()
-
-const getNetworkName = () => {
-	switch (hostname) {
-		case "celenium.io":
-			return "Mainnet"
-
-		case "mocha-4.celenium.io":
-			return "Mocha-4"
-
-		case "dev.celenium.io":
-			return "Development"
-
-		case "localhost":
-			return "Local Environment"
-
-		default:
-			return "Unknown"
-	}
-}
 </script>
 
 <template>
@@ -41,7 +20,7 @@ const getNetworkName = () => {
 					<Icon name="tx" size="12" color="secondary" :class="$style.icon" />
 					<Flex align="center" gap="4">
 						<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Txs:</Text>
-						<Text size="12" weight="600" noWrap :class="$style.value">{{ comma(head.total_tx) }}</Text>
+						<Text size="12" weight="600" noWrap :class="$style.value">{{ abbreviate(head.total_tx) }}</Text>
 					</Flex>
 				</Flex>
 
@@ -92,10 +71,23 @@ const getNetworkName = () => {
 				</Tooltip>
 			</Flex>
 
-			<Flex align="center" gap="6">
-				<Icon name="globe" size="12" color="tertiary" />
-				<Text size="12" weight="500" color="tertiary"> {{ getNetworkName() }} </Text>
-			</Flex>
+			<Tooltip position="end">
+				<Flex align="center" gap="6" :class="$style.network">
+					<Icon name="zap" size="12" :color="head.synced ? 'green' : 'red'" />
+					<Text size="12" weight="500" color="tertiary" :class="$style.name"> {{ getNetworkName() }} </Text>
+				</Flex>
+
+				<template #content>
+					<Flex align="center" gap="6">
+						<Text color="secondary">Current Network:</Text>
+						<Flex align="center" gap="4">
+							<Icon name="zap" size="12" :color="head.synced ? 'green' : 'red'" />
+							<template v-if="!head.synced">Not</template>
+							<Text color="primary"> Synced </Text>
+						</Flex>
+					</Flex>
+				</template>
+			</Tooltip>
 		</Flex>
 	</Flex>
 </template>
@@ -149,6 +141,14 @@ const getNetworkName = () => {
 
 	.value {
 		color: var(--txt-secondary);
+	}
+}
+
+.network {
+	&:hover {
+		.name {
+			color: var(--txt-secondary);
+		}
 	}
 }
 

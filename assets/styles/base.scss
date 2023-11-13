@@ -64,6 +64,60 @@ $grayscale: (
 	--logo-name: var(--txt-primary);
 }
 
+[theme="dimmed"] {
+	--base-width: 992px;
+
+	/* Main */
+	--app-background: rgb(27, 29, 33);
+	--card-background: rgb(35, 37, 43);
+	--tooltip-background: rgba(0, 0, 0, 90%);
+	--outline-background: #2b2d30;
+	--outline-background-hover: #1e2022;
+	--outline-gradient: linear-gradient(var(--op-15), var(--op-5));
+
+	/* Text */
+	--txt-primary: rgba(255, 255, 255, 90%);
+	--txt-body: rgba(255, 255, 255, 75%);
+	--txt-secondary: rgba(255, 255, 255, 65%);
+	--txt-tertiary: rgba(255, 255, 255, 35%);
+	--txt-support: rgba(255, 255, 255, 15%);
+	--txt-black: rgba(0, 0, 0, 95%);
+	--txt-white: rgba(255, 255, 255, 95%);
+
+	/* General */
+	--brand: #924dff;
+	--blue: #0b84fe;
+	--red: #eb5757;
+	--orange: #ff5a17;
+	--light-orange: #ff8351;
+	--yellow: #ffd400;
+	--green: #0ade71;
+	--neutral-green: #33a853;
+	--purple: #5856de;
+
+	/* Grayscale */
+	@each $gray, $value in $grayscale {
+		--op-#{$gray}: rgba(255, 255, 255, #{$value});
+	}
+
+	/** Button */
+	--btn-white-bg: rgba(255, 255, 255, 90%);
+	--btn-white-bg-hover: rgba(255, 255, 255, 75%);
+	--btn-white-bg-active: rgba(255, 255, 255, 90%);
+	--btn-secondary-bg: rgba(255, 255, 255, 5%);
+	--btn-secondary-bg-hover: rgba(255, 255, 255, 8%);
+	--btn-secondary-bg-active: rgba(255, 255, 255, 5%);
+
+	/** Other */
+	--network-widget-background: rgba(0, 0, 0, 10%);
+	--network-widget-separator: #2f3133;
+	--network-widget-indicator: #fff;
+	--feed-background: rgba(0, 0, 0, 8%);
+	--notification-background: rgba(0, 0, 0, 95%);
+	--block-progress-background: rgba(0, 0, 0, 20%);
+	--logo-name: var(--txt-primary);
+}
+
 [theme="light"] {
 	--base-width: 992px;
 
@@ -130,6 +184,10 @@ $grayscale: (
 
 a {
 	text-decoration: none;
+
+	&:focus {
+		outline: none;
+	}
 }
 
 button,
@@ -214,6 +272,17 @@ body {
 	transform: scale(0.5);
 }
 
+.fastpopup-enter-active,
+.fastpopup-leave-active {
+	transition: all 0.1s ease;
+}
+
+.fastpopup-enter-from,
+.fastpopup-leave-to {
+	opacity: 0;
+	transform: scale(0.97);
+}
+
 .fade-enter-active,
 .fade-leave-active {
 	transition: all 0.2s ease;
@@ -232,4 +301,14 @@ body {
 .fastfade-enter-from,
 .fastfade-leave-to {
 	opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+	transition: ease-in 0.05s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.slide-enter-from,
+.slide-leave-to {
+	transform: translateY(-25px);
 }

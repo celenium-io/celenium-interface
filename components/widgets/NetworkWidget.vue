@@ -2,7 +2,7 @@
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
-import { comma } from "@/services/utils"
+import { abbreviate, comma } from "@/services/utils"
 
 /** API */
 import { fetchHistogram } from "@/services/api/histogram"
@@ -31,7 +31,7 @@ const pos = (100 * (tph - lowLevel)) / (highLevel - lowLevel)
 						<Flex align="center" gap="6">
 							<Icon name="zap-circle" size="20" color="primary" />
 							<Flex gap="4" align="end">
-								<Text size="20" weight="600" color="primary">{{ comma(tph.toFixed(0)) }}</Text>
+								<Text size="20" weight="600" color="primary">{{ abbreviate(tph.toFixed(0)) }}</Text>
 								<Text size="14" weight="700" color="tertiary">TPH</Text>
 							</Flex>
 						</Flex>
@@ -43,7 +43,9 @@ const pos = (100 * (tph - lowLevel)) / (highLevel - lowLevel)
 								:color="tph - prevTph > 0 ? 'green' : 'red'"
 								:style="{ transform: `scaleY(${tph - prevTph > 0 ? '1' : '-1'})` }"
 							/>
-							<Text size="16" weight="600" :color="tph - prevTph > 0 ? 'green' : 'red'">{{ diff.toFixed(0) }}%</Text>
+							<Text size="16" weight="600" :color="tph - prevTph > 0 ? 'green' : 'red'">
+								{{ diff.toFixed(diff < 1 ? 2 : 0) }}%
+							</Text>
 						</Flex>
 					</Flex>
 
@@ -94,6 +96,11 @@ const pos = (100 * (tph - lowLevel)) / (highLevel - lowLevel)
 							</Flex>
 						</template>
 					</Tooltip>
+
+					<Flex align="center" justify="between" wide style="padding: 0 6px">
+						<Text size="12" weight="600" color="support">Low</Text>
+						<Text size="12" weight="600" color="support">High</Text>
+					</Flex>
 				</Flex>
 			</Flex>
 

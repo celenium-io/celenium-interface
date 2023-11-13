@@ -1,4 +1,10 @@
 <script setup>
+/** UI */
+import { Dropdown, DropdownItem, DropdownTitle } from "@/components/ui/Dropdown"
+
+/** Services */
+import { getNetworkName } from "@/services/utils"
+
 const appConfig = useAppConfig()
 
 const currentTheme = ref("dark")
@@ -8,16 +14,15 @@ onMounted(() => {
 	currentTheme.value = root.getAttribute("theme") ? "light" : "dark"
 })
 
-const handleChangeTheme = () => {
+const handleNavigate = (url) => {
+	window.location.replace(url)
+}
+
+const handleChangeTheme = (theme) => {
 	const root = document.querySelector("html")
 
-	if (!root.getAttribute("theme")) {
-		root.setAttribute("theme", "light")
-		currentTheme.value = "light"
-	} else {
-		root.removeAttribute("theme")
-		currentTheme.value = "dark"
-	}
+	root.setAttribute("theme", theme)
+	currentTheme.value = theme
 }
 </script>
 
@@ -32,7 +37,7 @@ const handleChangeTheme = () => {
 				</Flex>
 
 				<Flex align="center" gap="16">
-					<a :href="`https://github.com/dipdup-io/celestia-explorer/releases/tag/v${appConfig.version}`" target="_blank">
+					<a :href="`https://github.com/celenium-io/celenium-interface/releases/tag/v${appConfig.version}`" target="_blank">
 						<Flex>
 							<Text size="12" weight="600" color="support">
 								Version <Text color="tertiary">{{ appConfig.version }}</Text>
@@ -44,9 +49,35 @@ const handleChangeTheme = () => {
 
 			<Flex direction="column" align="end" gap="16">
 				<Flex align="center" gap="16">
-					<Flex @click="handleChangeTheme" align="center" gap="6" :class="$style.btn">
-						<Icon :name="currentTheme === 'light' ? 'moon' : 'sun'" size="12" color="secondary" />
-						<Text size="12" weight="600" color="secondary">Switch to {{ currentTheme === "light" ? "Dark" : "Light" }}</Text>
+					<Flex align="center" gap="8">
+						<Dropdown side="top">
+							<Flex align="center" gap="6" :class="$style.btn">
+								<Icon name="globe" size="12" color="secondary" />
+								<Text size="12" weight="600" color="secondary">{{ getNetworkName() }}</Text>
+							</Flex>
+
+							<template #popup>
+								<DropdownTitle>Network</DropdownTitle>
+								<DropdownItem @click="handleNavigate('https://celenium.io')">Mainnet</DropdownItem>
+								<DropdownItem @click="handleNavigate('https://mocha-4.celenium.io')">Mocha-4</DropdownItem>
+							</template>
+						</Dropdown>
+
+						<Dropdown side="top">
+							<Flex align="center" gap="6" :class="$style.btn">
+								<Icon :name="currentTheme === 'light' ? 'sun' : 'moon'" size="12" color="secondary" />
+								<Text size="12" weight="600" color="secondary" :style="{ textTransform: 'capitalize' }">
+									{{ currentTheme }}
+								</Text>
+							</Flex>
+
+							<template #popup>
+								<DropdownTitle>Theme</DropdownTitle>
+								<DropdownItem @click="handleChangeTheme('dimmed')">Dimmed</DropdownItem>
+								<DropdownItem @click="handleChangeTheme('dark')">Dark</DropdownItem>
+								<DropdownItem @click="handleChangeTheme('light')">Light</DropdownItem>
+							</template>
+						</Dropdown>
 					</Flex>
 
 					<Text size="12" weight="700" color="support">/</Text>

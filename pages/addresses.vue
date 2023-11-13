@@ -9,12 +9,8 @@ import { comma, tia } from "@/services/utils"
 /** API */
 import { fetchAddresses, fetchAddressesCount } from "@/services/api/address"
 
-/** Store */
-import { useNotificationsStore } from "@/store/notifications"
-const notificationsStore = useNotificationsStore()
-
 useHead({
-	title: "All Addresses - Celestia Explorer",
+	title: "Addresses - Celestia Explorer",
 	link: [
 		{
 			rel: "canonical",
@@ -28,7 +24,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: "All Addresses - Celestia Explorer",
+			content: "Addresses - Celestia Explorer",
 		},
 		{
 			property: "og:description",
@@ -44,7 +40,7 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: "All Addresses - Celestia Explorer",
+			content: "Addresses - Celestia Explorer",
 		},
 		{
 			name: "twitter:description",
@@ -110,19 +106,6 @@ const handlePrev = () => {
 
 	page.value -= 1
 }
-
-const handleCopy = (target) => {
-	window.navigator.clipboard.writeText(target)
-
-	notificationsStore.create({
-		notification: {
-			type: "info",
-			icon: "check",
-			title: "Successfully copied to clipboard",
-			autoDestroy: true,
-		},
-	})
-}
 </script>
 
 <template>
@@ -178,13 +161,7 @@ const handleCopy = (target) => {
 										<Flex align="center" gap="10">
 											<AddressBadge :hash="address.hash" />
 
-											<Icon
-												@click.stop="handleCopy(address.hash)"
-												name="copy"
-												size="12"
-												color="secondary"
-												class="copyable"
-											/>
+											<CopyButton :text="address.hash" />
 										</Flex>
 
 										<template #content>

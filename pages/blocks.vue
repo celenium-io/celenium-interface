@@ -17,7 +17,7 @@ import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
 
 useHead({
-	title: "All Blocks - Celestia Explorer",
+	title: "Blocks - Celestia Explorer",
 	link: [
 		{
 			rel: "canonical",
@@ -27,15 +27,15 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: "Blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size, fee are shown.",
+			content: "Blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size and fee are shown.",
 		},
 		{
 			property: "og:title",
-			content: "All Blocks - Celestia Explorer",
+			content: "Blocks - Celestia Explorer",
 		},
 		{
 			property: "og:description",
-			content: "Blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size, fee are shown.",
+			content: "Blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size and fee are shown.",
 		},
 		{
 			property: "og:url",
@@ -47,11 +47,11 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: "All Blocks - Celestia Explorer",
+			content: "Blocks - Celestia Explorer",
 		},
 		{
 			name: "twitter:description",
-			content: "Blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size, fee are shown.",
+			content: "Blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size and fee are shown.",
 		},
 		{
 			name: "twitter:card",
@@ -145,7 +145,7 @@ const handlePrev = () => {
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Height</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>When</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Time</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Proposer</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Txs</Text></th>
@@ -167,9 +167,14 @@ const handlePrev = () => {
 									</Outline>
 								</td>
 								<td>
-									<Text size="13" weight="600" color="primary">{{
-										DateTime.fromISO(block.time).toRelative({ locale: "en", style: "short" })
-									}}</Text>
+									<Flex direction="column" gap="4">
+										<Text size="12" weight="600" color="primary">
+											{{ DateTime.fromISO(block.time).toRelative({ locale: "en", style: "short" }) }}
+										</Text>
+										<Text size="12" weight="500" color="tertiary">
+											{{ DateTime.fromISO(block.time).setLocale("en").toFormat("LLL d, t") }}
+										</Text>
+									</Flex>
 								</td>
 								<td>
 									<Tooltip v-if="block.hash" delay="500">
@@ -327,8 +332,8 @@ const handlePrev = () => {
 		& tr td {
 			padding: 0;
 			padding-right: 24px;
-			padding-top: 6px;
-			padding-bottom: 6px;
+			padding-top: 8px;
+			padding-bottom: 8px;
 
 			white-space: nowrap;
 

@@ -15,11 +15,10 @@ import { fetchTransactionsByBlock } from "@/services/api/tx"
 
 /** Store */
 import { useAppStore } from "@/store/app"
-import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
-const notificationsStore = useNotificationsStore()
 
 const blocks = computed(() => appStore.latestBlocks)
+const lastBlock = computed(() => appStore.latestBlocks[0])
 const preview = reactive({
 	block: blocks.value[0],
 	transactions: [],
@@ -67,18 +66,12 @@ watch(
 	},
 )
 
-const handleCopy = (target) => {
-	window.navigator.clipboard.writeText(target)
-
-	notificationsStore.create({
-		notification: {
-			type: "info",
-			icon: "check",
-			title: "Successfully copied to clipboard",
-			autoDestroy: true,
-		},
-	})
-}
+watch(
+	() => lastBlock.value,
+	() => {
+		handleSelectBlock(lastBlock.value)
+	},
+)
 </script>
 
 <template>
@@ -94,15 +87,15 @@ const handleCopy = (target) => {
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary">Height</Text></th>
-								<th><Text size="12" weight="600" color="tertiary">When</Text></th>
+								<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
 								<th><Text size="12" weight="600" color="tertiary">Hash</Text></th>
 								<th><Text size="12" weight="600" color="tertiary">Proposer</Text></th>
-								<th><Text size="12" weight="600" color="tertiary">Fee</Text></th>
+								<th><Text size="12" weight="600" color="tertiary">Total Fees</Text></th>
 							</tr>
 						</thead>
 
 						<tbody>
-							<tr v-for="block in blocks" @click="handleSelectBlock(block)">
+							<tr v-for="block in blocks.slice(0, 15)" @click="handleSelectBlock(block)">
 								<td style="width: 1px">
 									<Outline>
 										<Flex align="center" gap="6">
@@ -117,9 +110,14 @@ const handleCopy = (target) => {
 									</Outline>
 								</td>
 								<td>
-									<Text size="13" weight="600" color="primary">
-										{{ DateTime.fromISO(block.time).toRelative({ locale: "en", style: "short" }) }}
-									</Text>
+									<Flex direction="column" gap="4">
+										<Text size="12" weight="600" color="primary">
+											{{ DateTime.fromISO(block.time).toRelative({ locale: "en", style: "short" }) }}
+										</Text>
+										<Text size="12" weight="500" color="tertiary">
+											{{ DateTime.fromISO(block.time).setLocale("en").toFormat("LLL d, t") }}
+										</Text>
+									</Flex>
 								</td>
 								<td>
 									<Tooltip delay="500">
@@ -394,7 +392,7 @@ const handleCopy = (target) => {
 							<Text size="12" weight="600" color="secondary"> {{ formatBytes(preview.block.stats.blobs_size) }} </Text>
 						</Flex>
 						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary"> Fee </Text>
+							<Text size="12" weight="600" color="tertiary"> Total Fees </Text>
 							<Text size="12" weight="600" color="secondary"> {{ tia(preview.block.stats.fee) }} TIA </Text>
 						</Flex>
 					</Flex>
@@ -460,8 +458,8 @@ const handleCopy = (target) => {
 		& tr td {
 			padding: 0;
 			padding-right: 24px;
-			padding-top: 6px;
-			padding-bottom: 6px;
+			padding-top: 8px;
+			padding-bottom: 8px;
 
 			white-space: nowrap;
 		}
@@ -533,7 +531,7 @@ const handleCopy = (target) => {
 	padding: 4px 6px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
 	.content {
 		flex-direction: column-reverse;
 	}

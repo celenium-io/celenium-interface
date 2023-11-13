@@ -29,7 +29,7 @@ useHead({
 		{
 			name: "description",
 			content:
-				"Celenium allows you to explore and search the Celestia blockchain for transactions, addresses, blocks, namespaces, blobs.",
+				"Celenium allows you to explore and search the Celestia blockchain for transactions, addresses, blocks, namespaces and blobs.",
 		},
 		{
 			property: "og:title",
@@ -38,7 +38,7 @@ useHead({
 		{
 			property: "og:description",
 			content:
-				"Celenium allows you to explore and search the Celestia blockchain for transactions, addresses, blocks, namespaces, blobs.",
+				"Celenium allows you to explore and search the Celestia blockchain for transactions, addresses, blocks, namespaces and blobs.",
 		},
 		{
 			property: "og:url",
@@ -55,7 +55,7 @@ useHead({
 		{
 			name: "twitter:description",
 			content:
-				"Celenium allows you to explore and search the Celestia blockchain for transactions, addresses, blocks, namespaces, blobs.",
+				"Celenium allows you to explore and search the Celestia blockchain for transactions, addresses, blocks, namespaces and blobs.",
 		},
 		{
 			name: "twitter:card",
@@ -74,13 +74,9 @@ appStore.latestBlocks = blocks.value
 
 <template>
 	<Flex direction="column" wide :class="$style.wrapper">
-		<Flex direction="column" gap="20" :class="$style.main">
-			<SearchBar />
+		<Widgets :class="$style.widgets" />
 
-			<Widgets :class="$style.widgets" />
-		</Flex>
-
-		<Flex direction="column" gap="40">
+		<Flex direction="column" gap="40" :class="$style.main">
 			<Flex gap="20" :class="$style.small_tables">
 				<RecentNamespacesTable />
 				<LatestPFBTable />
@@ -99,8 +95,12 @@ appStore.latestBlocks = blocks.value
 	margin-bottom: 120px;
 }
 
+.widgets {
+	margin-top: 40px;
+}
+
 .main {
-	padding: 60px 0;
+	margin-top: 40px;
 }
 
 @media (max-width: 1100px) {
@@ -109,15 +109,15 @@ appStore.latestBlocks = blocks.value
 	}
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
 	.small_tables {
 		flex-direction: column;
 	}
 }
 
 @media (max-width: 500px) {
-	.main {
-		padding-top: 32px;
+	.widgets {
+		margin-top: 24px;
 	}
 
 	.wrapper {

@@ -20,7 +20,7 @@ import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
 
 useHead({
-	title: "All Transactions - Celestia Explorer",
+	title: "Transactions - Celestia Explorer",
 	link: [
 		{
 			rel: "canonical",
@@ -34,7 +34,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: "All Transactions - Celestia Explorer",
+			content: "Transactions - Celestia Explorer",
 		},
 		{
 			property: "og:description",
@@ -50,7 +50,7 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: "All Transactions - Celestia Explorer",
+			content: "Transactions - Celestia Explorer",
 		},
 		{
 			name: "twitter:description",
@@ -163,8 +163,8 @@ const handlePrev = () => {
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>When</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Messages</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Time</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Block</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Gas</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Events</Text></th>
@@ -232,9 +232,14 @@ const handlePrev = () => {
 									<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
 								</td>
 								<td>
-									<Text size="13" weight="600" color="primary">
-										{{ DateTime.fromISO(tx.time).toRelative({ locale: "en", style: "short" }) }}
-									</Text>
+									<Flex direction="column" gap="4">
+										<Text size="12" weight="600" color="primary">
+											{{ DateTime.fromISO(tx.time).toRelative({ locale: "en", style: "short" }) }}
+										</Text>
+										<Text size="12" weight="500" color="tertiary">
+											{{ DateTime.fromISO(tx.time).setLocale("en").toFormat("LLL d, t") }}
+										</Text>
+									</Flex>
 								</td>
 								<td>
 									<Outline @click.stop="router.push(`/block/${tx.height}`)">
@@ -247,9 +252,13 @@ const handlePrev = () => {
 								</td>
 								<td>
 									<Tooltip>
-										<Text v-if="tx.gas_wanted > 0" size="13" weight="600" color="primary">
-											{{ ((tx.gas_used * 100) / tx.gas_wanted).toFixed(2) }}%
-										</Text>
+										<Flex align="center" gap="8">
+											<Text v-if="tx.gas_wanted > 0" size="13" weight="600" color="primary">
+												{{ ((tx.gas_used * 100) / tx.gas_wanted).toFixed(2) }}%
+											</Text>
+
+											<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
+										</Flex>
 
 										<template #content>
 											<Flex align="center" gap="4">
@@ -362,8 +371,8 @@ const handlePrev = () => {
 		& tr td {
 			padding: 0;
 			padding-right: 24px;
-			padding-top: 6px;
-			padding-bottom: 6px;
+			padding-top: 8px;
+			padding-bottom: 8px;
 
 			white-space: nowrap;
 
