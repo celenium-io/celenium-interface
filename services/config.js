@@ -21,6 +21,9 @@ export const useServerURL = () => {
 		case "mocha-4.celenium.io":
 			return Server.API.mocha
 
+		case "mocha.celenium.io":
+			return Server.API.mocha
+
 		case "dev.celenium.io":
 			return Server.API.dev
 
@@ -37,6 +40,9 @@ export const useSocketURL = () => {
 			return Server.WSS.mainnet
 
 		case "mocha-4.celenium.io":
+			return Server.WSS.mocha
+
+		case "mocha.celenium.io":
 			return Server.WSS.mocha
 
 		case "dev.celenium.io":
