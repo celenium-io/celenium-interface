@@ -53,7 +53,7 @@ isLoading.value = false
 												color="secondary"
 											/>
 
-											<Text size="13" weight="600" color="primary">
+											<Text size="13" weight="600" color="primary" mono>
 												{{ pfb.hash.slice(0, 4).toUpperCase() }}
 											</Text>
 
@@ -61,7 +61,7 @@ isLoading.value = false
 												<div v-for="dot in 3" class="dot" />
 											</Flex>
 
-											<Text size="13" weight="600" color="primary">
+											<Text size="13" weight="600" color="primary" mono>
 												{{ pfb.hash.slice(pfb.hash.length - 4, pfb.hash.length).toUpperCase() }}
 											</Text>
 										</Flex>
@@ -79,7 +79,7 @@ isLoading.value = false
 									<Flex align="center" gap="6">
 										<Icon name="block" size="14" color="secondary" />
 
-										<Text size="13" weight="600" color="primary">{{ comma(pfb.height) }}</Text>
+										<Text size="13" weight="600" color="primary" tabular>{{ comma(pfb.height) }}</Text>
 									</Flex>
 								</Outline>
 							</td>

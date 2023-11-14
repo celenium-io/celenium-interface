@@ -164,7 +164,7 @@ const handlePrev = () => {
 											<template v-if="ns.hash">
 												<Flex align="center" gap="10">
 													<Flex align="center" gap="6">
-														<Text size="13" weight="600" color="primary">
+														<Text size="13" weight="600" color="primary" mono>
 															{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
 														</Text>
 
@@ -172,7 +172,7 @@ const handlePrev = () => {
 															<div v-for="dot in 3" class="dot" />
 														</Flex>
 
-														<Text size="13" weight="600" color="primary">
+														<Text size="13" weight="600" color="primary" mono>
 															{{ getNamespaceID(ns.namespace_id).slice(-4) }}
 														</Text>
 													</Flex>

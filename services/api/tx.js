@@ -17,6 +17,17 @@ export const fetchTransactions = async ({ limit, offset, sort, msg_type }) => {
 	}
 }
 
+export const fetchTxsCount = async () => {
+	try {
+		const url = new URL(`${useServerURL()}/tx/count`)
+
+		const data = await useFetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchTxByHash = async (hash) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx/${hash}`)

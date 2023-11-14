@@ -68,14 +68,15 @@ useHead({
 })
 
 onBeforeMount(async () => {
-	const { data } = await fetchLatestBlocks({ limit: 15 })
-	appStore.latestBlocks = data.value
+	const data = await fetchLatestBlocks({ limit: 15 })
+	appStore.latestBlocks = data
+	appStore.isLatestBlocksLoaded = true
 })
 </script>
 
 <template>
 	<Flex direction="column" wide :class="$style.wrapper">
-		<Widgets v-if="appStore.latestBlocks.length" :class="$style.widgets" />
+		<Widgets :class="$style.widgets" />
 
 		<Flex direction="column" gap="40" :class="$style.main">
 			<Flex gap="20" :class="$style.small_tables">

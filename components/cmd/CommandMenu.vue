@@ -608,6 +608,7 @@ const resetRunText = () => {
 @media (max-width: 750px) {
 	.popup {
 		width: 95%;
+		top: 7%;
 	}
 }
 </style>

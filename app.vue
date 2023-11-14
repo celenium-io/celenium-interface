@@ -11,14 +11,14 @@ import CommandMenu from "@/components/cmd/CommandMenu.vue"
 import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
 
-const { data } = await fetchHead()
-if (data.value) appStore.head = data.value
-
-onMounted(() => {
+onMounted(async () => {
 	const runtimeConfig = useRuntimeConfig()
 	amp.init(runtimeConfig.public.AMP)
 
 	Socket.init()
+
+	const data = await fetchHead()
+	if (data) appStore.head = data
 
 	window.onbeforeunload = function () {
 		Socket.close()

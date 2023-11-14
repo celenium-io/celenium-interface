@@ -91,22 +91,14 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 						</NuxtLink>
 					</Flex>
 
-					<Tooltip position="start" textAlign="left">
-						<Flex direction="column" gap="10" :class="$style.key_value">
-							<Text size="12" weight="600" color="secondary">Type</Text>
+					<Flex direction="column" gap="10" :class="$style.key_value">
+						<Text size="12" weight="600" color="secondary">Type</Text>
 
-							<MessageTypeBadge v-if="tx.message_types.length" :types="tx.message_types" />
-							<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
-						</Flex>
-
-						<template #content>
-							<Flex direction="column" gap="8">
-								<Text v-for="type in tx.message_types" color="primary">
-									{{ type.replace("Msg", "") }}
-								</Text>
-							</Flex>
+						<template v-if="tx.message_types.length">
+							<MessageTypeBadge v-for="type in tx.message_types" :types="[type]" />
 						</template>
-					</Tooltip>
+						<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
+					</Flex>
 
 					<Flex direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Hash</Text>

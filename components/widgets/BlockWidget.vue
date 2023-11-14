@@ -5,41 +5,69 @@ import { DateTime } from "luxon"
 /** Services */
 import { comma } from "@/services/utils"
 
+/** API */
+import { fetchAvgBlockTime } from "@/services/api/block"
+
 /** Store */
 import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
 
 const lastBlock = computed(() => appStore.latestBlocks[0])
 
+const isInited = ref(false)
+
 let blockProgressInterval = null
 let delayInterval = null
+
+const avgBlockTime = ref(0)
 
 const delay = ref(0)
 const isDelayed = ref(false)
 
-const offsetSinceLastBlock = Math.abs(
-	DateTime.fromISO(lastBlock.value.time).diffNow("seconds").values.seconds + lastBlock.value.stats.block_time / 1_000,
-)
-
-if (offsetSinceLastBlock > lastBlock.value.stats.block_time / 1_000) {
-	isDelayed.value = true
-	delay.value = Math.floor(offsetSinceLastBlock - lastBlock.value.stats.block_time / 1_000)
-	delayInterval = setInterval(() => {
-		delay.value += 1
-	}, 1_000)
-}
-
-const blockProgress = ref(Math.floor(offsetSinceLastBlock))
+const blockProgress = ref(0)
 const fillOffset = computed(() => {
-	const offset = -(100 - (100 * blockProgress.value) / (lastBlock.value.stats.block_time / 1_000))
+	if (!blockProgress.value) return -100
+
+	const offset = -(100 - (100 * blockProgress.value) / avgBlockTime.value)
 	return offset < 0 ? offset : 0
 })
+
+const init = async () => {
+	const { data } = await fetchAvgBlockTime({ from: parseInt(DateTime.now().minus({ month: 1 }).ts / 1_000) })
+	avgBlockTime.value = Math.ceil(parseInt(data.value) / 1_000)
+
+	const offsetSinceLastBlock = Math.abs(DateTime.fromISO(lastBlock.value.time).diffNow("seconds").values.seconds + avgBlockTime.value)
+
+	if (offsetSinceLastBlock > avgBlockTime.value) {
+		isDelayed.value = true
+		delay.value = Math.floor(offsetSinceLastBlock - avgBlockTime.value)
+		delayInterval = setInterval(() => {
+			delay.value += 1
+		}, 1_000)
+	}
+
+	blockProgress.value = Math.floor(offsetSinceLastBlock)
+	if (!isDelayed.value) startBlockProgress()
+
+	isInited.value = true
+}
+
+onMounted(() => {
+	if (appStore.isLatestBlocksLoaded) init()
+})
+
+watch(
+	() => appStore.isLatestBlocksLoaded,
+	() => {
+		init()
+	},
+)
 
 const startBlockProgress = () => {
 	blockProgressInterval = setInterval(() => {
 		blockProgress.value += 1
 
-		if (blockProgress.value > lastBlock.value.stats.block_time / 1_000 + 1) {
+		if (blockProgress.value > avgBlockTime.value) {
 			isDelayed.value = true
 			clearInterval(blockProgressInterval)
 
@@ -49,11 +77,12 @@ const startBlockProgress = () => {
 		}
 	}, 1_000)
 }
-if (!isDelayed.value) startBlockProgress()
 
 watch(
 	() => lastBlock.value,
 	() => {
+		if (!isInited.value) return
+
 		isDelayed.value = false
 
 		clearInterval(blockProgressInterval)
@@ -72,12 +101,14 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-	<NuxtLink :to="`/block/${lastBlock.height}`" :class="$style.wrapper">
+	<NuxtLink :to="lastBlock && `/block/${lastBlock.height}`" :class="$style.wrapper">
 		<Flex justify="between">
 			<Flex direction="column" gap="10">
 				<Flex align="center" gap="4">
 					<Text size="16" weight="600" color="primary"> Block </Text>
-					<Text size="16" weight="600" color="green"> {{ comma(lastBlock.height) }}</Text>
+
+					<Text v-if="lastBlock" size="16" weight="600" color="green"> {{ comma(lastBlock.height) }}</Text>
+					<Skeleton v-else w="60" h="12" />
 				</Flex>
 
 				<Flex align="center" gap="6">
@@ -87,7 +118,9 @@ onBeforeUnmount(() => {
 			</Flex>
 
 			<Flex direction="column" gap="8" align="end">
-				<Text size="14" weight="600" color="primary"> ~{{ Math.ceil(lastBlock.stats.block_time / 1_000) }}s </Text>
+				<Text v-if="lastBlock" size="14" weight="600" color="primary"> ~{{ Math.ceil(avgBlockTime) }}s </Text>
+				<Skeleton v-else w="32" h="14" />
+
 				<Text size="12" weight="500" color="tertiary"> Block Time </Text>
 			</Flex>
 		</Flex>

@@ -16,13 +16,21 @@ const head = computed(() => appStore.head)
 	<Flex tag="section" justify="center" wide :class="$style.wrapper">
 		<Flex align="center" justify="between" gap="24" wide :class="$style.container">
 			<Flex align="center" gap="20" :class="$style.stats">
-				<Flex align="center" gap="6" :class="$style.stat">
-					<Icon name="tx" size="12" color="secondary" :class="$style.icon" />
-					<Flex align="center" gap="4">
-						<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Txs:</Text>
-						<Text size="12" weight="600" noWrap :class="$style.value">{{ abbreviate(head.total_tx) }}</Text>
+				<Tooltip>
+					<Flex align="center" gap="6" :class="$style.stat">
+						<Icon name="tx" size="12" color="secondary" :class="$style.icon" />
+						<Flex align="center" gap="4">
+							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Txs:</Text>
+
+							<Text v-if="head" size="12" weight="600" noWrap :class="$style.value">{{ abbreviate(head.total_tx) }}</Text>
+							<Skeleton v-else w="40" h="12" />
+						</Flex>
 					</Flex>
-				</Flex>
+
+					<template #content>
+						{{ comma(head.total_tx) }}
+					</template>
+				</Tooltip>
 
 				<div :class="$style.dot" />
 
@@ -31,9 +39,11 @@ const head = computed(() => appStore.head)
 						<Icon name="coins" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Supply:</Text>
-							<Text size="12" weight="600" noWrap :class="$style.value">
+
+							<Text v-if="head" size="12" weight="600" noWrap :class="$style.value">
 								{{ abbreviate(head.total_supply / 1_000_000, 2) }} TIA
 							</Text>
+							<Skeleton v-else w="55" h="12" />
 						</Flex>
 					</Flex>
 
@@ -47,7 +57,11 @@ const head = computed(() => appStore.head)
 						<Icon name="folder" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Blobs Size:</Text>
-							<Text size="12" weight="600" noWrap :class="$style.value">{{ formatBytes(head.total_blobs_size) }}</Text>
+
+							<Text v-if="head" size="12" weight="600" noWrap :class="$style.value">{{
+								formatBytes(head.total_blobs_size)
+							}}</Text>
+							<Skeleton v-else w="60" h="12" />
 						</Flex>
 					</Flex>
 
@@ -61,9 +75,11 @@ const head = computed(() => appStore.head)
 						<Icon name="tag" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Fees:</Text>
-							<Text size="12" weight="600" noWrap :class="$style.value">
+
+							<Text v-if="head" size="12" weight="600" noWrap :class="$style.value">
 								{{ abbreviate(parseInt(head.total_fee / 1_000_000)) }} TIA
 							</Text>
+							<Skeleton v-else w="55" h="12" />
 						</Flex>
 					</Flex>
 
@@ -71,23 +87,21 @@ const head = computed(() => appStore.head)
 				</Tooltip>
 			</Flex>
 
-			<Tooltip position="end">
-				<Flex align="center" gap="6" :class="$style.network">
-					<Icon name="zap" size="12" :color="head.synced ? 'green' : 'red'" />
+			<Tooltip v-if="head" position="end">
+				<Flex align="center" gap="8" :class="$style.network">
+					<div :class="[$style.status, head.synced ? $style.green : $style.red]" />
 					<Text size="12" weight="500" color="tertiary" :class="$style.name"> {{ getNetworkName() }} </Text>
 				</Flex>
 
 				<template #content>
-					<Flex align="center" gap="6">
-						<Text color="secondary">Current Network:</Text>
-						<Flex align="center" gap="4">
-							<Icon name="zap" size="12" :color="head.synced ? 'green' : 'red'" />
-							<template v-if="!head.synced">Not</template>
-							<Text color="primary"> Synced </Text>
-						</Flex>
+					<Flex align="center" gap="8">
+						<div :class="[$style.status, head.synced ? $style.green : $style.red]" />
+						<template v-if="!head.synced">Not</template>
+						<Text color="primary"> Synced </Text>
 					</Flex>
 				</template>
 			</Tooltip>
+			<Skeleton v-else w="60" h="12" />
 		</Flex>
 	</Flex>
 </template>
@@ -149,6 +163,20 @@ const head = computed(() => appStore.head)
 		.name {
 			color: var(--txt-secondary);
 		}
+	}
+}
+
+.status {
+	width: 5px;
+	height: 5px;
+	border-radius: 50px;
+
+	&.green {
+		background: var(--green);
+	}
+
+	&.red {
+		background: var(--red);
 	}
 }
 

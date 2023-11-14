@@ -15,7 +15,7 @@ const appStore = useAppStore()
 const route = useRoute()
 
 let removeOutside = null
-const popupEl = ref(null)
+const headerEl = ref(null)
 const showPopup = ref(false)
 
 watch(
@@ -23,9 +23,8 @@ watch(
 	() => {
 		if (showPopup.value === true) {
 			nextTick(() => {
-				removeOutside = useOutside(popupEl.value.wrapper, () => {
+				removeOutside = useOutside(headerEl.value.wrapper, () => {
 					showPopup.value = false
-					console.log("outside")
 				})
 			})
 		} else {
@@ -57,7 +56,7 @@ const isActive = (link) => {
 </script>
 
 <template>
-	<Flex tag="header" justify="center" wide :class="$style.wrapper">
+	<Flex tag="header" ref="headerEl" justify="center" wide :class="$style.wrapper">
 		<Flex align="center" justify="between" wide :class="$style.container">
 			<Flex align="center" gap="8">
 				<Flex @click="showPopup = !showPopup" align="center" gap="8" :class="[$style.button, $style.menu]">
@@ -96,7 +95,7 @@ const isActive = (link) => {
 				</NuxtLink>
 			</Flex>
 
-			<Tooltip position="end">
+			<Tooltip position="end" delay="250">
 				<Flex @click="appStore.showCmd = true" align="center" gap="8" :class="$style.button">
 					<Icon name="search" size="16" color="secondary" />
 				</Flex>
@@ -113,7 +112,7 @@ const isActive = (link) => {
 			</Tooltip>
 		</Flex>
 
-		<Flex v-if="showPopup" @click="showPopup = false" ref="popupEl" direction="column" gap="8" :class="$style.menu_popup">
+		<Flex v-if="showPopup" @click="showPopup = false" direction="column" gap="8" :class="$style.menu_popup">
 			<NuxtLink to="/" :class="[$style.link, isActive('index') && $style.active]">
 				<Text size="13" weight="600" color="tertiary">Explorer</Text>
 			</NuxtLink>

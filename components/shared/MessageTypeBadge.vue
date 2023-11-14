@@ -14,7 +14,7 @@ defineProps({
 </script>
 
 <template>
-	<Badge>
+	<Badge :class="$style.wrapper">
 		<Icon
 			:name="
 				MessageIconMap[types[0].replace('Msg', '').toLowerCase()]
@@ -34,6 +34,10 @@ defineProps({
 </template>
 
 <style module>
+.wrapper {
+	width: fit-content;
+}
+
 .text {
 	text-overflow: ellipsis;
 	overflow: hidden;

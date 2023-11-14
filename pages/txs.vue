@@ -13,7 +13,7 @@ import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 import { comma, space } from "@/services/utils"
 
 /** API */
-import { fetchTransactions } from "@/services/api/tx"
+import { fetchTransactions, fetchTxsCount } from "@/services/api/tx"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -72,9 +72,13 @@ const router = useRouter()
 
 const isRefetching = ref(false)
 const transactions = ref([])
+const count = ref(0)
+
+const { data: txsCount } = await fetchTxsCount()
+count.value = txsCount.value
 
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = ref(Math.ceil(appStore.head.total_tx / 20))
+const pages = ref(Math.ceil(count.value / 20))
 
 const findPFB = ref(false)
 
@@ -188,7 +192,7 @@ const handlePrev = () => {
 														color="secondary"
 													/>
 
-													<Text size="13" weight="600" color="primary">{{
+													<Text size="13" weight="600" color="primary" mono>{{
 														tx.hash.slice(0, 4).toUpperCase()
 													}}</Text>
 
@@ -196,7 +200,7 @@ const handlePrev = () => {
 														<div v-for="dot in 3" class="dot" />
 													</Flex>
 
-													<Text size="13" weight="600" color="primary">
+													<Text size="13" weight="600" color="primary" mono>
 														{{ tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase() }}
 													</Text>
 												</Flex>
@@ -246,12 +250,12 @@ const handlePrev = () => {
 										<Flex align="center" gap="6">
 											<Icon name="block" size="14" color="secondary" />
 
-											<Text size="13" weight="600" color="primary">{{ comma(tx.height) }}</Text>
+											<Text size="13" weight="600" color="primary" tabular>{{ comma(tx.height) }}</Text>
 										</Flex>
 									</Outline>
 								</td>
 								<td>
-									<Tooltip>
+									<Tooltip v-if="tx.gas_used">
 										<Flex align="center" gap="8">
 											<Text v-if="tx.gas_wanted > 0" size="13" weight="600" color="primary">
 												{{ ((tx.gas_used * 100) / tx.gas_wanted).toFixed(2) }}%
@@ -268,6 +272,7 @@ const handlePrev = () => {
 											</Flex>
 										</template>
 									</Tooltip>
+									<Text v-else size="13" weight="600" color="secondary">Unknown</Text>
 								</td>
 								<td>
 									<Text size="13" weight="600" color="primary">

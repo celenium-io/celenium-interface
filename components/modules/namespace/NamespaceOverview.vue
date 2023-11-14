@@ -154,7 +154,7 @@ watch(
 														color="secondary"
 													/>
 
-													<Text size="13" weight="600" color="primary">{{
+													<Text size="13" weight="600" color="primary" mono>{{
 														message.tx.hash.slice(0, 4).toUpperCase()
 													}}</Text>
 
@@ -162,7 +162,7 @@ watch(
 														<div v-for="dot in 3" class="dot" />
 													</Flex>
 
-													<Text size="13" weight="600" color="primary">{{
+													<Text size="13" weight="600" color="primary" mono>{{
 														message.tx.hash
 															.slice(message.tx.hash.length - 4, message.tx.hash.length)
 															.toUpperCase()
@@ -191,7 +191,7 @@ watch(
 												<Flex align="center" gap="6">
 													<Icon name="block" size="14" color="secondary" />
 
-													<Text size="13" weight="600" color="primary">{{ comma(message.height) }}</Text>
+													<Text size="13" weight="600" color="primary" tabular>{{ comma(message.height) }}</Text>
 												</Flex>
 											</Outline>
 										</NuxtLink>

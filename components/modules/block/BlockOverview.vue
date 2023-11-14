@@ -171,13 +171,13 @@ const getTxnsCountByTab = (tab) => {
 				</Flex>
 
 				<Flex direction="column" gap="24" :class="$style.main">
-					<Flex direction="column" gap="8" :class="$style.key_value">
+					<Flex v-if="block.hash" direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Hash</Text>
 
 						<BadgeValue :text="block.hash" />
 					</Flex>
 
-					<Flex direction="column" gap="8" :class="$style.key_value">
+					<Flex v-if="block.proposer_address" direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Proposer</Text>
 
 						<BadgeValue :text="block.proposer_address" />
@@ -249,7 +249,7 @@ const getTxnsCountByTab = (tab) => {
 														color="secondary"
 													/>
 
-													<Text size="13" weight="600" color="primary">{{
+													<Text size="13" weight="600" color="primary" mono>{{
 														tx.hash.slice(0, 4).toUpperCase()
 													}}</Text>
 
@@ -257,7 +257,7 @@ const getTxnsCountByTab = (tab) => {
 														<div v-for="dot in 3" class="dot" />
 													</Flex>
 
-													<Text size="13" weight="600" color="primary">{{
+													<Text size="13" weight="600" color="primary" mono>{{
 														tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase()
 													}}</Text>
 												</Flex>

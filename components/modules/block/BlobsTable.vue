@@ -143,7 +143,7 @@ const handlePrev = () => {
 											<Flex align="center" gap="8">
 												<Icon name="blob" size="12" color="secondary" />
 
-												<Text size="13" weight="600" color="primary">
+												<Text size="13" weight="600" color="primary" mono>
 													{{ getNamespaceID(blob.namespace.namespace_id).slice(0, 4) }}
 												</Text>
 
@@ -151,7 +151,7 @@ const handlePrev = () => {
 													<div v-for="dot in 3" class="dot" />
 												</Flex>
 
-												<Text size="13" weight="600" color="primary">
+												<Text size="13" weight="600" color="primary" mono>
 													{{ getNamespaceID(blob.namespace.namespace_id).slice(-4) }}
 												</Text>
 											</Flex>

@@ -1,17 +1,10 @@
 export const useAppStore = defineStore("app", () => {
-	const head = ref({
-		last_height: 0,
-		hash: "",
-		last_time: new Date(),
-		total_tx: 0,
-		total_accounts: 0,
-		total_fee: 0,
-		total_blobs_size: 0,
-		total_supply: 0,
-	})
+	const head = ref()
+
 	const latestBlocks = ref([])
+	const isLatestBlocksLoaded = ref(false)
 
 	const showCmd = ref(false)
 
-	return { head, latestBlocks, showCmd }
+	return { head, latestBlocks, isLatestBlocksLoaded, showCmd }
 })

@@ -25,6 +25,10 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	tabular: {
+		type: Boolean,
+		default: false,
+	},
 })
 
 const classes = computed(() => {
@@ -50,6 +54,9 @@ const classes = computed(() => {
 	}
 	if (props.mono) {
 		flexClasses.push(`mono`)
+	}
+	if (props.tabular) {
+		flexClasses.push(`tabular`)
 	}
 
 	return flexClasses

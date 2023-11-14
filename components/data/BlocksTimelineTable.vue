@@ -31,9 +31,7 @@ const handleSelectBlock = (b) => {
 	if (preview.block.height === b.height) return
 
 	preview.block = b
-
 	preview.pfbs = []
-	preview.isLoadingPfbs = true
 }
 
 const getTransactionsByBlock = async () => {
@@ -46,6 +44,8 @@ watch(
 	() => preview.block,
 	async () => {
 		if (preview.block.stats.tx_count) {
+			if (preview.block.stats.blobs_size) preview.isLoadingPfbs = true
+
 			getTransactionsByBlock()
 		}
 	},
@@ -105,17 +105,26 @@ watch(
 												:color="block.height === preview.block.height ? 'primary' : 'secondary'"
 											/>
 
-											<Text size="13" weight="600" color="primary">{{ comma(block.height) }}</Text>
+											<Text size="13" weight="600" color="primary" tabular>{{ comma(block.height) }}</Text>
 										</Flex>
 									</Outline>
 								</td>
 								<td>
 									<Flex direction="column" gap="4">
 										<Text size="12" weight="600" color="primary">
-											{{ DateTime.fromISO(block.time).toRelative({ locale: "en", style: "short" }) }}
+											{{
+												DateTime.fromISO(block.time)
+													.plus({ seconds: block.stats.block_time / 1_000 })
+													.toRelative({ locale: "en", style: "short" })
+											}}
 										</Text>
 										<Text size="12" weight="500" color="tertiary">
-											{{ DateTime.fromISO(block.time).setLocale("en").toFormat("LLL d, t") }}
+											{{
+												DateTime.fromISO(block.time)
+													.setLocale("en")
+
+													.toFormat("LLL d, t")
+											}}
 										</Text>
 									</Flex>
 								</td>
@@ -123,13 +132,13 @@ watch(
 									<Tooltip delay="500">
 										<template #default>
 											<Flex align="center" gap="6">
-												<Text size="13" weight="600" color="primary">{{ block.hash.slice(0, 4) }}</Text>
+												<Text size="13" weight="600" color="primary" mono>{{ block.hash.slice(0, 4) }}</Text>
 
 												<Flex align="center" gap="3">
 													<div v-for="dot in 3" class="dot" />
 												</Flex>
 
-												<Text size="13" weight="600" color="primary">
+												<Text size="13" weight="600" color="primary" mono>
 													{{ block.hash.slice(block.hash.length - 4, block.hash.length) }}
 												</Text>
 											</Flex>
@@ -142,13 +151,15 @@ watch(
 									<Tooltip delay="500">
 										<template #default>
 											<Flex align="center" gap="6">
-												<Text size="13" weight="600" color="primary">{{ block.proposer_address.slice(0, 4) }}</Text>
+												<Text size="13" weight="600" color="primary" mono>{{
+													block.proposer_address.slice(0, 4)
+												}}</Text>
 
 												<Flex align="center" gap="3">
 													<div v-for="dot in 3" class="dot" />
 												</Flex>
 
-												<Text size="13" weight="600" color="primary">{{
+												<Text size="13" weight="600" color="primary" mono>{{
 													block.proposer_address.slice(
 														block.proposer_address.length - 4,
 														block.proposer_address.length,
@@ -227,13 +238,13 @@ watch(
 
 								<Flex align="center" gap="10">
 									<Flex align="center" gap="6">
-										<Text size="13" weight="600" color="primary">{{ preview.block.hash.slice(0, 4) }}</Text>
+										<Text size="13" weight="600" color="primary" mono>{{ preview.block.hash.slice(0, 4) }}</Text>
 
 										<Flex align="center" gap="3">
 											<div v-for="dot in 3" class="dot" />
 										</Flex>
 
-										<Text size="13" weight="600" color="primary">
+										<Text size="13" weight="600" color="primary" mono>
 											{{ preview.block.hash.slice(preview.block.hash.length - 4, preview.block.hash.length) }}
 										</Text>
 									</Flex>
@@ -253,13 +264,15 @@ watch(
 
 								<Flex align="center" gap="10">
 									<Flex align="center" gap="6">
-										<Text size="13" weight="600" color="primary">{{ preview.block.proposer_address.slice(0, 4) }}</Text>
+										<Text size="13" weight="600" color="primary" mono>{{
+											preview.block.proposer_address.slice(0, 4)
+										}}</Text>
 
 										<Flex align="center" gap="3">
 											<div v-for="dot in 3" class="dot" />
 										</Flex>
 
-										<Text size="13" weight="600" color="primary">
+										<Text size="13" weight="600" color="primary" mono>
 											{{
 												preview.block.proposer_address.slice(
 													preview.block.proposer_address.length - 4,
@@ -298,13 +311,13 @@ watch(
 												color="secondary"
 											/>
 
-											<Text size="13" weight="600" color="primary">{{ transaction.hash.slice(0, 4) }}</Text>
+											<Text size="13" weight="600" color="primary" mono>{{ transaction.hash.slice(0, 4) }}</Text>
 
 											<Flex align="center" gap="3">
 												<div v-for="dot in 3" class="dot" />
 											</Flex>
 
-											<Text size="13" weight="600" color="primary">
+											<Text size="13" weight="600" color="primary" mono>
 												{{ transaction.hash.slice(transaction.hash.length - 4, transaction.hash.length) }}
 											</Text>
 										</Flex>
@@ -357,7 +370,7 @@ watch(
 										<Flex align="center" gap="8">
 											<Icon name="folder" size="12" color="secondary" />
 
-											<Text size="13" weight="600" color="primary">
+											<Text size="13" weight="600" color="primary" mono>
 												{{ getNamespaceID(pfb.namespace.namespace_id).slice(0, 4) }}
 											</Text>
 
@@ -365,7 +378,7 @@ watch(
 												<div v-for="dot in 3" class="dot" />
 											</Flex>
 
-											<Text size="13" weight="600" color="primary">
+											<Text size="13" weight="600" color="primary" mono>
 												{{ getNamespaceID(pfb.namespace.namespace_id).slice(-4) }}
 											</Text>
 										</Flex>

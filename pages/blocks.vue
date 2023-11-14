@@ -7,10 +7,10 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { tia, comma, space } from "@/services/utils"
+import { tia, comma, space, formatBytes } from "@/services/utils"
 
 /** API */
-import { fetchBlocks } from "@/services/api/block"
+import { fetchBlocks, fetchBlocksCount } from "@/services/api/block"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -69,10 +69,15 @@ const router = useRouter()
 
 const isRefetching = ref(false)
 const blocks = ref([])
+const count = ref(0)
+
 const hintedBlock = ref(route.query.block)
 
+const { data: blocksCount } = await fetchBlocksCount()
+count.value = blocksCount.value
+
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = ref(Math.ceil(appStore.head.last_height / 20))
+const pages = ref(Math.ceil(count.value / 20))
 
 const { data } = await fetchBlocks({ limit: 20, offset: (page.value - 1) * 20 })
 blocks.value = data.value
@@ -83,8 +88,8 @@ watch(
 	async () => {
 		isRefetching.value = true
 
-		const data = await fetchBlocks({ limit: 20, offset: (page.value - 1) * 20 })
-		blocks.value = data
+		const { data } = await fetchBlocks({ limit: 20, offset: (page.value - 1) * 20 })
+		blocks.value = data.value
 
 		isRefetching.value = false
 
@@ -162,7 +167,7 @@ const handlePrev = () => {
 										<Flex align="center" gap="6">
 											<Icon name="block" size="14" :color="hintedBlock == block.height ? 'blue' : 'tertiary'" />
 
-											<Text size="13" weight="600" color="primary">{{ comma(block.height) }}</Text>
+											<Text size="13" weight="600" color="primary" tabular>{{ comma(block.height) }}</Text>
 										</Flex>
 									</Outline>
 								</td>
@@ -181,13 +186,13 @@ const handlePrev = () => {
 										<template #default>
 											<Flex align="center" gap="10">
 												<Flex align="center" gap="6">
-													<Text size="13" weight="600" color="primary">{{ block.hash.slice(0, 4) }}</Text>
+													<Text size="13" weight="600" color="primary" mono>{{ block.hash.slice(0, 4) }}</Text>
 
 													<Flex align="center" gap="3">
 														<div v-for="dot in 3" class="dot" />
 													</Flex>
 
-													<Text size="13" weight="600" color="primary">
+													<Text size="13" weight="600" color="primary" mono>
 														{{ block.hash.slice(block.hash.length - 4, block.hash.length) }}
 													</Text>
 												</Flex>
@@ -205,7 +210,7 @@ const handlePrev = () => {
 										<template #default>
 											<Flex align="center" gap="10">
 												<Flex align="center" gap="6">
-													<Text size="13" weight="600" color="primary">{{
+													<Text size="13" weight="600" color="primary" mono>{{
 														block.proposer_address.slice(0, 4)
 													}}</Text>
 
@@ -213,7 +218,7 @@ const handlePrev = () => {
 														<div v-for="dot in 3" class="dot" />
 													</Flex>
 
-													<Text size="13" weight="600" color="primary">{{
+													<Text size="13" weight="600" color="primary" mono>{{
 														block.proposer_address.slice(
 															block.proposer_address.length - 4,
 															block.proposer_address.length,
@@ -241,7 +246,7 @@ const handlePrev = () => {
 								</td>
 								<td>
 									<Text size="13" weight="600" color="primary">
-										{{ block.stats.blobs_size }}
+										{{ formatBytes(block.stats.blobs_size) }}
 									</Text>
 								</td>
 								<td>
