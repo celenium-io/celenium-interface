@@ -74,15 +74,15 @@ isLoading.value = false
 										<Flex align="center" gap="6">
 											<Icon name="block" size="14" color="secondary" />
 
-											<Text size="13" weight="600" color="primary" tabular>{{ comma(ns.height) }}</Text>
+											<Text size="13" weight="600" color="primary" tabular>{{ comma(ns.last_height) }}</Text>
 										</Flex>
 									</Outline>
 								</NuxtLink>
 							</td>
 							<td>
-								<Text size="12" weight="600" color="primary">{{
-									DateTime.fromISO(ns.time).toRelative({ locale: "en", style: "short" })
-								}}</Text>
+								<Text size="12" weight="600" color="primary">
+									{{ DateTime.fromISO(ns.last_message_time).toRelative({ locale: "en", style: "short" }) }}
+								</Text>
 							</td>
 							<td>
 								<Text size="13" weight="600" color="primary">{{ formatBytes(ns.size) }}</Text>
