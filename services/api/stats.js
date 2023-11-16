@@ -11,3 +11,14 @@ export const fetchHistogram = async ({ table, func, period }) => {
 		console.error(error)
 	}
 }
+
+export const fetchTPS = async () => {
+	try {
+		const url = new URL(`${useServerURL()}/stats/tps`)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}

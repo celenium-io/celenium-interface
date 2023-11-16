@@ -171,6 +171,11 @@ $grayscale: (
 	--logo-name: var(--txt-primary);
 }
 
+@font-face {
+	font-family: "DS";
+	src: local("DS"), url(~/assets/fonts/DS-DIGI.TTF) format("truetype");
+}
+
 *,
 *::before,
 *::after {

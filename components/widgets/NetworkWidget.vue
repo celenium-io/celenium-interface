@@ -5,19 +5,48 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { abbreviate, comma } from "@/services/utils"
 
 /** API */
-import { fetchHistogram } from "@/services/api/stats"
+import { fetchTPS } from "@/services/api/stats"
 
-const { data: hourHistagram } = await fetchHistogram({ table: "tx", func: "count", period: "hour" })
-const { data: dayHistagram } = await fetchHistogram({ table: "tx", func: "count", period: "day" })
+const displayTps = ref(0)
+const tps = ref(0)
 
-const tph = hourHistagram.value.slice(0, 24).reduce((a, b) => (a += parseInt(b.value)), 0) / 24
-const prevTph = hourHistagram.value.slice(24, 48).reduce((a, b) => (a += parseInt(b.value)), 0) / 24
-const diff = (Math.abs(tph - prevTph) / ((tph + prevTph) / 2)) * 100
+const diff = ref(0)
 
-const preparedDayHistogram = dayHistagram.value.slice(0, 7).map((item) => item.value / 24)
-const highLevel = Math.max(...preparedDayHistogram)
-const lowLevel = Math.min(...preparedDayHistogram)
-const pos = (100 * (tph - lowLevel)) / (highLevel - lowLevel)
+const high = ref(0)
+const low = ref(0)
+
+const displayPos = ref(0)
+const pos = ref(0)
+
+onMounted(async () => {
+	const data = await fetchTPS()
+
+	tps.value = data.current
+
+	const tpsInterval = setInterval(() => {
+		if (displayTps.value >= data.current) {
+			clearInterval(tpsInterval)
+			return
+		}
+
+		displayTps.value += 0.001
+	}, 5)
+
+	diff.value = data.change_last_hour_pct
+
+	high.value = data.high
+	low.value = data.low
+
+	pos.value = (100 * (tps.value - low.value)) / (high.value - low.value) + 40
+	const posInterval = setInterval(() => {
+		if (displayPos.value >= pos.value) {
+			clearInterval(posInterval)
+			return
+		}
+
+		displayPos.value += 1
+	}, 15)
+})
 </script>
 
 <template>
@@ -27,88 +56,74 @@ const pos = (100 * (tph - lowLevel)) / (highLevel - lowLevel)
 
 			<Flex direction="column" gap="16">
 				<Tooltip position="start" text-align="left">
-					<Flex align="end" gap="16" wrap="wrap">
-						<Flex align="center" gap="6">
-							<Icon name="zap-circle" size="20" color="primary" />
-							<Flex gap="4" align="end">
-								<Text size="20" weight="600" color="primary">{{ abbreviate(tph.toFixed(0)) }}</Text>
-								<Text size="14" weight="700" color="tertiary">TPH</Text>
-							</Flex>
+					<Flex align="start" gap="16">
+						<Flex direction="column" gap="6">
+							<Text size="40" weight="600" color="primary" :class="[$style.ds_font, $style.tps_num]">
+								{{ displayTps.toFixed(3) }}
+							</Text>
+							<Text size="16" weight="700" color="tertiary" :class="$style.ds_font">TXS/S</Text>
 						</Flex>
 
-						<Flex align="center" gap="6">
-							<Icon
-								name="arrow-circle-right-up"
-								size="16"
-								:color="tph - prevTph > 0 ? 'green' : 'red'"
-								:style="{ transform: `scaleY(${tph - prevTph > 0 ? '1' : '-1'})` }"
-							/>
-							<Text size="16" weight="600" :color="tph - prevTph > 0 ? 'green' : 'red'">
-								{{ diff.toFixed(diff < 1 ? 2 : 0) }}%
-							</Text>
-						</Flex>
+						<Text size="20" weight="600" :class="$style.ds_font" :color="diff > 0 ? 'green' : 'red'">
+							{{ diff.toFixed(diff < 1 ? 2 : 0) }}%
+						</Text>
 					</Flex>
 
 					<template #content>
 						<Flex direction="column" gap="6">
-							<Text>Transactions per hour</Text>
+							<Text>Transactions per second</Text>
 							<Text color="tertiary">Calculated based on the last 24 hours</Text>
 						</Flex>
 					</template>
 				</Tooltip>
-
-				<Text size="12" weight="600" color="support"> Updates every hour </Text>
 			</Flex>
 		</Flex>
 
 		<Flex direction="column" justify="between" :class="$style.bottom">
-			<Flex direction="column" gap="16">
-				<Flex align="center" gap="4">
-					<Icon name="level" size="12" color="secondary" />
-					<Text size="13" weight="600" color="secondary">TPH Level</Text>
-				</Flex>
+			<Flex align="center" gap="4">
+				<Icon name="level" size="12" color="secondary" />
+				<Text size="13" weight="600" color="secondary">TPS Level</Text>
+			</Flex>
 
-				<Flex direction="column" gap="8">
-					<Tooltip position="start" wide>
-						<Flex justify="between" wide :class="$style.levels">
+			<Flex direction="column" gap="8">
+				<Tooltip position="start" wide>
+					<!-- <Flex justify="between" wide :class="$style.levels">
 							<Flex align="center" justify="between" :class="$style.level">
 								<div v-for="item in 10" :class="[$style.separator]" />
 							</Flex>
 
 							<div v-if="!isNaN(pos)" :class="$style.line" :style="{ left: `${pos >= 94 ? 94 : pos}%` }" />
-						</Flex>
-
-						<template #content>
-							<Flex align="start" direction="column" gap="6">
-								<Text color="secondary">
-									High: <Text color="primary">{{ highLevel.toFixed(2) }} <Text color="secondary">TPH</Text></Text>
-								</Text>
-
-								<Text color="secondary">
-									Current: <Text color="primary">{{ tph.toFixed(2) }} <Text color="secondary">TPH</Text></Text>
-								</Text>
-
-								<Text color="secondary">
-									Low: <Text color="primary">{{ lowLevel.toFixed(2) }} <Text color="secondary">TPH</Text></Text>
-								</Text>
-
-								<Text color="tertiary"> Based on the last 7 days </Text>
-							</Flex>
-						</template>
-					</Tooltip>
-
-					<Flex align="center" justify="between" wide style="padding: 0 6px">
-						<Text size="12" weight="600" color="support">Low</Text>
-						<Text size="12" weight="600" color="support">High</Text>
+						</Flex> -->
+					<Flex gap="2" :class="$style.bars">
+						<div v-for="item in 10" :class="[$style.bar, displayPos >= item * 10 && $style.active]" />
 					</Flex>
-				</Flex>
+
+					<template #content>
+						<Flex align="start" direction="column" gap="6">
+							<Text color="secondary">
+								High: <Text color="primary">{{ high.toFixed(4) }} <Text color="secondary">TPS</Text></Text>
+							</Text>
+
+							<Text color="secondary">
+								Current: <Text color="primary">{{ tps.toFixed(4) }} <Text color="secondary">TPS</Text></Text>
+							</Text>
+
+							<Text color="secondary">
+								Low: <Text color="primary">{{ low.toFixed(4) }} <Text color="secondary">TPS</Text></Text>
+							</Text>
+
+							<Text color="tertiary"> Based on the last 7 days </Text>
+						</Flex>
+					</template>
+				</Tooltip>
 			</Flex>
 
-			<Text size="12" weight="600" color="support">
-				Current capacity
-				<Text v-if="!isNaN(pos)" color="tertiary">{{ pos.toFixed(2) }}%</Text>
+			<Flex align="center" justify="between">
+				<Text v-if="!isNaN(pos)" size="16" weight="600" color="tertiary" :class="$style.ds_font"> {{ pos.toFixed(2) }}% </Text>
 				<Text v-else color="tertiary">is unknown</Text>
-			</Text>
+
+				<Text size="12" weight="600" color="support"> Current capacity </Text>
+			</Flex>
 		</Flex>
 	</Flex>
 </template>
@@ -124,6 +139,16 @@ const pos = (100 * (tph - lowLevel)) / (highLevel - lowLevel)
 	padding: 16px 16px 20px 16px;
 }
 
+.tps_num {
+	background: -webkit-linear-gradient(var(--txt-primary), var(--txt-tertiary));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+.ds_font {
+	font-family: "DS";
+}
+
 .bottom {
 	height: 100%;
 
@@ -131,6 +156,32 @@ const pos = (100 * (tph - lowLevel)) / (highLevel - lowLevel)
 	border-top: 2px solid var(--op-5);
 
 	padding: 20px 16px;
+}
+
+.bars {
+	width: fit-content;
+	height: 20px;
+
+	border-radius: 5px;
+	border: 1px solid rgba(10, 219, 111, 70%);
+
+	padding: 2px;
+
+	.bar {
+		width: 16px;
+		height: 14px;
+
+		background: var(--green);
+		border-radius: 2px;
+		opacity: 0.2;
+
+		transition: all 0.5s ease;
+
+		&.active {
+			background: var(--green);
+			opacity: 1;
+		}
+	}
 }
 
 .levels {
