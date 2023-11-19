@@ -72,19 +72,16 @@ const head = computed(() => appStore.head)
 			</Flex>
 
 			<Tooltip position="end">
-				<Flex align="center" gap="6" :class="$style.network">
-					<Icon name="zap" size="12" :color="head.synced ? 'green' : 'red'" />
+				<Flex align="center" gap="8" :class="$style.network">
+					<div :class="[$style.status, head.synced ? $style.green : $style.red]" />
 					<Text size="12" weight="500" color="tertiary" :class="$style.name"> {{ getNetworkName() }} </Text>
 				</Flex>
 
 				<template #content>
-					<Flex align="center" gap="6">
-						<Text color="secondary">Current Network:</Text>
-						<Flex align="center" gap="4">
-							<Icon name="zap" size="12" :color="head.synced ? 'green' : 'red'" />
-							<template v-if="!head.synced">Not</template>
-							<Text color="primary"> Synced </Text>
-						</Flex>
+					<Flex align="center" gap="4">
+						<div :class="[$style.status, head.synced ? $style.green : $style.red]" />
+						<template v-if="!head.synced">Not</template>
+						<Text color="primary"> Synced </Text>
 					</Flex>
 				</template>
 			</Tooltip>
@@ -149,6 +146,20 @@ const head = computed(() => appStore.head)
 		.name {
 			color: var(--txt-secondary);
 		}
+	}
+}
+
+.status {
+	width: 5px;
+	height: 5px;
+	border-radius: 50px;
+
+	&.green {
+		background: var(--green);
+	}
+
+	&.red {
+		background: var(--red);
 	}
 }
 
