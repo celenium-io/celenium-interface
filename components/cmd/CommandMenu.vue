@@ -39,6 +39,7 @@ const searchTerm = ref("")
 
 const bounce = ref(false)
 
+const developerMode = ref(false)
 const commandMode = ref(false)
 const commandMetadata = reactive({
 	action: null,
@@ -303,7 +304,78 @@ const settingsGroup = computed(() => {
 	}
 })
 
+const developerActions = [
+	{
+		type: "callback",
+		icon: "settings",
+		title: "Full Reload",
+		subtitle: "Command",
+		runText: "Reload",
+		callback: () => {
+			location.reload(true)
+		},
+	},
+	{
+		type: "callback",
+		icon: "settings",
+		title: "Clear localStorage",
+		subtitle: "Command",
+		runText: "Clear",
+		callback: () => {
+			localStorage.clear()
+		},
+	},
+	{
+		type: "callback",
+		icon: "settings",
+		title: "Hard Reset",
+		subtitle: "Command",
+		runText: "Reset",
+		callback: () => {
+			localStorage.clear()
+			location.reload(true)
+		},
+	},
+	{
+		type: "callback",
+		icon: "settings",
+		title: "Enable Search Scoring",
+		subtitle: "Command",
+		runText: "Reset",
+		callback: () => {},
+	},
+]
+const developerGroup = computed(() => {
+	return {
+		title: "Developer",
+		actions: developerMode.value
+			? developerActions.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase()))
+			: [],
+	}
+})
+
 const otherActions = [
+	{
+		type: "callback",
+		icon: "terminal",
+		title: "Toggle Developer Mode",
+		subtitle: "Command",
+		runText: "Toggle",
+		callback: () => {
+			localStorage.developer = !localStorage.developer
+			developerMode.value = !developerMode.value
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-up-right",
+		title: "View Last Release",
+		subtitle: "Quicklink",
+		runText: "Open Github",
+		callback: () => {
+			window.open(`https://github.com/celenium-io/celenium-interface/releases/tag/v${appConfig.version}`, "_blank")
+		},
+	},
 	{
 		type: "callback",
 		icon: "arrow-narrow-up-right",
@@ -334,16 +406,6 @@ const otherActions = [
 			window.open("https://github.com/celenium-io", "_blank")
 		},
 	},
-	{
-		type: "callback",
-		icon: "arrow-narrow-up-right",
-		title: "View last release",
-		subtitle: "Quicklink",
-		runText: "Open Github",
-		callback: () => {
-			window.open(`https://github.com/celenium-io/celenium-interface/releases/tag/v${appConfig.version}`, "_blank")
-		},
-	},
 ]
 const otherGroup = computed(() => {
 	return {
@@ -352,9 +414,11 @@ const otherGroup = computed(() => {
 	}
 })
 
-const groups = [navigationGroup, quickCommandsGroup, settingsGroup, otherGroup]
+const groups = [navigationGroup, quickCommandsGroup, settingsGroup, developerGroup, otherGroup]
 
 onMounted(() => {
+	developerMode.value = localStorage.developer
+
 	root = document.querySelector("html")
 
 	document.addEventListener("keydown", (e) => {
