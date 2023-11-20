@@ -3,7 +3,7 @@
 import Widgets from "@/components/widgets/Widgets.vue"
 import RecentNamespacesTable from "@/components/data/RecentNamespacesTable.vue"
 import LatestPFBTable from "@/components/data/LatestPFBTable.vue"
-import BlocksTimelineTable from "@/components/data/BlocksTimelineTable.vue"
+import BlocksTimelineTable from "@/components/data/BlocksTimeline/BlocksTimelineTable.vue"
 
 /** API */
 import { fetchLatestBlocks } from "@/services/api/block"
