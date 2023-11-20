@@ -5,6 +5,7 @@ import { fetchHead } from "@/services/api/main"
 import amp from "@/services/amp"
 
 /** Components */
+import ModalsManager from "@/components/modals/ModalsManager.vue"
 import CommandMenu from "@/components/cmd/CommandMenu.vue"
 
 /** Store */
@@ -36,6 +37,7 @@ onMounted(async () => {
 		<div id="modal" />
 		<div id="dropdown" />
 
+		<ModalsManager />
 		<Notifications />
 	</NuxtLayout>
 </template>

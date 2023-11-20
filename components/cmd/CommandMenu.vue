@@ -19,8 +19,10 @@ import { search } from "@/services/api/search"
 
 /** Store */
 import { useAppStore } from "@/store/app"
+import { useModalsStore } from "@/store/modals"
 import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
+const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
 
 const appConfig = useAppConfig()
@@ -338,7 +340,28 @@ const developerActions = [
 		subtitle: "Command",
 		runText: "Reload",
 		callback: () => {
-			location.reload(true)
+			appStore.createConfirmation({
+				title: `Do you want to fully reload the page?`,
+				description: "The app will reload with a cache reset",
+
+				buttons: {
+					confirm: {
+						title: "Yes, clear",
+					},
+					cancel: {
+						title: "Cancel",
+					},
+				},
+
+				confirmCb: () => {
+					location.reload(true)
+
+					modalsStore.close("confirmation")
+				},
+				cancelCb: () => {
+					modalsStore.close("confirmation")
+				},
+			})
 		},
 	},
 	{
@@ -348,7 +371,28 @@ const developerActions = [
 		subtitle: "Command",
 		runText: "Clear",
 		callback: () => {
-			localStorage.clear()
+			appStore.createConfirmation({
+				title: `Do you want to clear localStorage?`,
+				description: "Your local storage will be cleared",
+
+				buttons: {
+					confirm: {
+						title: "Yes, clear",
+					},
+					cancel: {
+						title: "Cancel",
+					},
+				},
+
+				confirmCb: () => {
+					localStorage.clear()
+
+					modalsStore.close("confirmation")
+				},
+				cancelCb: () => {
+					modalsStore.close("confirmation")
+				},
+			})
 		},
 	},
 	{
@@ -358,8 +402,29 @@ const developerActions = [
 		subtitle: "Command",
 		runText: "Reset",
 		callback: () => {
-			localStorage.clear()
-			location.reload(true)
+			appStore.createConfirmation({
+				title: `Do you want to hard reset?`,
+				description: "Your local storage will be cleared and app will reload with a cache reset",
+
+				buttons: {
+					confirm: {
+						title: "Yes, reset",
+					},
+					cancel: {
+						title: "Cancel",
+					},
+				},
+
+				confirmCb: () => {
+					localStorage.clear()
+					location.reload(true)
+
+					modalsStore.close("confirmation")
+				},
+				cancelCb: () => {
+					modalsStore.close("confirmation")
+				},
+			})
 		},
 	},
 	{

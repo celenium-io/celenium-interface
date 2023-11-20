@@ -4,14 +4,17 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import Button from "@/components/ui/Button.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 
-/** Components */
-import BlobModal from "@/components/modals/BlobModal.vue"
-
 /** Services */
 import { formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
 import { fetchBlockNamespaces, fetchBlockNamespacesCount } from "@/services/api/block"
+
+/** Store */
+import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals"
+const cacheStore = useCacheStore()
+const modalsStore = useModalsStore()
 
 const props = defineProps({
 	height: {
@@ -31,9 +34,6 @@ const isRefetching = ref(false)
 const isBlobsLoading = ref(true)
 const blobs = ref([])
 const totalBlobs = ref(0)
-
-const selectedBlob = ref({})
-const showBlobModal = ref(false)
 
 const page = ref(1)
 const pages = computed(() => Math.ceil(totalBlobs.value / 5))
@@ -72,8 +72,8 @@ watch(
 )
 
 const handleViewBlob = (blob) => {
-	selectedBlob.value = blob
-	showBlobModal.value = true
+	cacheStore.selectedBlob = blob
+	modalsStore.open("blob")
 }
 
 const handleNext = () => {
@@ -90,8 +90,6 @@ const handlePrev = () => {
 </script>
 
 <template>
-	<BlobModal :show="showBlobModal" :item="selectedBlob" @onClose="showBlobModal = false" />
-
 	<Flex v-if="!isBlobsLoading" direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
 			<Flex align="center" gap="8">
