@@ -127,11 +127,13 @@ onMounted(() => {
 
 .name {
 	font-size: 18px;
+	font-weight: 500;
 	fill: var(--txt-primary);
 }
 
 .value {
 	font-size: 16px;
+	font-weight: 600;
 	fill: var(--txt-secondary);
 }
 </style>
