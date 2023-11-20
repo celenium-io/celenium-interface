@@ -79,7 +79,7 @@ onMounted(async () => {
 			</Flex>
 		</Flex>
 
-		<Flex direction="column" justify="between" :class="$style.bottom">
+		<Flex direction="column" justify="between" gap="16" :class="$style.bottom">
 			<Flex align="center" gap="6">
 				<Icon name="level" size="12" color="secondary" />
 				<Text size="13" weight="600" height="110" color="secondary">TPS Level</Text>
@@ -174,6 +174,38 @@ onMounted(async () => {
 			background: linear-gradient(var(--txt-primary), var(--txt-tertiary));
 			opacity: 1;
 		}
+	}
+}
+
+@media (max-width: 1100px) {
+	.wrapper {
+		flex-direction: row;
+	}
+
+	.top {
+		flex: 1;
+	}
+
+	.bottom {
+		height: auto;
+
+		border-top: initial;
+		border-left: 2px solid var(--op-5);
+	}
+}
+
+@media (max-width: 420px) {
+	.wrapper {
+		flex-direction: column;
+	}
+
+	.top {
+		flex: initial;
+	}
+
+	.bottom {
+		border-top: 2px solid var(--op-5);
+		border-left: initial;
 	}
 }
 </style>

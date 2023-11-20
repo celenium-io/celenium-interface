@@ -120,6 +120,7 @@ const getSectorName = (idx) => {
 <style module>
 .wrapper {
 	height: 100%;
+	min-height: 164px;
 
 	background: var(--card-background);
 	border-radius: 12px;
@@ -133,7 +134,7 @@ const getSectorName = (idx) => {
 }
 
 .yAxis {
-	height: 100%;
+	height: auto;
 
 	padding-bottom: 20px;
 }
@@ -174,5 +175,27 @@ const getSectorName = (idx) => {
 
 .empty {
 	height: 100%;
+}
+
+@media (max-width: 1100px) {
+	.bar {
+		width: 8px;
+	}
+
+	.dot {
+		min-width: 8px;
+		min-height: 8px;
+	}
+}
+
+@media (max-width: 540px) {
+	.bar {
+		width: 4px;
+	}
+
+	.dot {
+		min-width: initial;
+		min-height: initial;
+	}
 }
 </style>

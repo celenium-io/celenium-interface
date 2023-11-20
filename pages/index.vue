@@ -105,11 +105,12 @@ onBeforeMount(async () => {
 	margin-top: 40px;
 }
 
+/* 
 @media (max-width: 1100px) {
 	.widgets {
 		display: none;
 	}
-}
+} */
 
 @media (max-width: 1024px) {
 	.small_tables {

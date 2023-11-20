@@ -81,7 +81,7 @@ const getOpacity = (val) => {
 			</Flex>
 		</Flex>
 
-		<Flex v-if="days.length" gap="6" wrap="wrap" wide>
+		<Flex v-if="days.length" gap="6" wrap="wrap" wide :class="$style.days">
 			<Tooltip v-for="day in days" :disabled="day.disabled">
 				<Skeleton v-if="DateTime.fromISO(day.time).toISODate() === DateTime.now().toISODate()" w="10" h="10" r="2" />
 				<Flex
@@ -115,7 +115,7 @@ const getOpacity = (val) => {
 
 <style module>
 .wrapper {
-	height: 122px;
+	height: 100%;
 
 	border-radius: 12px;
 	background: var(--card-background);
@@ -130,5 +130,11 @@ const getOpacity = (val) => {
 	border-radius: 2px;
 	cursor: pointer;
 	box-shadow: inset 0 0 0 1px rgba(10, 219, 111, 15%);
+}
+
+.days {
+	max-width: 336px;
+
+	margin: 0 auto;
 }
 </style>
