@@ -6,5 +6,7 @@ export const useAppStore = defineStore("app", () => {
 
 	const showCmd = ref(false)
 
-	return { head, latestBlocks, isLatestBlocksLoaded, showCmd }
+	const theme = ref(null)
+
+	return { head, latestBlocks, isLatestBlocksLoaded, showCmd, theme }
 })

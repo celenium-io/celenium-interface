@@ -8,8 +8,11 @@ import { useOutside } from "@/composables/outside"
 /** UI */
 import Kbd from "@/components/ui/Kbd.vue"
 
+/** Components */
+import Item from "./Item.vue"
+
 /** Services */
-import { isMac } from "@/services/utils/general"
+import { isMac, isPrefersDarkScheme } from "@/services/utils/general"
 
 /** API */
 import { search } from "@/services/api/search"
@@ -20,11 +23,11 @@ import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
 const notificationsStore = useNotificationsStore()
 
-import Item from "./Item.vue"
-
 const appConfig = useAppConfig()
 
 const router = useRouter()
+
+let root = null
 
 let trap = null
 const popupEl = ref(null)
@@ -48,6 +51,7 @@ const runText = ref("")
 
 const searchAction = {
 	type: "callback",
+	icon: "search",
 	title: "Search your query on the blockchain...",
 	runText: "Run Search",
 	callback: async () => {
@@ -204,6 +208,101 @@ const quickCommandsGroup = computed(() => {
 	}
 })
 
+const settingsActions = [
+	{
+		type: "command:nested",
+		icon: "moon",
+		title: "Switch Theme",
+		subtitle: "Command",
+		runText: "Switch Theme",
+		nestedTitle: "Choose Theme",
+
+		actions: [
+			{
+				type: "callback",
+				icon: "moon",
+				title: "Dark Theme",
+				subtitle: "Theme",
+				runText: "Switch to Dark Theme",
+				callback: () => {
+					root.setAttribute("theme", "dark")
+					appStore.theme = "dark"
+				},
+			},
+			{
+				type: "callback",
+				icon: "sun",
+				title: "Light Theme",
+				subtitle: "Theme",
+				runText: "Switch to Light Theme",
+				callback: () => {
+					root.setAttribute("theme", "light")
+					appStore.theme = "light"
+				},
+			},
+			{
+				type: "callback",
+				icon: "moon",
+				title: "Dimmed Theme",
+				subtitle: "Theme",
+				runText: "Switch to Dimmed Theme",
+				callback: () => {
+					root.setAttribute("theme", "dimmed")
+					appStore.theme = "dimmed"
+				},
+			},
+			{
+				type: "callback",
+				icon: "settings",
+				title: "System Preferences",
+				subtitle: "Theme",
+				runText: "Switch to System",
+				callback: () => {
+					root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
+					appStore.theme = "system"
+				},
+			},
+		],
+	},
+	{
+		type: "command:nested",
+		icon: "globe",
+		title: "Switch Network",
+		subtitle: "Command",
+		runText: "Switch Network",
+		nestedTitle: "Choose Network",
+
+		actions: [
+			{
+				type: "callback",
+				icon: "globe",
+				title: "Mainnet",
+				subtitle: "Network",
+				runText: "Switch to Mainnet",
+				callback: () => {
+					window.open("https://celenium.io", "_blank")
+				},
+			},
+			{
+				type: "callback",
+				icon: "globe",
+				title: "Mocha-4",
+				subtitle: "Network",
+				runText: "Switch to Mocha-4",
+				callback: () => {
+					window.open("https://mocha-4.celenium.io", "_blank")
+				},
+			},
+		],
+	},
+]
+const settingsGroup = computed(() => {
+	return {
+		title: "Settings",
+		actions: settingsActions.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase())),
+	}
+})
+
 const otherActions = [
 	{
 		type: "callback",
@@ -253,9 +352,11 @@ const otherGroup = computed(() => {
 	}
 })
 
-const groups = [navigationGroup, quickCommandsGroup, otherGroup]
+const groups = [navigationGroup, quickCommandsGroup, settingsGroup, otherGroup]
 
 onMounted(() => {
+	root = document.querySelector("html")
+
 	document.addEventListener("keydown", (e) => {
 		if (["Escape"].includes(e.code) && appStore.showCmd) {
 			if (!commandMode.value) {
@@ -340,12 +441,37 @@ const handleReturn = (action) => {
 
 				break
 
+			case "command:nested":
+				commandMode.value = true
+
+				commandMetadata.action = action
+
+				runText.value = action.runText
+
+				inputEl.value.focus()
+				searchTerm.value = ""
+
+				runBounce()
+
+				break
+
 			default:
 				break
 		}
+
+		return
 	}
 
 	if (commandMode.value) {
+		if (commandMetadata.action.type === "command:nested") {
+			action.callback()
+			appStore.showCmd = false
+
+			exitCommandMode()
+
+			return
+		}
+
 		if (!searchTerm.value && commandMetadata.action.type === "command:input") return
 
 		commandMetadata.action.callback(searchTerm.value)
@@ -474,6 +600,22 @@ const resetRunText = () => {
 								@onReturn="handleReturn"
 								:action="searchAction"
 								@focus="onActionFocus(searchAction)"
+							/>
+						</Flex>
+					</Flex>
+				</Flex>
+
+				<Flex v-else direction="column" :class="$style.list">
+					<Flex direction="column" :class="$style.group">
+						<Text size="12" weight="500" color="tertiary" :class="$style.label">{{ commandMetadata.action.nestedTitle }}</Text>
+
+						<Flex direction="column" :class="$style.actions">
+							<Item
+								v-for="action in commandMetadata.action.actions"
+								@click="handleReturn(commandMetadata.action)"
+								@onReturn="handleReturn"
+								:action="action"
+								@focus="onActionFocus(commandMetadata.action)"
 							/>
 						</Flex>
 					</Flex>
