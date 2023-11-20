@@ -94,9 +94,9 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 					<Flex direction="column" gap="10" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Type</Text>
 
-						<template v-if="tx.message_types.length">
+						<Flex v-if="tx.message_types.length" align="center" gap="8" wrap="wrap">
 							<MessageTypeBadge v-for="type in tx.message_types" :types="[type]" />
-						</template>
+						</Flex>
 						<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
 					</Flex>
 

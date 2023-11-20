@@ -60,3 +60,7 @@ export const getNetworkName = () => {
 			return "Unknown"
 	}
 }
+
+export const isMac = () => {
+	return navigator.platform.toUpperCase().indexOf("MAC") >= 0
+}

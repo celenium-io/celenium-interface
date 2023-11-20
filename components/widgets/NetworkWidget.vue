@@ -80,20 +80,13 @@ onMounted(async () => {
 		</Flex>
 
 		<Flex direction="column" justify="between" :class="$style.bottom">
-			<Flex align="center" gap="4">
+			<Flex align="center" gap="6">
 				<Icon name="level" size="12" color="secondary" />
-				<Text size="13" weight="600" color="secondary">TPS Level</Text>
+				<Text size="13" weight="600" height="110" color="secondary">TPS Level</Text>
 			</Flex>
 
 			<Flex direction="column" gap="8">
 				<Tooltip position="start" wide>
-					<!-- <Flex justify="between" wide :class="$style.levels">
-							<Flex align="center" justify="between" :class="$style.level">
-								<div v-for="item in 10" :class="[$style.separator]" />
-							</Flex>
-
-							<div v-if="!isNaN(pos)" :class="$style.line" :style="{ left: `${pos >= 94 ? 94 : pos}%` }" />
-						</Flex> -->
 					<Flex gap="2" :class="$style.bars">
 						<div v-for="item in 10" :class="[$style.bar, displayPos >= item * 10 && $style.active]" />
 					</Flex>
@@ -163,7 +156,7 @@ onMounted(async () => {
 	height: 20px;
 
 	border-radius: 5px;
-	border: 1px solid rgba(10, 219, 111, 70%);
+	border: 1px solid rgba(243, 147, 45, 70%);
 
 	padding: 2px;
 
@@ -171,62 +164,16 @@ onMounted(async () => {
 		width: 16px;
 		height: 14px;
 
-		background: var(--green);
+		background: linear-gradient(var(--bar-fill), rgba(243, 147, 45, 30%));
 		border-radius: 2px;
 		opacity: 0.2;
 
 		transition: all 0.5s ease;
 
 		&.active {
-			background: var(--green);
+			background: linear-gradient(var(--bar-fill), rgba(243, 147, 45, 30%));
 			opacity: 1;
 		}
 	}
-}
-
-.levels {
-	position: relative;
-
-	background: var(--op-5);
-	border-radius: 50px;
-
-	padding: 6px;
-}
-
-.line {
-	position: absolute;
-	top: 2px;
-
-	width: 3px;
-	height: 14px;
-
-	background: var(--network-widget-indicator);
-	outline: 2px solid var(--network-widget-separator);
-}
-
-.level {
-	width: 100%;
-	height: 6px;
-
-	border-radius: 50px;
-	background: linear-gradient(-90deg, var(--green), var(--txt-tertiary), var(--txt-support));
-
-	.separator {
-		width: 4px;
-		height: 6px;
-		background: var(--network-widget-separator);
-
-		&:first-child {
-			background: transparent;
-		}
-
-		&:last-child {
-			background: transparent;
-		}
-	}
-}
-
-.labels {
-	margin: 0 8px;
 }
 </style>

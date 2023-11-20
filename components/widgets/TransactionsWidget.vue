@@ -10,32 +10,37 @@ import { fetchHistogram } from "@/services/api/stats"
 
 const histogram = ref([])
 
-const { data } = await fetchHistogram({ table: "tx", func: "count", period: "hour" })
-histogram.value = data.value.slice(0, 24).reverse()
+const sectors = ref([])
 
-const isDataAvailable = ref(false)
+const min = ref(0)
+const max = ref(0)
+const roundedMax = ref(0)
 
-let sectors = []
-histogram.value.forEach((item, idx) => {
-	const rSix = Math.ceil((idx + 1) / 6) * 6
-	if (rSix === idx + 1) {
-		sectors.push(histogram.value.slice(rSix - 6, rSix))
-	}
+const latestSector = ref(0)
+
+onMounted(async () => {
+	const data = await fetchHistogram({ table: "tx", func: "count", period: "hour" })
+	histogram.value = data.slice(0, 24).reverse()
+
+	histogram.value.forEach((item, idx) => {
+		const rSix = Math.ceil((idx + 1) / 6) * 6
+		if (rSix === idx + 1) {
+			sectors.value.push(histogram.value.slice(rSix - 6, rSix))
+		}
+	})
+
+	max.value = Math.max(...histogram.value.map((item) => parseInt(item.value)))
+	roundedMax.value = Math.ceil(max.value / 5) * 5
+
+	latestSector.value = Math.ceil(DateTime.fromISO(histogram.value[histogram.value.length - 1].time).hour / 6)
 })
-if (sectors.length === 4) {
-	isDataAvailable.value = true
-}
 
-const min = Math.min(...histogram.value.map((item) => parseInt(item.value)))
-const max = Math.max(...histogram.value.map((item) => parseInt(item.value)))
-const roundedMax = Math.ceil(max / 5) * 5
-
-const latestSector = Math.ceil(DateTime.fromISO(histogram.value[histogram.value.length - 1].time).hour / 6)
-
-const txCounter = computed(() => histogram.value.reduce((a, b) => (a += parseInt(b.value)), 0))
+const txCounter = computed(() => {
+	return histogram.value.reduce((a, b) => (a += parseInt(b.value)), 0)
+})
 
 const getPercentageRatio = (v) => {
-	return (parseInt(v) * 100) / roundedMax
+	return (parseInt(v) * 100) / roundedMax.value
 }
 
 const getSectorName = (idx) => {
@@ -50,7 +55,9 @@ const getSectorName = (idx) => {
 			<Flex align="center" gap="6">
 				<Icon name="tx" size="16" color="primary" />
 				<Flex gap="4" align="end">
-					<Text size="16" weight="600" color="primary">{{ abbreviate(txCounter) }}</Text>
+					<Text v-if="txCounter" size="16" weight="600" color="primary">{{ abbreviate(txCounter) }}</Text>
+					<Skeleton v-else w="36" h="16" />
+
 					<Text size="12" weight="700" color="tertiary">TXs</Text>
 				</Flex>
 			</Flex>
@@ -59,14 +66,32 @@ const getSectorName = (idx) => {
 		</Flex>
 
 		<!-- Chart -->
-		<Flex v-if="isDataAvailable" gap="16" :class="$style.chart">
+		<Flex gap="16" :class="$style.chart">
 			<Flex direction="column" justify="between" :class="$style.yAxis">
-				<Text size="12" weight="600" color="secondary">{{ comma(roundedMax) }}</Text>
-				<Text size="12" weight="600" color="secondary">{{ comma(Math.ceil(roundedMax / 2)) }}</Text>
-				<Text size="12" weight="600" color="secondary">{{ comma(min) }}</Text>
+				<Skeleton w="22" h="12" v-if="!roundedMax" />
+				<Text v-else size="12" weight="600" color="secondary">{{ comma(roundedMax) }}</Text>
+
+				<Skeleton w="22" h="12" v-if="!roundedMax" />
+				<Text v-else size="12" weight="600" color="secondary">{{ comma(Math.ceil(roundedMax / 2)) }}</Text>
+
+				<Skeleton w="22" h="12" v-if="!roundedMax" />
+				<Text v-else size="12" weight="600" color="secondary">{{ comma(min) }}</Text>
 			</Flex>
 
-			<Flex wide :class="$style.sectors">
+			<Flex v-if="!sectors.length" wide :class="$style.sectors">
+				<Flex v-for="i in 4" direction="column" gap="8" wide :class="$style.sector">
+					<Flex justify="between" wide :class="$style.hours">
+						<Flex v-for="j in 6" direction="column" justify="end" gap="6" :class="$style.hour">
+							<Skeleton w="4" :style="{ height: `${Math.random(20, 80) * 100}%` }" />
+							<div :class="$style.dot" />
+						</Flex>
+					</Flex>
+
+					<Skeleton w="20" h="12" />
+				</Flex>
+			</Flex>
+
+			<Flex v-else wide :class="$style.sectors">
 				<Flex v-for="(sector, idx) in sectors" direction="column" gap="8" wide :class="$style.sector">
 					<Flex justify="between" :class="$style.hours">
 						<Flex v-for="item in sector" direction="column" justify="end" gap="6" :class="$style.hour">
@@ -85,10 +110,10 @@ const getSectorName = (idx) => {
 			</Flex>
 		</Flex>
 
-		<Flex v-else align="center" justify="center" direction="column" gap="6" wide :class="$style.empty">
+		<!-- <Flex v-else align="center" justify="center" direction="column" gap="6" wide :class="$style.empty">
 			<Text size="13" weight="600" color="secondary" align="center"> Data temporarily unavailable </Text>
 			<Text size="12" weight="500" height="160" color="tertiary" align="center"> Transaction widget will be available soon </Text>
-		</Flex>
+		</Flex> -->
 	</Flex>
 </template>
 

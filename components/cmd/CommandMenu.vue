@@ -8,6 +8,9 @@ import { useOutside } from "@/composables/outside"
 /** UI */
 import Kbd from "@/components/ui/Kbd.vue"
 
+/** Services */
+import { isMac } from "@/services/utils/general"
+
 /** API */
 import { search } from "@/services/api/search"
 
@@ -252,7 +255,7 @@ onMounted(() => {
 			}
 		}
 
-		if (!(e.code === "KeyK" && e.metaKey)) return
+		if (!(e.code === "KeyK" && ((isMac && e.metaKey) || (!isMac && e.ctrlKey)))) return
 
 		appStore.showCmd = !appStore.showCmd
 	})

@@ -4,6 +4,9 @@
  */
 import { useOutside } from "@/composables/outside"
 
+/** Services */
+import { isMac } from "@/services/utils/general"
+
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 import Kbd from "@/components/ui/Kbd.vue"
@@ -104,7 +107,7 @@ const isActive = (link) => {
 					<Flex align="center" gap="8">
 						Explore Celestia Blockchain
 						<Flex align="center" gap="4">
-							<Kbd>Cmd</Kbd>
+							<Kbd>{{ isMac ? "Cmd" : "Ctrl" }}</Kbd>
 							<Kbd>K</Kbd>
 						</Flex>
 					</Flex>

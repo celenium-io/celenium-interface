@@ -2,19 +2,22 @@
 const props = defineProps({
 	w: String,
 	h: String,
+	r: {
+		type: String,
+		default: "50",
+	},
 })
 </script>
 
 <template>
-	<div :style="{ width: `${w}px`, height: `${h}px` }" :class="$style.wrapper" />
+	<div :style="{ width: `${w}px`, height: `${h}px`, borderRadius: `${r}px` }" :class="$style.wrapper" />
 </template>
 
 <style module>
 .wrapper {
 	background: var(--op-10);
-	border-radius: 50px;
 
-	animation: skeleton 0.8s ease;
+	animation: skeleton 1s ease infinite;
 }
 
 @keyframes skeleton {
