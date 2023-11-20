@@ -19,9 +19,11 @@ import { search } from "@/services/api/search"
 
 /** Store */
 import { useAppStore } from "@/store/app"
+import { useCacheStore } from "@/store/cache"
 import { useModalsStore } from "@/store/modals"
 import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
+const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
 
@@ -113,6 +115,29 @@ const makeSuggestions = () => {
 			runText: "Open",
 			callback: () => {
 				router.push("/namespaces/treemap")
+			},
+		})
+	}
+
+	if (route.name === "namespace-id" && featurePreviewMode.value) {
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "folder",
+			title: "View Raw Namespace",
+			runText: "View",
+			callback: () => {
+				cacheStore.current._target = "namespace"
+				modalsStore.open("rawData")
+			},
+		})
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "tx",
+			title: "View Raw Messages",
+			runText: "View",
+			callback: () => {
+				cacheStore.current._target = "messages"
+				modalsStore.open("rawData")
 			},
 		})
 	}

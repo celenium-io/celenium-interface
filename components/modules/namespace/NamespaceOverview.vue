@@ -16,6 +16,10 @@ import { comma, space, formatBytes, getNamespaceID } from "@/services/utils"
 /** API */
 import { fetchNamespaceMessagesById } from "@/services/api/namespace"
 
+/** Store */
+import { useCacheStore } from "@/store/cache"
+const cacheStore = useCacheStore()
+
 const router = useRouter()
 
 const props = defineProps({
@@ -54,6 +58,7 @@ const getMessages = async () => {
 
 	if (data.value?.length) {
 		messages.value = data.value
+		cacheStore.current.messages = messages.value
 	}
 
 	isRefetching.value = false

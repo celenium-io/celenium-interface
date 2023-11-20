@@ -10,6 +10,8 @@ export const useModalsStore = defineStore("modals", () => {
 	const lastModal = ref()
 	const modals = reactive({
 		blob: false,
+		confirmation: false,
+		rawData: false,
 	})
 
 	const open = (target) => {

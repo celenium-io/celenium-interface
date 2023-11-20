@@ -1,6 +1,7 @@
 <script setup>
 import BlobModal from "./BlobModal.vue"
 import ConfirmationModal from "./ConfirmationModal.vue"
+import RawDataModal from "./RawDataModal.vue"
 
 /**
  * Store
@@ -12,4 +13,5 @@ const modalsStore = useModalsStore()
 <template>
 	<BlobModal :show="modalsStore.modals.blob" @onClose="modalsStore.close('blob')" />
 	<ConfirmationModal :show="modalsStore.modals.confirmation" @onClose="modalsStore.close('confirmation')" />
+	<RawDataModal :show="modalsStore.modals.rawData" @onClose="modalsStore.close('rawData')" />
 </template>
