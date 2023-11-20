@@ -94,6 +94,7 @@ const searchAction = {
 const navigationActions = [
 	{
 		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Explorer",
 		runText: "Open Explorer",
 		callback: () => {
@@ -102,6 +103,7 @@ const navigationActions = [
 	},
 	{
 		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Transactions",
 		runText: "Open Transactions",
 		callback: () => {
@@ -110,6 +112,7 @@ const navigationActions = [
 	},
 	{
 		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Blocks",
 		runText: "Open Blocks",
 		callback: () => {
@@ -118,6 +121,7 @@ const navigationActions = [
 	},
 	{
 		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Namespaces",
 		runText: "Open Namespaces",
 		callback: () => {
@@ -126,6 +130,7 @@ const navigationActions = [
 	},
 	{
 		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Addresses",
 		runText: "Open Addresses",
 		callback: () => {
@@ -143,6 +148,7 @@ const navigationGroup = computed(() => {
 const quickCommandsActions = [
 	{
 		type: "command:input",
+		icon: "tx",
 		title: "Open Transaction..",
 		subtitle: "Command",
 		placeholder: "Type tx hash...",
@@ -156,6 +162,7 @@ const quickCommandsActions = [
 	},
 	{
 		type: "command:input",
+		icon: "block",
 		title: "Open Block..",
 		subtitle: "Command",
 		placeholder: "Type block height...",
@@ -167,6 +174,7 @@ const quickCommandsActions = [
 	},
 	{
 		type: "command:input",
+		icon: "folder",
 		title: "Open Namespace..",
 		subtitle: "Command",
 		placeholder: "Type namespace ID...",
@@ -178,6 +186,7 @@ const quickCommandsActions = [
 	},
 	{
 		type: "command:input",
+		icon: "addresses",
 		title: "Open Address..",
 		subtitle: "Command",
 		placeholder: "Type address hash...",
@@ -198,6 +207,7 @@ const quickCommandsGroup = computed(() => {
 const otherActions = [
 	{
 		type: "callback",
+		icon: "arrow-narrow-up-right",
 		title: "Go to Discord",
 		subtitle: "Quicklink",
 		runText: "Open Discord",
@@ -207,6 +217,7 @@ const otherActions = [
 	},
 	{
 		type: "callback",
+		icon: "arrow-narrow-up-right",
 		title: "Go to Twitter",
 		subtitle: "Quicklink",
 		runText: "Open Twitter",
@@ -216,6 +227,7 @@ const otherActions = [
 	},
 	{
 		type: "callback",
+		icon: "arrow-narrow-up-right",
 		title: "Go to Github",
 		subtitle: "Quicklink",
 		runText: "Open Github",
@@ -225,6 +237,7 @@ const otherActions = [
 	},
 	{
 		type: "callback",
+		icon: "arrow-narrow-up-right",
 		title: "View last release",
 		subtitle: "Quicklink",
 		runText: "Open Github",

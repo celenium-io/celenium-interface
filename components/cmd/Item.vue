@@ -13,9 +13,13 @@ const onKeydown = () => {
 
 <template>
 	<Flex @keydown.enter="onKeydown" align="center" justify="between" :class="$style.wrapper" tabindex="1">
-		<Text size="13" weight="500" color="primary">
-			{{ action.title }}
-		</Text>
+		<Flex align="center" gap="8">
+			<Icon :name="action.icon" size="12" color="primary" :class="$style.icon" />
+
+			<Text size="13" weight="500" color="primary">
+				{{ action.title }}
+			</Text>
+		</Flex>
 
 		<Text v-if="action.subtitle" size="12" weight="600" color="tertiary">
 			{{ action.subtitle }}
@@ -46,5 +50,14 @@ const onKeydown = () => {
 		background: var(--op-8);
 		outline: none;
 	}
+}
+
+.icon {
+	box-sizing: content-box;
+
+	border-radius: 5px;
+	background: var(--op-10);
+
+	padding: 4px;
 }
 </style>
