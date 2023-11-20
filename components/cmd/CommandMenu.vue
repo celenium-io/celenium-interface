@@ -25,6 +25,7 @@ const notificationsStore = useNotificationsStore()
 
 const appConfig = useAppConfig()
 
+const route = useRoute()
 const router = useRouter()
 
 let root = null
@@ -97,6 +98,29 @@ const searchAction = {
 		}
 	},
 }
+
+const suggestedActions = ref([])
+const makeSuggestions = () => {
+	suggestedActions.value = []
+
+	if (route.name === "namespaces" && featurePreviewMode.value) {
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "arrow-narrow-right",
+			title: "Open Treemap View",
+			runText: "Open",
+			callback: () => {
+				router.push("/namespaces/treemap")
+			},
+		})
+	}
+}
+const suggestionGroup = computed(() => {
+	return {
+		title: "Suggestion",
+		actions: suggestedActions.value.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase())),
+	}
+})
 
 const navigationActions = [
 	{
@@ -427,7 +451,7 @@ const otherGroup = computed(() => {
 	}
 })
 
-const groups = [navigationGroup, quickCommandsGroup, settingsGroup, developerGroup, otherGroup]
+const groups = reactive([suggestionGroup, navigationGroup, quickCommandsGroup, settingsGroup, developerGroup, otherGroup])
 
 onMounted(() => {
 	developerMode.value = localStorage.developer
@@ -467,6 +491,8 @@ watch(
 	() => appStore.showCmd,
 	() => {
 		if (appStore.showCmd) {
+			makeSuggestions()
+
 			nextTick(() => {
 				document.addEventListener("keydown", onKeydown)
 
