@@ -40,6 +40,8 @@ const searchTerm = ref("")
 const bounce = ref(false)
 
 const developerMode = ref(false)
+const featurePreviewMode = ref(false)
+
 const commandMode = ref(false)
 const commandMetadata = reactive({
 	action: null,
@@ -339,10 +341,21 @@ const developerActions = [
 	{
 		type: "callback",
 		icon: "settings",
-		title: "Enable Search Scoring",
+		title: "Toggle Search Scoring",
 		subtitle: "Command",
 		runText: "Reset",
 		callback: () => {},
+	},
+	{
+		type: "callback",
+		icon: "stars",
+		title: "Toggle Feature Preview",
+		subtitle: "Command",
+		runText: "Toggle",
+		callback: () => {
+			localStorage.featurePreview = !localStorage.featurePreview
+			featurePreviewMode.value = !featurePreviewMode.value
+		},
 	},
 ]
 const developerGroup = computed(() => {
@@ -418,6 +431,7 @@ const groups = [navigationGroup, quickCommandsGroup, settingsGroup, developerGro
 
 onMounted(() => {
 	developerMode.value = localStorage.developer
+	featurePreviewMode.value = localStorage.featurePreview
 
 	root = document.querySelector("html")
 
