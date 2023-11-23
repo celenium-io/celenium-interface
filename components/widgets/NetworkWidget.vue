@@ -134,6 +134,7 @@ onMounted(async () => {
 
 .tps_num {
 	background: -webkit-linear-gradient(var(--txt-primary), var(--txt-tertiary));
+	background-clip: text;
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
@@ -156,7 +157,7 @@ onMounted(async () => {
 	height: 20px;
 
 	border-radius: 5px;
-	border: 1px solid var(--txt-secondary);
+	border: 1px solid rgba(243, 147, 45, 80%);
 
 	padding: 2px;
 
@@ -164,14 +165,14 @@ onMounted(async () => {
 		width: 16px;
 		height: 14px;
 
-		background: linear-gradient(var(--txt-primary), var(--txt-tertiary));
+		background: linear-gradient(rgba(243, 147, 45, 90%), rgba(243, 147, 45, 20%));
 		border-radius: 2px;
 		opacity: 0.2;
 
 		transition: all 0.5s ease;
 
 		&.active {
-			background: linear-gradient(var(--txt-primary), var(--txt-tertiary));
+			background: linear-gradient(rgba(243, 147, 45, 90%), rgba(243, 147, 45, 20%));
 			opacity: 1;
 		}
 	}
