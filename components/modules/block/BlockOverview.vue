@@ -177,10 +177,10 @@ const getTxnsCountByTab = (tab) => {
 						<BadgeValue :text="block.hash" />
 					</Flex>
 
-					<Flex v-if="block.proposer_address" direction="column" gap="8" :class="$style.key_value">
+					<Flex v-if="block.proposer.cons_address" direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Proposer</Text>
 
-						<BadgeValue :text="block.proposer_address" />
+						<BadgeValue :text="block.proposer.cons_address" />
 					</Flex>
 
 					<Flex direction="column" gap="16">

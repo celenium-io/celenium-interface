@@ -152,7 +152,7 @@ watch(
 										<template #default>
 											<Flex align="center" gap="6">
 												<Text size="13" weight="600" color="primary" mono>{{
-													block.proposer_address.slice(0, 4)
+													block.proposer.cons_address.slice(0, 4)
 												}}</Text>
 
 												<Flex align="center" gap="3">
@@ -160,15 +160,15 @@ watch(
 												</Flex>
 
 												<Text size="13" weight="600" color="primary" mono>{{
-													block.proposer_address.slice(
-														block.proposer_address.length - 4,
-														block.proposer_address.length,
+													block.proposer.cons_address.slice(
+														block.proposer.cons_address.length - 4,
+														block.proposer.cons_address.length,
 													)
 												}}</Text>
 											</Flex>
 										</template>
 
-										<template #content> {{ space(block.proposer_address) }} </template>
+										<template #content> {{ space(block.proposer.cons_address) }} </template>
 									</Tooltip>
 								</td>
 								<td>
@@ -265,7 +265,7 @@ watch(
 								<Flex align="center" gap="10">
 									<Flex align="center" gap="6">
 										<Text size="13" weight="600" color="primary" mono>{{
-											preview.block.proposer_address.slice(0, 4)
+											preview.block.proposer.cons_address.slice(0, 4)
 										}}</Text>
 
 										<Flex align="center" gap="3">
@@ -274,20 +274,20 @@ watch(
 
 										<Text size="13" weight="600" color="primary" mono>
 											{{
-												preview.block.proposer_address.slice(
-													preview.block.proposer_address.length - 4,
-													preview.block.proposer_address.length,
+												preview.block.proposer.cons_address.slice(
+													preview.block.proposer.cons_address.length - 4,
+													preview.block.proposer.cons_address.length,
 												)
 											}}
 										</Text>
 									</Flex>
 
-									<CopyButton :text="preview.block.proposer_address" />
+									<CopyButton :text="preview.block.proposer.cons_address" />
 								</Flex>
 							</Flex>
 
 							<template #content>
-								{{ space(preview.block.proposer_address) }}
+								{{ space(preview.block.proposer.cons_address) }}
 							</template>
 						</Tooltip>
 					</Flex>

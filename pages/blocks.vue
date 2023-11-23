@@ -211,7 +211,7 @@ const handlePrev = () => {
 											<Flex align="center" gap="10">
 												<Flex align="center" gap="6">
 													<Text size="13" weight="600" color="primary" mono>{{
-														block.proposer_address.slice(0, 4)
+														block.proposer.cons_address.slice(0, 4)
 													}}</Text>
 
 													<Flex align="center" gap="3">
@@ -219,18 +219,18 @@ const handlePrev = () => {
 													</Flex>
 
 													<Text size="13" weight="600" color="primary" mono>{{
-														block.proposer_address.slice(
-															block.proposer_address.length - 4,
-															block.proposer_address.length,
+														block.proposer.cons_address.slice(
+															block.proposer.cons_address.length - 4,
+															block.proposer.cons_address.length,
 														)
 													}}</Text>
 												</Flex>
 
-												<CopyButton :text="block.proposer_address" />
+												<CopyButton :text="block.proposer.cons_address" />
 											</Flex>
 										</template>
 
-										<template #content> {{ space(block.proposer_address) }} </template>
+										<template #content> {{ space(block.proposer.cons_address) }} </template>
 									</Tooltip>
 									<Text v-else size="13" weight="600" color="secondary">Genesis</Text>
 								</td>

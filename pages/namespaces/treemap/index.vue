@@ -3,11 +3,12 @@
 import * as d3 from "d3"
 
 /** Services */
-import { formatBytes, getNamespaceID } from "@/services/utils"
+import { formatBytes, uid } from "@/services/utils"
 
 /** API */
 import { fetchNamespaces } from "@/services/api/namespace"
 
+const router = useRouter()
 const cssModule = useCssModule()
 
 const namespaces = ref([])
@@ -15,7 +16,7 @@ const namespaces = ref([])
 const treemap = ref(null)
 
 const { data } = await fetchNamespaces({
-	limit: 20,
+	limit: 40,
 	offset: 0,
 	sort: "desc",
 })
@@ -25,7 +26,7 @@ onMounted(() => {
 	const data = {
 		name: "Namespaces Treemap",
 		children: namespaces.value.map((n) => {
-			return { name: getNamespaceID(n.namespace_id), value: n.size }
+			return { name: n.name, value: n.size, id: n.namespace_id }
 		}),
 	}
 
@@ -58,6 +59,13 @@ onMounted(() => {
 		.data(root.leaves())
 		.join("g")
 		.attr("transform", (d) => `translate(${d.x0},${d.y0})`)
+		.attr("id", (d) => d.data.id)
+		.attr("class", cssModule.gNode)
+
+	leaf.on("click", (e) => {
+		const gNode = e.target.closest("g")
+		if (gNode.id) router.push(`/namespace/${gNode.id}`)
+	})
 
 	const format = d3.format(",d")
 	leaf.append("title").text(
@@ -70,17 +78,21 @@ onMounted(() => {
 	)
 
 	leaf.append("rect")
+		.attr("id", (d) => (d.leafUid = uid("leaf")).id)
 		.attr("fill", (d) => {
 			while (d.depth > 1) d = d.parent
 
-			// return color(d.data.name)
-			return `rgba(255, 255, 255, ${(d.data.value * 100) / maxValue}%)`
+			return `rgba(51, 168, 83, ${(d.data.value * 100) / maxValue}%)`
 		})
 		.attr("fill-opacity", 0.5)
 		.attr("width", (d) => d.x1 - d.x0)
 		.attr("height", (d) => d.y1 - d.y0)
+		.attr("class", cssModule.rect)
 
-	leaf.append("clipPath").append("use")
+	leaf.append("clipPath")
+		.attr("id", (d) => (d.clipUid = uid("clip")).id)
+		.append("use")
+		.attr("xlink:href", (d) => d.leafUid.href)
 
 	leaf.append("text")
 		.attr("clip-path", (d) => d.clipUid)
@@ -123,6 +135,18 @@ onMounted(() => {
 
 .breadcrumbs {
 	margin-bottom: 16px;
+}
+
+.gNode {
+	cursor: pointer;
+
+	&:hover .rect {
+		fill: var(--neutral-green);
+	}
+}
+
+.rect {
+	transition: all 0.2s ease;
 }
 
 .name {
