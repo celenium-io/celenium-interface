@@ -157,7 +157,7 @@ onMounted(async () => {
 	height: 20px;
 
 	border-radius: 5px;
-	border: 1px solid rgba(243, 147, 45, 80%);
+	border: 1px solid var(--txt-secondary);
 
 	padding: 2px;
 
@@ -165,14 +165,14 @@ onMounted(async () => {
 		width: 16px;
 		height: 14px;
 
-		background: linear-gradient(rgba(243, 147, 45, 90%), rgba(243, 147, 45, 20%));
+		background: linear-gradient(var(--txt-primary), var(--txt-support));
 		border-radius: 2px;
 		opacity: 0.2;
 
 		transition: all 0.5s ease;
 
 		&.active {
-			background: linear-gradient(rgba(243, 147, 45, 90%), rgba(243, 147, 45, 20%));
+			background: linear-gradient(var(--txt-primary), var(--txt-support));
 			opacity: 1;
 		}
 	}
