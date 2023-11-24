@@ -26,7 +26,7 @@ const handleCancel = () => {
 
 <template>
 	<Modal :show="show" width="500" required z-index="1005">
-		<Flex direction="column" gap="24">
+		<Flex direction="column" gap="16">
 			<Flex direction="column" gap="8">
 				<Text size="14" weight="500" color="primary">
 					{{ appStore.confirmation.title }}

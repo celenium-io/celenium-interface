@@ -394,12 +394,12 @@ const developerActions = [
 	{
 		type: "callback",
 		icon: "settings",
-		title: "Clear localStorage",
+		title: "Clear local storage",
 		subtitle: "Command",
 		runText: "Clear",
 		callback: () => {
 			appStore.createConfirmation({
-				title: `Do you want to clear localStorage?`,
+				title: `Do you want to clear local storage?`,
 				description: "Your local storage will be cleared",
 
 				buttons: {
@@ -413,6 +413,15 @@ const developerActions = [
 
 				confirmCb: () => {
 					localStorage.clear()
+
+					notificationsStore.create({
+						notification: {
+							type: "info",
+							icon: "check",
+							title: `Local storage successfully cleared`,
+							autoDestroy: true,
+						},
+					})
 
 					modalsStore.close("confirmation")
 				},
@@ -460,7 +469,16 @@ const developerActions = [
 		title: "Toggle Search Scoring",
 		subtitle: "Command",
 		runText: "Reset",
-		callback: () => {},
+		callback: () => {
+			notificationsStore.create({
+				notification: {
+					type: "info",
+					icon: "info",
+					title: `Search scoring is not available`,
+					autoDestroy: true,
+				},
+			})
+		},
 	},
 	{
 		type: "callback",
@@ -471,6 +489,18 @@ const developerActions = [
 		callback: () => {
 			localStorage.featurePreview = !localStorage.featurePreview
 			featurePreviewMode.value = !featurePreviewMode.value
+
+			notificationsStore.create({
+				notification: {
+					type: "info",
+					icon: featurePreviewMode.value ? "check" : "close",
+					title: `Feature preview ${featurePreviewMode.value ? "enabled" : "disabled"}`,
+					description:
+						featurePreviewMode.value &&
+						"You can now get early access to the new beta features. You can report bugs to our GitHub repo.",
+					autoDestroy: true,
+				},
+			})
 		},
 	},
 ]
@@ -493,6 +523,16 @@ const otherActions = [
 		callback: () => {
 			localStorage.developer = !localStorage.developer
 			developerMode.value = !developerMode.value
+
+			notificationsStore.create({
+				notification: {
+					type: "info",
+					icon: developerMode.value ? "check" : "close",
+					title: `Developer mode ${developerMode.value ? "enabled" : "disabled"}`,
+					description: developerMode.value && "Now you can access additional features in the command menu.",
+					autoDestroy: true,
+				},
+			})
 		},
 	},
 	{
