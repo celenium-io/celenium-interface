@@ -88,7 +88,6 @@ watch(
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary">Height</Text></th>
 								<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
-								<th><Text size="12" weight="600" color="tertiary">Hash</Text></th>
 								<th><Text size="12" weight="600" color="tertiary">Proposer</Text></th>
 								<th><Text size="12" weight="600" color="tertiary">Total Fees</Text></th>
 							</tr>
@@ -119,12 +118,7 @@ watch(
 											}}
 										</Text>
 										<Text size="12" weight="500" color="tertiary">
-											{{
-												DateTime.fromISO(block.time)
-													.setLocale("en")
-
-													.toFormat("LLL d, t")
-											}}
+											{{ DateTime.fromISO(block.time).setLocale("en").toFormat("LLL d, t") }}
 										</Text>
 									</Flex>
 								</td>
@@ -132,46 +126,21 @@ watch(
 									<Tooltip delay="500">
 										<template #default>
 											<Flex align="center" gap="6">
-												<Text size="13" weight="600" color="primary" mono>{{ block.hash.slice(0, 4) }}</Text>
-
-												<Flex align="center" gap="3">
-													<div v-for="dot in 3" class="dot" />
-												</Flex>
-
-												<Text size="13" weight="600" color="primary" mono>
-													{{ block.hash.slice(block.hash.length - 4, block.hash.length) }}
+												<Text size="13" weight="600" height="130" color="primary" :class="$style.proposer_moniker">
+													{{ block.proposer.moniker }}
 												</Text>
 											</Flex>
 										</template>
 
-										<template #content> {{ space(block.hash) }} </template>
-									</Tooltip>
-								</td>
-								<td>
-									<Tooltip delay="500">
-										<template #default>
-											<Flex align="center" gap="6">
-												<Text size="13" weight="600" color="primary" mono>{{
-													block.proposer.cons_address.slice(0, 4)
-												}}</Text>
-
-												<Flex align="center" gap="3">
-													<div v-for="dot in 3" class="dot" />
-												</Flex>
-
-												<Text size="13" weight="600" color="primary" mono>{{
-													block.proposer.cons_address.slice(
-														block.proposer.cons_address.length - 4,
-														block.proposer.cons_address.length,
-													)
-												}}</Text>
+										<template #content>
+											<Flex direction="column" align="start" gap="6">
+												<Text color="primary">{{ block.proposer.moniker }}</Text>
+												<Text color="tertiary">{{ space(block.proposer.cons_address) }}</Text>
 											</Flex>
 										</template>
-
-										<template #content> {{ space(block.proposer.cons_address) }} </template>
 									</Tooltip>
 								</td>
-								<td>
+								<td style="width: 1px">
 									<Flex align="center" gap="4">
 										<Text size="13" weight="600" color="primary"> {{ tia(block.stats.fee) }} </Text>
 										<Text size="13" weight="600" color="tertiary"> TIA </Text>
@@ -231,65 +200,47 @@ watch(
 				</Flex>
 
 				<Flex direction="column" gap="32" :class="$style.main">
-					<Flex align="center" gap="40">
-						<Tooltip delay="500">
-							<Flex direction="column" gap="12">
-								<Text size="12" weight="600" color="tertiary">Hash</Text>
+					<Tooltip delay="500">
+						<Flex direction="column" gap="12">
+							<Text size="12" weight="600" color="tertiary">Proposer</Text>
 
-								<Flex align="center" gap="10">
-									<Flex align="center" gap="6">
-										<Text size="13" weight="600" color="primary" mono>{{ preview.block.hash.slice(0, 4) }}</Text>
+							<Text size="13" weight="600" color="primary">
+								{{ preview.block.proposer.moniker }}
+							</Text>
 
-										<Flex align="center" gap="3">
-											<div v-for="dot in 3" class="dot" />
-										</Flex>
+							<Flex align="center" gap="10">
+								<Flex align="center" gap="6">
+									<Text size="13" weight="600" color="tertiary" mono>{{
+										preview.block.proposer.cons_address.slice(0, 4)
+									}}</Text>
 
-										<Text size="13" weight="600" color="primary" mono>
-											{{ preview.block.hash.slice(preview.block.hash.length - 4, preview.block.hash.length) }}
-										</Text>
+									<Flex align="center" gap="3">
+										<div v-for="dot in 3" class="dot" />
 									</Flex>
 
-									<CopyButton :text="preview.block.hash" />
+									<Text size="13" weight="600" color="tertiary" mono>
+										{{
+											preview.block.proposer.cons_address.slice(
+												preview.block.proposer.cons_address.length - 4,
+												preview.block.proposer.cons_address.length,
+											)
+										}}
+									</Text>
 								</Flex>
+
+								<CopyButton :text="preview.block.proposer.cons_address" />
 							</Flex>
+						</Flex>
 
-							<template #content>
-								{{ space(preview.block.hash) }}
-							</template>
-						</Tooltip>
+						<template #content>
+							{{ space(preview.block.proposer.cons_address) }}
+						</template>
+					</Tooltip>
 
-						<Tooltip delay="500">
-							<Flex direction="column" gap="12">
-								<Text size="12" weight="600" color="tertiary">Proposer</Text>
+					<Flex direction="column" gap="8" :class="$style.key_value">
+						<Text size="12" weight="600" color="tertiary">Hash</Text>
 
-								<Flex align="center" gap="10">
-									<Flex align="center" gap="6">
-										<Text size="13" weight="600" color="primary" mono>{{
-											preview.block.proposer.cons_address.slice(0, 4)
-										}}</Text>
-
-										<Flex align="center" gap="3">
-											<div v-for="dot in 3" class="dot" />
-										</Flex>
-
-										<Text size="13" weight="600" color="primary" mono>
-											{{
-												preview.block.proposer.cons_address.slice(
-													preview.block.proposer.cons_address.length - 4,
-													preview.block.proposer.cons_address.length,
-												)
-											}}
-										</Text>
-									</Flex>
-
-									<CopyButton :text="preview.block.proposer.cons_address" />
-								</Flex>
-							</Flex>
-
-							<template #content>
-								{{ space(preview.block.proposer.cons_address) }}
-							</template>
-						</Tooltip>
+						<BadgeValue :text="preview.block.hash" />
 					</Flex>
 
 					<Flex direction="column" gap="12">
@@ -522,6 +473,17 @@ watch(
 
 .table_scroller {
 	overflow-x: auto;
+}
+
+.key_value {
+	max-width: 100%;
+}
+
+.proposer_moniker {
+	max-width: 190px;
+
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 .empty_state {
