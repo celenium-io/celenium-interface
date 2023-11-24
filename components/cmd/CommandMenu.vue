@@ -268,8 +268,9 @@ const settingsActions = [
 		icon: "moon",
 		title: "Switch Theme",
 		subtitle: "Command",
+		placeholder: "Choose Theme...",
 		runText: "Switch Theme",
-		nestedTitle: "Choose Theme",
+		nestedTitle: "Theme",
 
 		actions: [
 			{
@@ -323,8 +324,9 @@ const settingsActions = [
 		icon: "globe",
 		title: "Switch Network",
 		subtitle: "Command",
+		placeholder: "Choose Network...",
 		runText: "Switch Network",
-		nestedTitle: "Choose Network",
+		nestedTitle: "Network",
 
 		actions: [
 			{
@@ -541,7 +543,7 @@ const otherGroup = computed(() => {
 	}
 })
 
-const groups = reactive([suggestionGroup, navigationGroup, quickCommandsGroup, settingsGroup, developerGroup, otherGroup])
+const groups = reactive([suggestionGroup, quickCommandsGroup, settingsGroup, navigationGroup, developerGroup, otherGroup])
 
 onMounted(() => {
 	developerMode.value = localStorage.developer
@@ -801,15 +803,17 @@ const resetRunText = () => {
 
 				<Flex v-else direction="column" :class="$style.list">
 					<Flex direction="column" :class="$style.group">
-						<Text size="12" weight="500" color="tertiary" :class="$style.label">{{ commandMetadata.action.nestedTitle }}</Text>
+						<Text v-if="commandMetadata.action.nestedTitle" size="12" weight="500" color="tertiary" :class="$style.label">
+							{{ commandMetadata.action.nestedTitle }}
+						</Text>
 
 						<Flex direction="column" :class="$style.actions">
 							<Item
 								v-for="action in commandMetadata.action.actions"
-								@click="handleReturn(commandMetadata.action)"
+								@click="handleReturn(action)"
 								@onReturn="handleReturn"
 								:action="action"
-								@focus="onActionFocus(commandMetadata.action)"
+								@focus="onActionFocus(action)"
 							/>
 						</Flex>
 					</Flex>
@@ -819,9 +823,9 @@ const resetRunText = () => {
 					<Icon name="logo" size="14" color="tertiary" />
 
 					<Flex v-if="runText.length" align="center" gap="8">
-						<Text size="13" weight="600" color="primary">{{ runText }}</Text>
+						<Text size="13" weight="600" color="tertiary">{{ runText }}</Text>
 						<Kbd>
-							<Icon name="return" size="12" color="primary" />
+							<Icon name="return" size="12" color="secondary" />
 						</Kbd>
 					</Flex>
 					<Flex v-else align="center" gap="8">
