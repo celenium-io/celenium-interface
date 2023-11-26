@@ -105,7 +105,7 @@ const pos = (100 * (tph - lowLevel)) / (highLevel - lowLevel)
 			</Flex>
 
 			<Text size="12" weight="600" color="support">
-				Current capacity
+				Throughput level
 				<Text v-if="!isNaN(pos)" color="tertiary">{{ pos.toFixed(2) }}%</Text>
 				<Text v-else color="tertiary">is unknown</Text>
 			</Text>
