@@ -115,7 +115,7 @@ onMounted(async () => {
 				<Text v-if="!isNaN(pos)" size="16" weight="600" color="tertiary" :class="$style.ds_font"> {{ pos.toFixed(2) }}% </Text>
 				<Text v-else color="tertiary">is unknown</Text>
 
-				<Text size="12" weight="600" color="support"> Current capacity </Text>
+				<Text size="12" weight="600" color="support"> Throughput level </Text>
 			</Flex>
 		</Flex>
 	</Flex>
