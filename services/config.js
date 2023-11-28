@@ -4,7 +4,11 @@ export const Server = {
 		mocha: "https://api-mocha-4.celenium.io/v1",
 		dev: "https://api-dev.celenium.io/v1",
 	},
-	WSS: "wss://api-dev.celenium.io/v1/ws",
+	WSS: {
+		mainnet: "wss://api.celenium.io/v1/ws",
+		mocha: "wss://api-dev.celenium.io/v1/ws",
+		dev: "wss://api-dev.celenium.io/v1/ws",
+	},
 }
 
 export const useServerURL = () => {
@@ -17,10 +21,34 @@ export const useServerURL = () => {
 		case "mocha-4.celenium.io":
 			return Server.API.mocha
 
+		case "mocha.celenium.io":
+			return Server.API.mocha
+
 		case "dev.celenium.io":
 			return Server.API.dev
 
 		default:
 			return Server.API.dev
+	}
+}
+
+export const useSocketURL = () => {
+	const requestURL = useRequestURL()
+
+	switch (requestURL.hostname) {
+		case "celenium.io":
+			return Server.WSS.mainnet
+
+		case "mocha-4.celenium.io":
+			return Server.WSS.mocha
+
+		case "mocha.celenium.io":
+			return Server.WSS.mocha
+
+		case "dev.celenium.io":
+			return Server.WSS.dev
+
+		default:
+			return Server.WSS.dev
 	}
 }

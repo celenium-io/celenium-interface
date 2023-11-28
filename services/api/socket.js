@@ -1,5 +1,5 @@
 /** Services */
-import { Server } from "../config"
+import { useSocketURL } from "../config"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -9,7 +9,7 @@ export let socket = null
 export const init = () => {
 	const appStore = useAppStore()
 
-	socket = new WebSocket(Server.WSS)
+	socket = new WebSocket(useSocketURL())
 
 	socket.addEventListener("open", (e) => {
 		/** Head Subscription */
