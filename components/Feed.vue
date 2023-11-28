@@ -94,10 +94,10 @@ const head = computed(() => appStore.head)
 				</Flex>
 
 				<template #content>
-					<Flex align="center" gap="8">
+					<Flex align="center" gap="6">
 						<div :class="[$style.status, head.synced ? $style.green : $style.red]" />
-						<template v-if="!head.synced">Not</template>
-						<Text color="primary"> Synced </Text>
+
+						<Text color="primary"><template v-if="!head.synced">Not</template> Synced </Text>
 					</Flex>
 				</template>
 			</Tooltip>
