@@ -275,9 +275,9 @@ watch(
 									<Flex justify="between" align="center" wide>
 										<Flex align="center" gap="8">
 											<Icon
-												:name="transaction.status === 'success' ? 'tx_success' : 'tx_error'"
+												:name="transaction.status === 'success' ? 'check-circle' : 'close-circle'"
 												size="12"
-												color="secondary"
+												:color="transaction.status === 'success' ? 'green' : 'red'"
 											/>
 
 											<Text size="13" weight="600" color="primary" mono>{{ transaction.hash.slice(0, 4) }}</Text>
