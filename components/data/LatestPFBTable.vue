@@ -48,9 +48,9 @@ isLoading.value = false
 									<Flex align="center" gap="10">
 										<Flex align="center" gap="8">
 											<Icon
-												:name="pfb.status === 'success' ? 'tx_success' : 'tx_error'"
+												:name="pfb.status === 'success' ? 'check-circle' : 'close-circle'"
 												size="14"
-												color="secondary"
+												:color="pfb.status === 'success' ? 'green' : 'red'"
 											/>
 
 											<Text size="13" weight="600" color="primary" mono>
@@ -70,7 +70,20 @@ isLoading.value = false
 									</Flex>
 
 									<template #content>
-										{{ space(pfb.hash.toUpperCase()) }}
+										<Flex direction="column" gap="6">
+											<Flex align="center" gap="4">
+												<Icon
+													:name="pfb.status === 'success' ? 'check-circle' : 'close-circle'"
+													size="13"
+													:color="pfb.status === 'success' ? 'green' : 'red'"
+												/>
+												<Text size="13" weight="600" color="primary">
+													{{ pfb.status === "success" ? "Successful" : "Failed" }} Transaction
+												</Text>
+											</Flex>
+
+											{{ space(pfb.hash.toUpperCase()) }}
+										</Flex>
 									</template>
 								</Tooltip>
 							</td>

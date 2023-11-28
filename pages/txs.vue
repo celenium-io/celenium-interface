@@ -218,7 +218,7 @@ const handlePrev = () => {
 												<Flex align="center" gap="4">
 													<Icon
 														:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
-														size="14"
+														size="13"
 														:color="tx.status === 'success' ? 'green' : 'red'"
 													/>
 													<Text size="13" weight="600" color="primary">
