@@ -32,9 +32,9 @@ onMounted(async () => {
 	totalSize.value = days.value.reduce((a, b) => (a += parseInt(b.value)), 0)
 	maxSize.value = Math.max(...days.value.map((d) => d.value))
 
-	/** remove days until the first monday (1) */
-	while (DateTime.fromISO(days.value[0].time).weekday !== 1) {
-		days.value.shift()
+	const firstDayDt = DateTime.fromISO(days.value[0].time)
+	if (firstDayDt.weekday !== 1) {
+		days.value.unshift(...new Array(firstDayDt.weekday - 1))
 	}
 
 	/** days -> weeks */
