@@ -8,20 +8,31 @@ import { useOutside } from "@/composables/outside"
 /** UI */
 import Kbd from "@/components/ui/Kbd.vue"
 
+/** Components */
+import Item from "./Item.vue"
+
+/** Services */
+import { isMac, isPrefersDarkScheme } from "@/services/utils/general"
+
 /** API */
 import { search } from "@/services/api/search"
 
 /** Store */
 import { useAppStore } from "@/store/app"
+import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals"
 import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
+const cacheStore = useCacheStore()
+const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
-
-import Item from "./Item.vue"
 
 const appConfig = useAppConfig()
 
+const route = useRoute()
 const router = useRouter()
+
+let root = null
 
 let trap = null
 const popupEl = ref(null)
@@ -32,6 +43,9 @@ let removeOutside = null
 const searchTerm = ref("")
 
 const bounce = ref(false)
+
+const developerMode = ref(false)
+const featurePreviewMode = ref(false)
 
 const commandMode = ref(false)
 const commandMetadata = reactive({
@@ -45,6 +59,7 @@ const runText = ref("")
 
 const searchAction = {
 	type: "callback",
+	icon: "search",
 	title: "Search your query on the blockchain...",
 	runText: "Run Search",
 	callback: async () => {
@@ -88,9 +103,56 @@ const searchAction = {
 	},
 }
 
+const suggestedActions = ref([])
+const makeSuggestions = () => {
+	suggestedActions.value = []
+
+	if (route.name === "namespaces" && featurePreviewMode.value) {
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "arrow-narrow-right",
+			title: "Open Treemap View",
+			runText: "Open",
+			callback: () => {
+				router.push("/namespaces/treemap")
+			},
+		})
+	}
+
+	if (route.name === "namespace-id" && featurePreviewMode.value) {
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "folder",
+			title: "View Raw Namespace",
+			runText: "View",
+			callback: () => {
+				cacheStore.current._target = "namespace"
+				modalsStore.open("rawData")
+			},
+		})
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "tx",
+			title: "View Raw Messages",
+			runText: "View",
+			callback: () => {
+				cacheStore.current._target = "messages"
+				modalsStore.open("rawData")
+			},
+		})
+	}
+}
+const suggestionGroup = computed(() => {
+	return {
+		title: "Suggestion",
+		actions: suggestedActions.value.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase())),
+	}
+})
+
 const navigationActions = [
 	{
 		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Explorer",
 		runText: "Open Explorer",
 		callback: () => {
@@ -99,6 +161,7 @@ const navigationActions = [
 	},
 	{
 		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Transactions",
 		runText: "Open Transactions",
 		callback: () => {
@@ -107,6 +170,7 @@ const navigationActions = [
 	},
 	{
 		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Blocks",
 		runText: "Open Blocks",
 		callback: () => {
@@ -115,6 +179,7 @@ const navigationActions = [
 	},
 	{
 		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Namespaces",
 		runText: "Open Namespaces",
 		callback: () => {
@@ -123,6 +188,7 @@ const navigationActions = [
 	},
 	{
 		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Addresses",
 		runText: "Open Addresses",
 		callback: () => {
@@ -140,6 +206,7 @@ const navigationGroup = computed(() => {
 const quickCommandsActions = [
 	{
 		type: "command:input",
+		icon: "tx",
 		title: "Open Transaction..",
 		subtitle: "Command",
 		placeholder: "Type tx hash...",
@@ -153,6 +220,7 @@ const quickCommandsActions = [
 	},
 	{
 		type: "command:input",
+		icon: "block",
 		title: "Open Block..",
 		subtitle: "Command",
 		placeholder: "Type block height...",
@@ -164,6 +232,7 @@ const quickCommandsActions = [
 	},
 	{
 		type: "command:input",
+		icon: "folder",
 		title: "Open Namespace..",
 		subtitle: "Command",
 		placeholder: "Type namespace ID...",
@@ -175,6 +244,7 @@ const quickCommandsActions = [
 	},
 	{
 		type: "command:input",
+		icon: "addresses",
 		title: "Open Address..",
 		subtitle: "Command",
 		placeholder: "Type address hash...",
@@ -192,9 +262,292 @@ const quickCommandsGroup = computed(() => {
 	}
 })
 
+const settingsActions = [
+	{
+		type: "command:nested",
+		icon: "moon",
+		title: "Switch Theme",
+		subtitle: "Command",
+		placeholder: "Choose Theme...",
+		runText: "Switch Theme",
+		nestedTitle: "Theme",
+
+		actions: [
+			{
+				type: "callback",
+				icon: "moon",
+				title: "Dark Theme",
+				subtitle: "Theme",
+				runText: "Switch to Dark Theme",
+				callback: () => {
+					root.setAttribute("theme", "dark")
+					appStore.theme = "dark"
+				},
+			},
+			{
+				type: "callback",
+				icon: "sun",
+				title: "Light Theme",
+				subtitle: "Theme",
+				runText: "Switch to Light Theme",
+				callback: () => {
+					root.setAttribute("theme", "light")
+					appStore.theme = "light"
+				},
+			},
+			{
+				type: "callback",
+				icon: "moon",
+				title: "Dimmed Theme",
+				subtitle: "Theme",
+				runText: "Switch to Dimmed Theme",
+				callback: () => {
+					root.setAttribute("theme", "dimmed")
+					appStore.theme = "dimmed"
+				},
+			},
+			{
+				type: "callback",
+				icon: "settings",
+				title: "System Preferences",
+				subtitle: "Theme",
+				runText: "Switch to System",
+				callback: () => {
+					root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
+					appStore.theme = "system"
+				},
+			},
+		],
+	},
+	{
+		type: "command:nested",
+		icon: "globe",
+		title: "Switch Network",
+		subtitle: "Command",
+		placeholder: "Choose Network...",
+		runText: "Switch Network",
+		nestedTitle: "Network",
+
+		actions: [
+			{
+				type: "callback",
+				icon: "globe",
+				title: "Mainnet",
+				subtitle: "Network",
+				runText: "Switch to Mainnet",
+				callback: () => {
+					window.open("https://celenium.io", "_blank")
+				},
+			},
+			{
+				type: "callback",
+				icon: "globe",
+				title: "Mocha-4",
+				subtitle: "Network",
+				runText: "Switch to Mocha-4",
+				callback: () => {
+					window.open("https://mocha-4.celenium.io", "_blank")
+				},
+			},
+		],
+	},
+]
+const settingsGroup = computed(() => {
+	return {
+		title: "Settings",
+		actions: settingsActions.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase())),
+	}
+})
+
+const developerActions = [
+	{
+		type: "callback",
+		icon: "settings",
+		title: "Full Reload",
+		subtitle: "Command",
+		runText: "Reload",
+		callback: () => {
+			appStore.createConfirmation({
+				title: `Do you want to fully reload the page?`,
+				description: "The app will reload with a cache reset",
+
+				buttons: {
+					confirm: {
+						title: "Yes, clear",
+					},
+					cancel: {
+						title: "Cancel",
+					},
+				},
+
+				confirmCb: () => {
+					location.reload(true)
+
+					modalsStore.close("confirmation")
+				},
+				cancelCb: () => {
+					modalsStore.close("confirmation")
+				},
+			})
+		},
+	},
+	{
+		type: "callback",
+		icon: "settings",
+		title: "Clear local storage",
+		subtitle: "Command",
+		runText: "Clear",
+		callback: () => {
+			appStore.createConfirmation({
+				title: `Do you want to clear local storage?`,
+				description: "Your local storage will be cleared",
+
+				buttons: {
+					confirm: {
+						title: "Yes, clear",
+					},
+					cancel: {
+						title: "Cancel",
+					},
+				},
+
+				confirmCb: () => {
+					localStorage.clear()
+
+					notificationsStore.create({
+						notification: {
+							type: "info",
+							icon: "check",
+							title: `Local storage successfully cleared`,
+							autoDestroy: true,
+						},
+					})
+
+					modalsStore.close("confirmation")
+				},
+				cancelCb: () => {
+					modalsStore.close("confirmation")
+				},
+			})
+		},
+	},
+	{
+		type: "callback",
+		icon: "settings",
+		title: "Hard Reset",
+		subtitle: "Command",
+		runText: "Reset",
+		callback: () => {
+			appStore.createConfirmation({
+				title: `Do you want to hard reset?`,
+				description: "Your local storage will be cleared and app will reload with a cache reset",
+
+				buttons: {
+					confirm: {
+						title: "Yes, reset",
+					},
+					cancel: {
+						title: "Cancel",
+					},
+				},
+
+				confirmCb: () => {
+					localStorage.clear()
+					location.reload(true)
+
+					modalsStore.close("confirmation")
+				},
+				cancelCb: () => {
+					modalsStore.close("confirmation")
+				},
+			})
+		},
+	},
+	{
+		type: "callback",
+		icon: "settings",
+		title: "Toggle Search Scoring",
+		subtitle: "Command",
+		runText: "Reset",
+		callback: () => {
+			notificationsStore.create({
+				notification: {
+					type: "info",
+					icon: "info",
+					title: `Search scoring is not available`,
+					autoDestroy: true,
+				},
+			})
+		},
+	},
+	{
+		type: "callback",
+		icon: "stars",
+		title: "Toggle Feature Preview",
+		subtitle: "Command",
+		runText: "Toggle",
+		callback: () => {
+			localStorage.featurePreview = !localStorage.featurePreview
+			featurePreviewMode.value = !featurePreviewMode.value
+
+			notificationsStore.create({
+				notification: {
+					type: "info",
+					icon: featurePreviewMode.value ? "check" : "close",
+					title: `Feature preview ${featurePreviewMode.value ? "enabled" : "disabled"}`,
+					description:
+						featurePreviewMode.value &&
+						"You can now get early access to the new beta features. You can report bugs to our GitHub repo.",
+					autoDestroy: true,
+				},
+			})
+		},
+	},
+]
+const developerGroup = computed(() => {
+	return {
+		title: "Developer",
+		actions: developerMode.value
+			? developerActions.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase()))
+			: [],
+	}
+})
+
 const otherActions = [
 	{
 		type: "callback",
+		icon: "terminal",
+		title: "Toggle Developer Mode",
+		subtitle: "Command",
+		runText: "Toggle",
+		callback: () => {
+			localStorage.developer = !localStorage.developer
+			developerMode.value = !developerMode.value
+
+			notificationsStore.create({
+				notification: {
+					type: "info",
+					icon: developerMode.value ? "check" : "close",
+					title: `Developer mode ${developerMode.value ? "enabled" : "disabled"}`,
+					description: developerMode.value && "Now you can access additional features in the command menu.",
+					autoDestroy: true,
+				},
+			})
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-up-right",
+		title: "View Last Release",
+		subtitle: "Quicklink",
+		runText: "Open Github",
+		callback: () => {
+			window.open(`https://github.com/celenium-io/celenium-interface/releases/tag/v${appConfig.version}`, "_blank")
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-up-right",
 		title: "Go to Discord",
 		subtitle: "Quicklink",
 		runText: "Open Discord",
@@ -204,6 +557,7 @@ const otherActions = [
 	},
 	{
 		type: "callback",
+		icon: "arrow-narrow-up-right",
 		title: "Go to Twitter",
 		subtitle: "Quicklink",
 		runText: "Open Twitter",
@@ -213,20 +567,12 @@ const otherActions = [
 	},
 	{
 		type: "callback",
+		icon: "arrow-narrow-up-right",
 		title: "Go to Github",
 		subtitle: "Quicklink",
 		runText: "Open Github",
 		callback: () => {
 			window.open("https://github.com/celenium-io", "_blank")
-		},
-	},
-	{
-		type: "callback",
-		title: "View last release",
-		subtitle: "Quicklink",
-		runText: "Open Github",
-		callback: () => {
-			window.open(`https://github.com/celenium-io/celenium-interface/releases/tag/v${appConfig.version}`, "_blank")
 		},
 	},
 ]
@@ -237,9 +583,14 @@ const otherGroup = computed(() => {
 	}
 })
 
-const groups = [navigationGroup, quickCommandsGroup, otherGroup]
+const groups = reactive([suggestionGroup, quickCommandsGroup, settingsGroup, navigationGroup, developerGroup, otherGroup])
 
 onMounted(() => {
+	developerMode.value = localStorage.developer
+	featurePreviewMode.value = localStorage.featurePreview
+
+	root = document.querySelector("html")
+
 	document.addEventListener("keydown", (e) => {
 		if (["Escape"].includes(e.code) && appStore.showCmd) {
 			if (!commandMode.value) {
@@ -252,7 +603,7 @@ onMounted(() => {
 			}
 		}
 
-		if (!(e.code === "KeyK" && e.metaKey)) return
+		if (!(e.code === "KeyK" && ((isMac && e.metaKey) || (!isMac && e.ctrlKey)))) return
 
 		appStore.showCmd = !appStore.showCmd
 	})
@@ -272,6 +623,8 @@ watch(
 	() => appStore.showCmd,
 	() => {
 		if (appStore.showCmd) {
+			makeSuggestions()
+
 			nextTick(() => {
 				document.addEventListener("keydown", onKeydown)
 
@@ -324,12 +677,37 @@ const handleReturn = (action) => {
 
 				break
 
+			case "command:nested":
+				commandMode.value = true
+
+				commandMetadata.action = action
+
+				runText.value = action.runText
+
+				inputEl.value.focus()
+				searchTerm.value = ""
+
+				runBounce()
+
+				break
+
 			default:
 				break
 		}
+
+		return
 	}
 
 	if (commandMode.value) {
+		if (commandMetadata.action.type === "command:nested") {
+			action.callback()
+			appStore.showCmd = false
+
+			exitCommandMode()
+
+			return
+		}
+
 		if (!searchTerm.value && commandMetadata.action.type === "command:input") return
 
 		commandMetadata.action.callback(searchTerm.value)
@@ -463,13 +841,31 @@ const resetRunText = () => {
 					</Flex>
 				</Flex>
 
+				<Flex v-else direction="column" :class="$style.list">
+					<Flex direction="column" :class="$style.group">
+						<Text v-if="commandMetadata.action.nestedTitle" size="12" weight="500" color="tertiary" :class="$style.label">
+							{{ commandMetadata.action.nestedTitle }}
+						</Text>
+
+						<Flex direction="column" :class="$style.actions">
+							<Item
+								v-for="action in commandMetadata.action.actions"
+								@click="handleReturn(action)"
+								@onReturn="handleReturn"
+								:action="action"
+								@focus="onActionFocus(action)"
+							/>
+						</Flex>
+					</Flex>
+				</Flex>
+
 				<Flex align="center" justify="between" :class="$style.footer">
 					<Icon name="logo" size="14" color="tertiary" />
 
 					<Flex v-if="runText.length" align="center" gap="8">
-						<Text size="13" weight="600" color="primary">{{ runText }}</Text>
+						<Text size="13" weight="600" color="tertiary">{{ runText }}</Text>
 						<Kbd>
-							<Icon name="return" size="12" color="primary" />
+							<Icon name="return" size="12" color="secondary" />
 						</Kbd>
 					</Flex>
 					<Flex v-else align="center" gap="8">
@@ -608,6 +1004,7 @@ const resetRunText = () => {
 @media (max-width: 750px) {
 	.popup {
 		width: 95%;
+		top: 7%;
 	}
 }
 </style>

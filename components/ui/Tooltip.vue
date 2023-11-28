@@ -154,7 +154,14 @@ const handleMouseLeave = () => {
 </script>
 
 <template>
-	<div @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave" :class="$style.wrapper" :style="{ width: wide && '100%' }">
+	<div
+		@mouseenter="handleMouseEnter"
+		@mouseleave="handleMouseLeave"
+		@touchstart="handleMouseEnter"
+		@touchend="handleMouseLeave"
+		:class="$style.wrapper"
+		:style="{ width: wide && '100%' }"
+	>
 		<div ref="trigger" :class="$style.trigger" :style="{ width: wide && '100%' }">
 			<slot />
 		</div>

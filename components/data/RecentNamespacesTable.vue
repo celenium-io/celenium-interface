@@ -49,7 +49,7 @@ isLoading.value = false
 										<Flex align="center" gap="6">
 											<Icon name="folder" size="14" color="secondary" />
 
-											<Text size="13" weight="600" color="primary">
+											<Text size="13" weight="600" color="primary" mono>
 												{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
 											</Text>
 
@@ -57,7 +57,7 @@ isLoading.value = false
 												<div v-for="dot in 3" class="dot" />
 											</Flex>
 
-											<Text size="13" weight="600" color="primary">
+											<Text size="13" weight="600" color="primary" mono>
 												{{ getNamespaceID(ns.namespace_id).slice(-4) }}
 											</Text>
 										</Flex>
@@ -74,15 +74,15 @@ isLoading.value = false
 										<Flex align="center" gap="6">
 											<Icon name="block" size="14" color="secondary" />
 
-											<Text size="13" weight="600" color="primary">{{ comma(ns.height) }}</Text>
+											<Text size="13" weight="600" color="primary" tabular>{{ comma(ns.last_height) }}</Text>
 										</Flex>
 									</Outline>
 								</NuxtLink>
 							</td>
 							<td>
-								<Text size="12" weight="600" color="primary">{{
-									DateTime.fromISO(ns.time).toRelative({ locale: "en", style: "short" })
-								}}</Text>
+								<Text size="12" weight="600" color="primary">
+									{{ DateTime.fromISO(ns.last_message_time).toRelative({ locale: "en", style: "short" }) }}
+								</Text>
 							</td>
 							<td>
 								<Text size="13" weight="600" color="primary">{{ formatBytes(ns.size) }}</Text>

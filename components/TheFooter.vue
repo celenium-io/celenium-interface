@@ -3,16 +3,50 @@
 import { Dropdown, DropdownItem, DropdownTitle } from "@/components/ui/Dropdown"
 
 /** Services */
-import { getNetworkName } from "@/services/utils"
+import { getNetworkName, isPrefersDarkScheme } from "@/services/utils"
+
+/** Store */
+import { useAppStore } from "@/store/app"
+const appStore = useAppStore()
 
 const appConfig = useAppConfig()
 
-const currentTheme = ref("dark")
+let root = null
 
-onMounted(() => {
-	const root = document.querySelector("html")
-	currentTheme.value = root.getAttribute("theme") ? "light" : "dark"
+onBeforeMount(() => {
+	root = document.querySelector("html")
+
+	if (!localStorage.theme) {
+		localStorage.theme = "dark"
+	}
+
+	switch (localStorage.theme) {
+		case "dark":
+		case "dimmed":
+		case "light":
+			appStore.theme = localStorage.theme
+			root.setAttribute("theme", appStore.theme)
+
+			break
+
+		case "system":
+			appStore.theme = "system"
+			root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
+
+			break
+	}
 })
+
+watch(
+	() => appStore.theme,
+	() => {
+		if (appStore.theme === "system") {
+			window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (event) => {
+				root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
+			})
+		}
+	},
+)
 
 const handleNavigate = (url) => {
 	window.location.replace(url)
@@ -22,7 +56,8 @@ const handleChangeTheme = (theme) => {
 	const root = document.querySelector("html")
 
 	root.setAttribute("theme", theme)
-	currentTheme.value = theme
+	appStore.theme = theme
+	localStorage.theme = theme
 }
 </script>
 
@@ -63,11 +98,19 @@ const handleChangeTheme = (theme) => {
 							</template>
 						</Dropdown>
 
-						<Dropdown side="top">
+						<Dropdown v-if="appStore.theme" side="top">
 							<Flex align="center" gap="6" :class="$style.btn">
-								<Icon :name="currentTheme === 'light' ? 'sun' : 'moon'" size="12" color="secondary" />
+								<Icon
+									:name="
+										(appStore.theme === 'system' && 'settings') ||
+										(appStore.theme === 'light' && 'sun') ||
+										(['dark', 'dimmed'].includes(appStore.theme) && 'moon')
+									"
+									size="12"
+									color="secondary"
+								/>
 								<Text size="12" weight="600" color="secondary" :style="{ textTransform: 'capitalize' }">
-									{{ currentTheme }}
+									{{ appStore.theme }}
 								</Text>
 							</Flex>
 
@@ -76,6 +119,7 @@ const handleChangeTheme = (theme) => {
 								<DropdownItem @click="handleChangeTheme('dimmed')">Dimmed</DropdownItem>
 								<DropdownItem @click="handleChangeTheme('dark')">Dark</DropdownItem>
 								<DropdownItem @click="handleChangeTheme('light')">Light</DropdownItem>
+								<DropdownItem @click="handleChangeTheme('system')">System</DropdownItem>
 							</template>
 						</Dropdown>
 					</Flex>

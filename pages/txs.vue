@@ -13,7 +13,7 @@ import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 import { comma, space } from "@/services/utils"
 
 /** API */
-import { fetchTransactions } from "@/services/api/tx"
+import { fetchTransactions, fetchTxsCount } from "@/services/api/tx"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -72,9 +72,13 @@ const router = useRouter()
 
 const isRefetching = ref(false)
 const transactions = ref([])
+const count = ref(0)
+
+const { data: txsCount } = await fetchTxsCount()
+count.value = txsCount.value
 
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = ref(Math.ceil(appStore.head.total_tx / 20))
+const pages = ref(Math.ceil(count.value / 20))
 
 const findPFB = ref(false)
 
@@ -180,26 +184,24 @@ const handlePrev = () => {
 								<td style="width: 1px">
 									<Tooltip :disabled="!tx.hash" position="start">
 										<template v-if="tx.hash">
-											<Flex align="center" gap="10">
-												<Flex align="center" gap="6">
-													<Icon
-														:name="tx.status === 'success' ? 'tx_success' : 'tx_error'"
-														size="14"
-														color="secondary"
-													/>
+											<Flex align="center" gap="6">
+												<Icon
+													:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
+													size="14"
+													:color="tx.status === 'success' ? 'green' : 'red'"
+												/>
 
-													<Text size="13" weight="600" color="primary">{{
-														tx.hash.slice(0, 4).toUpperCase()
-													}}</Text>
+												<Text size="13" weight="600" color="primary" mono>
+													{{ tx.hash.slice(0, 4).toUpperCase() }}
+												</Text>
 
-													<Flex align="center" gap="3">
-														<div v-for="dot in 3" class="dot" />
-													</Flex>
-
-													<Text size="13" weight="600" color="primary">
-														{{ tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase() }}
-													</Text>
+												<Flex align="center" gap="3">
+													<div v-for="dot in 3" class="dot" />
 												</Flex>
+
+												<Text size="13" weight="600" color="primary" mono>
+													{{ tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase() }}
+												</Text>
 
 												<CopyButton :text="tx.hash" />
 											</Flex>
@@ -212,11 +214,34 @@ const handlePrev = () => {
 										</template>
 
 										<template #content>
-											{{ space(tx.hash).toUpperCase() }}
+											<Flex direction="column" gap="6">
+												<Flex align="center" gap="4">
+													<Icon
+														:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
+														size="13"
+														:color="tx.status === 'success' ? 'green' : 'red'"
+													/>
+													<Text size="13" weight="600" color="primary">
+														{{ tx.status === "success" ? "Successful" : "Failed" }} Transaction
+													</Text>
+												</Flex>
+
+												{{ space(tx.hash).toUpperCase() }}
+											</Flex>
 										</template>
 									</Tooltip>
 								</td>
 								<td style="width: 1px">
+									<Flex direction="column" gap="4">
+										<Text size="12" weight="600" color="primary">
+											{{ DateTime.fromISO(tx.time).toRelative({ locale: "en", style: "short" }) }}
+										</Text>
+										<Text size="12" weight="500" color="tertiary">
+											{{ DateTime.fromISO(tx.time).setLocale("en").toFormat("LLL d, t") }}
+										</Text>
+									</Flex>
+								</td>
+								<td>
 									<Tooltip v-if="tx.message_types.length" position="start" textAlign="left">
 										<MessageTypeBadge :types="tx.message_types" />
 
@@ -232,26 +257,16 @@ const handlePrev = () => {
 									<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
 								</td>
 								<td>
-									<Flex direction="column" gap="4">
-										<Text size="12" weight="600" color="primary">
-											{{ DateTime.fromISO(tx.time).toRelative({ locale: "en", style: "short" }) }}
-										</Text>
-										<Text size="12" weight="500" color="tertiary">
-											{{ DateTime.fromISO(tx.time).setLocale("en").toFormat("LLL d, t") }}
-										</Text>
-									</Flex>
-								</td>
-								<td>
 									<Outline @click.stop="router.push(`/block/${tx.height}`)">
 										<Flex align="center" gap="6">
 											<Icon name="block" size="14" color="secondary" />
 
-											<Text size="13" weight="600" color="primary">{{ comma(tx.height) }}</Text>
+											<Text size="13" weight="600" color="primary" tabular>{{ comma(tx.height) }}</Text>
 										</Flex>
 									</Outline>
 								</td>
 								<td>
-									<Tooltip>
+									<Tooltip v-if="tx.gas_used">
 										<Flex align="center" gap="8">
 											<Text v-if="tx.gas_wanted > 0" size="13" weight="600" color="primary">
 												{{ ((tx.gas_used * 100) / tx.gas_wanted).toFixed(2) }}%
@@ -268,6 +283,7 @@ const handlePrev = () => {
 											</Flex>
 										</template>
 									</Tooltip>
+									<Text v-else size="13" weight="600" color="secondary">Unknown</Text>
 								</td>
 								<td>
 									<Text size="13" weight="600" color="primary">
@@ -293,7 +309,7 @@ const handlePrev = () => {
 .wrapper {
 	max-width: calc(var(--base-width) + 48px);
 
-	padding: 60px 24px;
+	padding: 40px 24px 60px 24px;
 }
 
 .breadcrumbs {

@@ -5,6 +5,14 @@ import BlobsWidget from "./BlobsWidget.vue"
 import NetworkWidget from "./NetworkWidget.vue"
 import TransactionsWidget from "./TransactionsWidget.vue"
 import ValidatorsWidget from "./ValidatorsWidget.vue"
+
+const tablet = ref(false)
+
+onBeforeMount(() => {
+	if (window.innerWidth < 1100) {
+		tablet.value = true
+	}
+})
 </script>
 
 <template>
@@ -26,5 +34,17 @@ import ValidatorsWidget from "./ValidatorsWidget.vue"
 <style module>
 .column {
 	min-width: 368px;
+}
+
+@media (max-width: 1100px) {
+	.wrapper {
+		flex-direction: column;
+	}
+}
+
+@media (max-width: 420px) {
+	.column {
+		min-width: initial;
+	}
 }
 </style>

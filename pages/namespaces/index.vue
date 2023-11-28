@@ -1,10 +1,13 @@
 <script setup>
+/** Vendor */
+import { DateTime } from "luxon"
+
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { space, formatBytes, comma, getNamespaceID } from "@/services/utils"
+import { formatBytes, comma, getNamespaceID } from "@/services/utils"
 
 /** API */
 import { fetchNamespaces, fetchNamespacesCount } from "@/services/api/namespace"
@@ -148,6 +151,8 @@ const handlePrev = () => {
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Namespace</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Last Time</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Last Block</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Size</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Version</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Pay For Blobs</Text></th>
@@ -156,26 +161,24 @@ const handlePrev = () => {
 
 						<tbody>
 							<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.namespace_id}`)">
-								<td>
+								<td style="width: 1px">
 									<Tooltip position="start">
 										<Flex align="center" gap="6">
 											<Icon name="folder" size="14" color="secondary" />
 
 											<template v-if="ns.hash">
-												<Flex align="center" gap="10">
-													<Flex align="center" gap="6">
-														<Text size="13" weight="600" color="primary">
-															{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
-														</Text>
+												<Flex align="center" gap="8">
+													<Text size="13" weight="600" color="primary" mono>
+														{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
+													</Text>
 
-														<Flex align="center" gap="3">
-															<div v-for="dot in 3" class="dot" />
-														</Flex>
-
-														<Text size="13" weight="600" color="primary">
-															{{ getNamespaceID(ns.namespace_id).slice(-4) }}
-														</Text>
+													<Flex align="center" gap="3">
+														<div v-for="dot in 3" class="dot" />
 													</Flex>
+
+													<Text size="13" weight="600" color="primary" mono>
+														{{ getNamespaceID(ns.namespace_id).slice(-4) }}
+													</Text>
 
 													<CopyButton :text="getNamespaceID(ns.namespace_id)" />
 												</Flex>
@@ -189,6 +192,25 @@ const handlePrev = () => {
 											{{ getNamespaceID(ns.namespace_id) }}
 										</template>
 									</Tooltip>
+								</td>
+								<td>
+									<Flex direction="column" gap="4">
+										<Text size="12" weight="600" color="primary">
+											{{ DateTime.fromISO(ns.last_message_time).toRelative({ locale: "en", style: "short" }) }}
+										</Text>
+										<Text size="12" weight="500" color="tertiary">
+											{{ DateTime.fromISO(ns.last_message_time).setLocale("en").toFormat("LLL d, t") }}
+										</Text>
+									</Flex>
+								</td>
+								<td>
+									<Outline @click.stop="router.push(`/block/${ns.last_height}`)">
+										<Flex align="center" gap="6">
+											<Icon name="block" size="14" color="secondary" />
+
+											<Text size="13" weight="600" color="primary" tabular>{{ comma(ns.last_height) }}</Text>
+										</Flex>
+									</Outline>
 								</td>
 								<td>
 									<Flex align="center" gap="6">
@@ -219,7 +241,7 @@ const handlePrev = () => {
 .wrapper {
 	max-width: calc(var(--base-width) + 48px);
 
-	padding: 60px 24px;
+	padding: 40px 24px 60px 24px;
 }
 
 .breadcrumbs {
@@ -288,8 +310,8 @@ const handlePrev = () => {
 		& tr td {
 			padding: 0;
 			padding-right: 24px;
-			padding-top: 12px;
-			padding-bottom: 12px;
+			padding-top: 8px;
+			padding-bottom: 8px;
 
 			white-space: nowrap;
 

@@ -8,6 +8,10 @@ import { getNamespaceID } from "@/services/utils"
 /** API */
 import { fetchNamespaceByID } from "@/services/api/namespace"
 
+/** Store */
+import { useCacheStore } from "@/store/cache"
+const cacheStore = useCacheStore()
+
 const route = useRoute()
 const router = useRouter()
 
@@ -18,6 +22,7 @@ if (!rawNamespace.value) {
 	router.push("/")
 } else {
 	namespace.value = rawNamespace.value[0]
+	cacheStore.current.namespace = namespace.value
 }
 
 defineOgImage({
@@ -92,7 +97,7 @@ useHead({
 .wrapper {
 	max-width: calc(var(--base-width) + 48px);
 
-	padding: 60px 24px;
+	padding: 40px 24px 60px 24px;
 }
 
 .breadcrumbs {

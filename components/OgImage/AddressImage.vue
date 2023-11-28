@@ -33,11 +33,9 @@ const bgStyles = computed(() => {
 
 		<div :style="{ height: '100%', display: 'flex', flexDirection: 'column', gap: '40px' }">
 			<div :style="{ display: 'flex', alignItems: 'center' }">
-				<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.9)' }">address</span>
+				<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.9)' }">addr</span>
 				<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.3)' }">('</span>
-				<span :style="{ fontSize: '70px', color: '#FF8351' }">
-					{{ address.hash.slice(-4) }}
-				</span>
+				<span :style="{ fontSize: '70px', color: '#FF8351' }"> celestia•••{{ address.hash.slice(-4) }} </span>
 				<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.3)' }">')</span>
 			</div>
 

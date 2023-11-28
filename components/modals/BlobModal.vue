@@ -10,13 +10,14 @@ import { formatBytes, getNamespaceID, strToHex } from "@/services/utils"
 import { fetchNamespaceByMetadata } from "@/services/api/namespace"
 
 /** Store */
+import { useCacheStore } from "@/store/cache"
 import { useNotificationsStore } from "@/store/notifications"
+const cacheStore = useCacheStore()
 const notificationsStore = useNotificationsStore()
 
 const emit = defineEmits(["onClose"])
 const props = defineProps({
 	show: Boolean,
-	item: Object,
 })
 
 const blob = ref({})
@@ -45,9 +46,9 @@ watch(
 	async () => {
 		if (props.show) {
 			const { data } = await fetchNamespaceByMetadata({
-				hash: props.item.namespace.hash,
-				height: props.item.height,
-				commitment: props.item.data.ShareCommitments[0],
+				hash: cacheStore.selectedBlob.namespace.hash,
+				height: cacheStore.selectedBlob.height,
+				commitment: cacheStore.selectedBlob.data.ShareCommitments[0],
 			})
 
 			if (data.value) {
@@ -59,6 +60,8 @@ watch(
 			isDecode.value = false
 			isViewAll.value = false
 			blob.value = {}
+
+			cacheStore.selectedBlob = null
 		}
 	},
 )
@@ -72,9 +75,11 @@ const handleDownload = () => {
 
 	const a = window.document.createElement("a")
 	a.href = window.URL.createObjectURL(new Blob([byteArray], { type: "application/octet-stream" }))
-	a.download = `${getNamespaceID(props.item.namespace.namespace_id)}_${props.item.data.ShareCommitments[0].slice(
-		props.item.data.ShareCommitments[0].length - 8,
-		props.item.data.ShareCommitments[0].length,
+	a.download = `${getNamespaceID(
+		cacheStore.selectedBlob.namespace.namespace_id,
+	)}_${cacheStore.selectedBlob.data.ShareCommitments[0].slice(
+		cacheStore.selectedBlob.data.ShareCommitments[0].length - 8,
+		cacheStore.selectedBlob.data.ShareCommitments[0].length,
 	)}.bin`
 	document.body.appendChild(a)
 	a.click()
@@ -119,10 +124,10 @@ const handleCopy = (target) => {
 						<Text size="12" weight="500" color="tertiary">Namespace:</Text>
 
 						<Flex align="center" gap="8" :class="$style.value_wrapper">
-							<CopyButton :text="getNamespaceID(props.item.namespace.namespace_id)" />
+							<CopyButton :text="getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id)" />
 
 							<Text size="13" weight="600" color="primary" :class="$style.value">
-								{{ getNamespaceID(props.item.namespace.namespace_id) }}
+								{{ getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id) }}
 							</Text>
 						</Flex>
 					</Flex>
@@ -131,10 +136,10 @@ const handleCopy = (target) => {
 						<Text size="12" weight="500" color="tertiary">Commitment:</Text>
 
 						<Flex align="center" gap="8" :class="$style.value_wrapper">
-							<CopyButton :text="item.data.ShareCommitments[0]" />
+							<CopyButton :text="cacheStore.selectedBlob.data.ShareCommitments[0]" />
 
 							<Text size="13" weight="600" color="primary" :class="$style.value">
-								{{ item.data.ShareCommitments[0] }}
+								{{ cacheStore.selectedBlob.data.ShareCommitments[0] }}
 							</Text>
 						</Flex>
 					</Flex>
@@ -143,12 +148,12 @@ const handleCopy = (target) => {
 						<Text size="12" weight="500" color="tertiary">Signer:</Text>
 
 						<Flex align="center" gap="8" :class="$style.value_wrapper">
-							<CopyButton :text="item.data.Signer" />
+							<CopyButton :text="cacheStore.selectedBlob.data.Signer" />
 
-							<NuxtLink :to="`/address/${item.data.Signer}`" target="_blank">
+							<NuxtLink :to="`/address/${cacheStore.selectedBlob.data.Signer}`" target="_blank">
 								<Flex align="center" gap="6">
 									<Text size="13" weight="600" color="primary" :class="$style.value">
-										{{ item.data.Signer }}
+										{{ cacheStore.selectedBlob.data.Signer }}
 									</Text>
 
 									<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
@@ -164,7 +169,7 @@ const handleCopy = (target) => {
 					<Icon name="download" size="14" color="secondary" />
 					<Flex align="center" gap="6">
 						<Text>Download</Text>
-						<Text color="tertiary">{{ formatBytes(item.data.BlobSizes[0]) }}</Text>
+						<Text color="tertiary">{{ formatBytes(cacheStore.selectedBlob.data.BlobSizes[0]) }}</Text>
 					</Flex>
 				</Button>
 

@@ -62,6 +62,7 @@ $grayscale: (
 	--notification-background: rgba(0, 0, 0, 95%);
 	--block-progress-background: rgba(0, 0, 0, 20%);
 	--logo-name: var(--txt-primary);
+	--bar-fill: rgb(243, 147, 45);
 }
 
 [theme="dimmed"] {
@@ -116,6 +117,7 @@ $grayscale: (
 	--notification-background: rgba(0, 0, 0, 95%);
 	--block-progress-background: rgba(0, 0, 0, 20%);
 	--logo-name: var(--txt-primary);
+	--bar-fill: rgb(243, 147, 45);
 }
 
 [theme="light"] {
@@ -169,6 +171,12 @@ $grayscale: (
 	--notification-background: rgba(255, 255, 255, 95%);
 	--block-progress-background: rgba(0, 0, 0, 8%);
 	--logo-name: var(--txt-primary);
+	--bar-fill: rgb(243, 147, 45);
+}
+
+@font-face {
+	font-family: "DS";
+	src: local("DS"), url(~/assets/fonts/DS-DIGI.TTF) format("truetype");
 }
 
 *,

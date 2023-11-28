@@ -62,7 +62,11 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 							<Text size="12" weight="600" color="secondary">Status</Text>
 
 							<Flex align="center" gap="6">
-								<Icon :name="tx.status === 'success' ? 'tx_success' : 'tx_error'" size="14" color="secondary" />
+								<Icon
+									:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
+									size="14"
+									:color="tx.status === 'success' ? 'green' : 'red'"
+								/>
 								<Text size="13" weight="600" color="primary" style="text-transform: capitalize">
 									{{ tx.status }}
 								</Text>
@@ -91,22 +95,14 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 						</NuxtLink>
 					</Flex>
 
-					<Tooltip position="start" textAlign="left">
-						<Flex direction="column" gap="10" :class="$style.key_value">
-							<Text size="12" weight="600" color="secondary">Type</Text>
+					<Flex direction="column" gap="10" :class="$style.key_value">
+						<Text size="12" weight="600" color="secondary">Type</Text>
 
-							<MessageTypeBadge v-if="tx.message_types.length" :types="tx.message_types" />
-							<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
+						<Flex v-if="tx.message_types.length" align="center" gap="8" wrap="wrap">
+							<MessageTypeBadge v-for="type in tx.message_types" :types="[type]" />
 						</Flex>
-
-						<template #content>
-							<Flex direction="column" gap="8">
-								<Text v-for="type in tx.message_types" color="primary">
-									{{ type.replace("Msg", "") }}
-								</Text>
-							</Flex>
-						</template>
-					</Tooltip>
+						<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
+					</Flex>
 
 					<Flex direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Hash</Text>
@@ -487,17 +483,17 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 
 .gas_bar {
 	width: 100%;
-	height: 8px;
+	height: 6px;
 
 	border-radius: 50px;
 	background: linear-gradient(var(--op-10), var(--op-5));
-	box-shadow: inset 0 0 0 1px var(--op-10);
 
 	& .gas_used {
-		height: 8px;
+		height: 6px;
 
 		border-radius: 50px;
-		background: var(--neutral-green);
+		background: var(--green);
+		box-shadow: 0 0 6px rgba(10, 222, 112, 80%);
 	}
 }
 

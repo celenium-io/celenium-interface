@@ -7,6 +7,10 @@ const props = defineProps({
 	text: {
 		type: String,
 	},
+	size: {
+		type: String,
+		default: "12",
+	},
 })
 
 const isCopied = ref(false)
@@ -34,7 +38,7 @@ const handleCopy = (target) => {
 	<Icon
 		@click.stop="handleCopy(text)"
 		:name="!isCopied ? 'copy' : 'check'"
-		size="12"
+		:size="size"
 		:color="!isCopied ? 'tertiary' : 'green'"
 		class="copyable"
 	/>

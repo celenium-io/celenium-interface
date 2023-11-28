@@ -7,10 +7,10 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { tia, comma, space } from "@/services/utils"
+import { tia, comma, space, formatBytes } from "@/services/utils"
 
 /** API */
-import { fetchBlocks } from "@/services/api/block"
+import { fetchBlocks, fetchBlocksCount } from "@/services/api/block"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -69,10 +69,15 @@ const router = useRouter()
 
 const isRefetching = ref(false)
 const blocks = ref([])
+const count = ref(0)
+
 const hintedBlock = ref(route.query.block)
 
+const { data: blocksCount } = await fetchBlocksCount()
+count.value = blocksCount.value
+
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = ref(Math.ceil(appStore.head.last_height / 20))
+const pages = ref(Math.ceil(count.value / 20))
 
 const { data } = await fetchBlocks({ limit: 20, offset: (page.value - 1) * 20 })
 blocks.value = data.value
@@ -146,8 +151,8 @@ const handlePrev = () => {
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Height</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Time</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Proposer</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Txs</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Events</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Blobs Size</Text></th>
@@ -162,12 +167,12 @@ const handlePrev = () => {
 										<Flex align="center" gap="6">
 											<Icon name="block" size="14" :color="hintedBlock == block.height ? 'blue' : 'tertiary'" />
 
-											<Text size="13" weight="600" color="primary">{{ comma(block.height) }}</Text>
+											<Text size="13" weight="600" color="primary" tabular>{{ comma(block.height) }}</Text>
 										</Flex>
 									</Outline>
 								</td>
 								<td>
-									<Flex direction="column" gap="4">
+									<Flex direction="column" gap="6">
 										<Text size="12" weight="600" color="primary">
 											{{ DateTime.fromISO(block.time).toRelative({ locale: "en", style: "short" }) }}
 										</Text>
@@ -179,15 +184,47 @@ const handlePrev = () => {
 								<td>
 									<Tooltip v-if="block.hash" delay="500">
 										<template #default>
+											<Flex direction="column" gap="6">
+												<Text size="12" weight="600" color="primary" :class="$style.proposer_moniker">
+													{{ block.proposer.moniker }}
+												</Text>
+
+												<Flex align="center" gap="6">
+													<Text size="12" weight="600" color="tertiary" mono>
+														{{ block.proposer.cons_address.slice(0, 4) }}
+													</Text>
+													<Flex align="center" gap="3">
+														<div v-for="dot in 3" class="dot" />
+													</Flex>
+													<Text size="12" weight="600" color="tertiary" mono>
+														{{
+															block.proposer.cons_address.slice(
+																block.proposer.cons_address.length - 4,
+																block.proposer.cons_address.length,
+															)
+														}}
+													</Text>
+													<CopyButton :text="block.proposer.cons_address" size="10" />
+												</Flex>
+											</Flex>
+										</template>
+
+										<template #content> {{ space(block.proposer.cons_address) }} </template>
+									</Tooltip>
+									<Text v-else size="13" weight="600" color="secondary">Genesis</Text>
+								</td>
+								<td>
+									<Tooltip v-if="block.hash" delay="500">
+										<template #default>
 											<Flex align="center" gap="10">
 												<Flex align="center" gap="6">
-													<Text size="13" weight="600" color="primary">{{ block.hash.slice(0, 4) }}</Text>
+													<Text size="13" weight="600" color="primary" mono>{{ block.hash.slice(0, 4) }}</Text>
 
 													<Flex align="center" gap="3">
 														<div v-for="dot in 3" class="dot" />
 													</Flex>
 
-													<Text size="13" weight="600" color="primary">
+													<Text size="13" weight="600" color="primary" mono>
 														{{ block.hash.slice(block.hash.length - 4, block.hash.length) }}
 													</Text>
 												</Flex>
@@ -197,35 +234,6 @@ const handlePrev = () => {
 										</template>
 
 										<template #content> {{ space(block.hash) }} </template>
-									</Tooltip>
-									<Text v-else size="13" weight="600" color="secondary">Genesis</Text>
-								</td>
-								<td>
-									<Tooltip v-if="block.hash" delay="500">
-										<template #default>
-											<Flex align="center" gap="10">
-												<Flex align="center" gap="6">
-													<Text size="13" weight="600" color="primary">{{
-														block.proposer_address.slice(0, 4)
-													}}</Text>
-
-													<Flex align="center" gap="3">
-														<div v-for="dot in 3" class="dot" />
-													</Flex>
-
-													<Text size="13" weight="600" color="primary">{{
-														block.proposer_address.slice(
-															block.proposer_address.length - 4,
-															block.proposer_address.length,
-														)
-													}}</Text>
-												</Flex>
-
-												<CopyButton :text="block.proposer_address" />
-											</Flex>
-										</template>
-
-										<template #content> {{ space(block.proposer_address) }} </template>
 									</Tooltip>
 									<Text v-else size="13" weight="600" color="secondary">Genesis</Text>
 								</td>
@@ -241,7 +249,7 @@ const handlePrev = () => {
 								</td>
 								<td>
 									<Text size="13" weight="600" color="primary">
-										{{ block.stats.blobs_size }}
+										{{ formatBytes(block.stats.blobs_size) }}
 									</Text>
 								</td>
 								<td>
@@ -263,7 +271,7 @@ const handlePrev = () => {
 .wrapper {
 	max-width: calc(var(--base-width) + 48px);
 
-	padding: 60px 24px;
+	padding: 40px 24px 60px 24px;
 }
 
 .breadcrumbs {
@@ -342,6 +350,13 @@ const handlePrev = () => {
 			}
 		}
 	}
+}
+
+.proposer_moniker {
+	max-width: 150px;
+
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 .table.disabled {

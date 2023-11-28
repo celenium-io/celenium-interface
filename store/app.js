@@ -1,17 +1,23 @@
+import { useModalsStore } from "./modals"
+
 export const useAppStore = defineStore("app", () => {
-	const head = ref({
-		last_height: 0,
-		hash: "",
-		last_time: new Date(),
-		total_tx: 0,
-		total_accounts: 0,
-		total_fee: 0,
-		total_blobs_size: 0,
-		total_supply: 0,
-	})
+	const modalsStore = useModalsStore()
+
+	const head = ref()
+
 	const latestBlocks = ref([])
+	const isLatestBlocksLoaded = ref(false)
 
 	const showCmd = ref(false)
 
-	return { head, latestBlocks, showCmd }
+	const theme = ref(null)
+
+	const confirmation = ref(null)
+	const createConfirmation = (metadata) => {
+		confirmation.value = metadata
+
+		modalsStore.open("confirmation")
+	}
+
+	return { head, latestBlocks, isLatestBlocksLoaded, showCmd, theme, confirmation, createConfirmation }
 })

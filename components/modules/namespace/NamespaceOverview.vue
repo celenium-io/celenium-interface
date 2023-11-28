@@ -16,6 +16,10 @@ import { comma, space, formatBytes, getNamespaceID } from "@/services/utils"
 /** API */
 import { fetchNamespaceMessagesById } from "@/services/api/namespace"
 
+/** Store */
+import { useCacheStore } from "@/store/cache"
+const cacheStore = useCacheStore()
+
 const router = useRouter()
 
 const props = defineProps({
@@ -54,6 +58,7 @@ const getMessages = async () => {
 
 	if (data.value?.length) {
 		messages.value = data.value
+		cacheStore.current.messages = messages.value
 	}
 
 	isRefetching.value = false
@@ -146,34 +151,43 @@ watch(
 								<tr v-for="message in messages" @click="router.push(`/tx/${message.tx.hash}`)">
 									<td style="width: 1px">
 										<Tooltip position="start" delay="500">
-											<Flex align="center" gap="10">
-												<Flex align="center" gap="8">
-													<Icon
-														:name="message.tx.status === 'success' ? 'tx_success' : 'tx_error'"
-														size="14"
-														color="secondary"
-													/>
+											<Flex align="center" gap="8">
+												<Icon
+													:name="message.tx.status === 'success' ? 'check-circle' : 'close-circle'"
+													size="14"
+													:color="message.tx.status === 'success' ? 'green' : 'red'"
+												/>
 
-													<Text size="13" weight="600" color="primary">{{
-														message.tx.hash.slice(0, 4).toUpperCase()
-													}}</Text>
+												<Text size="13" weight="600" color="primary" mono>{{
+													message.tx.hash.slice(0, 4).toUpperCase()
+												}}</Text>
 
-													<Flex align="center" gap="3">
-														<div v-for="dot in 3" class="dot" />
-													</Flex>
-
-													<Text size="13" weight="600" color="primary">{{
-														message.tx.hash
-															.slice(message.tx.hash.length - 4, message.tx.hash.length)
-															.toUpperCase()
-													}}</Text>
+												<Flex align="center" gap="3">
+													<div v-for="dot in 3" class="dot" />
 												</Flex>
+
+												<Text size="13" weight="600" color="primary" mono>{{
+													message.tx.hash.slice(message.tx.hash.length - 4, message.tx.hash.length).toUpperCase()
+												}}</Text>
 
 												<CopyButton :text="message.tx.hash" />
 											</Flex>
 
 											<template #content>
-												{{ space(message.tx.hash).toUpperCase() }}
+												<Flex direction="column" gap="6">
+													<Flex align="center" gap="4">
+														<Icon
+															:name="message.tx.status === 'success' ? 'check-circle' : 'close-circle'"
+															size="14"
+															:color="message.tx.status === 'success' ? 'green' : 'red'"
+														/>
+														<Text size="13" weight="600" color="primary">
+															{{ message.tx.status === "success" ? "Successful" : "Failed" }} Transaction
+														</Text>
+													</Flex>
+
+													{{ space(message.tx.hash).toUpperCase() }}
+												</Flex>
 											</template>
 										</Tooltip>
 									</td>
@@ -191,7 +205,7 @@ watch(
 												<Flex align="center" gap="6">
 													<Icon name="block" size="14" color="secondary" />
 
-													<Text size="13" weight="600" color="primary">{{ comma(message.height) }}</Text>
+													<Text size="13" weight="600" color="primary" tabular>{{ comma(message.height) }}</Text>
 												</Flex>
 											</Outline>
 										</NuxtLink>

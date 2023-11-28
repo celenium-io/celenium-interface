@@ -2,22 +2,49 @@
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
-import { abbreviate, comma } from "@/services/utils"
-
 /** API */
-import { fetchHistogram } from "@/services/api/histogram"
+import { fetchTPS } from "@/services/api/stats"
 
-const { data: hourHistagram } = await fetchHistogram({ table: "tx", func: "count", period: "hour" })
-const { data: dayHistagram } = await fetchHistogram({ table: "tx", func: "count", period: "day" })
+const displayTpm = ref(0)
+const tpm = ref(0)
 
-const tph = hourHistagram.value.slice(0, 24).reduce((a, b) => (a += parseInt(b.value)), 0) / 24
-const prevTph = hourHistagram.value.slice(24, 48).reduce((a, b) => (a += parseInt(b.value)), 0) / 24
-const diff = (Math.abs(tph - prevTph) / ((tph + prevTph) / 2)) * 100
+const diff = ref(0)
 
-const preparedDayHistogram = dayHistagram.value.slice(0, 7).map((item) => item.value / 24)
-const highLevel = Math.max(...preparedDayHistogram)
-const lowLevel = Math.min(...preparedDayHistogram)
-const pos = (100 * (tph - lowLevel)) / (highLevel - lowLevel)
+const high = ref(0)
+const low = ref(0)
+
+const displayPos = ref(0)
+const pos = ref(0)
+
+onMounted(async () => {
+	const data = await fetchTPS()
+
+	tpm.value = data.current * 60
+
+	const tpmInterval = setInterval(() => {
+		if (displayTpm.value >= tpm.value) {
+			clearInterval(tpmInterval)
+			return
+		}
+
+		displayTpm.value += 0.1
+	}, 10)
+
+	diff.value = data.change_last_hour_pct
+
+	high.value = data.high * 60
+	low.value = data.low * 60
+
+	pos.value = (100 * (tpm.value - low.value)) / (high.value - low.value)
+	const posInterval = setInterval(() => {
+		if (displayPos.value >= pos.value) {
+			clearInterval(posInterval)
+			return
+		}
+
+		displayPos.value += 1
+	}, 15)
+})
 </script>
 
 <template>
@@ -27,88 +54,67 @@ const pos = (100 * (tph - lowLevel)) / (highLevel - lowLevel)
 
 			<Flex direction="column" gap="16">
 				<Tooltip position="start" text-align="left">
-					<Flex align="end" gap="16" wrap="wrap">
-						<Flex align="center" gap="6">
-							<Icon name="zap-circle" size="20" color="primary" />
-							<Flex gap="4" align="end">
-								<Text size="20" weight="600" color="primary">{{ abbreviate(tph.toFixed(0)) }}</Text>
-								<Text size="14" weight="700" color="tertiary">TPH</Text>
-							</Flex>
+					<Flex align="start" gap="16">
+						<Flex direction="column" gap="6">
+							<Text size="40" weight="600" color="primary" :class="[$style.ds_font, $style.tpm_num]">
+								{{ displayTpm.toFixed(1) }}
+							</Text>
+							<Text size="16" weight="700" color="tertiary" :class="$style.ds_font">TXS/M</Text>
 						</Flex>
 
-						<Flex align="center" gap="6">
-							<Icon
-								name="arrow-circle-right-up"
-								size="16"
-								:color="tph - prevTph > 0 ? 'green' : 'red'"
-								:style="{ transform: `scaleY(${tph - prevTph > 0 ? '1' : '-1'})` }"
-							/>
-							<Text size="16" weight="600" :color="tph - prevTph > 0 ? 'green' : 'red'">
-								{{ diff.toFixed(diff < 1 ? 2 : 0) }}%
-							</Text>
-						</Flex>
+						<Text size="20" weight="600" :class="$style.ds_font" :color="diff > 0 ? 'green' : 'red'">
+							{{ diff.toFixed(diff < 1 ? 2 : 0) }}%
+						</Text>
 					</Flex>
 
 					<template #content>
 						<Flex direction="column" gap="6">
-							<Text>Transactions per hour</Text>
+							<Text>Transactions per minute</Text>
 							<Text color="tertiary">Calculated based on the last 24 hours</Text>
 						</Flex>
 					</template>
 				</Tooltip>
-
-				<Text size="12" weight="600" color="support"> Updates every hour </Text>
 			</Flex>
 		</Flex>
 
-		<Flex direction="column" justify="between" :class="$style.bottom">
-			<Flex direction="column" gap="16">
-				<Flex align="center" gap="4">
-					<Icon name="level" size="12" color="secondary" />
-					<Text size="13" weight="600" color="secondary">TPH Level</Text>
-				</Flex>
-
-				<Flex direction="column" gap="8">
-					<Tooltip position="start" wide>
-						<Flex justify="between" wide :class="$style.levels">
-							<Flex align="center" justify="between" :class="$style.level">
-								<div v-for="item in 10" :class="[$style.separator]" />
-							</Flex>
-
-							<div v-if="!isNaN(pos)" :class="$style.line" :style="{ left: `${pos >= 94 ? 94 : pos}%` }" />
-						</Flex>
-
-						<template #content>
-							<Flex align="start" direction="column" gap="6">
-								<Text color="secondary">
-									High: <Text color="primary">{{ highLevel.toFixed(2) }} <Text color="secondary">TPH</Text></Text>
-								</Text>
-
-								<Text color="secondary">
-									Current: <Text color="primary">{{ tph.toFixed(2) }} <Text color="secondary">TPH</Text></Text>
-								</Text>
-
-								<Text color="secondary">
-									Low: <Text color="primary">{{ lowLevel.toFixed(2) }} <Text color="secondary">TPH</Text></Text>
-								</Text>
-
-								<Text color="tertiary"> Based on the last 7 days </Text>
-							</Flex>
-						</template>
-					</Tooltip>
-
-					<Flex align="center" justify="between" wide style="padding: 0 6px">
-						<Text size="12" weight="600" color="support">Low</Text>
-						<Text size="12" weight="600" color="support">High</Text>
-					</Flex>
-				</Flex>
+		<Flex direction="column" justify="between" gap="16" :class="$style.bottom">
+			<Flex align="center" gap="6">
+				<Icon name="level" size="12" color="secondary" />
+				<Text size="13" weight="600" height="110" color="secondary">TPM Level</Text>
 			</Flex>
 
-			<Text size="12" weight="600" color="support">
-				Throughput level
-				<Text v-if="!isNaN(pos)" color="tertiary">{{ pos.toFixed(2) }}%</Text>
+			<Flex direction="column" gap="8">
+				<Tooltip position="start" wide>
+					<Flex gap="2" :class="$style.bars">
+						<div v-for="item in 10" :class="[$style.bar, displayPos >= item * 10 && $style.active]" />
+					</Flex>
+
+					<template #content>
+						<Flex align="start" direction="column" gap="6">
+							<Text color="secondary">
+								High: <Text color="primary">{{ high.toFixed(4) }} <Text color="secondary">TPM</Text></Text>
+							</Text>
+
+							<Text color="secondary">
+								Current: <Text color="primary">{{ tpm.toFixed(4) }} <Text color="secondary">TPM</Text></Text>
+							</Text>
+
+							<Text color="secondary">
+								Low: <Text color="primary">{{ low.toFixed(4) }} <Text color="secondary">TPM</Text></Text>
+							</Text>
+
+							<Text color="tertiary"> Based on the last 7 days </Text>
+						</Flex>
+					</template>
+				</Tooltip>
+			</Flex>
+
+			<Flex align="center" justify="between">
+				<Text v-if="!isNaN(pos)" size="16" weight="600" color="tertiary" :class="$style.ds_font"> {{ pos.toFixed(2) }}% </Text>
 				<Text v-else color="tertiary">is unknown</Text>
-			</Text>
+
+				<Text size="12" weight="600" color="support"> Throughput level </Text>
+			</Flex>
 		</Flex>
 	</Flex>
 </template>
@@ -124,6 +130,17 @@ const pos = (100 * (tph - lowLevel)) / (highLevel - lowLevel)
 	padding: 16px 16px 20px 16px;
 }
 
+.tpm_num {
+	background: -webkit-linear-gradient(var(--txt-primary), var(--txt-tertiary));
+	background-clip: text;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+.ds_font {
+	font-family: "DS";
+}
+
 .bottom {
 	height: 100%;
 
@@ -133,49 +150,61 @@ const pos = (100 * (tph - lowLevel)) / (highLevel - lowLevel)
 	padding: 20px 16px;
 }
 
-.levels {
-	position: relative;
+.bars {
+	width: fit-content;
+	height: 20px;
 
-	background: var(--op-5);
-	border-radius: 50px;
+	border-radius: 5px;
+	border: 1px solid var(--txt-secondary);
 
-	padding: 6px;
-}
+	padding: 2px;
 
-.line {
-	position: absolute;
-	top: 2px;
+	.bar {
+		width: 16px;
+		height: 14px;
 
-	width: 3px;
-	height: 14px;
+		background: linear-gradient(var(--txt-primary), var(--txt-support));
+		border-radius: 2px;
+		opacity: 0.2;
 
-	background: var(--network-widget-indicator);
-	outline: 2px solid var(--network-widget-separator);
-}
+		transition: all 0.5s ease;
 
-.level {
-	width: 100%;
-	height: 6px;
-
-	border-radius: 50px;
-	background: linear-gradient(-90deg, var(--green), var(--txt-tertiary), var(--txt-support));
-
-	.separator {
-		width: 4px;
-		height: 6px;
-		background: var(--network-widget-separator);
-
-		&:first-child {
-			background: transparent;
-		}
-
-		&:last-child {
-			background: transparent;
+		&.active {
+			background: linear-gradient(var(--txt-primary), var(--txt-support));
+			opacity: 1;
 		}
 	}
 }
 
-.labels {
-	margin: 0 8px;
+@media (max-width: 1100px) {
+	.wrapper {
+		flex-direction: row;
+	}
+
+	.top {
+		flex: 1;
+	}
+
+	.bottom {
+		height: auto;
+
+		border-top: initial;
+		border-left: 2px solid var(--op-5);
+	}
+}
+
+@media (max-width: 420px) {
+	.wrapper {
+		flex-direction: column;
+	}
+
+	.top {
+		flex: initial;
+	}
+
+	.bottom {
+		border-top: 2px solid var(--op-5);
+		border-left: initial;
+	}
 }
 </style>

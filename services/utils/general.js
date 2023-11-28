@@ -63,3 +63,11 @@ export const getNetworkName = () => {
 			return "Unknown"
 	}
 }
+
+export const isMac = () => {
+	return navigator.platform.toUpperCase().indexOf("MAC") >= 0
+}
+
+export const isPrefersDarkScheme = () => {
+	return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+}
