@@ -2,8 +2,6 @@
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
-import { abbreviate, comma } from "@/services/utils"
-
 /** API */
 import { fetchTPS } from "@/services/api/stats"
 

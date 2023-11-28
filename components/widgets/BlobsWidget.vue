@@ -83,8 +83,8 @@ const getOpacity = (val) => {
 			</Flex>
 		</Flex>
 
-		<Flex v-if="weeks.length == 24" wide :class="$style.weeks">
-			<Flex v-for="week in weeks" direction="column" justify="between" wide>
+		<Flex v-if="weeks.length == 24" justify="between" wide :class="$style.weeks">
+			<Flex v-for="week in weeks" direction="column" justify="between">
 				<Tooltip v-for="day in week" :disabled="!day">
 					<Flex
 						:class="[$style.day, day?.value > 0 && $style.shadow]"
