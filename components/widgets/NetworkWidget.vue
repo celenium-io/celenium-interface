@@ -5,8 +5,8 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 /** API */
 import { fetchTPS } from "@/services/api/stats"
 
-const displayTps = ref(0)
-const tps = ref(0)
+const displayTpm = ref(0)
+const tpm = ref(0)
 
 const diff = ref(0)
 
@@ -19,23 +19,23 @@ const pos = ref(0)
 onMounted(async () => {
 	const data = await fetchTPS()
 
-	tps.value = data.current
+	tpm.value = data.current * 60
 
-	const tpsInterval = setInterval(() => {
-		if (displayTps.value >= data.current) {
-			clearInterval(tpsInterval)
+	const tpmInterval = setInterval(() => {
+		if (displayTpm.value >= tpm.value) {
+			clearInterval(tpmInterval)
 			return
 		}
 
-		displayTps.value += 0.001
-	}, 5)
+		displayTpm.value += 0.1
+	}, 10)
 
 	diff.value = data.change_last_hour_pct
 
-	high.value = data.high
-	low.value = data.low
+	high.value = data.high * 60
+	low.value = data.low * 60
 
-	pos.value = (100 * (tps.value - low.value)) / (high.value - low.value) + 40
+	pos.value = (100 * (tpm.value - low.value)) / (high.value - low.value)
 	const posInterval = setInterval(() => {
 		if (displayPos.value >= pos.value) {
 			clearInterval(posInterval)
@@ -56,10 +56,10 @@ onMounted(async () => {
 				<Tooltip position="start" text-align="left">
 					<Flex align="start" gap="16">
 						<Flex direction="column" gap="6">
-							<Text size="40" weight="600" color="primary" :class="[$style.ds_font, $style.tps_num]">
-								{{ displayTps.toFixed(3) }}
+							<Text size="40" weight="600" color="primary" :class="[$style.ds_font, $style.tpm_num]">
+								{{ displayTpm.toFixed(1) }}
 							</Text>
-							<Text size="16" weight="700" color="tertiary" :class="$style.ds_font">TXS/S</Text>
+							<Text size="16" weight="700" color="tertiary" :class="$style.ds_font">TXS/M</Text>
 						</Flex>
 
 						<Text size="20" weight="600" :class="$style.ds_font" :color="diff > 0 ? 'green' : 'red'">
@@ -69,7 +69,7 @@ onMounted(async () => {
 
 					<template #content>
 						<Flex direction="column" gap="6">
-							<Text>Transactions per second</Text>
+							<Text>Transactions per minute</Text>
 							<Text color="tertiary">Calculated based on the last 24 hours</Text>
 						</Flex>
 					</template>
@@ -80,7 +80,7 @@ onMounted(async () => {
 		<Flex direction="column" justify="between" gap="16" :class="$style.bottom">
 			<Flex align="center" gap="6">
 				<Icon name="level" size="12" color="secondary" />
-				<Text size="13" weight="600" height="110" color="secondary">TPS Level</Text>
+				<Text size="13" weight="600" height="110" color="secondary">TPM Level</Text>
 			</Flex>
 
 			<Flex direction="column" gap="8">
@@ -92,15 +92,15 @@ onMounted(async () => {
 					<template #content>
 						<Flex align="start" direction="column" gap="6">
 							<Text color="secondary">
-								High: <Text color="primary">{{ high.toFixed(4) }} <Text color="secondary">TPS</Text></Text>
+								High: <Text color="primary">{{ high.toFixed(4) }} <Text color="secondary">TPM</Text></Text>
 							</Text>
 
 							<Text color="secondary">
-								Current: <Text color="primary">{{ tps.toFixed(4) }} <Text color="secondary">TPS</Text></Text>
+								Current: <Text color="primary">{{ tpm.toFixed(4) }} <Text color="secondary">TPM</Text></Text>
 							</Text>
 
 							<Text color="secondary">
-								Low: <Text color="primary">{{ low.toFixed(4) }} <Text color="secondary">TPS</Text></Text>
+								Low: <Text color="primary">{{ low.toFixed(4) }} <Text color="secondary">TPM</Text></Text>
 							</Text>
 
 							<Text color="tertiary"> Based on the last 7 days </Text>
@@ -130,7 +130,7 @@ onMounted(async () => {
 	padding: 16px 16px 20px 16px;
 }
 
-.tps_num {
+.tpm_num {
 	background: -webkit-linear-gradient(var(--txt-primary), var(--txt-tertiary));
 	background-clip: text;
 	-webkit-background-clip: text;
