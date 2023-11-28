@@ -171,16 +171,39 @@ const getTxnsCountByTab = (tab) => {
 				</Flex>
 
 				<Flex direction="column" gap="24" :class="$style.main">
+					<Flex direction="column" gap="12">
+						<Text size="12" weight="600" color="tertiary">Proposer</Text>
+
+						<Flex direction="column" gap="8">
+							<Text size="13" weight="600" color="primary">
+								{{ block.proposer.moniker }}
+							</Text>
+
+							<Flex align="center" gap="6">
+								<Text size="12" weight="600" color="tertiary" mono>{{ block.proposer.cons_address.slice(0, 4) }}</Text>
+
+								<Flex align="center" gap="3">
+									<div v-for="dot in 3" class="dot" />
+								</Flex>
+
+								<Text size="12" weight="600" color="tertiary" mono>
+									{{
+										block.proposer.cons_address.slice(
+											block.proposer.cons_address.length - 4,
+											block.proposer.cons_address.length,
+										)
+									}}
+								</Text>
+
+								<CopyButton :text="block.proposer.cons_address" size="10" />
+							</Flex>
+						</Flex>
+					</Flex>
+
 					<Flex v-if="block.hash" direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Hash</Text>
 
 						<BadgeValue :text="block.hash" />
-					</Flex>
-
-					<Flex v-if="block.proposer.cons_address" direction="column" gap="8" :class="$style.key_value">
-						<Text size="12" weight="600" color="secondary">Proposer</Text>
-
-						<BadgeValue :text="block.proposer.cons_address" />
 					</Flex>
 
 					<Flex direction="column" gap="16">

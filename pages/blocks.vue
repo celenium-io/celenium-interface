@@ -151,8 +151,8 @@ const handlePrev = () => {
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Height</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Time</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Proposer</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Txs</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Events</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Blobs Size</Text></th>
@@ -172,7 +172,7 @@ const handlePrev = () => {
 									</Outline>
 								</td>
 								<td>
-									<Flex direction="column" gap="4">
+									<Flex direction="column" gap="6">
 										<Text size="12" weight="600" color="primary">
 											{{ DateTime.fromISO(block.time).toRelative({ locale: "en", style: "short" }) }}
 										</Text>
@@ -180,6 +180,38 @@ const handlePrev = () => {
 											{{ DateTime.fromISO(block.time).setLocale("en").toFormat("LLL d, t") }}
 										</Text>
 									</Flex>
+								</td>
+								<td>
+									<Tooltip v-if="block.hash" delay="500">
+										<template #default>
+											<Flex direction="column" gap="6">
+												<Text size="12" weight="600" color="primary" :class="$style.proposer_moniker">
+													{{ block.proposer.moniker }}
+												</Text>
+
+												<Flex align="center" gap="6">
+													<Text size="12" weight="600" color="tertiary" mono>
+														{{ block.proposer.cons_address.slice(0, 4) }}
+													</Text>
+													<Flex align="center" gap="3">
+														<div v-for="dot in 3" class="dot" />
+													</Flex>
+													<Text size="12" weight="600" color="tertiary" mono>
+														{{
+															block.proposer.cons_address.slice(
+																block.proposer.cons_address.length - 4,
+																block.proposer.cons_address.length,
+															)
+														}}
+													</Text>
+													<CopyButton :text="block.proposer.cons_address" size="10" />
+												</Flex>
+											</Flex>
+										</template>
+
+										<template #content> {{ space(block.proposer.cons_address) }} </template>
+									</Tooltip>
+									<Text v-else size="13" weight="600" color="secondary">Genesis</Text>
 								</td>
 								<td>
 									<Tooltip v-if="block.hash" delay="500">
@@ -202,35 +234,6 @@ const handlePrev = () => {
 										</template>
 
 										<template #content> {{ space(block.hash) }} </template>
-									</Tooltip>
-									<Text v-else size="13" weight="600" color="secondary">Genesis</Text>
-								</td>
-								<td>
-									<Tooltip v-if="block.hash" delay="500">
-										<template #default>
-											<Flex align="center" gap="10">
-												<Flex align="center" gap="6">
-													<Text size="13" weight="600" color="primary" mono>{{
-														block.proposer.cons_address.slice(0, 4)
-													}}</Text>
-
-													<Flex align="center" gap="3">
-														<div v-for="dot in 3" class="dot" />
-													</Flex>
-
-													<Text size="13" weight="600" color="primary" mono>{{
-														block.proposer.cons_address.slice(
-															block.proposer.cons_address.length - 4,
-															block.proposer.cons_address.length,
-														)
-													}}</Text>
-												</Flex>
-
-												<CopyButton :text="block.proposer.cons_address" />
-											</Flex>
-										</template>
-
-										<template #content> {{ space(block.proposer.cons_address) }} </template>
 									</Tooltip>
 									<Text v-else size="13" weight="600" color="secondary">Genesis</Text>
 								</td>
@@ -347,6 +350,13 @@ const handlePrev = () => {
 			}
 		}
 	}
+}
+
+.proposer_moniker {
+	max-width: 150px;
+
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 .table.disabled {

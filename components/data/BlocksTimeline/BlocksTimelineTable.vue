@@ -125,10 +125,28 @@ watch(
 								<td>
 									<Tooltip delay="500">
 										<template #default>
-											<Flex align="center" gap="6">
-												<Text size="13" weight="600" height="130" color="primary" :class="$style.proposer_moniker">
+											<Flex direction="column" gap="6">
+												<Text size="12" weight="600" color="primary" :class="$style.proposer_moniker">
 													{{ block.proposer.moniker }}
 												</Text>
+
+												<Flex align="center" gap="6">
+													<Text size="12" weight="600" color="tertiary" mono>
+														{{ block.proposer.cons_address.slice(0, 4) }}
+													</Text>
+													<Flex align="center" gap="3">
+														<div v-for="dot in 3" class="dot" />
+													</Flex>
+													<Text size="12" weight="600" color="tertiary" mono>
+														{{
+															block.proposer.cons_address.slice(
+																block.proposer.cons_address.length - 4,
+																block.proposer.cons_address.length,
+															)
+														}}
+													</Text>
+													<CopyButton :text="block.proposer.cons_address" size="10" />
+												</Flex>
 											</Flex>
 										</template>
 
@@ -199,18 +217,18 @@ watch(
 					</Flex>
 				</Flex>
 
-				<Flex direction="column" gap="32" :class="$style.main">
+				<Flex direction="column" gap="24" :class="$style.main">
 					<Tooltip delay="500">
 						<Flex direction="column" gap="12">
 							<Text size="12" weight="600" color="tertiary">Proposer</Text>
 
-							<Text size="13" weight="600" color="primary">
-								{{ preview.block.proposer.moniker }}
-							</Text>
+							<Flex direction="column" gap="8">
+								<Text size="13" weight="600" color="primary">
+									{{ preview.block.proposer.moniker }}
+								</Text>
 
-							<Flex align="center" gap="10">
 								<Flex align="center" gap="6">
-									<Text size="13" weight="600" color="tertiary" mono>{{
+									<Text size="12" weight="600" color="tertiary" mono>{{
 										preview.block.proposer.cons_address.slice(0, 4)
 									}}</Text>
 
@@ -218,7 +236,7 @@ watch(
 										<div v-for="dot in 3" class="dot" />
 									</Flex>
 
-									<Text size="13" weight="600" color="tertiary" mono>
+									<Text size="12" weight="600" color="tertiary" mono>
 										{{
 											preview.block.proposer.cons_address.slice(
 												preview.block.proposer.cons_address.length - 4,
@@ -226,9 +244,9 @@ watch(
 											)
 										}}
 									</Text>
-								</Flex>
 
-								<CopyButton :text="preview.block.proposer.cons_address" />
+									<CopyButton :text="preview.block.proposer.cons_address" size="10" />
+								</Flex>
 							</Flex>
 						</Flex>
 
