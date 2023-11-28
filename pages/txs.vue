@@ -184,26 +184,24 @@ const handlePrev = () => {
 								<td style="width: 1px">
 									<Tooltip :disabled="!tx.hash" position="start">
 										<template v-if="tx.hash">
-											<Flex align="center" gap="10">
-												<Flex align="center" gap="6">
-													<Icon
-														:name="tx.status === 'success' ? 'tx_success' : 'tx_error'"
-														size="14"
-														color="secondary"
-													/>
+											<Flex align="center" gap="6">
+												<Icon
+													:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
+													size="14"
+													:color="tx.status === 'success' ? 'green' : 'red'"
+												/>
 
-													<Text size="13" weight="600" color="primary" mono>{{
-														tx.hash.slice(0, 4).toUpperCase()
-													}}</Text>
+												<Text size="13" weight="600" color="primary" mono>
+													{{ tx.hash.slice(0, 4).toUpperCase() }}
+												</Text>
 
-													<Flex align="center" gap="3">
-														<div v-for="dot in 3" class="dot" />
-													</Flex>
-
-													<Text size="13" weight="600" color="primary" mono>
-														{{ tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase() }}
-													</Text>
+												<Flex align="center" gap="3">
+													<div v-for="dot in 3" class="dot" />
 												</Flex>
+
+												<Text size="13" weight="600" color="primary" mono>
+													{{ tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase() }}
+												</Text>
 
 												<CopyButton :text="tx.hash" />
 											</Flex>
@@ -216,11 +214,34 @@ const handlePrev = () => {
 										</template>
 
 										<template #content>
-											{{ space(tx.hash).toUpperCase() }}
+											<Flex direction="column" gap="6">
+												<Flex align="center" gap="4">
+													<Icon
+														:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
+														size="14"
+														:color="tx.status === 'success' ? 'green' : 'red'"
+													/>
+													<Text size="13" weight="600" color="primary">
+														{{ tx.status === "success" ? "Successful" : "Failed" }} Transaction
+													</Text>
+												</Flex>
+
+												{{ space(tx.hash).toUpperCase() }}
+											</Flex>
 										</template>
 									</Tooltip>
 								</td>
 								<td style="width: 1px">
+									<Flex direction="column" gap="4">
+										<Text size="12" weight="600" color="primary">
+											{{ DateTime.fromISO(tx.time).toRelative({ locale: "en", style: "short" }) }}
+										</Text>
+										<Text size="12" weight="500" color="tertiary">
+											{{ DateTime.fromISO(tx.time).setLocale("en").toFormat("LLL d, t") }}
+										</Text>
+									</Flex>
+								</td>
+								<td>
 									<Tooltip v-if="tx.message_types.length" position="start" textAlign="left">
 										<MessageTypeBadge :types="tx.message_types" />
 
@@ -234,16 +255,6 @@ const handlePrev = () => {
 									</Tooltip>
 
 									<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
-								</td>
-								<td>
-									<Flex direction="column" gap="4">
-										<Text size="12" weight="600" color="primary">
-											{{ DateTime.fromISO(tx.time).toRelative({ locale: "en", style: "short" }) }}
-										</Text>
-										<Text size="12" weight="500" color="tertiary">
-											{{ DateTime.fromISO(tx.time).setLocale("en").toFormat("LLL d, t") }}
-										</Text>
-									</Flex>
 								</td>
 								<td>
 									<Outline @click.stop="router.push(`/block/${tx.height}`)">

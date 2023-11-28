@@ -62,7 +62,11 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 							<Text size="12" weight="600" color="secondary">Status</Text>
 
 							<Flex align="center" gap="6">
-								<Icon :name="tx.status === 'success' ? 'tx_success' : 'tx_error'" size="14" color="secondary" />
+								<Icon
+									:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
+									size="14"
+									:color="tx.status === 'success' ? 'green' : 'red'"
+								/>
 								<Text size="13" weight="600" color="primary" style="text-transform: capitalize">
 									{{ tx.status }}
 								</Text>
@@ -479,17 +483,17 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 
 .gas_bar {
 	width: 100%;
-	height: 8px;
+	height: 6px;
 
 	border-radius: 50px;
 	background: linear-gradient(var(--op-10), var(--op-5));
-	box-shadow: inset 0 0 0 1px var(--op-10);
 
 	& .gas_used {
-		height: 8px;
+		height: 6px;
 
 		border-radius: 50px;
-		background: var(--neutral-green);
+		background: var(--green);
+		box-shadow: 0 0 6px rgba(10, 222, 112, 80%);
 	}
 }
 

@@ -136,27 +136,25 @@ const handlePrev = () => {
 						<tr v-for="blob in blobs" @click.stop="handleViewBlob(blob)">
 							<td>
 								<Tooltip position="start" delay="500">
-									<Flex align="center" gap="10">
-										<NuxtLink :to="`/namespace/${blob.namespace.namespace_id}`" @click.stop>
-											<Flex align="center" gap="8">
-												<Icon name="blob" size="12" color="secondary" />
+									<NuxtLink :to="`/namespace/${blob.namespace.namespace_id}`" @click.stop>
+										<Flex align="center" gap="8">
+											<Icon name="blob" size="12" color="secondary" />
 
-												<Text size="13" weight="600" color="primary" mono>
-													{{ getNamespaceID(blob.namespace.namespace_id).slice(0, 4) }}
-												</Text>
+											<Text size="13" weight="600" color="primary" mono>
+												{{ getNamespaceID(blob.namespace.namespace_id).slice(0, 4) }}
+											</Text>
 
-												<Flex align="center" gap="3">
-													<div v-for="dot in 3" class="dot" />
-												</Flex>
-
-												<Text size="13" weight="600" color="primary" mono>
-													{{ getNamespaceID(blob.namespace.namespace_id).slice(-4) }}
-												</Text>
+											<Flex align="center" gap="3">
+												<div v-for="dot in 3" class="dot" />
 											</Flex>
-										</NuxtLink>
 
-										<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
-									</Flex>
+											<Text size="13" weight="600" color="primary" mono>
+												{{ getNamespaceID(blob.namespace.namespace_id).slice(-4) }}
+											</Text>
+
+											<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
+										</Flex>
+									</NuxtLink>
 
 									<template #content>
 										{{ getNamespaceID(blob.namespace.namespace_id) }}
@@ -165,7 +163,7 @@ const handlePrev = () => {
 							</td>
 							<td>
 								<Tooltip position="start" delay="500">
-									<Flex align="center" gap="10">
+									<Flex align="center" gap="8">
 										<AddressBadge :hash="blob.data.Signer" />
 
 										<CopyButton :text="blob.data.Signer" />
@@ -178,25 +176,23 @@ const handlePrev = () => {
 							</td>
 							<td>
 								<Tooltip position="start" delay="500">
-									<Flex align="center" gap="10">
-										<Flex align="center" gap="6">
-											<Text size="13" weight="600" color="primary">
-												{{ blob.data.ShareCommitments[0].slice(0, 4) }}
-											</Text>
+									<Flex align="center" gap="8">
+										<Text size="13" weight="600" color="primary">
+											{{ blob.data.ShareCommitments[0].slice(0, 4) }}
+										</Text>
 
-											<Flex align="center" gap="3">
-												<div v-for="dot in 3" class="dot" />
-											</Flex>
-
-											<Text size="13" weight="600" color="primary">
-												{{
-													blob.data.ShareCommitments[0].slice(
-														blob.data.ShareCommitments[0].length - 4,
-														blob.data.ShareCommitments[0].length,
-													)
-												}}
-											</Text>
+										<Flex align="center" gap="3">
+											<div v-for="dot in 3" class="dot" />
 										</Flex>
+
+										<Text size="13" weight="600" color="primary">
+											{{
+												blob.data.ShareCommitments[0].slice(
+													blob.data.ShareCommitments[0].length - 4,
+													blob.data.ShareCommitments[0].length,
+												)
+											}}
+										</Text>
 
 										<CopyButton :text="blob.data.ShareCommitments[0]" />
 									</Flex>

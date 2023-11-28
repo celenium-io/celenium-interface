@@ -167,20 +167,18 @@ const handlePrev = () => {
 											<Icon name="folder" size="14" color="secondary" />
 
 											<template v-if="ns.hash">
-												<Flex align="center" gap="10">
-													<Flex align="center" gap="6">
-														<Text size="13" weight="600" color="primary" mono>
-															{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
-														</Text>
+												<Flex align="center" gap="8">
+													<Text size="13" weight="600" color="primary" mono>
+														{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
+													</Text>
 
-														<Flex align="center" gap="3">
-															<div v-for="dot in 3" class="dot" />
-														</Flex>
-
-														<Text size="13" weight="600" color="primary" mono>
-															{{ getNamespaceID(ns.namespace_id).slice(-4) }}
-														</Text>
+													<Flex align="center" gap="3">
+														<div v-for="dot in 3" class="dot" />
 													</Flex>
+
+													<Text size="13" weight="600" color="primary" mono>
+														{{ getNamespaceID(ns.namespace_id).slice(-4) }}
+													</Text>
 
 													<CopyButton :text="getNamespaceID(ns.namespace_id)" />
 												</Flex>
