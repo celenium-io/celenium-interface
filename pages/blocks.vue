@@ -260,7 +260,9 @@ const handleLast = async () => {
 								</td>
 								<td>
 									<Flex align="center" gap="4">
-										<Text size="13" weight="600" color="primary"> {{ tia(block.stats.fee) }} </Text>
+										<Text size="13" weight="600" :color="parseFloat(block.stats.fee) ? 'primary' : 'tertiary'">
+											{{ tia(block.stats.fee) }}
+										</Text>
 										<Text size="13" weight="600" color="tertiary"> TIA </Text>
 									</Flex>
 								</td>
