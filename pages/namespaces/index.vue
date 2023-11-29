@@ -67,11 +67,15 @@ const isRefetching = ref(false)
 const namespaces = ref([])
 const count = ref(0)
 
-const { data: namespacesCount } = await fetchNamespacesCount()
-count.value = namespacesCount.value
+const getNamespacesCount = async () => {
+	const { data: namespacesCount } = await fetchNamespacesCount()
+	count.value = namespacesCount.value
+}
+
+await getNamespacesCount()
 
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = ref(Math.ceil(count.value / 20))
+const pages = computed(() => Math.ceil(count.value / 20))
 
 const getNamespaces = async () => {
 	isRefetching.value = true
@@ -98,16 +102,22 @@ watch(
 	},
 )
 
+const handlePrev = () => {
+	if (page.value === 1) return
+
+	page.value -= 1
+}
+
 const handleNext = () => {
 	if (page.value === pages.value) return
 
 	page.value += 1
 }
 
-const handlePrev = () => {
-	if (page.value === 1) return
+const handleLast = async () => {
+	await getNamespacesCount()
 
-	page.value -= 1
+	page.value = pages.value
 }
 </script>
 
@@ -141,7 +151,7 @@ const handlePrev = () => {
 					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
 						<Icon name="arrow-narrow-right" size="12" color="primary" />
 					</Button>
-					<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages"> Last </Button>
+					<Button @click="handleLast" type="secondary" size="mini" :disabled="page === pages"> Last </Button>
 				</Flex>
 			</Flex>
 

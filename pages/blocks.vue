@@ -12,10 +12,6 @@ import { tia, comma, space, formatBytes } from "@/services/utils"
 /** API */
 import { fetchBlocks, fetchBlocksCount } from "@/services/api/block"
 
-/** Store */
-import { useAppStore } from "@/store/app"
-const appStore = useAppStore()
-
 useHead({
 	title: "Blocks - Celestia Explorer",
 	link: [
@@ -73,11 +69,15 @@ const count = ref(0)
 
 const hintedBlock = ref(route.query.block)
 
-const { data: blocksCount } = await fetchBlocksCount()
-count.value = blocksCount.value
+const getBlocksCount = async () => {
+	const { data: blocksCount } = await fetchBlocksCount()
+	count.value = blocksCount.value
+}
+
+await getBlocksCount()
 
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = ref(Math.ceil(count.value / 20))
+const pages = computed(() => Math.ceil(count.value / 20))
 
 const { data } = await fetchBlocks({ limit: 20, offset: (page.value - 1) * 20 })
 blocks.value = data.value
@@ -97,16 +97,22 @@ watch(
 	},
 )
 
+const handlePrev = () => {
+	if (page.value === 1) return
+
+	page.value -= 1
+}
+
 const handleNext = () => {
 	if (page.value === pages.value) return
 
 	page.value += 1
 }
 
-const handlePrev = () => {
-	if (page.value === 1) return
+const handleLast = async () => {
+	await getBlocksCount()
 
-	page.value -= 1
+	page.value = pages.value
 }
 </script>
 
@@ -140,7 +146,7 @@ const handlePrev = () => {
 					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
 						<Icon name="arrow-narrow-right" size="12" color="primary" />
 					</Button>
-					<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages"> Last </Button>
+					<Button @click="handleLast" type="secondary" size="mini" :disabled="page === pages"> Last </Button>
 				</Flex>
 			</Flex>
 
