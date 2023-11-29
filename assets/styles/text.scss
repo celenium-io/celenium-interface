@@ -91,3 +91,7 @@ $textColors: (
 .tabular {
 	font-variant: tabular-nums;
 }
+
+.selectable {
+	user-select: text;
+}

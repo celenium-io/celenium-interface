@@ -300,6 +300,10 @@ const getTxnsCountByTab = (tab) => {
 													</Flex>
 
 													{{ space(tx.hash).toUpperCase() }}
+
+													<Text height="120" color="tertiary" style="max-width: 400px" mono align="left">
+														{{ tx.error }}
+													</Text>
 												</Flex>
 											</template>
 										</Tooltip>

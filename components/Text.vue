@@ -29,6 +29,10 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	selectable: {
+		type: Boolean,
+		default: false,
+	},
 })
 
 const classes = computed(() => {
@@ -57,6 +61,9 @@ const classes = computed(() => {
 	}
 	if (props.tabular) {
 		flexClasses.push(`tabular`)
+	}
+	if (props.selectable) {
+		flexClasses.push(`selectable`)
 	}
 
 	return flexClasses
