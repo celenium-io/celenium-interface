@@ -125,8 +125,8 @@ watch(
 								<td>
 									<Tooltip delay="500">
 										<template #default>
-											<Flex direction="column" gap="6">
-												<Text size="12" weight="600" color="primary" :class="$style.proposer_moniker">
+											<Flex direction="column" gap="4">
+												<Text size="12" height="120" weight="600" color="primary" :class="$style.proposer_moniker">
 													{{ block.proposer.moniker }}
 												</Text>
 
