@@ -190,8 +190,8 @@ const handleLast = async () => {
 								<td>
 									<Tooltip v-if="block.hash" delay="500">
 										<template #default>
-											<Flex direction="column" gap="6">
-												<Text size="12" weight="600" color="primary" :class="$style.proposer_moniker">
+											<Flex direction="column" gap="4">
+												<Text size="12" height="120" weight="600" color="primary" :class="$style.proposer_moniker">
 													{{ block.proposer.moniker }}
 												</Text>
 
@@ -359,7 +359,7 @@ const handleLast = async () => {
 }
 
 .proposer_moniker {
-	max-width: 150px;
+	max-width: 160px;
 
 	text-overflow: ellipsis;
 	overflow: hidden;
