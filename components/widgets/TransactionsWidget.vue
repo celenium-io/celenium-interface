@@ -19,7 +19,12 @@ const roundedMax = ref(0)
 const latestSector = ref(0)
 
 onMounted(async () => {
-	const data = await fetchHistogram({ table: "tx", func: "count", period: "hour" })
+	const data = await fetchHistogram({
+		table: "tx",
+		func: "count",
+		period: "hour",
+		from: parseInt(DateTime.now().minus({ hours: 24 }).ts / 1_000),
+	})
 	histogram.value = data.slice(0, 24).reverse()
 
 	histogram.value.forEach((item, idx) => {
