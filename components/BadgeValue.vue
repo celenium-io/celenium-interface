@@ -38,8 +38,6 @@ const handleCopy = () => {
 
 <template>
 	<Flex @click="handleCopy" align="center" justify="between" :class="$style.wrapper">
-		<!-- <Icon :name="copied ? 'check' : 'copy'" size="12" :color="copied ? 'green' : 'secondary'" /> -->
-
 		<Flex :class="$style.left">
 			<Text size="12" weight="600" color="secondary" mono>{{ space(text.toUpperCase()) }}</Text>
 		</Flex>

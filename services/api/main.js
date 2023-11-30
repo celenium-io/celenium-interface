@@ -9,3 +9,12 @@ export const fetchHead = async () => {
 		console.error(error)
 	}
 }
+
+export const fetchConstants = async () => {
+	try {
+		const data = await useFetch(`${useServerURL()}/constants`)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}

@@ -362,6 +362,16 @@ const settingsGroup = computed(() => {
 const developerActions = [
 	{
 		type: "callback",
+		icon: "zap",
+		title: "View Constants",
+		subtitle: "Command",
+		runText: "View Constants",
+		callback: () => {
+			modalsStore.open("constants")
+		},
+	},
+	{
+		type: "callback",
 		icon: "settings",
 		title: "Full Reload",
 		subtitle: "Command",
