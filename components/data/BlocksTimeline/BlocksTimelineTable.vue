@@ -27,7 +27,11 @@ const preview = reactive({
 	isLoadingPfbs: true,
 })
 
-const handleSelectBlock = (b) => {
+const isUserSelected = ref(false)
+
+const handleSelectBlock = (b, isUser) => {
+	if (isUser) isUserSelected.value = true
+
 	if (preview.block.height === b.height) return
 
 	preview.block = b
@@ -69,7 +73,7 @@ watch(
 watch(
 	() => lastBlock.value,
 	() => {
-		// handleSelectBlock(lastBlock.value)
+		if (!isUserSelected.value) handleSelectBlock(lastBlock.value, false)
 	},
 )
 </script>
@@ -96,7 +100,7 @@ watch(
 						<tbody>
 							<tr
 								v-for="block in blocks.slice(0, 15)"
-								@click="handleSelectBlock(block)"
+								@click="handleSelectBlock(block, true)"
 								:class="preview.block.time === block.time && $style.active"
 							>
 								<td style="width: 1px">
