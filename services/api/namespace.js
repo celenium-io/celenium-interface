@@ -1,13 +1,14 @@
 /** Services */
 import { useServerURL } from "@/services/config"
 
-export const fetchNamespaces = async ({ limit, offset, sort }) => {
+export const fetchNamespaces = async ({ limit, offset, sort, sort_by }) => {
 	try {
 		const url = new URL(`${useServerURL()}/namespace`)
 
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 		if (sort) url.searchParams.append("sort", sort)
+		if (sort_by) url.searchParams.append("sort_by", sort_by)
 
 		const data = await useFetch(url.href)
 		return data

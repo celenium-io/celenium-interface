@@ -11,16 +11,45 @@ import Spinner from "@/components/ui/Spinner.vue"
 import { comma, space, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
-import { fetchRecentNamespaces } from "@/services/api/namespace"
+import { fetchNamespaces } from "@/services/api/namespace"
 
 const router = useRouter()
 
 const isLoading = ref(true)
 const namespaces = ref([])
 
-const { data } = await fetchRecentNamespaces()
-namespaces.value = data.value
-isLoading.value = false
+const sort = reactive({
+	by: "time",
+	dir: "desc",
+})
+
+const getNamespaces = async () => {
+	isLoading.value = true
+
+	const { data } = await fetchNamespaces({ limit: 5, sort: sort.dir, sort_by: sort.by })
+	namespaces.value = data.value
+
+	isLoading.value = false
+}
+
+getNamespaces()
+
+const handleSort = (by) => {
+	switch (sort.dir) {
+		case "desc":
+			if (sort.by == by) sort.dir = "asc"
+			break
+
+		case "asc":
+			sort.dir = "desc"
+
+			break
+	}
+
+	sort.by = by
+
+	getNamespaces()
+}
 </script>
 
 <template>
@@ -34,10 +63,32 @@ isLoading.value = false
 				<table>
 					<thead>
 						<tr>
-							<th><Text size="12" weight="600" color="tertiary">Namespace</Text></th>
+							<th><Text size="12" weight="600" color="tertiary">Namespace ID</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Height</Text></th>
-							<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
-							<th><Text size="12" weight="600" color="tertiary">Size </Text></th>
+							<th @click="handleSort('time')">
+								<Flex align="center" gap="6">
+									<Text size="12" weight="600" color="tertiary">Time</Text>
+									<Icon
+										v-if="sort.by === 'time'"
+										name="chevron"
+										size="12"
+										color="secondary"
+										:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+									/>
+								</Flex>
+							</th>
+							<th @click="handleSort('size')">
+								<Flex align="center" gap="6">
+									<Text size="12" weight="600" color="tertiary">Size </Text>
+									<Icon
+										v-if="sort.by === 'size'"
+										name="chevron"
+										size="12"
+										color="secondary"
+										:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+									/>
+								</Flex>
+							</th>
 						</tr>
 					</thead>
 
@@ -163,6 +214,9 @@ isLoading.value = false
 
 		& tr th {
 			text-align: left;
+
+			cursor: pointer;
+
 			padding: 0;
 			padding-right: 16px;
 			padding-top: 16px;
@@ -174,6 +228,10 @@ isLoading.value = false
 
 			& span {
 				display: flex;
+			}
+
+			&:hover span {
+				color: var(--txt-secondary);
 			}
 		}
 

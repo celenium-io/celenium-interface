@@ -160,7 +160,7 @@ const handleLast = async () => {
 					<table>
 						<thead>
 							<tr>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Namespace</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Namespace ID</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Last Time</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Last Block</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Alias</Text></th>

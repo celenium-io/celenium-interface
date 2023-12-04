@@ -106,7 +106,7 @@ const handleDownload = () => {
 
 				<Flex direction="column" align="center" gap="16">
 					<Flex align="center" justify="between" wide :class="$style.metadata">
-						<Text size="12" weight="500" color="tertiary">Namespace:</Text>
+						<Text size="12" weight="500" color="tertiary">Namespace ID:</Text>
 
 						<Flex align="center" gap="8" :class="$style.value_wrapper">
 							<CopyButton :text="getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id)" />

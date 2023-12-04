@@ -124,7 +124,7 @@ const handlePrev = () => {
 				<table>
 					<thead>
 						<tr>
-							<th><Text size="12" weight="600" color="tertiary">Namespace</Text></th>
+							<th><Text size="12" weight="600" color="tertiary">Namespace ID</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Signer</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Share Commitments</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Size</Text></th>
