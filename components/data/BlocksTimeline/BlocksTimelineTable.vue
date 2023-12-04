@@ -69,7 +69,7 @@ watch(
 watch(
 	() => lastBlock.value,
 	() => {
-		handleSelectBlock(lastBlock.value)
+		// handleSelectBlock(lastBlock.value)
 	},
 )
 </script>
@@ -94,7 +94,11 @@ watch(
 						</thead>
 
 						<tbody>
-							<tr v-for="block in blocks.slice(0, 15)" @click="handleSelectBlock(block)">
+							<tr
+								v-for="block in blocks.slice(0, 15)"
+								@click="handleSelectBlock(block)"
+								:class="preview.block.time === block.time && $style.active"
+							>
 								<td style="width: 1px">
 									<Outline>
 										<Flex align="center" gap="6">
@@ -419,13 +423,16 @@ watch(
 		& tbody {
 			& tr {
 				cursor: pointer;
+				opacity: 0.5;
 
 				transition: all 0.07s ease;
-			}
 
-			&:hover {
-				& tr:not(:hover) {
-					opacity: 0.35;
+				&.active {
+					opacity: 1;
+				}
+
+				&:hover {
+					opacity: 1;
 				}
 			}
 		}
