@@ -197,7 +197,6 @@ const handleLast = async () => {
 									</Flex>
 								</th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Height</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Alias</Text></th>
 								<th @click="handleSort('size')" :class="$style.sortable">
 									<Flex align="center" gap="6">
 										<Text size="12" weight="600" color="tertiary" noWrap>Size</Text>
@@ -230,32 +229,43 @@ const handleLast = async () => {
 							<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.namespace_id}`)">
 								<td style="width: 1px">
 									<Tooltip position="start">
-										<Flex align="center" gap="6">
+										<Flex :align="ns.name === getNamespaceID(ns.namespace_id) ? 'center' : 'start'" gap="8">
 											<Icon name="folder" size="14" color="secondary" />
 
 											<template v-if="ns.hash">
-												<Flex v-if="getNamespaceID(ns.namespace_id).length > 8" align="center" gap="8">
-													<Text size="13" weight="600" color="primary" mono>
-														{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
-													</Text>
+												<Flex direction="column" gap="4">
+													<Flex v-if="getNamespaceID(ns.namespace_id).length > 8" align="center" gap="8">
+														<Text size="12" weight="600" color="primary" mono>
+															{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
+														</Text>
 
-													<Flex align="center" gap="3">
-														<div v-for="dot in 3" class="dot" />
+														<Flex align="center" gap="3">
+															<div v-for="dot in 3" class="dot" />
+														</Flex>
+
+														<Text size="12" weight="600" color="primary" mono>
+															{{ getNamespaceID(ns.namespace_id).slice(-4) }}
+														</Text>
+
+														<CopyButton :text="getNamespaceID(ns.namespace_id)" />
 													</Flex>
 
-													<Text size="13" weight="600" color="primary" mono>
-														{{ getNamespaceID(ns.namespace_id).slice(-4) }}
+													<Flex v-else align="center" gap="8">
+														<Text size="12" weight="600" color="primary" mono>
+															{{ space(getNamespaceID(ns.namespace_id)) }}
+														</Text>
+
+														<CopyButton :text="getNamespaceID(ns.namespace_id)" />
+													</Flex>
+
+													<Text
+														v-if="ns.name !== getNamespaceID(ns.namespace_id)"
+														size="12"
+														weight="500"
+														color="tertiary"
+													>
+														{{ ns.name }}
 													</Text>
-
-													<CopyButton :text="getNamespaceID(ns.namespace_id)" />
-												</Flex>
-
-												<Flex v-else align="center" gap="8">
-													<Text size="13" weight="600" color="primary" mono>
-														{{ space(getNamespaceID(ns.namespace_id)) }}
-													</Text>
-
-													<CopyButton :text="getNamespaceID(ns.namespace_id)" />
 												</Flex>
 											</template>
 											<template v-else>
@@ -286,12 +296,6 @@ const handleLast = async () => {
 											<Text size="13" weight="600" color="primary" tabular>{{ comma(ns.last_height) }}</Text>
 										</Flex>
 									</Outline>
-								</td>
-								<td>
-									<Text v-if="getNamespaceID(ns.namespace_id) !== ns.name" size="13" weight="600" color="primary">
-										{{ ns.name }}
-									</Text>
-									<Text v-else size="13" weight="600" color="tertiary">Unknown</Text>
 								</td>
 								<td>
 									<Text size="13" weight="600" color="primary">{{ formatBytes(ns.size) }}</Text>
