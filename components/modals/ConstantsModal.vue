@@ -47,6 +47,13 @@ const DescriptionMap = {
 	max_validators: "Maximum number of validators",
 	min_commission_rate: "Minimum commission rate used by all validators",
 	unbonding_time: "Duration of time for unbonding in seconds",
+	block_max_bytes: "Governance parameter for the maximum size of the protobuf encoded block",
+	block_max_gas: "Maximum gas allowed per block (-1 is infinite)",
+	evidence_max_age_duration:
+		"The maximum age of evidence before it is considered invalid. This value should be identical to the unbonding period",
+	evidence_max_age_num_blocks: "The maximum number of blocks before evidence is considered invalid",
+	evidence_max_bytes: "Maximum size in bytes used by evidence in a given block",
+	validator_pub_key_types: "The type of public key used by validators",
 }
 
 const searchTerm = ref("")
