@@ -168,7 +168,7 @@ const handleLast = async () => {
 							<tr v-for="address in addresses" @click="router.push(`/address/${address.hash}`)">
 								<td style="width: 1px">
 									<Tooltip position="start" delay="500">
-										<Flex align="center" gap="10">
+										<Flex align="center" gap="8">
 											<AddressBadge :hash="address.hash" />
 
 											<CopyButton :text="address.hash" />

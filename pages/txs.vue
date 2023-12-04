@@ -194,7 +194,7 @@ const handleLast = async () => {
 								<td style="width: 1px">
 									<Tooltip :disabled="!tx.hash" position="start">
 										<template v-if="tx.hash">
-											<Flex align="center" gap="6">
+											<Flex align="center" gap="8">
 												<Icon
 													:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
 													size="14"

@@ -4,16 +4,14 @@ import Modal from "@/components/ui/Modal.vue"
 import Button from "@/components/ui/Button.vue"
 
 /** Services */
-import { formatBytes, getNamespaceID, strToHex } from "@/services/utils"
+import { space, formatBytes, getNamespaceID, strToHex } from "@/services/utils"
 
 /** API */
 import { fetchNamespaceByMetadata } from "@/services/api/namespace"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
-import { useNotificationsStore } from "@/store/notifications"
 const cacheStore = useCacheStore()
-const notificationsStore = useNotificationsStore()
 
 const emit = defineEmits(["onClose"])
 const props = defineProps({
@@ -114,7 +112,16 @@ const handleDownload = () => {
 							<CopyButton :text="getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id)" />
 
 							<Text size="13" weight="600" color="primary" :class="$style.value">
-								{{ getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id) }}
+								{{ space(getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id)) }}
+								<Text
+									v-if="
+										getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id) !==
+										cacheStore.selectedBlob.namespace.name
+									"
+									color="secondary"
+								>
+									({{ cacheStore.selectedBlob.namespace.name }})
+								</Text>
 							</Text>
 						</Flex>
 					</Flex>

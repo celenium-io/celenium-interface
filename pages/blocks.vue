@@ -222,18 +222,16 @@ const handleLast = async () => {
 								<td>
 									<Tooltip v-if="block.hash" delay="500">
 										<template #default>
-											<Flex align="center" gap="10">
-												<Flex align="center" gap="6">
-													<Text size="13" weight="600" color="primary" mono>{{ block.hash.slice(0, 4) }}</Text>
+											<Flex align="center" gap="8">
+												<Text size="13" weight="600" color="primary" mono>{{ block.hash.slice(0, 4) }}</Text>
 
-													<Flex align="center" gap="3">
-														<div v-for="dot in 3" class="dot" />
-													</Flex>
-
-													<Text size="13" weight="600" color="primary" mono>
-														{{ block.hash.slice(block.hash.length - 4, block.hash.length) }}
-													</Text>
+												<Flex align="center" gap="3">
+													<div v-for="dot in 3" class="dot" />
 												</Flex>
+
+												<Text size="13" weight="600" color="primary" mono>
+													{{ block.hash.slice(block.hash.length - 4, block.hash.length) }}
+												</Text>
 
 												<CopyButton :text="block.hash" />
 											</Flex>

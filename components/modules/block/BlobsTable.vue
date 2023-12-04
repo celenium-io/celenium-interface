@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
-import { formatBytes, getNamespaceID } from "@/services/utils"
+import { space, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
 import { fetchBlockNamespaces, fetchBlockNamespacesCount } from "@/services/api/block"
@@ -137,7 +137,7 @@ const handlePrev = () => {
 							<td>
 								<Tooltip position="start" delay="500">
 									<NuxtLink :to="`/namespace/${blob.namespace.namespace_id}`" @click.stop>
-										<Flex align="center" gap="8">
+										<Flex v-if="getNamespaceID(blob.namespace.namespace_id).length > 8" align="center" gap="8">
 											<Icon name="blob" size="12" color="secondary" />
 
 											<Text size="13" weight="600" color="primary" mono>
@@ -154,10 +154,23 @@ const handlePrev = () => {
 
 											<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
 										</Flex>
+
+										<Flex v-else align="center" gap="8">
+											<Icon name="blob" size="12" color="secondary" />
+
+											<Text size="13" weight="600" color="primary" mono>
+												{{ space(getNamespaceID(blob.namespace.namespace_id)) }}
+											</Text>
+
+											<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
+										</Flex>
 									</NuxtLink>
 
 									<template #content>
-										{{ getNamespaceID(blob.namespace.namespace_id) }}
+										<Text v-if="blob.namespace.name !== getNamespaceID(blob.namespace.namespace_id)" color="primary">
+											{{ blob.namespace.name }} -
+										</Text>
+										{{ space(getNamespaceID(blob.namespace.namespace_id)) }}
 									</template>
 								</Tooltip>
 							</td>

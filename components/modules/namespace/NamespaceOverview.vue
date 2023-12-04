@@ -85,10 +85,19 @@ watch(
 						<Text size="12" weight="600" color="secondary">Namespace ID</Text>
 
 						<Flex align="center" gap="10">
-							<Text size="13" weight="600" color="primary">{{ getNamespaceID(namespace.namespace_id) }} </Text>
+							<Text size="13" weight="600" color="primary">{{ space(getNamespaceID(namespace.namespace_id)) }} </Text>
 
 							<CopyButton :text="getNamespaceID(namespace.namespace_id)" />
 						</Flex>
+					</Flex>
+
+					<Flex direction="column" gap="8" :class="$style.key_value">
+						<Text size="12" weight="600" color="secondary">Alias</Text>
+
+						<Text v-if="getNamespaceID(namespace.namespace_id) !== namespace.name" size="13" weight="600" color="primary">
+							{{ namespace.name }}
+						</Text>
+						<Text v-else size="13" weight="600" color="tertiary">Unknown </Text>
 					</Flex>
 
 					<Flex direction="column" gap="8" :class="$style.key_value">
@@ -135,7 +144,7 @@ watch(
 					</Flex>
 				</Flex>
 
-				<Flex direction="column" justify="center" gap="16" :class="[$style.table, isRefetching && $style.disabled]">
+				<Flex direction="column" justify="center" gap="8" :class="[$style.table, isRefetching && $style.disabled]">
 					<div v-if="messages.length" :class="$style.table_scroller">
 						<table>
 							<thead>
@@ -339,6 +348,8 @@ watch(
 		height: fit-content;
 
 		border-spacing: 0px;
+
+		padding-bottom: 8px;
 
 		& tbody {
 			& tr {

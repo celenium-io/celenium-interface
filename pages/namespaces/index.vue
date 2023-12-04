@@ -7,7 +7,7 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { formatBytes, comma, getNamespaceID } from "@/services/utils"
+import { space, formatBytes, comma, getNamespaceID } from "@/services/utils"
 
 /** API */
 import { fetchNamespaces, fetchNamespacesCount } from "@/services/api/namespace"
@@ -163,6 +163,7 @@ const handleLast = async () => {
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Namespace</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Last Time</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Last Block</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Alias</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Size</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Version</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Pay For Blobs</Text></th>
@@ -177,7 +178,7 @@ const handleLast = async () => {
 											<Icon name="folder" size="14" color="secondary" />
 
 											<template v-if="ns.hash">
-												<Flex align="center" gap="8">
+												<Flex v-if="getNamespaceID(ns.namespace_id).length > 8" align="center" gap="8">
 													<Text size="13" weight="600" color="primary" mono>
 														{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
 													</Text>
@@ -192,6 +193,14 @@ const handleLast = async () => {
 
 													<CopyButton :text="getNamespaceID(ns.namespace_id)" />
 												</Flex>
+
+												<Flex v-else align="center" gap="8">
+													<Text size="13" weight="600" color="primary" mono>
+														{{ space(getNamespaceID(ns.namespace_id)) }}
+													</Text>
+
+													<CopyButton :text="getNamespaceID(ns.namespace_id)" />
+												</Flex>
 											</template>
 											<template v-else>
 												<Text size="13" weight="700" color="secondary" mono>Genesis</Text>
@@ -199,7 +208,7 @@ const handleLast = async () => {
 										</Flex>
 
 										<template #content>
-											{{ getNamespaceID(ns.namespace_id) }}
+											{{ space(getNamespaceID(ns.namespace_id)) }}
 										</template>
 									</Tooltip>
 								</td>
@@ -221,6 +230,12 @@ const handleLast = async () => {
 											<Text size="13" weight="600" color="primary" tabular>{{ comma(ns.last_height) }}</Text>
 										</Flex>
 									</Outline>
+								</td>
+								<td>
+									<Text v-if="getNamespaceID(ns.namespace_id) !== ns.name" size="13" weight="600" color="primary">
+										{{ ns.name }}
+									</Text>
+									<Text v-else size="13" weight="600" color="tertiary">Unknown</Text>
 								</td>
 								<td>
 									<Text size="13" weight="600" color="primary">{{ formatBytes(ns.size) }}</Text>
