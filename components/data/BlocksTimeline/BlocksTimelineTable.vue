@@ -106,11 +106,7 @@ watch(
 								<td style="width: 1px">
 									<Outline>
 										<Flex align="center" gap="6">
-											<Icon
-												:name="block.height === preview.block.height ? 'check' : 'block'"
-												size="14"
-												:color="block.height === preview.block.height ? 'primary' : 'secondary'"
-											/>
+											<Icon name="block" size="14" color="primary" />
 
 											<Text size="13" weight="600" color="primary" tabular>{{ comma(block.height) }}</Text>
 										</Flex>
