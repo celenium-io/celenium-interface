@@ -190,7 +190,7 @@ const getTxnsCountByTab = (tab) => {
 													:color="tx.status === 'success' ? 'green' : 'red'"
 												/>
 
-												<Text size="13" weight="600" color="primary">
+												<Text size="13" weight="600" color="primary" mono>
 													{{ tx.hash.slice(0, 4).toUpperCase() }}
 												</Text>
 
@@ -198,9 +198,9 @@ const getTxnsCountByTab = (tab) => {
 													<div v-for="dot in 3" class="dot" />
 												</Flex>
 
-												<Text size="13" weight="600" color="primary">{{
-													tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase()
-												}}</Text>
+												<Text size="13" weight="600" color="primary" mono>
+													{{ tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase() }}
+												</Text>
 
 												<CopyButton :text="tx.hash" />
 											</Flex>
