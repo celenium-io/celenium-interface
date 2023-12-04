@@ -1,6 +1,6 @@
 <script setup>
 /** Services */
-import { comma, formatBytes, abbreviate, getNetworkName } from "@/services/utils"
+import { comma, formatBytes, abbreviate } from "@/services/utils"
 
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
@@ -86,22 +86,6 @@ const head = computed(() => appStore.head)
 					<template #content> {{ comma(head.total_fee) }} UTIA </template>
 				</Tooltip>
 			</Flex>
-
-			<Tooltip v-if="head" position="end">
-				<Flex align="center" gap="8" :class="$style.network">
-					<div :class="[$style.status, head.synced ? $style.green : $style.red]" />
-					<Text size="12" weight="500" color="tertiary" :class="$style.name"> {{ getNetworkName() }} </Text>
-				</Flex>
-
-				<template #content>
-					<Flex align="center" gap="6">
-						<div :class="[$style.status, head.synced ? $style.green : $style.red]" />
-
-						<Text color="primary"><template v-if="!head.synced">Not</template> Synced </Text>
-					</Flex>
-				</template>
-			</Tooltip>
-			<Skeleton v-else w="60" h="12" />
 		</Flex>
 	</Flex>
 </template>
@@ -155,28 +139,6 @@ const head = computed(() => appStore.head)
 
 	.value {
 		color: var(--txt-secondary);
-	}
-}
-
-.network {
-	&:hover {
-		.name {
-			color: var(--txt-secondary);
-		}
-	}
-}
-
-.status {
-	width: 5px;
-	height: 5px;
-	border-radius: 50px;
-
-	&.green {
-		background: var(--green);
-	}
-
-	&.red {
-		background: var(--red);
 	}
 }
 

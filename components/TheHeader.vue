@@ -5,7 +5,7 @@
 import { useOutside } from "@/composables/outside"
 
 /** Services */
-import { isMac } from "@/services/utils/general"
+import { isMac, getNetworkName } from "@/services/utils/general"
 
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
@@ -20,6 +20,8 @@ const route = useRoute()
 let removeOutside = null
 const headerEl = ref(null)
 const showPopup = ref(false)
+
+const head = computed(() => appStore.head)
 
 watch(
 	() => showPopup.value,
@@ -98,21 +100,35 @@ const isActive = (link) => {
 				</NuxtLink>
 			</Flex>
 
-			<Tooltip position="end" delay="250">
-				<Flex @click="appStore.showCmd = true" align="center" gap="8" :class="$style.button">
-					<Icon name="search" size="16" color="secondary" />
-				</Flex>
-
-				<template #content>
-					<Flex align="center" gap="8">
-						Explore Celestia Blockchain
-						<Flex align="center" gap="4">
-							<Kbd>{{ isMac ? "Cmd" : "Ctrl" }}</Kbd>
-							<Kbd>K</Kbd>
-						</Flex>
+			<Flex align="center" gap="12">
+				<Tooltip v-if="head" position="end">
+					<Flex align="center" gap="8" :class="[$style.network]">
+						<div :class="[$style.status, head.synced ? $style.green : $style.red]" />
+						<Text size="12" weight="600" color="secondary" :class="$style.name"> {{ getNetworkName() }} </Text>
 					</Flex>
-				</template>
-			</Tooltip>
+
+					<template #content>
+						<Text color="primary"><template v-if="!head.synced">Not</template> Synced </Text>
+					</template>
+				</Tooltip>
+				<Skeleton v-else w="68" h="12" />
+
+				<Tooltip position="end" delay="250">
+					<Flex @click="appStore.showCmd = true" align="center" gap="8" :class="$style.button">
+						<Icon name="search" size="16" color="secondary" />
+					</Flex>
+
+					<template #content>
+						<Flex align="center" gap="8">
+							Explore Celestia Blockchain
+							<Flex align="center" gap="4">
+								<Kbd>{{ isMac ? "Cmd" : "Ctrl" }}</Kbd>
+								<Kbd>K</Kbd>
+							</Flex>
+						</Flex>
+					</template>
+				</Tooltip>
+			</Flex>
 		</Flex>
 
 		<Flex v-if="showPopup" @click="showPopup = false" direction="column" gap="8" :class="$style.menu_popup">
@@ -245,7 +261,41 @@ const isActive = (link) => {
 	}
 }
 
-@media (max-width: 650px) {
+.status {
+	width: 5px;
+	height: 5px;
+	border-radius: 50px;
+
+	&.green {
+		background: var(--green);
+
+		box-shadow: 0 0 6px var(--green);
+	}
+
+	&.red {
+		background: var(--red);
+
+		box-shadow: 0 0 6px var(--red);
+	}
+}
+
+.network {
+	height: 28px;
+
+	border-radius: 8px;
+	background: linear-gradient(var(--op-10), var(--op-3));
+	box-shadow: inset 0 0 0 1px var(--op-10), 0 2px 8px rgba(0, 0, 0, 8%);
+
+	padding: 0 12px;
+
+	&:hover {
+		.name {
+			color: var(--txt-primary);
+		}
+	}
+}
+
+@media (max-width: 700px) {
 	.links {
 		display: none;
 	}
