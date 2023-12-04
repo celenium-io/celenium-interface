@@ -223,15 +223,10 @@ const handleLast = async () => {
 									</Outline>
 								</td>
 								<td>
-									<Flex align="center" gap="6">
-										<Text size="13" weight="600" color="primary">{{ formatBytes(ns.size) }}</Text>
-										<Text size="13" weight="600" color="tertiary">({{ comma(ns.pfb_count) }})</Text>
-									</Flex>
+									<Text size="13" weight="600" color="primary">{{ formatBytes(ns.size) }}</Text>
 								</td>
 								<td>
-									<Flex>
-										<Text size="13" weight="600" color="primary">{{ ns.version }}</Text>
-									</Flex>
+									<Text size="13" weight="600" color="primary">{{ ns.version }}</Text>
 								</td>
 								<td>
 									<Flex>
