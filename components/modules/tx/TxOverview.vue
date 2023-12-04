@@ -81,7 +81,7 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 						</Flex>
 					</Flex>
 
-					<Flex direction="column" gap="8">
+					<Flex v-if="tx.error" direction="column" gap="8">
 						<Text size="12" weight="600" color="secondary">Error Message</Text>
 
 						<Text size="12" height="140" weight="600" color="tertiary" mono selectable>{{ tx.error }}</Text>
