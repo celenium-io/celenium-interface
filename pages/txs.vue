@@ -342,7 +342,7 @@ const handleLast = async () => {
 .footer {
 	height: 46px;
 
-	border-radius: 4px 4px 4px 8px;
+	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 
 	padding: 0 16px;

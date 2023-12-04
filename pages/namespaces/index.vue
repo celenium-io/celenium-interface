@@ -253,6 +253,12 @@ const handleLast = async () => {
 					</table>
 				</div>
 			</Flex>
+
+			<Flex align="center" :class="$style.footer">
+				<Button link="/namespaces/treemap" type="secondary" size="mini">
+					<Icon name="treemap" size="12" color="secondary" /> Open Treemap View
+				</Button>
+			</Flex>
 		</Flex>
 	</Flex>
 </template>
@@ -277,12 +283,21 @@ const handleLast = async () => {
 	padding: 0 16px;
 }
 
+.footer {
+	height: 46px;
+
+	border-radius: 4px 4px 8px 8px;
+	background: var(--card-background);
+
+	padding: 0 16px;
+}
+
 .table_scroller {
 	overflow-x: auto;
 }
 
 .table {
-	border-radius: 4px 4px 8px 8px;
+	border-radius: 4px;
 	background: var(--card-background);
 
 	padding-bottom: 12px;

@@ -110,7 +110,7 @@ const makeSuggestions = () => {
 	if (route.name === "namespaces" && featurePreviewMode.value) {
 		suggestedActions.value.push({
 			type: "callback",
-			icon: "arrow-narrow-right",
+			icon: "treemap",
 			title: "Open Treemap View",
 			runText: "Open",
 			callback: () => {
