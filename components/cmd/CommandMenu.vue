@@ -613,9 +613,11 @@ onMounted(() => {
 			}
 		}
 
-		if (!(e.code === "KeyK" && ((isMac && e.metaKey) || (!isMac && e.ctrlKey)))) return
+		if (e.code === "KeyK" && ((isMac && e.metaKey) || (!isMac && e.ctrlKey))) {
+			e.preventDefault()
 
-		appStore.showCmd = !appStore.showCmd
+			appStore.showCmd = !appStore.showCmd
+		}
 	})
 })
 
