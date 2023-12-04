@@ -69,7 +69,7 @@ isLoading.value = false
 								</Tooltip>
 							</td>
 							<td>
-								<NuxtLink :to="`/block/${ns.height}`" @click.stop>
+								<NuxtLink :to="`/block/${ns.last_height}`" @click.stop>
 									<Outline>
 										<Flex align="center" gap="6">
 											<Icon name="block" size="14" color="secondary" />
