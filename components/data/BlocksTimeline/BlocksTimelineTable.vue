@@ -272,12 +272,12 @@ watch(
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Transactions</Text>
 							<Text size="12" weight="600" color="secondary">
-								{{ preview.block.stats.tx_count > 3 ? "3 /" : "" }} {{ preview.block.stats.tx_count }}
+								{{ preview.block.stats.tx_count > 5 ? "5 /" : "" }} {{ preview.block.stats.tx_count }}
 							</Text>
 						</Flex>
 
 						<Flex v-if="preview.block.stats.tx_count" direction="column" gap="8">
-							<NuxtLink v-for="transaction in preview.transactions.slice(0, 3)" :to="`/tx/${transaction.hash}`">
+							<NuxtLink v-for="transaction in preview.transactions.slice(0, 5)" :to="`/tx/${transaction.hash}`">
 								<Outline wide height="32" padding="8" radius="6">
 									<Flex justify="between" align="center" wide>
 										<Flex align="center" gap="8">
