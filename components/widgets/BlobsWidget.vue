@@ -23,7 +23,7 @@ onMounted(async () => {
 		func: "sum",
 		period: "day",
 		column: "blobs_size",
-		from: parseInt(DateTime.now().minus({ days: 30 }).ts / 1_000),
+		from: parseInt(DateTime.now().minus({ days: 120 }).ts / 1_000),
 	})
 
 	days.value = data
