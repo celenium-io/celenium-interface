@@ -91,13 +91,17 @@ watch(
 						</Flex>
 					</Flex>
 
-					<Flex direction="column" gap="8" :class="$style.key_value">
+					<Flex
+						v-if="getNamespaceID(namespace.namespace_id) !== namespace.name"
+						direction="column"
+						gap="8"
+						:class="$style.key_value"
+					>
 						<Text size="12" weight="600" color="secondary">Alias</Text>
 
-						<Text v-if="getNamespaceID(namespace.namespace_id) !== namespace.name" size="13" weight="600" color="primary">
+						<Text size="13" weight="600" color="primary">
 							{{ namespace.name }}
 						</Text>
-						<Text v-else size="13" weight="600" color="tertiary">Unknown </Text>
 					</Flex>
 
 					<Flex direction="column" gap="8" :class="$style.key_value">
