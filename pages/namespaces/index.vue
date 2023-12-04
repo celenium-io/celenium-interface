@@ -67,6 +67,11 @@ const isRefetching = ref(false)
 const namespaces = ref([])
 const count = ref(0)
 
+const sort = reactive({
+	by: "time",
+	dir: "desc",
+})
+
 const getNamespacesCount = async () => {
 	const { data: namespacesCount } = await fetchNamespacesCount()
 	count.value = namespacesCount.value
@@ -83,7 +88,8 @@ const getNamespaces = async () => {
 	const { data } = await fetchNamespaces({
 		limit: 20,
 		offset: (page.value - 1) * 20,
-		sort: "desc",
+		sort: sort.dir,
+		sort_by: sort.by,
 	})
 	namespaces.value = data.value
 
@@ -101,6 +107,23 @@ watch(
 		router.replace({ query: { page: page.value } })
 	},
 )
+
+const handleSort = (by) => {
+	switch (sort.dir) {
+		case "desc":
+			if (sort.by == by) sort.dir = "asc"
+			break
+
+		case "asc":
+			sort.dir = "desc"
+
+			break
+	}
+
+	sort.by = by
+
+	getNamespaces()
+}
 
 const handlePrev = () => {
 	if (page.value === 1) return
@@ -161,12 +184,45 @@ const handleLast = async () => {
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Namespace ID</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Last Time</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Last Block</Text></th>
+								<th @click="handleSort('time')" :class="$style.sortable">
+									<Flex align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap>Time</Text>
+										<Icon
+											v-if="sort.by === 'time'"
+											name="chevron"
+											size="12"
+											color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+										/>
+									</Flex>
+								</th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Height</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Alias</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Size</Text></th>
+								<th @click="handleSort('size')" :class="$style.sortable">
+									<Flex align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap>Size</Text>
+										<Icon
+											v-if="sort.by === 'size'"
+											name="chevron"
+											size="12"
+											color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+										/>
+									</Flex>
+								</th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Version</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Pay For Blobs</Text></th>
+								<th @click="handleSort('pfb_count')" :class="$style.sortable">
+									<Flex align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap>Pay For Blobs</Text>
+										<Icon
+											v-if="sort.by === 'pfb_count'"
+											name="chevron"
+											size="12"
+											color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+										/>
+									</Flex>
+								</th>
 							</tr>
 						</thead>
 
@@ -328,6 +384,7 @@ const handleLast = async () => {
 
 		& tr th {
 			text-align: left;
+
 			padding: 0;
 			padding-right: 16px;
 			padding-top: 16px;
@@ -339,6 +396,16 @@ const handleLast = async () => {
 
 			&:first-child {
 				padding-left: 16px;
+			}
+
+			&.sortable {
+				cursor: pointer;
+			}
+
+			&.sortable:hover {
+				& span {
+					color: var(--txt-secondary);
+				}
 			}
 		}
 

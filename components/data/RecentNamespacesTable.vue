@@ -65,7 +65,7 @@ const handleSort = (by) => {
 						<tr>
 							<th><Text size="12" weight="600" color="tertiary">Namespace ID</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Height</Text></th>
-							<th @click="handleSort('time')">
+							<th @click="handleSort('time')" :class="$style.sortable">
 								<Flex align="center" gap="6">
 									<Text size="12" weight="600" color="tertiary">Time</Text>
 									<Icon
@@ -77,7 +77,7 @@ const handleSort = (by) => {
 									/>
 								</Flex>
 							</th>
-							<th @click="handleSort('size')">
+							<th @click="handleSort('size')" :class="$style.sortable">
 								<Flex align="center" gap="6">
 									<Text size="12" weight="600" color="tertiary">Size </Text>
 									<Icon
@@ -215,8 +215,6 @@ const handleSort = (by) => {
 		& tr th {
 			text-align: left;
 
-			cursor: pointer;
-
 			padding: 0;
 			padding-right: 16px;
 			padding-top: 16px;
@@ -230,8 +228,14 @@ const handleSort = (by) => {
 				display: flex;
 			}
 
-			&:hover span {
-				color: var(--txt-secondary);
+			&.sortable {
+				cursor: pointer;
+			}
+
+			&.sortable:hover {
+				& span {
+					color: var(--txt-secondary);
+				}
 			}
 		}
 
