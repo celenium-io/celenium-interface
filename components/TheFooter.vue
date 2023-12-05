@@ -3,7 +3,7 @@
 import { Dropdown, DropdownItem, DropdownTitle } from "@/components/ui/Dropdown"
 
 /** Services */
-import { getNetworkName, isPrefersDarkScheme } from "@/services/utils"
+import { isPrefersDarkScheme } from "@/services/utils"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -48,10 +48,6 @@ watch(
 	},
 )
 
-const handleNavigate = (url) => {
-	window.location.replace(url)
-}
-
 const handleChangeTheme = (theme) => {
 	const root = document.querySelector("html")
 
@@ -84,45 +80,30 @@ const handleChangeTheme = (theme) => {
 
 			<Flex direction="column" align="end" gap="16">
 				<Flex align="center" gap="16">
-					<Flex align="center" gap="8">
-						<Dropdown side="top">
-							<Flex align="center" gap="6" :class="$style.btn">
-								<Icon name="globe" size="12" color="secondary" />
-								<Text size="12" weight="600" color="secondary">{{ getNetworkName() }}</Text>
-							</Flex>
+					<Dropdown v-if="appStore.theme" side="top">
+						<Flex align="center" gap="6" :class="$style.btn">
+							<Icon
+								:name="
+									(appStore.theme === 'system' && 'settings') ||
+									(appStore.theme === 'light' && 'sun') ||
+									(['dark', 'dimmed'].includes(appStore.theme) && 'moon')
+								"
+								size="12"
+								color="secondary"
+							/>
+							<Text size="12" weight="600" color="secondary" :style="{ textTransform: 'capitalize' }">
+								{{ appStore.theme }}
+							</Text>
+						</Flex>
 
-							<template #popup>
-								<DropdownTitle>Network</DropdownTitle>
-								<DropdownItem @click="handleNavigate('https://celenium.io')">Mainnet</DropdownItem>
-								<DropdownItem @click="handleNavigate('https://mocha-4.celenium.io')">Mocha-4</DropdownItem>
-							</template>
-						</Dropdown>
-
-						<Dropdown v-if="appStore.theme" side="top">
-							<Flex align="center" gap="6" :class="$style.btn">
-								<Icon
-									:name="
-										(appStore.theme === 'system' && 'settings') ||
-										(appStore.theme === 'light' && 'sun') ||
-										(['dark', 'dimmed'].includes(appStore.theme) && 'moon')
-									"
-									size="12"
-									color="secondary"
-								/>
-								<Text size="12" weight="600" color="secondary" :style="{ textTransform: 'capitalize' }">
-									{{ appStore.theme }}
-								</Text>
-							</Flex>
-
-							<template #popup>
-								<DropdownTitle>Theme</DropdownTitle>
-								<DropdownItem @click="handleChangeTheme('dimmed')">Dimmed</DropdownItem>
-								<DropdownItem @click="handleChangeTheme('dark')">Dark</DropdownItem>
-								<DropdownItem @click="handleChangeTheme('light')">Light</DropdownItem>
-								<DropdownItem @click="handleChangeTheme('system')">System</DropdownItem>
-							</template>
-						</Dropdown>
-					</Flex>
+						<template #popup>
+							<DropdownTitle>Theme</DropdownTitle>
+							<DropdownItem @click="handleChangeTheme('dimmed')">Dimmed</DropdownItem>
+							<DropdownItem @click="handleChangeTheme('dark')">Dark</DropdownItem>
+							<DropdownItem @click="handleChangeTheme('light')">Light</DropdownItem>
+							<DropdownItem @click="handleChangeTheme('system')">System</DropdownItem>
+						</template>
+					</Dropdown>
 
 					<Text size="12" weight="700" color="support">/</Text>
 

@@ -8,6 +8,7 @@ import { useOutside } from "@/composables/outside"
 import { isMac, getNetworkName } from "@/services/utils/general"
 
 /** UI */
+import { Dropdown, DropdownItem, DropdownTitle } from "@/components/ui/Dropdown"
 import Tooltip from "@/components/ui/Tooltip.vue"
 import Kbd from "@/components/ui/Kbd.vue"
 
@@ -58,6 +59,10 @@ const isActive = (link) => {
 			break
 	}
 }
+
+const handleNavigate = (url) => {
+	window.location.replace(url)
+}
 </script>
 
 <template>
@@ -101,17 +106,25 @@ const isActive = (link) => {
 			</Flex>
 
 			<Flex align="center" gap="12">
-				<Tooltip v-if="head" position="end">
-					<Flex align="center" gap="8" :class="[$style.network]">
-						<div :class="[$style.status, head.synced ? $style.green : $style.red]" />
-						<Text size="12" weight="600" color="secondary" :class="$style.name"> {{ getNetworkName() }} </Text>
-					</Flex>
+				<Dropdown>
+					<Tooltip v-if="head" position="end">
+						<Flex align="center" gap="8" :class="[$style.network]">
+							<div :class="[$style.status, head.synced ? $style.green : $style.red]" />
+							<Text size="12" weight="600" color="secondary" :class="$style.name"> {{ getNetworkName() }} </Text>
+						</Flex>
 
-					<template #content>
-						<Text color="primary"><template v-if="!head.synced">Not</template> Synced </Text>
+						<template #content>
+							<Text color="primary"><template v-if="!head.synced">Not</template> Synced </Text>
+						</template>
+					</Tooltip>
+					<Skeleton v-else w="68" h="12" />
+
+					<template #popup>
+						<DropdownTitle>Network</DropdownTitle>
+						<DropdownItem @click="handleNavigate('https://celenium.io')">Mainnet</DropdownItem>
+						<DropdownItem @click="handleNavigate('https://mocha-4.celenium.io')">Mocha-4</DropdownItem>
 					</template>
-				</Tooltip>
-				<Skeleton v-else w="68" h="12" />
+				</Dropdown>
 
 				<Tooltip position="end" delay="250">
 					<Flex @click="appStore.showCmd = true" align="center" gap="8" :class="$style.button">
