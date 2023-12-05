@@ -124,7 +124,7 @@ const handlePrev = () => {
 				<table>
 					<thead>
 						<tr>
-							<th><Text size="12" weight="600" color="tertiary">Namespace ID</Text></th>
+							<th><Text size="12" weight="600" color="tertiary">Namespace </Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Signer</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Share Commitments</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Size</Text></th>
@@ -136,11 +136,9 @@ const handlePrev = () => {
 						<tr v-for="blob in blobs" @click.stop="handleViewBlob(blob)">
 							<td>
 								<Tooltip position="start" delay="500">
-									<NuxtLink :to="`/namespace/${blob.namespace.namespace_id}`" @click.stop>
+									<Flex @click.stop="router.push(`/namespace/${blob.namespace.namespace_id}`)" direction="column" gap="4">
 										<Flex v-if="getNamespaceID(blob.namespace.namespace_id).length > 8" align="center" gap="8">
-											<Icon name="blob" size="12" color="secondary" />
-
-											<Text size="13" weight="600" color="primary" mono>
+											<Text size="12" weight="600" color="primary" mono>
 												{{ getNamespaceID(blob.namespace.namespace_id).slice(0, 4) }}
 											</Text>
 
@@ -148,7 +146,7 @@ const handlePrev = () => {
 												<div v-for="dot in 3" class="dot" />
 											</Flex>
 
-											<Text size="13" weight="600" color="primary" mono>
+											<Text size="12" weight="600" color="primary" mono>
 												{{ getNamespaceID(blob.namespace.namespace_id).slice(-4) }}
 											</Text>
 
@@ -156,20 +154,24 @@ const handlePrev = () => {
 										</Flex>
 
 										<Flex v-else align="center" gap="8">
-											<Icon name="blob" size="12" color="secondary" />
-
-											<Text size="13" weight="600" color="primary" mono>
+											<Text size="12" weight="600" color="primary" mono>
 												{{ space(getNamespaceID(blob.namespace.namespace_id)) }}
 											</Text>
 
 											<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
 										</Flex>
-									</NuxtLink>
+
+										<Text
+											v-if="blob.namespace.name !== getNamespaceID(blob.namespace.namespace_id)"
+											size="12"
+											weight="500"
+											color="tertiary"
+										>
+											{{ blob.namespace.name }}
+										</Text>
+									</Flex>
 
 									<template #content>
-										<Text v-if="blob.namespace.name !== getNamespaceID(blob.namespace.namespace_id)" color="primary">
-											{{ blob.namespace.name }} -
-										</Text>
 										{{ space(getNamespaceID(blob.namespace.namespace_id)) }}
 									</template>
 								</Tooltip>
@@ -308,8 +310,8 @@ const handlePrev = () => {
 		& tr td {
 			padding: 0;
 			padding-right: 24px;
-			padding-top: 6px;
-			padding-bottom: 6px;
+			padding-top: 8px;
+			padding-bottom: 8px;
 
 			white-space: nowrap;
 

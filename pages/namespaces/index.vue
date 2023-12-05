@@ -157,7 +157,7 @@ const handleLast = async () => {
 		<Flex wide direction="column" gap="4">
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
-					<Icon name="blob" size="16" color="secondary" />
+					<Icon name="folder" size="16" color="secondary" />
 					<Text size="14" weight="600" color="primary">Namespaces</Text>
 				</Flex>
 
@@ -230,8 +230,6 @@ const handleLast = async () => {
 								<td style="width: 1px">
 									<Tooltip position="start">
 										<Flex :align="ns.name === getNamespaceID(ns.namespace_id) ? 'center' : 'start'" gap="8">
-											<Icon name="folder" size="14" color="secondary" />
-
 											<template v-if="ns.hash">
 												<Flex direction="column" gap="4">
 													<Flex v-if="getNamespaceID(ns.namespace_id).length > 8" align="center" gap="8">

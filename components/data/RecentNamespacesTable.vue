@@ -63,7 +63,7 @@ const handleSort = (by) => {
 				<table>
 					<thead>
 						<tr>
-							<th><Text size="12" weight="600" color="tertiary">Namespace ID</Text></th>
+							<th><Text size="12" weight="600" color="tertiary">Namespace</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Height</Text></th>
 							<th @click="handleSort('time')" :class="$style.sortable">
 								<Flex align="center" gap="6">
@@ -96,36 +96,37 @@ const handleSort = (by) => {
 						<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.namespace_id}`)">
 							<td style="width: 1px">
 								<Tooltip position="start">
-									<Flex v-if="getNamespaceID(ns.namespace_id).length > 8" align="center" gap="8">
-										<Icon name="folder" size="14" color="secondary" />
+									<Flex direction="column" gap="4">
+										<Flex v-if="getNamespaceID(ns.namespace_id).length > 8" align="center" gap="8">
+											<Text size="12" weight="600" color="primary" mono>
+												{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
+											</Text>
 
-										<Text size="13" weight="600" color="primary" mono>
-											{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
-										</Text>
+											<Flex align="center" gap="3">
+												<div v-for="dot in 3" class="dot" />
+											</Flex>
 
-										<Flex align="center" gap="3">
-											<div v-for="dot in 3" class="dot" />
+											<Text size="12" weight="600" color="primary" mono>
+												{{ getNamespaceID(ns.namespace_id).slice(-4) }}
+											</Text>
+
+											<CopyButton :text="getNamespaceID(ns.namespace_id)" />
 										</Flex>
 
-										<Text size="13" weight="600" color="primary" mono>
-											{{ getNamespaceID(ns.namespace_id).slice(-4) }}
+										<Flex v-else align="center" gap="8">
+											<Text size="12" weight="600" color="primary" mono>
+												{{ space(getNamespaceID(ns.namespace_id)) }}
+											</Text>
+
+											<CopyButton :text="getNamespaceID(ns.namespace_id)" />
+										</Flex>
+
+										<Text v-if="ns.name !== getNamespaceID(ns.namespace_id)" size="12" weight="500" color="tertiary">
+											{{ ns.name }}
 										</Text>
-
-										<CopyButton :text="getNamespaceID(ns.namespace_id)" />
-									</Flex>
-
-									<Flex v-else align="center" gap="8">
-										<Icon name="folder" size="14" color="secondary" />
-
-										<Text size="13" weight="600" color="primary" mono>
-											{{ space(getNamespaceID(ns.namespace_id)) }}
-										</Text>
-
-										<CopyButton :text="getNamespaceID(ns.namespace_id)" />
 									</Flex>
 
 									<template #content>
-										<Text v-if="ns.name !== getNamespaceID(ns.namespace_id)" color="primary"> {{ ns.name }} - </Text>
 										{{ space(getNamespaceID(ns.namespace_id)) }}
 									</template>
 								</Tooltip>
