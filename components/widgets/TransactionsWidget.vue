@@ -25,14 +25,7 @@ const min = ref(0)
 const max = ref(0)
 const roundedMax = ref(0)
 
-const latestSector = ref(0)
-
-onMounted(async () => {
-	const currentHour = DateTime.now().hour
-	const currentSector = hoursMap.find((m) => m.includes(currentHour))
-	const currentHourIdx = currentSector.indexOf(currentHour)
-	const sectorOffset = 6 - currentHourIdx
-
+const getHistogram = async (sectorOffset) => {
 	const data = await fetchHistogram({
 		table: "tx",
 		func: "count",
@@ -40,6 +33,21 @@ onMounted(async () => {
 		from: parseInt(DateTime.now().minus({ hours: 24 - sectorOffset }).ts / 1_000),
 	})
 	histogram.value = data.reverse()
+}
+
+const buildHistogram = async () => {
+	sectors.value.forEach((s) => {
+		while (s.length) {
+			s.pop()
+		}
+	})
+
+	const currentHour = DateTime.now().hour
+	const currentSector = hoursMap.find((m) => m.includes(currentHour))
+	const currentHourIdx = currentSector.indexOf(currentHour)
+	const sectorOffset = 6 - currentHourIdx
+
+	await getHistogram(sectorOffset)
 
 	const items = [...histogram.value]
 
@@ -62,7 +70,13 @@ onMounted(async () => {
 	max.value = Math.max(...histogram.value.map((item) => parseInt(item.value)))
 	roundedMax.value = Math.ceil(max.value / 5) * 5
 
-	latestSector.value = Math.ceil(DateTime.fromISO(histogram.value[histogram.value.length - 1].time).hour / 6)
+	setTimeout(() => {
+		buildHistogram()
+	}, (60 - DateTime.now().minute) * 60 * 1_000)
+}
+
+onMounted(async () => {
+	buildHistogram()
 })
 
 const txCounter = computed(() => {
