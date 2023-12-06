@@ -7,7 +7,7 @@ import Button from "@/components/ui/Button.vue"
 import { space, formatBytes, getNamespaceID, strToHex } from "@/services/utils"
 
 /** API */
-import { fetchNamespaceByMetadata } from "@/services/api/namespace"
+import { fetchBlobByMetadata } from "@/services/api/namespace"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
@@ -43,11 +43,12 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
-			const { data } = await fetchNamespaceByMetadata({
+			const { data } = await fetchBlobByMetadata({
 				hash: cacheStore.selectedBlob.namespace.hash,
 				height: cacheStore.selectedBlob.height,
 				commitment: cacheStore.selectedBlob.data.ShareCommitments[0],
 			})
+			console.log(data.value)
 
 			if (data.value) {
 				blob.value = data.value
