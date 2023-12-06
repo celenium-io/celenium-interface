@@ -1,12 +1,12 @@
 <script setup>
-const props = defineProps(["modelValue"])
+const props = defineProps(["modelValue", "checked", "disabled"])
 const emit = defineEmits(["update:modelValue"])
 </script>
 
 <template>
-	<Flex @click="emit('update:modelValue', !modelValue)" align="center" gap="8" :class="$style.wrapper">
-		<Flex align="center" justify="center" :class="[$style.checkbox, modelValue && $style.active]">
-			<Icon v-if="modelValue" name="check" size="12" color="primary" />
+	<Flex @click="emit('update:modelValue', !modelValue)" align="center" gap="8" :class="[$style.wrapper, disabled && $style.disabled]">
+		<Flex align="center" justify="center" :class="[$style.checkbox, (modelValue || checked) && $style.active]">
+			<Icon v-if="modelValue || checked" name="check" size="12" color="primary" />
 		</Flex>
 
 		<slot />
@@ -20,6 +20,15 @@ const emit = defineEmits(["update:modelValue"])
 	&:hover {
 		.checkbox {
 			border-color: var(--op-10);
+		}
+	}
+
+	&.disabled {
+		cursor: not-allowed;
+
+		& .checkbox {
+			opacity: 0.5;
+			background: var(--op-30);
 		}
 	}
 }

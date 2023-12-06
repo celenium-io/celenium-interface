@@ -14,16 +14,17 @@ const props = defineProps({
 		type: String,
 		default: null,
 	},
+	side: {
+		type: String,
+		default: "left",
+	},
 })
 const emit = defineEmits(["onClose"])
 
 const triggerEl = ref()
 const cardEl = ref()
 
-const popoverStyles = reactive({
-	top: 0,
-	left: 0,
-})
+const popoverStyles = reactive({})
 
 const onClose = () => {
 	emit("onClose")
@@ -40,7 +41,7 @@ watch(
 			const triggerRect = triggerEl.value.getBoundingClientRect()
 
 			popoverStyles.top = `${triggerRect.y + triggerRect.height + 8}px`
-			popoverStyles.left = `${triggerRect.x}px`
+			popoverStyles[props.side] = `${props.side === "left" ? triggerRect.x : window.innerWidth - triggerRect.x - triggerRect.width}px`
 
 			document.addEventListener("scroll", onClose)
 			document.addEventListener("keydown", onKeydown)

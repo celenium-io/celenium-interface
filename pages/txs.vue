@@ -12,7 +12,7 @@ import Checkbox from "@/components/ui/Checkbox.vue"
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 
 /** Services */
-import { comma, space } from "@/services/utils"
+import { comma, space, tia } from "@/services/utils"
 
 /** API */
 import { fetchTransactions, fetchTxsCount } from "@/services/api/tx"
@@ -182,6 +182,32 @@ const resetFilters = (target, refetch) => {
 	}
 }
 
+/**
+ * Table Config
+ */
+const config = reactive({
+	columns: {
+		time: true,
+		messages: true,
+		block: true,
+		gas: true,
+		events: true,
+		fee: false,
+		memo: false,
+	},
+})
+watch(
+	() => config,
+	() => {
+		localStorage.setItem("page:transactions:config:columns", JSON.stringify(config.columns))
+	},
+	{
+		deep: true,
+	},
+)
+
+const isConfigurePopoverOpen = ref(false)
+
 /** Data */
 const isRefetching = ref(false)
 const transactions = ref([])
@@ -224,6 +250,12 @@ const getTransactions = async () => {
 }
 
 getTransactions()
+
+onBeforeMount(() => {
+	if (localStorage.getItem("page:transactions:config:columns")) {
+		config.columns = JSON.parse(localStorage.getItem("page:transactions:config:columns"))
+	}
+})
 
 /** Refetch transactions */
 watch(
@@ -303,7 +335,7 @@ const handleLast = async () => {
 							<Text color="secondary">Status</Text>
 
 							<template v-if="Object.keys(filters.status).find((f) => filters.status[f])">
-								<div :class="$style.divider" />
+								<div :class="$style.vertical_divider" />
 
 								<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
 									{{
@@ -341,7 +373,7 @@ const handleLast = async () => {
 							<Text color="secondary">Message Type</Text>
 
 							<template v-if="Object.keys(filters.message_type).find((f) => filters.message_type[f])">
-								<div :class="$style.divider" />
+								<div :class="$style.vertical_divider" />
 
 								<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
 									{{
@@ -378,10 +410,52 @@ const handleLast = async () => {
 					</Popover>
 				</Flex>
 
-				<Button type="secondary" size="mini">
-					<Icon name="settings" size="12" color="tertiary" />
-					Configure
-				</Button>
+				<Popover :open="isConfigurePopoverOpen" @on-close="isConfigurePopoverOpen = false" width="150" side="right">
+					<Button @click="isConfigurePopoverOpen = true" type="secondary" size="mini">
+						<Icon name="settings" size="12" color="tertiary" />
+						Configure
+					</Button>
+
+					<template #content>
+						<Flex direction="column" gap="12">
+							<Text size="12" weight="500" color="secondary">Fixed columns</Text>
+
+							<Flex direction="column" gap="8">
+								<Checkbox :checked="true" :disabled="true">
+									<Text size="12" weight="500" color="primary">Hash</Text>
+								</Checkbox>
+							</Flex>
+
+							<div :class="$style.horizontal_divider" />
+
+							<Text size="12" weight="500" color="secondary">Editable columns</Text>
+
+							<Flex direction="column" gap="8">
+								<Checkbox v-model="config.columns.time">
+									<Text size="12" weight="500" color="primary">Time</Text>
+								</Checkbox>
+								<Checkbox v-model="config.columns.messages">
+									<Text size="12" weight="500" color="primary">Messages</Text>
+								</Checkbox>
+								<Checkbox v-model="config.columns.block">
+									<Text size="12" weight="500" color="primary">Block</Text>
+								</Checkbox>
+								<Checkbox v-model="config.columns.gas">
+									<Text size="12" weight="500" color="primary">Gas</Text>
+								</Checkbox>
+								<Checkbox v-model="config.columns.events">
+									<Text size="12" weight="500" color="primary">Events</Text>
+								</Checkbox>
+								<Checkbox v-model="config.columns.fee">
+									<Text size="12" weight="500" color="primary">Fee</Text>
+								</Checkbox>
+								<Checkbox v-model="config.columns.memo">
+									<Text size="12" weight="500" color="primary">Memo</Text>
+								</Checkbox>
+							</Flex>
+						</Flex>
+					</template>
+				</Popover>
 			</Flex>
 
 			<Flex direction="column" gap="16" wide :class="[$style.table, isRefetching && $style.disabled]">
@@ -390,11 +464,11 @@ const handleLast = async () => {
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Time</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Messages</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Block</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Gas</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Events</Text></th>
+								<th v-for="column in Object.keys(config.columns).filter((c) => config.columns[c])">
+									<Text size="12" weight="600" color="tertiary" noWrap style="text-transform: capitalize">{{
+										column
+									}}</Text>
+								</th>
 							</tr>
 						</thead>
 
@@ -458,7 +532,7 @@ const handleLast = async () => {
 										</template>
 									</Tooltip>
 								</td>
-								<td style="width: 1px">
+								<td v-if="config.columns.time" style="width: 1px">
 									<Flex direction="column" gap="4">
 										<Text size="12" weight="600" color="primary">
 											{{ DateTime.fromISO(tx.time).toRelative({ locale: "en", style: "short" }) }}
@@ -468,7 +542,7 @@ const handleLast = async () => {
 										</Text>
 									</Flex>
 								</td>
-								<td>
+								<td v-if="config.columns.messages" style="width: 1px">
 									<Tooltip v-if="tx.message_types.length" position="start" textAlign="left">
 										<MessageTypeBadge :types="tx.message_types" />
 
@@ -483,7 +557,7 @@ const handleLast = async () => {
 
 									<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
 								</td>
-								<td>
+								<td v-if="config.columns.block" style="width: 1px">
 									<Outline @click.stop="router.push(`/block/${tx.height}`)">
 										<Flex align="center" gap="6">
 											<Icon name="block" size="14" color="secondary" />
@@ -492,7 +566,7 @@ const handleLast = async () => {
 										</Flex>
 									</Outline>
 								</td>
-								<td>
+								<td v-if="config.columns.gas" style="width: 1px">
 									<Tooltip v-if="tx.gas_used">
 										<Flex align="center" gap="8">
 											<Text v-if="tx.gas_wanted > 0" size="13" weight="600" color="primary">
@@ -512,10 +586,25 @@ const handleLast = async () => {
 									</Tooltip>
 									<Text v-else size="13" weight="600" color="secondary">Unknown</Text>
 								</td>
-								<td>
+								<td v-if="config.columns.events" style="width: 1px">
 									<Text size="13" weight="600" color="primary">
 										{{ tx.events_count }}
 									</Text>
+								</td>
+								<td v-if="config.columns.fee" style="width: 1px">
+									<Text size="13" weight="600" color="primary"> {{ tia(tx.fee) }} TIA </Text>
+								</td>
+								<td v-if="config.columns.memo" style="width: 1px">
+									<Tooltip :disabled="!tx.memo">
+										<Text v-if="tx.memo" size="13" weight="600" color="primary" :class="$style.memo">
+											{{ tx.memo }}
+										</Text>
+										<Text v-else size="13" weight="600" color="support"> No Memo</Text>
+
+										<template #content>
+											{{ tx.memo }}
+										</template>
+									</Tooltip>
 								</td>
 							</tr>
 						</tbody>
@@ -559,10 +648,16 @@ const handleLast = async () => {
 	padding: 8px 16px;
 }
 
-.divider {
+.vertical_divider {
 	min-width: 2px;
 	height: 12px;
 	background: var(--op-10);
+}
+
+.horizontal_divider {
+	width: 100%;
+	height: 1px;
+	background: var(--op-5);
 }
 
 .footer {
@@ -626,7 +721,7 @@ const handleLast = async () => {
 
 		& tr td {
 			padding: 0;
-			padding-right: 24px;
+			padding-right: 40px;
 			padding-top: 8px;
 			padding-bottom: 8px;
 
@@ -654,6 +749,13 @@ const handleLast = async () => {
 	box-shadow: inset 0 0 0 1px var(--op-10);
 
 	padding: 4px 6px;
+}
+
+.memo {
+	display: inline-block;
+	max-width: 120px;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 @media (max-width: 500px) {
