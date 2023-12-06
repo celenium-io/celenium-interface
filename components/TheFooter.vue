@@ -13,7 +13,7 @@ const appConfig = useAppConfig()
 
 let root = null
 
-onBeforeMount(() => {
+onMounted(() => {
 	root = document.querySelector("html")
 
 	if (!localStorage.theme) {
@@ -80,13 +80,15 @@ const handleChangeTheme = (theme) => {
 
 			<Flex direction="column" align="end" gap="16">
 				<Flex align="center" gap="16">
-					<Dropdown v-if="appStore.theme" side="top">
+					<Dropdown side="top">
 						<Flex align="center" gap="6" :class="$style.btn">
 							<Icon
 								:name="
-									(appStore.theme === 'system' && 'settings') ||
-									(appStore.theme === 'light' && 'sun') ||
-									(['dark', 'dimmed'].includes(appStore.theme) && 'moon')
+									appStore.theme
+										? (appStore.theme === 'system' && 'settings') ||
+										  (appStore.theme === 'light' && 'sun') ||
+										  (['dark', 'dimmed'].includes(appStore.theme) && 'moon')
+										: ''
 								"
 								size="12"
 								color="secondary"
@@ -107,7 +109,7 @@ const handleChangeTheme = (theme) => {
 
 					<Text size="12" weight="700" color="support">/</Text>
 
-					<Flex align="center" gap="8">
+					<Flex align="center" gap="8" :class="$style.socials">
 						<a href="https://twitter.com/celenium_io" target="_blank">
 							<Icon name="twitter" size="14" color="secondary" :class="$style.btn" />
 						</a>
@@ -177,6 +179,12 @@ const handleChangeTheme = (theme) => {
 
 	&:active {
 		background: var(--op-15);
+	}
+}
+
+.socials {
+	& a {
+		display: flex;
 	}
 }
 
