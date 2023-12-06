@@ -129,12 +129,15 @@ const getStyles = () => {
 }
 
 .wrapper.mini {
-	gap: 8px;
 	height: 26px;
-	padding: 0 8px;
-	border-radius: 5px;
+
+	gap: 6px;
+
+	border-radius: 6px;
 
 	font-size: 12px;
+
+	padding: 0 8px;
 }
 
 /** TYPES */

@@ -36,6 +36,7 @@ onMounted(async () => {
 		<div id="tooltip" />
 		<div id="modal" />
 		<div id="dropdown" />
+		<div id="popover" />
 
 		<ModalsManager />
 		<Notifications />

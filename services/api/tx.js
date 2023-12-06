@@ -1,7 +1,7 @@
 /** Services */
 import { useServerURL } from "@/services/config"
 
-export const fetchTransactions = async ({ limit, offset, sort, msg_type }) => {
+export const fetchTransactions = async ({ limit, offset, sort, msg_type, status }) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx`)
 
@@ -9,6 +9,7 @@ export const fetchTransactions = async ({ limit, offset, sort, msg_type }) => {
 		if (offset) url.searchParams.append("offset", offset)
 		if (sort) url.searchParams.append("sort", sort)
 		if (msg_type) url.searchParams.append("msg_type", msg_type)
+		if (status) url.searchParams.append("status", status)
 
 		const data = await useFetch(url.href)
 		return data

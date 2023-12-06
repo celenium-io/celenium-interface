@@ -298,7 +298,7 @@ const handleLast = async () => {
 }
 
 .table {
-	border-radius: 4px 4px 4px 8px;
+	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 
 	padding-bottom: 12px;

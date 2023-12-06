@@ -5,6 +5,8 @@ import { DateTime } from "luxon"
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
+import Popover from "@/components/ui/Popover.vue"
+import Checkbox from "@/components/ui/Checkbox.vue"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
@@ -14,10 +16,6 @@ import { comma, space } from "@/services/utils"
 
 /** API */
 import { fetchTransactions, fetchTxsCount } from "@/services/api/tx"
-
-/** Store */
-import { useAppStore } from "@/store/app"
-const appStore = useAppStore()
 
 useHead({
 	title: "Transactions - Celestia Explorer",
@@ -70,6 +68,121 @@ useHead({
 const route = useRoute()
 const router = useRouter()
 
+const TypesMap = {
+	send: "MsgSend",
+	ibctransfer: "IBCTransfer",
+	delegate: "MsgDelegate",
+}
+
+/** Filters */
+const filters = reactive({
+	status: {
+		success: false,
+		failed: false,
+	},
+	message_type: {
+		send: false,
+		ibctransfer: false,
+		delegate: false,
+	},
+})
+const savedFiltersBeforeChanges = ref(null)
+
+/** Parse route query */
+Object.keys(route.query).forEach((key) => {
+	if (route.query[key].split(",").length) {
+		route.query[key].split(",").forEach((item) => {
+			filters[key][item] = true
+		})
+	} else {
+		filters[key][route.query[key]] = true
+	}
+})
+
+const updateRouteQuery = () => {
+	router.replace({
+		query: {
+			status:
+				Object.keys(filters.status).find((f) => filters.status[f]) &&
+				Object.keys(filters.status)
+					.filter((f) => filters.status[f])
+					.join(","),
+			message_type:
+				Object.keys(filters.message_type).find((f) => filters.message_type[f]) &&
+				Object.keys(filters.message_type)
+					.filter((f) => filters.message_type[f])
+					.join(","),
+		},
+	})
+}
+
+const isStatusPopoverOpen = ref(false)
+const handleOpenStatusPopover = () => {
+	isStatusPopoverOpen.value = true
+
+	if (Object.keys(filters.status).find((f) => filters.status[f])) {
+		savedFiltersBeforeChanges.value = { ...filters.status }
+	}
+}
+const onStatusPopoverClose = () => {
+	isStatusPopoverOpen.value = false
+
+	if (savedFiltersBeforeChanges.value) {
+		filters.status = savedFiltersBeforeChanges.value
+		savedFiltersBeforeChanges.value = null
+	} else {
+		resetFilters("status")
+	}
+}
+const handleApplyStatusFilters = () => {
+	savedFiltersBeforeChanges.value = null
+	isStatusPopoverOpen.value = false
+
+	getTransactions()
+
+	updateRouteQuery()
+}
+
+const isMessageTypePopoverOpen = ref(false)
+const handleOpenMessageTypePopover = () => {
+	isMessageTypePopoverOpen.value = true
+
+	if (Object.keys(filters.message_type).find((f) => filters.message_type[f])) {
+		savedFiltersBeforeChanges.value = { ...filters.message_type }
+	}
+}
+const onMessageTypePopoverClose = () => {
+	isMessageTypePopoverOpen.value = false
+
+	if (savedFiltersBeforeChanges.value) {
+		filters.message_type = savedFiltersBeforeChanges.value
+		savedFiltersBeforeChanges.value = null
+	} else {
+		resetFilters("message_type")
+	}
+}
+const handleApplyMessageTypeFilters = () => {
+	savedFiltersBeforeChanges.value = null
+	isMessageTypePopoverOpen.value = false
+
+	getTransactions()
+
+	updateRouteQuery()
+}
+
+const resetFilters = (target, refetch) => {
+	Object.keys(filters[target]).forEach((f) => {
+		filters[target][f] = false
+	})
+
+	if (refetch) {
+		updateRouteQuery()
+
+		getTransactions()
+	}
+}
+
+/** Data */
 const isRefetching = ref(false)
 const transactions = ref([])
 const count = ref(0)
@@ -93,6 +206,17 @@ const getTransactions = async () => {
 		limit: 20,
 		offset: (page.value - 1) * 20,
 		sort: "desc",
+		status:
+			Object.keys(filters.status).find((f) => filters.status[f]) &&
+			Object.keys(filters.status)
+				.filter((f) => filters.status[f])
+				.join(","),
+		msg_type:
+			Object.keys(filters.message_type).find((f) => filters.message_type[f]) &&
+			Object.keys(filters.message_type)
+				.filter((f) => filters.message_type[f])
+				.map((f) => TypesMap[f])
+				.join(","),
 	})
 	transactions.value = data.value
 
@@ -169,6 +293,95 @@ const handleLast = async () => {
 					</Button>
 					<Button @click="handleLast" type="secondary" size="mini" :disabled="page === pages"> Last </Button>
 				</Flex>
+			</Flex>
+
+			<Flex align="center" justify="between" :class="$style.settings">
+				<Flex align="center" gap="8">
+					<Popover :open="isStatusPopoverOpen" @on-close="onStatusPopoverClose" width="200">
+						<Button @click="handleOpenStatusPopover" type="secondary" size="mini">
+							<Icon name="plus-circle" size="12" color="tertiary" />
+							<Text color="secondary">Status</Text>
+
+							<template v-if="Object.keys(filters.status).find((f) => filters.status[f])">
+								<div :class="$style.divider" />
+
+								<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
+									{{
+										Object.keys(filters.status)
+											.filter((f) => filters.status[f])
+											.join(", ")
+									}}
+								</Text>
+
+								<Icon @click.stop="resetFilters('status', true)" name="close-circle" size="12" color="secondary" />
+							</template>
+						</Button>
+
+						<template #content>
+							<Flex direction="column" gap="12">
+								<Text size="12" weight="500" color="secondary">Filter by Status</Text>
+
+								<Flex direction="column" gap="8">
+									<Checkbox v-model="filters.status.success">
+										<Text size="12" weight="500" color="primary">Success</Text>
+									</Checkbox>
+									<Checkbox v-model="filters.status.failed">
+										<Text size="12" weight="500" color="primary">Failed</Text>
+									</Checkbox>
+								</Flex>
+
+								<Button @click="handleApplyStatusFilters" type="secondary" size="mini" wide>Apply</Button>
+							</Flex>
+						</template>
+					</Popover>
+
+					<Popover :open="isMessageTypePopoverOpen" @on-close="onMessageTypePopoverClose" width="200">
+						<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini">
+							<Icon name="plus-circle" size="12" color="tertiary" />
+							<Text color="secondary">Message Type</Text>
+
+							<template v-if="Object.keys(filters.message_type).find((f) => filters.message_type[f])">
+								<div :class="$style.divider" />
+
+								<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
+									{{
+										Object.keys(filters.message_type)
+											.filter((f) => filters.message_type[f])
+											.map((f) => TypesMap[f])
+											.join(", ")
+									}}
+								</Text>
+
+								<Icon @click.stop="resetFilters('message_type', true)" name="close-circle" size="12" color="secondary" />
+							</template>
+						</Button>
+
+						<template #content>
+							<Flex direction="column" gap="12">
+								<Text size="12" weight="500" color="secondary">Filter by Message Type</Text>
+
+								<Flex direction="column" gap="8">
+									<Checkbox v-model="filters.message_type.send">
+										<Text size="12" weight="500" color="primary">Send</Text>
+									</Checkbox>
+									<Checkbox v-model="filters.message_type.ibctransfer">
+										<Text size="12" weight="500" color="primary">IBCTransfer</Text>
+									</Checkbox>
+									<Checkbox v-model="filters.message_type.delegate">
+										<Text size="12" weight="500" color="primary">Delegate</Text>
+									</Checkbox>
+								</Flex>
+
+								<Button @click="handleApplyMessageTypeFilters" type="secondary" size="mini" wide>Apply</Button>
+							</Flex>
+						</template>
+					</Popover>
+				</Flex>
+
+				<Button type="secondary" size="mini">
+					<Icon name="settings" size="12" color="tertiary" />
+					Configure
+				</Button>
 			</Flex>
 
 			<Flex direction="column" gap="16" wide :class="[$style.table, isRefetching && $style.disabled]">
@@ -337,6 +550,19 @@ const handleLast = async () => {
 	background: var(--card-background);
 
 	padding: 0 16px;
+}
+
+.settings {
+	border-radius: 4px;
+	background: var(--card-background);
+
+	padding: 8px 16px;
+}
+
+.divider {
+	min-width: 2px;
+	height: 12px;
+	background: var(--op-10);
 }
 
 .footer {
