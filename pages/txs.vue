@@ -327,8 +327,8 @@ const handleLast = async () => {
 				</Flex>
 			</Flex>
 
-			<Flex align="center" justify="between" :class="$style.settings">
-				<Flex align="center" gap="8">
+			<Flex align="center" justify="between" wrap="wrap" gap="8" :class="$style.settings">
+				<Flex wrap="wrap" align="center" gap="8">
 					<Popover :open="isStatusPopoverOpen" @on-close="onStatusPopoverClose" width="200">
 						<Button @click="handleOpenStatusPopover" type="secondary" size="mini">
 							<Icon name="plus-circle" size="12" color="tertiary" />
@@ -410,7 +410,7 @@ const handleLast = async () => {
 					</Popover>
 				</Flex>
 
-				<Popover :open="isConfigurePopoverOpen" @on-close="isConfigurePopoverOpen = false" width="150" side="right">
+				<Popover :open="isConfigurePopoverOpen" @on-close="isConfigurePopoverOpen = false" width="150">
 					<Button @click="isConfigurePopoverOpen = true" type="secondary" size="mini">
 						<Icon name="settings" size="12" color="tertiary" />
 						Configure
