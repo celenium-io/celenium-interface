@@ -225,6 +225,10 @@ const getTxnsCountByTab = (tab) => {
 							<Text size="12" weight="600" color="tertiary"> Total Fees </Text>
 							<Text size="12" weight="600" color="secondary"> {{ tia(block.stats.fee) }} TIA</Text>
 						</Flex>
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary"> Bytes in block </Text>
+							<Text size="12" weight="600" color="secondary"> {{ formatBytes(block.stats.bytes_in_block) }}</Text>
+						</Flex>
 					</Flex>
 				</Flex>
 			</Flex>

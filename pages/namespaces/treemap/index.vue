@@ -176,9 +176,12 @@ const handleSelectFilter = (target) => {
 
 .gNode {
 	cursor: pointer;
+	stroke-width: 1px;
+	stroke-dasharray: 6px;
+	stroke-linecap: round;
 
 	&:hover .rect {
-		fill: var(--neutral-green);
+		stroke: var(--green);
 	}
 }
 
