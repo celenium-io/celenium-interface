@@ -6,6 +6,7 @@ import { DateTime } from "luxon"
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 import Button from "@/components/ui/Button.vue"
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
@@ -17,7 +18,9 @@ import { comma, space, formatBytes, getNamespaceID } from "@/services/utils"
 import { fetchNamespaceMessagesById } from "@/services/api/namespace"
 
 /** Store */
+import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
+const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
 
 const router = useRouter()
@@ -70,12 +73,33 @@ watch(
 	() => page.value,
 	() => getMessages(),
 )
+
+const handleViewRawNamespace = () => {
+	cacheStore.current._target = "namespace"
+	modalsStore.open("rawData")
+}
+
+const handleViewRawMessages = () => {
+	cacheStore.current._target = "messages"
+	modalsStore.open("rawData")
+}
 </script>
 
 <template>
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
 			<Text size="14" weight="600" color="primary">Namespace Overview</Text>
+
+			<Dropdown>
+				<Button type="tertiary" size="mini">
+					<Icon name="dots" size="16" color="secondary" />
+				</Button>
+
+				<template #popup>
+					<DropdownItem @click="handleViewRawNamespace"> View Raw Namespace </DropdownItem>
+					<DropdownItem @click="handleViewRawMessages"> View Raw Messages </DropdownItem>
+				</template>
+			</Dropdown>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
