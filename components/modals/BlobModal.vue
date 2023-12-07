@@ -24,6 +24,9 @@ const notFound = ref(false)
 const isDecode = ref(false)
 const isViewAll = ref(false)
 
+const previewEl = ref(null)
+const showPreview = ref(false)
+
 const rawData = computed(() => {
 	return blob.value.data
 })
@@ -81,16 +84,30 @@ const handleDownload = () => {
 	a.click()
 	document.body.removeChild(a)
 }
+
+const handlePreviewContent = () => {
+	if (!showPreview.value) {
+		showPreview.value = true
+		nextTick(() => {
+			const image = new Image()
+			image.src = `data:image/png;base64,${blob.value.data}`
+			previewEl.value.appendChild(image)
+		})
+	} else {
+		showPreview.value = false
+	}
+}
 </script>
 
 <template>
 	<Modal :show="show" @onClose="emit('onClose')" width="600" disable-trap>
-		<Flex direction="column" gap="24">
+		<Flex direction="column" gap="16">
 			<Text size="14" weight="600" color="primary">Blob Viewer</Text>
 
 			<Text v-if="notFound" size="12" weight="600" color="tertiary"> Blob not found </Text>
 			<Flex v-else-if="blob.data" direction="column" gap="24">
-				<Flex direction="column" gap="12">
+				<div v-if="showPreview" ref="previewEl" :class="$style.preview" />
+				<Flex v-else direction="column" gap="12">
 					<Flex direction="column" gap="8" :class="$style.data">
 						<Text size="13" weight="500" height="160" color="secondary" mono :class="[$style.field, isViewAll && $style.full]">
 							{{ viewData }}
@@ -153,6 +170,14 @@ const handleDownload = () => {
 							</NuxtLink>
 						</Flex>
 					</Flex>
+
+					<Flex align="center" justify="between" wide :class="$style.metadata">
+						<Text size="12" weight="500" color="tertiary">Content Type:</Text>
+
+						<Text size="13" weight="600" color="primary" :class="$style.value">
+							{{ blob.content_type }}
+						</Text>
+					</Flex>
 				</Flex>
 			</Flex>
 
@@ -166,6 +191,9 @@ const handleDownload = () => {
 				</Button>
 
 				<Button @click="isDecode = !isDecode" type="secondary" size="small"> {{ isDecode ? "Encode" : "Decode" }} Base64 </Button>
+				<Button @click="handlePreviewContent" type="secondary" size="small" :disabled="blob.content_type !== 'image/png'">
+					{{ showPreview ? "Close" : "Load" }} Preview
+				</Button>
 			</Flex>
 		</Flex>
 	</Modal>
@@ -216,6 +244,18 @@ const handleDownload = () => {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	max-width: 100%;
+}
+
+.buttons {
+	border-top: 1px solid var(--op-5);
+
+	padding-top: 16px;
+}
+
+.preview {
+	& img {
+		width: 100%;
+	}
 }
 
 @media (max-width: 550px) {
