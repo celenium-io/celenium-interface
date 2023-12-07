@@ -92,6 +92,8 @@ const savedFiltersBeforeChanges = ref(null)
 
 /** Parse route query */
 Object.keys(route.query).forEach((key) => {
+	if (key === "page") return
+
 	if (route.query[key].split(",").length) {
 		route.query[key].split(",").forEach((item) => {
 			filters[key][item] = true
