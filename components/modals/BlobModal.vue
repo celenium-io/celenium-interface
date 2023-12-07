@@ -58,8 +58,6 @@ watch(
 			isDecode.value = false
 			isViewAll.value = false
 			blob.value = {}
-
-			cacheStore.selectedBlob = null
 		}
 	},
 )

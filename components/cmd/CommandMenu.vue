@@ -168,6 +168,15 @@ const makeSuggestions = () => {
 	if (route.name === "tx-hash") {
 		suggestedActions.value.push({
 			type: "callback",
+			icon: "blob",
+			title: "View Blob",
+			runText: "View",
+			callback: () => {
+				modalsStore.open("blob")
+			},
+		})
+		suggestedActions.value.push({
+			type: "callback",
 			icon: "tx",
 			title: "View Raw Transactions",
 			runText: "View",

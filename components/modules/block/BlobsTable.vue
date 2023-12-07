@@ -55,6 +55,7 @@ const getNamespaces = async () => {
 		sort: "desc",
 	})
 	blobs.value = data
+	cacheStore.selectedBlob = blobs.value[0]
 
 	isRefetching.value = false
 
@@ -72,7 +73,6 @@ watch(
 )
 
 const handleViewBlob = (blob) => {
-	cacheStore.selectedBlob = blob
 	modalsStore.open("blob")
 }
 
