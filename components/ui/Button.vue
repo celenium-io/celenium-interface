@@ -201,6 +201,7 @@ const getStyles = () => {
 .wrapper.tertiary {
 	background: transparent;
 	fill: var(--txt-tertiary);
+	box-shadow: inset 0 0 0 1px var(--op-5);
 }
 .wrapper.tertiary:hover {
 	background: var(--op-10);

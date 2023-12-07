@@ -27,6 +27,8 @@ const preview = reactive({
 	isLoadingPfbs: true,
 })
 
+const viewMoreTxs = ref(false)
+
 const isUserSelected = ref(false)
 
 const handleSelectBlock = (b, isUser) => {
@@ -277,7 +279,10 @@ watch(
 						</Flex>
 
 						<Flex v-if="preview.block.stats.tx_count" direction="column" gap="8">
-							<NuxtLink v-for="transaction in preview.transactions.slice(0, 5)" :to="`/tx/${transaction.hash}`">
+							<NuxtLink
+								v-for="transaction in viewMoreTxs ? preview.transactions : preview.transactions.slice(0, 5)"
+								:to="`/tx/${transaction.hash}`"
+							>
 								<Outline wide height="32" padding="8" radius="6">
 									<Flex justify="between" align="center" wide>
 										<Flex align="center" gap="8">
@@ -315,6 +320,15 @@ watch(
 									</Flex>
 								</Outline>
 							</NuxtLink>
+
+							<Button
+								v-if="preview.block.stats.tx_count > 5"
+								@click="viewMoreTxs = !viewMoreTxs"
+								type="tertiary"
+								size="small"
+								wide
+								>{{ viewMoreTxs ? "Hide" : "Show More" }}</Button
+							>
 						</Flex>
 						<Text v-else size="12" weight="600" color="tertiary" align="center" :class="$style.empty_state">
 							No transactions
