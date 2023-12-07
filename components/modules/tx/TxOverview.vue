@@ -3,6 +3,7 @@
 import { DateTime } from "luxon"
 
 /** UI */
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Tooltip from "~/components/ui/Tooltip.vue"
 import Button from "~/components/ui/Button.vue"
 
@@ -16,6 +17,12 @@ import amp from "@/services/amp"
 
 /** API */
 import { fetchTxEvents } from "@/services/api/tx"
+
+/** Store */
+import { useModalsStore } from "@/store/modals"
+import { useCacheStore } from "@/store/cache"
+const modalsStore = useModalsStore()
+const cacheStore = useCacheStore()
 
 const EventIconMapping = {
 	message: "message",
@@ -46,12 +53,34 @@ const filteredEvents = computed(() => (showAll.value ? events.value : events.val
 
 const { data: rawEvents } = await fetchTxEvents(props.tx.hash)
 events.value = rawEvents.value.sort((a, b) => a.position - b.position)
+cacheStore.current.events = events.value
+
+const handleViewRawTransaction = () => {
+	cacheStore.current._target = "transaction"
+	modalsStore.open("rawData")
+}
+
+const handleViewRawEvents = () => {
+	cacheStore.current._target = "events"
+	modalsStore.open("rawData")
+}
 </script>
 
 <template>
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
 			<Text size="14" weight="600" color="primary">Transaction Overview</Text>
+
+			<Dropdown>
+				<Button type="tertiary" size="mini">
+					<Icon name="dots" size="16" color="secondary" />
+				</Button>
+
+				<template #popup>
+					<DropdownItem @click="handleViewRawTransaction"> View Raw Transaction </DropdownItem>
+					<DropdownItem @click="handleViewRawEvents"> View Raw Events </DropdownItem>
+				</template>
+			</Dropdown>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">

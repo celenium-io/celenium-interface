@@ -15,6 +15,9 @@ export const useCacheStore = defineStore("cache", () => {
 		/** block */
 		block: null,
 		transactions: null,
+		/** tx */
+		transaction: null,
+		events: null,
 	})
 
 	return { selectedBlob, current }

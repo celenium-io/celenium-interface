@@ -164,6 +164,29 @@ const makeSuggestions = () => {
 			},
 		})
 	}
+
+	if (route.name === "tx-hash") {
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "tx",
+			title: "View Raw Transactions",
+			runText: "View",
+			callback: () => {
+				cacheStore.current._target = "transaction"
+				modalsStore.open("rawData")
+			},
+		})
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "tx",
+			title: "View Raw Events",
+			runText: "View",
+			callback: () => {
+				cacheStore.current._target = "events"
+				modalsStore.open("rawData")
+			},
+		})
+	}
 }
 const suggestionGroup = computed(() => {
 	return {
