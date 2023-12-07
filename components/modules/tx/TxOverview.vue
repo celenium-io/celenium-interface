@@ -119,7 +119,10 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 						<Text size="12" weight="600" color="secondary">Gas Used</Text>
 
 						<div :class="$style.gas_bar">
-							<div :style="{ width: `${(tx.gas_used * 100) / tx.gas_wanted}%` }" :class="$style.gas_used" />
+							<div
+								:style="{ width: `${(tx.gas_used * 100) / tx.gas_wanted}%` }"
+								:class="[$style.gas_used, (tx.gas_used * 100) / tx.gas_wanted > 100 && $style.error]"
+							/>
 						</div>
 
 						<Flex align="center" justify="between">
@@ -500,6 +503,11 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 		border-radius: 50px;
 		background: var(--green);
 		box-shadow: 0 0 6px rgba(10, 222, 112, 80%);
+
+		&.error {
+			background: var(--red);
+			box-shadow: 0 0 6px var(--red);
+		}
 	}
 }
 
