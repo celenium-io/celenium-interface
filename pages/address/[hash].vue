@@ -2,11 +2,12 @@
 /** Components: Modules */
 import AddressOverview from "@/components/modules/address/AddressOverview.vue"
 
-/** Services */
-import { comma } from "@/services/utils"
-
 /** API */
 import { fetchAddressByHash } from "@/services/api/address"
+
+/** Store */
+import { useCacheStore } from "@/store/cache"
+const cacheStore = useCacheStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -18,6 +19,7 @@ if (!rawAddress.value) {
 	router.push("/")
 } else {
 	address.value = rawAddress.value
+	cacheStore.current.address = address.value
 }
 
 defineOgImage({

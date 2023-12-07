@@ -187,6 +187,29 @@ const makeSuggestions = () => {
 			},
 		})
 	}
+
+	if (route.name === "address-hash") {
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "addresses",
+			title: "View Raw Address",
+			runText: "View",
+			callback: () => {
+				cacheStore.current._target = "address"
+				modalsStore.open("rawData")
+			},
+		})
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "tx",
+			title: "View Raw Transactions",
+			runText: "View",
+			callback: () => {
+				cacheStore.current._target = "transactions"
+				modalsStore.open("rawData")
+			},
+		})
+	}
 }
 const suggestionGroup = computed(() => {
 	return {
