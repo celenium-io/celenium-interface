@@ -70,6 +70,7 @@ const router = useRouter()
 
 const TypesMap = {
 	send: "MsgSend",
+	payforblobs: "MsgPayForBlobs",
 	ibctransfer: "IBCTransfer",
 	delegate: "MsgDelegate",
 }
@@ -82,6 +83,7 @@ const filters = reactive({
 	},
 	message_type: {
 		send: false,
+		payforblobs: false,
 		ibctransfer: false,
 		delegate: false,
 	},
@@ -395,6 +397,9 @@ const handleLast = async () => {
 								<Flex direction="column" gap="8">
 									<Checkbox v-model="filters.message_type.send">
 										<Text size="12" weight="500" color="primary">Send</Text>
+									</Checkbox>
+									<Checkbox v-model="filters.message_type.payforblobs">
+										<Text size="12" weight="500" color="primary">PayForBlobs</Text>
 									</Checkbox>
 									<Checkbox v-model="filters.message_type.ibctransfer">
 										<Text size="12" weight="500" color="primary">IBCTransfer</Text>
