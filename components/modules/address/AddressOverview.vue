@@ -268,11 +268,11 @@ const handleViewRawTransactions = () => {
 									<td style="width: 1px">
 										<Tooltip>
 											<Flex align="center" gap="8">
+												<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
+
 												<Text v-if="tx.gas_wanted > 0" size="13" weight="600" color="primary">
 													{{ ((tx.gas_used * 100) / tx.gas_wanted).toFixed(2) }}%
 												</Text>
-
-												<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
 											</Flex>
 
 											<template #content>

@@ -193,9 +193,8 @@ const config = reactive({
 		messages: true,
 		block: true,
 		gas: true,
-		events: true,
-		fee: false,
-		memo: false,
+		fee: true,
+		events: false,
 	},
 })
 watch(
@@ -448,14 +447,11 @@ const handleLast = async () => {
 								<Checkbox v-model="config.columns.gas">
 									<Text size="12" weight="500" color="primary">Gas</Text>
 								</Checkbox>
-								<Checkbox v-model="config.columns.events">
-									<Text size="12" weight="500" color="primary">Events</Text>
-								</Checkbox>
 								<Checkbox v-model="config.columns.fee">
 									<Text size="12" weight="500" color="primary">Fee</Text>
 								</Checkbox>
-								<Checkbox v-model="config.columns.memo">
-									<Text size="12" weight="500" color="primary">Memo</Text>
+								<Checkbox v-model="config.columns.events">
+									<Text size="12" weight="500" color="primary">Events</Text>
 								</Checkbox>
 							</Flex>
 						</Flex>
@@ -574,11 +570,11 @@ const handleLast = async () => {
 								<td v-if="config.columns.gas" style="width: 1px">
 									<Tooltip v-if="tx.gas_used">
 										<Flex align="center" gap="8">
+											<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
+
 											<Text v-if="tx.gas_wanted > 0" size="13" weight="600" color="primary">
 												{{ ((tx.gas_used * 100) / tx.gas_wanted).toFixed(2) }}%
 											</Text>
-
-											<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
 										</Flex>
 
 										<template #content>
@@ -599,28 +595,10 @@ const handleLast = async () => {
 								<td v-if="config.columns.fee" style="width: 1px">
 									<Text size="13" weight="600" color="primary"> {{ tia(tx.fee) }} TIA </Text>
 								</td>
-								<td v-if="config.columns.memo" style="width: 1px">
-									<Tooltip :disabled="!tx.memo">
-										<Text v-if="tx.memo" size="13" weight="600" color="primary" :class="$style.memo">
-											{{ tx.memo }}
-										</Text>
-										<Text v-else size="13" weight="600" color="support"> No Memo</Text>
-
-										<template #content>
-											{{ tx.memo }}
-										</template>
-									</Tooltip>
-								</td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
-			</Flex>
-
-			<Flex align="center" :class="$style.footer">
-				<Button @click="findPFB = !findPFB" type="secondary" size="mini">
-					<Icon v-if="findPFB" name="check" size="12" color="green" /> Find PFB
-				</Button>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -665,21 +643,12 @@ const handleLast = async () => {
 	background: var(--op-5);
 }
 
-.footer {
-	height: 46px;
-
-	border-radius: 4px 4px 8px 8px;
-	background: var(--card-background);
-
-	padding: 0 16px;
-}
-
 .table_scroller {
 	overflow-x: auto;
 }
 
 .table {
-	border-radius: 4px;
+	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 
 	padding-bottom: 12px;
@@ -754,13 +723,6 @@ const handleLast = async () => {
 	box-shadow: inset 0 0 0 1px var(--op-10);
 
 	padding: 4px 6px;
-}
-
-.memo {
-	display: inline-block;
-	max-width: 120px;
-	text-overflow: ellipsis;
-	overflow: hidden;
 }
 
 @media (max-width: 500px) {

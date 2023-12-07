@@ -20,7 +20,7 @@ const getBarColor = () => {
 	<div :class="$style.wrapper">
 		<div
 			:style="{
-				width: `${percent}%`,
+				width: `${percent > 100 ? 100 : percent}%`,
 				background: getBarColor(),
 			}"
 		/>
