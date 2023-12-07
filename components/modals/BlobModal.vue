@@ -48,7 +48,6 @@ watch(
 				height: cacheStore.selectedBlob.height,
 				commitment: cacheStore.selectedBlob.data.ShareCommitments[0],
 			})
-			console.log(data.value)
 
 			if (data.value) {
 				blob.value = data.value
