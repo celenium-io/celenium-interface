@@ -4,7 +4,9 @@ const props = defineProps({
 })
 
 const getBarColor = () => {
-	if (props.percent < 30) {
+	if (props.percent > 100) {
+		return "var(--red)"
+	} else if (props.percent < 30) {
 		return "var(--orange)"
 	} else if (props.percent < 60) {
 		return "var(--yellow)"
