@@ -107,7 +107,7 @@ const suggestedActions = ref([])
 const makeSuggestions = () => {
 	suggestedActions.value = []
 
-	if (route.name === "namespaces" && featurePreviewMode.value) {
+	if (route.name === "namespaces") {
 		suggestedActions.value.push({
 			type: "callback",
 			icon: "treemap",
@@ -119,7 +119,7 @@ const makeSuggestions = () => {
 		})
 	}
 
-	if (route.name === "namespace-id" && featurePreviewMode.value) {
+	if (route.name === "namespace-id") {
 		suggestedActions.value.push({
 			type: "callback",
 			icon: "folder",
@@ -137,6 +137,29 @@ const makeSuggestions = () => {
 			runText: "View",
 			callback: () => {
 				cacheStore.current._target = "messages"
+				modalsStore.open("rawData")
+			},
+		})
+	}
+
+	if (route.name === "block-height") {
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "block",
+			title: "View Raw Block",
+			runText: "View",
+			callback: () => {
+				cacheStore.current._target = "block"
+				modalsStore.open("rawData")
+			},
+		})
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "tx",
+			title: "View Raw Transactions",
+			runText: "View",
+			callback: () => {
+				cacheStore.current._target = "transactions"
 				modalsStore.open("rawData")
 			},
 		})

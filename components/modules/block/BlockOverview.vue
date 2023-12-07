@@ -3,6 +3,7 @@
 import { DateTime } from "luxon"
 
 /** UI */
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Tooltip from "@/components/ui/Tooltip.vue"
 import Button from "@/components/ui/Button.vue"
 import Badge from "@/components/ui/Badge.vue"
@@ -15,6 +16,12 @@ import { tia, comma, space, formatBytes } from "@/services/utils"
 
 /** API */
 import { fetchTransactionsByBlock } from "@/services/api/tx"
+
+/** Store */
+import { useModalsStore } from "@/store/modals"
+import { useCacheStore } from "@/store/cache"
+const modalsStore = useModalsStore()
+const cacheStore = useCacheStore()
 
 const MapTabsTypes = {
 	PFBs: "MsgPayForBlobs",
@@ -64,6 +71,7 @@ const getTransactions = async () => {
 	})
 	if (data.value?.length) {
 		transactions.value = data.value
+		cacheStore.current.transactions = transactions.value
 	}
 
 	isRefetching.value = false
@@ -117,12 +125,33 @@ const getTxnsCountByTab = (tab) => {
 		return unsupportedCounter
 	}
 }
+
+const handleViewRawBlock = () => {
+	cacheStore.current._target = "block"
+	modalsStore.open("rawData")
+}
+
+const handleViewRawTransactions = () => {
+	cacheStore.current._target = "transactions"
+	modalsStore.open("rawData")
+}
 </script>
 
 <template>
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
 			<Text size="14" weight="600" color="primary">Block Overview</Text>
+
+			<Dropdown>
+				<Button type="tertiary" size="mini">
+					<Icon name="dots" size="16" color="secondary" />
+				</Button>
+
+				<template #popup>
+					<DropdownItem @click="handleViewRawBlock"> View Raw Block </DropdownItem>
+					<DropdownItem @click="handleViewRawTransactions"> View Raw Transactions </DropdownItem>
+				</template>
+			</Dropdown>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
