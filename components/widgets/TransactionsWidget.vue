@@ -145,7 +145,7 @@ const getSectorName = (item) => {
 								:class="[$style.hour, DateTime.now().hour === DateTime.fromISO(item.time).hour && $style.current]"
 							>
 								<div
-									:style="{ height: `${getPercentageRatio(item.value)}%` }"
+									:style="{ flex: getPercentageRatio(item.value) / 100 }"
 									:class="[$style.bar, getPercentageRatio(item.value) > 20 && $style.green]"
 								/>
 
@@ -238,7 +238,6 @@ const getSectorName = (item) => {
 
 .bar {
 	width: 4px;
-	height: 15%;
 
 	border-radius: 50px;
 	background: var(--txt-tertiary);
@@ -249,8 +248,8 @@ const getSectorName = (item) => {
 }
 
 .dot {
-	width: 4px;
-	height: 4px;
+	min-width: 4px;
+	min-height: 4px;
 
 	border-radius: 50%;
 	background: var(--op-5);
