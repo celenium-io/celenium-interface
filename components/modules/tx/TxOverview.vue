@@ -511,6 +511,8 @@ const handleViewRawEvents = () => {
 	background: var(--card-background);
 
 	.main {
+		min-width: 384px;
+
 		padding: 16px;
 
 		& .key_value {
@@ -633,6 +635,12 @@ const handleViewRawEvents = () => {
 		min-width: 0;
 
 		border-radius: 4px;
+	}
+}
+
+@media (max-width: 500px) {
+	.main {
+		min-width: initial;
 	}
 }
 </style>
