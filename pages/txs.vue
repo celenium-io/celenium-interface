@@ -5,6 +5,7 @@ import { DateTime } from "luxon"
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
+import Input from "@/components/ui/Input.vue"
 import Popover from "@/components/ui/Popover.vue"
 import Checkbox from "@/components/ui/Checkbox.vue"
 
@@ -13,6 +14,7 @@ import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 
 /** Services */
 import { comma, space, tia } from "@/services/utils"
+import { MsgTypes } from "@/services/constants/messages"
 
 /** API */
 import { fetchTransactions, fetchTxsCount } from "@/services/api/tx"
@@ -68,27 +70,33 @@ useHead({
 const route = useRoute()
 const router = useRouter()
 
-const TypesMap = {
-	send: "MsgSend",
-	payforblobs: "MsgPayForBlobs",
-	ibctransfer: "IBCTransfer",
-	delegate: "MsgDelegate",
-}
-
 /** Filters */
 const filters = reactive({
 	status: {
 		success: false,
 		failed: false,
 	},
-	message_type: {
-		send: false,
-		payforblobs: false,
-		ibctransfer: false,
-		delegate: false,
-	},
+	message_type: MsgTypes.reduce((a, b) => ({ ...a, [b]: false }), {}),
 })
 const savedFiltersBeforeChanges = ref(null)
+
+const handleClearAllFilters = () => {
+	Object.keys(filters.status).forEach((f) => {
+		filters.status[f] = false
+	})
+
+	Object.keys(filters.message_type).forEach((f) => {
+		filters.message_type[f] = false
+	})
+
+	router.replace({
+		query: null,
+	})
+
+	getTransactions()
+}
+
+const searchTerm = ref("")
 
 /** Parse route query */
 Object.keys(route.query).forEach((key) => {
@@ -158,6 +166,8 @@ const handleOpenMessageTypePopover = () => {
 const onMessageTypePopoverClose = () => {
 	isMessageTypePopoverOpen.value = false
 
+	searchTerm.value = ""
+
 	if (savedFiltersBeforeChanges.value) {
 		filters.message_type = savedFiltersBeforeChanges.value
 		savedFiltersBeforeChanges.value = null
@@ -212,6 +222,7 @@ watch(
 const isConfigurePopoverOpen = ref(false)
 
 /** Data */
+const isLoaded = ref(false)
 const isRefetching = ref(false)
 const transactions = ref([])
 const count = ref(0)
@@ -244,11 +255,11 @@ const getTransactions = async () => {
 			Object.keys(filters.message_type).find((f) => filters.message_type[f]) &&
 			Object.keys(filters.message_type)
 				.filter((f) => filters.message_type[f])
-				.map((f) => TypesMap[f])
 				.join(","),
 	})
 	transactions.value = data.value
 
+	isLoaded.value = true
 	isRefetching.value = false
 }
 
@@ -370,7 +381,7 @@ const handleLast = async () => {
 						</template>
 					</Popover>
 
-					<Popover :open="isMessageTypePopoverOpen" @on-close="onMessageTypePopoverClose" width="200">
+					<Popover :open="isMessageTypePopoverOpen" @on-close="onMessageTypePopoverClose" width="250">
 						<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini">
 							<Icon name="plus-circle" size="12" color="tertiary" />
 							<Text color="secondary">Message Type</Text>
@@ -378,12 +389,18 @@ const handleLast = async () => {
 							<template v-if="Object.keys(filters.message_type).find((f) => filters.message_type[f])">
 								<div :class="$style.vertical_divider" />
 
-								<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
+								<Text size="12" weight="600" color="primary">
 									{{
-										Object.keys(filters.message_type)
-											.filter((f) => filters.message_type[f])
-											.map((f) => TypesMap[f])
-											.join(", ")
+										Object.keys(filters.message_type).filter((f) => filters.message_type[f]).length < 3
+											? Object.keys(filters.message_type)
+													.filter((f) => filters.message_type[f])
+													.map((f) => f.replace("Msg", ""))
+													.join(", ")
+											: `${Object.keys(filters.message_type)
+													.filter((f) => filters.message_type[f])[0]
+													.replace("Msg", "")} and ${
+													Object.keys(filters.message_type).filter((f) => filters.message_type[f]).length - 1
+											  } more`
 									}}
 								</Text>
 
@@ -395,19 +412,28 @@ const handleLast = async () => {
 							<Flex direction="column" gap="12">
 								<Text size="12" weight="500" color="secondary">Filter by Message Type</Text>
 
-								<Flex direction="column" gap="8">
-									<Checkbox v-model="filters.message_type.send">
-										<Text size="12" weight="500" color="primary">Send</Text>
-									</Checkbox>
-									<Checkbox v-model="filters.message_type.payforblobs">
-										<Text size="12" weight="500" color="primary">PayForBlobs</Text>
-									</Checkbox>
-									<Checkbox v-model="filters.message_type.ibctransfer">
-										<Text size="12" weight="500" color="primary">IBCTransfer</Text>
-									</Checkbox>
-									<Checkbox v-model="filters.message_type.delegate">
-										<Text size="12" weight="500" color="primary">Delegate</Text>
-									</Checkbox>
+								<Input v-model="searchTerm" size="small" placeholder="Search" autofocus />
+
+								<Flex direction="column" gap="8" :class="$style.message_types_list">
+									<template
+										v-if="
+											Object.keys(filters.message_type).filter((t) =>
+												t.toLowerCase().includes(searchTerm.trim().toLowerCase()),
+											).length
+										"
+									>
+										<Checkbox
+											v-for="msg_type in Object.keys(filters.message_type).filter((t) =>
+												t.toLowerCase().includes(searchTerm.trim().toLowerCase()),
+											)"
+											v-model="filters.message_type[msg_type]"
+										>
+											<Text size="12" weight="500" color="primary">{{ msg_type.replace("Msg", "") }}</Text>
+										</Checkbox>
+									</template>
+									<Flex v-else direction="column" gap="8">
+										<Text size="12" weight="500" color="tertiary">Nothing was found</Text>
+									</Flex>
 								</Flex>
 
 								<Button @click="handleApplyMessageTypeFilters" type="secondary" size="mini" wide>Apply</Button>
@@ -462,7 +488,7 @@ const handleLast = async () => {
 			</Flex>
 
 			<Flex direction="column" gap="16" wide :class="[$style.table, isRefetching && $style.disabled]">
-				<div :class="$style.table_scroller">
+				<div v-if="transactions.length" :class="$style.table_scroller">
 					<table>
 						<thead>
 							<tr>
@@ -601,6 +627,17 @@ const handleLast = async () => {
 						</tbody>
 					</table>
 				</div>
+
+				<Flex v-else direction="column" gap="20" align="center" :class="$style.empty">
+					<Icon name="search" size="24" color="support" />
+
+					<Flex direction="column" gap="8" align="center">
+						<Text size="13" weight="600" color="secondary"> Nothing was found </Text>
+						<Text size="12" weight="400" color="tertiary"> Clear filters to see all transactions </Text>
+					</Flex>
+
+					<Button @click="handleClearAllFilters" type="secondary" size="small">Clear all filters</Button>
+				</Flex>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -643,6 +680,13 @@ const handleLast = async () => {
 	width: 100%;
 	height: 1px;
 	background: var(--op-5);
+}
+
+.message_types_list {
+	height: 200px;
+
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 .table_scroller {
@@ -708,6 +752,10 @@ const handleLast = async () => {
 			}
 		}
 	}
+}
+
+.empty {
+	padding: 40px 0;
 }
 
 .hide {

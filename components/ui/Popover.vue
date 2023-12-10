@@ -14,6 +14,10 @@ const props = defineProps({
 		type: String,
 		default: null,
 	},
+	height: {
+		type: String,
+		default: null,
+	},
 	side: {
 		type: String,
 		default: "left",
@@ -70,7 +74,7 @@ watch(
 
 				<Transition name="fastfade">
 					<div v-if="open" :style="popoverStyles" :class="$style.popover">
-						<div ref="cardEl" :style="{ width: `${width}px` }" :class="$style.card">
+						<div ref="cardEl" :style="{ width: `${width}px`, height: `${height}px` }" :class="$style.card">
 							<slot name="content" />
 						</div>
 					</div>
@@ -93,6 +97,8 @@ watch(
 }
 
 .card {
+	overflow: hidden;
+
 	border-radius: 6px;
 	background: var(--card-background);
 	box-shadow: inset 0 0 0 1px var(--op-5), 0 14px 34px rgba(0, 0, 0, 15%), 0 4px 14px rgba(0, 0, 0, 5%);

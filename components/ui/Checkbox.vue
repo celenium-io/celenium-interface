@@ -4,7 +4,14 @@ const emit = defineEmits(["update:modelValue"])
 </script>
 
 <template>
-	<Flex @click="emit('update:modelValue', !modelValue)" align="center" gap="8" :class="[$style.wrapper, disabled && $style.disabled]">
+	<Flex
+		@click="emit('update:modelValue', !modelValue)"
+		@keydown.enter="emit('update:modelValue', !modelValue)"
+		align="center"
+		gap="8"
+		:class="[$style.wrapper, disabled && $style.disabled]"
+		tabindex="0"
+	>
 		<Flex align="center" justify="center" :class="[$style.checkbox, (modelValue || checked) && $style.active]">
 			<Icon v-if="modelValue || checked" name="check" size="12" color="primary" />
 		</Flex>
@@ -33,9 +40,21 @@ const emit = defineEmits(["update:modelValue"])
 	}
 }
 
+.wrapper:focus-visible {
+	outline: none;
+
+	.checkbox {
+		border: 1px solid var(--op-15);
+	}
+
+	.checkbox.active {
+		background: var(--op-15);
+	}
+}
+
 .checkbox {
-	width: 14px;
-	height: 14px;
+	min-width: 14px;
+	min-height: 14px;
 
 	border-radius: 4px;
 	border: 1px solid var(--op-5);

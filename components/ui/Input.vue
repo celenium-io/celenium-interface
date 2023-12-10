@@ -8,6 +8,7 @@ const emit = defineEmits(["update:modelValue", "focus", "blur"])
 const props = defineProps({
 	size: {
 		type: String,
+		default: "medium",
 	},
 	type: {
 		type: String,
@@ -28,6 +29,10 @@ const props = defineProps({
 	disabled: {
 		type: Boolean,
 	},
+	autofocus: {
+		type: Boolean,
+		default: false,
+	},
 })
 
 const isFocused = ref(false)
@@ -36,6 +41,12 @@ const inputEl = ref(null)
 defineExpose({ inputEl })
 
 const text = ref(props.modelValue ? props.modelValue : "")
+
+onMounted(() => {
+	if (props.autofocus) {
+		inputEl.value.focus()
+	}
+})
 
 watch(
 	() => props.modelValue,
@@ -57,10 +68,6 @@ const handleInput = () => {
 	} else {
 		emit("update:modelValue", text.value)
 	}
-}
-
-const handleClear = () => {
-	emit("update:modelValue", "")
 }
 
 const handleKeydown = (e) => {
@@ -119,7 +126,6 @@ const handleBlur = () => {
 	align-items: center;
 	justify-content: space-between;
 
-	height: 32px;
 	border-radius: 6px;
 	box-shadow: inset 0 0 0 1px var(--op-5);
 	background: var(--op-3);
@@ -127,6 +133,14 @@ const handleBlur = () => {
 	cursor: text;
 
 	transition: all 0.2s ease;
+}
+
+.base.medium {
+	height: 32px;
+}
+
+.base.small {
+	height: 28px;
 }
 
 .base:hover {
