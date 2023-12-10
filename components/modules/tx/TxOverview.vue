@@ -181,6 +181,12 @@ const handleViewRawEvents = () => {
 							<Text size="12" weight="600" color="tertiary"> Fee </Text>
 							<Text size="12" weight="600" color="secondary" no-wrap> {{ tia(tx.fee) }} TIA</Text>
 						</Flex>
+						<Flex v-if="tx.codespace" align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Codespace</Text>
+							<Text size="12" weight="600" color="secondary" no-wrap style="text-transform: capitalize">
+								{{ tx.codespace }}</Text
+							>
+						</Flex>
 					</Flex>
 				</Flex>
 			</Flex>
