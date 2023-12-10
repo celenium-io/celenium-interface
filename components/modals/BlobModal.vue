@@ -25,7 +25,8 @@ const isDecode = ref(false)
 const isViewAll = ref(false)
 
 const previewEl = ref(null)
-const showPreview = ref(false)
+const showPreviewImage = ref(false)
+const showPreviewText = ref(false)
 
 const rawData = computed(() => {
 	return blob.value.data
@@ -34,8 +35,11 @@ const decodedData = computed(() => {
 	const result = Uint8Array.from(atob(blob.value.data), (m) => m.codePointAt(0))
 	return Array.from(result).join(" ")
 })
+const contentPreviewText = ref("")
 const viewData = computed(() => {
-	if (!isDecode.value) {
+	if (contentPreviewText.value.length) {
+		return contentPreviewText.value
+	} else if (!isDecode.value) {
 		return rawData.value
 	} else {
 		return decodedData.value
@@ -61,6 +65,10 @@ watch(
 			isDecode.value = false
 			isViewAll.value = false
 			blob.value = {}
+
+			showPreviewImage.value = false
+			showPreviewText.value = false
+			contentPreviewText.value = ""
 		}
 	},
 )
@@ -86,15 +94,26 @@ const handleDownload = () => {
 }
 
 const handlePreviewContent = () => {
-	if (!showPreview.value) {
-		showPreview.value = true
-		nextTick(() => {
-			const image = new Image()
-			image.src = `data:image/png;base64,${blob.value.data}`
-			previewEl.value.appendChild(image)
-		})
+	if (blob.value.content_type === "image/png") {
+		if (!showPreviewImage.value) {
+			showPreviewImage.value = true
+
+			nextTick(() => {
+				const image = new Image()
+				image.src = `data:image/png;base64,${blob.value.data}`
+				previewEl.value.appendChild(image)
+			})
+		} else {
+			showPreviewImage.value = false
+		}
 	} else {
-		showPreview.value = false
+		if (!showPreviewText.value) {
+			showPreviewText.value = true
+			contentPreviewText.value = atob(blob.value.data)
+		} else {
+			showPreviewText.value = false
+			contentPreviewText.value = ""
+		}
 	}
 }
 </script>
@@ -106,7 +125,8 @@ const handlePreviewContent = () => {
 
 			<Text v-if="notFound" size="12" weight="600" color="tertiary"> Blob not found </Text>
 			<Flex v-else-if="blob.data" direction="column" gap="24">
-				<div v-if="showPreview" ref="previewEl" :class="$style.preview" />
+				<div v-if="showPreviewImage" ref="previewEl" :class="$style.preview" />
+
 				<Flex v-else direction="column" gap="12">
 					<Flex direction="column" gap="8" :class="$style.data">
 						<Text size="13" weight="500" height="160" color="secondary" mono :class="[$style.field, isViewAll && $style.full]">
@@ -190,9 +210,16 @@ const handlePreviewContent = () => {
 					</Flex>
 				</Button>
 
-				<Button @click="isDecode = !isDecode" type="secondary" size="small"> {{ isDecode ? "Encode" : "Decode" }} Base64 </Button>
-				<Button @click="handlePreviewContent" type="secondary" size="small" :disabled="blob.content_type !== 'image/png'">
-					{{ showPreview ? "Close" : "Load" }} Preview
+				<Button @click="isDecode = !isDecode" type="secondary" size="small" :disabled="showPreviewImage || showPreviewText">
+					{{ isDecode ? "Encode" : "Decode" }} Base64
+				</Button>
+				<Button
+					@click="handlePreviewContent"
+					type="secondary"
+					size="small"
+					:disabled="!['image/png', 'text/plain; charset=utf-8'].includes(blob.content_type)"
+				>
+					{{ showPreviewImage || showPreviewText ? "Hide" : "Preview" }} Content
 				</Button>
 			</Flex>
 		</Flex>
