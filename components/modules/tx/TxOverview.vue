@@ -110,10 +110,19 @@ const handleViewRawEvents = () => {
 						</Flex>
 					</Flex>
 
-					<Flex v-if="tx.error" direction="column" gap="8">
+					<Flex v-if="tx.error" direction="column" gap="6">
 						<Text size="12" weight="600" color="secondary">Error Message</Text>
 
 						<Text size="12" height="140" weight="600" color="tertiary" mono selectable>{{ tx.error }}</Text>
+					</Flex>
+
+					<Flex direction="column" gap="10" :class="$style.key_value">
+						<Text size="12" weight="600" color="secondary">Type</Text>
+
+						<Flex v-if="tx.message_types.length" align="center" gap="8" wrap="wrap">
+							<MessageTypeBadge v-for="type in tx.message_types" :types="[type]" />
+						</Flex>
+						<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
 					</Flex>
 
 					<Flex direction="column" gap="10" :class="$style.key_value">
@@ -130,18 +139,15 @@ const handleViewRawEvents = () => {
 						</NuxtLink>
 					</Flex>
 
-					<Flex direction="column" gap="10" :class="$style.key_value">
-						<Text size="12" weight="600" color="secondary">Type</Text>
-
-						<Flex v-if="tx.message_types.length" align="center" gap="8" wrap="wrap">
-							<MessageTypeBadge v-for="type in tx.message_types" :types="[type]" />
-						</Flex>
-						<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
-					</Flex>
-
 					<Flex direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Hash</Text>
 						<BadgeValue :text="tx.hash" />
+					</Flex>
+
+					<Flex v-if="tx.memo" direction="column" gap="6">
+						<Text size="12" weight="600" color="secondary">Memo</Text>
+
+						<Text size="12" height="140" weight="600" color="tertiary" mono selectable>{{ tx.memo }}</Text>
 					</Flex>
 
 					<Flex direction="column" gap="10">
