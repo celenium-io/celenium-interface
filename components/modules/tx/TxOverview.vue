@@ -639,8 +639,10 @@ const handleViewRawEvents = () => {
 }
 
 @media (max-width: 500px) {
-	.main {
-		min-width: initial;
+	.data {
+		.main {
+			min-width: initial;
+		}
 	}
 }
 </style>
