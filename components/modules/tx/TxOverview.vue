@@ -187,6 +187,10 @@ const handleViewRawEvents = () => {
 								{{ tx.codespace }}</Text
 							>
 						</Flex>
+						<Flex v-if="tx.timeout_height" align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Timeout Height</Text>
+							<Text size="12" weight="600" color="secondary" no-wrap> {{ comma(tx.timeout_height) }}</Text>
+						</Flex>
 					</Flex>
 				</Flex>
 			</Flex>
