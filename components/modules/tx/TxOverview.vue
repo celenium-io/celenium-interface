@@ -155,7 +155,9 @@ const handleViewRawEvents = () => {
 
 						<div :class="$style.gas_bar">
 							<div
-								:style="{ width: `${(tx.gas_used * 100) / tx.gas_wanted}%` }"
+								:style="{
+									width: `${(tx.gas_used * 100) / tx.gas_wanted > 100 ? 100 : (tx.gas_used * 100) / tx.gas_wanted}%`,
+								}"
 								:class="[$style.gas_used, (tx.gas_used * 100) / tx.gas_wanted > 100 && $style.error]"
 							/>
 						</div>
