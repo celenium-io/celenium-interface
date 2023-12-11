@@ -11,19 +11,17 @@ onMounted(async () => {
 </script>
 
 <template>
-	<Flex direction="column" :class="$style.wrapper">
+	<Flex direction="column" gap="20" :class="$style.wrapper">
 		<Flex align="center" justify="between">
 			<Flex align="center" gap="6">
-				<Icon name="addresses" size="12" color="secondary" />
-				<Text size="13" weight="600" height="110" color="secondary">Validators</Text>
+				<Icon name="gas" size="12" color="secondary" />
+				<Text size="13" weight="600" height="110" color="secondary">Gas Tracker</Text>
 			</Flex>
 
-			<Text size="12" weight="600" color="secondary"> {{ totalValidators }} </Text>
+			<Text size="12" weight="600" color="support">Not Available</Text>
 		</Flex>
 
-		<div :class="$style.bar">
-			<div :style="{ width: totalValidators ? '100%' : '0%' }" :class="$style.fill" />
-		</div>
+		<Text size="12" weight="500" color="tertiary" align="center"> Data will be available soon</Text>
 	</Flex>
 </template>
 
@@ -35,7 +33,7 @@ onMounted(async () => {
 	border-radius: 12px;
 	overflow: hidden;
 
-	padding: 16px;
+	padding: 12px;
 }
 
 .bar {
