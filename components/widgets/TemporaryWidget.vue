@@ -1,4 +1,7 @@
 <script setup>
+/** UI */
+import Tooltip from "@/components/ui/Tooltip.vue"
+
 /** API */
 import { fetchSummary } from "@/services/api/stats"
 import { fetchAddressesCount } from "@/services/api/address"
@@ -37,9 +40,25 @@ onMounted(async () => {
 				<Text size="13" weight="600" height="110" color="secondary">Validators</Text>
 			</Flex>
 
-			<Flex gap="2" :class="$style.bars">
-				<div v-for="item in 10" :class="[$style.bar, (100 * 100) / totalValidators > item * 10 && $style.active]" />
-			</Flex>
+			<Tooltip position="start">
+				<Flex gap="2" :class="$style.bars">
+					<div v-for="item in 10" :class="[$style.bar, (100 * 100) / totalValidators > item * 10 && $style.active]" />
+				</Flex>
+
+				<template #content>
+					<Flex direction="column" gap="4">
+						<Flex justify="between" align="center" gap="40">
+							<Text color="secondary">Active / Total</Text>
+							<Text color="primary"> 100 / {{ totalValidators }} </Text>
+						</Flex>
+
+						<Flex justify="between" align="center" gap="8">
+							<Text color="secondary">Percentage</Text>
+							<Text color="primary">{{ ((100 * 100) / totalValidators).toFixed(2) }}%</Text>
+						</Flex>
+					</Flex>
+				</template>
+			</Tooltip>
 
 			<Flex align="center" justify="between">
 				<Text size="12" weight="600" color="tertiary"> Active Validators </Text>
