@@ -122,8 +122,8 @@ isLoading.value = false
 			</Flex>
 
 			<div :class="$style.bottom">
-				<Button link="/txs" type="secondary" size="small" wide>
-					<Text size="12" weight="600" color="primary">View all transactions</Text>
+				<Button link="/txs?status=success&message_type=MsgPayForBlobs" type="secondary" size="small" wide>
+					<Text size="12" weight="600" color="primary">View all latest PFBs</Text>
 					<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
 				</Button>
 			</div>
