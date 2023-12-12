@@ -13,10 +13,13 @@ import { customViewerTheme } from "@/services/editor/theme.js"
 
 /** UI */
 import Modal from "@/components/ui/Modal.vue"
+import Button from "@/components/ui/Button.vue"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
+import { useNotificationsStore } from "@/store/notifications"
 const cacheStore = useCacheStore()
+const notificationsStore = useNotificationsStore()
 
 const emit = defineEmits(["onClose"])
 const props = defineProps({
@@ -54,6 +57,19 @@ watch(
 		})
 	},
 )
+
+const handleCopy = () => {
+	window.navigator.clipboard.writeText(JSON.stringify(cacheStore.current[cacheStore.current._target]))
+
+	notificationsStore.create({
+		notification: {
+			type: "info",
+			icon: "check",
+			title: "Successfully copied to clipboard",
+			autoDestroy: true,
+		},
+	})
+}
 </script>
 
 <template>
@@ -62,6 +78,11 @@ watch(
 			<Text size="14" weight="600" color="primary">Raw Data Overview</Text>
 
 			<div ref="editorRef" :class="$style.editor" />
+
+			<Button @click="handleCopy" type="secondary" size="small" wide>
+				<Icon name="copy" size="12" color="secondary" />
+				Copy
+			</Button>
 		</Flex>
 	</Modal>
 </template>

@@ -12,10 +12,6 @@ import { tia, comma, space, formatBytes } from "@/services/utils"
 /** API */
 import { fetchBlocks, fetchBlocksCount } from "@/services/api/block"
 
-/** Store */
-import { useAppStore } from "@/store/app"
-const appStore = useAppStore()
-
 useHead({
 	title: "Blocks - Celestia Explorer",
 	link: [
@@ -73,11 +69,15 @@ const count = ref(0)
 
 const hintedBlock = ref(route.query.block)
 
-const { data: blocksCount } = await fetchBlocksCount()
-count.value = blocksCount.value
+const getBlocksCount = async () => {
+	const { data: blocksCount } = await fetchBlocksCount()
+	count.value = blocksCount.value
+}
+
+await getBlocksCount()
 
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = ref(Math.ceil(count.value / 20))
+const pages = computed(() => Math.ceil(count.value / 20))
 
 const { data } = await fetchBlocks({ limit: 20, offset: (page.value - 1) * 20 })
 blocks.value = data.value
@@ -97,16 +97,22 @@ watch(
 	},
 )
 
+const handlePrev = () => {
+	if (page.value === 1) return
+
+	page.value -= 1
+}
+
 const handleNext = () => {
 	if (page.value === pages.value) return
 
 	page.value += 1
 }
 
-const handlePrev = () => {
-	if (page.value === 1) return
+const handleLast = async () => {
+	await getBlocksCount()
 
-	page.value -= 1
+	page.value = pages.value
 }
 </script>
 
@@ -140,7 +146,7 @@ const handlePrev = () => {
 					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
 						<Icon name="arrow-narrow-right" size="12" color="primary" />
 					</Button>
-					<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages"> Last </Button>
+					<Button @click="handleLast" type="secondary" size="mini" :disabled="page === pages"> Last </Button>
 				</Flex>
 			</Flex>
 
@@ -184,8 +190,8 @@ const handlePrev = () => {
 								<td>
 									<Tooltip v-if="block.hash" delay="500">
 										<template #default>
-											<Flex direction="column" gap="6">
-												<Text size="12" weight="600" color="primary" :class="$style.proposer_moniker">
+											<Flex direction="column" gap="4">
+												<Text size="12" height="120" weight="600" color="primary" :class="$style.proposer_moniker">
 													{{ block.proposer.moniker }}
 												</Text>
 
@@ -216,18 +222,16 @@ const handlePrev = () => {
 								<td>
 									<Tooltip v-if="block.hash" delay="500">
 										<template #default>
-											<Flex align="center" gap="10">
-												<Flex align="center" gap="6">
-													<Text size="13" weight="600" color="primary" mono>{{ block.hash.slice(0, 4) }}</Text>
+											<Flex align="center" gap="8">
+												<Text size="13" weight="600" color="primary" mono>{{ block.hash.slice(0, 4) }}</Text>
 
-													<Flex align="center" gap="3">
-														<div v-for="dot in 3" class="dot" />
-													</Flex>
-
-													<Text size="13" weight="600" color="primary" mono>
-														{{ block.hash.slice(block.hash.length - 4, block.hash.length) }}
-													</Text>
+												<Flex align="center" gap="3">
+													<div v-for="dot in 3" class="dot" />
 												</Flex>
+
+												<Text size="13" weight="600" color="primary" mono>
+													{{ block.hash.slice(block.hash.length - 4, block.hash.length) }}
+												</Text>
 
 												<CopyButton :text="block.hash" />
 											</Flex>
@@ -254,7 +258,9 @@ const handlePrev = () => {
 								</td>
 								<td>
 									<Flex align="center" gap="4">
-										<Text size="13" weight="600" color="primary"> {{ tia(block.stats.fee) }} </Text>
+										<Text size="13" weight="600" :color="parseFloat(block.stats.fee) ? 'primary' : 'tertiary'">
+											{{ tia(block.stats.fee) }}
+										</Text>
 										<Text size="13" weight="600" color="tertiary"> TIA </Text>
 									</Flex>
 								</td>
@@ -292,7 +298,7 @@ const handlePrev = () => {
 }
 
 .table {
-	border-radius: 4px 4px 4px 8px;
+	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 
 	padding-bottom: 12px;
@@ -353,7 +359,7 @@ const handlePrev = () => {
 }
 
 .proposer_moniker {
-	max-width: 150px;
+	max-width: 160px;
 
 	text-overflow: ellipsis;
 	overflow: hidden;

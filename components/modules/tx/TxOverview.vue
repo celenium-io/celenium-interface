@@ -3,6 +3,7 @@
 import { DateTime } from "luxon"
 
 /** UI */
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Tooltip from "~/components/ui/Tooltip.vue"
 import Button from "~/components/ui/Button.vue"
 
@@ -16,6 +17,12 @@ import amp from "@/services/amp"
 
 /** API */
 import { fetchTxEvents } from "@/services/api/tx"
+
+/** Store */
+import { useModalsStore } from "@/store/modals"
+import { useCacheStore } from "@/store/cache"
+const modalsStore = useModalsStore()
+const cacheStore = useCacheStore()
 
 const EventIconMapping = {
 	message: "message",
@@ -46,12 +53,34 @@ const filteredEvents = computed(() => (showAll.value ? events.value : events.val
 
 const { data: rawEvents } = await fetchTxEvents(props.tx.hash)
 events.value = rawEvents.value.sort((a, b) => a.position - b.position)
+cacheStore.current.events = events.value
+
+const handleViewRawTransaction = () => {
+	cacheStore.current._target = "transaction"
+	modalsStore.open("rawData")
+}
+
+const handleViewRawEvents = () => {
+	cacheStore.current._target = "events"
+	modalsStore.open("rawData")
+}
 </script>
 
 <template>
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
 			<Text size="14" weight="600" color="primary">Transaction Overview</Text>
+
+			<Dropdown>
+				<Button type="tertiary" size="mini">
+					<Icon name="dots" size="16" color="secondary" />
+				</Button>
+
+				<template #popup>
+					<DropdownItem @click="handleViewRawTransaction"> View Raw Transaction </DropdownItem>
+					<DropdownItem @click="handleViewRawEvents"> View Raw Events </DropdownItem>
+				</template>
+			</Dropdown>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
@@ -81,6 +110,21 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 						</Flex>
 					</Flex>
 
+					<Flex v-if="tx.error" direction="column" gap="6">
+						<Text size="12" weight="600" color="secondary">Error Message</Text>
+
+						<Text size="12" height="140" weight="600" color="tertiary" mono selectable>{{ tx.error }}</Text>
+					</Flex>
+
+					<Flex direction="column" gap="10" :class="$style.key_value">
+						<Text size="12" weight="600" color="secondary">Type</Text>
+
+						<Flex v-if="tx.message_types.length" align="center" gap="8" wrap="wrap">
+							<MessageTypeBadge v-for="type in tx.message_types" :types="[type]" />
+						</Flex>
+						<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
+					</Flex>
+
 					<Flex direction="column" gap="10" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Block</Text>
 
@@ -95,25 +139,27 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 						</NuxtLink>
 					</Flex>
 
-					<Flex direction="column" gap="10" :class="$style.key_value">
-						<Text size="12" weight="600" color="secondary">Type</Text>
-
-						<Flex v-if="tx.message_types.length" align="center" gap="8" wrap="wrap">
-							<MessageTypeBadge v-for="type in tx.message_types" :types="[type]" />
-						</Flex>
-						<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
-					</Flex>
-
 					<Flex direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Hash</Text>
 						<BadgeValue :text="tx.hash" />
+					</Flex>
+
+					<Flex v-if="tx.memo" direction="column" gap="6">
+						<Text size="12" weight="600" color="secondary">Memo</Text>
+
+						<Text size="12" height="140" weight="600" color="tertiary" mono selectable>{{ tx.memo }}</Text>
 					</Flex>
 
 					<Flex direction="column" gap="10">
 						<Text size="12" weight="600" color="secondary">Gas Used</Text>
 
 						<div :class="$style.gas_bar">
-							<div :style="{ width: `${(tx.gas_used * 100) / tx.gas_wanted}%` }" :class="$style.gas_used" />
+							<div
+								:style="{
+									width: `${(tx.gas_used * 100) / tx.gas_wanted > 100 ? 100 : (tx.gas_used * 100) / tx.gas_wanted}%`,
+								}"
+								:class="[$style.gas_used, (tx.gas_used * 100) / tx.gas_wanted > 100 && $style.error]"
+							/>
 						</div>
 
 						<Flex align="center" justify="between">
@@ -136,6 +182,16 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Fee </Text>
 							<Text size="12" weight="600" color="secondary" no-wrap> {{ tia(tx.fee) }} TIA</Text>
+						</Flex>
+						<Flex v-if="tx.codespace" align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Codespace</Text>
+							<Text size="12" weight="600" color="secondary" no-wrap style="text-transform: capitalize">
+								{{ tx.codespace }}</Text
+							>
+						</Flex>
+						<Flex v-if="tx.timeout_height" align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Timeout Height</Text>
+							<Text size="12" weight="600" color="secondary" no-wrap> {{ comma(tx.timeout_height) }}</Text>
 						</Flex>
 					</Flex>
 				</Flex>
@@ -473,6 +529,8 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 	background: var(--card-background);
 
 	.main {
+		min-width: 384px;
+
 		padding: 16px;
 
 		& .key_value {
@@ -494,6 +552,11 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 		border-radius: 50px;
 		background: var(--green);
 		box-shadow: 0 0 6px rgba(10, 222, 112, 80%);
+
+		&.error {
+			background: var(--red);
+			box-shadow: 0 0 6px var(--red);
+		}
 	}
 }
 
@@ -590,6 +653,14 @@ events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 		min-width: 0;
 
 		border-radius: 4px;
+	}
+}
+
+@media (max-width: 500px) {
+	.data {
+		.main {
+			min-width: initial;
+		}
 	}
 }
 </style>

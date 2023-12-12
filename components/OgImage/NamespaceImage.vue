@@ -38,6 +38,10 @@ const bgStyles = computed(() => {
 				<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.3)' }">')</span>
 			</div>
 
+			<span :style="{ fontSize: '46px', color: 'rgba(255,255,255, 0.9)' }">
+				{{ namespace.name }}
+			</span>
+
 			<span :style="{ fontSize: '40px', color: 'rgba(255,255,255, 0.7)' }">
 				{{ formatBytes(namespace.size) }}
 			</span>

@@ -44,27 +44,25 @@ isLoading.value = false
 					<tbody>
 						<tr v-for="pfb in pfbs" @click="router.push(`/tx/${pfb.hash}`)">
 							<td style="width: 1px">
-								<Tooltip position="start" delay="500">
-									<Flex align="center" gap="10">
-										<Flex align="center" gap="8">
-											<Icon
-												:name="pfb.status === 'success' ? 'check-circle' : 'close-circle'"
-												size="14"
-												:color="pfb.status === 'success' ? 'green' : 'red'"
-											/>
+								<Tooltip position="start">
+									<Flex align="center" gap="8">
+										<Icon
+											:name="pfb.status === 'success' ? 'check-circle' : 'close-circle'"
+											size="14"
+											:color="pfb.status === 'success' ? 'green' : 'red'"
+										/>
 
-											<Text size="13" weight="600" color="primary" mono>
-												{{ pfb.hash.slice(0, 4).toUpperCase() }}
-											</Text>
+										<Text size="13" weight="600" color="primary" mono>
+											{{ pfb.hash.slice(0, 4).toUpperCase() }}
+										</Text>
 
-											<Flex align="center" gap="3">
-												<div v-for="dot in 3" class="dot" />
-											</Flex>
-
-											<Text size="13" weight="600" color="primary" mono>
-												{{ pfb.hash.slice(pfb.hash.length - 4, pfb.hash.length).toUpperCase() }}
-											</Text>
+										<Flex align="center" gap="3">
+											<div v-for="dot in 3" class="dot" />
 										</Flex>
+
+										<Text size="13" weight="600" color="primary" mono>
+											{{ pfb.hash.slice(pfb.hash.length - 4, pfb.hash.length).toUpperCase() }}
+										</Text>
 
 										<CopyButton :text="pfb.hash.toUpperCase()" />
 									</Flex>
@@ -124,8 +122,8 @@ isLoading.value = false
 			</Flex>
 
 			<div :class="$style.bottom">
-				<Button link="/txs" type="secondary" size="small" wide>
-					<Text size="12" weight="600" color="primary">View all transactions</Text>
+				<Button link="/txs?status=success&message_type=MsgPayForBlobs" type="secondary" size="small" wide>
+					<Text size="12" weight="600" color="primary">View all latest PFBs</Text>
 					<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
 				</Button>
 			</div>

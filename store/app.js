@@ -10,7 +10,7 @@ export const useAppStore = defineStore("app", () => {
 
 	const showCmd = ref(false)
 
-	const theme = ref(null)
+	const theme = ref("")
 
 	const confirmation = ref(null)
 	const createConfirmation = (metadata) => {

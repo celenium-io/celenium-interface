@@ -2,9 +2,9 @@
 /** Components: Widgets */
 import BlockWidget from "./BlockWidget.vue"
 import BlobsWidget from "./BlobsWidget.vue"
-import NetworkWidget from "./NetworkWidget.vue"
+import TemporaryWidget from "./TemporaryWidget.vue"
 import TransactionsWidget from "./TransactionsWidget.vue"
-import ValidatorsWidget from "./ValidatorsWidget.vue"
+import GasWidget from "./GasWidget.vue"
 
 const tablet = ref(false)
 
@@ -22,11 +22,11 @@ onBeforeMount(() => {
 			<BlobsWidget />
 		</Flex>
 
-		<NetworkWidget />
+		<TemporaryWidget />
 
 		<Flex direction="column" gap="20" wide :class="$style.column">
 			<TransactionsWidget />
-			<ValidatorsWidget />
+			<GasWidget />
 		</Flex>
 	</Flex>
 </template>

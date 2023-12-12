@@ -2,12 +2,17 @@
 /** Vendor */
 import * as d3 from "d3"
 
+/** UI */
+import Button from "@/components/ui/Button.vue"
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
+
 /** Services */
 import { formatBytes, uid } from "@/services/utils"
 
 /** API */
-import { fetchNamespaces } from "@/services/api/namespace"
+import { fetchNamespaceUsage } from "@/services/api/stats"
 
+const route = useRoute()
 const router = useRouter()
 const cssModule = useCssModule()
 
@@ -15,14 +20,14 @@ const namespaces = ref([])
 
 const treemap = ref(null)
 
-const { data } = await fetchNamespaces({
-	limit: 40,
-	offset: 0,
-	sort: "desc",
-})
-namespaces.value = data.value
+const top = ref(route.query.top || 5)
 
-onMounted(() => {
+const getNamespaceUsage = async () => {
+	const data = await fetchNamespaceUsage({ top: top.value })
+	namespaces.value = data
+}
+
+const drawTreemap = () => {
 	const data = {
 		name: "Namespaces Treemap",
 		children: namespaces.value.map((n) => {
@@ -107,8 +112,28 @@ onMounted(() => {
 
 	Object.assign(svg.node(), { scales: { color } })
 
+	treemap.value.children[0]?.remove()
 	treemap.value.append(svg.node())
+}
+
+onMounted(async () => {
+	await getNamespaceUsage()
+	drawTreemap()
 })
+
+watch(
+	() => top.value,
+	async () => {
+		await getNamespaceUsage()
+		drawTreemap()
+	},
+)
+
+const handleSelectFilter = (target) => {
+	top.value = target
+
+	router.replace({ query: { top: target } })
+}
 </script>
 
 <template>
@@ -122,7 +147,19 @@ onMounted(() => {
 			:class="$style.breadcrumbs"
 		/>
 
-		<div ref="treemap" />
+		<Flex direction="column" gap="12">
+			<Dropdown position="end">
+				<Button type="secondary" size="mini">Show: Top {{ top }}</Button>
+
+				<template #popup>
+					<DropdownItem @click="handleSelectFilter(5)">Top 5</DropdownItem>
+					<DropdownItem @click="handleSelectFilter(15)">Top 15</DropdownItem>
+					<DropdownItem @click="handleSelectFilter(30)">Top 30</DropdownItem>
+				</template>
+			</Dropdown>
+
+			<div ref="treemap" />
+		</Flex>
 	</Flex>
 </template>
 
@@ -134,14 +171,17 @@ onMounted(() => {
 }
 
 .breadcrumbs {
-	margin-bottom: 16px;
+	margin-bottom: 32px;
 }
 
 .gNode {
 	cursor: pointer;
+	stroke-width: 1px;
+	stroke-dasharray: 6px;
+	stroke-linecap: round;
 
 	&:hover .rect {
-		fill: var(--neutral-green);
+		stroke: var(--green);
 	}
 }
 

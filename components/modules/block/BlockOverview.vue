@@ -3,6 +3,7 @@
 import { DateTime } from "luxon"
 
 /** UI */
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Tooltip from "@/components/ui/Tooltip.vue"
 import Button from "@/components/ui/Button.vue"
 import Badge from "@/components/ui/Badge.vue"
@@ -15,6 +16,12 @@ import { tia, comma, space, formatBytes } from "@/services/utils"
 
 /** API */
 import { fetchTransactionsByBlock } from "@/services/api/tx"
+
+/** Store */
+import { useModalsStore } from "@/store/modals"
+import { useCacheStore } from "@/store/cache"
+const modalsStore = useModalsStore()
+const cacheStore = useCacheStore()
 
 const MapTabsTypes = {
 	PFBs: "MsgPayForBlobs",
@@ -64,6 +71,7 @@ const getTransactions = async () => {
 	})
 	if (data.value?.length) {
 		transactions.value = data.value
+		cacheStore.current.transactions = transactions.value
 	}
 
 	isRefetching.value = false
@@ -117,12 +125,33 @@ const getTxnsCountByTab = (tab) => {
 		return unsupportedCounter
 	}
 }
+
+const handleViewRawBlock = () => {
+	cacheStore.current._target = "block"
+	modalsStore.open("rawData")
+}
+
+const handleViewRawTransactions = () => {
+	cacheStore.current._target = "transactions"
+	modalsStore.open("rawData")
+}
 </script>
 
 <template>
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
 			<Text size="14" weight="600" color="primary">Block Overview</Text>
+
+			<Dropdown>
+				<Button type="tertiary" size="mini">
+					<Icon name="dots" size="16" color="secondary" />
+				</Button>
+
+				<template #popup>
+					<DropdownItem @click="handleViewRawBlock"> View Raw Block </DropdownItem>
+					<DropdownItem @click="handleViewRawTransactions"> View Raw Transactions </DropdownItem>
+				</template>
+			</Dropdown>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
@@ -225,6 +254,10 @@ const getTxnsCountByTab = (tab) => {
 							<Text size="12" weight="600" color="tertiary"> Total Fees </Text>
 							<Text size="12" weight="600" color="secondary"> {{ tia(block.stats.fee) }} TIA</Text>
 						</Flex>
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary"> Bytes in block </Text>
+							<Text size="12" weight="600" color="secondary"> {{ formatBytes(block.stats.bytes_in_block) }}</Text>
+						</Flex>
 					</Flex>
 				</Flex>
 			</Flex>
@@ -300,6 +333,10 @@ const getTxnsCountByTab = (tab) => {
 													</Flex>
 
 													{{ space(tx.hash).toUpperCase() }}
+
+													<Text height="120" color="tertiary" style="max-width: 400px" mono align="left">
+														{{ tx.error }}
+													</Text>
 												</Flex>
 											</template>
 										</Tooltip>
@@ -320,11 +357,11 @@ const getTxnsCountByTab = (tab) => {
 									<td style="width: 1px">
 										<Tooltip>
 											<Flex align="center" gap="8">
+												<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
+
 												<Text v-if="tx.gas_wanted > 0" size="13" weight="600" color="primary">
 													{{ ((tx.gas_used * 100) / tx.gas_wanted).toFixed(2) }}%
 												</Text>
-
-												<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
 											</Flex>
 
 											<template #content>

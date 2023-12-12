@@ -107,10 +107,10 @@ const suggestedActions = ref([])
 const makeSuggestions = () => {
 	suggestedActions.value = []
 
-	if (route.name === "namespaces" && featurePreviewMode.value) {
+	if (route.name === "namespaces") {
 		suggestedActions.value.push({
 			type: "callback",
-			icon: "arrow-narrow-right",
+			icon: "treemap",
 			title: "Open Treemap View",
 			runText: "Open",
 			callback: () => {
@@ -119,7 +119,7 @@ const makeSuggestions = () => {
 		})
 	}
 
-	if (route.name === "namespace-id" && featurePreviewMode.value) {
+	if (route.name === "namespace-id") {
 		suggestedActions.value.push({
 			type: "callback",
 			icon: "folder",
@@ -137,6 +137,84 @@ const makeSuggestions = () => {
 			runText: "View",
 			callback: () => {
 				cacheStore.current._target = "messages"
+				modalsStore.open("rawData")
+			},
+		})
+	}
+
+	if (route.name === "block-height") {
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "block",
+			title: "View Raw Block",
+			runText: "View",
+			callback: () => {
+				cacheStore.current._target = "block"
+				modalsStore.open("rawData")
+			},
+		})
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "tx",
+			title: "View Raw Transactions",
+			runText: "View",
+			callback: () => {
+				cacheStore.current._target = "transactions"
+				modalsStore.open("rawData")
+			},
+		})
+	}
+
+	if (route.name === "tx-hash") {
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "blob",
+			title: "View Blob",
+			runText: "View",
+			callback: () => {
+				modalsStore.open("blob")
+			},
+		})
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "tx",
+			title: "View Raw Transactions",
+			runText: "View",
+			callback: () => {
+				cacheStore.current._target = "transaction"
+				modalsStore.open("rawData")
+			},
+		})
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "tx",
+			title: "View Raw Events",
+			runText: "View",
+			callback: () => {
+				cacheStore.current._target = "events"
+				modalsStore.open("rawData")
+			},
+		})
+	}
+
+	if (route.name === "address-hash") {
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "addresses",
+			title: "View Raw Address",
+			runText: "View",
+			callback: () => {
+				cacheStore.current._target = "address"
+				modalsStore.open("rawData")
+			},
+		})
+		suggestedActions.value.push({
+			type: "callback",
+			icon: "tx",
+			title: "View Raw Transactions",
+			runText: "View",
+			callback: () => {
+				cacheStore.current._target = "transactions"
 				modalsStore.open("rawData")
 			},
 		})
@@ -360,6 +438,16 @@ const settingsGroup = computed(() => {
 })
 
 const developerActions = [
+	{
+		type: "callback",
+		icon: "zap",
+		title: "View Constants",
+		subtitle: "Command",
+		runText: "View Constants",
+		callback: () => {
+			modalsStore.open("constants")
+		},
+	},
 	{
 		type: "callback",
 		icon: "settings",
@@ -603,9 +691,11 @@ onMounted(() => {
 			}
 		}
 
-		if (!(e.code === "KeyK" && ((isMac && e.metaKey) || (!isMac && e.ctrlKey)))) return
+		if (e.code === "KeyK" && ((isMac && e.metaKey) || (!isMac && e.ctrlKey))) {
+			e.preventDefault()
 
-		appStore.showCmd = !appStore.showCmd
+			appStore.showCmd = !appStore.showCmd
+		}
 	})
 })
 

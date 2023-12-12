@@ -1,5 +1,6 @@
 <script setup>
 /** UI */
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Tooltip from "@/components/ui/Tooltip.vue"
 import Button from "@/components/ui/Button.vue"
 
@@ -11,6 +12,12 @@ import { tia, comma, space } from "@/services/utils"
 
 /** API */
 import { fetchTxsByAddressHash } from "@/services/api/address"
+
+/** Store */
+import { useModalsStore } from "@/store/modals"
+import { useCacheStore } from "@/store/cache"
+const modalsStore = useModalsStore()
+const cacheStore = useCacheStore()
 
 const router = useRouter()
 
@@ -50,6 +57,7 @@ const getTransactions = async () => {
 
 	if (data.value?.length) {
 		transactions.value = data.value
+		cacheStore.current.transactions = transactions.value
 	}
 
 	isRefetching.value = false
@@ -106,12 +114,33 @@ const getTxnsCountByTab = (tab) => {
 		return unsupportedCounter
 	}
 }
+
+const handleViewRawAddress = () => {
+	cacheStore.current._target = "address"
+	modalsStore.open("rawData")
+}
+
+const handleViewRawTransactions = () => {
+	cacheStore.current._target = "transactions"
+	modalsStore.open("rawData")
+}
 </script>
 
 <template>
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
 			<Text size="14" weight="600" color="primary">Address Overview</Text>
+
+			<Dropdown>
+				<Button type="tertiary" size="mini">
+					<Icon name="dots" size="16" color="secondary" />
+				</Button>
+
+				<template #popup>
+					<DropdownItem @click="handleViewRawAddress"> View Raw Address </DropdownItem>
+					<DropdownItem @click="handleViewRawTransactions"> View Raw Transactions </DropdownItem>
+				</template>
+			</Dropdown>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
@@ -190,7 +219,7 @@ const getTxnsCountByTab = (tab) => {
 													:color="tx.status === 'success' ? 'green' : 'red'"
 												/>
 
-												<Text size="13" weight="600" color="primary">
+												<Text size="13" weight="600" color="primary" mono>
 													{{ tx.hash.slice(0, 4).toUpperCase() }}
 												</Text>
 
@@ -198,9 +227,9 @@ const getTxnsCountByTab = (tab) => {
 													<div v-for="dot in 3" class="dot" />
 												</Flex>
 
-												<Text size="13" weight="600" color="primary">{{
-													tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase()
-												}}</Text>
+												<Text size="13" weight="600" color="primary" mono>
+													{{ tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase() }}
+												</Text>
 
 												<CopyButton :text="tx.hash" />
 											</Flex>
@@ -239,11 +268,11 @@ const getTxnsCountByTab = (tab) => {
 									<td style="width: 1px">
 										<Tooltip>
 											<Flex align="center" gap="8">
+												<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
+
 												<Text v-if="tx.gas_wanted > 0" size="13" weight="600" color="primary">
 													{{ ((tx.gas_used * 100) / tx.gas_wanted).toFixed(2) }}%
 												</Text>
-
-												<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
 											</Flex>
 
 											<template #content>

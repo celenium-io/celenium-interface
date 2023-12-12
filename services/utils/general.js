@@ -57,7 +57,7 @@ export const getNetworkName = () => {
 			return "Development"
 
 		case "localhost":
-			return "Local Environment"
+			return "Local"
 
 		default:
 			return "Unknown"

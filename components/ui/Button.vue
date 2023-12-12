@@ -129,12 +129,15 @@ const getStyles = () => {
 }
 
 .wrapper.mini {
-	gap: 8px;
 	height: 26px;
-	padding: 0 8px;
-	border-radius: 5px;
+
+	gap: 6px;
+
+	border-radius: 6px;
 
 	font-size: 12px;
+
+	padding: 0 8px;
 }
 
 /** TYPES */
@@ -198,6 +201,7 @@ const getStyles = () => {
 .wrapper.tertiary {
 	background: transparent;
 	fill: var(--txt-tertiary);
+	box-shadow: inset 0 0 0 1px var(--op-5);
 }
 .wrapper.tertiary:hover {
 	background: var(--op-10);

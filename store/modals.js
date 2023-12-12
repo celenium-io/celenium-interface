@@ -12,6 +12,7 @@ export const useModalsStore = defineStore("modals", () => {
 		blob: false,
 		confirmation: false,
 		rawData: false,
+		constants: false,
 	})
 
 	const open = (target) => {

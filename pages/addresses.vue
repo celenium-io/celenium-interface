@@ -64,11 +64,15 @@ const isRefetching = ref(false)
 const addresses = ref([])
 const count = ref(0)
 
-const { data: addressesCount } = await fetchAddressesCount()
-count.value = addressesCount.value
+const getAddressesCount = async () => {
+	const { data: addressesCount } = await fetchAddressesCount()
+	count.value = addressesCount.value
+}
+
+await getAddressesCount()
 
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = ref(Math.ceil(count.value / 20))
+const pages = computed(() => Math.ceil(count.value / 20))
 
 const getAddresses = async () => {
 	isRefetching.value = true
@@ -95,16 +99,22 @@ watch(
 	},
 )
 
+const handlePrev = () => {
+	if (page.value === 1) return
+
+	page.value -= 1
+}
+
 const handleNext = () => {
 	if (page.value === pages.value) return
 
 	page.value += 1
 }
 
-const handlePrev = () => {
-	if (page.value === 1) return
+const handleLast = async () => {
+	await getAddressesCount()
 
-	page.value -= 1
+	page.value = pages.value
 }
 </script>
 
@@ -138,7 +148,7 @@ const handlePrev = () => {
 					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
 						<Icon name="arrow-narrow-right" size="12" color="primary" />
 					</Button>
-					<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages"> Last </Button>
+					<Button @click="handleLast" type="secondary" size="mini" :disabled="page === pages"> Last </Button>
 				</Flex>
 			</Flex>
 
@@ -158,7 +168,7 @@ const handlePrev = () => {
 							<tr v-for="address in addresses" @click="router.push(`/address/${address.hash}`)">
 								<td style="width: 1px">
 									<Tooltip position="start" delay="500">
-										<Flex align="center" gap="10">
+										<Flex align="center" gap="8">
 											<AddressBadge :hash="address.hash" />
 
 											<CopyButton :text="address.hash" />

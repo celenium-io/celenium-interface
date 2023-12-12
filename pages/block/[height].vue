@@ -9,6 +9,10 @@ import { comma } from "@/services/utils"
 /** API */
 import { fetchBlockByHeight } from "@/services/api/block"
 
+/** Store */
+import { useCacheStore } from "@/store/cache"
+const cacheStore = useCacheStore()
+
 const route = useRoute()
 const router = useRouter()
 
@@ -19,6 +23,7 @@ if (!rawBlock.value) {
 	router.push("/")
 } else {
 	block.value = rawBlock.value
+	cacheStore.current.block = block.value
 }
 
 defineOgImage({

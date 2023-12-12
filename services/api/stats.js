@@ -37,3 +37,16 @@ export const fetchTPS = async () => {
 		console.error(error)
 	}
 }
+
+export const fetchNamespaceUsage = async ({ top }) => {
+	try {
+		const url = new URL(`${useServerURL()}/stats/namespace/usage`)
+
+		if (top) url.searchParams.append("top", top)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}

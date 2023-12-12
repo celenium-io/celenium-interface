@@ -7,7 +7,7 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { formatBytes, comma, getNamespaceID } from "@/services/utils"
+import { space, formatBytes, comma, getNamespaceID } from "@/services/utils"
 
 /** API */
 import { fetchNamespaces, fetchNamespacesCount } from "@/services/api/namespace"
@@ -67,11 +67,20 @@ const isRefetching = ref(false)
 const namespaces = ref([])
 const count = ref(0)
 
-const { data: namespacesCount } = await fetchNamespacesCount()
-count.value = namespacesCount.value
+const sort = reactive({
+	by: "time",
+	dir: "desc",
+})
+
+const getNamespacesCount = async () => {
+	const { data: namespacesCount } = await fetchNamespacesCount()
+	count.value = namespacesCount.value
+}
+
+await getNamespacesCount()
 
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = ref(Math.ceil(count.value / 20))
+const pages = computed(() => Math.ceil(count.value / 20))
 
 const getNamespaces = async () => {
 	isRefetching.value = true
@@ -79,7 +88,8 @@ const getNamespaces = async () => {
 	const { data } = await fetchNamespaces({
 		limit: 20,
 		offset: (page.value - 1) * 20,
-		sort: "desc",
+		sort: sort.dir,
+		sort_by: sort.by,
 	})
 	namespaces.value = data.value
 
@@ -98,16 +108,39 @@ watch(
 	},
 )
 
-const handleNext = () => {
-	if (page.value === pages.value) return
+const handleSort = (by) => {
+	switch (sort.dir) {
+		case "desc":
+			if (sort.by == by) sort.dir = "asc"
+			break
 
-	page.value += 1
+		case "asc":
+			sort.dir = "desc"
+
+			break
+	}
+
+	sort.by = by
+
+	getNamespaces()
 }
 
 const handlePrev = () => {
 	if (page.value === 1) return
 
 	page.value -= 1
+}
+
+const handleNext = () => {
+	if (page.value === pages.value) return
+
+	page.value += 1
+}
+
+const handleLast = async () => {
+	await getNamespacesCount()
+
+	page.value = pages.value
 }
 </script>
 
@@ -124,7 +157,7 @@ const handlePrev = () => {
 		<Flex wide direction="column" gap="4">
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
-					<Icon name="blob" size="16" color="secondary" />
+					<Icon name="folder" size="16" color="secondary" />
 					<Text size="14" weight="600" color="primary">Namespaces</Text>
 				</Flex>
 
@@ -141,7 +174,7 @@ const handlePrev = () => {
 					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
 						<Icon name="arrow-narrow-right" size="12" color="primary" />
 					</Button>
-					<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages"> Last </Button>
+					<Button @click="handleLast" type="secondary" size="mini" :disabled="page === pages"> Last </Button>
 				</Flex>
 			</Flex>
 
@@ -150,12 +183,45 @@ const handlePrev = () => {
 					<table>
 						<thead>
 							<tr>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Namespace</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Last Time</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Last Block</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Size</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Namespace ID</Text></th>
+								<th @click="handleSort('time')" :class="$style.sortable">
+									<Flex align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap>Time</Text>
+										<Icon
+											v-if="sort.by === 'time'"
+											name="chevron"
+											size="12"
+											color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+										/>
+									</Flex>
+								</th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Height</Text></th>
+								<th @click="handleSort('size')" :class="$style.sortable">
+									<Flex align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap>Size</Text>
+										<Icon
+											v-if="sort.by === 'size'"
+											name="chevron"
+											size="12"
+											color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+										/>
+									</Flex>
+								</th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Version</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Pay For Blobs</Text></th>
+								<th @click="handleSort('pfb_count')" :class="$style.sortable">
+									<Flex align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap>Pay For Blobs</Text>
+										<Icon
+											v-if="sort.by === 'pfb_count'"
+											name="chevron"
+											size="12"
+											color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+										/>
+									</Flex>
+								</th>
 							</tr>
 						</thead>
 
@@ -163,24 +229,41 @@ const handlePrev = () => {
 							<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.namespace_id}`)">
 								<td style="width: 1px">
 									<Tooltip position="start">
-										<Flex align="center" gap="6">
-											<Icon name="folder" size="14" color="secondary" />
-
+										<Flex :align="ns.name === getNamespaceID(ns.namespace_id) ? 'center' : 'start'" gap="8">
 											<template v-if="ns.hash">
-												<Flex align="center" gap="8">
-													<Text size="13" weight="600" color="primary" mono>
-														{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
-													</Text>
+												<Flex direction="column" gap="4">
+													<Flex v-if="getNamespaceID(ns.namespace_id).length > 8" align="center" gap="8">
+														<Text size="12" weight="600" color="primary" mono>
+															{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
+														</Text>
 
-													<Flex align="center" gap="3">
-														<div v-for="dot in 3" class="dot" />
+														<Flex align="center" gap="3">
+															<div v-for="dot in 3" class="dot" />
+														</Flex>
+
+														<Text size="12" weight="600" color="primary" mono>
+															{{ getNamespaceID(ns.namespace_id).slice(-4) }}
+														</Text>
+
+														<CopyButton :text="getNamespaceID(ns.namespace_id)" />
 													</Flex>
 
-													<Text size="13" weight="600" color="primary" mono>
-														{{ getNamespaceID(ns.namespace_id).slice(-4) }}
-													</Text>
+													<Flex v-else align="center" gap="8">
+														<Text size="12" weight="600" color="primary" mono>
+															{{ space(getNamespaceID(ns.namespace_id)) }}
+														</Text>
 
-													<CopyButton :text="getNamespaceID(ns.namespace_id)" />
+														<CopyButton :text="getNamespaceID(ns.namespace_id)" />
+													</Flex>
+
+													<Text
+														v-if="ns.name !== getNamespaceID(ns.namespace_id)"
+														size="12"
+														weight="500"
+														color="tertiary"
+													>
+														{{ ns.name }}
+													</Text>
 												</Flex>
 											</template>
 											<template v-else>
@@ -189,7 +272,7 @@ const handlePrev = () => {
 										</Flex>
 
 										<template #content>
-											{{ getNamespaceID(ns.namespace_id) }}
+											{{ space(getNamespaceID(ns.namespace_id)) }}
 										</template>
 									</Tooltip>
 								</td>
@@ -213,15 +296,10 @@ const handlePrev = () => {
 									</Outline>
 								</td>
 								<td>
-									<Flex align="center" gap="6">
-										<Text size="13" weight="600" color="primary">{{ formatBytes(ns.size) }}</Text>
-										<Text size="13" weight="600" color="tertiary">({{ comma(ns.pfb_count) }})</Text>
-									</Flex>
+									<Text size="13" weight="600" color="primary">{{ formatBytes(ns.size) }}</Text>
 								</td>
 								<td>
-									<Flex>
-										<Text size="13" weight="600" color="primary">{{ ns.version }}</Text>
-									</Flex>
+									<Text size="13" weight="600" color="primary">{{ ns.version }}</Text>
 								</td>
 								<td>
 									<Flex>
@@ -232,6 +310,12 @@ const handlePrev = () => {
 						</tbody>
 					</table>
 				</div>
+			</Flex>
+
+			<Flex align="center" :class="$style.footer">
+				<Button link="/namespaces/treemap" type="secondary" size="mini">
+					<Icon name="treemap" size="12" color="secondary" /> Open Treemap View
+				</Button>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -257,12 +341,21 @@ const handlePrev = () => {
 	padding: 0 16px;
 }
 
+.footer {
+	height: 46px;
+
+	border-radius: 4px 4px 8px 8px;
+	background: var(--card-background);
+
+	padding: 0 16px;
+}
+
 .table_scroller {
 	overflow-x: auto;
 }
 
 .table {
-	border-radius: 4px 4px 8px 8px;
+	border-radius: 4px;
 	background: var(--card-background);
 
 	padding-bottom: 12px;
@@ -293,6 +386,7 @@ const handlePrev = () => {
 
 		& tr th {
 			text-align: left;
+
 			padding: 0;
 			padding-right: 16px;
 			padding-top: 16px;
@@ -304,6 +398,16 @@ const handlePrev = () => {
 
 			&:first-child {
 				padding-left: 16px;
+			}
+
+			&.sortable {
+				cursor: pointer;
+			}
+
+			&.sortable:hover {
+				& span {
+					color: var(--txt-secondary);
+				}
 			}
 		}
 

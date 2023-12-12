@@ -4,16 +4,14 @@ import Modal from "@/components/ui/Modal.vue"
 import Button from "@/components/ui/Button.vue"
 
 /** Services */
-import { formatBytes, getNamespaceID, strToHex } from "@/services/utils"
+import { space, formatBytes, getNamespaceID, strToHex } from "@/services/utils"
 
 /** API */
-import { fetchNamespaceByMetadata } from "@/services/api/namespace"
+import { fetchBlobByMetadata } from "@/services/api/namespace"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
-import { useNotificationsStore } from "@/store/notifications"
 const cacheStore = useCacheStore()
-const notificationsStore = useNotificationsStore()
 
 const emit = defineEmits(["onClose"])
 const props = defineProps({
@@ -26,6 +24,10 @@ const notFound = ref(false)
 const isDecode = ref(false)
 const isViewAll = ref(false)
 
+const previewEl = ref(null)
+const showPreviewImage = ref(false)
+const showPreviewText = ref(false)
+
 const rawData = computed(() => {
 	return blob.value.data
 })
@@ -33,8 +35,11 @@ const decodedData = computed(() => {
 	const result = Uint8Array.from(atob(blob.value.data), (m) => m.codePointAt(0))
 	return Array.from(result).join(" ")
 })
+const contentPreviewText = ref("")
 const viewData = computed(() => {
-	if (!isDecode.value) {
+	if (contentPreviewText.value.length) {
+		return contentPreviewText.value
+	} else if (!isDecode.value) {
 		return rawData.value
 	} else {
 		return decodedData.value
@@ -45,7 +50,7 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
-			const { data } = await fetchNamespaceByMetadata({
+			const { data } = await fetchBlobByMetadata({
 				hash: cacheStore.selectedBlob.namespace.hash,
 				height: cacheStore.selectedBlob.height,
 				commitment: cacheStore.selectedBlob.data.ShareCommitments[0],
@@ -61,7 +66,9 @@ watch(
 			isViewAll.value = false
 			blob.value = {}
 
-			cacheStore.selectedBlob = null
+			showPreviewImage.value = false
+			showPreviewText.value = false
+			contentPreviewText.value = ""
 		}
 	},
 )
@@ -86,28 +93,41 @@ const handleDownload = () => {
 	document.body.removeChild(a)
 }
 
-const handleCopy = (target) => {
-	window.navigator.clipboard.writeText(target)
+const handlePreviewContent = () => {
+	if (blob.value.content_type === "image/png") {
+		if (!showPreviewImage.value) {
+			showPreviewImage.value = true
 
-	notificationsStore.create({
-		notification: {
-			type: "info",
-			icon: "check",
-			title: "Successfully copied to clipboard",
-			autoDestroy: true,
-		},
-	})
+			nextTick(() => {
+				const image = new Image()
+				image.src = `data:image/png;base64,${blob.value.data}`
+				previewEl.value.appendChild(image)
+			})
+		} else {
+			showPreviewImage.value = false
+		}
+	} else {
+		if (!showPreviewText.value) {
+			showPreviewText.value = true
+			contentPreviewText.value = atob(blob.value.data)
+		} else {
+			showPreviewText.value = false
+			contentPreviewText.value = ""
+		}
+	}
 }
 </script>
 
 <template>
 	<Modal :show="show" @onClose="emit('onClose')" width="600" disable-trap>
-		<Flex direction="column" gap="24">
+		<Flex direction="column" gap="16">
 			<Text size="14" weight="600" color="primary">Blob Viewer</Text>
 
 			<Text v-if="notFound" size="12" weight="600" color="tertiary"> Blob not found </Text>
 			<Flex v-else-if="blob.data" direction="column" gap="24">
-				<Flex direction="column" gap="12">
+				<div v-if="showPreviewImage" ref="previewEl" :class="$style.preview" />
+
+				<Flex v-else direction="column" gap="12">
 					<Flex direction="column" gap="8" :class="$style.data">
 						<Text size="13" weight="500" height="160" color="secondary" mono :class="[$style.field, isViewAll && $style.full]">
 							{{ viewData }}
@@ -121,13 +141,22 @@ const handleCopy = (target) => {
 
 				<Flex direction="column" align="center" gap="16">
 					<Flex align="center" justify="between" wide :class="$style.metadata">
-						<Text size="12" weight="500" color="tertiary">Namespace:</Text>
+						<Text size="12" weight="500" color="tertiary">Namespace ID:</Text>
 
 						<Flex align="center" gap="8" :class="$style.value_wrapper">
 							<CopyButton :text="getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id)" />
 
 							<Text size="13" weight="600" color="primary" :class="$style.value">
-								{{ getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id) }}
+								{{ space(getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id)) }}
+								<Text
+									v-if="
+										getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id) !==
+										cacheStore.selectedBlob.namespace.name
+									"
+									color="secondary"
+								>
+									({{ cacheStore.selectedBlob.namespace.name }})
+								</Text>
 							</Text>
 						</Flex>
 					</Flex>
@@ -161,6 +190,14 @@ const handleCopy = (target) => {
 							</NuxtLink>
 						</Flex>
 					</Flex>
+
+					<Flex align="center" justify="between" wide :class="$style.metadata">
+						<Text size="12" weight="500" color="tertiary">Content Type:</Text>
+
+						<Text size="13" weight="600" color="primary" :class="$style.value">
+							{{ blob.content_type }}
+						</Text>
+					</Flex>
 				</Flex>
 			</Flex>
 
@@ -173,7 +210,17 @@ const handleCopy = (target) => {
 					</Flex>
 				</Button>
 
-				<Button @click="isDecode = !isDecode" type="secondary" size="small"> {{ isDecode ? "Encode" : "Decode" }} Base64 </Button>
+				<Button @click="isDecode = !isDecode" type="secondary" size="small" :disabled="showPreviewImage || showPreviewText">
+					{{ isDecode ? "Encode" : "Decode" }} Base64
+				</Button>
+				<Button
+					@click="handlePreviewContent"
+					type="secondary"
+					size="small"
+					:disabled="!['image/png', 'text/plain; charset=utf-8'].includes(blob.content_type)"
+				>
+					{{ showPreviewImage || showPreviewText ? "Hide" : "Preview" }} Content
+				</Button>
 			</Flex>
 		</Flex>
 	</Modal>
@@ -224,6 +271,18 @@ const handleCopy = (target) => {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	max-width: 100%;
+}
+
+.buttons {
+	border-top: 1px solid var(--op-5);
+
+	padding-top: 16px;
+}
+
+.preview {
+	& img {
+		width: 100%;
+	}
 }
 
 @media (max-width: 550px) {

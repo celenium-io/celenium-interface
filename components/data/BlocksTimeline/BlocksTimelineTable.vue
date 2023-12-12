@@ -27,7 +27,13 @@ const preview = reactive({
 	isLoadingPfbs: true,
 })
 
-const handleSelectBlock = (b) => {
+const viewMoreTxs = ref(false)
+
+const isUserSelected = ref(false)
+
+const handleSelectBlock = (b, isUser) => {
+	if (isUser) isUserSelected.value = true
+
 	if (preview.block.height === b.height) return
 
 	preview.block = b
@@ -69,7 +75,7 @@ watch(
 watch(
 	() => lastBlock.value,
 	() => {
-		handleSelectBlock(lastBlock.value)
+		if (!isUserSelected.value) handleSelectBlock(lastBlock.value, false)
 	},
 )
 </script>
@@ -94,15 +100,15 @@ watch(
 						</thead>
 
 						<tbody>
-							<tr v-for="block in blocks.slice(0, 15)" @click="handleSelectBlock(block)">
+							<tr
+								v-for="block in blocks.slice(0, 15)"
+								@click="handleSelectBlock(block, true)"
+								:class="preview.block.time === block.time && $style.active"
+							>
 								<td style="width: 1px">
 									<Outline>
 										<Flex align="center" gap="6">
-											<Icon
-												:name="block.height === preview.block.height ? 'check' : 'block'"
-												size="14"
-												:color="block.height === preview.block.height ? 'primary' : 'secondary'"
-											/>
+											<Icon name="block" size="14" color="primary" />
 
 											<Text size="13" weight="600" color="primary" tabular>{{ comma(block.height) }}</Text>
 										</Flex>
@@ -125,8 +131,8 @@ watch(
 								<td>
 									<Tooltip delay="500">
 										<template #default>
-											<Flex direction="column" gap="6">
-												<Text size="12" weight="600" color="primary" :class="$style.proposer_moniker">
+											<Flex direction="column" gap="4">
+												<Text size="12" height="120" weight="600" color="primary" :class="$style.proposer_moniker">
 													{{ block.proposer.moniker }}
 												</Text>
 
@@ -160,7 +166,10 @@ watch(
 								</td>
 								<td style="width: 1px">
 									<Flex align="center" gap="4">
-										<Text size="13" weight="600" color="primary"> {{ tia(block.stats.fee) }} </Text>
+										<Text size="13" weight="600" :color="parseFloat(block.stats.fee) ? 'primary' : 'tertiary'">
+											{{ tia(block.stats.fee) }}
+										</Text>
+
 										<Text size="13" weight="600" color="tertiary"> TIA </Text>
 									</Flex>
 								</td>
@@ -265,12 +274,15 @@ watch(
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Transactions</Text>
 							<Text size="12" weight="600" color="secondary">
-								{{ preview.block.stats.tx_count > 3 ? "3 /" : "" }} {{ preview.block.stats.tx_count }}
+								{{ preview.block.stats.tx_count > 5 ? "5 /" : "" }} {{ preview.block.stats.tx_count }}
 							</Text>
 						</Flex>
 
 						<Flex v-if="preview.block.stats.tx_count" direction="column" gap="8">
-							<NuxtLink v-for="transaction in preview.transactions.slice(0, 3)" :to="`/tx/${transaction.hash}`">
+							<NuxtLink
+								v-for="transaction in viewMoreTxs ? preview.transactions : preview.transactions.slice(0, 5)"
+								:to="`/tx/${transaction.hash}`"
+							>
 								<Outline wide height="32" padding="8" radius="6">
 									<Flex justify="between" align="center" wide>
 										<Flex align="center" gap="8">
@@ -308,6 +320,15 @@ watch(
 									</Flex>
 								</Outline>
 							</NuxtLink>
+
+							<Button
+								v-if="preview.block.stats.tx_count > 5"
+								@click="viewMoreTxs = !viewMoreTxs"
+								type="tertiary"
+								size="small"
+								wide
+								>{{ viewMoreTxs ? "Hide" : "Show More" }}</Button
+							>
 						</Flex>
 						<Text v-else size="12" weight="600" color="tertiary" align="center" :class="$style.empty_state">
 							No transactions
@@ -416,13 +437,16 @@ watch(
 		& tbody {
 			& tr {
 				cursor: pointer;
+				opacity: 0.5;
 
 				transition: all 0.07s ease;
-			}
 
-			&:hover {
-				& tr:not(:hover) {
-					opacity: 0.35;
+				&.active {
+					opacity: 1;
+				}
+
+				&:hover {
+					opacity: 1;
 				}
 			}
 		}

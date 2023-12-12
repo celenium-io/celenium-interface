@@ -208,7 +208,7 @@ const onKeydown = (event) => {
 
 <template>
 	<div :class="$style.wrapper">
-		<div ref="trigger" id="trigger" @click="toggleDropdown">
+		<div ref="trigger" id="trigger" @click="toggleDropdown" :class="$style.trigger">
 			<slot />
 		</div>
 
@@ -239,6 +239,10 @@ const onKeydown = (event) => {
 <style module>
 .wrapper {
 	position: relative;
+}
+
+.trigger {
+	width: fit-content;
 }
 
 .canvas {

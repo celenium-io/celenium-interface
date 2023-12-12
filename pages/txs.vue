@@ -5,19 +5,19 @@ import { DateTime } from "luxon"
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
+import Input from "@/components/ui/Input.vue"
+import Popover from "@/components/ui/Popover.vue"
+import Checkbox from "@/components/ui/Checkbox.vue"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 
 /** Services */
-import { comma, space } from "@/services/utils"
+import { comma, space, tia } from "@/services/utils"
+import { MsgTypes } from "@/services/constants/messages"
 
 /** API */
 import { fetchTransactions, fetchTxsCount } from "@/services/api/tx"
-
-/** Store */
-import { useAppStore } from "@/store/app"
-const appStore = useAppStore()
 
 useHead({
 	title: "Transactions - Celestia Explorer",
@@ -70,15 +70,172 @@ useHead({
 const route = useRoute()
 const router = useRouter()
 
+/** Filters */
+const filters = reactive({
+	status: {
+		success: false,
+		failed: false,
+	},
+	message_type: MsgTypes.reduce((a, b) => ({ ...a, [b]: false }), {}),
+})
+const savedFiltersBeforeChanges = ref(null)
+
+const handleClearAllFilters = () => {
+	Object.keys(filters.status).forEach((f) => {
+		filters.status[f] = false
+	})
+
+	Object.keys(filters.message_type).forEach((f) => {
+		filters.message_type[f] = false
+	})
+
+	router.replace({
+		query: null,
+	})
+
+	getTransactions()
+}
+
+const searchTerm = ref("")
+
+/** Parse route query */
+Object.keys(route.query).forEach((key) => {
+	if (key === "page") return
+
+	if (route.query[key].split(",").length) {
+		route.query[key].split(",").forEach((item) => {
+			filters[key][item] = true
+		})
+	} else {
+		filters[key][route.query[key]] = true
+	}
+})
+
+const updateRouteQuery = () => {
+	router.replace({
+		query: {
+			status:
+				Object.keys(filters.status).find((f) => filters.status[f]) &&
+				Object.keys(filters.status)
+					.filter((f) => filters.status[f])
+					.join(","),
+			message_type:
+				Object.keys(filters.message_type).find((f) => filters.message_type[f]) &&
+				Object.keys(filters.message_type)
+					.filter((f) => filters.message_type[f])
+					.join(","),
+		},
+	})
+}
+
+const isStatusPopoverOpen = ref(false)
+const handleOpenStatusPopover = () => {
+	isStatusPopoverOpen.value = true
+
+	if (Object.keys(filters.status).find((f) => filters.status[f])) {
+		savedFiltersBeforeChanges.value = { ...filters.status }
+	}
+}
+const onStatusPopoverClose = () => {
+	isStatusPopoverOpen.value = false
+
+	if (savedFiltersBeforeChanges.value) {
+		filters.status = savedFiltersBeforeChanges.value
+		savedFiltersBeforeChanges.value = null
+	} else {
+		resetFilters("status")
+	}
+}
+const handleApplyStatusFilters = () => {
+	savedFiltersBeforeChanges.value = null
+	isStatusPopoverOpen.value = false
+
+	getTransactions()
+
+	updateRouteQuery()
+}
+
+const isMessageTypePopoverOpen = ref(false)
+const handleOpenMessageTypePopover = () => {
+	isMessageTypePopoverOpen.value = true
+
+	if (Object.keys(filters.message_type).find((f) => filters.message_type[f])) {
+		savedFiltersBeforeChanges.value = { ...filters.message_type }
+	}
+}
+const onMessageTypePopoverClose = () => {
+	isMessageTypePopoverOpen.value = false
+
+	searchTerm.value = ""
+
+	if (savedFiltersBeforeChanges.value) {
+		filters.message_type = savedFiltersBeforeChanges.value
+		savedFiltersBeforeChanges.value = null
+	} else {
+		resetFilters("message_type")
+	}
+}
+const handleApplyMessageTypeFilters = () => {
+	savedFiltersBeforeChanges.value = null
+	isMessageTypePopoverOpen.value = false
+
+	getTransactions()
+
+	updateRouteQuery()
+}
+
+const resetFilters = (target, refetch) => {
+	Object.keys(filters[target]).forEach((f) => {
+		filters[target][f] = false
+	})
+
+	if (refetch) {
+		updateRouteQuery()
+
+		getTransactions()
+	}
+}
+
+/**
+ * Table Config
+ */
+const config = reactive({
+	columns: {
+		time: true,
+		messages: true,
+		block: true,
+		gas: true,
+		fee: true,
+		events: false,
+	},
+})
+watch(
+	() => config,
+	() => {
+		localStorage.setItem("page:transactions:config:columns", JSON.stringify(config.columns))
+	},
+	{
+		deep: true,
+	},
+)
+
+const isConfigurePopoverOpen = ref(false)
+
+/** Data */
+const isLoaded = ref(false)
 const isRefetching = ref(false)
 const transactions = ref([])
 const count = ref(0)
 
-const { data: txsCount } = await fetchTxsCount()
-count.value = txsCount.value
+const getTxsCount = async () => {
+	const { data: txsCount } = await fetchTxsCount()
+	count.value = txsCount.value
+}
+
+await getTxsCount()
 
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = ref(Math.ceil(count.value / 20))
+const pages = computed(() => Math.ceil(count.value / 20))
 
 const findPFB = ref(false)
 
@@ -89,13 +246,30 @@ const getTransactions = async () => {
 		limit: 20,
 		offset: (page.value - 1) * 20,
 		sort: "desc",
+		status:
+			Object.keys(filters.status).find((f) => filters.status[f]) &&
+			Object.keys(filters.status)
+				.filter((f) => filters.status[f])
+				.join(","),
+		msg_type:
+			Object.keys(filters.message_type).find((f) => filters.message_type[f]) &&
+			Object.keys(filters.message_type)
+				.filter((f) => filters.message_type[f])
+				.join(","),
 	})
 	transactions.value = data.value
 
+	isLoaded.value = true
 	isRefetching.value = false
 }
 
 getTransactions()
+
+onBeforeMount(() => {
+	if (localStorage.getItem("page:transactions:config:columns")) {
+		config.columns = JSON.parse(localStorage.getItem("page:transactions:config:columns"))
+	}
+})
 
 /** Refetch transactions */
 watch(
@@ -114,16 +288,22 @@ watch(
 	},
 )
 
+const handlePrev = () => {
+	if (page.value === 1) return
+
+	page.value -= 1
+}
+
 const handleNext = () => {
 	if (page.value === pages.value) return
 
 	page.value += 1
 }
 
-const handlePrev = () => {
-	if (page.value === 1) return
+const handleLast = async () => {
+	await getTxsCount()
 
-	page.value -= 1
+	page.value = pages.value
 }
 </script>
 
@@ -157,21 +337,167 @@ const handlePrev = () => {
 					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
 						<Icon name="arrow-narrow-right" size="12" color="primary" />
 					</Button>
-					<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages"> Last </Button>
+					<Button @click="handleLast" type="secondary" size="mini" :disabled="page === pages"> Last </Button>
 				</Flex>
 			</Flex>
 
+			<Flex align="center" justify="between" wrap="wrap" gap="8" :class="$style.settings">
+				<Flex wrap="wrap" align="center" gap="8">
+					<Popover :open="isStatusPopoverOpen" @on-close="onStatusPopoverClose" width="200">
+						<Button @click="handleOpenStatusPopover" type="secondary" size="mini">
+							<Icon name="plus-circle" size="12" color="tertiary" />
+							<Text color="secondary">Status</Text>
+
+							<template v-if="Object.keys(filters.status).find((f) => filters.status[f])">
+								<div :class="$style.vertical_divider" />
+
+								<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
+									{{
+										Object.keys(filters.status)
+											.filter((f) => filters.status[f])
+											.join(", ")
+									}}
+								</Text>
+
+								<Icon @click.stop="resetFilters('status', true)" name="close-circle" size="12" color="secondary" />
+							</template>
+						</Button>
+
+						<template #content>
+							<Flex direction="column" gap="12">
+								<Text size="12" weight="500" color="secondary">Filter by Status</Text>
+
+								<Flex direction="column" gap="8">
+									<Checkbox v-model="filters.status.success">
+										<Text size="12" weight="500" color="primary">Success</Text>
+									</Checkbox>
+									<Checkbox v-model="filters.status.failed">
+										<Text size="12" weight="500" color="primary">Failed</Text>
+									</Checkbox>
+								</Flex>
+
+								<Button @click="handleApplyStatusFilters" type="secondary" size="mini" wide>Apply</Button>
+							</Flex>
+						</template>
+					</Popover>
+
+					<Popover :open="isMessageTypePopoverOpen" @on-close="onMessageTypePopoverClose" width="250">
+						<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini">
+							<Icon name="plus-circle" size="12" color="tertiary" />
+							<Text color="secondary">Message Type</Text>
+
+							<template v-if="Object.keys(filters.message_type).find((f) => filters.message_type[f])">
+								<div :class="$style.vertical_divider" />
+
+								<Text size="12" weight="600" color="primary">
+									{{
+										Object.keys(filters.message_type).filter((f) => filters.message_type[f]).length < 3
+											? Object.keys(filters.message_type)
+													.filter((f) => filters.message_type[f])
+													.map((f) => f.replace("Msg", ""))
+													.join(", ")
+											: `${Object.keys(filters.message_type)
+													.filter((f) => filters.message_type[f])[0]
+													.replace("Msg", "")} and ${
+													Object.keys(filters.message_type).filter((f) => filters.message_type[f]).length - 1
+											  } more`
+									}}
+								</Text>
+
+								<Icon @click.stop="resetFilters('message_type', true)" name="close-circle" size="12" color="secondary" />
+							</template>
+						</Button>
+
+						<template #content>
+							<Flex direction="column" gap="12">
+								<Text size="12" weight="500" color="secondary">Filter by Message Type</Text>
+
+								<Input v-model="searchTerm" size="small" placeholder="Search" autofocus />
+
+								<Flex direction="column" gap="8" :class="$style.message_types_list">
+									<template
+										v-if="
+											Object.keys(filters.message_type).filter((t) =>
+												t.toLowerCase().includes(searchTerm.trim().toLowerCase()),
+											).length
+										"
+									>
+										<Checkbox
+											v-for="msg_type in Object.keys(filters.message_type).filter((t) =>
+												t.toLowerCase().includes(searchTerm.trim().toLowerCase()),
+											)"
+											v-model="filters.message_type[msg_type]"
+										>
+											<Text size="12" weight="500" color="primary">{{ msg_type.replace("Msg", "") }}</Text>
+										</Checkbox>
+									</template>
+									<Flex v-else direction="column" gap="8">
+										<Text size="12" weight="500" color="tertiary">Nothing was found</Text>
+									</Flex>
+								</Flex>
+
+								<Button @click="handleApplyMessageTypeFilters" type="secondary" size="mini" wide>Apply</Button>
+							</Flex>
+						</template>
+					</Popover>
+				</Flex>
+
+				<Popover :open="isConfigurePopoverOpen" @on-close="isConfigurePopoverOpen = false" width="150" side="right">
+					<Button @click="isConfigurePopoverOpen = true" type="secondary" size="mini">
+						<Icon name="settings" size="12" color="tertiary" />
+						Configure
+					</Button>
+
+					<template #content>
+						<Flex direction="column" gap="12">
+							<Text size="12" weight="500" color="secondary">Fixed columns</Text>
+
+							<Flex direction="column" gap="8">
+								<Checkbox :checked="true" :disabled="true">
+									<Text size="12" weight="500" color="primary">Hash</Text>
+								</Checkbox>
+							</Flex>
+
+							<div :class="$style.horizontal_divider" />
+
+							<Text size="12" weight="500" color="secondary">Editable columns</Text>
+
+							<Flex direction="column" gap="8">
+								<Checkbox v-model="config.columns.time">
+									<Text size="12" weight="500" color="primary">Time</Text>
+								</Checkbox>
+								<Checkbox v-model="config.columns.messages">
+									<Text size="12" weight="500" color="primary">Messages</Text>
+								</Checkbox>
+								<Checkbox v-model="config.columns.block">
+									<Text size="12" weight="500" color="primary">Block</Text>
+								</Checkbox>
+								<Checkbox v-model="config.columns.gas">
+									<Text size="12" weight="500" color="primary">Gas</Text>
+								</Checkbox>
+								<Checkbox v-model="config.columns.fee">
+									<Text size="12" weight="500" color="primary">Fee</Text>
+								</Checkbox>
+								<Checkbox v-model="config.columns.events">
+									<Text size="12" weight="500" color="primary">Events</Text>
+								</Checkbox>
+							</Flex>
+						</Flex>
+					</template>
+				</Popover>
+			</Flex>
+
 			<Flex direction="column" gap="16" wide :class="[$style.table, isRefetching && $style.disabled]">
-				<div :class="$style.table_scroller">
+				<div v-if="transactions.length" :class="$style.table_scroller">
 					<table>
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Messages</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Time</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Block</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Gas</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Events</Text></th>
+								<th v-for="column in Object.keys(config.columns).filter((c) => config.columns[c])">
+									<Text size="12" weight="600" color="tertiary" noWrap style="text-transform: capitalize">{{
+										column
+									}}</Text>
+								</th>
 							</tr>
 						</thead>
 
@@ -184,7 +510,7 @@ const handlePrev = () => {
 								<td style="width: 1px">
 									<Tooltip :disabled="!tx.hash" position="start">
 										<template v-if="tx.hash">
-											<Flex align="center" gap="6">
+											<Flex align="center" gap="8">
 												<Icon
 													:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
 													size="14"
@@ -227,11 +553,15 @@ const handlePrev = () => {
 												</Flex>
 
 												{{ space(tx.hash).toUpperCase() }}
+
+												<Text height="120" color="tertiary" style="max-width: 400px" mono align="left">
+													{{ tx.error }}
+												</Text>
 											</Flex>
 										</template>
 									</Tooltip>
 								</td>
-								<td style="width: 1px">
+								<td v-if="config.columns.time" style="width: 1px">
 									<Flex direction="column" gap="4">
 										<Text size="12" weight="600" color="primary">
 											{{ DateTime.fromISO(tx.time).toRelative({ locale: "en", style: "short" }) }}
@@ -241,7 +571,7 @@ const handlePrev = () => {
 										</Text>
 									</Flex>
 								</td>
-								<td>
+								<td v-if="config.columns.messages" style="width: 1px">
 									<Tooltip v-if="tx.message_types.length" position="start" textAlign="left">
 										<MessageTypeBadge :types="tx.message_types" />
 
@@ -256,7 +586,7 @@ const handlePrev = () => {
 
 									<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
 								</td>
-								<td>
+								<td v-if="config.columns.block" style="width: 1px">
 									<Outline @click.stop="router.push(`/block/${tx.height}`)">
 										<Flex align="center" gap="6">
 											<Icon name="block" size="14" color="secondary" />
@@ -265,14 +595,14 @@ const handlePrev = () => {
 										</Flex>
 									</Outline>
 								</td>
-								<td>
+								<td v-if="config.columns.gas" style="width: 1px">
 									<Tooltip v-if="tx.gas_used">
 										<Flex align="center" gap="8">
+											<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
+
 											<Text v-if="tx.gas_wanted > 0" size="13" weight="600" color="primary">
 												{{ ((tx.gas_used * 100) / tx.gas_wanted).toFixed(2) }}%
 											</Text>
-
-											<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
 										</Flex>
 
 										<template #content>
@@ -285,21 +615,29 @@ const handlePrev = () => {
 									</Tooltip>
 									<Text v-else size="13" weight="600" color="secondary">Unknown</Text>
 								</td>
-								<td>
+								<td v-if="config.columns.events" style="width: 1px">
 									<Text size="13" weight="600" color="primary">
 										{{ tx.events_count }}
 									</Text>
+								</td>
+								<td v-if="config.columns.fee" style="width: 1px">
+									<Text size="13" weight="600" color="primary"> {{ tia(tx.fee) }} TIA </Text>
 								</td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
-			</Flex>
 
-			<Flex align="center" :class="$style.footer">
-				<Button @click="findPFB = !findPFB" type="secondary" size="mini">
-					<Icon v-if="findPFB" name="check" size="12" color="green" /> Find PFB
-				</Button>
+				<Flex v-else direction="column" gap="20" align="center" :class="$style.empty">
+					<Icon name="search" size="24" color="support" />
+
+					<Flex direction="column" gap="8" align="center">
+						<Text size="13" weight="600" color="secondary"> Nothing was found </Text>
+						<Text size="12" weight="400" color="tertiary"> Clear filters to see all transactions </Text>
+					</Flex>
+
+					<Button @click="handleClearAllFilters" type="secondary" size="small">Clear all filters</Button>
+				</Flex>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -325,13 +663,30 @@ const handlePrev = () => {
 	padding: 0 16px;
 }
 
-.footer {
-	height: 46px;
-
-	border-radius: 4px 4px 4px 8px;
+.settings {
+	border-radius: 4px;
 	background: var(--card-background);
 
-	padding: 0 16px;
+	padding: 8px 16px;
+}
+
+.vertical_divider {
+	min-width: 2px;
+	height: 12px;
+	background: var(--op-10);
+}
+
+.horizontal_divider {
+	width: 100%;
+	height: 1px;
+	background: var(--op-5);
+}
+
+.message_types_list {
+	height: 200px;
+
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 .table_scroller {
@@ -339,7 +694,7 @@ const handlePrev = () => {
 }
 
 .table {
-	border-radius: 4px;
+	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 
 	padding-bottom: 12px;
@@ -386,7 +741,7 @@ const handlePrev = () => {
 
 		& tr td {
 			padding: 0;
-			padding-right: 24px;
+			padding-right: 40px;
 			padding-top: 8px;
 			padding-bottom: 8px;
 
@@ -397,6 +752,10 @@ const handlePrev = () => {
 			}
 		}
 	}
+}
+
+.empty {
+	padding: 40px 0;
 }
 
 .hide {

@@ -6,6 +6,10 @@ import BlobsTable from "@/components/modules/block/BlobsTable.vue"
 /** API */
 import { fetchTxByHash } from "@/services/api/tx"
 
+/** Store */
+import { useCacheStore } from "@/store/cache"
+const cacheStore = useCacheStore()
+
 const route = useRoute()
 const router = useRouter()
 
@@ -16,6 +20,7 @@ if (!rawTx.value) {
 	router.push("/")
 } else {
 	tx.value = rawTx.value
+	cacheStore.current.transaction = tx.value
 }
 
 defineOgImage({

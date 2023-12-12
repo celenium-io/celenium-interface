@@ -37,9 +37,16 @@ const handleCopy = () => {
 </script>
 
 <template>
-	<Flex @click="handleCopy" align="center" gap="12" :class="$style.wrapper">
-		<Text size="12" weight="600" color="secondary" mono>{{ space(text.toUpperCase()) }}</Text>
-		<Icon :name="copied ? 'check' : 'copy'" size="12" :color="copied ? 'green' : 'secondary'" />
+	<Flex @click="handleCopy" align="center" justify="between" :class="$style.wrapper">
+		<Flex :class="$style.left">
+			<Text size="12" weight="600" color="secondary" mono>{{ space(text.toUpperCase()) }}</Text>
+		</Flex>
+
+		<div v-for="dot in 3" class="dot" />
+
+		<Flex justify="end" :class="$style.right">
+			<Text size="12" weight="600" color="secondary" mono>{{ space(text.toUpperCase()) }}</Text>
+		</Flex>
 	</Flex>
 </template>
 
@@ -53,14 +60,6 @@ const handleCopy = () => {
 
 	transition: all 0.2s ease;
 
-	& span {
-		width: 100%;
-
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
 	&:hover {
 		border: 1px solid var(--op-15);
 		background: var(--op-5);
@@ -69,6 +68,26 @@ const handleCopy = () => {
 	&:active {
 		border: 1px solid var(--op-20);
 		background: var(--op-10);
+	}
+}
+
+.left {
+	min-width: 42%;
+	width: 0;
+	overflow: hidden;
+
+	& span {
+		white-space: nowrap;
+	}
+}
+
+.right {
+	min-width: 42%;
+	width: 0;
+	overflow: hidden;
+
+	& span {
+		white-space: nowrap;
 	}
 }
 </style>

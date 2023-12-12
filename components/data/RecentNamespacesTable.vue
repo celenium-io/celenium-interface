@@ -8,25 +8,54 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
-import { comma, formatBytes, getNamespaceID } from "@/services/utils"
+import { comma, space, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
-import { fetchRecentNamespaces } from "@/services/api/namespace"
+import { fetchNamespaces } from "@/services/api/namespace"
 
 const router = useRouter()
 
 const isLoading = ref(true)
 const namespaces = ref([])
 
-const { data } = await fetchRecentNamespaces()
-namespaces.value = data.value
-isLoading.value = false
+const sort = reactive({
+	by: "time",
+	dir: "desc",
+})
+
+const getNamespaces = async () => {
+	isLoading.value = true
+
+	const { data } = await fetchNamespaces({ limit: 5, sort: sort.dir, sort_by: sort.by })
+	namespaces.value = data.value
+
+	isLoading.value = false
+}
+
+getNamespaces()
+
+const handleSort = (by) => {
+	switch (sort.dir) {
+		case "desc":
+			if (sort.by == by) sort.dir = "asc"
+			break
+
+		case "asc":
+			sort.dir = "desc"
+
+			break
+	}
+
+	sort.by = by
+
+	getNamespaces()
+}
 </script>
 
 <template>
 	<Flex wide direction="column" gap="4">
 		<Flex align="center" :class="$style.header">
-			<Text size="14" weight="600" color="primary">Recent Namespaces</Text>
+			<Text size="14" weight="600" color="primary">Namespaces</Text>
 		</Flex>
 
 		<Flex direction="column" gap="16" :class="$style.namespaces_body">
@@ -36,20 +65,40 @@ isLoading.value = false
 						<tr>
 							<th><Text size="12" weight="600" color="tertiary">Namespace</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Height</Text></th>
-							<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
-							<th><Text size="12" weight="600" color="tertiary">Size </Text></th>
+							<th @click="handleSort('time')" :class="$style.sortable">
+								<Flex align="center" gap="6">
+									<Text size="12" weight="600" color="tertiary">Time</Text>
+									<Icon
+										v-if="sort.by === 'time'"
+										name="chevron"
+										size="12"
+										color="secondary"
+										:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+									/>
+								</Flex>
+							</th>
+							<th @click="handleSort('size')" :class="$style.sortable">
+								<Flex align="center" gap="6">
+									<Text size="12" weight="600" color="tertiary">Size </Text>
+									<Icon
+										v-if="sort.by === 'size'"
+										name="chevron"
+										size="12"
+										color="secondary"
+										:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+									/>
+								</Flex>
+							</th>
 						</tr>
 					</thead>
 
 					<tbody>
 						<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.namespace_id}`)">
 							<td style="width: 1px">
-								<Tooltip position="start" delay="500">
-									<Flex align="center" gap="10">
-										<Flex align="center" gap="6">
-											<Icon name="folder" size="14" color="secondary" />
-
-											<Text size="13" weight="600" color="primary" mono>
+								<Tooltip position="start">
+									<Flex direction="column" gap="4">
+										<Flex v-if="getNamespaceID(ns.namespace_id).length > 8" align="center" gap="8">
+											<Text size="12" weight="600" color="primary" mono>
 												{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
 											</Text>
 
@@ -57,19 +106,33 @@ isLoading.value = false
 												<div v-for="dot in 3" class="dot" />
 											</Flex>
 
-											<Text size="13" weight="600" color="primary" mono>
+											<Text size="12" weight="600" color="primary" mono>
 												{{ getNamespaceID(ns.namespace_id).slice(-4) }}
 											</Text>
+
+											<CopyButton :text="getNamespaceID(ns.namespace_id)" />
 										</Flex>
 
-										<CopyButton :text="getNamespaceID(ns.namespace_id)" />
+										<Flex v-else align="center" gap="8">
+											<Text size="12" weight="600" color="primary" mono>
+												{{ space(getNamespaceID(ns.namespace_id)) }}
+											</Text>
+
+											<CopyButton :text="getNamespaceID(ns.namespace_id)" />
+										</Flex>
+
+										<Text v-if="ns.name !== getNamespaceID(ns.namespace_id)" size="12" weight="500" color="tertiary">
+											{{ ns.name }}
+										</Text>
 									</Flex>
 
-									<template #content> {{ getNamespaceID(ns.namespace_id) }} </template>
+									<template #content>
+										{{ space(getNamespaceID(ns.namespace_id)) }}
+									</template>
 								</Tooltip>
 							</td>
 							<td>
-								<NuxtLink :to="`/block/${ns.height}`" @click.stop>
+								<NuxtLink :to="`/block/${ns.last_height}`" @click.stop>
 									<Outline>
 										<Flex align="center" gap="6">
 											<Icon name="block" size="14" color="secondary" />
@@ -152,6 +215,7 @@ isLoading.value = false
 
 		& tr th {
 			text-align: left;
+
 			padding: 0;
 			padding-right: 16px;
 			padding-top: 16px;
@@ -163,6 +227,16 @@ isLoading.value = false
 
 			& span {
 				display: flex;
+			}
+
+			&.sortable {
+				cursor: pointer;
+			}
+
+			&.sortable:hover {
+				& span {
+					color: var(--txt-secondary);
+				}
 			}
 		}
 
