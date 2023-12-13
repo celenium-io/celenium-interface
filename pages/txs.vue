@@ -615,13 +615,13 @@ const handleLast = async () => {
 									</Tooltip>
 									<Text v-else size="13" weight="600" color="secondary">Unknown</Text>
 								</td>
+								<td v-if="config.columns.fee" style="width: 1px">
+									<Text size="13" weight="600" color="primary"> {{ tia(tx.fee) }} TIA </Text>
+								</td>
 								<td v-if="config.columns.events" style="width: 1px">
 									<Text size="13" weight="600" color="primary">
 										{{ tx.events_count }}
 									</Text>
-								</td>
-								<td v-if="config.columns.fee" style="width: 1px">
-									<Text size="13" weight="600" color="primary"> {{ tia(tx.fee) }} TIA </Text>
 								</td>
 							</tr>
 						</tbody>
