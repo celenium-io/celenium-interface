@@ -23,6 +23,7 @@
 		"@amplitude/analytics-browser": "^2.3.3",
 		"@codemirror/lang-json": "^6.0.1",
 		"@pinia/nuxt": "0.4.11",
+		"@vueuse/core": "^10.7.0",
 		"codemirror": "^6.0.1",
 		"d3": "^7.8.5",
 		"d3-hierarchy": "^3.1.2",

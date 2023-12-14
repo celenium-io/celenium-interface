@@ -50,3 +50,16 @@ export const fetchNamespaceUsage = async ({ top }) => {
 		console.error(error)
 	}
 }
+
+export const fetchNamespaceSeries = async ({ id, name, timeframe, from }) => {
+	try {
+		const url = new URL(`${useServerURL()}/stats/namespace/series/${id}/${name}/${timeframe}`)
+
+		if (from) url.searchParams.append("from", from)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
