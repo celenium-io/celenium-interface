@@ -50,7 +50,7 @@ onMounted(async () => {
 				<Icon name="gas_median" size="14" color="yellow" />
 				<Skeleton v-if="!gasPrice.fast" w="24" h="12" c="yellow" />
 				<Text v-else size="12" weight="600" color="yellow"> {{ truncate(gasPrice.median) }} </Text>
-				<Text size="12" weight="600" color="yellow"> Median</Text>
+				<Text size="12" weight="600" color="yellow"> Avg</Text>
 			</Flex>
 
 			<Flex align="center" gap="4" :class="[$style.bar, $style.slow]">
