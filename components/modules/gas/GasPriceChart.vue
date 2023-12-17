@@ -2,6 +2,7 @@
 /** Vendor */
 import { DateTime } from "luxon"
 import * as d3 from "d3"
+import { useDebounceFn } from "@vueuse/core"
 
 /** Services */
 import { truncate } from "@/services/utils"
@@ -176,8 +177,18 @@ const buildGasTrackingCharts = async () => {
 	)
 }
 
-onMounted(async () => {
+const debouncedRedraw = useDebounceFn((e) => {
 	buildGasTrackingCharts()
+}, 500)
+
+onMounted(async () => {
+	window.addEventListener("resize", debouncedRedraw)
+
+	buildGasTrackingCharts()
+})
+
+onBeforeMount(() => {
+	window.removeEventListener("resize", debouncedRedraw)
 })
 </script>
 

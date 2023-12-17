@@ -176,4 +176,10 @@ useHead({
 
 	padding: 16px;
 }
+
+@media (max-width: 800px) {
+	.content {
+		grid-template-columns: 1fr;
+	}
+}
 </style>
