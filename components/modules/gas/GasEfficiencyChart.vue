@@ -290,9 +290,26 @@ onBeforeMount(() => {
 
 <template>
 	<Flex direction="column" gap="16" wide>
-		<Flex align="center" gap="6">
-			<Icon name="stars" size="13" color="primary" />
-			<Text size="13" weight="600" color="primary">Gas Efficiency </Text>
+		<Flex align="center" justify="between">
+			<Flex align="center" gap="6">
+				<Icon name="stars" size="13" color="primary" />
+				<Text size="13" weight="600" color="primary">Gas Efficiency </Text>
+			</Flex>
+
+			<Flex align="center" gap="12">
+				<Flex align="center" gap="6">
+					<div style="width: 10px; height: 3px; border-radius: 50px; background: var(--green)" />
+					<Text size="11" weight="600" color="tertiary">Efficiency</Text>
+				</Flex>
+				<Flex align="center" gap="6">
+					<div style="width: 10px; height: 3px; border-radius: 50px; background: var(--op-40)" />
+					<Text size="11" weight="600" color="tertiary">Limit</Text>
+				</Flex>
+				<Flex align="center" gap="6">
+					<div style="width: 10px; height: 3px; border-radius: 50px; background: var(--op-15)" />
+					<Text size="11" weight="600" color="tertiary">Used</Text>
+				</Flex>
+			</Flex>
 		</Flex>
 
 		<Flex ref="chartWrapperEl" direction="column" :class="$style.chart_wrapper">
