@@ -241,7 +241,7 @@ onBeforeMount(() => {
 					>
 						<Flex align="center" gap="16">
 							<Text size="12" weight="600" color="secondary">Price</Text>
-							<Text size="12" weight="600" color="primary"> {{ truncate(tooltipText) }} TIA</Text>
+							<Text size="12" weight="600" color="primary"> {{ truncate(tooltipText) }} UTIA</Text>
 						</Flex>
 					</Flex>
 				</div>

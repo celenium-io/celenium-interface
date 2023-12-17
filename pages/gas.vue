@@ -89,7 +89,9 @@ useHead({
 
 							<Flex align="center" gap="8">
 								<Icon name="gas_fast" size="14" color="green" />
-								<Text v-if="gasPrice.fast" size="13" weight="600" color="primary"> {{ truncate(gasPrice.fast) }} TIA </Text>
+								<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
+									{{ truncate(gasPrice.fast) }} UTIA
+								</Text>
 								<Skeleton v-else w="50" h="13" />
 							</Flex>
 						</Flex>
@@ -100,7 +102,7 @@ useHead({
 							<Flex align="center" gap="8">
 								<Icon name="gas_median" size="14" color="yellow" />
 								<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
-									{{ truncate(gasPrice.median) }} TIA
+									{{ truncate(gasPrice.median) }} UTIA
 								</Text>
 								<Skeleton v-else w="50" h="13" />
 							</Flex>
@@ -111,7 +113,9 @@ useHead({
 
 							<Flex align="center" gap="8">
 								<Icon name="gas_slow" size="14" color="secondary" />
-								<Text v-if="gasPrice.fast" size="13" weight="600" color="primary"> {{ truncate(gasPrice.slow) }} TIA </Text>
+								<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
+									{{ truncate(gasPrice.slow) }} UTIA
+								</Text>
 								<Skeleton v-else w="50" h="13" />
 							</Flex>
 						</Flex>
