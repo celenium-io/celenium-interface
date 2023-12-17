@@ -209,5 +209,9 @@ useHead({
 	.content {
 		grid-template-columns: 1fr;
 	}
+
+	.left {
+		min-width: initial;
+	}
 }
 </style>
