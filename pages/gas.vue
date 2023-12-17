@@ -9,11 +9,57 @@ import { truncate } from "@/services/utils"
 /** API */
 import { fetchGasPrice } from "@/services/api/gas"
 
+const route = useRoute()
+
 const gasPrice = ref({})
 
 onMounted(async () => {
 	const data = await fetchGasPrice()
 	gasPrice.value = data
+})
+
+useHead({
+	title: `Celestia Gas Tracker - Celenium`,
+	link: [
+		{
+			rel: "canonical",
+			href: `https://celenium.io${route.path}`,
+		},
+	],
+	meta: [
+		{
+			name: "description",
+			content: `Gas Tracker for Celestia Blockchain. Gas price, efficiency, etc.`,
+		},
+		{
+			property: "og:title",
+			content: `Celestia Gas Tracker - Celenium`,
+		},
+		{
+			property: "og:description",
+			content: `Gas Tracker for Celestia Blockchain. Gas price, efficiency, etc.`,
+		},
+		{
+			property: "og:url",
+			content: `https://celenium.io${route.path}`,
+		},
+		{
+			property: "og:image",
+			content: `https://celenium.io${route.path}__og_image__/og.png`,
+		},
+		{
+			name: "twitter:title",
+			content: `Celestia Gas Tracker - Celenium`,
+		},
+		{
+			name: "twitter:description",
+			content: `Gas Tracker for Celestia Blockchain. Gas price, efficiency, etc.`,
+		},
+		{
+			name: "twitter:card",
+			content: "summary_large_image",
+		},
+	],
 })
 </script>
 
