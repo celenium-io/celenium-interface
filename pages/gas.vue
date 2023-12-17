@@ -85,38 +85,47 @@ useHead({
 				<Flex :class="$style.left">
 					<Flex justify="between" wide>
 						<Flex direction="column" gap="8">
-							<Text size="12" weight="600" color="secondary">Fast</Text>
+							<Flex align="align" gap="8">
+								<Icon name="gas_fast" size="12" color="green" />
+								<Text size="12" weight="600" color="secondary">Fast</Text>
+							</Flex>
 
 							<Flex align="center" gap="8">
-								<Icon name="gas_fast" size="14" color="green" />
 								<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
 									{{ truncate(gasPrice.fast) }} UTIA
 								</Text>
 								<Skeleton v-else w="50" h="13" />
+								<CopyButton :text="gasPrice.fast" />
 							</Flex>
 						</Flex>
 
 						<Flex direction="column" gap="8">
-							<Text size="12" weight="600" color="secondary">Median</Text>
+							<Flex align="center" gap="8">
+								<Icon name="gas_median" size="12" color="yellow" />
+								<Text size="12" weight="600" color="secondary">Median</Text>
+							</Flex>
 
 							<Flex align="center" gap="8">
-								<Icon name="gas_median" size="14" color="yellow" />
 								<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
 									{{ truncate(gasPrice.median) }} UTIA
 								</Text>
 								<Skeleton v-else w="50" h="13" />
+								<CopyButton :text="gasPrice.median" />
 							</Flex>
 						</Flex>
 
 						<Flex direction="column" gap="8">
-							<Text size="12" weight="600" color="secondary">Slow</Text>
-
 							<Flex align="center" gap="8">
 								<Icon name="gas_slow" size="14" color="secondary" />
+								<Text size="12" weight="600" color="secondary">Slow</Text>
+							</Flex>
+
+							<Flex align="center" gap="8">
 								<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
 									{{ truncate(gasPrice.slow) }} UTIA
 								</Text>
 								<Skeleton v-else w="50" h="13" />
+								<CopyButton :text="gasPrice.slow" />
 							</Flex>
 						</Flex>
 					</Flex>
