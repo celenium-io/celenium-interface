@@ -50,7 +50,7 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 		d3.extent(data, (d) => d.date),
 		[marginLeft, width - marginRight],
 	)
-	const yScaleEfficiency = d3.scaleLinear([0, MAX_VALUE_EFFICIENCY], [height - marginBottom - 6, marginTop])
+	const yScaleEfficiency = d3.scaleLinear([0, 1], [height - marginBottom - 6, marginTop])
 	const lineEfficiency = d3
 		.line()
 		.x((d) => xScaleEfficiency(d.date))
@@ -297,14 +297,10 @@ onBeforeMount(() => {
 
 		<Flex ref="chartWrapperEl" direction="column" :class="$style.chart_wrapper">
 			<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">
-				<Text v-if="gasEfficiencySeries.length" size="12" weight="600" color="tertiary">
-					{{ parseInt(Math.max(...gasEfficiencySeries.map((d) => d.value)) * 100) }}%
-				</Text>
+				<Text v-if="gasEfficiencySeries.length" size="12" weight="600" color="tertiary"> 100% </Text>
 				<Skeleton v-else w="32" h="12" />
 
-				<Text v-if="gasEfficiencySeries.length" size="12" weight="600" color="tertiary">
-					{{ parseInt(Math.max(...gasEfficiencySeries.map((d) => d.value)) / 2) * 100 }}%
-				</Text>
+				<Text v-if="gasEfficiencySeries.length" size="12" weight="600" color="tertiary"> 50% </Text>
 				<Skeleton v-else w="24" h="12" />
 
 				<Text v-if="gasEfficiencySeries.length" size="12" weight="600" color="tertiary"> 0 </Text>

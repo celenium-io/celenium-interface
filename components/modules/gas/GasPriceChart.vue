@@ -196,7 +196,7 @@ onBeforeMount(() => {
 	<Flex direction="column" gap="16" wide>
 		<Flex align="center" gap="6">
 			<Icon name="chart" size="13" color="primary" />
-			<Text size="13" weight="600" color="primary">Gas Price</Text>
+			<Text size="13" weight="600" color="primary">Average Gas Price</Text>
 		</Flex>
 
 		<Flex ref="chartWrapperEl" direction="column" :class="$style.chart_wrapper">
