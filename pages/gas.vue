@@ -85,7 +85,7 @@ useHead({
 				<Flex :class="$style.left">
 					<Flex justify="between" wide>
 						<Flex direction="column" gap="8">
-							<Flex align="align" gap="8">
+							<Flex align="center" gap="8">
 								<Icon name="gas_fast" size="12" color="green" />
 								<Text size="12" weight="600" color="secondary">Fast</Text>
 							</Flex>
