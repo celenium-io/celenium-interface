@@ -36,6 +36,7 @@ const showPfbTooltip = ref(false)
 const tooltipEl = ref()
 const tooltipXOffset = ref(0)
 const tooltipYOffset = ref(0)
+const tooltipYDataOffset = ref(0)
 const tooltipDynamicXPosition = ref(0)
 const tooltipText = ref("")
 
@@ -72,6 +73,7 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 		const idx = bisect(data, x.invert(d3.pointer(event)[0]))
 
 		tooltipXOffset.value = x(data[idx].date)
+		tooltipYDataOffset.value = y(data[idx].value)
 		tooltipYOffset.value = event.layerY
 		tooltipText.value = data[idx].value
 
@@ -286,6 +288,10 @@ onBeforeMount(() => {
 
 					<Transition name="fastfade">
 						<div v-if="showSeriesTooltip" :class="$style.tooltip_wrapper">
+							<div
+								:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
+								:class="$style.dot"
+							/>
 							<div :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
 							<div
 								ref="badgeEl"
@@ -343,6 +349,10 @@ onBeforeMount(() => {
 
 					<Transition name="fastfade">
 						<div v-if="showPfbTooltip" :class="$style.tooltip_wrapper">
+							<div
+								:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
+								:class="$style.dot"
+							/>
 							<div :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
 							<div
 								ref="badgeEl"
@@ -428,6 +438,17 @@ onBeforeMount(() => {
 	left: 0;
 	right: 0;
 	bottom: 0;
+
+	& .dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50px;
+		background: var(--green);
+
+		box-shadow: 0 0 0 4px rgba(10, 222, 113, 27%);
+
+		transition: all 0.15s ease;
+	}
 
 	& .line {
 		position: absolute;
