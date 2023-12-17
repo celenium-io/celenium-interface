@@ -82,7 +82,7 @@ useHead({
 			</Flex>
 
 			<Flex gap="4" :class="$style.content">
-				<Flex :class="$style.left">
+				<Flex direction="column" justify="between" gap="20" :class="$style.left">
 					<Flex justify="between" wide>
 						<Flex direction="column" gap="8">
 							<Flex align="center" gap="8">
@@ -128,6 +128,13 @@ useHead({
 								<CopyButton :text="gasPrice.slow" />
 							</Flex>
 						</Flex>
+					</Flex>
+
+					<Flex direction="column" gap="8" :class="$style.bottom">
+						<Text size="12" weight="600" color="secondary"> Price is calculated on fee payments for the last 100 blocks </Text>
+						<Text size="12" weight="500" color="tertiary" height="140">
+							Each gas price level is the percentage of transactions in which gas price was set below a specified value
+						</Text>
 					</Flex>
 				</Flex>
 
@@ -188,6 +195,14 @@ useHead({
 	background: var(--card-background);
 
 	padding: 16px;
+}
+
+.bottom {
+	opacity: 0.6;
+
+	border-top: 2px solid var(--op-5);
+
+	padding-top: 12px;
 }
 
 @media (max-width: 800px) {
