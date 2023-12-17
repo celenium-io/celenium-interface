@@ -27,8 +27,6 @@ const preview = reactive({
 	isLoadingPfbs: true,
 })
 
-const viewMoreTxs = ref(false)
-
 const isUserSelected = ref(false)
 
 const handleSelectBlock = (b, isUser) => {
@@ -82,8 +80,9 @@ watch(
 
 <template>
 	<Flex wide direction="column" gap="4">
-		<Flex align="center" :class="$style.header">
-			<Text size="14" weight="600" color="primary">Blocks Timeline</Text>
+		<Flex align="center" gap="8" :class="$style.header">
+			<Icon name="timeline" size="14" color="primary" />
+			<Text size="13" weight="600" color="primary">Blocks Timeline</Text>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
@@ -279,10 +278,7 @@ watch(
 						</Flex>
 
 						<Flex v-if="preview.block.stats.tx_count" direction="column" gap="8">
-							<NuxtLink
-								v-for="transaction in viewMoreTxs ? preview.transactions : preview.transactions.slice(0, 5)"
-								:to="`/tx/${transaction.hash}`"
-							>
+							<NuxtLink v-for="transaction in preview.transactions.slice(0, 5)" :to="`/tx/${transaction.hash}`">
 								<Outline wide height="32" padding="8" radius="6">
 									<Flex justify="between" align="center" wide>
 										<Flex align="center" gap="8">
@@ -321,14 +317,11 @@ watch(
 								</Outline>
 							</NuxtLink>
 
-							<Button
-								v-if="preview.block.stats.tx_count > 5"
-								@click="viewMoreTxs = !viewMoreTxs"
-								type="tertiary"
-								size="small"
-								wide
-								>{{ viewMoreTxs ? "Hide" : "Show More" }}</Button
-							>
+							<Flex align="center" gap="6">
+								<Icon name="help" size="12" color="tertiary" />
+								<Text size="12" weight="500" color="tertiary">{{ preview.block.stats.tx_count - 5 }} more.</Text>
+								<Text size="12" weight="500" color="support"> View all transactions on the block page </Text>
+							</Flex>
 						</Flex>
 						<Text v-else size="12" weight="600" color="tertiary" align="center" :class="$style.empty_state">
 							No transactions
@@ -414,12 +407,12 @@ watch(
 
 <style module>
 .header {
-	height: 46px;
+	height: 40px;
 
 	border-radius: 8px 8px 4px 4px;
 	background: var(--card-background);
 
-	padding: 0 16px;
+	padding: 0 12px;
 }
 
 .table {

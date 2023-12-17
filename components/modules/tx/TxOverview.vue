@@ -69,7 +69,10 @@ const handleViewRawEvents = () => {
 <template>
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
-			<Text size="14" weight="600" color="primary">Transaction Overview</Text>
+			<Flex align="center" gap="8">
+				<Icon name="tx" size="14" color="primary" />
+				<Text size="13" weight="600" color="primary">Transaction</Text>
+			</Flex>
 
 			<Dropdown>
 				<Button type="tertiary" size="mini">
@@ -147,7 +150,12 @@ const handleViewRawEvents = () => {
 					<Flex v-if="tx.memo" direction="column" gap="6">
 						<Text size="12" weight="600" color="secondary">Memo</Text>
 
-						<Text size="12" height="140" weight="600" color="tertiary" mono selectable>{{ tx.memo }}</Text>
+						<Flex align="center" gap="6">
+							<CopyButton :text="tx.memo" />
+							<Text size="12" height="140" weight="600" color="tertiary" mono selectable :class="$style.memo">
+								{{ tx.memo }}
+							</Text>
+						</Flex>
 					</Flex>
 
 					<Flex direction="column" gap="10">
@@ -509,12 +517,12 @@ const handleViewRawEvents = () => {
 
 <style module>
 .header {
-	height: 46px;
+	height: 40px;
 
 	border-radius: 8px 8px 4px 4px;
 	background: var(--card-background);
 
-	padding: 0 16px;
+	padding: 0 12px;
 }
 
 .content {
@@ -641,6 +649,11 @@ const handleViewRawEvents = () => {
 			}
 		}
 	}
+}
+
+.memo {
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 @media (max-width: 800px) {

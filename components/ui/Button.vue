@@ -29,6 +29,10 @@ const props = defineProps({
 		type: String,
 		required: false,
 	},
+	target: {
+		type: String,
+		required: false,
+	},
 })
 
 const style = useCssModule()
@@ -48,7 +52,12 @@ const getStyles = () => {
 </script>
 
 <template>
-	<component :is="link ? NuxtLink : 'button'" v-bind="{ to: link ? link : null }" :class="[...getStyles(), loading && $style.loading]">
+	<component
+		:is="link ? NuxtLink : 'button'"
+		v-bind="{ to: link ? link : null }"
+		:target="target"
+		:class="[...getStyles(), loading && $style.loading]"
+	>
 		<slot />
 	</component>
 </template>

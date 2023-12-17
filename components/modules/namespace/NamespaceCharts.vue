@@ -51,12 +51,14 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 	const marginBottom = 24
 	const marginLeft = 40
 
+	const MAX_VALUE = d3.max(data, (d) => d.value) ? d3.max(data, (d) => d.value) : 1
+
 	/** Scale */
 	const x = d3.scaleUtc(
 		d3.extent(data, (d) => d.date),
 		[marginLeft, width - marginRight],
 	)
-	const y = d3.scaleLinear([0, d3.max(data, (d) => d.value)], [height - marginBottom - 6, marginTop])
+	const y = d3.scaleLinear([0, MAX_VALUE], [height - marginBottom - 6, marginTop])
 	const line = d3
 		.line()
 		.x((d) => x(d.date))
@@ -257,10 +259,7 @@ onBeforeMount(() => {
 
 		<Flex justify="between" gap="32" :class="$style.data">
 			<Flex direction="column" gap="20" wide>
-				<Flex align="center" gap="4">
-					<Text size="13" weight="600" color="primary">Blob Size Usage</Text>
-					<Icon name="help" size="12" color="secondary" />
-				</Flex>
+				<Text size="13" weight="600" color="primary">Blob Size Usage</Text>
 
 				<Flex ref="chartWrapperEl" direction="column" :class="$style.chart_wrapper">
 					<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">
@@ -317,10 +316,7 @@ onBeforeMount(() => {
 			</Flex>
 
 			<Flex direction="column" gap="16" wide>
-				<Flex align="center" gap="4">
-					<Text size="13" weight="600" color="primary">Pay For Blobs Count</Text>
-					<Icon name="help" size="12" color="secondary" />
-				</Flex>
+				<Text size="13" weight="600" color="primary">Pay For Blobs Count</Text>
 
 				<Flex direction="column" :class="$style.chart_wrapper">
 					<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">

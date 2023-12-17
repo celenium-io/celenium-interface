@@ -112,13 +112,10 @@ const getSectorName = (item) => {
 		<Flex gap="16" :class="$style.chart">
 			<Flex direction="column" justify="between" :class="$style.yAxis">
 				<Skeleton w="35" h="12" v-if="!roundedMax" />
-				<Text v-else size="12" weight="600" color="secondary">{{ comma(roundedMax) }}</Text>
-
-				<Skeleton w="17" h="12" v-if="!roundedMax" />
-				<Text v-else size="12" weight="600" color="secondary">{{ comma(Math.ceil(roundedMax / 2)) }}</Text>
+				<Text v-else size="12" weight="600" color="tertiary">{{ abbreviate(roundedMax) }}</Text>
 
 				<Skeleton w="15" h="12" v-if="!roundedMax" />
-				<Text v-else size="12" weight="600" color="secondary">{{ comma(min) }}</Text>
+				<Text v-else size="12" weight="600" color="tertiary">{{ comma(min) }}</Text>
 			</Flex>
 
 			<Flex v-if="!sectors[0].length" wide :class="$style.sectors">
@@ -162,7 +159,7 @@ const getSectorName = (item) => {
 									</Flex>
 
 									<Flex justify="between" align="center" gap="8">
-										<Text color="secondary">Value</Text>
+										<Text color="secondary">Txs</Text>
 										<Text color="primary">{{ comma(item.value) }}</Text>
 									</Flex>
 								</Flex>

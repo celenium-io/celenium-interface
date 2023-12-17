@@ -89,7 +89,7 @@ const handleNavigate = (url) => {
 
 			<Flex justify="center" align="center" wrap="wrap" gap="8" :class="$style.links">
 				<NuxtLink to="/" :class="[$style.link, isActive('index') && $style.active]">
-					<Text size="13" weight="600" color="tertiary">Explorer</Text>
+					<Text size="13" weight="600" color="tertiary">Explore</Text>
 				</NuxtLink>
 
 				<NuxtLink to="/txs" :class="[$style.link, isActive('txs') && $style.active]">
@@ -146,7 +146,7 @@ const handleNavigate = (url) => {
 
 		<Flex v-if="showPopup" @click="showPopup = false" direction="column" gap="8" :class="$style.menu_popup">
 			<NuxtLink to="/" :class="[$style.link, isActive('index') && $style.active]">
-				<Text size="13" weight="600" color="tertiary">Explorer</Text>
+				<Text size="13" weight="600" color="tertiary">Explore</Text>
 			</NuxtLink>
 
 			<NuxtLink to="/txs" :class="[$style.link, isActive('txs') && $style.active]">

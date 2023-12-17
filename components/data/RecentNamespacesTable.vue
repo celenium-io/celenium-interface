@@ -54,8 +54,9 @@ const handleSort = (by) => {
 
 <template>
 	<Flex wide direction="column" gap="4">
-		<Flex align="center" :class="$style.header">
-			<Text size="14" weight="600" color="primary">Namespaces</Text>
+		<Flex align="center" gap="8" :class="$style.header">
+			<Icon name="folder" size="14" color="primary" />
+			<Text size="13" weight="600" color="primary">Namespaces</Text>
 		</Flex>
 
 		<Flex direction="column" gap="16" :class="$style.namespaces_body">
@@ -178,12 +179,12 @@ const handleSort = (by) => {
 
 <style module>
 .header {
-	height: 46px;
+	height: 40px;
 
 	border-radius: 8px 8px 4px 4px;
 	background: var(--card-background);
 
-	padding: 0 16px;
+	padding: 0 12px;
 }
 
 .namespaces_body {

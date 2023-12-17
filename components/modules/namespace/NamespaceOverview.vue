@@ -180,7 +180,7 @@ const handleViewRawMessages = () => {
 						<table>
 							<thead>
 								<tr>
-									<th><Text size="12" weight="600" color="tertiary">Transaction</Text></th>
+									<th><Text size="12" weight="600" color="tertiary">Hash</Text></th>
 									<th><Text size="12" weight="600" color="tertiary">Type</Text></th>
 									<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
 									<th><Text size="12" weight="600" color="tertiary">Block</Text></th>

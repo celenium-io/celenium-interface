@@ -2,7 +2,7 @@ export const Server = {
 	API: {
 		mainnet: "https://api.celenium.io/v1",
 		mocha: "https://api-mocha-4.celenium.io/v1",
-		dev: "https://api-mocha-4.celenium.io/v1",
+		dev: "https://api-dev.celenium.io/v1",
 	},
 	WSS: {
 		mainnet: "wss://api.celenium.io/v1/ws",
