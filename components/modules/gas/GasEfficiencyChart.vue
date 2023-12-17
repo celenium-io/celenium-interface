@@ -73,7 +73,7 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 		d3.extent(gasUsedSeries.value, (d) => d.date),
 		[marginLeft, width - marginRight],
 	)
-	const yScaleUsed = d3.scaleLinear([0, MAX_VALUE_USED], [height - marginBottom - 6, marginTop])
+	const yScaleUsed = d3.scaleLinear([0, MAX_VALUE_LIMIT], [height - marginBottom - 6, marginTop])
 	const lineUsed = d3
 		.line()
 		.x((d) => xScaleUsed(d.date))
