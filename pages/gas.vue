@@ -179,6 +179,7 @@ useHead({
 
 .left {
 	min-width: 384px;
+	max-width: 384px;
 
 	border-radius: 4px 4px 4px 8px;
 	background: var(--card-background);
@@ -212,6 +213,7 @@ useHead({
 
 	.left {
 		min-width: initial;
+		max-width: initial;
 	}
 }
 </style>

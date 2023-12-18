@@ -264,6 +264,8 @@ const getGasUsedSeries = async () => {
 }
 
 const buildGasTrackingCharts = async () => {
+	if (!gasEfficiencyChartEl.value) return
+
 	await getGasEfficiencySeries()
 	await getGasLimitSeries()
 	await getGasUsedSeries()
@@ -276,7 +278,12 @@ const buildGasTrackingCharts = async () => {
 }
 
 const debouncedRedraw = useDebounceFn((e) => {
-	buildGasTrackingCharts()
+	buildChart(
+		gasEfficiencyChartEl.value.wrapper,
+		gasEfficiencySeries.value,
+		() => (showTooltip.value = true),
+		() => (showTooltip.value = false),
+	)
 }, 500)
 
 onMounted(async () => {
