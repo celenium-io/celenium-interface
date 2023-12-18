@@ -80,9 +80,13 @@ watch(
 
 <template>
 	<Flex wide direction="column" gap="4">
-		<Flex align="center" gap="8" :class="$style.header">
-			<Icon name="timeline" size="14" color="primary" />
-			<Text size="13" weight="600" color="primary">Blocks Timeline</Text>
+		<Flex align="center" justify="between" :class="$style.header">
+			<Flex align="center" gap="8">
+				<Icon name="timeline" size="14" color="primary" />
+				<Text size="13" weight="600" color="primary">Blocks Timeline</Text>
+			</Flex>
+
+			<Button type="tertiary" size="mini">Pause</Button>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
