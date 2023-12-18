@@ -272,8 +272,12 @@ watch(
 					<Flex direction="column" gap="12">
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Transactions</Text>
-							<Text size="12" weight="600" color="secondary">
-								{{ preview.block.stats.tx_count > 5 ? "5 /" : "" }} {{ preview.block.stats.tx_count }}
+
+							<Text v-if="preview.block.stats.tx_count > 5" size="12" weight="600" color="secondary">
+								5 <Text color="tertiary">of {{ comma(preview.block.stats.tx_count) }}</Text>
+							</Text>
+							<Text v-else size="12" weight="600" color="secondary">
+								{{ preview.block.stats.tx_count }}
 							</Text>
 						</Flex>
 
