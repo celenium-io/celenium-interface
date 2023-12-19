@@ -269,7 +269,7 @@ watch(
 										</template>
 									</Tooltip>
 								</td>
-								<td style="width: 1px">
+								<td>
 									<Flex align="center" gap="4">
 										<Text size="13" weight="600" :color="parseFloat(block.stats.fee) ? 'primary' : 'tertiary'">
 											{{ tia(block.stats.fee) }}
@@ -283,7 +283,7 @@ watch(
 					</table>
 				</div>
 
-				<Button link="/blocks" type="secondary" size="small" wide>
+				<Button link="/blocks" type="secondary" size="small" :class="$style.buttons">
 					<Icon name="table" size="12" color="secondary" />
 					<Text size="12" weight="600" color="primary">View all blocks</Text>
 				</Button>
@@ -526,14 +526,13 @@ watch(
 }
 
 .status {
-	width: 100%;
-
 	background: linear-gradient(var(--op-8), var(--op-5));
 	border-radius: 6px;
 
+	overflow: hidden;
 	padding: 8px;
 
-	overflow: hidden;
+	margin: 16px 16px 0 16px;
 }
 
 .block_icon {
@@ -566,8 +565,6 @@ watch(
 	border-radius: 4px 4px 4px 8px;
 	background: var(--card-background);
 
-	padding: 16px;
-
 	& table {
 		width: 100%;
 		height: fit-content;
@@ -583,10 +580,18 @@ watch(
 
 				&.active {
 					opacity: 1;
+
+					background: var(--op-3);
+
+					& td:last-child {
+						border-right: 2px solid var(--op-30);
+					}
 				}
 
 				&:hover {
 					opacity: 1;
+
+					background: var(--op-5);
 				}
 			}
 		}
@@ -595,6 +600,7 @@ watch(
 			text-align: left;
 			padding: 0;
 			padding-bottom: 8px;
+			padding-left: 16px;
 
 			& span {
 				display: flex;
@@ -604,10 +610,13 @@ watch(
 		& tr td {
 			padding: 0;
 			padding-right: 24px;
+			padding-left: 16px;
 			padding-top: 8px;
 			padding-bottom: 8px;
 
 			white-space: nowrap;
+
+			border-right: 2px solid transparent;
 		}
 	}
 }
@@ -651,6 +660,10 @@ watch(
 			width: 100%;
 		}
 	}
+}
+
+.buttons {
+	margin: 0 16px 16px 16px;
 }
 
 .table_scroller {
