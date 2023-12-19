@@ -21,6 +21,19 @@ const props = defineProps({
 	},
 })
 
+const selectedPeriodIdx = ref(0)
+const periods = ref([
+	{
+		title: "Last 7 days",
+		value: 6,
+	},
+	{
+		title: "Last 31 days",
+		value: 30,
+	},
+])
+const selectedPeriod = computed(() => periods.value[selectedPeriodIdx.value])
+
 /** Charts */
 const chartWrapperEl = ref()
 const sizeSeriesChartEl = ref()
@@ -78,7 +91,7 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 		tooltipText.value = data[idx].value
 
 		if (tooltipEl.value) {
-			if (idx > 3) {
+			if (idx > parseInt(selectedPeriod.value.value / 2)) {
 				tooltipDynamicXPosition.value = tooltipXOffset.value - tooltipEl.value.wrapper.getBoundingClientRect().width - 16
 			} else {
 				tooltipDynamicXPosition.value = tooltipXOffset.value + 16
@@ -88,9 +101,9 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 		badgeText.value = DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
 
 		if (!badgeEl.value) return
-		if (idx === 0) {
+		if (idx < 2) {
 			badgeOffset.value = 0
-		} else if (idx === 6) {
+		} else if (idx > selectedPeriod.value.value - 3) {
 			badgeOffset.value = badgeEl.value.getBoundingClientRect().width
 		} else {
 			badgeOffset.value = badgeEl.value.getBoundingClientRect().width / 2
@@ -140,7 +153,7 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 		.attr("stroke-width", 2)
 		.attr("stroke-linecap", "round")
 		.attr("stroke-linejoin", "round")
-		.attr("d", line(data.slice(0, 6)))
+		.attr("d", line(data.slice(0, data.length - 1)))
 	svg.append("path")
 		.attr("fill", "none")
 		.attr("stroke", "var(--green)")
@@ -148,7 +161,7 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 		.attr("stroke-linecap", "round")
 		.attr("stroke-linejoin", "round")
 		.attr("stroke-dasharray", "8")
-		.attr("d", line(data.slice(5, 7)))
+		.attr("d", line(data.slice(data.length - 2, data.length)))
 
 	svg.append("circle")
 		.attr("cx", x(data[data.length - 1].date))
@@ -161,11 +174,13 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 }
 
 const getSizeSeries = async () => {
+	sizeSeries.value = []
+
 	const sizeSeriesRawData = await fetchNamespaceSeries({
 		id: props.id,
 		name: "size",
 		timeframe: "day",
-		from: parseInt(DateTime.now().minus({ days: 6 }).ts / 1_000),
+		from: parseInt(DateTime.now().minus({ days: selectedPeriod.value.value }).ts / 1_000),
 	})
 
 	const sizeSeriesMap = {}
@@ -173,8 +188,8 @@ const getSizeSeries = async () => {
 		sizeSeriesMap[DateTime.fromISO(item.time).toFormat("y-LL-dd")] = item.value
 	})
 
-	for (let i = 0; i < 7; i++) {
-		const dt = DateTime.now().minus({ days: 6 - i })
+	for (let i = 0; i < selectedPeriod.value.value + 1; i++) {
+		const dt = DateTime.now().minus({ days: selectedPeriod.value.value - i })
 		sizeSeries.value.push({
 			date: dt.toJSDate(),
 			value: parseInt(sizeSeriesMap[dt.toFormat("y-LL-dd")]) || 0,
@@ -183,11 +198,13 @@ const getSizeSeries = async () => {
 }
 
 const getPfbSeries = async () => {
+	pfbSeries.value = []
+
 	const pfbSeriesRawData = await fetchNamespaceSeries({
 		id: props.id,
 		name: "pfb_count",
 		timeframe: "day",
-		from: parseInt(DateTime.now().minus({ days: 6 }).ts / 1_000),
+		from: parseInt(DateTime.now().minus({ days: selectedPeriod.value.value }).ts / 1_000),
 	})
 
 	const pfbSeriesMap = {}
@@ -195,8 +212,8 @@ const getPfbSeries = async () => {
 		pfbSeriesMap[DateTime.fromISO(item.time).toFormat("y-LL-dd")] = item.value
 	})
 
-	for (let i = 0; i < 7; i++) {
-		const dt = DateTime.now().minus({ days: 6 - i })
+	for (let i = 0; i < selectedPeriod.value.value + 1; i++) {
+		const dt = DateTime.now().minus({ days: selectedPeriod.value.value - i })
 		pfbSeries.value.push({
 			date: dt.toJSDate(),
 			value: parseInt(pfbSeriesMap[dt.toFormat("y-LL-dd")]) || 0,
@@ -221,6 +238,13 @@ const buildNamespaceCharts = async () => {
 		() => (showPfbTooltip.value = false),
 	)
 }
+
+watch(
+	() => selectedPeriodIdx.value,
+	() => {
+		buildNamespaceCharts()
+	},
+)
 
 const debouncedRedraw = useDebounceFn((e) => {
 	buildNamespaceCharts()
@@ -247,13 +271,16 @@ onBeforeUnmount(() => {
 
 			<Dropdown>
 				<Button size="mini" type="secondary">
-					Last 7 days
+					{{ selectedPeriod.title }}
 					<Icon name="chevron" size="12" color="secondary" />
 				</Button>
 
 				<template #popup>
-					<DropdownItem>
-						<Flex align="center" gap="8"> <Icon name="check" size="12" color="secondary" /> Last 7 days </Flex>
+					<DropdownItem v-for="(period, idx) in periods" @click="selectedPeriodIdx = idx">
+						<Flex align="center" gap="8">
+							<Icon :name="idx === selectedPeriodIdx ? 'check' : ''" size="12" color="secondary" />
+							{{ period.title }}
+						</Flex>
 					</DropdownItem>
 				</template>
 			</Dropdown>
@@ -281,7 +308,9 @@ onBeforeUnmount(() => {
 
 					<Flex :class="[$style.axis, $style.x]">
 						<Flex align="end" justify="between" wide>
-							<Text size="12" weight="600" color="tertiary">{{ DateTime.now().minus({ days: 6 }).toFormat("LLL dd") }}</Text>
+							<Text size="12" weight="600" color="tertiary">{{
+								DateTime.now().minus({ days: selectedPeriod.value }).toFormat("LLL dd")
+							}}</Text>
 							<Text size="12" weight="600" color="tertiary">Today</Text>
 						</Flex>
 					</Flex>
@@ -342,7 +371,9 @@ onBeforeUnmount(() => {
 
 					<Flex :class="[$style.axis, $style.x]">
 						<Flex align="end" justify="between" wide>
-							<Text size="12" weight="600" color="tertiary">{{ DateTime.now().minus({ days: 6 }).toFormat("dd LLL") }}</Text>
+							<Text size="12" weight="600" color="tertiary">{{
+								DateTime.now().minus({ days: selectedPeriod.value }).toFormat("dd LLL")
+							}}</Text>
 							<Text size="12" weight="600" color="tertiary">Today</Text>
 						</Flex>
 					</Flex>
