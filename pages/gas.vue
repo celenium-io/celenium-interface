@@ -131,7 +131,13 @@ useHead({
 					</Flex>
 
 					<Flex direction="column" gap="8" :class="$style.bottom">
-						<Text size="12" weight="600" color="secondary"> Price is calculated on fee payments for the last 100 blocks </Text>
+						<Flex align="center" gap="6">
+							<Icon name="help" size="12" color="secondary" />
+							<Text size="12" weight="600" color="secondary"> Fast - 99%, Median - 50%, Slow - 10%</Text>
+						</Flex>
+						<Text size="12" weight="600" color="tertiary">
+							Price is calculated on fee payments for the last <Text color="secondary">100</Text> blocks
+						</Text>
 						<Text size="12" weight="500" color="tertiary" height="140">
 							Each gas price level is the percentage of transactions in which gas price was set below a specified value
 						</Text>
