@@ -21,15 +21,22 @@ const props = defineProps({
 	},
 })
 
-const selectedPeriodIdx = ref(0)
+const selectedPeriodIdx = ref(1)
 const periods = ref([
+	{
+		title: "Last 24 hours",
+		value: 24,
+		timeframe: "hour",
+	},
 	{
 		title: "Last 7 days",
 		value: 6,
+		timeframe: "day",
 	},
 	{
 		title: "Last 31 days",
 		value: 30,
+		timeframe: "day",
 	},
 ])
 const selectedPeriod = computed(() => periods.value[selectedPeriodIdx.value])
@@ -98,7 +105,10 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 			}
 		}
 
-		badgeText.value = DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
+		badgeText.value =
+			selectedPeriod.value.timeframe === "day"
+				? DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
+				: DateTime.fromJSDate(data[idx].date).set({ minutes: 0 }).toFormat("hh:mm a")
 
 		if (!badgeEl.value) return
 		if (idx < 2) {
@@ -179,20 +189,29 @@ const getSizeSeries = async () => {
 	const sizeSeriesRawData = await fetchNamespaceSeries({
 		id: props.id,
 		name: "size",
-		timeframe: "day",
-		from: parseInt(DateTime.now().minus({ days: selectedPeriod.value.value }).ts / 1_000),
+		timeframe: selectedPeriod.value.timeframe,
+		from: parseInt(
+			DateTime.now().minus({
+				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
+				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
+			}).ts / 1_000,
+		),
 	})
 
 	const sizeSeriesMap = {}
 	sizeSeriesRawData.forEach((item) => {
-		sizeSeriesMap[DateTime.fromISO(item.time).toFormat("y-LL-dd")] = item.value
+		sizeSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] =
+			item.value
 	})
 
 	for (let i = 0; i < selectedPeriod.value.value + 1; i++) {
-		const dt = DateTime.now().minus({ days: selectedPeriod.value.value - i })
+		const dt = DateTime.now().minus({
+			days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
+			hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - i : 0,
+		})
 		sizeSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseInt(sizeSeriesMap[dt.toFormat("y-LL-dd")]) || 0,
+			value: parseInt(sizeSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
 }
@@ -203,20 +222,28 @@ const getPfbSeries = async () => {
 	const pfbSeriesRawData = await fetchNamespaceSeries({
 		id: props.id,
 		name: "pfb_count",
-		timeframe: "day",
-		from: parseInt(DateTime.now().minus({ days: selectedPeriod.value.value }).ts / 1_000),
+		timeframe: selectedPeriod.value.timeframe,
+		from: parseInt(
+			DateTime.now().minus({
+				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
+				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
+			}).ts / 1_000,
+		),
 	})
 
 	const pfbSeriesMap = {}
 	pfbSeriesRawData.forEach((item) => {
-		pfbSeriesMap[DateTime.fromISO(item.time).toFormat("y-LL-dd")] = item.value
+		pfbSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
 	})
 
 	for (let i = 0; i < selectedPeriod.value.value + 1; i++) {
-		const dt = DateTime.now().minus({ days: selectedPeriod.value.value - i })
+		const dt = DateTime.now().minus({
+			days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
+			hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - i : 0,
+		})
 		pfbSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseInt(pfbSeriesMap[dt.toFormat("y-LL-dd")]) || 0,
+			value: parseInt(pfbSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
 }
@@ -308,10 +335,14 @@ onBeforeUnmount(() => {
 
 					<Flex :class="[$style.axis, $style.x]">
 						<Flex align="end" justify="between" wide>
-							<Text size="12" weight="600" color="tertiary">{{
-								DateTime.now().minus({ days: selectedPeriod.value }).toFormat("LLL dd")
-							}}</Text>
-							<Text size="12" weight="600" color="tertiary">Today</Text>
+							<Text v-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">
+								{{ DateTime.now().minus({ days: selectedPeriod.value }).toFormat("LLL dd") }}
+							</Text>
+							<Text v-else size="12" weight="600" color="tertiary">
+								{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
+							</Text>
+
+							<Text size="12" weight="600" color="tertiary">{{ selectedPeriod.timeframe === "day" ? "Today" : "Now" }}</Text>
 						</Flex>
 					</Flex>
 
@@ -371,10 +402,14 @@ onBeforeUnmount(() => {
 
 					<Flex :class="[$style.axis, $style.x]">
 						<Flex align="end" justify="between" wide>
-							<Text size="12" weight="600" color="tertiary">{{
-								DateTime.now().minus({ days: selectedPeriod.value }).toFormat("dd LLL")
-							}}</Text>
-							<Text size="12" weight="600" color="tertiary">Today</Text>
+							<Text v-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">
+								{{ DateTime.now().minus({ days: selectedPeriod.value }).toFormat("LLL dd") }}
+							</Text>
+							<Text v-else size="12" weight="600" color="tertiary">
+								{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
+							</Text>
+
+							<Text size="12" weight="600" color="tertiary">{{ selectedPeriod.timeframe === "day" ? "Today" : "Now" }}</Text>
 						</Flex>
 					</Flex>
 
