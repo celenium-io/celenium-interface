@@ -29,10 +29,10 @@ const preview = reactive({
 	isLoadingPfbs: true,
 })
 
-const isUserSelected = ref(false)
+const autoSelect = ref(true)
 
 const handleSelectBlock = (b, isUser) => {
-	if (isUser) isUserSelected.value = true
+	if (isUser) autoSelect.value = false
 
 	if (preview.block.height === b.height) return
 
@@ -125,7 +125,14 @@ watch(
 watch(
 	() => lastBlock.value,
 	() => {
-		if (!isUserSelected.value && !isPaused.value) handleSelectBlock(lastBlock.value, false)
+		if (autoSelect.value && !isPaused.value) handleSelectBlock(lastBlock.value, false)
+	},
+)
+
+watch(
+	() => autoSelect.value,
+	() => {
+		if (autoSelect.value) handleSelectBlock(lastBlock.value, false)
 	},
 )
 </script>
@@ -138,20 +145,41 @@ watch(
 				<Text size="13" weight="600" color="primary">Blocks Timeline</Text>
 			</Flex>
 
-			<Tooltip position="end">
-				<Button @click="handlePause" type="tertiary" size="mini" :disabled="!appStore.head.synced">
-					<Icon :name="isPaused ? 'resume' : 'pause'" size="12" color="secondary" />
-					{{ isPaused ? "Resume" : "Pause" }}
-				</Button>
+			<Flex align="center" gap="8">
+				<Tooltip position="end">
+					<Button @click="handlePause" type="tertiary" size="mini" :disabled="!appStore.head.synced">
+						<Icon :name="isPaused ? 'resume' : 'pause'" size="14" color="secondary" />
+						{{ isPaused ? "Resume" : "Pause" }}
+					</Button>
 
-				<template v-if="appStore.head.synced" #content>
-					<Flex align="start" direction="column" gap="6">
-						<Text>Stop receiving new blocks</Text>
-						<Text color="tertiary">Resuming will update the list of recent blocks</Text>
-					</Flex>
-				</template>
-				<template v-else #content> Can't resume yet, wait for a synced head </template>
-			</Tooltip>
+					<template v-if="appStore.head.synced" #content>
+						<Flex align="start" direction="column" gap="6">
+							<Text>Stop receiving new blocks</Text>
+							<Text color="tertiary">Resuming will update the list of recent blocks</Text>
+						</Flex>
+					</template>
+					<template v-else #content> Can't resume yet, wait for a synced head </template>
+				</Tooltip>
+
+				<Tooltip position="end">
+					<Button @click="autoSelect = !autoSelect" type="tertiary" size="mini">
+						<Icon :name="!autoSelect ? 'unselect' : 'select'" size="14" :color="autoSelect ? 'primary' : 'light-orange'" />
+					</Button>
+
+					<template #content>
+						<Flex direction="column" gap="6">
+							<Flex align="center">
+								<Text color="secondary">Auto-select new block is </Text>&nbsp;
+								<Text :color="autoSelect ? 'green' : 'light-orange'">{{ autoSelect ? "On" : "Off" }}</Text>
+							</Flex>
+
+							<Text align="left" color="tertiary" height="140" style="max-width: 250px"
+								>When enabled - the last received block will be selected automatically</Text
+							>
+						</Flex>
+					</template>
+				</Tooltip>
+			</Flex>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
@@ -399,7 +427,7 @@ watch(
 								</Outline>
 							</NuxtLink>
 
-							<Flex align="center" gap="6">
+							<Flex v-if="preview.block.stats.tx_count > 5" align="center" gap="6">
 								<Icon name="help" size="12" color="tertiary" />
 								<Text size="12" weight="500" color="tertiary">{{ preview.block.stats.tx_count - 5 }} more.</Text>
 								<Text size="12" weight="500" color="support"> View all transactions on the block page </Text>
