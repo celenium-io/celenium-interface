@@ -205,6 +205,8 @@ const getPfbSeries = async () => {
 }
 
 const buildNamespaceCharts = async () => {
+	console.log(sizeSeriesChartEl.value)
+
 	await getSizeSeries()
 	buildChart(
 		sizeSeriesChartEl.value.wrapper,
@@ -232,7 +234,7 @@ onMounted(async () => {
 	buildNamespaceCharts()
 })
 
-onBeforeMount(() => {
+onBeforeUnmount(() => {
 	window.removeEventListener("resize", debouncedRedraw)
 })
 </script>
