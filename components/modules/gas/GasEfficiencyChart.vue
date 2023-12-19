@@ -292,7 +292,7 @@ onMounted(async () => {
 	buildGasTrackingCharts()
 })
 
-onBeforeMount(() => {
+onBeforeUnmount(() => {
 	window.removeEventListener("resize", debouncedRedraw)
 })
 </script>
