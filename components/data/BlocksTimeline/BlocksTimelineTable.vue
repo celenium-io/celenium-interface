@@ -15,7 +15,9 @@ import { fetchTransactionsByBlock } from "@/services/api/tx"
 
 /** Store */
 import { useAppStore } from "@/store/app"
+import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
+const notificationsStore = useNotificationsStore()
 
 const blocks = computed(() => appStore.latestBlocks)
 const lastBlock = computed(() => appStore.latestBlocks[0])
@@ -43,6 +45,56 @@ const getTransactionsByBlock = async () => {
 	preview.transactions = data.value
 }
 getTransactionsByBlock()
+
+const blocksSnapshot = ref([])
+const isPaused = ref(false)
+
+const handlePause = () => {
+	if (!appStore.head.synced) return
+
+	isPaused.value = !isPaused.value
+}
+
+watch(
+	() => isPaused.value,
+	() => {
+		if (isPaused.value) {
+			blocksSnapshot.value = [...blocks.value]
+		} else {
+			const newBlocksSincePause = blocks.value[0]?.height - blocksSnapshot.value[0]?.height
+
+			if (newBlocksSincePause)
+				notificationsStore.create({
+					notification: {
+						type: "info",
+						icon: "block",
+						title: `Received ${blocks.value[0]?.height - blocksSnapshot.value[0]?.height} new blocks since the pause`,
+						description: "New blocks will be added to the timeline",
+						autoDestroy: true,
+					},
+				})
+
+			blocksSnapshot.value = []
+
+			handleSelectBlock(lastBlock.value, false)
+		}
+	},
+)
+
+/** Auto-pause for unsynced head */
+if (!appStore.head.synced) {
+	handlePause()
+
+	notificationsStore.create({
+		notification: {
+			type: "warning",
+			icon: "pause",
+			title: `The blocks timeline on pause`,
+			description: "Due to the unsynced head",
+			autoDestroy: false,
+		},
+	})
+}
 
 watch(
 	() => preview.block,
@@ -73,7 +125,7 @@ watch(
 watch(
 	() => lastBlock.value,
 	() => {
-		if (!isUserSelected.value) handleSelectBlock(lastBlock.value, false)
+		if (!isUserSelected.value && !isPaused.value) handleSelectBlock(lastBlock.value, false)
 	},
 )
 </script>
@@ -86,11 +138,33 @@ watch(
 				<Text size="13" weight="600" color="primary">Blocks Timeline</Text>
 			</Flex>
 
-			<Button type="tertiary" size="mini">Pause</Button>
+			<Tooltip position="end">
+				<Button @click="handlePause" type="tertiary" size="mini" :disabled="!appStore.head.synced">
+					<Icon :name="isPaused ? 'resume' : 'pause'" size="12" color="secondary" />
+					{{ isPaused ? "Resume" : "Pause" }}
+				</Button>
+
+				<template v-if="appStore.head.synced" #content>
+					<Flex align="start" direction="column" gap="6">
+						<Text>Stop receiving new blocks</Text>
+						<Text color="tertiary">Resuming will update the list of recent blocks</Text>
+					</Flex>
+				</template>
+				<template v-else #content> Can't resume yet, wait for a synced head </template>
+			</Tooltip>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" gap="16" wide :class="$style.table">
+				<Flex v-if="!isPaused" align="center" justify="center" gap="6" :class="$style.status">
+					<Icon name="block" size="12" color="secondary" :class="$style.block_icon" />
+					<Text size="12" weight="600" color="secondary">Receiving new blocks</Text>
+				</Flex>
+				<Flex v-else align="center" justify="center" gap="6" :class="$style.status">
+					<Icon name="pause" size="12" color="yellow" />
+					<Text size="12" weight="600" color="secondary">Receiving new blocks on pause</Text>
+				</Flex>
+
 				<div :class="$style.table_scroller">
 					<table>
 						<thead>
@@ -104,7 +178,7 @@ watch(
 
 						<tbody>
 							<tr
-								v-for="block in blocks.slice(0, 15)"
+								v-for="block in !isPaused ? blocks.slice(0, 15) : blocksSnapshot"
 								@click="handleSelectBlock(block, true)"
 								:class="preview.block.time === block.time && $style.active"
 							>
@@ -182,19 +256,19 @@ watch(
 				</div>
 
 				<Button link="/blocks" type="secondary" size="small" wide>
+					<Icon name="table" size="12" color="secondary" />
 					<Text size="12" weight="600" color="primary">View all blocks</Text>
-					<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
 				</Button>
 			</Flex>
 
 			<Flex direction="column" :class="[$style.preview]">
-				<Flex wide direction="column" gap="16" :class="$style.top">
+				<Flex wide direction="column" gap="12" :class="$style.top">
 					<Flex align="center" justify="between" wide>
-						<Flex align="center" gap="8">
-							<Icon name="block" size="14" color="primary" />
+						<Flex align="center" gap="6">
+							<Icon name="block" size="14" color="secondary" />
 
 							<Flex align="center" gap="4">
-								<Text size="12" weight="600" color="secondary"> Block </Text>
+								<Text size="12" weight="600" color="secondary"> Height </Text>
 								<Text size="12" weight="600" color="primary">{{ comma(preview.block.height) }}</Text>
 							</Flex>
 						</Flex>
@@ -224,8 +298,8 @@ watch(
 						<div v-for="dot in 5" class="dot" />
 
 						<Text size="12" weight="600" color="secondary" align="right" :class="$style.fixed_width">
-							{{ DateTime.fromISO(preview.block.time).setLocale("en").toFormat("TT") }}</Text
-						>
+							{{ DateTime.fromISO(preview.block.time).setLocale("en").toFormat("TT") }}
+						</Text>
 					</Flex>
 				</Flex>
 
@@ -404,8 +478,8 @@ watch(
 
 				<Flex :class="$style.bottom">
 					<Button :link="`/block/${preview.block.height}`" type="secondary" size="small" wide>
+						<Icon name="block" size="12" color="secondary" />
 						<Text size="12" weight="600" color="primary">View Block {{ comma(preview.block.height) }}</Text>
-						<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
 					</Button>
 				</Flex>
 			</Flex>
@@ -421,6 +495,43 @@ watch(
 	background: var(--card-background);
 
 	padding: 0 12px;
+}
+
+.status {
+	width: 100%;
+
+	background: linear-gradient(var(--op-8), var(--op-5));
+	border-radius: 6px;
+
+	padding: 8px;
+
+	overflow: hidden;
+}
+
+.block_icon {
+	animation: blink 3s ease infinite;
+}
+
+@keyframes blink {
+	0% {
+		transform: translateY(-200%) scale(0.8);
+		opacity: 0;
+	}
+
+	30% {
+		transform: translateY(0) scale(1);
+		opacity: 1;
+	}
+
+	60% {
+		transform: translateY(0) scale(1);
+		opacity: 1;
+	}
+
+	100% {
+		transform: translateY(180%) scale(0.8);
+		opacity: 0;
+	}
 }
 
 .table {

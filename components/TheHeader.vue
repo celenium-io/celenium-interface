@@ -10,6 +10,7 @@ import { isMac, getNetworkName } from "@/services/utils/general"
 /** UI */
 import { Dropdown, DropdownItem, DropdownTitle } from "@/components/ui/Dropdown"
 import Tooltip from "@/components/ui/Tooltip.vue"
+import Button from "@/components/ui/Button.vue"
 import Kbd from "@/components/ui/Kbd.vue"
 
 /** Store */
@@ -127,9 +128,9 @@ const handleNavigate = (url) => {
 				</Dropdown>
 
 				<Tooltip position="end" delay="250">
-					<Flex @click="appStore.showCmd = true" align="center" gap="8" :class="$style.button">
+					<Button @click="appStore.showCmd = true" type="secondary" size="small">
 						<Icon name="search" size="16" color="secondary" />
-					</Flex>
+					</Button>
 
 					<template #content>
 						<Flex align="center" gap="8">

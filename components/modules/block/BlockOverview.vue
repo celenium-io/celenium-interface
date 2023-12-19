@@ -161,9 +161,13 @@ const handleViewRawTransactions = () => {
 			<Flex direction="column" :class="$style.data">
 				<Flex wide direction="column" gap="12" :class="$style.top">
 					<Flex align="center" justify="between" wide>
-						<Flex tag="h1" align="center" gap="4">
-							<Text size="12" weight="600" color="secondary"> Height </Text>
-							<Text size="12" weight="600" color="primary">{{ comma(block.height) }}</Text>
+						<Flex align="center" gap="6">
+							<Icon name="block" size="14" color="secondary" />
+
+							<Flex tag="h1" align="center" gap="4">
+								<Text size="12" weight="600" color="secondary"> Height </Text>
+								<Text size="12" weight="600" color="primary">{{ comma(block.height) }}</Text>
+							</Flex>
 						</Flex>
 
 						<Text size="12" weight="600" color="tertiary">
