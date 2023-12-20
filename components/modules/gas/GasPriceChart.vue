@@ -222,7 +222,7 @@ onBeforeUnmount(() => {
 					<Text size="12" weight="600" color="tertiary">
 						{{ DateTime.now().minus({ hours: 24 }).toFormat("dd LLL") }}
 					</Text>
-					<Text size="12" weight="600" color="tertiary">Today</Text>
+					<Text size="12" weight="600" color="tertiary">Now</Text>
 				</Flex>
 			</Flex>
 
