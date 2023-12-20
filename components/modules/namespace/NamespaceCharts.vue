@@ -319,18 +319,36 @@ onBeforeUnmount(() => {
 
 				<Flex ref="chartWrapperEl" direction="column" :class="$style.chart_wrapper">
 					<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">
-						<Text v-if="sizeSeries.length" size="12" weight="600" color="tertiary">
+						<Text
+							v-if="sizeSeries.length"
+							size="12"
+							weight="600"
+							color="tertiary"
+							:style="{ opacity: Math.max(...sizeSeries.map((d) => d.value)) ? 1 : 0 }"
+						>
 							{{ formatBytes(Math.max(...sizeSeries.map((d) => d.value)), 0) }}
 						</Text>
-						<Skeleton v-else w="32" h="12" />
+						<Skeleton v-else-if="!sizeSeries.length" w="32" h="12" />
 
-						<Text v-if="sizeSeries.length" size="12" weight="600" color="tertiary">
+						<Text
+							v-if="sizeSeries.length"
+							size="12"
+							weight="600"
+							color="tertiary"
+							:style="{
+								opacity:
+									Math.round(Math.max(...sizeSeries.map((d) => d.value)) / 2) !==
+									Math.max(...sizeSeries.map((d) => d.value))
+										? 1
+										: 0,
+							}"
+						>
 							{{ formatBytes(Math.round(Math.max(...sizeSeries.map((d) => d.value)) / 2), 0) }}
 						</Text>
-						<Skeleton v-else w="24" h="12" />
+						<Skeleton v-else-if="!sizeSeries.length" w="24" h="12" />
 
 						<Text v-if="sizeSeries.length" size="12" weight="600" color="tertiary"> 0 </Text>
-						<Skeleton v-else w="16" h="12" />
+						<Skeleton v-else-if="!sizeSeries.length" w="16" h="12" />
 					</Flex>
 
 					<Flex :class="[$style.axis, $style.x]">
@@ -386,18 +404,35 @@ onBeforeUnmount(() => {
 
 				<Flex direction="column" :class="$style.chart_wrapper">
 					<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">
-						<Text v-if="pfbSeries.length" size="12" weight="600" color="tertiary">
+						<Text
+							v-if="pfbSeries.length"
+							size="12"
+							weight="600"
+							color="tertiary"
+							:style="{ opacity: Math.max(...pfbSeries.map((d) => d.value)) ? 1 : 0 }"
+						>
 							{{ abbreviate(Math.max(...pfbSeries.map((d) => d.value)), 0) }}
 						</Text>
-						<Skeleton v-else w="32" h="12" />
+						<Skeleton v-else-if="!pfbSeries.length" w="32" h="12" />
 
-						<Text v-if="pfbSeries.length" size="12" weight="600" color="tertiary">
+						<Text
+							v-if="pfbSeries.length"
+							size="12"
+							weight="600"
+							color="tertiary"
+							:style="{
+								opacity:
+									Math.round(Math.max(...pfbSeries.map((d) => d.value)) / 2) != Math.max(...pfbSeries.map((d) => d.value))
+										? 1
+										: 0,
+							}"
+						>
 							{{ abbreviate(Math.round(Math.max(...pfbSeries.map((d) => d.value)) / 2), 0) }}
 						</Text>
-						<Skeleton v-else w="24" h="12" />
+						<Skeleton v-else-if="!pfbSeries.length" w="24" h="12" />
 
 						<Text v-if="pfbSeries.length" size="12" weight="600" color="tertiary"> 0 </Text>
-						<Skeleton v-else w="16" h="12" />
+						<Skeleton v-else-if="!pfbSeries.length" w="16" h="12" />
 					</Flex>
 
 					<Flex :class="[$style.axis, $style.x]">

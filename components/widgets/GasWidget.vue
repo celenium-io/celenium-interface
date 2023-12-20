@@ -44,21 +44,21 @@ onMounted(async () => {
 			<Flex align="center" gap="4" :class="[$style.bar, $style.fast]">
 				<Icon name="gas_fast" size="14" color="green" />
 				<Skeleton v-if="!gasPrice.fast" w="24" h="12" c="green" />
-				<Text v-else size="12" weight="600" color="green"> {{ truncate(gasPrice.fast) }}</Text>
+				<Text v-else size="12" weight="600" color="green"> {{ Number(gasPrice.fast).toPrecision(1) }}</Text>
 				<Text size="12" weight="600" color="green"> Fast</Text>
 			</Flex>
 
 			<Flex align="center" gap="4" :class="[$style.bar, $style.medium]">
 				<Icon name="gas_median" size="14" color="yellow" />
 				<Skeleton v-if="!gasPrice.fast" w="24" h="12" c="yellow" />
-				<Text v-else size="12" weight="600" color="yellow"> {{ truncate(gasPrice.median) }} </Text>
-				<Text size="12" weight="600" color="yellow"> Avg</Text>
+				<Text v-else size="12" weight="600" color="yellow"> {{ Number(gasPrice.median).toPrecision(1) }} </Text>
+				<Text size="12" weight="600" color="yellow">Med</Text>
 			</Flex>
 
 			<Flex align="center" gap="4" :class="[$style.bar, $style.slow]">
 				<Icon name="gas_slow" size="14" color="secondary" />
 				<Skeleton v-if="!gasPrice.fast" w="24" h="12" c="gray" />
-				<Text v-else size="12" weight="600" color="secondary"> {{ truncate(gasPrice.slow) }} </Text>
+				<Text v-else size="12" weight="600" color="secondary"> {{ Number(gasPrice.slow).toPrecision(2) }} </Text>
 				<Text size="12" weight="600" color="secondary"> Slow </Text>
 			</Flex>
 		</Flex>
