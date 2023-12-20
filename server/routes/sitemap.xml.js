@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 		hostname: "https://celenium.io",
 	})
 
-	const links = ["/", "/txs", "/blocks", "/namespaces", "/addresses"]
+	const links = ["/", "/txs", "/blocks", "/namespaces", "/addresses", "/gas"]
 
 	links.forEach((link) => {
 		sitemap.write({
