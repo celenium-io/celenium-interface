@@ -92,7 +92,12 @@ useHead({
 
 							<Flex align="center" gap="8">
 								<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
-									{{ truncate(gasPrice.fast) }} UTIA
+									{{
+										Number(gasPrice.fast)
+											.toFixed(3)
+											.replace(/\.?0*$/, "")
+									}}
+									UTIA
 								</Text>
 								<Skeleton v-else w="50" h="13" />
 								<CopyButton :text="gasPrice.fast" />
@@ -107,7 +112,12 @@ useHead({
 
 							<Flex align="center" gap="8">
 								<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
-									{{ truncate(gasPrice.median) }} UTIA
+									{{
+										Number(gasPrice.median)
+											.toFixed(3)
+											.replace(/\.?0*$/, "")
+									}}
+									UTIA
 								</Text>
 								<Skeleton v-else w="50" h="13" />
 								<CopyButton :text="gasPrice.median" />
@@ -122,7 +132,12 @@ useHead({
 
 							<Flex align="center" gap="8">
 								<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
-									{{ truncate(gasPrice.slow) }} UTIA
+									{{
+										Number(gasPrice.slow)
+											.toFixed(3)
+											.replace(/\.?0*$/, "")
+									}}
+									UTIA
 								</Text>
 								<Skeleton v-else w="50" h="13" />
 								<CopyButton :text="gasPrice.slow" />
