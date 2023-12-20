@@ -24,17 +24,14 @@ onMounted(async () => {
 <template>
 	<Flex direction="column" wide :class="$style.wrapper">
 		<Flex direction="column" gap="20" :class="$style.top">
-			<Text size="16" weight="600" color="primary">People</Text>
+			<Text size="16" weight="600" color="primary">Accounts</Text>
 
-			<Flex direction="column" gap="6">
-				<Text size="40" weight="600" color="primary" :class="[$style.ds_font, $style.tpm_num]">
-					{{ abbreviate(totalAccounts) }}
-				</Text>
-				<Text size="16" weight="700" color="tertiary" :class="$style.ds_font">Accounts</Text>
-			</Flex>
+			<Text size="40" weight="600" color="primary" :class="[$style.ds_font, $style.tpm_num]">
+				{{ abbreviate(totalAccounts) }}
+			</Text>
 		</Flex>
 
-		<Flex direction="column" justify="between" gap="16" :class="$style.bottom">
+		<Flex direction="column" gap="24" :class="$style.bottom">
 			<Flex align="center" gap="6">
 				<Icon name="addresses" size="12" color="secondary" />
 				<Text size="13" weight="600" height="110" color="secondary">Validators</Text>
