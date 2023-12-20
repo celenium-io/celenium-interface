@@ -43,22 +43,40 @@ onMounted(async () => {
 		<Flex align="center" justify="between" wide :class="$style.bars">
 			<Flex align="center" gap="4" :class="[$style.bar, $style.fast]">
 				<Icon name="gas_fast" size="14" color="green" />
-				<Skeleton v-if="!gasPrice.fast" w="24" h="12" c="green" />
-				<Text v-else size="12" weight="600" color="green"> {{ Number(gasPrice.fast).toPrecision(1) }}</Text>
+				<Skeleton v-if="!gasPrice.fast" w="34" h="12" c="green" />
+				<Text v-else size="12" weight="600" color="green">
+					{{
+						Number(gasPrice.fast)
+							.toFixed(3)
+							.replace(/\.?0*$/, "")
+					}}
+				</Text>
 				<Text size="12" weight="600" color="green"> Fast</Text>
 			</Flex>
 
 			<Flex align="center" gap="4" :class="[$style.bar, $style.medium]">
 				<Icon name="gas_median" size="14" color="yellow" />
-				<Skeleton v-if="!gasPrice.fast" w="24" h="12" c="yellow" />
-				<Text v-else size="12" weight="600" color="yellow"> {{ Number(gasPrice.median).toPrecision(1) }} </Text>
+				<Skeleton v-if="!gasPrice.fast" w="34" h="12" c="yellow" />
+				<Text v-else size="12" weight="600" color="yellow">
+					{{
+						Number(gasPrice.median)
+							.toFixed(3)
+							.replace(/\.?0*$/, "")
+					}}
+				</Text>
 				<Text size="12" weight="600" color="yellow">Med</Text>
 			</Flex>
 
 			<Flex align="center" gap="4" :class="[$style.bar, $style.slow]">
 				<Icon name="gas_slow" size="14" color="secondary" />
-				<Skeleton v-if="!gasPrice.fast" w="24" h="12" c="gray" />
-				<Text v-else size="12" weight="600" color="secondary"> {{ Number(gasPrice.slow).toPrecision(2) }} </Text>
+				<Skeleton v-if="!gasPrice.fast" w="34" h="12" c="gray" />
+				<Text v-else size="12" weight="600" color="secondary">
+					{{
+						Number(gasPrice.slow)
+							.toFixed(3)
+							.replace(/\.?0*$/, "")
+					}}
+				</Text>
 				<Text size="12" weight="600" color="secondary"> Slow </Text>
 			</Flex>
 		</Flex>
