@@ -382,7 +382,7 @@ onBeforeUnmount(() => {
 							</div>
 							<Flex
 								ref="tooltipEl"
-								:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYOffset - 40}px)` }"
+								:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYDataOffset - 40}px)` }"
 								direction="column"
 								gap="8"
 								:class="$style.tooltip"
@@ -466,7 +466,7 @@ onBeforeUnmount(() => {
 							</div>
 							<Flex
 								ref="tooltipEl"
-								:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYOffset - 40}px)` }"
+								:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYDataOffset - 40}px)` }"
 								direction="column"
 								gap="8"
 								:class="$style.tooltip"
@@ -571,6 +571,7 @@ onBeforeUnmount(() => {
 	}
 
 	& .tooltip {
+		pointer-events: none;
 		position: absolute;
 		z-index: 10;
 
@@ -579,6 +580,8 @@ onBeforeUnmount(() => {
 		box-shadow: inset 0 0 0 1px var(--op-5), 0 14px 34px rgba(0, 0, 0, 15%), 0 4px 14px rgba(0, 0, 0, 5%);
 
 		padding: 8px;
+
+		transition: all 0.2s ease;
 	}
 }
 

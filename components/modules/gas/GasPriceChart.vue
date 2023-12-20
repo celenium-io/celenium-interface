@@ -237,7 +237,7 @@ onBeforeUnmount(() => {
 					</div>
 					<Flex
 						ref="tooltipEl"
-						:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYOffset - 40}px)` }"
+						:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYDataOffset - 40}px)` }"
 						direction="column"
 						gap="8"
 						:class="$style.tooltip"
