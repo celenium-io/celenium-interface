@@ -110,7 +110,8 @@ const handleActionCallback = (callback, notification) => {
 
 	box-sizing: border-box;
 	width: 330px;
-	background: var(--notification-background);
+	background: var(--card-background);
+	box-shadow: inset 0 0 0 2px var(--op-5), 0 14px 34px rgba(0, 0, 0, 15%), 0 4px 14px rgba(0, 0, 0, 5%);
 
 	border-radius: 8px;
 	padding: 12px;
@@ -136,7 +137,7 @@ const handleActionCallback = (callback, notification) => {
 
 .description {
 	font-size: 12px;
-	font-weight: 500;
+	font-weight: 600;
 	line-height: 18px;
 	color: var(--txt-tertiary);
 

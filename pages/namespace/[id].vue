@@ -1,6 +1,7 @@
 <script setup>
 /** Components: Modules */
 import NamespaceOverview from "@/components/modules/namespace/NamespaceOverview.vue"
+import NamespaceCharts from "@/components/modules/namespace/NamespaceCharts.vue"
 
 /** Services */
 import { getNamespaceID } from "@/services/utils"
@@ -78,18 +79,21 @@ useHead({
 </script>
 
 <template>
-	<Flex direction="column" wide :class="$style.wrapper">
-		<Breadcrumbs
-			v-if="namespace"
-			:items="[
-				{ link: '/', name: 'Explore' },
-				{ link: '/namespaces', name: 'Namespaces' },
-				{ link: route.fullPath, name: `${getNamespaceID(namespace.namespace_id)}` },
-			]"
-			:class="$style.breadcrumbs"
-		/>
+	<Flex direction="column" gap="32" wide :class="$style.wrapper">
+		<Flex direction="column" gap="16">
+			<Breadcrumbs
+				v-if="namespace"
+				:items="[
+					{ link: '/', name: 'Explore' },
+					{ link: '/namespaces', name: 'Namespaces' },
+					{ link: route.fullPath, name: `${getNamespaceID(namespace.namespace_id)}` },
+				]"
+			/>
 
-		<NamespaceOverview v-if="namespace" :namespace="namespace" />
+			<NamespaceOverview v-if="namespace" :namespace="namespace" />
+		</Flex>
+
+		<NamespaceCharts v-if="namespace" :id="namespace.namespace_id" />
 	</Flex>
 </template>
 
@@ -98,10 +102,6 @@ useHead({
 	max-width: calc(var(--base-width) + 48px);
 
 	padding: 40px 24px 60px 24px;
-}
-
-.breadcrumbs {
-	margin-bottom: 16px;
 }
 
 @media (max-width: 500px) {

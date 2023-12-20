@@ -37,7 +37,6 @@ const transactions = ref([])
 const page = ref(1)
 const pages = computed(() => 1)
 const handleNext = () => {
-	if (page.value === pages.value) return
 	page.value += 1
 }
 const handlePrev = () => {
@@ -129,7 +128,10 @@ const handleViewRawTransactions = () => {
 <template>
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
-			<Text size="14" weight="600" color="primary">Address Overview</Text>
+			<Flex align="center" gap="8">
+				<Icon name="addresses" size="14" color="primary" />
+				<Text size="13" weight="600" color="primary">Address</Text>
+			</Flex>
 
 			<Dropdown>
 				<Button type="tertiary" size="mini">
@@ -303,20 +305,19 @@ const handleViewRawTransactions = () => {
 					</Flex>
 
 					<!-- Pagination -->
-					<Flex v-if="filteredTransactions.length && pages > 1" align="center" gap="6">
+					<Flex v-if="filteredTransactions.length" align="center" gap="6" :class="$style.pagination">
 						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1"> First </Button>
 						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
 							<Icon name="arrow-narrow-left" size="12" color="primary" />
 						</Button>
 
 						<Button type="secondary" size="mini" disabled>
-							<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
+							<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
 						</Button>
 
-						<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
+						<Button @click="handleNext" type="secondary" size="mini">
 							<Icon name="arrow-narrow-right" size="12" color="primary" />
 						</Button>
-						<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages"> Last </Button>
 					</Flex>
 				</Flex>
 			</Flex>
@@ -326,12 +327,12 @@ const handleViewRawTransactions = () => {
 
 <style module>
 .header {
-	height: 46px;
+	height: 40px;
 
 	border-radius: 8px 8px 4px 4px;
 	background: var(--card-background);
 
-	padding: 0 16px;
+	padding: 0 12px;
 }
 
 .data {
@@ -414,8 +415,6 @@ const handleViewRawTransactions = () => {
 	border-radius: 4px 4px 8px 4px;
 	background: var(--card-background);
 
-	padding-bottom: 12px;
-
 	& table {
 		width: 100%;
 		height: fit-content;
@@ -484,6 +483,10 @@ const handleViewRawTransactions = () => {
 
 .empty {
 	padding-top: 16px;
+}
+
+.pagination {
+	padding: 0 16px 16px 16px;
 }
 
 @media (max-width: 800px) {

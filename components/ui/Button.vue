@@ -29,6 +29,10 @@ const props = defineProps({
 		type: String,
 		required: false,
 	},
+	target: {
+		type: String,
+		required: false,
+	},
 })
 
 const style = useCssModule()
@@ -48,7 +52,12 @@ const getStyles = () => {
 </script>
 
 <template>
-	<component :is="link ? NuxtLink : 'button'" v-bind="{ to: link ? link : null }" :class="[...getStyles(), loading && $style.loading]">
+	<component
+		:is="link ? NuxtLink : 'button'"
+		v-bind="{ to: link ? link : null }"
+		:target="target"
+		:class="[...getStyles(), loading && $style.loading]"
+	>
 		<slot />
 	</component>
 </template>
@@ -183,16 +192,15 @@ const getStyles = () => {
 }
 
 .wrapper.secondary {
-	background: var(--btn-secondary-bg);
+	background: linear-gradient(var(--op-10), var(--op-5));
 	fill: var(--txt-secondary);
-	box-shadow: inset 0 0 0 1px var(--op-5), inset 0 0 8px var(--op-5);
+	box-shadow: inset 0 0 0 1px var(--op-10), inset 0 0 8px var(--op-5);
 }
 .wrapper.secondary:hover {
-	background: var(--btn-secondary-bg-hover);
-	box-shadow: inset 0 0 0 1px var(--op-10);
+	box-shadow: inset 0 0 0 1px var(--op-10), inset 0 0 8px var(--op-10);
 }
 .wrapper.secondary:active {
-	background: var(--btn-secondary-bg-active);
+	box-shadow: inset 0 0 0 1px var(--op-10), inset 0 0 8px var(--op-15);
 }
 .wrapper.secondary.outline:active {
 	background: var(--btn-secondary-bg-active);

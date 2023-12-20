@@ -25,8 +25,9 @@ isLoading.value = false
 
 <template>
 	<Flex wide direction="column" gap="4">
-		<Flex align="center" :class="$style.header">
-			<Text size="14" weight="600" color="primary">Latest PFBs</Text>
+		<Flex align="center" gap="8" :class="$style.header">
+			<Icon name="blob" size="14" color="primary" />
+			<Text size="13" weight="600" color="primary">Latest PFBs</Text>
 		</Flex>
 
 		<Flex direction="column" gap="16" :class="$style.pfb_body">
@@ -123,8 +124,8 @@ isLoading.value = false
 
 			<div :class="$style.bottom">
 				<Button link="/txs?status=success&message_type=MsgPayForBlobs" type="secondary" size="small" wide>
+					<Icon name="table" size="12" color="secondary" />
 					<Text size="12" weight="600" color="primary">View all latest PFBs</Text>
-					<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
 				</Button>
 			</div>
 		</Flex>
@@ -133,12 +134,12 @@ isLoading.value = false
 
 <style module>
 .header {
-	height: 46px;
+	height: 40px;
 
 	border-radius: 8px 8px 4px 4px;
 	background: var(--card-background);
 
-	padding: 0 16px;
+	padding: 0 12px;
 }
 
 .pfb_body {

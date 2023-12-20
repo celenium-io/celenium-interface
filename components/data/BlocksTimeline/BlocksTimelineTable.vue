@@ -15,7 +15,9 @@ import { fetchTransactionsByBlock } from "@/services/api/tx"
 
 /** Store */
 import { useAppStore } from "@/store/app"
+import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
+const notificationsStore = useNotificationsStore()
 
 const blocks = computed(() => appStore.latestBlocks)
 const lastBlock = computed(() => appStore.latestBlocks[0])
@@ -27,12 +29,10 @@ const preview = reactive({
 	isLoadingPfbs: true,
 })
 
-const viewMoreTxs = ref(false)
-
-const isUserSelected = ref(false)
+const autoSelect = ref(true)
 
 const handleSelectBlock = (b, isUser) => {
-	if (isUser) isUserSelected.value = true
+	if (isUser) autoSelect.value = false
 
 	if (preview.block.height === b.height) return
 
@@ -45,6 +45,56 @@ const getTransactionsByBlock = async () => {
 	preview.transactions = data.value
 }
 getTransactionsByBlock()
+
+const blocksSnapshot = ref([])
+const isPaused = ref(false)
+
+const handlePause = () => {
+	if (!appStore.head.synced) return
+
+	isPaused.value = !isPaused.value
+}
+
+watch(
+	() => isPaused.value,
+	() => {
+		if (isPaused.value) {
+			blocksSnapshot.value = [...blocks.value]
+		} else {
+			const newBlocksSincePause = blocks.value[0]?.height - blocksSnapshot.value[0]?.height
+
+			if (newBlocksSincePause)
+				notificationsStore.create({
+					notification: {
+						type: "info",
+						icon: "block",
+						title: `Received ${blocks.value[0]?.height - blocksSnapshot.value[0]?.height} new blocks since the pause`,
+						description: "New blocks will be added to the timeline",
+						autoDestroy: true,
+					},
+				})
+
+			blocksSnapshot.value = []
+
+			handleSelectBlock(lastBlock.value, false)
+		}
+	},
+)
+
+/** Auto-pause for unsynced head */
+if (!appStore.head.synced) {
+	handlePause()
+
+	notificationsStore.create({
+		notification: {
+			type: "warning",
+			icon: "pause",
+			title: `The blocks timeline on pause`,
+			description: "Due to the unsynced head",
+			autoDestroy: false,
+		},
+	})
+}
 
 watch(
 	() => preview.block,
@@ -75,19 +125,74 @@ watch(
 watch(
 	() => lastBlock.value,
 	() => {
-		if (!isUserSelected.value) handleSelectBlock(lastBlock.value, false)
+		if (autoSelect.value && !isPaused.value) handleSelectBlock(lastBlock.value, false)
+	},
+)
+
+watch(
+	() => autoSelect.value,
+	() => {
+		if (autoSelect.value) handleSelectBlock(lastBlock.value, false)
 	},
 )
 </script>
 
 <template>
 	<Flex wide direction="column" gap="4">
-		<Flex align="center" :class="$style.header">
-			<Text size="14" weight="600" color="primary">Blocks Timeline</Text>
+		<Flex align="center" justify="between" :class="$style.header">
+			<Flex align="center" gap="8">
+				<Icon name="timeline" size="14" color="primary" />
+				<Text size="13" weight="600" color="primary">Blocks Timeline</Text>
+			</Flex>
+
+			<Flex align="center" gap="8">
+				<Tooltip position="end">
+					<Button @click="handlePause" type="tertiary" size="mini" :disabled="!appStore.head.synced">
+						<Icon :name="isPaused ? 'resume' : 'pause'" size="14" color="secondary" />
+						{{ isPaused ? "Resume" : "Pause" }}
+					</Button>
+
+					<template v-if="appStore.head.synced" #content>
+						<Flex align="start" direction="column" gap="6">
+							<Text>Stop receiving new blocks</Text>
+							<Text color="tertiary">Resuming will update the list of recent blocks</Text>
+						</Flex>
+					</template>
+					<template v-else #content> Can't resume yet, wait for a synced head </template>
+				</Tooltip>
+
+				<Tooltip position="end">
+					<Button @click="autoSelect = !autoSelect" type="tertiary" size="mini">
+						<Icon :name="!autoSelect ? 'unselect' : 'select'" size="14" :color="autoSelect ? 'primary' : 'light-orange'" />
+					</Button>
+
+					<template #content>
+						<Flex direction="column" gap="6">
+							<Flex align="center">
+								<Text color="secondary">Auto-select new block is </Text>&nbsp;
+								<Text :color="autoSelect ? 'green' : 'light-orange'">{{ autoSelect ? "On" : "Off" }}</Text>
+							</Flex>
+
+							<Text align="left" color="tertiary" height="140" style="max-width: 250px"
+								>When enabled - the last received block will be selected automatically</Text
+							>
+						</Flex>
+					</template>
+				</Tooltip>
+			</Flex>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" gap="16" wide :class="$style.table">
+				<Flex v-if="!isPaused" align="center" justify="center" gap="6" :class="$style.status">
+					<Icon name="block" size="12" color="secondary" :class="$style.block_icon" />
+					<Text size="12" weight="600" color="secondary">Receiving new blocks</Text>
+				</Flex>
+				<Flex v-else align="center" justify="center" gap="6" :class="$style.status">
+					<Icon name="pause" size="12" color="yellow" />
+					<Text size="12" weight="600" color="secondary">Receiving new blocks on pause</Text>
+				</Flex>
+
 				<div :class="$style.table_scroller">
 					<table>
 						<thead>
@@ -101,7 +206,7 @@ watch(
 
 						<tbody>
 							<tr
-								v-for="block in blocks.slice(0, 15)"
+								v-for="block in !isPaused ? blocks.slice(0, 15) : blocksSnapshot"
 								@click="handleSelectBlock(block, true)"
 								:class="preview.block.time === block.time && $style.active"
 							>
@@ -164,7 +269,7 @@ watch(
 										</template>
 									</Tooltip>
 								</td>
-								<td style="width: 1px">
+								<td>
 									<Flex align="center" gap="4">
 										<Text size="13" weight="600" :color="parseFloat(block.stats.fee) ? 'primary' : 'tertiary'">
 											{{ tia(block.stats.fee) }}
@@ -178,20 +283,20 @@ watch(
 					</table>
 				</div>
 
-				<Button link="/blocks" type="secondary" size="small" wide>
+				<Button link="/blocks" type="secondary" size="small" :class="$style.buttons">
+					<Icon name="table" size="12" color="secondary" />
 					<Text size="12" weight="600" color="primary">View all blocks</Text>
-					<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
 				</Button>
 			</Flex>
 
 			<Flex direction="column" :class="[$style.preview]">
-				<Flex wide direction="column" gap="16" :class="$style.top">
+				<Flex wide direction="column" gap="12" :class="$style.top">
 					<Flex align="center" justify="between" wide>
-						<Flex align="center" gap="8">
-							<Icon name="block" size="14" color="primary" />
+						<Flex align="center" gap="6">
+							<Icon name="block" size="14" color="secondary" />
 
 							<Flex align="center" gap="4">
-								<Text size="12" weight="600" color="secondary"> Block </Text>
+								<Text size="12" weight="600" color="secondary"> Height </Text>
 								<Text size="12" weight="600" color="primary">{{ comma(preview.block.height) }}</Text>
 							</Flex>
 						</Flex>
@@ -221,8 +326,8 @@ watch(
 						<div v-for="dot in 5" class="dot" />
 
 						<Text size="12" weight="600" color="secondary" align="right" :class="$style.fixed_width">
-							{{ DateTime.fromISO(preview.block.time).setLocale("en").toFormat("TT") }}</Text
-						>
+							{{ DateTime.fromISO(preview.block.time).setLocale("en").toFormat("TT") }}
+						</Text>
 					</Flex>
 				</Flex>
 
@@ -273,16 +378,17 @@ watch(
 					<Flex direction="column" gap="12">
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Transactions</Text>
-							<Text size="12" weight="600" color="secondary">
-								{{ preview.block.stats.tx_count > 5 ? "5 /" : "" }} {{ preview.block.stats.tx_count }}
+
+							<Text v-if="preview.block.stats.tx_count > 5" size="12" weight="600" color="secondary">
+								5 <Text color="tertiary">of {{ comma(preview.block.stats.tx_count) }}</Text>
+							</Text>
+							<Text v-else size="12" weight="600" color="secondary">
+								{{ preview.block.stats.tx_count }}
 							</Text>
 						</Flex>
 
 						<Flex v-if="preview.block.stats.tx_count" direction="column" gap="8">
-							<NuxtLink
-								v-for="transaction in viewMoreTxs ? preview.transactions : preview.transactions.slice(0, 5)"
-								:to="`/tx/${transaction.hash}`"
-							>
+							<NuxtLink v-for="transaction in preview.transactions.slice(0, 5)" :to="`/tx/${transaction.hash}`">
 								<Outline wide height="32" padding="8" radius="6">
 									<Flex justify="between" align="center" wide>
 										<Flex align="center" gap="8">
@@ -321,14 +427,11 @@ watch(
 								</Outline>
 							</NuxtLink>
 
-							<Button
-								v-if="preview.block.stats.tx_count > 5"
-								@click="viewMoreTxs = !viewMoreTxs"
-								type="tertiary"
-								size="small"
-								wide
-								>{{ viewMoreTxs ? "Hide" : "Show More" }}</Button
-							>
+							<Flex v-if="preview.block.stats.tx_count > 5" align="center" gap="6">
+								<Icon name="help" size="12" color="tertiary" />
+								<Text size="12" weight="500" color="tertiary">{{ preview.block.stats.tx_count - 5 }} more.</Text>
+								<Text size="12" weight="500" color="support"> View all transactions on the block page </Text>
+							</Flex>
 						</Flex>
 						<Text v-else size="12" weight="600" color="tertiary" align="center" :class="$style.empty_state">
 							No transactions
@@ -403,8 +506,8 @@ watch(
 
 				<Flex :class="$style.bottom">
 					<Button :link="`/block/${preview.block.height}`" type="secondary" size="small" wide>
+						<Icon name="block" size="12" color="secondary" />
 						<Text size="12" weight="600" color="primary">View Block {{ comma(preview.block.height) }}</Text>
-						<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
 					</Button>
 				</Flex>
 			</Flex>
@@ -414,19 +517,53 @@ watch(
 
 <style module>
 .header {
-	height: 46px;
+	height: 40px;
 
 	border-radius: 8px 8px 4px 4px;
 	background: var(--card-background);
 
-	padding: 0 16px;
+	padding: 0 12px;
+}
+
+.status {
+	background: linear-gradient(var(--op-8), var(--op-5));
+	border-radius: 6px;
+
+	overflow: hidden;
+	padding: 8px;
+
+	margin: 16px 16px 0 16px;
+}
+
+.block_icon {
+	animation: blink 3s ease infinite;
+}
+
+@keyframes blink {
+	0% {
+		transform: translateY(-200%) scale(0.8);
+		opacity: 0;
+	}
+
+	30% {
+		transform: translateY(0) scale(1);
+		opacity: 1;
+	}
+
+	60% {
+		transform: translateY(0) scale(1);
+		opacity: 1;
+	}
+
+	100% {
+		transform: translateY(180%) scale(0.8);
+		opacity: 0;
+	}
 }
 
 .table {
 	border-radius: 4px 4px 4px 8px;
 	background: var(--card-background);
-
-	padding: 16px;
 
 	& table {
 		width: 100%;
@@ -443,10 +580,18 @@ watch(
 
 				&.active {
 					opacity: 1;
+
+					background: var(--op-3);
+
+					& td:last-child {
+						border-right: 2px solid var(--op-30);
+					}
 				}
 
 				&:hover {
 					opacity: 1;
+
+					background: var(--op-5);
 				}
 			}
 		}
@@ -455,6 +600,7 @@ watch(
 			text-align: left;
 			padding: 0;
 			padding-bottom: 8px;
+			padding-left: 16px;
 
 			& span {
 				display: flex;
@@ -464,10 +610,13 @@ watch(
 		& tr td {
 			padding: 0;
 			padding-right: 24px;
+			padding-left: 16px;
 			padding-top: 8px;
 			padding-bottom: 8px;
 
 			white-space: nowrap;
+
+			border-right: 2px solid transparent;
 		}
 	}
 }
@@ -511,6 +660,10 @@ watch(
 			width: 100%;
 		}
 	}
+}
+
+.buttons {
+	margin: 0 16px 16px 16px;
 }
 
 .table_scroller {

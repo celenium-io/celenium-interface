@@ -10,6 +10,7 @@ import { isMac, getNetworkName } from "@/services/utils/general"
 /** UI */
 import { Dropdown, DropdownItem, DropdownTitle } from "@/components/ui/Dropdown"
 import Tooltip from "@/components/ui/Tooltip.vue"
+import Button from "@/components/ui/Button.vue"
 import Kbd from "@/components/ui/Kbd.vue"
 
 /** Store */
@@ -89,7 +90,7 @@ const handleNavigate = (url) => {
 
 			<Flex justify="center" align="center" wrap="wrap" gap="8" :class="$style.links">
 				<NuxtLink to="/" :class="[$style.link, isActive('index') && $style.active]">
-					<Text size="13" weight="600" color="tertiary">Explorer</Text>
+					<Text size="13" weight="600" color="tertiary">Explore</Text>
 				</NuxtLink>
 
 				<NuxtLink to="/txs" :class="[$style.link, isActive('txs') && $style.active]">
@@ -127,9 +128,9 @@ const handleNavigate = (url) => {
 				</Dropdown>
 
 				<Tooltip position="end" delay="250">
-					<Flex @click="appStore.showCmd = true" align="center" gap="8" :class="$style.button">
+					<Button @click="appStore.showCmd = true" type="secondary" size="small">
 						<Icon name="search" size="16" color="secondary" />
-					</Flex>
+					</Button>
 
 					<template #content>
 						<Flex align="center" gap="8">
@@ -146,7 +147,7 @@ const handleNavigate = (url) => {
 
 		<Flex v-if="showPopup" @click="showPopup = false" direction="column" gap="8" :class="$style.menu_popup">
 			<NuxtLink to="/" :class="[$style.link, isActive('index') && $style.active]">
-				<Text size="13" weight="600" color="tertiary">Explorer</Text>
+				<Text size="13" weight="600" color="tertiary">Explore</Text>
 			</NuxtLink>
 
 			<NuxtLink to="/txs" :class="[$style.link, isActive('txs') && $style.active]">

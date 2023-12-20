@@ -332,6 +332,15 @@ const quickCommandsActions = [
 			router.push(`/address/${hash}`)
 		},
 	},
+	{
+		type: "callback",
+		icon: "gas",
+		title: "Open Gas Tracker",
+		runText: "Open Gas Tracker",
+		callback: () => {
+			router.push("/gas")
+		},
+	},
 ]
 const quickCommandsGroup = computed(() => {
 	return {

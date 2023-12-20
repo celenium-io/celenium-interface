@@ -93,7 +93,10 @@ const handlePrev = () => {
 	<Flex v-if="!isBlobsLoading" direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
 			<Flex align="center" gap="8">
-				<Text size="14" weight="600" color="primary">Blobs</Text>
+				<Flex align="center" gap="8">
+					<Icon name="blob" size="14" color="primary" />
+					<Text size="13" weight="600" color="primary">Blobs</Text>
+				</Flex>
 
 				<Tooltip side="right">
 					<Icon name="info" size="14" color="tertiary" />
@@ -249,12 +252,12 @@ const handlePrev = () => {
 
 <style module>
 .header {
-	height: 46px;
+	height: 40px;
 
 	border-radius: 8px 8px 4px 4px;
 	background: var(--card-background);
 
-	padding: 0 16px;
+	padding: 0 12px;
 }
 
 .table_scroller {

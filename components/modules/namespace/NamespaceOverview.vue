@@ -88,7 +88,10 @@ const handleViewRawMessages = () => {
 <template>
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
-			<Text size="14" weight="600" color="primary">Namespace Overview</Text>
+			<Flex align="center" gap="8">
+				<Icon name="folder" size="14" color="primary" />
+				<Text size="13" weight="600" color="primary">Namespace</Text>
+			</Flex>
 
 			<Dropdown>
 				<Button type="tertiary" size="mini">
@@ -177,7 +180,7 @@ const handleViewRawMessages = () => {
 						<table>
 							<thead>
 								<tr>
-									<th><Text size="12" weight="600" color="tertiary">Transaction</Text></th>
+									<th><Text size="12" weight="600" color="tertiary">Hash</Text></th>
 									<th><Text size="12" weight="600" color="tertiary">Type</Text></th>
 									<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
 									<th><Text size="12" weight="600" color="tertiary">Block</Text></th>
@@ -283,12 +286,12 @@ const handleViewRawMessages = () => {
 
 <style module>
 .header {
-	height: 46px;
+	height: 40px;
 
 	border-radius: 8px 8px 4px 4px;
 	background: var(--card-background);
 
-	padding: 0 16px;
+	padding: 0 12px;
 }
 
 .data {

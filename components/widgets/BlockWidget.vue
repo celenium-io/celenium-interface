@@ -5,6 +5,9 @@ import { DateTime } from "luxon"
 /** Services */
 import { comma } from "@/services/utils"
 
+/** UI */
+import Tooltip from "@/components/ui/Tooltip.vue"
+
 /** API */
 import { fetchAvgBlockTime } from "@/services/api/block"
 
@@ -33,8 +36,8 @@ const fillOffset = computed(() => {
 })
 
 const init = async () => {
-	const { data } = await fetchAvgBlockTime({ from: parseInt(DateTime.now().minus({ month: 1 }).ts / 1_000) })
-	avgBlockTime.value = Math.ceil(parseInt(data.value) / 1_000)
+	const { data } = await fetchAvgBlockTime({ from: parseInt(DateTime.now().minus({ hours: 3 }).ts / 1_000) })
+	avgBlockTime.value = data.value / 1_000
 
 	const offsetSinceLastBlock = Math.abs(DateTime.fromISO(lastBlock.value.time).diffNow("seconds").values.seconds + avgBlockTime.value)
 
@@ -117,12 +120,19 @@ onBeforeUnmount(() => {
 				</Flex>
 			</Flex>
 
-			<Flex direction="column" gap="8" align="end">
-				<Text v-if="lastBlock" size="14" weight="600" color="primary"> ~{{ Math.ceil(avgBlockTime) }}s </Text>
-				<Skeleton v-else w="32" h="14" />
+			<Tooltip>
+				<Flex direction="column" gap="8" align="end">
+					<Text v-if="lastBlock" size="14" weight="600" color="primary"> ~{{ Math.ceil(avgBlockTime) }}s </Text>
+					<Skeleton v-else w="32" h="14" />
 
-				<Text size="12" weight="500" color="tertiary"> Block Time </Text>
-			</Flex>
+					<Flex align="center" gap="4">
+						<Text size="12" weight="500" color="tertiary"> Block Time </Text>
+						<Icon name="help" size="12" color="tertiary" />
+					</Flex>
+				</Flex>
+
+				<template #content> Average block time based on the last 3 hours </template>
+			</Tooltip>
 		</Flex>
 
 		<Flex align="center" justify="center" :class="$style.bar">

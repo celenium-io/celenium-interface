@@ -140,7 +140,10 @@ const handleViewRawTransactions = () => {
 <template>
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
-			<Text size="14" weight="600" color="primary">Block Overview</Text>
+			<Flex align="center" gap="8">
+				<Icon name="block" size="14" color="primary" />
+				<Text size="13" weight="600" color="primary">Block </Text>
+			</Flex>
 
 			<Dropdown>
 				<Button type="tertiary" size="mini">
@@ -156,13 +159,13 @@ const handleViewRawTransactions = () => {
 
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">
-				<Flex wide direction="column" gap="16" :class="$style.top">
+				<Flex wide direction="column" gap="12" :class="$style.top">
 					<Flex align="center" justify="between" wide>
-						<Flex align="center" gap="8">
-							<Icon name="block" size="14" color="primary" />
+						<Flex align="center" gap="6">
+							<Icon name="block" size="14" color="secondary" />
 
 							<Flex tag="h1" align="center" gap="4">
-								<Text size="12" weight="600" color="secondary"> Block </Text>
+								<Text size="12" weight="600" color="secondary"> Height </Text>
 								<Text size="12" weight="600" color="primary">{{ comma(block.height) }}</Text>
 							</Flex>
 						</Flex>
@@ -415,12 +418,12 @@ const handleViewRawTransactions = () => {
 
 <style module>
 .header {
-	height: 46px;
+	height: 40px;
 
 	border-radius: 8px 8px 4px 4px;
 	background: var(--card-background);
 
-	padding: 0 16px;
+	padding: 0 12px;
 }
 
 .data {
