@@ -1,5 +1,58 @@
 export default defineNuxtConfig({
-	modules: ["@pinia/nuxt", "nuxt-og-image"],
+	modules: ["nuxt-simple-sitemap", "@pinia/nuxt", "nuxt-og-image"],
+
+	site: {
+		url: "https://celenium.io",
+	},
+
+	sitemap: {
+		xsl: false,
+	},
+
+	routeRules: {
+		"/": {
+			sitemap: {
+				changefreq: "daily",
+				priority: 1,
+			},
+		},
+		"/blocks": {
+			sitemap: {
+				changefreq: "daily",
+				priority: 0.9,
+			},
+		},
+		"/namespaces": {
+			sitemap: {
+				changefreq: "daily",
+				priority: 0.8,
+			},
+		},
+		"/txs": {
+			sitemap: {
+				changefreq: "daily",
+				priority: 0.7,
+			},
+		},
+		"/addresses": {
+			sitemap: {
+				changefreq: "daily",
+				priority: 0.6,
+			},
+		},
+		"/gas": {
+			sitemap: {
+				changefreq: "daily",
+				priority: 0.5,
+			},
+		},
+		"/namespaces/treemap": {
+			sitemap: {
+				changefreq: "weekly",
+				priority: 0.4,
+			},
+		},
+	},
 
 	runtimeConfig: {
 		public: {

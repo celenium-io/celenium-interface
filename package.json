@@ -13,11 +13,11 @@
 	},
 	"devDependencies": {
 		"@nuxt/devtools": "latest",
-		"nuxt": "3.7.3",
+		"nuxt": "3.8.2",
 		"nuxt-og-image": "2.0.28",
+		"nuxt-simple-sitemap": "^4.2.0",
 		"sass": "1.66.1",
-		"sass-loader": "13.3.2",
-		"sitemap": "7.1.1"
+		"sass-loader": "13.3.2"
 	},
 	"dependencies": {
 		"@amplitude/analytics-browser": "^2.3.3",
@@ -29,6 +29,7 @@
 		"d3-hierarchy": "^3.1.2",
 		"focus-trap": "7.5.2",
 		"luxon": "3.4.3",
+		"nuxt-site-config": "^2.1.2",
 		"pinia": "2.1.6",
 		"uuid": "9.0.1"
 	}
