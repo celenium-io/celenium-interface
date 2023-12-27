@@ -68,6 +68,7 @@ const getTransactions = async () => {
 		offset: (page.value - 1) * 10,
 		sort: "desc",
 		type: MapTabsTypes[activeTab.value],
+		excluded_types: activeTab.value === "Other" && "MsgSend,MsgDelegate,MsgPayForBlobs,MsgRegisterEVMAddress",
 	})
 	if (data.value?.length) {
 		transactions.value = data.value
@@ -81,12 +82,18 @@ await getTransactions()
 /** Refetch transactions */
 watch(
 	() => page.value,
-	() => getTransactions(),
+	() => {
+		getTransactions()
+	},
 )
 
 watch(
 	() => activeTab.value,
-	() => getTransactions(),
+	() => {
+		page.value = 1
+
+		getTransactions()
+	},
 )
 
 const filteredTransactions = computed(() => {
