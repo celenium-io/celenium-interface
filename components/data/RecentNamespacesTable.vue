@@ -94,62 +94,81 @@ const handleSort = (by) => {
 					</thead>
 
 					<tbody>
-						<tr v-for="ns in namespaces" @click="router.push(`/namespace/${ns.namespace_id}`)">
+						<tr v-for="ns in namespaces">
 							<td style="width: 1px">
-								<Tooltip position="start">
-									<Flex direction="column" gap="4">
-										<Flex v-if="getNamespaceID(ns.namespace_id).length > 8" align="center" gap="8">
-											<Text size="12" weight="600" color="primary" mono>
-												{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
-											</Text>
+								<NuxtLink :to="`/namespace/${ns.namespace_id}`">
+									<Flex align="center">
+										<Tooltip position="start">
+											<Flex direction="column" gap="4">
+												<Flex v-if="getNamespaceID(ns.namespace_id).length > 8" align="center" gap="8">
+													<Text size="12" weight="600" color="primary" mono>
+														{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
+													</Text>
 
-											<Flex align="center" gap="3">
-												<div v-for="dot in 3" class="dot" />
+													<Flex align="center" gap="3">
+														<div v-for="dot in 3" class="dot" />
+													</Flex>
+
+													<Text size="12" weight="600" color="primary" mono>
+														{{ getNamespaceID(ns.namespace_id).slice(-4) }}
+													</Text>
+
+													<CopyButton :text="getNamespaceID(ns.namespace_id)" />
+												</Flex>
+
+												<Flex v-else align="center" gap="8">
+													<Text size="12" weight="600" color="primary" mono>
+														{{ space(getNamespaceID(ns.namespace_id)) }}
+													</Text>
+
+													<CopyButton :text="getNamespaceID(ns.namespace_id)" />
+												</Flex>
+
+												<Text
+													v-if="ns.name !== getNamespaceID(ns.namespace_id)"
+													size="12"
+													weight="500"
+													color="tertiary"
+												>
+													{{ ns.name }}
+												</Text>
 											</Flex>
 
-											<Text size="12" weight="600" color="primary" mono>
-												{{ getNamespaceID(ns.namespace_id).slice(-4) }}
-											</Text>
-
-											<CopyButton :text="getNamespaceID(ns.namespace_id)" />
-										</Flex>
-
-										<Flex v-else align="center" gap="8">
-											<Text size="12" weight="600" color="primary" mono>
+											<template #content>
 												{{ space(getNamespaceID(ns.namespace_id)) }}
-											</Text>
-
-											<CopyButton :text="getNamespaceID(ns.namespace_id)" />
-										</Flex>
-
-										<Text v-if="ns.name !== getNamespaceID(ns.namespace_id)" size="12" weight="500" color="tertiary">
-											{{ ns.name }}
-										</Text>
+											</template>
+										</Tooltip>
 									</Flex>
-
-									<template #content>
-										{{ space(getNamespaceID(ns.namespace_id)) }}
-									</template>
-								</Tooltip>
-							</td>
-							<td>
-								<NuxtLink :to="`/block/${ns.last_height}`" @click.stop>
-									<Outline>
-										<Flex align="center" gap="6">
-											<Icon name="block" size="14" color="secondary" />
-
-											<Text size="13" weight="600" color="primary" tabular>{{ comma(ns.last_height) }}</Text>
-										</Flex>
-									</Outline>
 								</NuxtLink>
 							</td>
 							<td>
-								<Text size="12" weight="600" color="primary">
-									{{ DateTime.fromISO(ns.last_message_time).toRelative({ locale: "en", style: "short" }) }}
-								</Text>
+								<NuxtLink :to="`/namespace/${ns.namespace_id}`">
+									<Flex align="center">
+										<Outline @click.prevent="router.push(`/block/${ns.last_height}`)">
+											<Flex align="center" gap="6">
+												<Icon name="block" size="14" color="secondary" />
+
+												<Text size="13" weight="600" color="primary" tabular>{{ comma(ns.last_height) }}</Text>
+											</Flex>
+										</Outline>
+									</Flex>
+								</NuxtLink>
 							</td>
 							<td>
-								<Text size="13" weight="600" color="primary">{{ formatBytes(ns.size) }}</Text>
+								<NuxtLink :to="`/namespace/${ns.namespace_id}`">
+									<Flex align="center">
+										<Text size="12" weight="600" color="primary">
+											{{ DateTime.fromISO(ns.last_message_time).toRelative({ locale: "en", style: "short" }) }}
+										</Text>
+									</Flex>
+								</NuxtLink>
+							</td>
+							<td>
+								<NuxtLink :to="`/namespace/${ns.namespace_id}`">
+									<Flex align="center">
+										<Text size="13" weight="600" color="primary">{{ formatBytes(ns.size) }}</Text>
+									</Flex>
+								</NuxtLink>
 							</td>
 						</tr>
 					</tbody>
@@ -243,14 +262,19 @@ const handleSort = (by) => {
 
 		& tr td {
 			padding: 0;
-			padding-right: 24px;
-			padding-top: 6px;
-			padding-bottom: 6px;
 
 			white-space: nowrap;
 
 			&:first-child {
 				padding-left: 16px;
+			}
+
+			& > a {
+				display: flex;
+
+				min-height: 40px;
+
+				padding-right: 24px;
 			}
 		}
 	}

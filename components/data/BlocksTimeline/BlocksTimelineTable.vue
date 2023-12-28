@@ -189,7 +189,7 @@ watch(
 					<Text size="12" weight="600" color="secondary">Receiving new blocks</Text>
 				</Flex>
 				<Flex v-else align="center" justify="center" gap="6" :class="$style.status">
-					<Icon name="pause" size="12" color="yellow" />
+					<Icon name="pause" size="12" color="secondary" />
 					<Text size="12" weight="600" color="secondary">Receiving new blocks on pause</Text>
 				</Flex>
 
@@ -211,13 +211,15 @@ watch(
 								:class="preview.block.time === block.time && $style.active"
 							>
 								<td style="width: 1px">
-									<Outline>
-										<Flex align="center" gap="6">
-											<Icon name="block" size="14" color="primary" />
+									<NuxtLink :to="`/block/${block.height}`">
+										<Outline>
+											<Flex align="center" gap="6">
+												<Icon name="block" size="14" color="primary" />
 
-											<Text size="13" weight="600" color="primary" tabular>{{ comma(block.height) }}</Text>
-										</Flex>
-									</Outline>
+												<Text size="13" weight="600" color="primary" tabular>{{ comma(block.height) }}</Text>
+											</Flex>
+										</Outline>
+									</NuxtLink>
 								</td>
 								<td>
 									<Flex direction="column" gap="4">

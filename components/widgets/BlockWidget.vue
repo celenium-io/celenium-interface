@@ -253,7 +253,7 @@ onBeforeUnmount(() => {
 
 	width: 100%;
 
-	background: var(--neutral-green);
+	background: var(--block-progress-fill-background);
 
 	z-index: -1;
 

@@ -188,66 +188,82 @@ const handleViewRawMessages = () => {
 							</thead>
 
 							<tbody>
-								<tr v-for="message in messages" @click="router.push(`/tx/${message.tx.hash}`)">
+								<tr v-for="message in messages">
 									<td style="width: 1px">
-										<Tooltip position="start" delay="500">
-											<Flex align="center" gap="8">
-												<Icon
-													:name="message.tx.status === 'success' ? 'check-circle' : 'close-circle'"
-													size="14"
-													:color="message.tx.status === 'success' ? 'green' : 'red'"
-												/>
+										<NuxtLink :to="`/tx/${message.tx.hash}`">
+											<Tooltip position="start" delay="500">
+												<Flex align="center" gap="8">
+													<Icon
+														:name="message.tx.status === 'success' ? 'check-circle' : 'close-circle'"
+														size="14"
+														:color="message.tx.status === 'success' ? 'green' : 'red'"
+													/>
 
-												<Text size="13" weight="600" color="primary" mono>{{
-													message.tx.hash.slice(0, 4).toUpperCase()
-												}}</Text>
+													<Text size="13" weight="600" color="primary" mono>{{
+														message.tx.hash.slice(0, 4).toUpperCase()
+													}}</Text>
 
-												<Flex align="center" gap="3">
-													<div v-for="dot in 3" class="dot" />
-												</Flex>
-
-												<Text size="13" weight="600" color="primary" mono>{{
-													message.tx.hash.slice(message.tx.hash.length - 4, message.tx.hash.length).toUpperCase()
-												}}</Text>
-
-												<CopyButton :text="message.tx.hash" />
-											</Flex>
-
-											<template #content>
-												<Flex direction="column" gap="6">
-													<Flex align="center" gap="4">
-														<Icon
-															:name="message.tx.status === 'success' ? 'check-circle' : 'close-circle'"
-															size="14"
-															:color="message.tx.status === 'success' ? 'green' : 'red'"
-														/>
-														<Text size="13" weight="600" color="primary">
-															{{ message.tx.status === "success" ? "Successful" : "Failed" }} Transaction
-														</Text>
+													<Flex align="center" gap="3">
+														<div v-for="dot in 3" class="dot" />
 													</Flex>
 
-													{{ space(message.tx.hash).toUpperCase() }}
+													<Text size="13" weight="600" color="primary" mono>{{
+														message.tx.hash
+															.slice(message.tx.hash.length - 4, message.tx.hash.length)
+															.toUpperCase()
+													}}</Text>
+
+													<CopyButton :text="message.tx.hash" />
 												</Flex>
-											</template>
-										</Tooltip>
+
+												<template #content>
+													<Flex direction="column" gap="6">
+														<Flex align="center" gap="4">
+															<Icon
+																:name="message.tx.status === 'success' ? 'check-circle' : 'close-circle'"
+																size="14"
+																:color="message.tx.status === 'success' ? 'green' : 'red'"
+															/>
+															<Text size="13" weight="600" color="primary">
+																{{ message.tx.status === "success" ? "Successful" : "Failed" }} Transaction
+															</Text>
+														</Flex>
+
+														{{ space(message.tx.hash).toUpperCase() }}
+													</Flex>
+												</template>
+											</Tooltip>
+										</NuxtLink>
 									</td>
 									<td style="width: 1px">
-										<MessageTypeBadge :types="[message.type]" />
+										<NuxtLink :to="`/tx/${message.tx.hash}`">
+											<Flex align="center">
+												<MessageTypeBadge :types="[message.type]" />
+											</Flex>
+										</NuxtLink>
 									</td>
 									<td>
-										<Text size="13" weight="600" color="primary">
-											{{ DateTime.fromISO(message.time).toRelative({ locale: "en", style: "short" }) }}
-										</Text>
+										<NuxtLink :to="`/tx/${message.tx.hash}`">
+											<Flex align="center">
+												<Text size="13" weight="600" color="primary">
+													{{ DateTime.fromISO(message.time).toRelative({ locale: "en", style: "short" }) }}
+												</Text>
+											</Flex>
+										</NuxtLink>
 									</td>
 									<td>
-										<NuxtLink @click.stop :to="`/block/${message.height}`">
-											<Outline>
-												<Flex align="center" gap="6">
-													<Icon name="block" size="14" color="secondary" />
+										<NuxtLink :to="`/tx/${message.tx.hash}`">
+											<Flex align="center">
+												<Outline @click.prevent="router.push(`/block/${message.height}`)">
+													<Flex align="center" gap="6">
+														<Icon name="block" size="14" color="secondary" />
 
-													<Text size="13" weight="600" color="primary" tabular>{{ comma(message.height) }}</Text>
-												</Flex>
-											</Outline>
+														<Text size="13" weight="600" color="primary" tabular>{{
+															comma(message.height)
+														}}</Text>
+													</Flex>
+												</Outline>
+											</Flex>
 										</NuxtLink>
 									</td>
 								</tr>
@@ -416,14 +432,19 @@ const handleViewRawMessages = () => {
 
 		& tr td {
 			padding: 0;
-			padding-right: 24px;
-			padding-top: 6px;
-			padding-bottom: 6px;
 
 			white-space: nowrap;
 
 			&:first-child {
 				padding-left: 16px;
+			}
+
+			& > a {
+				display: flex;
+
+				min-height: 40px;
+
+				padding-right: 24px;
 			}
 		}
 	}

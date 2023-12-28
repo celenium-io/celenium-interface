@@ -138,46 +138,48 @@ const handlePrev = () => {
 					<tbody>
 						<tr v-for="blob in blobs" @click.stop="handleViewBlob(blob)">
 							<td>
-								<Tooltip position="start" delay="500">
-									<Flex @click.stop="router.push(`/namespace/${blob.namespace.namespace_id}`)" direction="column" gap="4">
-										<Flex v-if="getNamespaceID(blob.namespace.namespace_id).length > 8" align="center" gap="8">
-											<Text size="12" weight="600" color="primary" mono>
-												{{ getNamespaceID(blob.namespace.namespace_id).slice(0, 4) }}
-											</Text>
+								<NuxtLink :to="`/namespace/${blob.namespace.namespace_id}`" @click.stop>
+									<Tooltip position="start" delay="500">
+										<Flex direction="column" gap="4">
+											<Flex v-if="getNamespaceID(blob.namespace.namespace_id).length > 8" align="center" gap="8">
+												<Text size="12" weight="600" color="primary" mono>
+													{{ getNamespaceID(blob.namespace.namespace_id).slice(0, 4) }}
+												</Text>
 
-											<Flex align="center" gap="3">
-												<div v-for="dot in 3" class="dot" />
+												<Flex align="center" gap="3">
+													<div v-for="dot in 3" class="dot" />
+												</Flex>
+
+												<Text size="12" weight="600" color="primary" mono>
+													{{ getNamespaceID(blob.namespace.namespace_id).slice(-4) }}
+												</Text>
+
+												<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
 											</Flex>
 
-											<Text size="12" weight="600" color="primary" mono>
-												{{ getNamespaceID(blob.namespace.namespace_id).slice(-4) }}
-											</Text>
+											<Flex v-else align="center" gap="8">
+												<Text size="12" weight="600" color="primary" mono>
+													{{ space(getNamespaceID(blob.namespace.namespace_id)) }}
+												</Text>
 
-											<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
+												<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
+											</Flex>
+
+											<Text
+												v-if="blob.namespace.name !== getNamespaceID(blob.namespace.namespace_id)"
+												size="12"
+												weight="500"
+												color="tertiary"
+											>
+												{{ blob.namespace.name }}
+											</Text>
 										</Flex>
 
-										<Flex v-else align="center" gap="8">
-											<Text size="12" weight="600" color="primary" mono>
-												{{ space(getNamespaceID(blob.namespace.namespace_id)) }}
-											</Text>
-
-											<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
-										</Flex>
-
-										<Text
-											v-if="blob.namespace.name !== getNamespaceID(blob.namespace.namespace_id)"
-											size="12"
-											weight="500"
-											color="tertiary"
-										>
-											{{ blob.namespace.name }}
-										</Text>
-									</Flex>
-
-									<template #content>
-										{{ space(getNamespaceID(blob.namespace.namespace_id)) }}
-									</template>
-								</Tooltip>
+										<template #content>
+											{{ space(getNamespaceID(blob.namespace.namespace_id)) }}
+										</template>
+									</Tooltip>
+								</NuxtLink>
 							</td>
 							<td>
 								<Tooltip position="start" delay="500">

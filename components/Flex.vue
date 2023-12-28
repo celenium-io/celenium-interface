@@ -6,8 +6,11 @@ defineExpose({ wrapper })
 
 const props = defineProps({
 	tag: {
-		type: String,
 		default: "div",
+	},
+	to: {
+		type: String,
+		required: false,
 	},
 	align: {
 		type: String,
@@ -69,7 +72,7 @@ const classes = computed(() => {
 </script>
 
 <template>
-	<component :is="tag" ref="wrapper" :class="classes">
+	<component :is="tag" v-bind="{ to: to ? to : null }" ref="wrapper" :class="classes">
 		<slot />
 	</component>
 </template>

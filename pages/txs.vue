@@ -502,126 +502,144 @@ const handleLast = async () => {
 						</thead>
 
 						<tbody>
-							<tr
-								v-for="tx in transactions"
-								:class="findPFB && !tx.message_types.includes('MsgPayForBlobs') && $style.hide"
-								@click="tx.hash && router.push(`/tx/${tx.hash}`)"
-							>
+							<tr v-for="tx in transactions" :class="findPFB && !tx.message_types.includes('MsgPayForBlobs') && $style.hide">
 								<td style="width: 1px">
-									<Tooltip :disabled="!tx.hash" position="start">
-										<template v-if="tx.hash">
-											<Flex align="center" gap="8">
-												<Icon
-													:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
-													size="14"
-													:color="tx.status === 'success' ? 'green' : 'red'"
-												/>
-
-												<Text size="13" weight="600" color="primary" mono>
-													{{ tx.hash.slice(0, 4).toUpperCase() }}
-												</Text>
-
-												<Flex align="center" gap="3">
-													<div v-for="dot in 3" class="dot" />
-												</Flex>
-
-												<Text size="13" weight="600" color="primary" mono>
-													{{ tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase() }}
-												</Text>
-
-												<CopyButton :text="tx.hash" />
-											</Flex>
-										</template>
-										<template v-else>
-											<Flex align="center" gap="8">
-												<Icon name="tx" size="14" color="secondary" />
-												<Text size="13" weight="600" color="primary">Genesis</Text>
-											</Flex>
-										</template>
-
-										<template #content>
-											<Flex direction="column" gap="6">
-												<Flex align="center" gap="4">
+									<NuxtLink :to="`/tx/${tx.hash}`">
+										<Tooltip :disabled="!tx.hash" position="start">
+											<template v-if="tx.hash">
+												<Flex align="center" gap="8">
 													<Icon
 														:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
-														size="13"
+														size="14"
 														:color="tx.status === 'success' ? 'green' : 'red'"
 													/>
-													<Text size="13" weight="600" color="primary">
-														{{ tx.status === "success" ? "Successful" : "Failed" }} Transaction
+
+													<Text size="13" weight="600" color="primary" mono>
+														{{ tx.hash.slice(0, 4).toUpperCase() }}
+													</Text>
+
+													<Flex align="center" gap="3">
+														<div v-for="dot in 3" class="dot" />
+													</Flex>
+
+													<Text size="13" weight="600" color="primary" mono>
+														{{ tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase() }}
+													</Text>
+
+													<CopyButton :text="tx.hash" />
+												</Flex>
+											</template>
+											<template v-else>
+												<Flex align="center" gap="8">
+													<Icon name="tx" size="14" color="secondary" />
+													<Text size="13" weight="600" color="primary">Genesis</Text>
+												</Flex>
+											</template>
+
+											<template #content>
+												<Flex direction="column" gap="6">
+													<Flex align="center" gap="4">
+														<Icon
+															:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
+															size="13"
+															:color="tx.status === 'success' ? 'green' : 'red'"
+														/>
+														<Text size="13" weight="600" color="primary">
+															{{ tx.status === "success" ? "Successful" : "Failed" }} Transaction
+														</Text>
+													</Flex>
+
+													{{ space(tx.hash).toUpperCase() }}
+
+													<Text height="120" color="tertiary" style="max-width: 400px" mono align="left">
+														{{ tx.error }}
 													</Text>
 												</Flex>
-
-												{{ space(tx.hash).toUpperCase() }}
-
-												<Text height="120" color="tertiary" style="max-width: 400px" mono align="left">
-													{{ tx.error }}
-												</Text>
-											</Flex>
-										</template>
-									</Tooltip>
+											</template>
+										</Tooltip>
+									</NuxtLink>
 								</td>
 								<td v-if="config.columns.time" style="width: 1px">
-									<Flex direction="column" gap="4">
-										<Text size="12" weight="600" color="primary">
-											{{ DateTime.fromISO(tx.time).toRelative({ locale: "en", style: "short" }) }}
-										</Text>
-										<Text size="12" weight="500" color="tertiary">
-											{{ DateTime.fromISO(tx.time).setLocale("en").toFormat("LLL d, t") }}
-										</Text>
-									</Flex>
-								</td>
-								<td v-if="config.columns.messages" style="width: 1px">
-									<Tooltip v-if="tx.message_types.length" position="start" textAlign="left">
-										<MessageTypeBadge :types="tx.message_types" />
-
-										<template #content>
-											<Flex direction="column" gap="8">
-												<Text v-for="type in tx.message_types" color="primary">
-													{{ type.replace("Msg", "") }}
-												</Text>
-											</Flex>
-										</template>
-									</Tooltip>
-
-									<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
-								</td>
-								<td v-if="config.columns.block" style="width: 1px">
-									<Outline @click.stop="router.push(`/block/${tx.height}`)">
-										<Flex align="center" gap="6">
-											<Icon name="block" size="14" color="secondary" />
-
-											<Text size="13" weight="600" color="primary" tabular>{{ comma(tx.height) }}</Text>
-										</Flex>
-									</Outline>
-								</td>
-								<td v-if="config.columns.gas" style="width: 1px">
-									<Tooltip v-if="tx.gas_used">
-										<Flex align="center" gap="8">
-											<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
-
-											<Text v-if="tx.gas_wanted > 0" size="13" weight="600" color="primary">
-												{{ ((tx.gas_used * 100) / tx.gas_wanted).toFixed(2) }}%
+									<NuxtLink :to="`/tx/${tx.hash}`">
+										<Flex justify="center" direction="column" gap="4">
+											<Text size="12" weight="600" color="primary">
+												{{ DateTime.fromISO(tx.time).toRelative({ locale: "en", style: "short" }) }}
+											</Text>
+											<Text size="12" weight="500" color="tertiary">
+												{{ DateTime.fromISO(tx.time).setLocale("en").toFormat("LLL d, t") }}
 											</Text>
 										</Flex>
+									</NuxtLink>
+								</td>
+								<td v-if="config.columns.messages" style="width: 1px">
+									<NuxtLink :to="`/tx/${tx.hash}`">
+										<Flex align="center">
+											<Tooltip v-if="tx.message_types.length" position="start" textAlign="left">
+												<MessageTypeBadge :types="tx.message_types" />
 
-										<template #content>
-											<Flex align="center" gap="4">
-												<Text size="13" weight="600" color="primary">{{ comma(tx.gas_used) }}</Text>
-												<Text size="13" weight="600" color="tertiary">/</Text>
-												<Text size="13" weight="600" color="secondary">{{ comma(tx.gas_wanted) }}</Text>
+												<template #content>
+													<Flex direction="column" gap="8">
+														<Text v-for="type in tx.message_types" color="primary">
+															{{ type.replace("Msg", "") }}
+														</Text>
+													</Flex>
+												</template>
+											</Tooltip>
+
+											<Text v-else size="13" weight="600" color="tertiary">No Message Types</Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td v-if="config.columns.block" style="width: 1px">
+									<NuxtLink :to="`/tx/${tx.hash}`">
+										<Flex align="center">
+											<Outline @click.prevent="router.push(`/block/${tx.height}`)">
+												<Flex align="center" gap="6">
+													<Icon name="block" size="14" color="secondary" />
+
+													<Text size="13" weight="600" color="primary" tabular>{{ comma(tx.height) }}</Text>
+												</Flex>
+											</Outline>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td v-if="config.columns.gas" style="width: 1px">
+									<NuxtLink :to="`/tx/${tx.hash}`">
+										<Tooltip v-if="tx.gas_used">
+											<Flex align="center" gap="8">
+												<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
+
+												<Text v-if="tx.gas_wanted > 0" size="13" weight="600" color="primary">
+													{{ ((tx.gas_used * 100) / tx.gas_wanted).toFixed(2) }}%
+												</Text>
 											</Flex>
-										</template>
-									</Tooltip>
-									<Text v-else size="13" weight="600" color="secondary">Unknown</Text>
+
+											<template #content>
+												<Flex align="center" gap="4">
+													<Text size="13" weight="600" color="primary">{{ comma(tx.gas_used) }}</Text>
+													<Text size="13" weight="600" color="tertiary">/</Text>
+													<Text size="13" weight="600" color="secondary">{{ comma(tx.gas_wanted) }}</Text>
+												</Flex>
+											</template>
+										</Tooltip>
+										<Text v-else size="13" weight="600" color="secondary">Unknown</Text>
+									</NuxtLink>
 								</td>
 								<td v-if="config.columns.fee" style="width: 1px">
-									<Text size="13" weight="600" color="primary"> {{ tia(tx.fee) }} TIA </Text>
+									<NuxtLink :to="`/tx/${tx.hash}`">
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary"> {{ tia(tx.fee) }} TIA </Text>
+										</Flex>
+									</NuxtLink>
 								</td>
 								<td v-if="config.columns.events" style="width: 1px">
-									<Text size="13" weight="600" color="primary">
-										{{ tx.events_count }}
-									</Text>
+									<NuxtLink :to="`/tx/${tx.hash}`">
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary">
+												{{ tx.events_count }}
+											</Text>
+										</Flex>
+									</NuxtLink>
 								</td>
 							</tr>
 						</tbody>
@@ -741,14 +759,19 @@ const handleLast = async () => {
 
 		& tr td {
 			padding: 0;
-			padding-right: 40px;
-			padding-top: 8px;
-			padding-bottom: 8px;
 
 			white-space: nowrap;
 
 			&:first-child {
 				padding-left: 16px;
+			}
+
+			& > a {
+				display: flex;
+
+				min-height: 44px;
+
+				padding-right: 24px;
 			}
 		}
 	}

@@ -43,68 +43,80 @@ isLoading.value = false
 					</thead>
 
 					<tbody>
-						<tr v-for="pfb in pfbs" @click="router.push(`/tx/${pfb.hash}`)">
+						<tr v-for="pfb in pfbs">
 							<td style="width: 1px">
-								<Tooltip position="start">
-									<Flex align="center" gap="8">
-										<Icon
-											:name="pfb.status === 'success' ? 'check-circle' : 'close-circle'"
-											size="14"
-											:color="pfb.status === 'success' ? 'green' : 'red'"
-										/>
+								<NuxtLink :to="`/tx/${pfb.hash}`">
+									<Tooltip position="start">
+										<Flex align="center" gap="8">
+											<Icon
+												:name="pfb.status === 'success' ? 'check-circle' : 'close-circle'"
+												size="14"
+												:color="pfb.status === 'success' ? 'green' : 'red'"
+											/>
 
-										<Text size="13" weight="600" color="primary" mono>
-											{{ pfb.hash.slice(0, 4).toUpperCase() }}
-										</Text>
+											<Text size="13" weight="600" color="primary" mono>
+												{{ pfb.hash.slice(0, 4).toUpperCase() }}
+											</Text>
 
-										<Flex align="center" gap="3">
-											<div v-for="dot in 3" class="dot" />
-										</Flex>
-
-										<Text size="13" weight="600" color="primary" mono>
-											{{ pfb.hash.slice(pfb.hash.length - 4, pfb.hash.length).toUpperCase() }}
-										</Text>
-
-										<CopyButton :text="pfb.hash.toUpperCase()" />
-									</Flex>
-
-									<template #content>
-										<Flex direction="column" gap="6">
-											<Flex align="center" gap="4">
-												<Icon
-													:name="pfb.status === 'success' ? 'check-circle' : 'close-circle'"
-													size="13"
-													:color="pfb.status === 'success' ? 'green' : 'red'"
-												/>
-												<Text size="13" weight="600" color="primary">
-													{{ pfb.status === "success" ? "Successful" : "Failed" }} Transaction
-												</Text>
+											<Flex align="center" gap="3">
+												<div v-for="dot in 3" class="dot" />
 											</Flex>
 
-											{{ space(pfb.hash.toUpperCase()) }}
-										</Flex>
-									</template>
-								</Tooltip>
-							</td>
-							<td>
-								<Outline @click.stop="router.push(`/block/${pfb.height}`)">
-									<Flex align="center" gap="6">
-										<Icon name="block" size="14" color="secondary" />
+											<Text size="13" weight="600" color="primary" mono>
+												{{ pfb.hash.slice(pfb.hash.length - 4, pfb.hash.length).toUpperCase() }}
+											</Text>
 
-										<Text size="13" weight="600" color="primary" tabular>{{ comma(pfb.height) }}</Text>
+											<CopyButton :text="pfb.hash.toUpperCase()" />
+										</Flex>
+
+										<template #content>
+											<Flex direction="column" gap="6">
+												<Flex align="center" gap="4">
+													<Icon
+														:name="pfb.status === 'success' ? 'check-circle' : 'close-circle'"
+														size="13"
+														:color="pfb.status === 'success' ? 'green' : 'red'"
+													/>
+													<Text size="13" weight="600" color="primary">
+														{{ pfb.status === "success" ? "Successful" : "Failed" }} Transaction
+													</Text>
+												</Flex>
+
+												{{ space(pfb.hash.toUpperCase()) }}
+											</Flex>
+										</template>
+									</Tooltip>
+								</NuxtLink>
+							</td>
+							<td>
+								<NuxtLink :to="`/tx/${pfb.hash}`">
+									<Flex align="center">
+										<Outline @click.prevent="router.push(`/block/${pfb.height}`)">
+											<Flex align="center" gap="6">
+												<Icon name="block" size="14" color="secondary" />
+
+												<Text size="13" weight="600" color="primary" tabular>{{ comma(pfb.height) }}</Text>
+											</Flex>
+										</Outline>
 									</Flex>
-								</Outline>
+								</NuxtLink>
 							</td>
 							<td>
-								<Text size="12" weight="600" color="primary">{{
-									DateTime.fromISO(pfb.time).toRelative({ locale: "en", style: "short" })
-								}}</Text>
+								<NuxtLink :to="`/tx/${pfb.hash}`">
+									<Flex align="center">
+										<Text size="12" weight="600" color="primary">
+											{{ DateTime.fromISO(pfb.time).toRelative({ locale: "en", style: "short" }) }}
+										</Text>
+									</Flex>
+								</NuxtLink>
 							</td>
 							<td>
-								<Flex align="center" gap="4">
-									<Text size="13" weight="600" color="primary"> {{ tia(pfb.fee) }} </Text>
-									<Text size="13" weight="600" color="tertiary"> TIA </Text>
-								</Flex>
+								<NuxtLink :to="`/tx/${pfb.hash}`">
+									<Flex align="center" gap="4">
+										<Text size="13" weight="600" color="primary"> {{ tia(pfb.fee) }} </Text>
+										<Text size="13" weight="600" color="tertiary"> TIA </Text>
+									</Flex>
+								</NuxtLink>
 							</td>
 						</tr>
 					</tbody>
@@ -184,14 +196,19 @@ isLoading.value = false
 
 		& tr td {
 			padding: 0;
-			padding-right: 24px;
-			padding-top: 6px;
-			padding-bottom: 6px;
 
 			white-space: nowrap;
 
 			&:first-child {
 				padding-left: 16px;
+			}
+
+			& > a {
+				display: flex;
+
+				min-height: 40px;
+
+				padding-right: 24px;
 			}
 		}
 	}
