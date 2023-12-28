@@ -167,102 +167,142 @@ const handleLast = async () => {
 						</thead>
 
 						<tbody>
-							<tr v-for="block in blocks" @click="router.push(`/block/${block.height}`)">
+							<tr v-for="block in blocks">
 								<td style="width: 1px">
-									<Outline>
-										<Flex align="center" gap="6">
-											<Icon name="block" size="14" :color="hintedBlock == block.height ? 'blue' : 'tertiary'" />
-
-											<Text size="13" weight="600" color="primary" tabular>{{ comma(block.height) }}</Text>
-										</Flex>
-									</Outline>
-								</td>
-								<td>
-									<Flex direction="column" gap="6">
-										<Text size="12" weight="600" color="primary">
-											{{ DateTime.fromISO(block.time).toRelative({ locale: "en", style: "short" }) }}
-										</Text>
-										<Text size="12" weight="500" color="tertiary">
-											{{ DateTime.fromISO(block.time).setLocale("en").toFormat("LLL d, t") }}
-										</Text>
-									</Flex>
-								</td>
-								<td>
-									<Tooltip v-if="block.hash" delay="500">
-										<template #default>
-											<Flex direction="column" gap="4">
-												<Text size="12" height="120" weight="600" color="primary" :class="$style.proposer_moniker">
-													{{ block.proposer.moniker }}
-												</Text>
-
+									<NuxtLink :to="`/block/${block.height}`">
+										<Flex align="center">
+											<Outline>
 												<Flex align="center" gap="6">
-													<Text size="12" weight="600" color="tertiary" mono>
-														{{ block.proposer.cons_address.slice(0, 4) }}
-													</Text>
-													<Flex align="center" gap="3">
-														<div v-for="dot in 3" class="dot" />
+													<Icon
+														name="block"
+														size="14"
+														:color="hintedBlock == block.height ? 'blue' : 'tertiary'"
+													/>
+
+													<Text size="13" weight="600" color="primary" tabular>{{ comma(block.height) }}</Text>
+												</Flex>
+											</Outline>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/block/${block.height}`">
+										<Flex justify="center" direction="column" gap="6">
+											<Text size="12" weight="600" color="primary">
+												{{ DateTime.fromISO(block.time).toRelative({ locale: "en", style: "short" }) }}
+											</Text>
+											<Text size="12" weight="500" color="tertiary">
+												{{ DateTime.fromISO(block.time).setLocale("en").toFormat("LLL d, t") }}
+											</Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/block/${block.height}`">
+										<Flex align="center">
+											<Tooltip v-if="block.hash" delay="500">
+												<template #default>
+													<Flex direction="column" gap="4">
+														<Text
+															size="12"
+															height="120"
+															weight="600"
+															color="primary"
+															:class="$style.proposer_moniker"
+														>
+															{{ block.proposer.moniker }}
+														</Text>
+
+														<Flex align="center" gap="6">
+															<Text size="12" weight="600" color="tertiary" mono>
+																{{ block.proposer.cons_address.slice(0, 4) }}
+															</Text>
+															<Flex align="center" gap="3">
+																<div v-for="dot in 3" class="dot" />
+															</Flex>
+															<Text size="12" weight="600" color="tertiary" mono>
+																{{
+																	block.proposer.cons_address.slice(
+																		block.proposer.cons_address.length - 4,
+																		block.proposer.cons_address.length,
+																	)
+																}}
+															</Text>
+															<CopyButton :text="block.proposer.cons_address" size="10" />
+														</Flex>
 													</Flex>
-													<Text size="12" weight="600" color="tertiary" mono>
-														{{
-															block.proposer.cons_address.slice(
-																block.proposer.cons_address.length - 4,
-																block.proposer.cons_address.length,
-															)
-														}}
-													</Text>
-													<CopyButton :text="block.proposer.cons_address" size="10" />
-												</Flex>
-											</Flex>
-										</template>
+												</template>
 
-										<template #content> {{ space(block.proposer.cons_address) }} </template>
-									</Tooltip>
-									<Text v-else size="13" weight="600" color="secondary">Genesis</Text>
+												<template #content> {{ space(block.proposer.cons_address) }} </template>
+											</Tooltip>
+											<Text v-else size="13" weight="600" color="secondary">Genesis</Text>
+										</Flex>
+									</NuxtLink>
 								</td>
 								<td>
-									<Tooltip v-if="block.hash" delay="500">
-										<template #default>
-											<Flex align="center" gap="8">
-												<Text size="13" weight="600" color="primary" mono>{{ block.hash.slice(0, 4) }}</Text>
+									<NuxtLink :to="`/block/${block.height}`">
+										<Flex align="center">
+											<Tooltip v-if="block.hash" delay="500">
+												<template #default>
+													<Flex align="center" gap="8">
+														<Text size="13" weight="600" color="primary" mono>{{
+															block.hash.slice(0, 4)
+														}}</Text>
 
-												<Flex align="center" gap="3">
-													<div v-for="dot in 3" class="dot" />
-												</Flex>
+														<Flex align="center" gap="3">
+															<div v-for="dot in 3" class="dot" />
+														</Flex>
 
-												<Text size="13" weight="600" color="primary" mono>
-													{{ block.hash.slice(block.hash.length - 4, block.hash.length) }}
-												</Text>
+														<Text size="13" weight="600" color="primary" mono>
+															{{ block.hash.slice(block.hash.length - 4, block.hash.length) }}
+														</Text>
 
-												<CopyButton :text="block.hash" />
-											</Flex>
-										</template>
+														<CopyButton :text="block.hash" />
+													</Flex>
+												</template>
 
-										<template #content> {{ space(block.hash) }} </template>
-									</Tooltip>
-									<Text v-else size="13" weight="600" color="secondary">Genesis</Text>
+												<template #content> {{ space(block.hash) }} </template>
+											</Tooltip>
+											<Text v-else size="13" weight="600" color="secondary">Genesis</Text>
+										</Flex>
+									</NuxtLink>
 								</td>
 								<td>
-									<Text size="13" weight="600" color="primary">
-										{{ block.stats.tx_count }}
-									</Text>
+									<NuxtLink :to="`/block/${block.height}`">
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary">
+												{{ block.stats.tx_count }}
+											</Text>
+										</Flex>
+									</NuxtLink>
 								</td>
 								<td>
-									<Text size="13" weight="600" color="primary">
-										{{ block.stats.events_count }}
-									</Text>
+									<NuxtLink :to="`/block/${block.height}`">
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary">
+												{{ block.stats.events_count }}
+											</Text>
+										</Flex>
+									</NuxtLink>
 								</td>
 								<td>
-									<Text size="13" weight="600" color="primary">
-										{{ formatBytes(block.stats.blobs_size) }}
-									</Text>
+									<NuxtLink :to="`/block/${block.height}`">
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary">
+												{{ formatBytes(block.stats.blobs_size) }}
+											</Text>
+										</Flex>
+									</NuxtLink>
 								</td>
 								<td>
-									<Flex align="center" gap="4">
-										<Text size="13" weight="600" :color="parseFloat(block.stats.fee) ? 'primary' : 'tertiary'">
-											{{ tia(block.stats.fee) }}
-										</Text>
-										<Text size="13" weight="600" color="tertiary"> TIA </Text>
-									</Flex>
+									<NuxtLink :to="`/block/${block.height}`">
+										<Flex align="center" gap="4">
+											<Text size="13" weight="600" :color="parseFloat(block.stats.fee) ? 'primary' : 'tertiary'">
+												{{ tia(block.stats.fee) }}
+											</Text>
+											<Text size="13" weight="600" color="tertiary"> TIA </Text>
+										</Flex>
+									</NuxtLink>
 								</td>
 							</tr>
 						</tbody>
@@ -345,14 +385,19 @@ const handleLast = async () => {
 
 		& tr td {
 			padding: 0;
-			padding-right: 24px;
-			padding-top: 8px;
-			padding-bottom: 8px;
 
 			white-space: nowrap;
 
 			&:first-child {
 				padding-left: 16px;
+			}
+
+			& > a {
+				display: flex;
+
+				min-height: 44px;
+
+				padding-right: 24px;
 			}
 		}
 	}

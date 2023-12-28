@@ -295,7 +295,7 @@ const handleLast = async () => {
 								<td>
 									<NuxtLink :to="`/namespace/${ns.namespace_id}`">
 										<Flex align="center">
-											<Outline @click.stop="router.push(`/block/${ns.last_height}`)">
+											<Outline @click.prevent="router.push(`/block/${ns.last_height}`)">
 												<Flex align="center" gap="6">
 													<Icon name="block" size="14" color="secondary" />
 
