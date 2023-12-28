@@ -304,90 +304,102 @@ const handleViewRawTransactions = () => {
 							</thead>
 
 							<tbody>
-								<tr v-for="tx in filteredTransactions" @click="router.push(`/tx/${tx.hash}`)">
+								<tr v-for="tx in filteredTransactions">
 									<td style="width: 1px">
-										<Tooltip position="start" delay="500">
-											<Flex align="center" gap="8">
-												<Icon
-													:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
-													size="14"
-													:color="tx.status === 'success' ? 'green' : 'red'"
-												/>
+										<NuxtLink :to="`/tx/${tx.hash}`">
+											<Tooltip position="start" delay="500">
+												<Flex align="center" gap="8">
+													<Icon
+														:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
+														size="14"
+														:color="tx.status === 'success' ? 'green' : 'red'"
+													/>
 
-												<Text size="13" weight="600" color="primary" mono>{{
-													tx.hash.slice(0, 4).toUpperCase()
-												}}</Text>
+													<Text size="13" weight="600" color="primary" mono>{{
+														tx.hash.slice(0, 4).toUpperCase()
+													}}</Text>
 
-												<Flex align="center" gap="3">
-													<div v-for="dot in 3" class="dot" />
-												</Flex>
-
-												<Text size="13" weight="600" color="primary" mono>{{
-													tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase()
-												}}</Text>
-
-												<CopyButton :text="tx.hash" />
-											</Flex>
-
-											<template #content>
-												<Flex direction="column" gap="6">
-													<Flex align="center" gap="4">
-														<Icon
-															:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
-															size="13"
-															:color="tx.status === 'success' ? 'green' : 'red'"
-														/>
-														<Text size="13" weight="600" color="primary">
-															{{ tx.status === "success" ? "Successful" : "Failed" }} Transaction
-														</Text>
+													<Flex align="center" gap="3">
+														<div v-for="dot in 3" class="dot" />
 													</Flex>
 
-													{{ space(tx.hash).toUpperCase() }}
+													<Text size="13" weight="600" color="primary" mono>{{
+														tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase()
+													}}</Text>
 
-													<Text height="120" color="tertiary" style="max-width: 400px" mono align="left">
-														{{ tx.error }}
-													</Text>
+													<CopyButton :text="tx.hash" />
 												</Flex>
-											</template>
-										</Tooltip>
+
+												<template #content>
+													<Flex direction="column" gap="6">
+														<Flex align="center" gap="4">
+															<Icon
+																:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
+																size="13"
+																:color="tx.status === 'success' ? 'green' : 'red'"
+															/>
+															<Text size="13" weight="600" color="primary">
+																{{ tx.status === "success" ? "Successful" : "Failed" }} Transaction
+															</Text>
+														</Flex>
+
+														{{ space(tx.hash).toUpperCase() }}
+
+														<Text height="120" color="tertiary" style="max-width: 400px" mono align="left">
+															{{ tx.error }}
+														</Text>
+													</Flex>
+												</template>
+											</Tooltip>
+										</NuxtLink>
 									</td>
 									<td>
-										<Tooltip position="start" textAlign="left">
-											<MessageTypeBadge :types="tx.message_types" />
+										<NuxtLink :to="`/tx/${tx.hash}`">
+											<Flex align="center">
+												<Tooltip position="start" textAlign="left">
+													<MessageTypeBadge :types="tx.message_types" />
 
-											<template #content>
-												<Flex direction="column" gap="8">
-													<Text v-for="type in tx.message_types" color="primary">
-														{{ type.replace("Msg", "") }}
-													</Text>
-												</Flex>
-											</template>
-										</Tooltip>
+													<template #content>
+														<Flex direction="column" gap="8">
+															<Text v-for="type in tx.message_types" color="primary">
+																{{ type.replace("Msg", "") }}
+															</Text>
+														</Flex>
+													</template>
+												</Tooltip>
+											</Flex>
+										</NuxtLink>
 									</td>
 									<td style="width: 1px">
-										<Tooltip>
-											<Flex align="center" gap="8">
-												<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
+										<NuxtLink :to="`/tx/${tx.hash}`">
+											<Tooltip>
+												<Flex align="center" gap="8">
+													<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
 
-												<Text v-if="tx.gas_wanted > 0" size="13" weight="600" color="primary">
-													{{ ((tx.gas_used * 100) / tx.gas_wanted).toFixed(2) }}%
-												</Text>
-											</Flex>
+													<Text v-if="tx.gas_wanted > 0" size="13" weight="600" color="primary">
+														{{ ((tx.gas_used * 100) / tx.gas_wanted).toFixed(2) }}%
+													</Text>
+												</Flex>
 
-											<template #content>
-												<Flex align="center" gap="4">
-													<Text size="13" weight="600" color="primary">{{ comma(tx.gas_used) }}</Text>
-													<Text size="13" weight="600" color="tertiary">/</Text>
-													<Text size="13" weight="600" color="secondary">{{ comma(tx.gas_wanted) }}</Text></Flex
-												>
-											</template>
-										</Tooltip>
+												<template #content>
+													<Flex align="center" gap="4">
+														<Text size="13" weight="600" color="primary">{{ comma(tx.gas_used) }}</Text>
+														<Text size="13" weight="600" color="tertiary">/</Text>
+														<Text size="13" weight="600" color="secondary">{{
+															comma(tx.gas_wanted)
+														}}</Text></Flex
+													>
+												</template>
+											</Tooltip>
+										</NuxtLink>
 									</td>
 									<td>
-										<Flex align="center" gap="4">
-											<Text size="13" weight="600" color="primary"> {{ tia(tx.fee) }} </Text>
-											<Text size="13" weight="600" color="tertiary">TIA</Text>
-										</Flex>
+										<NuxtLink :to="`/tx/${tx.hash}`">
+											<Flex align="center" gap="4">
+												<Text size="13" weight="600" color="primary"> {{ tia(tx.fee) }} </Text>
+												<Text size="13" weight="600" color="tertiary">TIA</Text>
+											</Flex>
+										</NuxtLink>
 									</td>
 								</tr>
 							</tbody>
@@ -561,14 +573,19 @@ const handleViewRawTransactions = () => {
 
 		& tr td {
 			padding: 0;
-			padding-right: 24px;
-			padding-top: 6px;
-			padding-bottom: 6px;
 
 			white-space: nowrap;
 
 			&:first-child {
 				padding-left: 16px;
+			}
+
+			& > a {
+				display: flex;
+
+				min-height: 40px;
+
+				padding-right: 24px;
 			}
 		}
 	}
