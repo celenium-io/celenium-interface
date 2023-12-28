@@ -128,6 +128,7 @@ $grayscale: (
 	--card-background: rgb(255, 255, 255);
 	--tooltip-background: rgba(255, 255, 255, 100%);
 	--outline-background: #e5e5e5;
+	--outline-background-hover: #d7d7d7;
 	--outline-gradient: linear-gradient(var(--op-10), var(--op-20));
 
 	/* Text */
@@ -145,7 +146,7 @@ $grayscale: (
 	--red: #eb5757;
 	--orange: #ff5a17;
 	--light-orange: #ff8351;
-	--yellow: #ffd400;
+	--yellow: #e5c10b;
 	--green: #26c071;
 	--neutral-green: #33a853;
 	--purple: #5856de;

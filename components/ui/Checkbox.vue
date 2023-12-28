@@ -13,7 +13,7 @@ const emit = defineEmits(["update:modelValue"])
 		tabindex="0"
 	>
 		<Flex align="center" justify="center" :class="[$style.checkbox, (modelValue || checked) && $style.active]">
-			<Icon v-if="modelValue || checked" name="check" size="12" color="primary" />
+			<Icon v-if="modelValue || checked" name="check" size="12" color="black" />
 		</Flex>
 
 		<slot />
@@ -63,7 +63,7 @@ const emit = defineEmits(["update:modelValue"])
 	transition: all 0.1s ease;
 
 	&.active {
-		background: var(--blue);
+		background: var(--green);
 	}
 }
 </style>
