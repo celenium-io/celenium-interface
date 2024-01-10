@@ -2,6 +2,7 @@
 /** UI */
 import Modal from "@/components/ui/Modal.vue"
 import Button from "@/components/ui/Button.vue"
+import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
 import { space, formatBytes, getNamespaceID, strToHex } from "@/services/utils"
@@ -18,6 +19,7 @@ const props = defineProps({
 	show: Boolean,
 })
 
+const isLoading = ref(true)
 const blob = ref({})
 const notFound = ref(false)
 
@@ -50,10 +52,12 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
+			isLoading.value = true
+
 			const { data } = await fetchBlobByMetadata({
-				hash: cacheStore.selectedBlob.namespace.hash,
+				hash: cacheStore.selectedBlob.hash,
 				height: cacheStore.selectedBlob.height,
-				commitment: cacheStore.selectedBlob.data.ShareCommitments[0],
+				commitment: cacheStore.selectedBlob.commitment,
 			})
 
 			if (data.value) {
@@ -61,6 +65,8 @@ watch(
 			} else {
 				notFound.value = true
 			}
+
+			isLoading.value = false
 		} else {
 			isDecode.value = false
 			isViewAll.value = false
@@ -82,11 +88,9 @@ const handleDownload = () => {
 
 	const a = window.document.createElement("a")
 	a.href = window.URL.createObjectURL(new Blob([byteArray], { type: "application/octet-stream" }))
-	a.download = `${getNamespaceID(
-		cacheStore.selectedBlob.namespace.namespace_id,
-	)}_${cacheStore.selectedBlob.data.ShareCommitments[0].slice(
-		cacheStore.selectedBlob.data.ShareCommitments[0].length - 8,
-		cacheStore.selectedBlob.data.ShareCommitments[0].length,
+	a.download = `${getNamespaceID(cacheStore.selectedBlob.namespace_id)}_${cacheStore.selectedBlob.commitment.slice(
+		cacheStore.selectedBlob.commitment.length - 8,
+		cacheStore.selectedBlob.commitment.length,
 	)}.bin`
 	document.body.appendChild(a)
 	a.click()
@@ -124,17 +128,41 @@ const handlePreviewContent = () => {
 			<Text size="14" weight="600" color="primary">Blob Viewer</Text>
 
 			<Text v-if="notFound" size="12" weight="600" color="tertiary"> Blob not found </Text>
-			<Flex v-else-if="blob.data" direction="column" gap="24">
+			<Flex v-else direction="column" gap="24">
 				<div v-if="showPreviewImage" ref="previewEl" :class="$style.preview" />
 
 				<Flex v-else direction="column" gap="12">
-					<Flex direction="column" gap="8" :class="$style.data">
-						<Text size="13" weight="500" height="160" color="secondary" mono :class="[$style.field, isViewAll && $style.full]">
+					<Flex direction="column" :justify="isLoading ? 'center' : 'start'" gap="8" :class="$style.data">
+						<Text
+							v-if="!isLoading"
+							size="13"
+							weight="500"
+							height="160"
+							color="secondary"
+							mono
+							:class="[$style.field, isViewAll && $style.full]"
+						>
 							{{ viewData }}
 						</Text>
+						<Flex v-else direction="column" align="center" justify="center" gap="16">
+							<Spinner size="16" />
+
+							<Flex direction="column" align="center" gap="8">
+								<Text size="13" weight="600" color="secondary">Blob is loading</Text>
+								<Text size="12" weight="500" color="tertiary">Loading depends on the size of the blob</Text>
+							</Flex>
+
+							<Text size="12" weight="600" color="tertiary">Size: {{ formatBytes(cacheStore.selectedBlob.size) }}</Text>
+						</Flex>
 					</Flex>
 
-					<Button @click="isViewAll = !isViewAll" type="secondary" size="small" wide :disabled="viewData.length < 540">
+					<Button
+						@click="isViewAll = !isViewAll"
+						type="secondary"
+						size="small"
+						wide
+						:disabled="!viewData || viewData?.length < 540"
+					>
 						{{ isViewAll ? "Collapse" : "Expand" }}
 					</Button>
 				</Flex>
@@ -144,18 +172,15 @@ const handlePreviewContent = () => {
 						<Text size="12" weight="500" color="tertiary">Namespace ID:</Text>
 
 						<Flex align="center" gap="8" :class="$style.value_wrapper">
-							<CopyButton :text="getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id)" />
+							<CopyButton :text="getNamespaceID(cacheStore.selectedBlob.namespace_id)" />
 
 							<Text size="13" weight="600" color="primary" :class="$style.value">
-								{{ space(getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id)) }}
+								{{ space(getNamespaceID(cacheStore.selectedBlob.namespace_id)) }}
 								<Text
-									v-if="
-										getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id) !==
-										cacheStore.selectedBlob.namespace.name
-									"
+									v-if="getNamespaceID(cacheStore.selectedBlob.namespace_id) !== cacheStore.selectedBlob.namespace_name"
 									color="secondary"
 								>
-									({{ cacheStore.selectedBlob.namespace.name }})
+									({{ cacheStore.selectedBlob.namespace_name }})
 								</Text>
 							</Text>
 						</Flex>
@@ -165,10 +190,10 @@ const handlePreviewContent = () => {
 						<Text size="12" weight="500" color="tertiary">Commitment:</Text>
 
 						<Flex align="center" gap="8" :class="$style.value_wrapper">
-							<CopyButton :text="cacheStore.selectedBlob.data.ShareCommitments[0]" />
+							<CopyButton :text="cacheStore.selectedBlob.commitment" />
 
 							<Text size="13" weight="600" color="primary" :class="$style.value">
-								{{ cacheStore.selectedBlob.data.ShareCommitments[0] }}
+								{{ cacheStore.selectedBlob.commitment }}
 							</Text>
 						</Flex>
 					</Flex>
@@ -177,12 +202,12 @@ const handlePreviewContent = () => {
 						<Text size="12" weight="500" color="tertiary">Signer:</Text>
 
 						<Flex align="center" gap="8" :class="$style.value_wrapper">
-							<CopyButton :text="cacheStore.selectedBlob.data.Signer" />
+							<CopyButton :text="cacheStore.selectedBlob.signer" />
 
-							<NuxtLink :to="`/address/${cacheStore.selectedBlob.data.Signer}`" target="_blank">
+							<NuxtLink :to="`/address/${cacheStore.selectedBlob.signer}`" target="_blank">
 								<Flex align="center" gap="6">
 									<Text size="13" weight="600" color="primary" :class="$style.value">
-										{{ cacheStore.selectedBlob.data.Signer }}
+										{{ cacheStore.selectedBlob.signer }}
 									</Text>
 
 									<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
@@ -194,30 +219,36 @@ const handlePreviewContent = () => {
 					<Flex align="center" justify="between" wide :class="$style.metadata">
 						<Text size="12" weight="500" color="tertiary">Content Type:</Text>
 
-						<Text size="13" weight="600" color="primary" :class="$style.value">
+						<Text v-if="!isLoading" size="13" weight="600" color="primary" :class="$style.value">
 							{{ blob.content_type }}
 						</Text>
+						<Skeleton v-else w="60" h="13" />
 					</Flex>
 				</Flex>
 			</Flex>
 
-			<Flex v-if="blob.data" align="center" gap="8" :class="$style.buttons">
-				<Button @click="handleDownload" type="secondary" size="small">
+			<Flex align="center" gap="8" :class="$style.buttons">
+				<Button @click="handleDownload" type="secondary" size="small" :disabled="isLoading">
 					<Icon name="download" size="14" color="secondary" />
 					<Flex align="center" gap="6">
 						<Text>Download</Text>
-						<Text color="tertiary">{{ formatBytes(cacheStore.selectedBlob.data.BlobSizes[0]) }}</Text>
+						<Text color="tertiary">{{ formatBytes(cacheStore.selectedBlob.size) }}</Text>
 					</Flex>
 				</Button>
 
-				<Button @click="isDecode = !isDecode" type="secondary" size="small" :disabled="showPreviewImage || showPreviewText">
+				<Button
+					@click="isDecode = !isDecode"
+					type="secondary"
+					size="small"
+					:disabled="showPreviewImage || showPreviewText || isLoading"
+				>
 					{{ isDecode ? "Encode" : "Decode" }} Base64
 				</Button>
 				<Button
 					@click="handlePreviewContent"
 					type="secondary"
 					size="small"
-					:disabled="!['image/png', 'text/plain; charset=utf-8'].includes(blob.content_type)"
+					:disabled="!['image/png', 'text/plain; charset=utf-8'].includes(blob.content_type) || isLoading"
 				>
 					{{ showPreviewImage || showPreviewText ? "Hide" : "Preview" }} Content
 				</Button>

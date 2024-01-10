@@ -55,7 +55,6 @@ const getNamespaces = async () => {
 		sort: "desc",
 	})
 	blobs.value = data
-	cacheStore.selectedBlob = blobs.value[0]
 
 	isRefetching.value = false
 
@@ -73,6 +72,17 @@ watch(
 )
 
 const handleViewBlob = (blob) => {
+	/** normalize the blob */
+	cacheStore.selectedBlob = {
+		hash: blob.namespace.hash,
+		namespace_id: blob.namespace.namespace_id,
+		namespace_name: blob.namespace.name,
+		commitment: blob.data.ShareCommitments[0],
+		height: blob.height,
+		signer: blob.data.Signer,
+		size: blob.data.BlobSizes[0],
+	}
+
 	modalsStore.open("blob")
 }
 

@@ -489,7 +489,6 @@ const handleViewRawTransactions = () => {
 
 	cursor: pointer;
 	border-radius: 6px;
-	border-bottom: 2px solid transparent;
 
 	padding: 0 8px;
 
@@ -510,7 +509,6 @@ const handleViewRawTransactions = () => {
 
 .tab.active {
 	background: var(--op-8);
-	border-bottom: 2px solid var(--op-10);
 
 	& span {
 		color: var(--txt-primary);

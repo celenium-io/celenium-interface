@@ -9,16 +9,22 @@ export const useCacheStore = defineStore("cache", () => {
 
 	const current = reactive({
 		_target: null,
+
 		/** global */
 		transactions: null,
+
 		/** namespace */
 		namespace: null,
 		messages: null,
+		blobs: null,
+
 		/** block */
 		block: null,
+
 		/** tx */
 		transaction: null,
 		events: null,
+
 		/** address */
 		address: null,
 	})
