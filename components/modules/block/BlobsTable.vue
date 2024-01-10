@@ -8,6 +8,7 @@ import Spinner from "@/components/ui/Spinner.vue"
 import { space, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
+import { fetchTxNamespaces, fetchTxNamespacesCount } from "@/services/api/tx"
 import { fetchBlockNamespaces, fetchBlockNamespacesCount } from "@/services/api/block"
 
 /** Store */
@@ -17,8 +18,13 @@ const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 
 const props = defineProps({
+	hash: {
+		type: String,
+		default: "",
+	},
 	height: {
 		type: Number,
+		default: 0,
 	},
 	loading: {
 		type: Boolean,
@@ -32,33 +38,51 @@ const router = useRouter()
 
 const isRefetching = ref(false)
 const isBlobsLoading = ref(true)
+
 const blobs = ref([])
-const totalBlobs = ref(0)
+const total = ref(0)
 
 const page = ref(1)
-const pages = computed(() => Math.ceil(totalBlobs.value / 5))
+const pages = computed(() => Math.ceil(total.value / 5))
 
 onMounted(async () => {
 	getNamespaces()
-
-	const { data: count } = await fetchBlockNamespacesCount(props.height)
-	totalBlobs.value = count.value
+	getTotal()
 })
+
+/** fetch namespaces based on context (block or tx) */
+const fetchNamespaces = async () => {
+	const params = {
+		limit: 5,
+		offset: (page.value - 1) * 5,
+		sort: "desc",
+	}
+
+	if (props.hash.length) params.hash = props.hash
+	if (props.height) params.height = props.height
+
+	return (props.hash.length && (await fetchTxNamespaces(params))) || (props.height && (await fetchBlockNamespaces(params))) || []
+}
 
 const getNamespaces = async () => {
 	isRefetching.value = true
 
-	const data = await fetchBlockNamespaces({
-		height: props.height,
-		limit: 5,
-		offset: (page.value - 1) * 5,
-		sort: "desc",
-	})
-	blobs.value = data
+	blobs.value = await fetchNamespaces()
 
 	isRefetching.value = false
 
 	if (isBlobsLoading.value) isBlobsLoading.value = false
+}
+
+const getTotal = async () => {
+	if (props.hash.length) {
+		const data = await fetchTxNamespacesCount(props.hash)
+		total.value = data
+	}
+	if (props.height > 1) {
+		const data = await fetchBlockNamespacesCount(props.height)
+		total.value = data
+	}
 }
 
 /** Refetch transactions */
@@ -251,7 +275,7 @@ const handlePrev = () => {
 					</tbody>
 				</table>
 			</div>
-			<Flex v-else-if="loading" align="center" justify="center" gap="8" wide :class="$style.empty">
+			<Flex v-else-if="isBlobsLoading" align="center" justify="center" gap="8" wide :class="$style.empty">
 				<Spinner size="14" />
 				<Text size="13" weight="500" color="secondary"> Loading blobs </Text>
 			</Flex>

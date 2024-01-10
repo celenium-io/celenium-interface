@@ -83,8 +83,7 @@ export const fetchBlockNamespaces = async ({ height, limit, offset, sort }) => {
 
 export const fetchBlockNamespacesCount = async (height) => {
 	try {
-		const data = await useLazyFetch(`${useServerURL()}/block/${height}/namespace/count`)
-		if (data.status.value === "idle") await data.execute()
+		const data = await $fetch(`${useServerURL()}/block/${height}/namespace/count`)
 		return data
 	} catch (error) {
 		console.error(error)
