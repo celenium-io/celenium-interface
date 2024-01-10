@@ -1083,6 +1083,10 @@ const resetRunText = () => {
 		position: sticky;
 		top: 0;
 
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
+
 		background: var(--card-background);
 
 		padding: 12px 12px 6px 12px;
