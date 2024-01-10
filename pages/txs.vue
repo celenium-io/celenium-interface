@@ -299,12 +299,6 @@ const handleNext = () => {
 
 	page.value += 1
 }
-
-const handleLast = async () => {
-	await getTxsCount()
-
-	page.value = pages.value
-}
 </script>
 
 <template>
@@ -325,19 +319,20 @@ const handleLast = async () => {
 				</Flex>
 
 				<Flex align="center" gap="6">
-					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1"> First </Button>
+					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
+						<Icon name="arrow-left-stop" size="12" color="primary" />
+					</Button>
 					<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
-						<Icon name="arrow-narrow-left" size="12" color="primary" />
+						<Icon name="arrow-left" size="12" color="primary" />
 					</Button>
 
 					<Button type="secondary" size="mini" disabled>
-						<Text size="12" weight="600" color="primary"> {{ comma(page) }} of {{ comma(pages) }} </Text>
+						<Text size="12" weight="600" color="primary">Page {{ comma(page) }} </Text>
 					</Button>
 
 					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
-						<Icon name="arrow-narrow-right" size="12" color="primary" />
+						<Icon name="arrow-right" size="12" color="primary" />
 					</Button>
-					<Button @click="handleLast" type="secondary" size="mini" :disabled="page === pages"> Last </Button>
 				</Flex>
 			</Flex>
 

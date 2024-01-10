@@ -36,7 +36,7 @@ const handleCopy = (target) => {
 
 <template>
 	<Icon
-		@click.stop="handleCopy(text)"
+		@click.prevent.stop="handleCopy(text)"
 		:name="!isCopied ? 'copy' : 'check'"
 		:size="size"
 		:color="!isCopied ? 'tertiary' : 'green'"
