@@ -227,6 +227,11 @@ const isRefetching = ref(false)
 const transactions = ref([])
 const count = ref(0)
 
+const sort = reactive({
+	by: "time",
+	dir: "desc",
+})
+
 const getTxsCount = async () => {
 	const { data: txsCount } = await fetchTxsCount()
 	count.value = txsCount.value
@@ -245,7 +250,8 @@ const getTransactions = async () => {
 	const { data } = await fetchTransactions({
 		limit: 20,
 		offset: (page.value - 1) * 20,
-		sort: "desc",
+		sort: sort.dir,
+		sort_by: sort.by,
 		status:
 			Object.keys(filters.status).find((f) => filters.status[f]) &&
 			Object.keys(filters.status)
@@ -287,6 +293,26 @@ watch(
 		getTransactions()
 	},
 )
+
+const handleSort = (by) => {
+	/** temp. only for time */
+	if (by !== "time") return
+
+	switch (sort.dir) {
+		case "desc":
+			if (sort.by == by) sort.dir = "asc"
+			break
+
+		case "asc":
+			sort.dir = "desc"
+
+			break
+	}
+
+	sort.by = by
+
+	getTransactions()
+}
 
 const handlePrev = () => {
 	if (page.value === 1) return
@@ -488,10 +514,24 @@ const handleNext = () => {
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
-								<th v-for="column in Object.keys(config.columns).filter((c) => config.columns[c])">
-									<Text size="12" weight="600" color="tertiary" noWrap style="text-transform: capitalize">{{
-										column
-									}}</Text>
+								<th
+									v-for="column in Object.keys(config.columns).filter((c) => config.columns[c])"
+									@click="handleSort(column)"
+									:class="column === 'time' && $style.sortable"
+								>
+									<Flex v-if="column === 'time'" align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap>Time</Text>
+										<Icon
+											v-if="sort.by === 'time'"
+											name="chevron"
+											size="12"
+											color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+										/>
+									</Flex>
+									<Text v-else size="12" weight="600" color="tertiary" noWrap style="text-transform: capitalize">
+										{{ column }}
+									</Text>
 								</th>
 							</tr>
 						</thead>
@@ -617,7 +657,9 @@ const handleNext = () => {
 												</Flex>
 											</template>
 										</Tooltip>
-										<Text v-else size="13" weight="600" color="secondary">Unknown</Text>
+										<Flex v-else align="center">
+											<Text size="13" weight="600" color="secondary">Unknown</Text>
+										</Flex>
 									</NuxtLink>
 								</td>
 								<td v-if="config.columns.fee" style="width: 1px">
@@ -749,6 +791,10 @@ const handleNext = () => {
 
 			&:first-child {
 				padding-left: 16px;
+			}
+
+			&.sortable {
+				cursor: pointer;
 			}
 		}
 
