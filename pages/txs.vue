@@ -296,7 +296,7 @@ watch(
 
 const handleSort = (by) => {
 	/** temp. only for time */
-	if (by !== "time") return
+	if (!["time"].includes(by)) return
 
 	switch (sort.dir) {
 		case "desc":
@@ -517,12 +517,14 @@ const handleNext = () => {
 								<th
 									v-for="column in Object.keys(config.columns).filter((c) => config.columns[c])"
 									@click="handleSort(column)"
-									:class="column === 'time' && $style.sortable"
+									:class="['time'].includes(column) && $style.sortable"
 								>
-									<Flex v-if="column === 'time'" align="center" gap="6">
-										<Text size="12" weight="600" color="tertiary" noWrap>Time</Text>
+									<Flex v-if="['time'].includes(column)" align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap style="text-transform: capitalize">
+											{{ column }}
+										</Text>
 										<Icon
-											v-if="sort.by === 'time'"
+											v-if="sort.by === column"
 											name="chevron"
 											size="12"
 											color="secondary"
