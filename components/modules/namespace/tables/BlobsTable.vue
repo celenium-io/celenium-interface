@@ -25,9 +25,9 @@ const props = defineProps({
 const handleViewBlob = (blob) => {
 	cacheStore.selectedBlob = {
 		...blob,
-		hash: props.namespace.hash,
-		namespace_id: props.namespace.namespace_id,
-		namespace_name: props.namespace.name,
+		hash: blob.namespace ? blob.namespace.hash : props.namespace.hash,
+		namespace_id: blob.namespace ? blob.namespace.namespace_id : props.namespace.namespace_id,
+		namespace_name: blob.namespace ? blob.namespace.name : props.namespace.name,
 	}
 
 	modalsStore.open("blob")
@@ -48,7 +48,7 @@ const handleViewBlob = (blob) => {
 			<tbody>
 				<tr v-for="blob in blobs" @click.stop="handleViewBlob(blob)">
 					<td>
-						<Tooltip position="start" delay="500">
+						<Tooltip v-if="blob.signer" position="start" delay="500">
 							<Flex align="center" gap="8">
 								<AddressBadge :hash="blob.signer" />
 
@@ -59,6 +59,9 @@ const handleViewBlob = (blob) => {
 								{{ blob.signer }}
 							</template>
 						</Tooltip>
+						<Flex v-else align="center">
+							<Text size="13" weight="600" color="secondary">Unknown</Text>
+						</Flex>
 					</td>
 					<td>
 						<Tooltip position="start" delay="500">

@@ -20,13 +20,15 @@ const props = defineProps({
 })
 
 const isLoading = ref(true)
+const isStopped = ref(false)
 const blob = ref({})
 const notFound = ref(false)
 
 const isDecode = ref(false)
 const isViewAll = ref(false)
 
-const previewEl = ref(null)
+const imagePreviewEl = ref(null)
+const videoPreviewEl = ref(null)
 const showPreviewImage = ref(false)
 const showPreviewText = ref(false)
 
@@ -48,26 +50,41 @@ const viewData = computed(() => {
 	}
 })
 
+const handleLoadAnyway = () => {
+	isStopped.value = false
+
+	getBlobMetadata()
+}
+const getBlobMetadata = async () => {
+	isLoading.value = true
+
+	const { data } = await fetchBlobByMetadata({
+		hash: cacheStore.selectedBlob.hash,
+		height: cacheStore.selectedBlob.height,
+		commitment: cacheStore.selectedBlob.commitment,
+	})
+
+	if (data.value) {
+		blob.value = data.value
+	} else {
+		notFound.value = true
+	}
+
+	isLoading.value = false
+}
+
 watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
-			isLoading.value = true
-
-			const { data } = await fetchBlobByMetadata({
-				hash: cacheStore.selectedBlob.hash,
-				height: cacheStore.selectedBlob.height,
-				commitment: cacheStore.selectedBlob.commitment,
-			})
-
-			if (data.value) {
-				blob.value = data.value
-			} else {
-				notFound.value = true
+			if (cacheStore.selectedBlob.size > 1_000_000) {
+				isStopped.value = true
+				return
 			}
 
-			isLoading.value = false
+			getBlobMetadata()
 		} else {
+			isStopped.value = false
 			isDecode.value = false
 			isViewAll.value = false
 			blob.value = {}
@@ -98,14 +115,19 @@ const handleDownload = () => {
 }
 
 const handlePreviewContent = () => {
-	if (blob.value.content_type === "image/png") {
+	if (["image/png", "video/mp4"].includes(blob.value.content_type)) {
 		if (!showPreviewImage.value) {
 			showPreviewImage.value = true
 
 			nextTick(() => {
-				const image = new Image()
-				image.src = `data:image/png;base64,${blob.value.data}`
-				previewEl.value.appendChild(image)
+				if (blob.value.content_type === "image/png") {
+					const image = new Image()
+					image.src = `data:image/png;base64,${blob.value.data}`
+					imagePreviewEl.value.appendChild(image)
+				}
+				if (blob.value.content_type === "video/mp4") {
+					videoPreviewEl.value.src = `data:video/mp4;base64,${blob.value.data}`
+				}
 			})
 		} else {
 			showPreviewImage.value = false
@@ -129,12 +151,17 @@ const handlePreviewContent = () => {
 
 			<Text v-if="notFound" size="12" weight="600" color="tertiary"> Blob not found </Text>
 			<Flex v-else direction="column" gap="24">
-				<div v-if="showPreviewImage" ref="previewEl" :class="$style.preview" />
+				<template v-if="showPreviewImage">
+					<div v-if="blob.content_type === 'image/ng'" ref="imagePreviewEl" :class="$style.preview" />
+					<video v-else-if="blob.content_type === 'video/mp4'" controls>
+						<source type="video/mp4" ref="videoPreviewEl" />
+					</video>
+				</template>
 
 				<Flex v-else direction="column" gap="12">
-					<Flex direction="column" :justify="isLoading ? 'center' : 'start'" gap="8" :class="$style.data">
+					<Flex direction="column" :justify="isLoading || isStopped ? 'center' : 'start'" gap="8" :class="$style.data">
 						<Text
-							v-if="!isLoading"
+							v-if="!isLoading && !isStopped"
 							size="13"
 							weight="500"
 							height="160"
@@ -144,6 +171,18 @@ const handlePreviewContent = () => {
 						>
 							{{ viewData }}
 						</Text>
+						<Flex v-else-if="isStopped" direction="column" align="center" justify="center" gap="16">
+							<Icon name="info" size="16" color="secondary" />
+
+							<Flex direction="column" align="center" gap="8">
+								<Text size="13" weight="600" color="secondary">Download not started</Text>
+								<Text size="12" weight="500" color="tertiary">Auto download for data over 1 Mb is paused</Text>
+							</Flex>
+
+							<Text @click="handleLoadAnyway" size="12" weight="600" color="tertiary" :class="$style.load_btn"
+								>Load anyway</Text
+							>
+						</Flex>
 						<Flex v-else direction="column" align="center" justify="center" gap="16">
 							<Spinner size="16" />
 
@@ -222,6 +261,7 @@ const handlePreviewContent = () => {
 						<Text v-if="!isLoading" size="13" weight="600" color="primary" :class="$style.value">
 							{{ blob.content_type }}
 						</Text>
+						<Text v-else-if="isStopped" size="13" weight="600" color="tertiary" :class="$style.value"> Unknown </Text>
 						<Skeleton v-else w="60" h="13" />
 					</Flex>
 				</Flex>
@@ -248,7 +288,7 @@ const handlePreviewContent = () => {
 					@click="handlePreviewContent"
 					type="secondary"
 					size="small"
-					:disabled="!['image/png', 'text/plain; charset=utf-8'].includes(blob.content_type) || isLoading"
+					:disabled="!['image/png', 'video/mp4', 'text/plain; charset=utf-8'].includes(blob.content_type) || isLoading"
 				>
 					{{ showPreviewImage || showPreviewText ? "Hide" : "Preview" }} Content
 				</Button>
@@ -313,6 +353,16 @@ const handlePreviewContent = () => {
 .preview {
 	& img {
 		width: 100%;
+	}
+}
+
+.load_btn {
+	cursor: pointer;
+
+	transition: all 0.2s ease;
+
+	&:hover {
+		color: var(--txt-primary);
 	}
 }
 

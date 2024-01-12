@@ -31,6 +31,7 @@
 		"luxon": "3.4.3",
 		"nuxt-site-config": "^2.1.2",
 		"pinia": "2.1.6",
+		"qrcode": "^1.5.3",
 		"uuid": "9.0.1"
 	}
 }

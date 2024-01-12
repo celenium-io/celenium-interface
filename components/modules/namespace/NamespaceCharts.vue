@@ -214,8 +214,6 @@ const getSizeSeries = async () => {
 			value: parseInt(sizeSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
-
-	console.log(sizeSeries.value)
 }
 
 const getPfbSeries = async () => {
