@@ -115,18 +115,22 @@ const handleDownload = () => {
 }
 
 const handlePreviewContent = () => {
-	if (["image/png", "video/mp4"].includes(blob.value.content_type)) {
+	if (["image/png", "image/jpeg", "video/mp4"].includes(blob.value.content_type)) {
 		if (!showPreviewImage.value) {
 			showPreviewImage.value = true
 
 			nextTick(() => {
-				if (blob.value.content_type === "image/png") {
-					const image = new Image()
-					image.src = `data:image/png;base64,${blob.value.data}`
-					imagePreviewEl.value.appendChild(image)
-				}
-				if (blob.value.content_type === "video/mp4") {
-					videoPreviewEl.value.src = `data:video/mp4;base64,${blob.value.data}`
+				switch (blob.value.content_type) {
+					case "image/png":
+					case "image/jpeg":
+						const image = new Image()
+						image.src = `data:image/png;base64,${blob.value.data}`
+						imagePreviewEl.value.appendChild(image)
+						break
+
+					case "video/mp4":
+						videoPreviewEl.value.src = `data:video/mp4;base64,${blob.value.data}`
+						break
 				}
 			})
 		} else {
@@ -152,7 +156,7 @@ const handlePreviewContent = () => {
 			<Text v-if="notFound" size="12" weight="600" color="tertiary"> Blob not found </Text>
 			<Flex v-else direction="column" gap="24">
 				<template v-if="showPreviewImage">
-					<div v-if="blob.content_type === 'image/ng'" ref="imagePreviewEl" :class="$style.preview" />
+					<div v-if="['image/png', 'image/jpeg'].includes(blob.content_type)" ref="imagePreviewEl" :class="$style.preview" />
 					<video v-else-if="blob.content_type === 'video/mp4'" controls>
 						<source type="video/mp4" ref="videoPreviewEl" />
 					</video>
@@ -314,7 +318,9 @@ const handlePreviewContent = () => {
 					@click="handlePreviewContent"
 					type="secondary"
 					size="small"
-					:disabled="!['image/png', 'video/mp4', 'text/plain; charset=utf-8'].includes(blob.content_type) || isLoading"
+					:disabled="
+						!['image/png', 'image/jpeg', 'video/mp4', 'text/plain; charset=utf-8'].includes(blob.content_type) || isLoading
+					"
 				>
 					{{ showPreviewImage || showPreviewText ? "Hide" : "Preview" }} Content
 				</Button>
