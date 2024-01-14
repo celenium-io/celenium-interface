@@ -1,6 +1,6 @@
 <script setup>
 /** Vendor */
-import qrcode from "qrcode"
+import { generate } from "lean-qr"
 
 /** UI */
 import Modal from "@/components/ui/Modal.vue"
@@ -21,17 +21,19 @@ watch(
 	() => {
 		if (props.show) {
 			nextTick(() => {
-				qrcode.toDataURL(
-					cacheStore.qr.data,
-					{
-						color: {
-							light: "#0000",
-						},
-					},
-					(err, url) => {
-						qrEl.value.src = url
-					},
-				)
+				const qrCode = generate(cacheStore.qr.data)
+				qrCode.toCanvas(document.getElementById("my-qr-code"))
+				// qrcode.toDataURL(
+				// 	cacheStore.qr.data,
+				// 	{
+				// 		color: {
+				// 			light: "#0000",
+				// 		},
+				// 	},
+				// 	(err, url) => {
+				// 		qrEl.value.src = url
+				// 	},
+				// )
 			})
 		}
 	},
@@ -53,7 +55,8 @@ watch(
 					</Flex>
 				</Flex>
 
-				<img ref="qrEl" :class="$style.qrcode" />
+				<!-- <img ref="qrEl" :class="$style.qrcode" /> -->
+				<canvas id="my-qr-code" :class="$style.qrcode" />
 			</Flex>
 		</Flex>
 	</Modal>
@@ -79,6 +82,7 @@ watch(
 
 .qrcode {
 	filter: invert(1);
+	image-rendering: pixelated;
 
 	user-select: none;
 	-webkit-user-drag: none;
