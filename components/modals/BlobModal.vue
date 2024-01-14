@@ -256,6 +256,32 @@ const handlePreviewContent = () => {
 					</Flex>
 
 					<Flex align="center" justify="between" wide :class="$style.metadata">
+						<Text size="12" weight="500" color="tertiary">Transaction:</Text>
+
+						<Flex align="center" gap="8" :class="$style.value_wrapper">
+							<CopyButton :text="cacheStore.selectedBlob.signer" />
+
+							<NuxtLink :to="`/tx/${cacheStore.selectedBlob.tx.hash}`" target="_blank">
+								<Flex align="center" gap="8">
+									<Text size="13" weight="600" color="primary">
+										{{ cacheStore.selectedBlob.tx.hash.slice(0, 4) }}
+									</Text>
+
+									<Flex align="center" gap="3">
+										<div v-for="dot in 3" class="dot" />
+									</Flex>
+
+									<Text size="13" weight="600" color="primary">
+										{{ cacheStore.selectedBlob.tx.hash.slice(-4) }}
+									</Text>
+
+									<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
+								</Flex>
+							</NuxtLink>
+						</Flex>
+					</Flex>
+
+					<Flex align="center" justify="between" wide :class="$style.metadata">
 						<Text size="12" weight="500" color="tertiary">Content Type:</Text>
 
 						<Text v-if="!isLoading" size="13" weight="600" color="primary" :class="$style.value">

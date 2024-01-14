@@ -105,6 +105,7 @@ const handleViewBlob = (blob) => {
 		height: blob.height,
 		signer: blob.data.Signer,
 		size: blob.data.BlobSizes[0],
+		tx: blob.tx,
 	}
 
 	modalsStore.open("blob")
