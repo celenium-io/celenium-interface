@@ -1,4 +1,7 @@
 <script setup>
+/** Vendor */
+import { DateTime } from "luxon"
+
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
@@ -40,6 +43,7 @@ const handleViewBlob = (blob) => {
 			<thead>
 				<tr>
 					<th><Text size="12" weight="600" color="tertiary">Signer</Text></th>
+					<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
 					<th><Text size="12" weight="600" color="tertiary">Share Commitments</Text></th>
 					<th><Text size="12" weight="600" color="tertiary">Size</Text></th>
 				</tr>
@@ -62,6 +66,11 @@ const handleViewBlob = (blob) => {
 						<Flex v-else align="center">
 							<Text size="13" weight="600" color="secondary">Unknown</Text>
 						</Flex>
+					</td>
+					<td>
+						<Text size="13" weight="600" color="primary">
+							{{ DateTime.fromISO(blob.time).setLocale("en").toFormat("ff") }}
+						</Text>
 					</td>
 					<td>
 						<Tooltip position="start" delay="500">

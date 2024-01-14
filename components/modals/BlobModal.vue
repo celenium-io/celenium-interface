@@ -210,7 +210,45 @@ const handlePreviewContent = () => {
 					</Button>
 				</Flex>
 
-				<Flex direction="column" align="center" gap="16">
+				<Flex align="center" gap="12" wide :class="$style.badges">
+					<Flex direction="column" gap="8" :class="$style.badge">
+						<Text size="12" weight="500" color="secondary"> Content Type </Text>
+
+						<Text size="13" weight="600" color="primary">
+							{{ cacheStore.selectedBlob.content_type }}
+						</Text>
+					</Flex>
+
+					<NuxtLink :to="`/tx/${cacheStore.selectedBlob.tx.hash}`" target="_blank" :class="[$style.badge, $style.selectable]">
+						<Flex direction="column" gap="8">
+							<Text size="12" weight="500" color="secondary"> Transaction </Text>
+
+							<Flex align="center" gap="8">
+								<Text size="13" weight="600" color="primary">
+									{{ cacheStore.selectedBlob.tx.hash.slice(0, 4) }}
+								</Text>
+
+								<Flex align="center" gap="3">
+									<div v-for="dot in 3" class="dot" />
+								</Flex>
+
+								<Text size="13" weight="600" color="primary">
+									{{ cacheStore.selectedBlob.tx.hash.slice(-4) }}
+								</Text>
+
+								<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
+							</Flex>
+						</Flex>
+					</NuxtLink>
+
+					<Flex direction="column" gap="8" :class="$style.badge">
+						<Text size="12" weight="500" color="secondary"> Size </Text>
+
+						<Text size="13" weight="600" color="primary">{{ formatBytes(cacheStore.selectedBlob.size) }}</Text>
+					</Flex>
+				</Flex>
+
+				<Flex direction="column" align="center" gap="12">
 					<Flex align="center" justify="between" wide :class="$style.metadata">
 						<Text size="12" weight="500" color="tertiary">Namespace ID:</Text>
 
@@ -258,52 +296,14 @@ const handlePreviewContent = () => {
 							</NuxtLink>
 						</Flex>
 					</Flex>
-
-					<Flex align="center" justify="between" wide :class="$style.metadata">
-						<Text size="12" weight="500" color="tertiary">Transaction:</Text>
-
-						<Flex align="center" gap="8" :class="$style.value_wrapper">
-							<CopyButton :text="cacheStore.selectedBlob.signer" />
-
-							<NuxtLink :to="`/tx/${cacheStore.selectedBlob.tx.hash}`" target="_blank">
-								<Flex align="center" gap="8">
-									<Text size="13" weight="600" color="primary">
-										{{ cacheStore.selectedBlob.tx.hash.slice(0, 4) }}
-									</Text>
-
-									<Flex align="center" gap="3">
-										<div v-for="dot in 3" class="dot" />
-									</Flex>
-
-									<Text size="13" weight="600" color="primary">
-										{{ cacheStore.selectedBlob.tx.hash.slice(-4) }}
-									</Text>
-
-									<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
-								</Flex>
-							</NuxtLink>
-						</Flex>
-					</Flex>
-
-					<Flex align="center" justify="between" wide :class="$style.metadata">
-						<Text size="12" weight="500" color="tertiary">Content Type:</Text>
-
-						<Text v-if="!isLoading" size="13" weight="600" color="primary" :class="$style.value">
-							{{ blob.content_type }}
-						</Text>
-						<Text v-else-if="isStopped" size="13" weight="600" color="tertiary" :class="$style.value"> Unknown </Text>
-						<Skeleton v-else w="60" h="13" />
-					</Flex>
 				</Flex>
 			</Flex>
 
 			<Flex align="center" gap="8" :class="$style.buttons">
 				<Button @click="handleDownload" type="secondary" size="small" :disabled="isLoading">
 					<Icon name="download" size="14" color="secondary" />
-					<Flex align="center" gap="6">
-						<Text>Download</Text>
-						<Text color="tertiary">{{ formatBytes(cacheStore.selectedBlob.size) }}</Text>
-					</Flex>
+
+					<Text>Download</Text>
 				</Button>
 
 				<Button
@@ -376,6 +376,23 @@ const handlePreviewContent = () => {
 	max-width: 100%;
 }
 
+.badges {
+}
+
+.badge {
+	border-radius: 6px;
+	background: var(--op-5);
+
+	padding: 8px;
+
+	transition: all 0.2s ease;
+
+	&.selectable:hover {
+		cursor: pointer;
+		background: var(--op-10);
+	}
+}
+
 .buttons {
 	border-top: 1px solid var(--op-5);
 
@@ -403,6 +420,14 @@ const handlePreviewContent = () => {
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 8px;
+	}
+
+	.badges {
+		flex-direction: column;
+	}
+
+	.badge {
+		width: 100%;
 	}
 }
 
