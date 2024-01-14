@@ -675,9 +675,9 @@ const handleOpenQRModal = () => {
 }
 
 .filters {
-	border-bottom: 1px solid var(--op-5);
+	border-bottom: 1px dashed var(--op-8);
 
-	padding: 16px;
+	padding: 12px 8px 12px 8px;
 }
 
 .badge {
