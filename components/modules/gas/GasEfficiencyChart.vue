@@ -298,7 +298,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-	<Flex direction="column" gap="16" wide>
+	<Flex direction="column" gap="24" wide>
 		<Flex align="center" justify="between">
 			<Flex align="center" gap="6">
 				<Icon name="stars" size="13" color="primary" />
