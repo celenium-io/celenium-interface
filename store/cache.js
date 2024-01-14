@@ -7,6 +7,12 @@ import { defineStore, acceptHMRUpdate } from "pinia"
 export const useCacheStore = defineStore("cache", () => {
 	const selectedBlob = ref(null)
 
+	const qr = reactive({
+		data: null,
+		description: null,
+		icon: null,
+	})
+
 	const current = reactive({
 		_target: null,
 
@@ -29,7 +35,7 @@ export const useCacheStore = defineStore("cache", () => {
 		address: null,
 	})
 
-	return { selectedBlob, current }
+	return { selectedBlob, qr, current }
 })
 
 if (import.meta.hot) {

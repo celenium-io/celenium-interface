@@ -3,6 +3,7 @@ import BlobModal from "./BlobModal.vue"
 import ConfirmationModal from "./ConfirmationModal.vue"
 import RawDataModal from "./RawDataModal.vue"
 import ConstantsModal from "./ConstantsModal.vue"
+import QRCodeModal from "./QRCodeModal.vue"
 
 /**
  * Store
@@ -16,4 +17,5 @@ const modalsStore = useModalsStore()
 	<ConfirmationModal :show="modalsStore.modals.confirmation" @onClose="modalsStore.close('confirmation')" />
 	<RawDataModal :show="modalsStore.modals.rawData" @onClose="modalsStore.close('rawData')" />
 	<ConstantsModal :show="modalsStore.modals.constants" @onClose="modalsStore.close('constants')" />
+	<QRCodeModal :show="modalsStore.modals.qr" @onClose="modalsStore.close('qr')" />
 </template>

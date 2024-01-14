@@ -1,7 +1,4 @@
 <script setup>
-/** Vendor */
-import qrcode from "qrcode"
-
 /** UI */
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Button from "@/components/ui/Button.vue"
@@ -42,8 +39,6 @@ const isRefetching = ref(false)
 const transactions = ref([])
 const blobs = ref([])
 
-const qrEl = ref()
-
 const page = ref(1)
 const pages = computed(() => 1)
 const handleNext = () => {
@@ -75,20 +70,6 @@ const onSort = (by) => {
 
 	getTransactions()
 }
-
-onMounted(() => {
-	qrcode.toDataURL(
-		`https://celenium.io/address/${props.address.hash}`,
-		{
-			color: {
-				light: "#0000",
-			},
-		},
-		(err, url) => {
-			qrEl.value.src = url
-		},
-	)
-})
 
 /** Filters */
 const filters = reactive({
@@ -314,6 +295,14 @@ const handleViewRawTransactions = () => {
 	cacheStore.current._target = "transactions"
 	modalsStore.open("rawData")
 }
+
+const handleOpenQRModal = () => {
+	cacheStore.qr.data = props.address.hash
+	cacheStore.qr.description = "Scan QR code to get this address"
+	cacheStore.qr.icon = "addresses"
+
+	modalsStore.open("qr")
+}
 </script>
 
 <template>
@@ -324,27 +313,32 @@ const handleViewRawTransactions = () => {
 				<Text size="13" weight="600" color="primary">Address</Text>
 			</Flex>
 
-			<Dropdown>
-				<Button type="secondary" size="mini">
-					<Icon name="dots" size="12" color="secondary" />
-					More
+			<Flex align="center" gap="8">
+				<Button @click="handleOpenQRModal" type="secondary" size="mini">
+					<Icon name="qr" size="12" color="secondary" />
 				</Button>
+				<Dropdown>
+					<Button type="secondary" size="mini">
+						<Icon name="dots" size="12" color="secondary" />
+						More
+					</Button>
 
-				<template #popup>
-					<DropdownItem @click="handleViewRawAddress">
-						<Flex align="center" gap="8">
-							<Icon name="addresses" size="12" color="secondary" />
-							View Raw Address
-						</Flex>
-					</DropdownItem>
-					<DropdownItem @click="handleViewRawTransactions">
-						<Flex align="center" gap="8">
-							<Icon name="tx" size="12" color="secondary" />
-							View Raw Transactions
-						</Flex>
-					</DropdownItem>
-				</template>
-			</Dropdown>
+					<template #popup>
+						<DropdownItem @click="handleViewRawAddress">
+							<Flex align="center" gap="8">
+								<Icon name="addresses" size="12" color="secondary" />
+								View Raw Address
+							</Flex>
+						</DropdownItem>
+						<DropdownItem @click="handleViewRawTransactions">
+							<Flex align="center" gap="8">
+								<Icon name="tx" size="12" color="secondary" />
+								View Raw Transactions
+							</Flex>
+						</DropdownItem>
+					</template>
+				</Dropdown>
+			</Flex>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
@@ -378,10 +372,6 @@ const handleViewRawTransactions = () => {
 							<Text size="12" weight="600" color="secondary"> {{ comma(address.last_height) }} </Text>
 						</Flex>
 					</Flex>
-				</Flex>
-
-				<Flex justify="between" :class="$style.bottom">
-					<img ref="qrEl" :class="$style.qrcode" />
 				</Flex>
 			</Flex>
 
@@ -609,12 +599,6 @@ const handleViewRawTransactions = () => {
 		& .key_value {
 			max-width: 100%;
 		}
-	}
-
-	.bottom {
-		border-top: 1px solid var(--op-5);
-
-		padding: 16px;
 	}
 }
 
