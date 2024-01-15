@@ -200,7 +200,7 @@ const getStyles = () => {
 	box-shadow: inset 0 0 0 1px var(--op-10), inset 0 0 8px var(--op-10);
 }
 .wrapper.secondary:active {
-	box-shadow: inset 0 0 0 1px var(--op-10), inset 0 0 8px var(--op-15);
+	box-shadow: inset 0 0 0 1px var(--op-10), inset 0 0 8px transparent;
 }
 .wrapper.secondary.outline:active {
 	background: var(--btn-secondary-bg-active);

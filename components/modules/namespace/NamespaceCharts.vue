@@ -30,7 +30,7 @@ const periods = ref([
 	},
 	{
 		title: "Last 7 days",
-		value: 6,
+		value: 7,
 		timeframe: "day",
 	},
 	{
@@ -204,7 +204,7 @@ const getSizeSeries = async () => {
 			item.value
 	})
 
-	for (let i = 0; i < selectedPeriod.value.value + 1; i++) {
+	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
 		const dt = DateTime.now().minus({
 			days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
 			hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - i : 0,
@@ -236,7 +236,7 @@ const getPfbSeries = async () => {
 		pfbSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
 	})
 
-	for (let i = 0; i < selectedPeriod.value.value + 1; i++) {
+	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
 		const dt = DateTime.now().minus({
 			days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
 			hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - i : 0,
@@ -354,7 +354,11 @@ onBeforeUnmount(() => {
 					<Flex :class="[$style.axis, $style.x]">
 						<Flex align="end" justify="between" wide>
 							<Text v-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">
-								{{ DateTime.now().minus({ days: selectedPeriod.value }).toFormat("LLL dd") }}
+								{{
+									DateTime.now()
+										.minus({ days: selectedPeriod.value - 1 })
+										.toFormat("LLL dd")
+								}}
 							</Text>
 							<Text v-else size="12" weight="600" color="tertiary">
 								{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
@@ -438,7 +442,11 @@ onBeforeUnmount(() => {
 					<Flex :class="[$style.axis, $style.x]">
 						<Flex align="end" justify="between" wide>
 							<Text v-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">
-								{{ DateTime.now().minus({ days: selectedPeriod.value }).toFormat("LLL dd") }}
+								{{
+									DateTime.now()
+										.minus({ days: selectedPeriod.value - 1 })
+										.toFormat("LLL dd")
+								}}
 							</Text>
 							<Text v-else size="12" weight="600" color="tertiary">
 								{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}

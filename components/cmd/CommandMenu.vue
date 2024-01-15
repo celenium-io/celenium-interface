@@ -429,6 +429,16 @@ const settingsActions = [
 			{
 				type: "callback",
 				icon: "globe",
+				title: "Arabica",
+				subtitle: "Network",
+				runText: "Switch to Arabica",
+				callback: () => {
+					window.open("https://arabica.celenium.io", "_blank")
+				},
+			},
+			{
+				type: "callback",
+				icon: "globe",
 				title: "Mocha-4",
 				subtitle: "Network",
 				runText: "Switch to Mocha-4",
@@ -1082,6 +1092,10 @@ const resetRunText = () => {
 	.label {
 		position: sticky;
 		top: 0;
+
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
 
 		background: var(--card-background);
 

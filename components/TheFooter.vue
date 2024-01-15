@@ -60,7 +60,7 @@ const handleChangeTheme = (theme) => {
 <template>
 	<Flex tag="footer" justify="center" :class="$style.wrapper">
 		<Flex justify="between" wide :class="$style.container">
-			<Flex direction="column" gap="16">
+			<Flex direction="column" gap="12">
 				<Flex align="center" gap="8">
 					<Icon name="logo" size="14" color="tertiary" />
 					<Text size="13" weight="500" color="secondary">Celenium</Text>
@@ -76,6 +76,17 @@ const handleChangeTheme = (theme) => {
 						</Flex>
 					</a>
 				</Flex>
+
+				<NuxtLink to="https://celenium.io/address/celestia15ans77hr2uxefyn6fa2lcsvpngwevuaugth7f5">
+					<Flex align="center" gap="8">
+						<Text size="12" weight="500" color="support">Donations: </Text>
+						<Text size="12" weight="500" color="tertiary">celestia</Text>
+						<Flex align="center" gap="3">
+							<div v-for="dot in 3" class="dot" />
+						</Flex>
+						<Text size="12" weight="500" color="tertiary">wevu augt h7f5</Text>
+					</Flex>
+				</NuxtLink>
 			</Flex>
 
 			<Flex direction="column" align="end" gap="16">

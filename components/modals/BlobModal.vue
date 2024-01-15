@@ -2,6 +2,7 @@
 /** UI */
 import Modal from "@/components/ui/Modal.vue"
 import Button from "@/components/ui/Button.vue"
+import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
 import { space, formatBytes, getNamespaceID, strToHex } from "@/services/utils"
@@ -18,13 +19,16 @@ const props = defineProps({
 	show: Boolean,
 })
 
+const isLoading = ref(true)
+const isStopped = ref(false)
 const blob = ref({})
 const notFound = ref(false)
 
 const isDecode = ref(false)
 const isViewAll = ref(false)
 
-const previewEl = ref(null)
+const imagePreviewEl = ref(null)
+const videoPreviewEl = ref(null)
 const showPreviewImage = ref(false)
 const showPreviewText = ref(false)
 
@@ -46,22 +50,41 @@ const viewData = computed(() => {
 	}
 })
 
+const handleLoadAnyway = () => {
+	isStopped.value = false
+
+	getBlobMetadata()
+}
+const getBlobMetadata = async () => {
+	isLoading.value = true
+
+	const { data } = await fetchBlobByMetadata({
+		hash: cacheStore.selectedBlob.hash,
+		height: cacheStore.selectedBlob.height,
+		commitment: cacheStore.selectedBlob.commitment,
+	})
+
+	if (data.value) {
+		blob.value = data.value
+	} else {
+		notFound.value = true
+	}
+
+	isLoading.value = false
+}
+
 watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
-			const { data } = await fetchBlobByMetadata({
-				hash: cacheStore.selectedBlob.namespace.hash,
-				height: cacheStore.selectedBlob.height,
-				commitment: cacheStore.selectedBlob.data.ShareCommitments[0],
-			})
-
-			if (data.value) {
-				blob.value = data.value
-			} else {
-				notFound.value = true
+			if (cacheStore.selectedBlob.size > 1_000_000) {
+				isStopped.value = true
+				return
 			}
+
+			getBlobMetadata()
 		} else {
+			isStopped.value = false
 			isDecode.value = false
 			isViewAll.value = false
 			blob.value = {}
@@ -82,11 +105,9 @@ const handleDownload = () => {
 
 	const a = window.document.createElement("a")
 	a.href = window.URL.createObjectURL(new Blob([byteArray], { type: "application/octet-stream" }))
-	a.download = `${getNamespaceID(
-		cacheStore.selectedBlob.namespace.namespace_id,
-	)}_${cacheStore.selectedBlob.data.ShareCommitments[0].slice(
-		cacheStore.selectedBlob.data.ShareCommitments[0].length - 8,
-		cacheStore.selectedBlob.data.ShareCommitments[0].length,
+	a.download = `${getNamespaceID(cacheStore.selectedBlob.namespace_id)}_${cacheStore.selectedBlob.commitment.slice(
+		cacheStore.selectedBlob.commitment.length - 8,
+		cacheStore.selectedBlob.commitment.length,
 	)}.bin`
 	document.body.appendChild(a)
 	a.click()
@@ -94,14 +115,23 @@ const handleDownload = () => {
 }
 
 const handlePreviewContent = () => {
-	if (blob.value.content_type === "image/png") {
+	if (["image/png", "image/jpeg", "video/mp4"].includes(blob.value.content_type)) {
 		if (!showPreviewImage.value) {
 			showPreviewImage.value = true
 
 			nextTick(() => {
-				const image = new Image()
-				image.src = `data:image/png;base64,${blob.value.data}`
-				previewEl.value.appendChild(image)
+				switch (blob.value.content_type) {
+					case "image/png":
+					case "image/jpeg":
+						const image = new Image()
+						image.src = `data:image/png;base64,${blob.value.data}`
+						imagePreviewEl.value.appendChild(image)
+						break
+
+					case "video/mp4":
+						videoPreviewEl.value.src = `data:video/mp4;base64,${blob.value.data}`
+						break
+				}
 			})
 		} else {
 			showPreviewImage.value = false
@@ -124,38 +154,119 @@ const handlePreviewContent = () => {
 			<Text size="14" weight="600" color="primary">Blob Viewer</Text>
 
 			<Text v-if="notFound" size="12" weight="600" color="tertiary"> Blob not found </Text>
-			<Flex v-else-if="blob.data" direction="column" gap="24">
-				<div v-if="showPreviewImage" ref="previewEl" :class="$style.preview" />
+			<Flex v-else direction="column" gap="24">
+				<template v-if="showPreviewImage">
+					<div v-if="['image/png', 'image/jpeg'].includes(blob.content_type)" ref="imagePreviewEl" :class="$style.preview" />
+					<video v-else-if="blob.content_type === 'video/mp4'" controls>
+						<source type="video/mp4" ref="videoPreviewEl" />
+					</video>
+				</template>
 
 				<Flex v-else direction="column" gap="12">
-					<Flex direction="column" gap="8" :class="$style.data">
-						<Text size="13" weight="500" height="160" color="secondary" mono :class="[$style.field, isViewAll && $style.full]">
+					<Flex direction="column" :justify="isLoading || isStopped ? 'center' : 'start'" gap="8" :class="$style.data">
+						<Text
+							v-if="!isLoading && !isStopped"
+							size="13"
+							weight="500"
+							height="160"
+							color="secondary"
+							mono
+							:class="[$style.field, isViewAll && $style.full]"
+						>
 							{{ viewData }}
 						</Text>
+						<Flex v-else-if="isStopped" direction="column" align="center" justify="center" gap="16">
+							<Icon name="info" size="16" color="secondary" />
+
+							<Flex direction="column" align="center" gap="8">
+								<Text size="13" weight="600" color="secondary">Download not started</Text>
+								<Text size="12" weight="500" color="tertiary">Auto download for data over 1 Mb is paused</Text>
+							</Flex>
+
+							<Text @click="handleLoadAnyway" size="12" weight="600" color="tertiary" :class="$style.load_btn"
+								>Load anyway</Text
+							>
+						</Flex>
+						<Flex v-else direction="column" align="center" justify="center" gap="16">
+							<Spinner size="16" />
+
+							<Flex direction="column" align="center" gap="8">
+								<Text size="13" weight="600" color="secondary">Blob is loading</Text>
+								<Text size="12" weight="500" color="tertiary">Loading depends on the size of the blob</Text>
+							</Flex>
+
+							<Text size="12" weight="600" color="tertiary">Size: {{ formatBytes(cacheStore.selectedBlob.size) }}</Text>
+						</Flex>
 					</Flex>
 
-					<Button @click="isViewAll = !isViewAll" type="secondary" size="small" wide :disabled="viewData.length < 540">
+					<Button
+						@click="isViewAll = !isViewAll"
+						type="secondary"
+						size="small"
+						wide
+						:disabled="!viewData || viewData?.length < 540"
+					>
 						{{ isViewAll ? "Collapse" : "Expand" }}
 					</Button>
 				</Flex>
 
-				<Flex direction="column" align="center" gap="16">
+				<Flex align="center" gap="12" wide :class="$style.badges">
+					<Flex direction="column" gap="8" :class="$style.badge">
+						<Text size="12" weight="500" color="secondary"> Content Type </Text>
+
+						<Text v-if="cacheStore.selectedBlob.content_type" size="13" weight="600" color="primary">
+							{{ cacheStore.selectedBlob.content_type }}
+						</Text>
+						<Text v-else-if="blob.content_type" size="13" weight="600" color="primary">
+							{{ blob.content_type }}
+						</Text>
+						<Skeleton v-else-if="isLoading && !isStopped" w="60" h="13" />
+						<Text v-else size="13" weight="600" color="tertiary">Unknown</Text>
+					</Flex>
+
+					<NuxtLink :to="`/tx/${cacheStore.selectedBlob.tx.hash}`" target="_blank" :class="[$style.badge, $style.selectable]">
+						<Flex direction="column" gap="8">
+							<Text size="12" weight="500" color="secondary"> Transaction </Text>
+
+							<Flex align="center" gap="8">
+								<Text size="13" weight="600" color="primary">
+									{{ cacheStore.selectedBlob.tx.hash.slice(0, 4) }}
+								</Text>
+
+								<Flex align="center" gap="3">
+									<div v-for="dot in 3" class="dot" />
+								</Flex>
+
+								<Text size="13" weight="600" color="primary">
+									{{ cacheStore.selectedBlob.tx.hash.slice(-4) }}
+								</Text>
+
+								<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
+							</Flex>
+						</Flex>
+					</NuxtLink>
+
+					<Flex direction="column" gap="8" :class="$style.badge">
+						<Text size="12" weight="500" color="secondary"> Size </Text>
+
+						<Text size="13" weight="600" color="primary">{{ formatBytes(cacheStore.selectedBlob.size) }}</Text>
+					</Flex>
+				</Flex>
+
+				<Flex direction="column" align="center" gap="12">
 					<Flex align="center" justify="between" wide :class="$style.metadata">
 						<Text size="12" weight="500" color="tertiary">Namespace ID:</Text>
 
 						<Flex align="center" gap="8" :class="$style.value_wrapper">
-							<CopyButton :text="getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id)" />
+							<CopyButton :text="getNamespaceID(cacheStore.selectedBlob.namespace_id)" />
 
 							<Text size="13" weight="600" color="primary" :class="$style.value">
-								{{ space(getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id)) }}
+								{{ space(getNamespaceID(cacheStore.selectedBlob.namespace_id)) }}
 								<Text
-									v-if="
-										getNamespaceID(cacheStore.selectedBlob.namespace.namespace_id) !==
-										cacheStore.selectedBlob.namespace.name
-									"
+									v-if="getNamespaceID(cacheStore.selectedBlob.namespace_id) !== cacheStore.selectedBlob.namespace_name"
 									color="secondary"
 								>
-									({{ cacheStore.selectedBlob.namespace.name }})
+									({{ cacheStore.selectedBlob.namespace_name }})
 								</Text>
 							</Text>
 						</Flex>
@@ -165,10 +276,10 @@ const handlePreviewContent = () => {
 						<Text size="12" weight="500" color="tertiary">Commitment:</Text>
 
 						<Flex align="center" gap="8" :class="$style.value_wrapper">
-							<CopyButton :text="cacheStore.selectedBlob.data.ShareCommitments[0]" />
+							<CopyButton :text="cacheStore.selectedBlob.commitment" />
 
 							<Text size="13" weight="600" color="primary" :class="$style.value">
-								{{ cacheStore.selectedBlob.data.ShareCommitments[0] }}
+								{{ cacheStore.selectedBlob.commitment }}
 							</Text>
 						</Flex>
 					</Flex>
@@ -177,12 +288,12 @@ const handlePreviewContent = () => {
 						<Text size="12" weight="500" color="tertiary">Signer:</Text>
 
 						<Flex align="center" gap="8" :class="$style.value_wrapper">
-							<CopyButton :text="cacheStore.selectedBlob.data.Signer" />
+							<CopyButton :text="cacheStore.selectedBlob.signer" />
 
-							<NuxtLink :to="`/address/${cacheStore.selectedBlob.data.Signer}`" target="_blank">
+							<NuxtLink :to="`/address/${cacheStore.selectedBlob.signer}`" target="_blank">
 								<Flex align="center" gap="6">
 									<Text size="13" weight="600" color="primary" :class="$style.value">
-										{{ cacheStore.selectedBlob.data.Signer }}
+										{{ cacheStore.selectedBlob.signer }}
 									</Text>
 
 									<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
@@ -190,34 +301,31 @@ const handlePreviewContent = () => {
 							</NuxtLink>
 						</Flex>
 					</Flex>
-
-					<Flex align="center" justify="between" wide :class="$style.metadata">
-						<Text size="12" weight="500" color="tertiary">Content Type:</Text>
-
-						<Text size="13" weight="600" color="primary" :class="$style.value">
-							{{ blob.content_type }}
-						</Text>
-					</Flex>
 				</Flex>
 			</Flex>
 
-			<Flex v-if="blob.data" align="center" gap="8" :class="$style.buttons">
-				<Button @click="handleDownload" type="secondary" size="small">
+			<Flex align="center" gap="8" :class="$style.buttons">
+				<Button @click="handleDownload" type="secondary" size="small" :disabled="isLoading">
 					<Icon name="download" size="14" color="secondary" />
-					<Flex align="center" gap="6">
-						<Text>Download</Text>
-						<Text color="tertiary">{{ formatBytes(cacheStore.selectedBlob.data.BlobSizes[0]) }}</Text>
-					</Flex>
+
+					<Text>Download</Text>
 				</Button>
 
-				<Button @click="isDecode = !isDecode" type="secondary" size="small" :disabled="showPreviewImage || showPreviewText">
+				<Button
+					@click="isDecode = !isDecode"
+					type="secondary"
+					size="small"
+					:disabled="showPreviewImage || showPreviewText || isLoading"
+				>
 					{{ isDecode ? "Encode" : "Decode" }} Base64
 				</Button>
 				<Button
 					@click="handlePreviewContent"
 					type="secondary"
 					size="small"
-					:disabled="!['image/png', 'text/plain; charset=utf-8'].includes(blob.content_type)"
+					:disabled="
+						!['image/png', 'image/jpeg', 'video/mp4', 'text/plain; charset=utf-8'].includes(blob.content_type) || isLoading
+					"
 				>
 					{{ showPreviewImage || showPreviewText ? "Hide" : "Preview" }} Content
 				</Button>
@@ -273,6 +381,23 @@ const handlePreviewContent = () => {
 	max-width: 100%;
 }
 
+.badges {
+}
+
+.badge {
+	border-radius: 6px;
+	background: var(--op-5);
+
+	padding: 8px;
+
+	transition: all 0.2s ease;
+
+	&.selectable:hover {
+		cursor: pointer;
+		background: var(--op-10);
+	}
+}
+
 .buttons {
 	border-top: 1px solid var(--op-5);
 
@@ -285,11 +410,29 @@ const handlePreviewContent = () => {
 	}
 }
 
+.load_btn {
+	cursor: pointer;
+
+	transition: all 0.2s ease;
+
+	&:hover {
+		color: var(--txt-primary);
+	}
+}
+
 @media (max-width: 550px) {
 	.metadata {
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 8px;
+	}
+
+	.badges {
+		flex-direction: column;
+	}
+
+	.badge {
+		width: 100%;
 	}
 }
 

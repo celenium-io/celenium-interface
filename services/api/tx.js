@@ -1,15 +1,16 @@
 /** Services */
 import { useServerURL } from "@/services/config"
 
-export const fetchTransactions = async ({ limit, offset, sort, msg_type, status }) => {
+export const fetchTransactions = async ({ limit, offset, sort, sort_by, msg_type, status }) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx`)
 
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
-		if (sort) url.searchParams.append("sort", sort)
 		if (msg_type) url.searchParams.append("msg_type", msg_type)
 		if (status) url.searchParams.append("status", status)
+		if (sort) url.searchParams.append("sort", sort)
+		if (sort_by) url.searchParams.append("sort_by", sort_by)
 
 		const data = await useFetch(url.href)
 		return data
@@ -56,6 +57,32 @@ export const fetchTxEvents = async (hash) => {
 		const url = new URL(`${useServerURL()}/tx/${hash}/events`)
 
 		const data = await useFetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchTxNamespaces = async ({ hash, limit, offset, sort }) => {
+	try {
+		const url = new URL(`${useServerURL()}/tx/${hash}/namespace`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+		if (sort) url.searchParams.append("sort", sort)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchTxNamespacesCount = async (hash) => {
+	try {
+		const url = new URL(`${useServerURL()}/tx/${hash}/namespace/count`)
+
+		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
 		console.error(error)

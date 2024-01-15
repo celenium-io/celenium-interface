@@ -1,17 +1,21 @@
 <script setup>
 /** UI */
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
-import Tooltip from "@/components/ui/Tooltip.vue"
 import Button from "@/components/ui/Button.vue"
+import Popover from "@/components/ui/Popover.vue"
+import Checkbox from "@/components/ui/Checkbox.vue"
+import Input from "@/components/ui/Input.vue"
 
-/** Shared Components */
-import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
+/** Components */
+import TransactionsTable from "./TransactionsTable.vue"
+import BlobsTable from "@/components/modules/namespace/tables/BlobsTable.vue"
 
 /** Services */
-import { tia, comma, space } from "@/services/utils"
+import { comma } from "@/services/utils"
+import { MsgTypes } from "@/services/constants/messages"
 
 /** API */
-import { fetchTxsByAddressHash } from "@/services/api/address"
+import { fetchTxsByAddressHash, fetchBlobsByAddressHash } from "@/services/api/address"
 
 /** Store */
 import { useModalsStore } from "@/store/modals"
@@ -19,6 +23,7 @@ import { useCacheStore } from "@/store/cache"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
 
+const route = useRoute()
 const router = useRouter()
 
 const props = defineProps({
@@ -28,11 +33,11 @@ const props = defineProps({
 	},
 })
 
-const tabs = ref(["PFBs", "Transfers", "Register", "Delegate", "Other"])
-const activeTab = ref(tabs.value[0])
+const activeTab = ref("transactions")
 
 const isRefetching = ref(false)
 const transactions = ref([])
+const blobs = ref([])
 
 const page = ref(1)
 const pages = computed(() => 1)
@@ -44,6 +49,166 @@ const handlePrev = () => {
 	page.value -= 1
 }
 
+const sort = reactive({
+	by: "time",
+	dir: "desc",
+})
+
+const onSort = (by) => {
+	switch (sort.dir) {
+		case "desc":
+			if (sort.by == by) sort.dir = "asc"
+			break
+
+		case "asc":
+			sort.dir = "desc"
+
+			break
+	}
+
+	sort.by = by
+
+	getTransactions()
+}
+
+/** Filters */
+const filters = reactive({
+	status: {
+		success: false,
+		failed: false,
+	},
+	message_type: MsgTypes.reduce((a, b) => ({ ...a, [b]: false }), {}),
+})
+const hasActiveFilters = computed(() => {
+	let has = false
+
+	Object.keys(filters.status).forEach((s) => {
+		if (filters.status[s]) has = true
+	})
+	Object.keys(filters.message_type).forEach((t) => {
+		if (filters.message_type[t]) has = true
+	})
+
+	return has
+})
+const savedFiltersBeforeChanges = ref(null)
+
+const handleClearAllFilters = () => {
+	Object.keys(filters.status).forEach((f) => {
+		filters.status[f] = false
+	})
+
+	Object.keys(filters.message_type).forEach((f) => {
+		filters.message_type[f] = false
+	})
+
+	router.replace({
+		query: null,
+	})
+
+	getTransactions()
+}
+
+const searchTerm = ref("")
+
+/** Parse route query */
+Object.keys(route.query).forEach((key) => {
+	if (key === "page") return
+
+	if (route.query[key].split(",").length) {
+		route.query[key].split(",").forEach((item) => {
+			filters[key][item] = true
+		})
+	} else {
+		filters[key][route.query[key]] = true
+	}
+})
+
+const updateRouteQuery = () => {
+	router.replace({
+		query: {
+			status:
+				Object.keys(filters.status).find((f) => filters.status[f]) &&
+				Object.keys(filters.status)
+					.filter((f) => filters.status[f])
+					.join(","),
+			message_type:
+				Object.keys(filters.message_type).find((f) => filters.message_type[f]) &&
+				Object.keys(filters.message_type)
+					.filter((f) => filters.message_type[f])
+					.join(","),
+		},
+	})
+}
+
+const isStatusPopoverOpen = ref(false)
+const handleOpenStatusPopover = () => {
+	isStatusPopoverOpen.value = true
+
+	if (Object.keys(filters.status).find((f) => filters.status[f])) {
+		savedFiltersBeforeChanges.value = { ...filters.status }
+	}
+}
+const onStatusPopoverClose = () => {
+	isStatusPopoverOpen.value = false
+
+	if (savedFiltersBeforeChanges.value) {
+		filters.status = savedFiltersBeforeChanges.value
+		savedFiltersBeforeChanges.value = null
+	} else {
+		resetFilters("status")
+	}
+}
+const handleApplyStatusFilters = () => {
+	savedFiltersBeforeChanges.value = null
+	isStatusPopoverOpen.value = false
+
+	getTransactions()
+
+	updateRouteQuery()
+}
+
+const isMessageTypePopoverOpen = ref(false)
+const handleOpenMessageTypePopover = () => {
+	isMessageTypePopoverOpen.value = true
+
+	if (Object.keys(filters.message_type).find((f) => filters.message_type[f])) {
+		savedFiltersBeforeChanges.value = { ...filters.message_type }
+	}
+}
+const onMessageTypePopoverClose = () => {
+	isMessageTypePopoverOpen.value = false
+
+	searchTerm.value = ""
+
+	if (savedFiltersBeforeChanges.value) {
+		filters.message_type = savedFiltersBeforeChanges.value
+		savedFiltersBeforeChanges.value = null
+	} else {
+		resetFilters("message_type")
+	}
+}
+const handleApplyMessageTypeFilters = () => {
+	savedFiltersBeforeChanges.value = null
+	isMessageTypePopoverOpen.value = false
+
+	getTransactions()
+
+	updateRouteQuery()
+}
+
+const resetFilters = (target, refetch) => {
+	Object.keys(filters[target]).forEach((f) => {
+		filters[target][f] = false
+	})
+
+	if (refetch) {
+		updateRouteQuery()
+
+		getTransactions()
+	}
+}
+
 const getTransactions = async () => {
 	isRefetching.value = true
 
@@ -51,68 +216,77 @@ const getTransactions = async () => {
 		hash: props.address.hash,
 		limit: 10,
 		offset: (page.value - 1) * 10,
+		sort: sort.dir,
+		sort_by: sort.by,
+		status:
+			Object.keys(filters.status).find((f) => filters.status[f]) &&
+			Object.keys(filters.status)
+				.filter((f) => filters.status[f])
+				.join(","),
+		msg_type:
+			Object.keys(filters.message_type).find((f) => filters.message_type[f]) &&
+			Object.keys(filters.message_type)
+				.filter((f) => filters.message_type[f])
+				.join(","),
+	})
+
+	transactions.value = data.value
+	cacheStore.current.transactions = transactions.value
+
+	isRefetching.value = false
+}
+
+const getBlobs = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchBlobsByAddressHash({
+		hash: props.address.hash,
+		limit: 10,
+		offset: (page.value - 1) * 10,
 		sort: "desc",
 	})
 
 	if (data.value?.length) {
-		transactions.value = data.value
-		cacheStore.current.transactions = transactions.value
+		blobs.value = data.value.map((b) => ({ ...b, signer: props.address.hash }))
 	}
 
 	isRefetching.value = false
 }
+
 await getTransactions()
 
 /** Refetch transactions */
 watch(
-	() => page.value,
-	() => getTransactions(),
+	() => activeTab.value,
+	() => {
+		page.value = 1
+
+		switch (activeTab.value) {
+			case "transactions":
+				getTransactions()
+				break
+
+			case "blobs":
+				getBlobs()
+				break
+		}
+	},
 )
 
-const MapTabsTypes = {
-	PFBs: "MsgPayForBlobs",
-	Transfers: "MsgSend",
-	Register: "MsgRegisterEVMAddress",
-	Delegate: "MsgDelegate",
-}
+watch(
+	() => page.value,
+	() => {
+		switch (activeTab.value) {
+			case "transactions":
+				getTransactions()
+				break
 
-const filteredTransactions = computed(() => {
-	const supportedTypes = Object.values(MapTabsTypes)
-
-	if (activeTab.value === "Other") {
-		return transactions.value.filter((t) => {
-			let f = false
-
-			t.message_types.forEach((type) => {
-				if (!supportedTypes.includes(type)) f = true
-			})
-
-			return f
-		})
-	}
-
-	return transactions.value.filter((t) => t.message_types.includes(MapTabsTypes[activeTab.value]))
-})
-
-const getTxnsCountByTab = (tab) => {
-	return 0
-	if (tab !== "Other") {
-		return props.block.stats.messages_counts[MapTabsTypes[tab]]
-	} else {
-		let unsupportedCounter = 0
-		const unsupportedTypes = []
-
-		Object.keys(props.block.stats.messages_counts).forEach((type) => {
-			if (!Object.values(MapTabsTypes).includes(type)) unsupportedTypes.push(type)
-		})
-
-		unsupportedTypes.forEach((type) => {
-			unsupportedCounter += props.block.stats.messages_counts[type]
-		})
-
-		return unsupportedCounter
-	}
-}
+			case "blobs":
+				getBlobs()
+				break
+		}
+	},
+)
 
 const handleViewRawAddress = () => {
 	cacheStore.current._target = "address"
@@ -122,6 +296,14 @@ const handleViewRawAddress = () => {
 const handleViewRawTransactions = () => {
 	cacheStore.current._target = "transactions"
 	modalsStore.open("rawData")
+}
+
+const handleOpenQRModal = () => {
+	cacheStore.qr.data = props.address.hash
+	cacheStore.qr.description = "Scan QR code to get this address"
+	cacheStore.qr.icon = "addresses"
+
+	modalsStore.open("qr")
 }
 </script>
 
@@ -133,20 +315,36 @@ const handleViewRawTransactions = () => {
 				<Text size="13" weight="600" color="primary">Address</Text>
 			</Flex>
 
-			<Dropdown>
-				<Button type="tertiary" size="mini">
-					<Icon name="dots" size="16" color="secondary" />
+			<Flex align="center" gap="8">
+				<Button @click="handleOpenQRModal" type="secondary" size="mini">
+					<Icon name="qr" size="12" color="secondary" />
 				</Button>
+				<Dropdown>
+					<Button type="secondary" size="mini">
+						<Icon name="dots" size="12" color="secondary" />
+						More
+					</Button>
 
-				<template #popup>
-					<DropdownItem @click="handleViewRawAddress"> View Raw Address </DropdownItem>
-					<DropdownItem @click="handleViewRawTransactions"> View Raw Transactions </DropdownItem>
-				</template>
-			</Dropdown>
+					<template #popup>
+						<DropdownItem @click="handleViewRawAddress">
+							<Flex align="center" gap="8">
+								<Icon name="addresses" size="12" color="secondary" />
+								View Raw Address
+							</Flex>
+						</DropdownItem>
+						<DropdownItem @click="handleViewRawTransactions">
+							<Flex align="center" gap="8">
+								<Icon name="tx" size="12" color="secondary" />
+								View Raw Transactions
+							</Flex>
+						</DropdownItem>
+					</template>
+				</Dropdown>
+			</Flex>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
-			<Flex direction="column" :class="$style.data">
+			<Flex direction="column" justify="between" gap="32" :class="$style.data">
 				<Flex direction="column" gap="24" :class="$style.main">
 					<Flex direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Address</Text>
@@ -159,9 +357,9 @@ const handleViewRawTransactions = () => {
 					</Flex>
 
 					<Flex direction="column" gap="8" :class="$style.key_value">
-						<Text size="12" weight="600" color="secondary">Balance</Text>
+						<Text size="12" weight="600" color="secondary">Spendable Balance</Text>
 
-						<Text size="13" weight="600" color="primary">{{ comma(tia(address.balance.value)) }} TIA</Text>
+						<Text size="13" weight="600" color="primary">{{ parseInt(address.balance.value) / 1_000_000 }} TIA</Text>
 					</Flex>
 
 					<Flex direction="column" gap="16">
@@ -183,140 +381,196 @@ const handleViewRawTransactions = () => {
 				<Flex align="center" justify="between" :class="$style.tabs_wrapper">
 					<Flex gap="4" :class="$style.tabs">
 						<Flex
-							@click="activeTab = tab"
-							v-for="tab in tabs"
+							@click="activeTab = 'transactions'"
 							align="center"
 							gap="6"
-							:class="[$style.tab, activeTab === tab && $style.active]"
+							:class="[$style.tab, activeTab === 'transactions' && $style.active]"
 						>
-							<Text size="13" weight="600">{{ tab }}</Text>
+							<Icon name="tx" size="12" color="secondary" />
 
-							<Text v-if="getTxnsCountByTab(tab)" size="11" height="110" weight="600" :class="$style.badge">
-								{{ getTxnsCountByTab(tab) }}
-							</Text>
+							<Text size="13" weight="600">Transactions</Text>
+						</Flex>
+
+						<Flex
+							@click="activeTab = 'blobs'"
+							align="center"
+							gap="6"
+							:class="[$style.tab, activeTab === 'blobs' && $style.active]"
+						>
+							<Icon name="blob" size="12" color="secondary" />
+
+							<Text size="13" weight="600">Blobs</Text>
 						</Flex>
 					</Flex>
 				</Flex>
 
-				<Flex direction="column" justify="center" gap="16" :class="[$style.table, isRefetching && $style.disabled]">
-					<div v-if="filteredTransactions.length" :class="$style.table_scroller">
-						<table>
-							<thead>
-								<tr>
-									<th><Text size="12" weight="600" color="tertiary">Hash</Text></th>
-									<th><Text size="12" weight="600" color="tertiary">Messages</Text></th>
-									<th><Text size="12" weight="600" color="tertiary">Gas</Text></th>
-									<th><Text size="12" weight="600" color="tertiary">Fee</Text></th>
-								</tr>
-							</thead>
+				<Flex direction="column" justify="center" :class="[$style.tables, isRefetching && $style.disabled]">
+					<Flex v-if="activeTab === 'transactions'" wrap="wrap" align="center" gap="8" :class="$style.filters">
+						<Popover :open="isStatusPopoverOpen" @on-close="onStatusPopoverClose" width="200">
+							<Button @click="handleOpenStatusPopover" type="secondary" size="mini">
+								<Icon name="plus-circle" size="12" color="tertiary" />
+								<Text color="secondary">Status</Text>
 
-							<tbody>
-								<tr v-for="tx in filteredTransactions" @click="router.push(`/tx/${tx.hash}`)">
-									<td style="width: 1px">
-										<Tooltip position="start" delay="500">
-											<Flex align="center" gap="8">
-												<Icon
-													:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
-													size="14"
-													:color="tx.status === 'success' ? 'green' : 'red'"
-												/>
+								<template v-if="Object.keys(filters.status).find((f) => filters.status[f])">
+									<div :class="$style.vertical_divider" />
 
-												<Text size="13" weight="600" color="primary" mono>
-													{{ tx.hash.slice(0, 4).toUpperCase() }}
-												</Text>
+									<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
+										{{
+											Object.keys(filters.status)
+												.filter((f) => filters.status[f])
+												.join(", ")
+										}}
+									</Text>
 
-												<Flex align="center" gap="3">
-													<div v-for="dot in 3" class="dot" />
-												</Flex>
+									<Icon @click.stop="resetFilters('status', true)" name="close-circle" size="12" color="secondary" />
+								</template>
+							</Button>
 
-												<Text size="13" weight="600" color="primary" mono>
-													{{ tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase() }}
-												</Text>
+							<template #content>
+								<Flex direction="column" gap="12">
+									<Text size="12" weight="500" color="secondary">Filter by Status</Text>
 
-												<CopyButton :text="tx.hash" />
-											</Flex>
+									<Flex direction="column" gap="8">
+										<Checkbox v-model="filters.status.success">
+											<Text size="12" weight="500" color="primary">Success</Text>
+										</Checkbox>
+										<Checkbox v-model="filters.status.failed">
+											<Text size="12" weight="500" color="primary">Failed</Text>
+										</Checkbox>
+									</Flex>
 
-											<template #content>
-												<Flex direction="column" gap="6">
-													<Flex align="center" gap="4">
-														<Icon
-															:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
-															size="13"
-															:color="tx.status === 'success' ? 'green' : 'red'"
-														/>
-														<Text size="13" weight="600" color="primary">
-															{{ tx.status === "success" ? "Successful" : "Failed" }} Transaction
-														</Text>
-													</Flex>
+									<Button @click="handleApplyStatusFilters" type="secondary" size="mini" wide>Apply</Button>
+								</Flex>
+							</template>
+						</Popover>
 
-													{{ space(tx.hash).toUpperCase() }}
-												</Flex>
-											</template>
-										</Tooltip>
-									</td>
-									<td>
-										<Tooltip position="start" textAlign="left">
-											<MessageTypeBadge :types="tx.message_types" />
+						<Popover :open="isMessageTypePopoverOpen" @on-close="onMessageTypePopoverClose" width="250">
+							<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini">
+								<Icon name="plus-circle" size="12" color="tertiary" />
+								<Text color="secondary">Message Type</Text>
 
-											<template #content>
-												<Flex direction="column" gap="8">
-													<Text v-for="type in tx.message_types" color="primary">
-														{{ type.replace("Msg", "") }}
-													</Text>
-												</Flex>
-											</template>
-										</Tooltip>
-									</td>
-									<td style="width: 1px">
-										<Tooltip>
-											<Flex align="center" gap="8">
-												<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
+								<template v-if="Object.keys(filters.message_type).find((f) => filters.message_type[f])">
+									<div :class="$style.vertical_divider" />
 
-												<Text v-if="tx.gas_wanted > 0" size="13" weight="600" color="primary">
-													{{ ((tx.gas_used * 100) / tx.gas_wanted).toFixed(2) }}%
-												</Text>
-											</Flex>
+									<Text size="12" weight="600" color="primary">
+										{{
+											Object.keys(filters.message_type).filter((f) => filters.message_type[f]).length < 3
+												? Object.keys(filters.message_type)
+														.filter((f) => filters.message_type[f])
+														.map((f) => f.replace("Msg", ""))
+														.join(", ")
+												: `${Object.keys(filters.message_type)
+														.filter((f) => filters.message_type[f])[0]
+														.replace("Msg", "")} and ${
+														Object.keys(filters.message_type).filter((f) => filters.message_type[f]).length - 1
+												  } more`
+										}}
+									</Text>
 
-											<template #content>
-												<Flex align="center" gap="4">
-													<Text size="13" weight="600" color="primary">{{ comma(tx.gas_used) }}</Text>
-													<Text size="13" weight="600" color="tertiary">/</Text>
-													<Text size="13" weight="600" color="secondary">{{ comma(tx.gas_wanted) }}</Text></Flex
-												>
-											</template>
-										</Tooltip>
-									</td>
-									<td>
-										<Flex align="center" gap="4">
-											<Text size="13" weight="600" color="primary"> {{ tia(tx.fee) }} </Text>
-											<Text size="13" weight="600" color="tertiary">TIA</Text>
+									<Icon
+										@click.stop="resetFilters('message_type', true)"
+										name="close-circle"
+										size="12"
+										color="secondary"
+									/>
+								</template>
+							</Button>
+
+							<template #content>
+								<Flex direction="column" gap="12">
+									<Text size="12" weight="500" color="secondary">Filter by Message Type</Text>
+
+									<Input v-model="searchTerm" size="small" placeholder="Search" autofocus />
+
+									<Flex direction="column" gap="8" :class="$style.message_types_list">
+										<template
+											v-if="
+												Object.keys(filters.message_type).filter((t) =>
+													t.toLowerCase().includes(searchTerm.trim().toLowerCase()),
+												).length
+											"
+										>
+											<Checkbox
+												v-for="msg_type in Object.keys(filters.message_type).filter((t) =>
+													t.toLowerCase().includes(searchTerm.trim().toLowerCase()),
+												)"
+												v-model="filters.message_type[msg_type]"
+											>
+												<Text size="12" weight="500" color="primary">{{ msg_type.replace("Msg", "") }}</Text>
+											</Checkbox>
+										</template>
+										<Flex v-else direction="column" gap="8">
+											<Text size="12" weight="500" color="tertiary">Nothing was found</Text>
 										</Flex>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
+									</Flex>
 
-					<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
-						<Text size="13" weight="600" color="secondary" align="center"> No transactions </Text>
-						<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-							This address does not contain transactions of the selected type
-						</Text>
+									<Button @click="handleApplyMessageTypeFilters" type="secondary" size="mini" wide>Apply</Button>
+								</Flex>
+							</template>
+						</Popover>
+					</Flex>
+
+					<Flex :class="$style.table">
+						<!-- Transactions Table -->
+						<template v-if="activeTab === 'transactions'">
+							<TransactionsTable v-if="transactions.length" :transactions="transactions" :sort="sort" @onSort="onSort" />
+
+							<Flex
+								v-else-if="hasActiveFilters && !transactions.length"
+								align="center"
+								justify="center"
+								direction="column"
+								gap="20"
+								wide
+								:class="$style.empty"
+							>
+								<Icon name="search" size="24" color="support" />
+
+								<Flex direction="column" gap="8">
+									<Text size="13" weight="600" color="secondary" align="center"> Nothing was found </Text>
+									<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+										Clear filters to see all transactions
+									</Text>
+								</Flex>
+
+								<Button @click="handleClearAllFilters" type="secondary" size="small">Clear all filters</Button>
+							</Flex>
+
+							<Flex v-else direction="column" align="center" justify="center" gap="8" :class="$style.empty">
+								<Text size="13" weight="600" color="secondary" align="center"> No transactions </Text>
+								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+									This address does not contain transactions of the selected type
+								</Text>
+							</Flex>
+						</template>
+						<!-- Blobs Table -->
+						<template v-if="activeTab === 'blobs'">
+							<BlobsTable v-if="blobs.length" :blobs="blobs" />
+
+							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+								<Text size="13" weight="600" color="secondary" align="center"> No Blobs</Text>
+								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+									This address does not contain blobs
+								</Text>
+							</Flex>
+						</template>
 					</Flex>
 
 					<!-- Pagination -->
-					<Flex v-if="filteredTransactions.length" align="center" gap="6" :class="$style.pagination">
-						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1"> First </Button>
-						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
-							<Icon name="arrow-narrow-left" size="12" color="primary" />
+					<Flex v-if="transactions.length" align="center" gap="6" :class="$style.pagination">
+						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1 || transactions.length !== 10">
+							<Icon name="arrow-left-stop" size="12" color="primary" />
+						</Button>
+						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1 || transactions.length !== 10">
+							<Icon name="arrow-left" size="12" color="primary" />
 						</Button>
 
 						<Button type="secondary" size="mini" disabled>
 							<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
 						</Button>
 
-						<Button @click="handleNext" type="secondary" size="mini">
-							<Icon name="arrow-narrow-right" size="12" color="primary" />
+						<Button @click="handleNext" type="secondary" size="mini" :disabled="transactions.length !== 10">
+							<Icon name="arrow-right" size="12" color="primary" />
 						</Button>
 					</Flex>
 				</Flex>
@@ -354,6 +608,13 @@ const handleViewRawTransactions = () => {
 	min-width: 0;
 }
 
+.message_types_list {
+	height: 200px;
+
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
 .tabs_wrapper {
 	min-height: 44px;
 	overflow-x: auto;
@@ -373,7 +634,6 @@ const handleViewRawTransactions = () => {
 
 	cursor: pointer;
 	border-radius: 6px;
-	border-bottom: 2px solid transparent;
 
 	padding: 0 8px;
 
@@ -394,83 +654,32 @@ const handleViewRawTransactions = () => {
 
 .tab.active {
 	background: var(--op-8);
-	border-bottom: 2px solid var(--op-10);
 
 	& span {
 		color: var(--txt-primary);
 	}
 }
 
-.table_scroller {
-	min-width: 100%;
-	width: 0;
-	height: 100%;
-
-	overflow-x: auto;
-}
-
-.table {
+.tables {
 	height: 100%;
 
 	border-radius: 4px 4px 8px 4px;
 	background: var(--card-background);
-
-	& table {
-		width: 100%;
-		height: fit-content;
-
-		border-spacing: 0px;
-
-		& tbody {
-			& tr {
-				cursor: pointer;
-
-				transition: all 0.05s ease;
-
-				&:hover {
-					background: var(--op-5);
-				}
-
-				&:active {
-					background: var(--op-8);
-				}
-			}
-		}
-
-		& tr th {
-			text-align: left;
-			padding: 0;
-			padding-right: 16px;
-			padding-top: 16px;
-			padding-bottom: 8px;
-
-			&:first-child {
-				padding-left: 16px;
-			}
-
-			& span {
-				display: flex;
-			}
-		}
-
-		& tr td {
-			padding: 0;
-			padding-right: 24px;
-			padding-top: 6px;
-			padding-bottom: 6px;
-
-			white-space: nowrap;
-
-			&:first-child {
-				padding-left: 16px;
-			}
-		}
-	}
 }
 
-.table.disabled {
+.tables.disabled {
 	opacity: 0.5;
 	pointer-events: none;
+}
+
+.table {
+	flex: 1;
+}
+
+.filters {
+	border-bottom: 1px dashed var(--op-8);
+
+	padding: 12px 8px 12px 8px;
 }
 
 .badge {
@@ -482,11 +691,28 @@ const handleViewRawTransactions = () => {
 }
 
 .empty {
+	flex: 1;
+
 	padding-top: 16px;
 }
 
 .pagination {
-	padding: 0 16px 16px 16px;
+	padding: 16px;
+}
+
+.qrcode {
+	max-width: 60px;
+
+	filter: invert(1);
+	opacity: 0.2;
+
+	transition: all 0.2s ease;
+
+	&:hover {
+		opacity: 1;
+
+		transform: scale(1.2);
+	}
 }
 
 @media (max-width: 800px) {

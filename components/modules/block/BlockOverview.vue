@@ -415,9 +415,11 @@ const handleViewRawTransactions = () => {
 
 					<!-- Pagination -->
 					<Flex v-if="filteredTransactions.length && pages > 1" align="center" gap="6" :class="$style.pagination">
-						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1"> First </Button>
+						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
+							<Icon name="arrow-left-stop" size="12" color="primary" />
+						</Button>
 						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
-							<Icon name="arrow-narrow-left" size="12" color="primary" />
+							<Icon name="arrow-left" size="12" color="primary" />
 						</Button>
 
 						<Button type="secondary" size="mini" disabled>
@@ -425,9 +427,11 @@ const handleViewRawTransactions = () => {
 						</Button>
 
 						<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
-							<Icon name="arrow-narrow-right" size="12" color="primary" />
+							<Icon name="arrow-right" size="12" color="primary" />
 						</Button>
-						<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages"> Last </Button>
+						<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages">
+							<Icon name="arrow-right-stop" size="12" color="primary" />
+						</Button>
 					</Flex>
 				</Flex>
 			</Flex>
@@ -489,7 +493,6 @@ const handleViewRawTransactions = () => {
 
 	cursor: pointer;
 	border-radius: 6px;
-	border-bottom: 2px solid transparent;
 
 	padding: 0 8px;
 
@@ -510,7 +513,6 @@ const handleViewRawTransactions = () => {
 
 .tab.active {
 	background: var(--op-8);
-	border-bottom: 2px solid var(--op-10);
 
 	& span {
 		color: var(--txt-primary);

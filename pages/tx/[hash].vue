@@ -15,7 +15,6 @@ const router = useRouter()
 
 const tx = ref()
 const { data: rawTx } = await fetchTxByHash(route.params.hash)
-
 if (!rawTx.value) {
 	router.push("/")
 } else {
@@ -103,7 +102,7 @@ useHead({
 		<Flex v-if="tx" direction="column" gap="40">
 			<TxOverview :tx="tx" />
 
-			<BlobsTable :height="tx.height" description="This transaction does not contain any blobs" />
+			<BlobsTable :hash="tx.hash" description="This transaction does not contain any blobs" />
 		</Flex>
 	</Flex>
 </template>

@@ -4,11 +4,30 @@ import { DateTime } from "luxon"
 import * as d3 from "d3"
 import { useDebounceFn } from "@vueuse/core"
 
+/** UI */
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
+import Button from "@/components/ui/Button.vue"
+
 /** Services */
 import { truncate } from "@/services/utils"
 
 /** API */
 import { fetchGasPriceSeries } from "@/services/api/gas"
+
+const selectedPeriodIdx = ref(0)
+const periods = ref([
+	{
+		title: "24 hours",
+		value: 24,
+		timeframe: "hour",
+	},
+	{
+		title: "31 days",
+		value: 30,
+		timeframe: "day",
+	},
+])
+const selectedPeriod = computed(() => periods.value[selectedPeriodIdx.value])
 
 /** Chart El */
 const chartWrapperEl = ref()
@@ -71,12 +90,15 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 			}
 		}
 
-		badgeText.value = DateTime.fromJSDate(data[idx].date).toFormat("hh:mm a")
+		badgeText.value =
+			selectedPeriod.value.timeframe === "day"
+				? DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
+				: DateTime.fromJSDate(data[idx].date).set({ minutes: 0 }).toFormat("hh:mm a")
 
 		if (!badgeEl.value) return
-		if (idx === 0) {
+		if (idx < 1) {
 			badgeOffset.value = 0
-		} else if (idx === 23) {
+		} else if (idx > selectedPeriod.value.value - 2) {
 			badgeOffset.value = badgeEl.value.getBoundingClientRect().width
 		} else {
 			badgeOffset.value = badgeEl.value.getBoundingClientRect().width / 2
@@ -126,7 +148,7 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 		.attr("stroke-width", 2)
 		.attr("stroke-linecap", "round")
 		.attr("stroke-linejoin", "round")
-		.attr("d", line(data.slice(0, 23)))
+		.attr("d", line(data.slice(0, data.length - 1)))
 	svg.append("path")
 		.attr("fill", "none")
 		.attr("stroke", "var(--green)")
@@ -134,7 +156,7 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 		.attr("stroke-linecap", "round")
 		.attr("stroke-linejoin", "round")
 		.attr("stroke-dasharray", "4")
-		.attr("d", line(data.slice(22, 24)))
+		.attr("d", line(data.slice(data.length - 2, data.length)))
 
 	svg.append("circle")
 		.attr("cx", x(data[data.length - 1].date))
@@ -147,24 +169,37 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 }
 
 const getGasPriceSeries = async () => {
+	gasPriceSeries.value = []
+
 	const sizeSeriesRawData = await fetchGasPriceSeries({
-		timeframe: "hour",
-		from: parseInt(DateTime.now().minus({ hours: 26 }).ts / 1_000),
-		to: parseInt(DateTime.now().ts / 1_000),
+		timeframe: selectedPeriod.value.timeframe,
+		to: parseInt(DateTime.now().plus({ minutes: 1 }).ts / 1_000),
+		from: parseInt(
+			DateTime.now()
+				.set({ minutes: 0, seconds: 0 })
+				.minus({
+					days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
+					hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - 1 : 0,
+				}).ts / 1_000,
+		),
 	})
 
 	const gasPriceSeriesMap = {}
 	sizeSeriesRawData.forEach((item) => {
-		gasPriceSeriesMap[DateTime.fromISO(item.time).toFormat("dd-HH")] = item.value
+		gasPriceSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] =
+			item.value
 	})
 
-	for (let i = 0; i < 24; i++) {
+	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
 		const dt = DateTime.now()
-			.minus({ hours: 24 - i })
 			.set({ minutes: 0, seconds: 0 })
+			.minus({
+				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
+				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - i : 0,
+			})
 		gasPriceSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseFloat(gasPriceSeriesMap[dt.toFormat("dd-HH")]) || 0,
+			value: parseFloat(gasPriceSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
 }
@@ -178,6 +213,13 @@ const buildGasTrackingCharts = async () => {
 		() => (showTooltip.value = false),
 	)
 }
+
+watch(
+	() => selectedPeriodIdx.value,
+	() => {
+		buildGasTrackingCharts()
+	},
+)
 
 const debouncedRedraw = useDebounceFn((e) => {
 	buildGasTrackingCharts()
@@ -195,10 +237,43 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-	<Flex direction="column" gap="16" wide>
-		<Flex align="center" gap="6">
-			<Icon name="chart" size="13" color="primary" />
-			<Text size="13" weight="600" color="primary">Average Gas Price</Text>
+	<Flex direction="column" gap="24" wide>
+		<Flex align="start" justify="between">
+			<Flex align="center" gap="6">
+				<Icon name="chart" size="13" color="primary" />
+				<Text size="13" weight="600" color="primary">Average Gas Price</Text>
+			</Flex>
+
+			<Flex align="center" gap="8">
+				<Dropdown>
+					<Button size="mini" type="secondary">
+						<Icon name="chart" size="12" color="primary" />
+						<Text color="primary">Line</Text>
+						<Icon name="chevron" size="12" color="secondary" />
+					</Button>
+
+					<template #popup>
+						<DropdownItem> Line Chart </DropdownItem>
+						<DropdownItem disabled> Heatmap </DropdownItem>
+					</template>
+				</Dropdown>
+
+				<Dropdown>
+					<Button size="mini" type="secondary">
+						{{ selectedPeriod.title }}
+						<Icon name="chevron" size="12" color="secondary" />
+					</Button>
+
+					<template #popup>
+						<DropdownItem v-for="(period, idx) in periods" @click="selectedPeriodIdx = idx">
+							<Flex align="center" gap="8">
+								<Icon :name="idx === selectedPeriodIdx ? 'check' : ''" size="12" color="secondary" />
+								{{ period.title }}
+							</Flex>
+						</DropdownItem>
+					</template>
+				</Dropdown>
+			</Flex>
 		</Flex>
 
 		<Flex ref="chartWrapperEl" direction="column" :class="$style.chart_wrapper">
@@ -219,10 +294,23 @@ onBeforeUnmount(() => {
 
 			<Flex :class="[$style.axis, $style.x]">
 				<Flex align="end" justify="between" wide>
-					<Text size="12" weight="600" color="tertiary">
-						{{ DateTime.now().minus({ hours: 24 }).toFormat("dd LLL") }}
+					<Text v-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">
+						{{
+							DateTime.now()
+								.minus({ days: selectedPeriod.value - 1 })
+								.toFormat("LLL dd")
+						}}
 					</Text>
-					<Text size="12" weight="600" color="tertiary">Now</Text>
+					<Text v-else size="12" weight="600" color="tertiary">
+						{{
+							DateTime.now()
+								.minus({ hours: selectedPeriod.value - 1 })
+								.set({ minutes: 0 })
+								.toFormat("hh:mm a")
+						}}
+					</Text>
+
+					<Text size="12" weight="600" color="tertiary">{{ selectedPeriod.timeframe === "day" ? "Today" : "Now" }}</Text>
 				</Flex>
 			</Flex>
 
@@ -244,7 +332,7 @@ onBeforeUnmount(() => {
 					>
 						<Flex align="center" gap="16">
 							<Text size="12" weight="600" color="secondary">Price</Text>
-							<Text size="12" weight="600" color="primary"> {{ truncate(tooltipText) }} UTIA</Text>
+							<Text size="12" weight="600" color="primary"> {{ tooltipText.toFixed(6) }} UTIA</Text>
 						</Flex>
 					</Flex>
 				</div>
