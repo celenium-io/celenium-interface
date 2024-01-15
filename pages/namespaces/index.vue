@@ -146,13 +146,18 @@ const handleLast = async () => {
 
 <template>
 	<Flex direction="column" wide :class="$style.wrapper">
-		<Breadcrumbs
-			:items="[
-				{ link: '/', name: 'Explore' },
-				{ link: '/namespaces', name: `Namespaces` },
-			]"
-			:class="$style.breadcrumbs"
-		/>
+		<Flex align="end" justify="between" :class="$style.breadcrumbs">
+			<Breadcrumbs
+				:items="[
+					{ link: '/', name: 'Explore' },
+					{ link: '/namespaces', name: `Namespaces` },
+				]"
+			/>
+
+			<Button link="/namespaces/treemap" type="secondary" size="mini">
+				<Icon name="treemap" size="12" color="secondary" /> Treemap View
+			</Button>
+		</Flex>
 
 		<Flex wide direction="column" gap="4">
 			<Flex justify="between" :class="$style.header">
@@ -335,12 +340,6 @@ const handleLast = async () => {
 					</table>
 				</div>
 			</Flex>
-
-			<Flex align="center" :class="$style.footer">
-				<Button link="/namespaces/treemap" type="secondary" size="mini">
-					<Icon name="treemap" size="12" color="secondary" /> Open Treemap View
-				</Button>
-			</Flex>
 		</Flex>
 	</Flex>
 </template>
@@ -349,7 +348,7 @@ const handleLast = async () => {
 .wrapper {
 	max-width: calc(var(--base-width) + 48px);
 
-	padding: 40px 24px 60px 24px;
+	padding: 26px 24px 60px 24px;
 }
 
 .breadcrumbs {
@@ -365,21 +364,12 @@ const handleLast = async () => {
 	padding: 0 16px;
 }
 
-.footer {
-	height: 46px;
-
-	border-radius: 4px 4px 8px 8px;
-	background: var(--card-background);
-
-	padding: 0 16px;
-}
-
 .table_scroller {
 	overflow-x: auto;
 }
 
 .table {
-	border-radius: 4px;
+	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 
 	padding-bottom: 12px;
