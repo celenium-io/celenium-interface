@@ -556,10 +556,10 @@ const handleOpenQRModal = () => {
 
 					<!-- Pagination -->
 					<Flex v-if="transactions.length" align="center" gap="6" :class="$style.pagination">
-						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
+						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1 || transactions.length !== 10">
 							<Icon name="arrow-left-stop" size="12" color="primary" />
 						</Button>
-						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
+						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1 || transactions.length !== 10">
 							<Icon name="arrow-left" size="12" color="primary" />
 						</Button>
 
@@ -567,7 +567,7 @@ const handleOpenQRModal = () => {
 							<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
 						</Button>
 
-						<Button @click="handleNext" type="secondary" size="mini">
+						<Button @click="handleNext" type="secondary" size="mini" :disabled="transactions.length !== 10">
 							<Icon name="arrow-right" size="12" color="primary" />
 						</Button>
 					</Flex>
