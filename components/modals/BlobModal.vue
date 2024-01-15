@@ -214,9 +214,14 @@ const handlePreviewContent = () => {
 					<Flex direction="column" gap="8" :class="$style.badge">
 						<Text size="12" weight="500" color="secondary"> Content Type </Text>
 
-						<Text size="13" weight="600" color="primary">
+						<Text v-if="cacheStore.selectedBlob.content_type" size="13" weight="600" color="primary">
 							{{ cacheStore.selectedBlob.content_type }}
 						</Text>
+						<Text v-else-if="blob.content_type" size="13" weight="600" color="primary">
+							{{ blob.content_type }}
+						</Text>
+						<Skeleton v-else-if="isLoading && !isStopped" w="60" h="13" />
+						<Text v-else size="13" weight="600" color="tertiary">Unknown</Text>
 					</Flex>
 
 					<NuxtLink :to="`/tx/${cacheStore.selectedBlob.tx.hash}`" target="_blank" :class="[$style.badge, $style.selectable]">
