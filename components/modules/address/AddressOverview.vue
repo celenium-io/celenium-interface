@@ -259,6 +259,8 @@ await getTransactions()
 watch(
 	() => activeTab.value,
 	() => {
+		page.value = 1
+
 		switch (activeTab.value) {
 			case "transactions":
 				getTransactions()
