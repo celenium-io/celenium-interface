@@ -77,7 +77,7 @@ const handleChangeTheme = (theme) => {
 					</a>
 				</Flex>
 
-				<NuxtLink to="/address/celestia15ans77hr2uxefyn6fa2lcsvpngwevuaugth7f5">
+				<NuxtLink to="https://celenium.io/address/celestia15ans77hr2uxefyn6fa2lcsvpngwevuaugth7f5">
 					<Flex align="center" gap="8">
 						<Text size="12" weight="500" color="support">Donations: </Text>
 						<Text size="12" weight="500" color="tertiary">celestia</Text>
