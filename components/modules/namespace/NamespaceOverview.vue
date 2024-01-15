@@ -27,15 +27,26 @@ const props = defineProps({
 	},
 })
 
-const tabs = ref(["Blobs", "Messages"])
-const activeTab = ref(tabs.value[0])
+const tabs = ref([
+	{
+		name: "Blobs",
+		icon: "blob",
+	},
+	{
+		name: "Messages",
+		icon: "message",
+	},
+])
+const activeTab = ref(tabs.value[0].name)
 
 const isRefetching = ref(false)
 const messages = ref([])
 const blobs = ref([])
 
 const page = ref(1)
-const pages = computed(() => Math.ceil(props.namespace.pfb_count / 10))
+const pages = computed(() => {
+	return Math.ceil((activeTab.value === "Blobs" ? props.namespace.blobs_count : props.namespace.pfb_count) / 10)
+})
 const handleNext = () => {
 	if (page.value === pages.value) return
 	page.value += 1
@@ -195,6 +206,11 @@ const handleViewRawMessages = () => {
 						</Flex>
 
 						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary"> Blobs</Text>
+							<Text size="12" weight="600" color="secondary"> {{ comma(namespace.blobs_count) }} </Text>
+						</Flex>
+
+						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Version</Text>
 							<Text size="12" weight="600" color="secondary"> {{ namespace.version }} </Text>
 						</Flex>
@@ -213,13 +229,14 @@ const handleViewRawMessages = () => {
 				<Flex align="center" justify="between" :class="$style.tabs_wrapper">
 					<Flex gap="4" :class="$style.tabs">
 						<Flex
-							@click="activeTab = tab"
+							@click="activeTab = tab.name"
 							v-for="tab in tabs"
 							align="center"
 							gap="6"
-							:class="[$style.tab, activeTab === tab && $style.active]"
+							:class="[$style.tab, activeTab === tab.name && $style.active]"
 						>
-							<Text size="13" weight="600">{{ tab }}</Text>
+							<Icon :name="tab.icon" size="12" color="secondary" />
+							<Text size="13" weight="600">{{ tab.name }}</Text>
 						</Flex>
 					</Flex>
 				</Flex>
