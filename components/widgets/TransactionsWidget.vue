@@ -29,7 +29,7 @@ const getHistogram = async (sectorOffset) => {
 	const data = await fetchSeries({
 		table: "tx_count",
 		period: "hour",
-		from: parseInt(DateTime.now().minus({ hours: 25 - sectorOffset }).ts / 1_000),
+		from: parseInt(DateTime.now().minus({ hours: 24 - sectorOffset }).ts / 1_000),
 	})
 	histogram.value = data.reverse()
 }
@@ -53,7 +53,6 @@ const buildHistogram = async () => {
 	let target = 0
 	while (items.length) {
 		if (sectors.value[target].length === 6) target += 1
-
 		sectors.value[target].push(items[0])
 
 		items.shift()
