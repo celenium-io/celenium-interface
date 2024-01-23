@@ -1,14 +1,14 @@
 /** Services */
 import { useServerURL } from "@/services/config"
 
-export const fetchHistogram = async ({ table, func, period, column, from, to }) => {
+export const fetchSeries = async ({ table, func, period, column, from, to }) => {
 	try {
-		const url = new URL(`${useServerURL()}/stats/histogram/${table}/${func}/${period}`)
+		const url = new URL(`${useServerURL()}/stats/series/${table}/${period}`)
 
 		if (column) url.searchParams.append("column", column)
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
-
+		console.log(url);
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {

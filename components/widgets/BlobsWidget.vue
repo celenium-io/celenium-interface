@@ -9,7 +9,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { formatBytes } from "@/services/utils"
 
 /** API */
-import { fetchHistogram } from "@/services/api/stats"
+import { fetchSeries } from "@/services/api/stats"
 
 const days = ref([])
 const weeks = ref([])
@@ -18,11 +18,9 @@ const totalSize = ref(0)
 const maxSize = ref(0)
 
 onMounted(async () => {
-	const data = await fetchHistogram({
-		table: "block_stats",
-		func: "sum",
+	const data = await fetchSeries({
+		table: "blobs_size",
 		period: "day",
-		column: "blobs_size",
 		from: parseInt(DateTime.now().minus({ days: 120 }).ts / 1_000),
 	})
 

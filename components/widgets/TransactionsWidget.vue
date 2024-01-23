@@ -9,7 +9,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { comma, abbreviate } from "@/services/utils"
 
 /** API */
-import { fetchHistogram } from "@/services/api/stats"
+import { fetchSeries } from "@/services/api/stats"
 
 const histogram = ref([])
 
@@ -26,9 +26,8 @@ const max = ref(0)
 const roundedMax = ref(0)
 
 const getHistogram = async (sectorOffset) => {
-	const data = await fetchHistogram({
-		table: "tx",
-		func: "count",
+	const data = await fetchSeries({
+		table: "tx_count",
 		period: "hour",
 		from: parseInt(DateTime.now().minus({ hours: 24 - sectorOffset }).ts / 1_000),
 	})
