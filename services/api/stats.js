@@ -1,7 +1,7 @@
 /** Services */
 import { useServerURL } from "@/services/config"
 
-export const fetchSeries = async ({ table, func, period, column, from, to }) => {
+export const fetchSeries = async ({ table, period, column, from, to }) => {
 	try {
 		const url = new URL(`${useServerURL()}/stats/series/${table}/${period}`)
 
