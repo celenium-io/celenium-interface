@@ -8,7 +8,6 @@ export const fetchSeries = async ({ table, func, period, column, from, to }) => 
 		if (column) url.searchParams.append("column", column)
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
-		console.log(url);
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {

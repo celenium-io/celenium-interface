@@ -44,7 +44,7 @@ const buildHistogram = async () => {
 	const currentHour = DateTime.now().hour
 	const currentSector = hoursMap.find((m) => m.includes(currentHour))
 	const currentHourIdx = currentSector.indexOf(currentHour)
-	const sectorOffset = 6 - currentHourIdx
+	const sectorOffset = 5 - currentHourIdx
 
 	await getHistogram(sectorOffset)
 
