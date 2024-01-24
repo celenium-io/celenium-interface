@@ -86,7 +86,7 @@ const getPercentageRatio = (v) => {
 }
 
 const getSectorName = (item) => {
-	return DateTime.fromISO(item.time).hour
+	return item.time ? DateTime.fromISO(item.time).hour : DateTime.now().hour
 }
 </script>
 
