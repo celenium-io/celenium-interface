@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - run: yarn --frozen-lockfile --production
+      - run: pnpm --production
       - uses: daynin/nodejs-license-checker@v0.2.0
         with:
           exclude-private-packages: true
