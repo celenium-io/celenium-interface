@@ -1,7 +1,7 @@
 <script setup>
 /** Components: Modules */
 import RollupOverview from "@/components/modules/rollup/RollupOverview.vue"
-// import RollupCharts from "@/components/modules/rollup/RollupCharts.vue"
+import RollupCharts from "@/components/modules/rollup/RollupCharts.vue"
 
 /** API */
 import { fetchRollupByID } from "@/services/api/rollup"
@@ -14,26 +14,14 @@ const route = useRoute()
 const router = useRouter()
 
 const rollup = ref()
-// const { data: rawRollup } = await fetchRollupByID(route.params.id)
+const { data: rawRollup } = await fetchRollupByID(route.params.id)
 
-rollup.value = {
-	"id": 1,
-	"name": "Astria",
-	"description": "The easiest way to deploy decentralized rollups.",
-	"website": "https://www.astria.org/",
-	"twitter": "https://twitter.com/celenium_io",
-	"logo": "https://uploads-ssl.webflow.com/5c3a510a91db03828e568da1/5c3a6a8d081733b82d6394a2_Logo%205%20Copy%205.svg",
-	"blobs_count": 11020,
-	"size": 891019774,
-	"last_message_time": "2024-01-25T00:00:00Z"
+if (!rawRollup.value) {
+	router.push("/")
+} else {
+	rollup.value = rawRollup.value
+	cacheStore.current.rollup = rollup.value
 }
-cacheStore.current.rollup = rollup.value
-// if (!rawRollup.value) {
-// 	router.push("/")
-// } else {
-// 	rollup.value = rawRollup.value[0]
-// 	cacheStore.current.rollup = rollup.value
-// }
 
 defineOgImage({
 	title: "Rollup",
@@ -102,7 +90,7 @@ useHead({
 			<RollupOverview v-if="rollup" :rollup="rollup" />
 		</Flex>
 
-		<!-- <RollupCharts v-if="rollup" :id="rollup.id" /> -->
+		<RollupCharts v-if="rollup" :id="rollup.id" />
 	</Flex>
 </template>
 

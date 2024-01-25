@@ -5,9 +5,6 @@ import { DateTime } from "luxon"
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
-/** Shared Components */
-import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
-
 /** Services */
 import { comma, formatBytes, space, getNamespaceID } from "@/services/utils"
 

@@ -1,14 +1,18 @@
 <script setup>
+/** Vendor */
+import { DateTime } from "luxon"
+
 /** UI */
 import Button from "@/components/ui/Button.vue"
-import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
+// import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Tables */
 import BlobsTable from "./tables/BlobsTable.vue"
 import NamespacesTable from "./tables/NamespacesTable.vue"
 
 /** Services */
-import { comma, space, formatBytes, getNamespaceID } from "@/services/utils"
+import { comma, formatBytes } from "@/services/utils"
 
 /** API */
 import { fetchRollupBlobs, fetchRollupNamespaces } from "@/services/api/rollup"
@@ -121,15 +125,15 @@ watch(
 	},
 )
 
-const handleViewRawNamespaces = () => {
-	cacheStore.current._target = "namespaces"
-	modalsStore.open("rawData")
-}
+// const handleViewRawNamespaces = () => {
+// 	cacheStore.current._target = "namespaces"
+// 	modalsStore.open("rawData")
+// }
 
-const handleViewRawBlobs = () => {
-	cacheStore.current._target = "blobs"
-	modalsStore.open("rawData")
-}
+// const handleViewRawBlobs = () => {
+// 	cacheStore.current._target = "blobs"
+// 	modalsStore.open("rawData")
+// }
 
 </script>
 
@@ -137,7 +141,7 @@ const handleViewRawBlobs = () => {
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
 			<Flex align="center" gap="8">
-				<Icon name="folder" size="14" color="primary" />
+				<Icon name="package" size="14" color="primary" />
 				<Text size="13" weight="600" color="primary">Rollup</Text>
 			</Flex>
 
@@ -177,12 +181,24 @@ const handleViewRawBlobs = () => {
 					</Flex>
 
 					<Flex align="center" justify="end" gap="12">
-						<a :href="rollup.website" target="_blank">
-							<Icon name="logo" size="14" color="secondary" :class="$style.btn" />
-						</a>
-						<a :href="rollup.twitter" target="_blank">
-							<Icon name="twitter" size="14" color="secondary" :class="$style.btn" />
-						</a>
+						<Tooltip position="start" delay="500">
+							<a :href="rollup.website" target="_blank">
+								<Icon name="globe" size="14" color="secondary" :class="$style.btn" />
+							</a>
+
+							<template #content>
+								{{ rollup.website }}
+							</template>
+						</Tooltip>
+						<Tooltip position="start" delay="500">
+							<a :href="rollup.twitter" target="_blank">
+								<Icon name="twitter" size="14" color="secondary" :class="$style.btn" />
+							</a>
+
+							<template #content>
+								{{ rollup.twitter }}
+							</template>
+						</Tooltip>
 					</Flex>
 
 					<Flex direction="column" gap="16">
@@ -196,6 +212,18 @@ const handleViewRawBlobs = () => {
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Blobs</Text>
 							<Text size="12" weight="600" color="secondary"> {{ comma(rollup.blobs_count) }} </Text>
+						</Flex>
+
+						<Flex align="start" justify="between">
+							<Text size="12" weight="600" color="tertiary">Last Active</Text>
+							<Flex direction="column" align="end" gap="8">
+								<Text size="12" weight="600" color="primary">
+									{{ DateTime.fromISO(rollup.last_message_time).toRelative({ locale: "en", style: "short" }) }}
+								</Text>
+								<Text size="12" weight="500" color="tertiary">
+									{{ DateTime.fromISO(rollup.last_message_time).setLocale("en").toFormat("LLL d, t") }}
+								</Text>
+							</Flex>
 						</Flex>
 					</Flex>
 				</Flex>
@@ -225,7 +253,7 @@ const handleViewRawBlobs = () => {
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 							<Text size="13" weight="600" color="secondary" align="center"> No blobs </Text>
 							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-								This Rollup did not push any blobs
+								This rollup did not push any blob
 							</Text>
 						</Flex>
 
@@ -242,7 +270,7 @@ const handleViewRawBlobs = () => {
 								<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
 							</Button>
 
-							<Button @click="handleNext" type="secondary" size="mini" :disabled="blobs.length < 10 || rollup.blobs_count <= 10">
+							<Button @click="handleNext" type="secondary" size="mini" :disabled="blobs.length < 10">
 								<Icon name="arrow-right" size="12" color="primary" />
 							</Button>
 						</Flex>

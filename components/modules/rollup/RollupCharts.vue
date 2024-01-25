@@ -12,7 +12,7 @@ import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import { abbreviate, formatBytes } from "@/services/utils"
 
 /** API */
-import { fetchNamespaceSeries } from "@/services/api/stats"
+import { fetchRollupSeries } from "@/services/api/stats"
 
 const props = defineProps({
 	id: {
@@ -186,7 +186,7 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 const getSizeSeries = async () => {
 	sizeSeries.value = []
 
-	const sizeSeriesRawData = await fetchNamespaceSeries({
+	const sizeSeriesRawData = await fetchRollupSeries({
 		id: props.id,
 		name: "size",
 		timeframe: selectedPeriod.value.timeframe,
@@ -219,9 +219,9 @@ const getSizeSeries = async () => {
 const getPfbSeries = async () => {
 	pfbSeries.value = []
 
-	const pfbSeriesRawData = await fetchNamespaceSeries({
+	const blobsSeriesRawData = await fetchRollupSeries({
 		id: props.id,
-		name: "pfb_count",
+		name: "blobs_count",
 		timeframe: selectedPeriod.value.timeframe,
 		from: parseInt(
 			DateTime.now().minus({
@@ -231,9 +231,9 @@ const getPfbSeries = async () => {
 		),
 	})
 
-	const pfbSeriesMap = {}
-	pfbSeriesRawData.forEach((item) => {
-		pfbSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
+	const blobsSeriesMap = {}
+	blobsSeriesRawData.forEach((item) => {
+		blobsSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
 	})
 
 	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
@@ -243,7 +243,7 @@ const getPfbSeries = async () => {
 		})
 		pfbSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseInt(pfbSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+			value: parseInt(blobsSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
 }
@@ -315,7 +315,7 @@ onBeforeUnmount(() => {
 
 		<Flex justify="between" gap="32" :class="$style.data">
 			<Flex direction="column" gap="20" wide>
-				<Text size="13" weight="600" color="primary">Blob Size Usage</Text>
+				<Text size="13" weight="600" color="primary">Storage Usage</Text>
 
 				<Flex ref="chartWrapperEl" direction="column" :class="$style.chart_wrapper">
 					<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">
@@ -404,7 +404,7 @@ onBeforeUnmount(() => {
 			</Flex>
 
 			<Flex direction="column" gap="16" wide>
-				<Text size="13" weight="600" color="primary">Pay For Blobs Count</Text>
+				<Text size="13" weight="600" color="primary">Blobs Count</Text>
 
 				<Flex direction="column" :class="$style.chart_wrapper">
 					<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">

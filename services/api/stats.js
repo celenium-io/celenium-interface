@@ -64,7 +64,7 @@ export const fetchNamespaceSeries = async ({ id, name, timeframe, from }) => {
 	}
 }
 
-export const fetchRollupeSeries = async ({ id, name, timeframe, from, to }) => {
+export const fetchRollupSeries = async ({ id, name, timeframe, from, to }) => {
 	try {
 		const url = new URL(`${useServerURL()}/rollup/${id}/stats/${name}/${timeframe}`)
 
