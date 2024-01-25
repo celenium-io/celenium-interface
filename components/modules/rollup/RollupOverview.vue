@@ -259,10 +259,10 @@ watch(
 
 						<!-- Pagination -->
 						<Flex v-if="blobs.length" align="center" gap="6" :class="$style.pagination">
-							<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1 || rollup.blobs_count <= 10">
+							<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 								<Icon name="arrow-left-stop" size="12" color="primary" />
 							</Button>
-							<Button @click="handlePrev" type="secondary" size="mini" :disabled="page === 1 || rollup.blobs_count <= 10">
+							<Button @click="handlePrev" type="secondary" size="mini" :disabled="page === 1">
 								<Icon name="arrow-left" size="12" color="primary" />
 							</Button>
 
@@ -288,10 +288,10 @@ watch(
 
 						<!-- Pagination -->
 						<Flex v-if="namespaces.length" align="center" gap="6" :class="$style.pagination">
-							<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1 || namespaces.length <= 10">
+							<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 								<Icon name="arrow-left-stop" size="12" color="primary" />
 							</Button>
-							<Button @click="handlePrev" type="secondary" size="mini" :disabled="page === 1 || namespaces.length <= 10">
+							<Button @click="handlePrev" type="secondary" size="mini" :disabled="page === 1">
 								<Icon name="arrow-left" size="12" color="primary" />
 							</Button>
 

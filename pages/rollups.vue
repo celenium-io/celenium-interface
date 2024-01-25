@@ -75,6 +75,7 @@ const sort = reactive({
 const getRollupsCount = async () => {
 	const { data: rollupsCount } = await fetchRollupsCount()
 	count.value = rollupsCount.value
+	console.log(count.value);
 }
 
 await getRollupsCount()
@@ -99,7 +100,7 @@ const getRollups = async () => {
 
 getRollups()
 
-/** Refetch namespaces */
+/** Refetch rollups */
 watch(
 	() => page.value,
 	async () => {
@@ -138,11 +139,6 @@ const handleNext = () => {
 	page.value += 1
 }
 
-const handleLast = async () => {
-	await getNamespacesCount()
-
-	page.value = pages.value
-}
 </script>
 
 <template>
@@ -163,23 +159,21 @@ const handleLast = async () => {
 					<Text size="14" weight="600" color="primary">Rollups</Text>
 				</Flex>
 
-				<Flex align="center" gap="6">
+				<!-- Pagination -->
+				<Flex align="center" gap="6" :class="$style.pagination">
 					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 						<Icon name="arrow-left-stop" size="12" color="primary" />
 					</Button>
-					<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
+					<Button @click="handlePrev" type="secondary" size="mini" :disabled="page === 1">
 						<Icon name="arrow-left" size="12" color="primary" />
 					</Button>
 
 					<Button type="secondary" size="mini" disabled>
-						<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
+						<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
 					</Button>
 
-					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="rollups.length < 10">
 						<Icon name="arrow-right" size="12" color="primary" />
-					</Button>
-					<Button @click="handleLast" type="secondary" size="mini" :disabled="page === pages">
-						<Icon name="arrow-right-stop" size="12" color="primary" />
 					</Button>
 				</Flex>
 			</Flex>
