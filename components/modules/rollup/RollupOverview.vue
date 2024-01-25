@@ -215,15 +215,16 @@ watch(
 						</Flex>
 
 						<Flex align="start" justify="between">
-							<Text size="12" weight="600" color="tertiary">Last Active</Text>
-							<Flex direction="column" align="end" gap="8">
+							<Text size="12" weight="600" color="tertiary">Was Active</Text>
+							<Tooltip position="start" delay="500">
 								<Text size="12" weight="600" color="primary">
 									{{ DateTime.fromISO(rollup.last_message_time).toRelative({ locale: "en", style: "short" }) }}
 								</Text>
-								<Text size="12" weight="500" color="tertiary">
+
+								<template #content>
 									{{ DateTime.fromISO(rollup.last_message_time).setLocale("en").toFormat("LLL d, t") }}
-								</Text>
-							</Flex>
+								</template>
+							</Tooltip>
 						</Flex>
 					</Flex>
 				</Flex>
