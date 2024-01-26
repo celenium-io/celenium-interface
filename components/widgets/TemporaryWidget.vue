@@ -33,7 +33,7 @@ onMounted(async () => {
 
 		<Flex direction="column" gap="24" :class="$style.bottom">
 			<Flex align="center" gap="6">
-				<Icon name="addresses" size="12" color="secondary" />
+				<Icon name="address" size="12" color="secondary" />
 				<Text size="13" weight="600" height="110" color="secondary">Validators</Text>
 			</Flex>
 

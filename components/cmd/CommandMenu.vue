@@ -1,6 +1,8 @@
 <script setup>
 /** Vendor */
+import { useDebounceFn } from "@vueuse/core"
 import * as focusTrap from "focus-trap"
+import { v4 as id } from "uuid"
 
 /** Composables */
 import { useOutside } from "@/composables/outside"
@@ -38,6 +40,9 @@ let trap = null
 const popupEl = ref(null)
 const inputEl = ref(null)
 
+const listEl = ref(null)
+const actionEl = ref(null)
+
 let removeOutside = null
 
 const searchTerm = ref("")
@@ -56,52 +61,6 @@ const resetMetadata = () => {
 }
 
 const runText = ref("")
-
-const searchAction = {
-	type: "callback",
-	icon: "search",
-	title: "Search your query on the blockchain...",
-	runText: "Run Search",
-	callback: async () => {
-		if (!searchTerm.value.length) return
-
-		const { data } = await search(searchTerm.value.trim())
-		if (!data.value) {
-			notificationsStore.create({
-				notification: {
-					type: "info",
-					icon: "search",
-					title: "Nothing was found",
-					description: "Use the hash of a block, transaction, address or namespace for correct search",
-					autoDestroy: true,
-				},
-			})
-
-			return
-		}
-
-		switch (data.value.type) {
-			case "tx":
-				router.push(`/tx/${data.value.result.hash}`)
-				break
-
-			case "block":
-				router.push(`/block/${data.value.result.height}`)
-				break
-
-			case "namespace":
-				router.push(`/namespace/${data.value.result.namespace_id}`)
-				break
-
-			case "address":
-				router.push(`/address/${data.value.result.hash}`)
-				break
-
-			default:
-				break
-		}
-	},
-}
 
 const suggestedActions = ref([])
 const makeSuggestions = () => {
@@ -200,7 +159,7 @@ const makeSuggestions = () => {
 	if (route.name === "address-hash") {
 		suggestedActions.value.push({
 			type: "callback",
-			icon: "addresses",
+			icon: "address",
 			title: "View Raw Address",
 			runText: "View",
 			callback: () => {
@@ -221,13 +180,15 @@ const makeSuggestions = () => {
 	}
 }
 const suggestionGroup = computed(() => {
+	const actions = suggestedActions.value.map((a) => ({ id: id(), ...a }))
+
 	return {
 		title: "Suggestion",
-		actions: suggestedActions.value.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase())),
+		actions: actions.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase())),
 	}
 })
 
-const navigationActions = [
+const rawNavigationActions = [
 	{
 		type: "callback",
 		icon: "arrow-narrow-right",
@@ -275,13 +236,15 @@ const navigationActions = [
 	},
 ]
 const navigationGroup = computed(() => {
+	const actions = rawNavigationActions.map((a) => ({ id: id(), ...a }))
+
 	return {
 		title: "Navigation",
-		actions: navigationActions.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase())),
+		actions: actions.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase())),
 	}
 })
 
-const quickCommandsActions = [
+const rawQuickCommandsActions = [
 	{
 		type: "command:input",
 		icon: "tx",
@@ -322,7 +285,7 @@ const quickCommandsActions = [
 	},
 	{
 		type: "command:input",
-		icon: "addresses",
+		icon: "address",
 		title: "Open Address..",
 		subtitle: "Command",
 		placeholder: "Type address hash...",
@@ -343,13 +306,15 @@ const quickCommandsActions = [
 	},
 ]
 const quickCommandsGroup = computed(() => {
+	const actions = rawQuickCommandsActions.map((a) => ({ id: id(), ...a }))
+
 	return {
 		title: "Quick Actions",
-		actions: quickCommandsActions.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase())),
+		actions: actions.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase())),
 	}
 })
 
-const settingsActions = [
+const rawSettingsActions = [
 	{
 		type: "command:nested",
 		icon: "moon",
@@ -361,6 +326,7 @@ const settingsActions = [
 
 		actions: [
 			{
+				id: id(),
 				type: "callback",
 				icon: "moon",
 				title: "Dark Theme",
@@ -372,6 +338,7 @@ const settingsActions = [
 				},
 			},
 			{
+				id: id(),
 				type: "callback",
 				icon: "sun",
 				title: "Light Theme",
@@ -383,6 +350,7 @@ const settingsActions = [
 				},
 			},
 			{
+				id: id(),
 				type: "callback",
 				icon: "moon",
 				title: "Dimmed Theme",
@@ -394,6 +362,7 @@ const settingsActions = [
 				},
 			},
 			{
+				id: id(),
 				type: "callback",
 				icon: "settings",
 				title: "System Preferences",
@@ -417,6 +386,7 @@ const settingsActions = [
 
 		actions: [
 			{
+				id: id(),
 				type: "callback",
 				icon: "globe",
 				title: "Mainnet",
@@ -427,6 +397,7 @@ const settingsActions = [
 				},
 			},
 			{
+				id: id(),
 				type: "callback",
 				icon: "globe",
 				title: "Arabica",
@@ -437,6 +408,7 @@ const settingsActions = [
 				},
 			},
 			{
+				id: id(),
 				type: "callback",
 				icon: "globe",
 				title: "Mocha-4",
@@ -450,13 +422,15 @@ const settingsActions = [
 	},
 ]
 const settingsGroup = computed(() => {
+	const actions = rawSettingsActions.map((a) => ({ id: id(), ...a }))
+
 	return {
 		title: "Settings",
-		actions: settingsActions.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase())),
+		actions: actions.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase())),
 	}
 })
 
-const developerActions = [
+const rawDeveloperActions = [
 	{
 		type: "callback",
 		icon: "zap",
@@ -612,15 +586,15 @@ const developerActions = [
 	},
 ]
 const developerGroup = computed(() => {
+	const actions = rawDeveloperActions.map((a) => ({ id: id(), ...a }))
+
 	return {
 		title: "Developer",
-		actions: developerMode.value
-			? developerActions.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase()))
-			: [],
+		actions: developerMode.value ? actions.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase())) : [],
 	}
 })
 
-const otherActions = [
+const rawOtherActions = [
 	{
 		type: "callback",
 		icon: "terminal",
@@ -684,13 +658,124 @@ const otherActions = [
 	},
 ]
 const otherGroup = computed(() => {
+	const actions = rawOtherActions.map((a) => ({ id: id(), ...a }))
+
 	return {
 		title: "Other",
-		actions: otherActions.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase())),
+		actions: actions.filter(({ title }) => title.toLowerCase().includes(searchTerm.value.toLowerCase())),
 	}
 })
 
-const groups = reactive([suggestionGroup, quickCommandsGroup, settingsGroup, navigationGroup, developerGroup, otherGroup])
+const searchAction = {
+	id: id(),
+	type: "callback",
+	icon: "search",
+	title: "Search your query on the blockchain...",
+	runText: "Run Search",
+	callback: async () => {
+		if (!searchTerm.value.length) return
+
+		const { data } = await search(searchTerm.value.trim())
+		if (!data.value) {
+			notificationsStore.create({
+				notification: {
+					type: "info",
+					icon: "search",
+					title: "Nothing was found",
+					description: "Use the hash of a block, transaction, address or namespace for correct search",
+					autoDestroy: true,
+				},
+			})
+
+			return
+		}
+
+		switch (data.value.type) {
+			case "tx":
+				router.push(`/tx/${data.value.result.hash}`)
+				break
+
+			case "block":
+				router.push(`/block/${data.value.result.height}`)
+				break
+
+			case "namespace":
+				router.push(`/namespace/${data.value.result.namespace_id}`)
+				break
+
+			case "address":
+				router.push(`/address/${data.value.result.hash}`)
+				break
+
+			default:
+				break
+		}
+	},
+}
+const searchGroup = computed(() => {
+	return {
+		title: `Query "${searchTerm.value}"`,
+		actions: searchTerm.value ? [searchAction] : [],
+	}
+})
+
+const autocompleteActions = ref([])
+const autocompleteGroup = computed(() => {
+	return {
+		title: "Search Result",
+		actions: autocompleteActions.value,
+	}
+})
+
+const debouncedSearch = useDebounceFn(async (e) => {
+	const { data } = await search(searchTerm.value.trim())
+	if (!data.value) return
+
+	autocompleteActions.value = []
+	autocompleteActions.value.push({
+		id: id(),
+		type: "callback",
+		icon: data.value.type,
+		title: data.value.result.hash,
+		subtitle: data.value.type[0].toUpperCase() + data.value.type.slice(1, data.value.type.length),
+		runText: "Open",
+		callback: () => {
+			switch (data.value.type) {
+				case "tx":
+					router.push(`/tx/${data.value.result.hash}`)
+					break
+
+				case "block":
+					router.push(`/block/${data.value.result.height}`)
+					break
+
+				case "namespace":
+					router.push(`/namespace/${data.value.result.namespace_id}`)
+					break
+
+				case "address":
+					router.push(`/address/${data.value.result.hash}`)
+					break
+
+				default:
+					break
+			}
+		},
+	})
+}, 250)
+
+const groups = reactive([
+	suggestionGroup,
+	quickCommandsGroup,
+	settingsGroup,
+	navigationGroup,
+	developerGroup,
+	otherGroup,
+	searchGroup,
+	autocompleteGroup,
+])
+
+const fakeFocus = ref()
 
 onMounted(() => {
 	developerMode.value = localStorage.developer
@@ -737,6 +822,8 @@ watch(
 			nextTick(() => {
 				document.addEventListener("keydown", onKeydown)
 
+				fakeFocus.value = actionEl.value[0].wrapper.wrapper.id
+
 				handleFocus()
 
 				trap = focusTrap.createFocusTrap(popupEl.value.wrapper, {
@@ -756,6 +843,7 @@ watch(
 			if (removeOutside) removeOutside()
 
 			searchTerm.value = ""
+			autocompleteActions.value = []
 		}
 	},
 )
@@ -765,19 +853,40 @@ const onActionFocus = (action) => {
 }
 
 const handleReturn = (action) => {
-	if (!commandMode.value && action) {
-		switch (action.type) {
+	let target = action.id ? action : null
+	let actions = []
+
+	if (!target) {
+		groups.forEach((g) => {
+			g.value.actions.forEach((a) => {
+				actions.push(a)
+
+				if (a.actions) {
+					actions.push(...a.actions)
+				}
+			})
+		})
+
+		actions.forEach((a) => {
+			if (a.id === fakeFocus.value) {
+				target = a
+			}
+		})
+	}
+
+	if (!commandMode.value && target) {
+		switch (target.type) {
 			case "callback":
-				action.callback()
+				target.callback()
 				appStore.showCmd = false
 				break
 
 			case "command:input":
 				commandMode.value = true
 
-				commandMetadata.action = action
+				commandMetadata.action = target
 
-				runText.value = action.runText
+				runText.value = target.runText
 
 				inputEl.value.focus()
 				searchTerm.value = ""
@@ -789,12 +898,16 @@ const handleReturn = (action) => {
 			case "command:nested":
 				commandMode.value = true
 
-				commandMetadata.action = action
+				commandMetadata.action = target
 
-				runText.value = action.runText
+				runText.value = target.runText
 
 				inputEl.value.focus()
 				searchTerm.value = ""
+
+				nextTick(() => {
+					fakeFocus.value = actionEl.value[0].wrapper.wrapper.id
+				})
 
 				runBounce()
 
@@ -809,7 +922,7 @@ const handleReturn = (action) => {
 
 	if (commandMode.value) {
 		if (commandMetadata.action.type === "command:nested") {
-			action.callback()
+			target.callback()
 			appStore.showCmd = false
 
 			exitCommandMode()
@@ -833,34 +946,55 @@ const onKeydown = (e) => {
 	if (["ArrowDown", "ArrowUp", "PageUp", "PageDown"].includes(e.key)) {
 		e.preventDefault()
 
-		itemsToNavigate = popupEl.value.wrapper.querySelectorAll('[tabindex = "1"]')
-		activeItemIdx = [...itemsToNavigate].findIndex((item) => item.isEqualNode(document.activeElement))
+		itemsToNavigate = actionEl.value
+		activeItemIdx = [...actionEl.value].findIndex((item) => item.wrapper.wrapper.id === fakeFocus.value)
 	}
 
 	if (e.key === "ArrowDown") {
 		if (activeItemIdx === -1 || activeItemIdx === itemsToNavigate.length - 1) {
-			itemsToNavigate[0].focus()
+			fakeFocus.value = itemsToNavigate[0].wrapper.wrapper.id
 		} else {
-			itemsToNavigate[activeItemIdx + 1].focus()
+			fakeFocus.value = itemsToNavigate[activeItemIdx + 1].wrapper.wrapper.id
 		}
 	}
 
 	if (e.key === "ArrowUp") {
 		if (activeItemIdx === -1 || activeItemIdx === 0) {
-			itemsToNavigate[itemsToNavigate.length - 1].focus()
+			fakeFocus.value = itemsToNavigate[itemsToNavigate.length - 1].wrapper.wrapper.id
 		} else {
-			itemsToNavigate[activeItemIdx - 1].focus()
+			fakeFocus.value = itemsToNavigate[activeItemIdx - 1].wrapper.wrapper.id
 		}
 	}
 
 	if (e.key === "PageUp") {
-		itemsToNavigate[0].focus()
+		fakeFocus.value = itemsToNavigate[0].wrapper.wrapper.id
 	}
 
 	if (e.key === "PageDown") {
-		itemsToNavigate[itemsToNavigate.length - 1].focus()
+		fakeFocus.value = itemsToNavigate[itemsToNavigate.length - 1].wrapper.wrapper.id
+	}
+
+	if (["ArrowDown", "ArrowUp", "PageUp", "PageDown"].includes(e.key)) {
+		actionEl.value.forEach((a) => {
+			if (a.wrapper.wrapper.id === fakeFocus.value) {
+				a.wrapper.wrapper.scrollIntoView({ block: "nearest" })
+			}
+		})
 	}
 }
+
+watch(
+	() => searchTerm.value,
+	() => {
+		if (searchTerm.value.length > 3) {
+			debouncedSearch()
+		}
+
+		nextTick(() => {
+			fakeFocus.value = actionEl.value[0]?.wrapper.wrapper.id
+		})
+	},
+)
 
 const handleFocus = () => {
 	inputEl.value.focus()
@@ -887,7 +1021,7 @@ const resetRunText = () => {
 <template>
 	<Transition name="fastpopup">
 		<div v-if="appStore.showCmd" :class="$style.wrapper">
-			<Flex @click.stop ref="popupEl" direction="column" :class="[$style.popup, bounce && $style.bounce]">
+			<Flex @click.stop="handleFocus" ref="popupEl" direction="column" :class="[$style.popup, bounce && $style.bounce]">
 				<!-- Input Field -->
 				<Flex direction="column" :class="$style.header">
 					<Flex v-if="commandMode" align="center" gap="8" :class="$style.breadcrumbs">
@@ -900,7 +1034,7 @@ const resetRunText = () => {
 						</Flex>
 					</Flex>
 
-					<Flex @click="handleFocus" align="center" :class="$style.input">
+					<Flex align="center" :class="$style.input">
 						<input
 							v-model="searchTerm"
 							ref="inputEl"
@@ -920,34 +1054,24 @@ const resetRunText = () => {
 					</Flex>
 				</Flex>
 
-				<Flex v-if="!commandMode" direction="column" :class="$style.list">
-					<template v-for="group in groups">
+				<Flex v-if="!commandMode" ref="listEl" direction="column" :class="$style.list">
+					<template v-for="(group, groupIdx) in groups">
 						<Flex v-if="group.value.actions.length" direction="column" :class="$style.group">
 							<Text size="12" weight="500" color="tertiary" :class="$style.label">{{ group.value.title }}</Text>
 
 							<Flex direction="column" :class="$style.actions">
 								<Item
 									v-for="action in group.value.actions"
+									ref="actionEl"
+									:id="action.id"
 									@click="handleReturn(action)"
-									@onReturn="handleReturn"
 									:action="action"
+									:isFocused="action.id === fakeFocus"
 									@focus="onActionFocus(action)"
 								/>
 							</Flex>
 						</Flex>
 					</template>
-					<Flex v-if="searchTerm.length" direction="column" :class="$style.group">
-						<Text size="12" weight="500" color="tertiary" :class="$style.label">Query "{{ searchTerm }}"</Text>
-
-						<Flex direction="column" :class="$style.actions">
-							<Item
-								@click="handleReturn(searchAction)"
-								@onReturn="handleReturn"
-								:action="searchAction"
-								@focus="onActionFocus(searchAction)"
-							/>
-						</Flex>
-					</Flex>
 				</Flex>
 
 				<Flex v-else direction="column" :class="$style.list">
@@ -959,9 +1083,11 @@ const resetRunText = () => {
 						<Flex direction="column" :class="$style.actions">
 							<Item
 								v-for="action in commandMetadata.action.actions"
+								ref="actionEl"
+								:id="action.id"
 								@click="handleReturn(action)"
-								@onReturn="handleReturn"
 								:action="action"
+								:isFocused="action.id === fakeFocus"
 								@focus="onActionFocus(action)"
 							/>
 						</Flex>
@@ -1083,6 +1209,7 @@ const resetRunText = () => {
 .list {
 	flex: 1;
 
+	scroll-padding: 4px;
 	overflow-y: auto;
 
 	padding-bottom: 4px;
@@ -1090,9 +1217,6 @@ const resetRunText = () => {
 
 .group {
 	.label {
-		position: sticky;
-		top: 0;
-
 		text-overflow: ellipsis;
 		overflow: hidden;
 		white-space: nowrap;

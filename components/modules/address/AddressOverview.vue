@@ -301,7 +301,7 @@ const handleViewRawTransactions = () => {
 const handleOpenQRModal = () => {
 	cacheStore.qr.data = props.address.hash
 	cacheStore.qr.description = "Scan QR code to get this address"
-	cacheStore.qr.icon = "addresses"
+	cacheStore.qr.icon = "address"
 
 	modalsStore.open("qr")
 }
@@ -311,7 +311,7 @@ const handleOpenQRModal = () => {
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
 			<Flex align="center" gap="8">
-				<Icon name="addresses" size="14" color="primary" />
+				<Icon name="address" size="14" color="primary" />
 				<Text size="13" weight="600" color="primary">Address</Text>
 			</Flex>
 
@@ -328,7 +328,7 @@ const handleOpenQRModal = () => {
 					<template #popup>
 						<DropdownItem @click="handleViewRawAddress">
 							<Flex align="center" gap="8">
-								<Icon name="addresses" size="12" color="secondary" />
+								<Icon name="address" size="12" color="secondary" />
 								View Raw Address
 							</Flex>
 						</DropdownItem>
