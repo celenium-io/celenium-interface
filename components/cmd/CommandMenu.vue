@@ -304,6 +304,15 @@ const rawQuickCommandsActions = [
 			router.push("/gas")
 		},
 	},
+	{
+		type: "callback",
+		icon: "bookmark-plus",
+		title: "Open My Bookmarks",
+		runText: "Open My Bookmarks",
+		callback: () => {
+			router.push("/bookmarks")
+		},
+	},
 ]
 const quickCommandsGroup = computed(() => {
 	const actions = rawQuickCommandsActions.map((a) => ({ id: id(), ...a }))

@@ -21,8 +21,12 @@ import { fetchTxEvents } from "@/services/api/tx"
 /** Store */
 import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
+import { useBookmarksStore } from "@/store/bookmarks"
+import { useNotificationsStore } from "@/store/notifications"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
+const bookmarksStore = useBookmarksStore()
+const notificationsStore = useNotificationsStore()
 
 const EventIconMapping = {
 	message: "message",
@@ -41,6 +45,13 @@ const props = defineProps({
 	},
 })
 
+const isBookmarkButtonHovered = ref(false)
+const isBookmarked = ref(false)
+const bookmarkText = computed(() => {
+	if (isBookmarkButtonHovered.value && isBookmarked.value) return "Remove"
+	return isBookmarked.value ? "Saved" : "Save"
+})
+
 const showAll = ref(false)
 const handleShowAll = () => {
 	showAll.value = !showAll.value
@@ -54,6 +65,49 @@ const filteredEvents = computed(() => (showAll.value ? events.value : events.val
 const { data: rawEvents } = await fetchTxEvents(props.tx.hash)
 events.value = rawEvents.value.sort((a, b) => a.position - b.position)
 cacheStore.current.events = events.value
+
+onMounted(() => {
+	isBookmarked.value = !!bookmarksStore.bookmarks.txs.find((t) => t.id === props.tx.hash)
+})
+
+const handleBookmark = () => {
+	if (!isBookmarked.value) {
+		bookmarksStore.bookmarks.txs.push({
+			id: props.tx.hash,
+			type: "Transaction",
+			ts: new Date().getTime(),
+		})
+		isBookmarked.value = true
+
+		notificationsStore.create({
+			notification: {
+				type: "success",
+				icon: "check",
+				title: "Transaction added to bookmarks",
+				description: "View all bookmarks on dedicated page",
+				autoDestroy: true,
+				actions: [
+					{
+						name: "Open Bookmarks",
+					},
+				],
+			},
+		})
+	} else {
+		const bookmarkIdx = bookmarksStore.bookmarks.txs.findIndex((t) => t.id === props.tx.hash)
+		bookmarksStore.bookmarks.txs.splice(bookmarkIdx, 1)
+		isBookmarked.value = false
+
+		notificationsStore.create({
+			notification: {
+				type: "success",
+				icon: "check",
+				title: "Transaction removed from bookmarks",
+				autoDestroy: true,
+			},
+		})
+	}
+}
 
 const handleViewRawTransaction = () => {
 	cacheStore.current._target = "transaction"
@@ -74,16 +128,34 @@ const handleViewRawEvents = () => {
 				<Text size="13" weight="600" color="primary">Transaction</Text>
 			</Flex>
 
-			<Dropdown>
-				<Button type="tertiary" size="mini">
-					<Icon name="dots" size="16" color="secondary" />
+			<Flex align="center" gap="8">
+				<Button
+					@click="handleBookmark"
+					@mouseenter="isBookmarkButtonHovered = true"
+					@mouseleave="isBookmarkButtonHovered = false"
+					type="secondary"
+					size="mini"
+				>
+					<Icon
+						:name="isBookmarkButtonHovered && isBookmarked ? 'close' : isBookmarked ? 'bookmark-check' : 'bookmark-plus'"
+						size="12"
+						:color="isBookmarked && !isBookmarkButtonHovered ? 'green' : 'secondary'"
+					/>
+					{{ bookmarkText }}
 				</Button>
 
-				<template #popup>
-					<DropdownItem @click="handleViewRawTransaction"> View Raw Transaction </DropdownItem>
-					<DropdownItem @click="handleViewRawEvents"> View Raw Events </DropdownItem>
-				</template>
-			</Dropdown>
+				<Dropdown>
+					<Button type="secondary" size="mini">
+						<Icon name="dots" size="16" color="secondary" />
+						More
+					</Button>
+
+					<template #popup>
+						<DropdownItem @click="handleViewRawTransaction"> View Raw Transaction </DropdownItem>
+						<DropdownItem @click="handleViewRawEvents"> View Raw Events </DropdownItem>
+					</template>
+				</Dropdown>
+			</Flex>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">

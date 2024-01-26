@@ -17,14 +17,25 @@ import { fetchNamespaceBlobs, fetchNamespaceMessagesById } from "@/services/api/
 /** Store */
 import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
+import { useBookmarksStore } from "@/store/bookmarks"
+import { useNotificationsStore } from "@/store/notifications"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
+const bookmarksStore = useBookmarksStore()
+const notificationsStore = useNotificationsStore()
 
 const props = defineProps({
 	namespace: {
 		type: Object,
 		required: true,
 	},
+})
+
+const isBookmarkButtonHovered = ref(false)
+const isBookmarked = ref(false)
+const bookmarkText = computed(() => {
+	if (isBookmarkButtonHovered.value && isBookmarked.value) return "Remove"
+	return isBookmarked.value ? "Saved" : "Save"
 })
 
 const tabs = ref([
@@ -94,6 +105,10 @@ const getMessages = async () => {
 /** Initital fetch for blobs */
 await getBlobs()
 
+onMounted(() => {
+	isBookmarked.value = !!bookmarksStore.bookmarks.namespaces.find((t) => t.id === props.namespace.namespace_id)
+})
+
 /** Refetch Blobs/Messages on new page */
 watch(
 	() => page.value,
@@ -128,6 +143,45 @@ watch(
 	},
 )
 
+const handleBookmark = () => {
+	if (!isBookmarked.value) {
+		bookmarksStore.bookmarks.namespaces.push({
+			id: props.namespace.namespace_id,
+			type: "Namespace",
+			ts: new Date().getTime(),
+		})
+		isBookmarked.value = true
+
+		notificationsStore.create({
+			notification: {
+				type: "success",
+				icon: "check",
+				title: "Namespace added to bookmarks",
+				description: "View all bookmarks on dedicated page",
+				autoDestroy: true,
+				actions: [
+					{
+						name: "Open Bookmarks",
+					},
+				],
+			},
+		})
+	} else {
+		const bookmarkIdx = bookmarksStore.bookmarks.namespaces.findIndex((t) => t.id === props.namespace.namespace_id)
+		bookmarksStore.bookmarks.namespaces.splice(bookmarkIdx, 1)
+		isBookmarked.value = false
+
+		notificationsStore.create({
+			notification: {
+				type: "success",
+				icon: "check",
+				title: "Namespace removed from bookmarks",
+				autoDestroy: true,
+			},
+		})
+	}
+}
+
 const handleViewRawNamespace = () => {
 	cacheStore.current._target = "namespace"
 	modalsStore.open("rawData")
@@ -152,17 +206,35 @@ const handleViewRawMessages = () => {
 				<Text size="13" weight="600" color="primary">Namespace</Text>
 			</Flex>
 
-			<Dropdown>
-				<Button type="tertiary" size="mini">
-					<Icon name="dots" size="16" color="secondary" />
+			<Flex align="center" gap="8">
+				<Button
+					@click="handleBookmark"
+					@mouseenter="isBookmarkButtonHovered = true"
+					@mouseleave="isBookmarkButtonHovered = false"
+					type="secondary"
+					size="mini"
+				>
+					<Icon
+						:name="isBookmarkButtonHovered && isBookmarked ? 'close' : isBookmarked ? 'bookmark-check' : 'bookmark-plus'"
+						size="12"
+						:color="isBookmarked && !isBookmarkButtonHovered ? 'green' : 'secondary'"
+					/>
+					{{ bookmarkText }}
 				</Button>
 
-				<template #popup>
-					<DropdownItem @click="handleViewRawNamespace"> View Raw Namespace </DropdownItem>
-					<DropdownItem @click="handleViewRawBlobs"> View Raw Blobs </DropdownItem>
-					<DropdownItem @click="handleViewRawMessages"> View Raw Messages </DropdownItem>
-				</template>
-			</Dropdown>
+				<Dropdown>
+					<Button type="secondary" size="mini">
+						<Icon name="dots" size="16" color="secondary" />
+						More
+					</Button>
+
+					<template #popup>
+						<DropdownItem @click="handleViewRawNamespace"> View Raw Namespace </DropdownItem>
+						<DropdownItem @click="handleViewRawBlobs"> View Raw Blobs </DropdownItem>
+						<DropdownItem @click="handleViewRawMessages"> View Raw Messages </DropdownItem>
+					</template>
+				</Dropdown>
+			</Flex>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">

@@ -20,8 +20,12 @@ import { fetchTxsByAddressHash, fetchBlobsByAddressHash } from "@/services/api/a
 /** Store */
 import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
+import { useBookmarksStore } from "@/store/bookmarks"
+import { useNotificationsStore } from "@/store/notifications"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
+const bookmarksStore = useBookmarksStore()
+const notificationsStore = useNotificationsStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -31,6 +35,13 @@ const props = defineProps({
 		type: Object,
 		required: true,
 	},
+})
+
+const isBookmarkButtonHovered = ref(false)
+const isBookmarked = ref(false)
+const bookmarkText = computed(() => {
+	if (isBookmarkButtonHovered.value && isBookmarked.value) return "Remove"
+	return isBookmarked.value ? "Saved" : "Save"
 })
 
 const activeTab = ref("transactions")
@@ -288,6 +299,45 @@ watch(
 	},
 )
 
+const handleBookmark = () => {
+	if (!isBookmarked.value) {
+		bookmarksStore.bookmarks.addresses.push({
+			id: props.address.hash,
+			type: "Address",
+			ts: new Date().getTime(),
+		})
+		isBookmarked.value = true
+
+		notificationsStore.create({
+			notification: {
+				type: "success",
+				icon: "check",
+				title: "Address added to bookmarks",
+				description: "View all bookmarks on dedicated page",
+				autoDestroy: true,
+				actions: [
+					{
+						name: "Open Bookmarks",
+					},
+				],
+			},
+		})
+	} else {
+		const bookmarkIdx = bookmarksStore.bookmarks.addresses.findIndex((t) => t.id === props.address.hash)
+		bookmarksStore.bookmarks.addresses.splice(bookmarkIdx, 1)
+		isBookmarked.value = false
+
+		notificationsStore.create({
+			notification: {
+				type: "success",
+				icon: "check",
+				title: "Address removed from bookmarks",
+				autoDestroy: true,
+			},
+		})
+	}
+}
+
 const handleViewRawAddress = () => {
 	cacheStore.current._target = "address"
 	modalsStore.open("rawData")
@@ -316,9 +366,25 @@ const handleOpenQRModal = () => {
 			</Flex>
 
 			<Flex align="center" gap="8">
+				<Button
+					@click="handleBookmark"
+					@mouseenter="isBookmarkButtonHovered = true"
+					@mouseleave="isBookmarkButtonHovered = false"
+					type="secondary"
+					size="mini"
+				>
+					<Icon
+						:name="isBookmarkButtonHovered && isBookmarked ? 'close' : isBookmarked ? 'bookmark-check' : 'bookmark-plus'"
+						size="12"
+						:color="isBookmarked && !isBookmarkButtonHovered ? 'green' : 'secondary'"
+					/>
+					{{ bookmarkText }}
+				</Button>
+
 				<Button @click="handleOpenQRModal" type="secondary" size="mini">
 					<Icon name="qr" size="12" color="secondary" />
 				</Button>
+
 				<Dropdown>
 					<Button type="secondary" size="mini">
 						<Icon name="dots" size="12" color="secondary" />

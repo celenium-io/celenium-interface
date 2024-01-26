@@ -10,11 +10,20 @@ import CommandMenu from "@/components/cmd/CommandMenu.vue"
 
 /** Store */
 import { useAppStore } from "@/store/app"
+import { useBookmarksStore } from "@/store/bookmarks"
 const appStore = useAppStore()
+const bookmarksStore = useBookmarksStore()
+bookmarksStore.$subscribe((mutation, state) => {
+	localStorage.setItem("bookmarks", JSON.stringify(state.bookmarks))
+})
 
 onMounted(async () => {
 	const runtimeConfig = useRuntimeConfig()
 	amp.init(runtimeConfig.public.AMP)
+
+	if (localStorage.bookmarks) {
+		bookmarksStore.bookmarks = JSON.parse(localStorage.bookmarks)
+	}
 
 	Socket.init()
 
