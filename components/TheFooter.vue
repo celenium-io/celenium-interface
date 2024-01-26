@@ -65,16 +65,20 @@ const handleChangeTheme = (theme) => {
 					<Icon name="logo" size="14" color="tertiary" />
 					<Text size="13" weight="500" color="secondary">Celenium</Text>
 					<Text size="13" weight="500" color="tertiary">-</Text>
-					<Text size="13" weight="500" color="tertiary">Celestia Explorer, {{ new Date().getFullYear() }}</Text>
+					<Text size="13" weight="500" color="tertiary">Celestia Explorer</Text>
+					<a :href="`https://github.com/celenium-io/celenium-interface/releases/tag/v${appConfig.version}`" target="_blank">
+						<Text size="13" weight="500" color="support">v</Text>
+						<Text size="13" weight="500" color="tertiary">{{ appConfig.version }}</Text>
+					</a>
 				</Flex>
 
 				<Flex align="center" gap="8">
-					<a :href="`https://github.com/celenium-io/celenium-interface/releases/tag/v${appConfig.version}`" target="_blank">
-						<Flex gap="8">
-							<Text size="12" weight="600" color="support">Version</Text>
-							<Text size="12" weight="600" color="tertiary">{{ appConfig.version }}</Text>
-						</Flex>
-					</a>
+					<NuxtLink to="https://www.pklab.io/terms" :class="$style.link">
+						<Text size="12" weight="500" color="tertiary">Terms of Use</Text>
+					</NuxtLink>
+					<NuxtLink to="https://www.pklab.io/privacy" :class="$style.link">
+						<Text size="12" weight="500" color="tertiary">Privacy Policy</Text>
+					</NuxtLink>
 				</Flex>
 
 				<Flex align="center" gap="8">
