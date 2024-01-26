@@ -6,13 +6,14 @@
 	"license": "MIT",
 	"scripts": {
 		"build": "nuxt build",
-		"dev": "PORT=9090 nuxt dev",
+		"dev": "cross-env PORT=9090 nuxt dev",
 		"generate": "nuxt generate",
 		"preview": "nuxt preview",
 		"postinstall": "nuxt prepare"
 	},
 	"devDependencies": {
 		"@nuxt/devtools": "latest",
+		"cross-env": "^7.0.3",
 		"nuxt": "3.9.1",
 		"nuxt-og-image": "2.0.28",
 		"nuxt-simple-sitemap": "^4.2.0",
