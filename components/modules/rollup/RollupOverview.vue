@@ -47,7 +47,8 @@ const namespaces = ref([])
 const blobs = ref([])
 
 const page = ref(1)
-const pages = computed(() => 1)
+const pages = computed(() => activeTab.value === "Blobs" ? Math.ceil(props.rollup.blobs_count / 10) : 1)
+
 const handleNext = () => {
 	page.value += 1
 }
@@ -160,27 +161,31 @@ watch(
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">
 				<Flex direction="column" gap="24" :class="$style.main">
-					<Flex direction="column" gap="8" :class="$style.key_value">
-						<Text size="12" weight="600" color="secondary">Rollup</Text>
+					<Flex align="center" gap="12" :class="$style.key_value">
+						<Flex align="center" justify="center" :class="$style.avatar_container">
+							<img :src="rollup.logo" :class="$style.avatar_image" />
+						</Flex>
 
-						<Flex align="center" gap="10">
-							<Text size="13" weight="600" color="primary">{{ rollup.name }} </Text>
+						<Flex direction="column" gap="8" :class="$style.key_value">
+							<Text size="12" weight="600" color="secondary">Rollup</Text>
 
-							<CopyButton :text="rollup.name" />
+							<Flex align="center" gap="10">
+								<Text size="13" weight="600" color="primary">{{ rollup.name }} </Text>
+
+								<CopyButton :text="rollup.name" />
+							</Flex>
 						</Flex>
 					</Flex>
-
-					<Flex align="center" justify="center">
-						<img :src="rollup.logo" :class="$style.key_value" />
-					</Flex>
-
-					<Flex direction="column" gap="8" :class="$style.key_value">
+					<Flex direction="column" gap="6">
 						<Text size="12" weight="600" color="secondary">Description</Text>
 
-						<Text size="12" weight="600" color="tertiary">{{ rollup.description }} </Text>
+						<Flex align="center" gap="6">
+							<Text size="12" height="140" weight="600" color="tertiary" mono selectable :class="$style.memo">
+								{{ rollup.description }}
+							</Text>
+						</Flex>
 					</Flex>
-
-					<Flex align="center" justify="end" gap="12">
+					<Flex align="center" justify="start" gap="12">
 						<Tooltip position="start" delay="500">
 							<a :href="rollup.website" target="_blank">
 								<Icon name="globe" size="14" color="secondary" :class="$style.btn" />
@@ -263,19 +268,22 @@ watch(
 							<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 								<Icon name="arrow-left-stop" size="12" color="primary" />
 							</Button>
-							<Button @click="handlePrev" type="secondary" size="mini" :disabled="page === 1">
+							<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
 								<Icon name="arrow-left" size="12" color="primary" />
 							</Button>
 
 							<Button type="secondary" size="mini" disabled>
-								<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
+								<Text size="12" weight="600" color="primary"> {{ comma(page) }} of {{ comma(pages) }} </Text>
 							</Button>
 
-							<Button @click="handleNext" type="secondary" size="mini" :disabled="blobs.length < 10">
+							<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
 								<Icon name="arrow-right" size="12" color="primary" />
 							</Button>
+							<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages">
+								<Icon name="arrow-right-stop" size="12" color="primary" />
+							</Button>
 						</Flex>
-					</template>
+				</template>
 					<!-- Namespaces Table -->
 					<template v-if="activeTab === 'Namespaces'">
 						<NamespacesTable v-if="namespaces.length" :namespaces="namespaces" />
@@ -306,26 +314,6 @@ watch(
 						</Flex>
 
 					</template>
-					<!-- Pagination -->
-					<!-- <Flex v-if="pages > 1" align="center" gap="6" :class="$style.pagination">
-						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
-							<Icon name="arrow-left-stop" size="12" color="primary" />
-						</Button>
-						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
-							<Icon name="arrow-left" size="12" color="primary" />
-						</Button>
-
-						<Button type="secondary" size="mini" disabled>
-							<Text size="12" weight="600" color="primary"> {{ comma(page) }} of {{ comma(pages) }} </Text>
-						</Button>
-
-						<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
-							<Icon name="arrow-right" size="12" color="primary" />
-						</Button>
-						<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages">
-							<Icon name="arrow-right-stop" size="12" color="primary" />
-						</Button>
-					</Flex> -->
 				</Flex>
 			</Flex>
 		</Flex>
@@ -344,7 +332,8 @@ watch(
 
 .data {
 	min-width: 384px;
-	/* max-height: 534px; */
+	max-width: 384px;
+	max-height: 534px;
 
 	border-radius: 4px 4px 4px 8px;
 	background: var(--card-background);
@@ -355,6 +344,24 @@ watch(
 		& .key_value {
 			max-width: 100%;
 		}
+	}
+	.avatar_container {
+		position: relative;
+		width: 50px;
+		height: 50px;
+		overflow: hidden;
+		border-radius: 50%;
+	}
+
+	.avatar_image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.memo {
+		text-overflow: ellipsis;
+		overflow: hidden;
 	}
 }
 
