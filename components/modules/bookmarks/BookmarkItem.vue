@@ -47,9 +47,9 @@ const getLink = () => {
 <template>
 	<NuxtLink :to="getLink()">
 		<Flex justify="between" align="center" :class="$style.wrapper">
-			<Flex align="center" gap="8">
+			<Flex align="center" gap="8" :class="$style.content">
 				<Icon :name="getIcon()" size="14" color="secondary" />
-				<Text size="13" weight="600" color="primary">{{ item.id }}</Text>
+				<Text size="13" weight="600" color="primary" :class="$style.id">{{ item.id }}</Text>
 			</Flex>
 
 			<Flex align="center" gap="12">
@@ -60,7 +60,7 @@ const getLink = () => {
 							.toFormat("ff")
 					}}
 				</Text>
-				<Button @click="emit('onRemove')" type="secondary" size="mini">Remove</Button>
+				<Button @click.prevent="emit('onRemove')" type="secondary" size="mini">Remove</Button>
 			</Flex>
 		</Flex>
 	</NuxtLink>
@@ -73,5 +73,24 @@ const getLink = () => {
 	background: var(--op-5);
 
 	padding: 4px 4px 4px 8px;
+}
+
+.content {
+	max-width: 100%;
+}
+
+.id {
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+@media (max-width: 900px) {
+	.wrapper {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+
+		padding: 8px;
+	}
 }
 </style>

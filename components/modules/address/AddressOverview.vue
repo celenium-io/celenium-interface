@@ -318,6 +318,9 @@ const handleBookmark = () => {
 				actions: [
 					{
 						name: "Open Bookmarks",
+						callback: () => {
+							router.push("/bookmarks")
+						},
 					},
 				],
 			},
