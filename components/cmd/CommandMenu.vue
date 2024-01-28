@@ -1006,7 +1006,7 @@ watch(
 )
 
 const handleFocus = () => {
-	inputEl.value.focus()
+	inputEl.value?.focus()
 }
 
 const handleOutside = () => {
