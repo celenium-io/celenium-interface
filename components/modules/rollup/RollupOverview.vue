@@ -162,7 +162,7 @@ watch(
 			<Flex direction="column" :class="$style.data">
 				<Flex direction="column" gap="24" :class="$style.main">
 					<Flex align="center" gap="12" :class="$style.key_value">
-						<Flex align="center" justify="center" :class="$style.avatar_container">
+						<Flex v-if="rollup.logo" align="center" justify="center" :class="$style.avatar_container">
 							<img :src="rollup.logo" :class="$style.avatar_image" />
 						</Flex>
 
@@ -186,7 +186,7 @@ watch(
 						</Flex>
 					</Flex>
 					<Flex align="center" justify="start" gap="12">
-						<Tooltip position="start" delay="500">
+						<Tooltip v-if="rollup.website" position="start" delay="500">
 							<a :href="rollup.website" target="_blank">
 								<Icon name="globe" size="14" color="secondary" :class="$style.btn" />
 							</a>
@@ -195,9 +195,20 @@ watch(
 								{{ rollup.website }}
 							</template>
 						</Tooltip>
-						<Tooltip position="start" delay="500">
+
+						<Tooltip v-if="rollup.twitter" position="start" delay="500">
 							<a :href="rollup.twitter" target="_blank">
 								<Icon name="twitter" size="14" color="secondary" :class="$style.btn" />
+							</a>
+
+							<template #content>
+								{{ rollup.twitter }}
+							</template>
+						</Tooltip>
+
+						<Tooltip v-if="rollup.github" position="start" delay="500">
+							<a :href="rollup.github" target="_blank">
+								<Icon name="github" size="14" color="secondary" :class="$style.btn" />
 							</a>
 
 							<template #content>
@@ -333,7 +344,7 @@ watch(
 .data {
 	min-width: 384px;
 	max-width: 384px;
-	max-height: 534px;
+	/* max-height: 534px; */
 
 	border-radius: 4px 4px 4px 8px;
 	background: var(--card-background);
