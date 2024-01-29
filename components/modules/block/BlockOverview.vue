@@ -27,6 +27,8 @@ const cacheStore = useCacheStore()
 const bookmarksStore = useBookmarksStore()
 const notificationsStore = useNotificationsStore()
 
+const router = useRouter()
+
 const MapTabsTypes = {
 	PFBs: "MsgPayForBlobs",
 	Transfers: "MsgSend",
@@ -165,6 +167,9 @@ const handleBookmark = () => {
 				actions: [
 					{
 						name: "Open Bookmarks",
+						callback: () => {
+							router.push("/bookmarks")
+						},
 					},
 				],
 			},

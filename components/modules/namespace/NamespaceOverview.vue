@@ -24,6 +24,8 @@ const cacheStore = useCacheStore()
 const bookmarksStore = useBookmarksStore()
 const notificationsStore = useNotificationsStore()
 
+const router = useRouter()
+
 const props = defineProps({
 	namespace: {
 		type: Object,
@@ -162,6 +164,9 @@ const handleBookmark = () => {
 				actions: [
 					{
 						name: "Open Bookmarks",
+						callback: () => {
+							router.push("/bookmarks")
+						},
 					},
 				],
 			},
