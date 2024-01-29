@@ -315,7 +315,7 @@ onBeforeUnmount(() => {
 
 		<Flex justify="between" gap="32" :class="$style.data">
 			<Flex direction="column" gap="20" wide>
-				<Text size="13" weight="600" color="primary">Blob Size Usage</Text>
+				<Text size="13" weight="600" color="primary">Storage Usage</Text>
 
 				<Flex ref="chartWrapperEl" direction="column" :class="$style.chart_wrapper">
 					<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">

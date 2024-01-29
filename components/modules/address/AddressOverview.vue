@@ -550,7 +550,7 @@ const handleOpenQRModal = () => {
 							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No Blobs</Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									This address does not contain blobs
+									This address did not push any blobs
 								</Text>
 							</Flex>
 						</template>
