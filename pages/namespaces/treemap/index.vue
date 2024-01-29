@@ -138,14 +138,19 @@ const handleSelectFilter = (target) => {
 
 <template>
 	<Flex direction="column" wide :class="$style.wrapper">
-		<Breadcrumbs
-			:items="[
-				{ link: '/', name: 'Explore' },
-				{ link: '/namespaces', name: `Namespaces` },
-				{ link: '/namespaces/treemap', name: `Treemap` },
-			]"
-			:class="$style.breadcrumbs"
-		/>
+		<Flex align="end" justify="between" :class="$style.breadcrumbs">
+			<Breadcrumbs
+				:items="[
+					{ link: '/', name: 'Explore' },
+					{ link: '/namespaces', name: `Namespaces` },
+					{ link: '/namespaces/treemap', name: `Treemap` },
+				]"
+			/>
+
+			<Button link="/namespaces" type="secondary" size="mini">
+				<Icon name="table" size="12" color="secondary" /> Table View
+			</Button>
+		</Flex>
 
 		<Flex direction="column" gap="12">
 			<Dropdown position="end">
@@ -167,7 +172,7 @@ const handleSelectFilter = (target) => {
 .wrapper {
 	max-width: calc(var(--base-width) + 48px);
 
-	padding: 40px 24px 60px 24px;
+	padding: 26px 24px 60px 24px;
 }
 
 .breadcrumbs {
