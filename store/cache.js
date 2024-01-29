@@ -33,6 +33,9 @@ export const useCacheStore = defineStore("cache", () => {
 
 		/** address */
 		address: null,
+
+		/** bookmark */
+		bookmark: null,
 	})
 
 	return { selectedBlob, qr, current }

@@ -5,6 +5,7 @@ import RawDataModal from "./RawDataModal.vue"
 import ConstantsModal from "./ConstantsModal.vue"
 import QRCodeModal from "./QRCodeModal.vue"
 import ImportBookmarksModal from "./ImportBookmarksModal.vue"
+import EditBookmarkAliasModal from "./EditBookmarkAliasModal.vue"
 
 /**
  * Store
@@ -20,4 +21,5 @@ const modalsStore = useModalsStore()
 	<ConstantsModal :show="modalsStore.modals.constants" @onClose="modalsStore.close('constants')" />
 	<QRCodeModal :show="modalsStore.modals.qr" @onClose="modalsStore.close('qr')" />
 	<ImportBookmarksModal :show="modalsStore.modals.import" @onClose="modalsStore.close('import')" />
+	<EditBookmarkAliasModal :show="modalsStore.modals.edit_alias" @onClose="modalsStore.close('edit_alias')" />
 </template>

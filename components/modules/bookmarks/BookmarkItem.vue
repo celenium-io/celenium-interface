@@ -5,10 +5,21 @@ import { DateTime } from "luxon"
 /** UI */
 import Button from "@/components/ui/Button.vue"
 
+/** Store */
+import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals"
+const cacheStore = useCacheStore()
+const modalsStore = useModalsStore()
+
 const props = defineProps({
 	item: Object,
 })
 const emit = defineEmits(["onRemove"])
+
+const handleEditBookmarkAlias = () => {
+	cacheStore.current.bookmark = props.item
+	modalsStore.open("edit_alias")
+}
 
 const getIcon = () => {
 	switch (props.item.type.toLowerCase()) {
@@ -46,23 +57,30 @@ const getLink = () => {
 
 <template>
 	<NuxtLink :to="getLink()">
-		<Flex justify="between" align="center" :class="$style.wrapper">
+		<Flex justify="between" align="center" gap="16" :class="$style.wrapper">
 			<Flex align="center" gap="8" :class="$style.content">
 				<Icon :name="getIcon()" size="14" color="secondary" />
-				<Text size="13" weight="600" color="primary" :class="$style.id">{{ item.id }}</Text>
+				<Text v-if="item.alias" size="13" weight="600" color="primary" no-wrap>{{ item.alias }}</Text>
+				<Text size="13" weight="600" :color="!item.alias ? 'primary' : 'tertiary'" :class="$style.id">{{ item.id }}</Text>
 			</Flex>
 
-			<Flex align="center" gap="12">
-				<Text size="13" weight="600" color="tertiary">
+			<Flex align="center" gap="16">
+				<Text size="13" weight="600" color="tertiary" no-wrap>
 					{{
 						DateTime.fromSeconds(item.ts / 1_000)
 							.setLocale("en")
 							.toFormat("ff")
 					}}
 				</Text>
-				<Button @click.prevent="emit('onRemove')" type="tertiary" size="mini">
-					<Icon name="trash" size="14" color="primary" />
-				</Button>
+
+				<Flex align="center" gap="6">
+					<Button @click.prevent="handleEditBookmarkAlias" type="tertiary" size="mini">
+						<Icon name="edit" size="14" color="primary" />
+					</Button>
+					<Button @click.prevent="emit('onRemove')" type="tertiary" size="mini">
+						<Icon name="trash" size="14" color="primary" />
+					</Button>
+				</Flex>
 			</Flex>
 		</Flex>
 	</NuxtLink>
@@ -79,6 +97,7 @@ const getLink = () => {
 
 .content {
 	max-width: 100%;
+	min-width: 0;
 }
 
 .id {
