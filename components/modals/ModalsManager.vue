@@ -4,6 +4,7 @@ import ConfirmationModal from "./ConfirmationModal.vue"
 import RawDataModal from "./RawDataModal.vue"
 import ConstantsModal from "./ConstantsModal.vue"
 import QRCodeModal from "./QRCodeModal.vue"
+import ImportBookmarksModal from "./ImportBookmarksModal.vue"
 
 /**
  * Store
@@ -18,4 +19,5 @@ const modalsStore = useModalsStore()
 	<RawDataModal :show="modalsStore.modals.rawData" @onClose="modalsStore.close('rawData')" />
 	<ConstantsModal :show="modalsStore.modals.constants" @onClose="modalsStore.close('constants')" />
 	<QRCodeModal :show="modalsStore.modals.qr" @onClose="modalsStore.close('qr')" />
+	<ImportBookmarksModal :show="modalsStore.modals.import" @onClose="modalsStore.close('import')" />
 </template>

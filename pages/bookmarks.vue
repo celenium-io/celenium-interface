@@ -2,20 +2,116 @@
 /** Components */
 import BookmarkItem from "@/components/modules/bookmarks/BookmarkItem.vue"
 
+/** UI */
+import Button from "@/components/ui/Button.vue"
+import { Dropdown, DropdownItem, DropdownDivider } from "@/components/ui/Dropdown"
+
 /** Store */
+import { useAppStore } from "@/store/app"
+import { useModalsStore } from "@/store/modals"
 import { useBookmarksStore } from "@/store/bookmarks"
+import { useNotificationsStore } from "@/store/notifications"
+const appStore = useAppStore()
+const modalsStore = useModalsStore()
 const bookmarksStore = useBookmarksStore()
+const notificationsStore = useNotificationsStore()
 
 useHead({
 	title: `My Bookmarks - Celenium`,
 })
 
+const cache = reactive({
+	bookmark: null,
+	type: null,
+})
+
 const handleRemove = (type, bookmark) => {
+	cache.bookmark = bookmark
+	cache.type = type
+
 	const bookmarkIdx = bookmarksStore.bookmarks[type].findIndex((b) => b.id === bookmark.id)
 
 	if (bookmarkIdx >= 0) {
 		bookmarksStore.bookmarks[type].splice(bookmarkIdx, 1)
+
+		notificationsStore.create({
+			notification: {
+				type: "info",
+				icon: "check",
+				title: `Bookmark removed`,
+				autoDestroy: true,
+				actions: [
+					{
+						name: "Undo",
+						callback: () => {
+							bookmarksStore.bookmarks[cache.type].push(cache.bookmark)
+						},
+					},
+				],
+			},
+		})
 	}
+}
+
+const handleImport = () => {
+	modalsStore.open("import")
+}
+
+const handleExport = () => {
+	if (!bookmarksStore.hasBookmarks) return
+
+	const blob = new Blob([JSON.stringify(JSON.parse(localStorage.bookmarks), null, "\t")], { type: "text/json" })
+	const link = document.createElement("a")
+
+	link.download = "celenium_bookmarks.json"
+	link.href = window.URL.createObjectURL(blob)
+	link.dataset.downloadurl = ["text/json", link.download, link.href].join(":")
+
+	const evt = new MouseEvent("click", {
+		view: window,
+		bubbles: true,
+		cancelable: true,
+	})
+
+	link.dispatchEvent(evt)
+	link.remove()
+}
+
+const handleClearBookmarks = () => {
+	if (!bookmarksStore.hasBookmarks) return
+
+	appStore.createConfirmation({
+		title: `Do you want to clear your bookmarks?`,
+		description: "Your local storage for bookmarks will be cleared",
+
+		buttons: {
+			confirm: {
+				title: "Yes, clear",
+			},
+			cancel: {
+				title: "Cancel",
+			},
+		},
+
+		confirmCb: () => {
+			localStorage.removeItem("bookmarks")
+			bookmarksStore.clearBookmarks()
+
+			notificationsStore.create({
+				notification: {
+					type: "info",
+					icon: "check",
+					title: `Your bookmarks successfully cleared`,
+					autoDestroy: true,
+				},
+			})
+
+			modalsStore.close("confirmation")
+		},
+		cancelCb: () => {
+			modalsStore.close("confirmation")
+		},
+	})
 }
 </script>
 
@@ -34,6 +130,36 @@ const handleRemove = (type, bookmark) => {
 				<Flex align="center" gap="8">
 					<Icon name="bookmark-check" size="16" color="secondary" />
 					<Text size="13" weight="600" color="primary">My Bookmarks</Text>
+				</Flex>
+
+				<Flex align="center" gap="8">
+					<Dropdown>
+						<Button type="secondary" size="mini">
+							<Icon name="dots" size="16" color="secondary" />
+						</Button>
+
+						<template #popup>
+							<DropdownItem @click="handleImport">
+								<Flex align="center" gap="8">
+									<Icon name="upload" size="12" color="secondary" />
+									Import Bookmarks
+								</Flex>
+							</DropdownItem>
+							<DropdownItem @click="handleExport" :disabled="!bookmarksStore.hasBookmarks">
+								<Flex align="center" gap="8">
+									<Icon name="download" size="12" color="secondary" />
+									Export Bookmarks
+								</Flex>
+							</DropdownItem>
+							<DropdownDivider />
+							<DropdownItem @click="handleClearBookmarks" :disabled="!bookmarksStore.hasBookmarks">
+								<Flex align="center" gap="8">
+									<Icon name="trash" size="12" color="red" />
+									Clear Bookmarks
+								</Flex>
+							</DropdownItem>
+						</template>
+					</Dropdown>
 				</Flex>
 			</Flex>
 

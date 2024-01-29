@@ -60,7 +60,9 @@ const getLink = () => {
 							.toFormat("ff")
 					}}
 				</Text>
-				<Button @click.prevent="emit('onRemove')" type="secondary" size="mini">Remove</Button>
+				<Button @click.prevent="emit('onRemove')" type="tertiary" size="mini">
+					<Icon name="trash" size="14" color="primary" />
+				</Button>
 			</Flex>
 		</Flex>
 	</NuxtLink>
