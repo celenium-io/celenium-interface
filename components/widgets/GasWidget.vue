@@ -21,7 +21,7 @@ onMounted(async () => {
 		<Flex align="center" justify="between">
 			<Flex align="center" gap="6">
 				<Icon name="gas" size="12" color="secondary" />
-				<Text size="13" weight="600" height="110" color="primary">Gas Tracker</Text>
+				<Text size="13" weight="600" height="110" color="primary">Gas Price Tracker</Text>
 			</Flex>
 
 			<Tooltip side="top" position="end" width="150">
