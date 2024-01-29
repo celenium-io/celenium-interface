@@ -212,7 +212,7 @@ watch(
 							</a>
 
 							<template #content>
-								{{ rollup.twitter }}
+								{{ rollup.github }}
 							</template>
 						</Tooltip>
 					</Flex>
