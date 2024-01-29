@@ -25,6 +25,14 @@ const showPopup = ref(false)
 
 const head = computed(() => appStore.head)
 
+const featurePreviewMode = ref(false)
+const isWalletAvailable = ref(false)
+
+onMounted(() => {
+	featurePreviewMode.value = localStorage.featurePreview
+	isWalletAvailable.value = !!window.keplr
+})
+
 watch(
 	() => showPopup.value,
 	() => {
@@ -63,6 +71,10 @@ const isActive = (link) => {
 
 const handleNavigate = (url) => {
 	window.location.replace(url)
+}
+
+const handleConnect = () => {
+	window.keplr.enable("celestia")
 }
 </script>
 
@@ -105,7 +117,7 @@ const handleNavigate = (url) => {
 				</NuxtLink>
 			</Flex>
 
-			<Flex align="center" gap="12">
+			<Flex align="center" gap="8">
 				<Dropdown>
 					<Tooltip v-if="head" position="end">
 						<Flex align="center" gap="8" :class="[$style.network]">
@@ -117,7 +129,6 @@ const handleNavigate = (url) => {
 							<Text color="primary"><template v-if="!head.synced">Not</template> Synced </Text>
 						</template>
 					</Tooltip>
-					<Skeleton v-else w="68" h="12" />
 
 					<template #popup>
 						<DropdownTitle>Network</DropdownTitle>
@@ -142,6 +153,10 @@ const handleNavigate = (url) => {
 						</Flex>
 					</template>
 				</Tooltip>
+
+				<Button v-if="featurePreviewMode" @click="handleConnect" type="white" size="small" :disabled="!isWalletAvailable">
+					Connect
+				</Button>
 			</Flex>
 		</Flex>
 
@@ -297,8 +312,8 @@ const handleNavigate = (url) => {
 	height: 28px;
 
 	border-radius: 8px;
-	background: linear-gradient(var(--op-10), var(--op-3));
-	box-shadow: inset 0 0 0 1px var(--op-10), 0 2px 8px rgba(0, 0, 0, 8%);
+	background: var(--op-5);
+	box-shadow: inset 0 0 0 1px var(--op-5);
 
 	padding: 0 12px;
 
