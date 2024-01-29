@@ -15,7 +15,13 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 			.slice(0, 3)
 	})
 
-	return { bookmarks, recentBookmarks }
+	const clearBookmarks = () => {
+		Object.keys(bookmarks.value).forEach((b) => {
+			bookmarks.value[b] = []
+		})
+	}
+
+	return { bookmarks, recentBookmarks, clearBookmarks }
 })
 
 if (import.meta.hot) {

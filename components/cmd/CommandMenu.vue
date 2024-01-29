@@ -23,10 +23,12 @@ import { search } from "@/services/api/search"
 import { useAppStore } from "@/store/app"
 import { useCacheStore } from "@/store/cache"
 import { useModalsStore } from "@/store/modals"
+import { useBookmarksStore } from "@/store/bookmarks"
 import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
+const bookmarksStore = useBookmarksStore()
 const notificationsStore = useNotificationsStore()
 
 const appConfig = useAppConfig()
@@ -490,7 +492,7 @@ const rawDeveloperActions = [
 		callback: () => {
 			appStore.createConfirmation({
 				title: `Do you want to clear local storage?`,
-				description: "Your local storage will be cleared",
+				description: "Your local storage will be cleared (including bookmarks)",
 
 				buttons: {
 					confirm: {
@@ -509,6 +511,47 @@ const rawDeveloperActions = [
 							type: "info",
 							icon: "check",
 							title: `Local storage successfully cleared`,
+							autoDestroy: true,
+						},
+					})
+
+					modalsStore.close("confirmation")
+				},
+				cancelCb: () => {
+					modalsStore.close("confirmation")
+				},
+			})
+		},
+	},
+	{
+		type: "callback",
+		icon: "bookmark-plus",
+		title: "Clear bookmarks",
+		subtitle: "Command",
+		runText: "Clear",
+		callback: () => {
+			appStore.createConfirmation({
+				title: `Do you want to clear your bookmarks?`,
+				description: "Your local storage for bookmarks will be cleared",
+
+				buttons: {
+					confirm: {
+						title: "Yes, clear",
+					},
+					cancel: {
+						title: "Cancel",
+					},
+				},
+
+				confirmCb: () => {
+					localStorage.removeItem("bookmarks")
+					bookmarksStore.clearBookmarks()
+
+					notificationsStore.create({
+						notification: {
+							type: "info",
+							icon: "check",
+							title: `Your bookmarks successfully cleared`,
 							autoDestroy: true,
 						},
 					})
