@@ -17,6 +17,15 @@ const props = defineProps({
 
 const mergeEffect = ref(false)
 
+watch(
+	() => props.show,
+	() => {
+		if (!props.show) {
+			mergeEffect.value = false
+		}
+	},
+)
+
 const handleDrop = (e) => {
 	const file = e.dataTransfer.files[0]
 
