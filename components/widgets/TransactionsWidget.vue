@@ -9,7 +9,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { comma, abbreviate } from "@/services/utils"
 
 /** API */
-import { fetchHistogram } from "@/services/api/stats"
+import { fetchSeries } from "@/services/api/stats"
 
 const histogram = ref([])
 
@@ -26,9 +26,8 @@ const max = ref(0)
 const roundedMax = ref(0)
 
 const getHistogram = async (sectorOffset) => {
-	const data = await fetchHistogram({
-		table: "tx",
-		func: "count",
+	const data = await fetchSeries({
+		table: "tx_count",
 		period: "hour",
 		from: parseInt(DateTime.now().minus({ hours: 24 - sectorOffset }).ts / 1_000),
 	})
@@ -45,7 +44,7 @@ const buildHistogram = async () => {
 	const currentHour = DateTime.now().hour
 	const currentSector = hoursMap.find((m) => m.includes(currentHour))
 	const currentHourIdx = currentSector.indexOf(currentHour)
-	const sectorOffset = 6 - currentHourIdx
+	const sectorOffset = 5 - currentHourIdx
 
 	await getHistogram(sectorOffset)
 
@@ -54,7 +53,6 @@ const buildHistogram = async () => {
 	let target = 0
 	while (items.length) {
 		if (sectors.value[target].length === 6) target += 1
-
 		sectors.value[target].push(items[0])
 
 		items.shift()
@@ -88,7 +86,7 @@ const getPercentageRatio = (v) => {
 }
 
 const getSectorName = (item) => {
-	return DateTime.fromISO(item.time).hour
+	return item.time ? DateTime.fromISO(item.time).hour : DateTime.now().hour
 }
 </script>
 

@@ -8,8 +8,8 @@ import Spinner from "@/components/ui/Spinner.vue"
 import { space, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
-import { fetchTxNamespaces, fetchTxNamespacesCount } from "@/services/api/tx"
-import { fetchBlockNamespaces, fetchBlockNamespacesCount } from "@/services/api/block"
+import { fetchTxBlobs, fetchTxBlobsCount } from "@/services/api/tx"
+import { fetchBlockBlobs, fetchBlockBlobsCount } from "@/services/api/block"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
@@ -61,7 +61,7 @@ const fetchNamespaces = async () => {
 	if (props.hash.length) params.hash = props.hash
 	if (props.height) params.height = props.height
 
-	return (props.hash.length && (await fetchTxNamespaces(params))) || (props.height && (await fetchBlockNamespaces(params))) || []
+	return (props.hash.length && (await fetchTxBlobs(params))) || (props.height && (await fetchBlockBlobs(params))) || []
 }
 
 const getNamespaces = async () => {
@@ -76,11 +76,11 @@ const getNamespaces = async () => {
 
 const getTotal = async () => {
 	if (props.hash.length) {
-		const data = await fetchTxNamespacesCount(props.hash)
+		const data = await fetchTxBlobsCount(props.hash)
 		total.value = data
 	}
 	if (props.height > 1) {
-		const data = await fetchBlockNamespacesCount(props.height)
+		const data = await fetchBlockBlobsCount(props.height)
 		total.value = data
 	}
 }
@@ -101,10 +101,10 @@ const handleViewBlob = (blob) => {
 		hash: blob.namespace.hash,
 		namespace_id: blob.namespace.namespace_id,
 		namespace_name: blob.namespace.name,
-		commitment: blob.data.ShareCommitments[0],
+		commitment: blob.commitment,
 		height: blob.height,
-		signer: blob.data.Signer,
-		size: blob.data.BlobSizes[0],
+		signer: blob.signer,
+		size: blob.size,
 		tx: blob.tx,
 	}
 
@@ -223,13 +223,13 @@ const handlePrev = () => {
 							<td>
 								<Tooltip position="start" delay="500">
 									<Flex align="center" gap="8">
-										<AddressBadge :hash="blob.data.Signer" />
+										<AddressBadge :hash="blob.signer" />
 
-										<CopyButton :text="blob.data.Signer" />
+										<CopyButton :text="blob.signer" />
 									</Flex>
 
 									<template #content>
-										{{ blob.data.Signer }}
+										{{ blob.signer }}
 									</template>
 								</Tooltip>
 							</td>
@@ -237,7 +237,7 @@ const handlePrev = () => {
 								<Tooltip position="start" delay="500">
 									<Flex align="center" gap="8">
 										<Text size="13" weight="600" color="primary">
-											{{ blob.data.ShareCommitments[0].slice(0, 4) }}
+											{{ blob.commitment.slice(0, 4) }}
 										</Text>
 
 										<Flex align="center" gap="3">
@@ -246,24 +246,24 @@ const handlePrev = () => {
 
 										<Text size="13" weight="600" color="primary">
 											{{
-												blob.data.ShareCommitments[0].slice(
-													blob.data.ShareCommitments[0].length - 4,
-													blob.data.ShareCommitments[0].length,
+												blob.commitment.slice(
+													blob.commitment.length - 4,
+													blob.commitment.length,
 												)
 											}}
 										</Text>
 
-										<CopyButton :text="blob.data.ShareCommitments[0]" />
+										<CopyButton :text="blob.commitment" />
 									</Flex>
 
 									<template #content>
-										{{ blob.data.ShareCommitments[0] }}
+										{{ blob.commitment }}
 									</template>
 								</Tooltip>
 							</td>
 							<td>
 								<Text size="13" weight="600" color="primary">
-									{{ formatBytes(blob.data.BlobSizes[0]) }}
+									{{ formatBytes(blob.size) }}
 								</Text>
 							</td>
 							<td>

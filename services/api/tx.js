@@ -89,6 +89,32 @@ export const fetchTxNamespacesCount = async (hash) => {
 	}
 }
 
+export const fetchTxBlobs = async ({ hash, limit, offset, sort }) => {
+	try {
+		const url = new URL(`${useServerURL()}/tx/${hash}/blobs`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+		if (sort) url.searchParams.append("sort", sort)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchTxBlobsCount = async (hash) => {
+	try {
+		const url = new URL(`${useServerURL()}/tx/${hash}/blobs/count`)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 /** Latest PayForBlobs */
 export const fetchLatestPFBs = async (height) => {
 	try {
