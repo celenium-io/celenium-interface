@@ -37,7 +37,12 @@ const handleCancel = () => {
 			</Flex>
 
 			<Flex gap="8">
-				<Button @click="handleConfirm" type="secondary" size="small" block>
+				<Button
+					@click="handleConfirm"
+					:type="appStore.confirmation.buttons.confirm.color ? appStore.confirmation.buttons.confirm.color : 'secondary'"
+					size="small"
+					block
+				>
 					{{ appStore.confirmation.buttons.confirm.title }}
 				</Button>
 				<Button @click="handleCancel" type="secondary" size="small" block>

@@ -86,7 +86,8 @@ const handleClearBookmarks = () => {
 
 		buttons: {
 			confirm: {
-				title: "Yes, clear",
+				color: "red",
+				title: "Yes, delete all bookmarks",
 			},
 			cancel: {
 				title: "Cancel",

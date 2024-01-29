@@ -465,6 +465,7 @@ const rawDeveloperActions = [
 
 				buttons: {
 					confirm: {
+						color: "red",
 						title: "Yes, clear",
 					},
 					cancel: {
@@ -496,6 +497,7 @@ const rawDeveloperActions = [
 
 				buttons: {
 					confirm: {
+						color: "red",
 						title: "Yes, clear",
 					},
 					cancel: {
@@ -536,7 +538,8 @@ const rawDeveloperActions = [
 
 				buttons: {
 					confirm: {
-						title: "Yes, clear",
+						color: "red",
+						title: "Yes, delete all bookmarks",
 					},
 					cancel: {
 						title: "Cancel",

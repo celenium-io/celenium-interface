@@ -191,6 +191,18 @@ const getStyles = () => {
 	background: var(--btn-white-bg-active);
 }
 
+.wrapper.red {
+	background: var(--btn-red-bg);
+	fill: var(--txt-black);
+	color: var(--txt-black);
+}
+.wrapper.red:hover {
+	background: var(--btn-red-bg-hover);
+}
+.wrapper.red:active {
+	background: var(--btn-red-bg-active);
+}
+
 .wrapper.secondary {
 	background: linear-gradient(var(--op-10), var(--op-5));
 	fill: var(--txt-secondary);
