@@ -67,8 +67,10 @@ const handleChangeTheme = (theme) => {
 					<Text size="13" weight="500" color="tertiary">-</Text>
 					<Text size="13" weight="500" color="tertiary">Celestia Explorer</Text>
 					<a :href="`https://github.com/celenium-io/celenium-interface/releases/tag/v${appConfig.version}`" target="_blank">
-						<Text size="13" weight="500" color="support">v</Text>
-						<Text size="13" weight="500" color="tertiary">{{ appConfig.version }}</Text>
+						<Flex>
+							<Text size="13" weight="500" color="support">v</Text>
+							<Text size="13" weight="500" color="tertiary">{{ appConfig.version }}</Text>
+						</Flex>
 					</a>
 				</Flex>
 
