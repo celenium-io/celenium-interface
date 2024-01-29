@@ -38,6 +38,28 @@ export const fetchTPS = async () => {
 	}
 }
 
+export const fetchPrice = async () => {
+	try {
+		const url = new URL(`${useServerURL()}/stats/price/current`)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchPriceSeries = async () => {
+	try {
+		const url = new URL(`${useServerURL()}/stats/price/series/1d`)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchNamespaceUsage = async ({ top }) => {
 	try {
 		const url = new URL(`${useServerURL()}/stats/namespace/usage`)

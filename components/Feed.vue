@@ -5,11 +5,30 @@ import { comma, formatBytes, abbreviate } from "@/services/utils"
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
+/** API */
+import { fetchPrice, fetchPriceSeries } from "@/services/api/stats"
+
 /** Store */
 import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
 
 const head = computed(() => appStore.head)
+
+const price = reactive({
+	value: 0,
+	diff: 0,
+	side: null,
+})
+
+onMounted(async () => {
+	const dataPrice = await fetchPrice()
+	const dataSeries = await fetchPriceSeries()
+	price.value = parseFloat(dataPrice.close)
+
+	const prevDayClosePrice = parseFloat(dataSeries[1].close)
+	price.diff = (Math.abs(prevDayClosePrice - price.value) / ((prevDayClosePrice + price.value) / 2)) * 100
+	price.side = price.value - prevDayClosePrice > 0 ? "rise" : "fall"
+})
 </script>
 
 <template>
@@ -85,6 +104,27 @@ const head = computed(() => appStore.head)
 
 					<template #content> {{ comma(head.total_fee) }} UTIA </template>
 				</Tooltip>
+			</Flex>
+
+			<Flex align="center" gap="6" :class="$style.stat">
+				<Icon name="coin" size="12" color="secondary" :class="$style.icon" />
+
+				<Flex align="center" gap="4">
+					<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">TIA:</Text>
+
+					<Text v-if="price.value" size="12" weight="600" noWrap :class="$style.value"> ${{ price.value.toFixed(2) }} </Text>
+					<Skeleton v-else w="36" h="12" />
+				</Flex>
+
+				<Flex v-if="price.diff" align="center" gap="4">
+					<Icon v-if="price.side === 'rise'" name="arrow-circle-right-up" size="12" color="neutral-green" />
+					<Icon v-else name="arrow-circle-right-down" size="12" color="secondary" />
+
+					<Text size="12" weight="600" :color="price.side === 'rise' ? 'neutral-green' : 'secondary'" noWrap>
+						{{ price.diff.toFixed(2) }}%</Text
+					>
+				</Flex>
+				<Skeleton v-else w="50" h="12" />
 			</Flex>
 		</Flex>
 	</Flex>
