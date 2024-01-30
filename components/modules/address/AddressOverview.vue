@@ -763,6 +763,7 @@ const handleOpenQRModal = () => {
 	flex: 1;
 
 	padding-top: 16px;
+	padding-bottom: 16px;
 }
 
 .pagination {
