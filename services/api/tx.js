@@ -52,11 +52,13 @@ export const fetchTxMessages = async (hash) => {
 	}
 }
 
-export const fetchTxEvents = async (hash) => {
+export const fetchTxEvents = async ({ hash, offset }) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx/${hash}/events`)
 
-		const data = await useFetch(url.href)
+		if (offset) url.searchParams.append("offset", offset)
+
+		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
 		console.error(error)

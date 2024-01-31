@@ -57,27 +57,30 @@ const bookmarkText = computed(() => {
 
 const activeTab = ref("messages")
 
-const showAll = ref(false)
-const handleShowAll = () => {
-	showAll.value = !showAll.value
-
-	amp.log("toggleShowAll")
-}
-
 const messages = ref([])
 
+const offset = ref(0)
 const events = ref([])
-const filteredEvents = computed(() => (showAll.value ? events.value : events.value.slice(0, 10)))
 
-const { data: rawEvents } = await fetchTxEvents(props.tx.hash)
-events.value = rawEvents.value.sort((a, b) => a.position - b.position)
-cacheStore.current.events = events.value
+const handleLoadMore = async () => {
+	if (events.length === props.tx.events_count) return
+
+	offset.value += 10
+
+	const rawEvents = await fetchTxEvents({ hash: props.tx.hash, offset: offset.value })
+	events.value = [...events.value, ...rawEvents].sort((a, b) => a.position - b.position)
+	cacheStore.current.events = events.value
+}
 
 onMounted(async () => {
 	isBookmarked.value = !!bookmarksStore.bookmarks.txs.find((t) => t.id === props.tx.hash)
 
 	const data = await fetchTxMessages(props.tx.hash)
 	messages.value = data
+
+	const rawEvents = await fetchTxEvents({ hash: props.tx.hash })
+	events.value = rawEvents.sort((a, b) => a.position - b.position)
+	cacheStore.current.events = events.value
 })
 
 const handleBookmark = () => {
@@ -324,13 +327,7 @@ const handleViewRawEvent = (event) => {
 				</Flex>
 
 				<Flex v-if="activeTab === 'events'" direction="column" :class="[$style.inner, $style.events]">
-					<Flex
-						v-for="(event, idx) in filteredEvents"
-						@click="handleViewRawEvent(event)"
-						align="center"
-						gap="12"
-						:class="$style.event"
-					>
+					<Flex v-for="(event, idx) in events" @click="handleViewRawEvent(event)" align="center" gap="12" :class="$style.event">
 						<Flex
 							direction="column"
 							align="center"
@@ -607,14 +604,14 @@ const handleViewRawEvent = (event) => {
 							</Text>
 						</Flex>
 					</Flex>
+
+					<Button @click="handleLoadMore" type="secondary" size="mini" :disabled="tx.events_count == events.length">
+						Load More
+					</Button>
 				</Flex>
 				<Flex v-if="activeTab === 'messages'" :class="$style.inner">
 					<MessagesTable :messages="messages" />
 				</Flex>
-
-				<Button v-if="events.length > 10" @click="handleShowAll" type="secondary" size="mini">
-					{{ !showAll ? "View More" : "Hide" }}
-				</Button>
 			</Flex>
 		</Flex>
 	</Flex>
