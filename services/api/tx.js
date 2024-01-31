@@ -45,7 +45,7 @@ export const fetchTxMessages = async (hash) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx/${hash}/messages`)
 
-		const data = await useFetch(url.href)
+		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
 		console.error(error)

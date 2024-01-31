@@ -36,7 +36,7 @@ const props = defineProps({
 			<tbody>
 				<tr v-for="message in messages">
 					<td style="width: 1px">
-						<NuxtLink :to="`/tx/${message.tx.hash}`">
+						<NuxtLink :to="`/tx/${message.tx?.hash}`">
 							<Tooltip position="start" delay="500">
 								<Flex align="center" gap="8">
 									<Icon
@@ -78,14 +78,14 @@ const props = defineProps({
 						</NuxtLink>
 					</td>
 					<td style="width: 1px">
-						<NuxtLink :to="`/tx/${message.tx.hash}`">
+						<NuxtLink :to="`/tx/${message.tx?.hash}`">
 							<Flex align="center">
 								<MessageTypeBadge :types="[message.type]" />
 							</Flex>
 						</NuxtLink>
 					</td>
 					<td>
-						<NuxtLink :to="`/tx/${message.tx.hash}`">
+						<NuxtLink :to="`/tx/${message.tx?.hash}`">
 							<Flex align="center">
 								<Text size="13" weight="600" color="primary">
 									{{ DateTime.fromISO(message.time).toRelative({ locale: "en", style: "short" }) }}
@@ -94,7 +94,7 @@ const props = defineProps({
 						</NuxtLink>
 					</td>
 					<td>
-						<NuxtLink :to="`/tx/${message.tx.hash}`">
+						<NuxtLink :to="`/tx/${message.tx?.hash}`">
 							<Flex align="center">
 								<Outline @click.prevent="router.push(`/block/${message.height}`)">
 									<Flex align="center" gap="6">
