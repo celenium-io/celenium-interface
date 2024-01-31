@@ -124,9 +124,9 @@ onMounted(async () => {
 
 					<Flex v-if="price.diff" align="center" gap="4">
 						<Icon v-if="price.side === 'rise'" name="arrow-circle-right-up" size="12" color="neutral-green" />
-						<Icon v-else name="arrow-circle-right-down" size="12" color="secondary" />
+						<Icon v-else name="arrow-circle-right-down" size="12" color="red" />
 
-						<Text size="12" weight="600" :color="price.side === 'rise' ? 'neutral-green' : 'secondary'" noWrap>
+						<Text size="12" weight="600" :color="price.side === 'rise' ? 'neutral-green' : 'red'" noWrap>
 							{{ price.diff.toFixed(2) }}%</Text
 						>
 					</Flex>
@@ -135,11 +135,17 @@ onMounted(async () => {
 
 				<template #content>
 					<Flex direction="column" gap="6">
-						Price diff from the previous day
+						<Flex align="center" gap="4">
+							<Text color="primary">Price diff from the previous day</Text>
+						</Flex>
 
 						<Flex align="center" gap="4">
 							<Text color="tertiary">{{ DateTime.fromISO(series[1].time).setLocale("en").toFormat("ff") }} -></Text>
-							<Text color="primary">${{ series[1].close }}</Text>
+							<Text color="primary">${{ parseFloat(series[1].close).toFixed(2) }}</Text>
+						</Flex>
+
+						<Flex align="center" gap="4">
+							<Text size="11" color="tertiary">Binance quotes</Text>
 						</Flex>
 					</Flex>
 				</template>

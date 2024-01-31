@@ -15,6 +15,7 @@ const props = defineProps({
 const seriesByDay = ref({})
 
 const maxValue = ref(0)
+const days = [7, 6, 5, 4, 3, 2, 1]
 
 onMounted(async () => {
 	let rawSeries = []
@@ -43,6 +44,7 @@ onMounted(async () => {
 	})
 
 	Object.keys(seriesByDay.value).forEach((d) => {
+		seriesByDay.value[d].reverse();
 		if (seriesByDay.value[d].length !== 24) {
 			while (seriesByDay.value[d].length !== 24) {
 				seriesByDay.value[d].push({
@@ -72,7 +74,7 @@ onMounted(async () => {
 				</tr>
 			</thead>
 			<tbody>
-				<tr v-for="dayIdx in 7">
+				<tr v-for="dayIdx in days">
 					<td
 						v-for="hour in seriesByDay[
 							DateTime.now()
