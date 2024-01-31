@@ -28,7 +28,15 @@ const head = computed(() => appStore.head)
 const featurePreviewMode = ref(false)
 const isWalletAvailable = ref(false)
 
-onMounted(() => {
+const account = ref("")
+
+const getAccounts = async () => {
+	const offlineSigner = window.getOfflineSigner("celestia")
+	const accounts = await offlineSigner.getAccounts()
+	if (accounts.length) account.value = accounts[0].address
+}
+
+onMounted(async () => {
 	featurePreviewMode.value = localStorage.featurePreview
 	isWalletAvailable.value = !!window.keplr
 })
@@ -73,8 +81,10 @@ const handleNavigate = (url) => {
 	window.location.replace(url)
 }
 
-const handleConnect = () => {
-	window.keplr.enable("celestia")
+const handleConnect = async () => {
+	await window.keplr.enable("celestia")
+
+	getAccounts()
 }
 </script>
 
@@ -154,8 +164,14 @@ const handleConnect = () => {
 					</template>
 				</Tooltip>
 
-				<Button v-if="featurePreviewMode" @click="handleConnect" type="white" size="small" :disabled="!isWalletAvailable">
-					Connect
+				<Button
+					v-if="featurePreviewMode"
+					@click="handleConnect"
+					type="white"
+					size="small"
+					:disabled="!isWalletAvailable || account.length"
+				>
+					{{ account ? `celestia...${account.slice(-6)}` : "Connect" }}
 				</Button>
 			</Flex>
 		</Flex>
