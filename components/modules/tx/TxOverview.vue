@@ -9,6 +9,7 @@ import Button from "~/components/ui/Button.vue"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
+import MessagesTable from "@/components/modules/tx/MessagesTable.vue"
 
 /** Services */
 import { comma, tia, splitAddress } from "@/services/utils"
@@ -16,13 +17,19 @@ import { MessageIconMap } from "@/services/constants/mapping"
 import amp from "@/services/amp"
 
 /** API */
-import { fetchTxEvents } from "@/services/api/tx"
+import { fetchTxEvents, fetchTxMessages } from "@/services/api/tx"
 
 /** Store */
 import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
+import { useBookmarksStore } from "@/store/bookmarks"
+import { useNotificationsStore } from "@/store/notifications"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
+const bookmarksStore = useBookmarksStore()
+const notificationsStore = useNotificationsStore()
+
+const router = useRouter()
 
 const EventIconMapping = {
 	message: "message",
@@ -41,19 +48,82 @@ const props = defineProps({
 	},
 })
 
-const showAll = ref(false)
-const handleShowAll = () => {
-	showAll.value = !showAll.value
+const isBookmarkButtonHovered = ref(false)
+const isBookmarked = ref(false)
+const bookmarkText = computed(() => {
+	if (isBookmarkButtonHovered.value && isBookmarked.value) return "Remove"
+	return isBookmarked.value ? "Saved" : "Save"
+})
 
-	amp.log("toggleShowAll")
+const activeTab = ref("messages")
+
+const messages = ref([])
+
+const offset = ref(0)
+const events = ref([])
+
+const handleLoadMore = async () => {
+	if (events.length === props.tx.events_count) return
+
+	offset.value += 10
+
+	const rawEvents = await fetchTxEvents({ hash: props.tx.hash, offset: offset.value })
+	events.value = [...events.value, ...rawEvents].sort((a, b) => a.position - b.position)
+	cacheStore.current.events = events.value
 }
 
-const events = ref([])
-const filteredEvents = computed(() => (showAll.value ? events.value : events.value.slice(0, 10)))
+onMounted(async () => {
+	isBookmarked.value = !!bookmarksStore.bookmarks.txs.find((t) => t.id === props.tx.hash)
 
-const { data: rawEvents } = await fetchTxEvents(props.tx.hash)
-events.value = rawEvents.value.sort((a, b) => a.position - b.position)
-cacheStore.current.events = events.value
+	const data = await fetchTxMessages(props.tx.hash)
+	messages.value = data
+
+	const rawEvents = await fetchTxEvents({ hash: props.tx.hash })
+	events.value = rawEvents.sort((a, b) => a.position - b.position)
+	cacheStore.current.events = events.value
+})
+
+const handleBookmark = () => {
+	if (!isBookmarked.value) {
+		bookmarksStore.bookmarks.txs.push({
+			id: props.tx.hash,
+			type: "Transaction",
+			ts: new Date().getTime(),
+		})
+		isBookmarked.value = true
+
+		notificationsStore.create({
+			notification: {
+				type: "success",
+				icon: "check",
+				title: "Transaction added to bookmarks",
+				description: "View all bookmarks on dedicated page",
+				autoDestroy: true,
+				actions: [
+					{
+						name: "Open Bookmarks",
+						callback: () => {
+							router.push("/bookmarks")
+						},
+					},
+				],
+			},
+		})
+	} else {
+		const bookmarkIdx = bookmarksStore.bookmarks.txs.findIndex((t) => t.id === props.tx.hash)
+		bookmarksStore.bookmarks.txs.splice(bookmarkIdx, 1)
+		isBookmarked.value = false
+
+		notificationsStore.create({
+			notification: {
+				type: "success",
+				icon: "check",
+				title: "Transaction removed from bookmarks",
+				autoDestroy: true,
+			},
+		})
+	}
+}
 
 const handleViewRawTransaction = () => {
 	cacheStore.current._target = "transaction"
@@ -62,6 +132,12 @@ const handleViewRawTransaction = () => {
 
 const handleViewRawEvents = () => {
 	cacheStore.current._target = "events"
+	modalsStore.open("rawData")
+}
+
+const handleViewRawEvent = (event) => {
+	cacheStore.current._target = "event"
+	cacheStore.current.event = event
 	modalsStore.open("rawData")
 }
 </script>
@@ -74,16 +150,34 @@ const handleViewRawEvents = () => {
 				<Text size="13" weight="600" color="primary">Transaction</Text>
 			</Flex>
 
-			<Dropdown>
-				<Button type="tertiary" size="mini">
-					<Icon name="dots" size="16" color="secondary" />
+			<Flex align="center" gap="8">
+				<Button
+					@click="handleBookmark"
+					@mouseenter="isBookmarkButtonHovered = true"
+					@mouseleave="isBookmarkButtonHovered = false"
+					type="secondary"
+					size="mini"
+				>
+					<Icon
+						:name="isBookmarkButtonHovered && isBookmarked ? 'close' : isBookmarked ? 'bookmark-check' : 'bookmark-plus'"
+						size="12"
+						:color="isBookmarked && !isBookmarkButtonHovered ? 'green' : 'secondary'"
+					/>
+					{{ bookmarkText }}
 				</Button>
 
-				<template #popup>
-					<DropdownItem @click="handleViewRawTransaction"> View Raw Transaction </DropdownItem>
-					<DropdownItem @click="handleViewRawEvents"> View Raw Events </DropdownItem>
-				</template>
-			</Dropdown>
+				<Dropdown>
+					<Button type="secondary" size="mini">
+						<Icon name="dots" size="16" color="secondary" />
+						More
+					</Button>
+
+					<template #popup>
+						<DropdownItem @click="handleViewRawTransaction"> View Raw Transaction </DropdownItem>
+						<DropdownItem @click="handleViewRawEvents"> View Raw Events </DropdownItem>
+					</template>
+				</Dropdown>
+			</Flex>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
@@ -205,30 +299,35 @@ const handleViewRawEvents = () => {
 				</Flex>
 			</Flex>
 
-			<Flex direction="column" gap="16" wide :class="$style.events_wrapper">
-				<Text size="13" weight="600" color="primary"> Events </Text>
+			<Flex direction="column" gap="4" wide :class="$style.events_wrapper">
+				<Flex align="center" justify="between" :class="$style.tabs_wrapper">
+					<Flex gap="4" :class="$style.tabs">
+						<Flex
+							@click="activeTab = 'messages'"
+							align="center"
+							gap="6"
+							:class="[$style.tab, activeTab === 'messages' && $style.active]"
+						>
+							<Icon name="message" size="12" color="secondary" />
 
-				<Flex direction="column">
-					<Flex align="center" gap="8" :class="$style.message_types">
-						<template v-if="tx.message_types.length">
-							<Icon
-								:name="
-									MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
-										? MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
-										: 'zap'
-								"
-								size="14"
-								color="secondary"
-							/>
-							<Text size="12" weight="600" color="primary">
-								{{ tx.message_types.map((type) => type.replace("Msg", "")).join(", ") }}
-							</Text>
-						</template>
+							<Text size="13" weight="600">Messages</Text>
+						</Flex>
 
-						<Text v-else size="12" weight="600" color="tertiary">No Message Types</Text>
+						<Flex
+							@click="activeTab = 'events'"
+							align="center"
+							gap="6"
+							:class="[$style.tab, activeTab === 'events' && $style.active]"
+						>
+							<Icon name="zap" size="12" color="secondary" />
+
+							<Text size="13" weight="600">Events</Text>
+						</Flex>
 					</Flex>
+				</Flex>
 
-					<Flex v-for="(event, idx) in filteredEvents" align="center" gap="12" :class="$style.event">
+				<Flex v-if="activeTab === 'events'" direction="column" :class="[$style.inner, $style.events]">
+					<Flex v-for="(event, idx) in events" @click="handleViewRawEvent(event)" align="center" gap="12" :class="$style.event">
 						<Flex
 							direction="column"
 							align="center"
@@ -505,11 +604,14 @@ const handleViewRawEvents = () => {
 							</Text>
 						</Flex>
 					</Flex>
-				</Flex>
 
-				<Button v-if="events.length > 10" @click="handleShowAll" type="secondary" size="mini">
-					{{ !showAll ? "View More" : "Hide" }}
-				</Button>
+					<Button @click="handleLoadMore" type="secondary" size="mini" :disabled="tx.events_count == events.length">
+						Load More
+					</Button>
+				</Flex>
+				<Flex v-if="activeTab === 'messages'" :class="$style.inner">
+					<MessagesTable :messages="messages" />
+				</Flex>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -578,10 +680,61 @@ const handleViewRawEvents = () => {
 
 .events_wrapper {
 	min-width: 0;
+}
+
+.tabs_wrapper {
+	min-height: 44px;
+	overflow-x: auto;
+
+	border-radius: 4px;
+	background: var(--card-background);
+
+	padding: 0 8px;
+}
+
+.tabs_wrapper::-webkit-scrollbar {
+	display: none;
+}
+
+.tab {
+	height: 28px;
+
+	cursor: pointer;
+	border-radius: 6px;
+
+	padding: 0 8px;
+
+	transition: all 0.1s ease;
+
+	& span {
+		color: var(--txt-tertiary);
+
+		transition: all 0.1s ease;
+	}
+
+	&:hover {
+		& span {
+			color: var(--txt-secondary);
+		}
+	}
+}
+
+.tab.active {
+	background: var(--op-8);
+
+	& span {
+		color: var(--txt-primary);
+	}
+}
+
+.inner {
+	height: 100%;
 
 	border-radius: 4px 4px 8px 4px;
 	background: var(--card-background);
+}
 
+.events {
 	padding: 16px;
 }
 
@@ -598,6 +751,8 @@ const handleViewRawEvents = () => {
 
 .event {
 	height: 36px;
+
+	cursor: pointer;
 
 	& .left {
 		height: 100%;
@@ -673,6 +828,16 @@ const handleViewRawEvents = () => {
 	.data {
 		.main {
 			min-width: initial;
+		}
+	}
+}
+
+@media (max-width: 400px) {
+	.tabs_wrapper {
+		overflow-x: auto;
+
+		&::-webkit-scrollbar {
+			display: none;
 		}
 	}
 }

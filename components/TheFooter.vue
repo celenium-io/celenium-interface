@@ -64,31 +64,39 @@ const handleChangeTheme = (theme) => {
 				<Flex align="center" gap="8">
 					<Icon name="logo" size="14" color="tertiary" />
 					<Text size="13" weight="500" color="secondary">Celenium</Text>
-					<Text size="13" weight="500" color="tertiary">- Celestia Explorer, {{ new Date().getFullYear() }}</Text>
-				</Flex>
-
-				<Flex align="center" gap="16">
+					<Text size="13" weight="500" color="tertiary">-</Text>
+					<Text size="13" weight="500" color="tertiary">Celestia Explorer</Text>
 					<a :href="`https://github.com/celenium-io/celenium-interface/releases/tag/v${appConfig.version}`" target="_blank">
 						<Flex>
-							<Text size="12" weight="600" color="support">
-								Version <Text color="tertiary">{{ appConfig.version }}</Text>
-							</Text>
+							<Text size="13" weight="500" color="support">v</Text>
+							<Text size="13" weight="500" color="tertiary">{{ appConfig.version }}</Text>
 						</Flex>
 					</a>
 				</Flex>
 
-				<NuxtLink to="https://celenium.io/address/celestia15ans77hr2uxefyn6fa2lcsvpngwevuaugth7f5">
-					<Flex align="center" gap="8">
-						<Text size="12" weight="500" color="support">Donations: </Text>
-						<Text size="12" weight="500" color="tertiary">celestia</Text>
-						<Flex align="center" gap="3">
-							<div v-for="dot in 3" class="dot" />
-						</Flex>
-						<Text size="12" weight="500" color="tertiary">wevu augt h7f5</Text>
-					</Flex>
-				</NuxtLink>
-			</Flex>
+				<Flex align="center" gap="8">
+					<NuxtLink to="https://www.pklab.io/terms" :class="$style.link">
+						<Text size="12" weight="500" color="tertiary">Terms of Use</Text>
+					</NuxtLink>
+					<NuxtLink to="https://www.pklab.io/privacy" :class="$style.link">
+						<Text size="12" weight="500" color="tertiary">Privacy Policy</Text>
+					</NuxtLink>
+				</Flex>
 
+				<Flex align="center" gap="8">
+					<Text size="12" weight="500" color="support">Donations:</Text>
+					<a :href="`https://celenium.io/address/celestia15ans77hr2uxefyn6fa2lcsvpngwevuaugth7f5`" target="_blank">
+						<Flex>
+							<Text size="12" weight="500" color="tertiary">TIA</Text>
+						</Flex>
+					</a>
+					<a :href="`https://etherscan.io/address/0x9FfB1cb28c55735e77B352eE918b4F0c3595a761`" target="_blank">
+						<Flex>
+							<Text size="12" weight="500" color="tertiary">ETH</Text>
+						</Flex>
+					</a>
+				</Flex>
+			</Flex>
 			<Flex direction="column" align="end" gap="16">
 				<Flex align="center" gap="16">
 					<Dropdown side="top">

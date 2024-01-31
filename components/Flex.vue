@@ -1,4 +1,5 @@
 <script setup>
+/** Vendor */
 import { ref, computed } from "vue"
 
 const wrapper = ref(null)

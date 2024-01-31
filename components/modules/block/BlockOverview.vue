@@ -20,8 +20,14 @@ import { fetchTransactionsByBlock } from "@/services/api/tx"
 /** Store */
 import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
+import { useBookmarksStore } from "@/store/bookmarks"
+import { useNotificationsStore } from "@/store/notifications"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
+const bookmarksStore = useBookmarksStore()
+const notificationsStore = useNotificationsStore()
+
+const router = useRouter()
 
 const MapTabsTypes = {
 	PFBs: "MsgPayForBlobs",
@@ -29,8 +35,6 @@ const MapTabsTypes = {
 	Register: "MsgRegisterEVMAddress",
 	Delegate: "MsgDelegate",
 }
-
-const router = useRouter()
 
 const props = defineProps({
 	block: {
@@ -40,6 +44,13 @@ const props = defineProps({
 	transactions: {
 		type: Array,
 	},
+})
+
+const isBookmarkButtonHovered = ref(false)
+const isBookmarked = ref(false)
+const bookmarkText = computed(() => {
+	if (isBookmarkButtonHovered.value && isBookmarked.value) return "Remove"
+	return isBookmarked.value ? "Saved" : "Save"
 })
 
 const tabs = ref(["PFBs", "Transfers", "Register", "Delegate", "Other"])
@@ -78,6 +89,10 @@ const getTransactions = async () => {
 	isRefetching.value = false
 }
 await getTransactions()
+
+onMounted(() => {
+	isBookmarked.value = !!bookmarksStore.bookmarks.blocks.find((t) => t.id === props.block.height)
+})
 
 /** Refetch transactions */
 watch(
@@ -133,6 +148,48 @@ const getTxnsCountByTab = (tab) => {
 	}
 }
 
+const handleBookmark = () => {
+	if (!isBookmarked.value) {
+		bookmarksStore.bookmarks.blocks.push({
+			id: props.block.height,
+			type: "Block",
+			ts: new Date().getTime(),
+		})
+		isBookmarked.value = true
+
+		notificationsStore.create({
+			notification: {
+				type: "success",
+				icon: "check",
+				title: "Block added to bookmarks",
+				description: "View all bookmarks on dedicated page",
+				autoDestroy: true,
+				actions: [
+					{
+						name: "Open Bookmarks",
+						callback: () => {
+							router.push("/bookmarks")
+						},
+					},
+				],
+			},
+		})
+	} else {
+		const bookmarkIdx = bookmarksStore.bookmarks.blocks.findIndex((t) => t.id === props.block.height)
+		bookmarksStore.bookmarks.blocks.splice(bookmarkIdx, 1)
+		isBookmarked.value = false
+
+		notificationsStore.create({
+			notification: {
+				type: "success",
+				icon: "check",
+				title: "Block removed from bookmarks",
+				autoDestroy: true,
+			},
+		})
+	}
+}
+
 const handleViewRawBlock = () => {
 	cacheStore.current._target = "block"
 	modalsStore.open("rawData")
@@ -152,16 +209,34 @@ const handleViewRawTransactions = () => {
 				<Text size="13" weight="600" color="primary">Block </Text>
 			</Flex>
 
-			<Dropdown>
-				<Button type="tertiary" size="mini">
-					<Icon name="dots" size="16" color="secondary" />
+			<Flex align="center" gap="8">
+				<Button
+					@click="handleBookmark"
+					@mouseenter="isBookmarkButtonHovered = true"
+					@mouseleave="isBookmarkButtonHovered = false"
+					type="secondary"
+					size="mini"
+				>
+					<Icon
+						:name="isBookmarkButtonHovered && isBookmarked ? 'close' : isBookmarked ? 'bookmark-check' : 'bookmark-plus'"
+						size="12"
+						:color="isBookmarked && !isBookmarkButtonHovered ? 'green' : 'secondary'"
+					/>
+					{{ bookmarkText }}
 				</Button>
 
-				<template #popup>
-					<DropdownItem @click="handleViewRawBlock"> View Raw Block </DropdownItem>
-					<DropdownItem @click="handleViewRawTransactions"> View Raw Transactions </DropdownItem>
-				</template>
-			</Dropdown>
+				<Dropdown>
+					<Button type="secondary" size="mini">
+						<Icon name="dots" size="16" color="secondary" />
+						More
+					</Button>
+
+					<template #popup>
+						<DropdownItem @click="handleViewRawBlock"> View Raw Block </DropdownItem>
+						<DropdownItem @click="handleViewRawTransactions"> View Raw Transactions </DropdownItem>
+					</template>
+				</Dropdown>
+			</Flex>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">

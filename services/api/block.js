@@ -89,3 +89,27 @@ export const fetchBlockNamespacesCount = async (height) => {
 		console.error(error)
 	}
 }
+
+export const fetchBlockBlobs = async ({ height, limit, offset, sort }) => {
+	try {
+		const url = new URL(`${useServerURL()}/block/${height}/blobs`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+		if (sort) url.searchParams.append("sort", sort)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchBlockBlobsCount = async (height) => {
+	try {
+		const data = await $fetch(`${useServerURL()}/block/${height}/blobs/count`)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}

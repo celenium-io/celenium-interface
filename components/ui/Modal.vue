@@ -160,7 +160,7 @@ const onKeydown = (e) => {
 	position: relative;
 	overflow: hidden;
 
-	border-radius: 6px;
+	border-radius: 12px;
 	background: var(--card-background);
 	box-shadow: rgb(0 0 0 / 20%) 0px 0px 1px, rgb(0 0 0 / 10%) 0px 10px 40px;
 	border: 1px solid var(--op-5);

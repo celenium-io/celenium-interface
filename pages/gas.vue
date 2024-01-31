@@ -1,10 +1,12 @@
 <script setup>
 /** Modules */
 import GasPriceChart from "@/components/modules/gas/GasPriceChart.vue"
+import GasPriceHeatmap from "@/components/modules/gas/GasPriceHeatmap.vue"
 import GasEfficiencyChart from "@/components/modules/gas/GasEfficiencyChart.vue"
 
-/** Services */
-import { truncate } from "@/services/utils"
+/** UI */
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
+import Button from "@/components/ui/Button.vue"
 
 /** API */
 import { fetchGasPrice } from "@/services/api/gas"
@@ -12,6 +14,33 @@ import { fetchGasPrice } from "@/services/api/gas"
 const route = useRoute()
 
 const gasPrice = ref({})
+
+const visualizations = ref([
+	{
+		title: "Line Chart",
+		value: "line",
+	},
+	{
+		title: "Heatmap",
+		value: "heatmap",
+	},
+])
+const selectedVisualization = ref(visualizations.value[0].value)
+
+const selectedPeriodIdx = ref(0)
+const periods = ref([
+	{
+		title: "24 hours",
+		value: 24,
+		timeframe: "hour",
+	},
+	{
+		title: "31 days",
+		value: 30,
+		timeframe: "day",
+	},
+])
+const selectedPeriod = computed(() => periods.value[selectedPeriodIdx.value])
 
 onMounted(async () => {
 	const data = await fetchGasPrice()
@@ -83,64 +112,67 @@ useHead({
 
 			<Flex gap="4" :class="$style.content">
 				<Flex direction="column" justify="between" gap="20" :class="$style.left">
-					<Flex justify="between" wide>
-						<Flex direction="column" gap="8">
-							<Flex align="center" gap="8">
-								<Icon name="gas_fast" size="12" color="green" />
-								<Text size="12" weight="600" color="secondary">Fast</Text>
+					<Flex direction="column" gap="16">
+						<Text size="12" weight="600" color="primary">Gas Price</Text>
+						<Flex justify="between" wide>
+							<Flex direction="column" gap="8">
+								<Flex align="center" gap="8">
+									<Icon name="gas_fast" size="12" color="green" />
+									<Text size="12" weight="600" color="secondary">Fast</Text>
+								</Flex>
+
+								<Flex align="center" gap="8">
+									<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
+										{{
+											Number(gasPrice.fast)
+												.toFixed(3)
+												.replace(/\.?0*$/, "")
+										}}
+										UTIA
+									</Text>
+									<Skeleton v-else w="50" h="13" />
+									<CopyButton :text="gasPrice.fast" />
+								</Flex>
 							</Flex>
 
-							<Flex align="center" gap="8">
-								<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
-									{{
-										Number(gasPrice.fast)
-											.toFixed(3)
-											.replace(/\.?0*$/, "")
-									}}
-									UTIA
-								</Text>
-								<Skeleton v-else w="50" h="13" />
-								<CopyButton :text="gasPrice.fast" />
-							</Flex>
-						</Flex>
+							<Flex direction="column" gap="8">
+								<Flex align="center" gap="8">
+									<Icon name="gas_median" size="12" color="yellow" />
+									<Text size="12" weight="600" color="secondary">Median</Text>
+								</Flex>
 
-						<Flex direction="column" gap="8">
-							<Flex align="center" gap="8">
-								<Icon name="gas_median" size="12" color="yellow" />
-								<Text size="12" weight="600" color="secondary">Median</Text>
-							</Flex>
-
-							<Flex align="center" gap="8">
-								<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
-									{{
-										Number(gasPrice.median)
-											.toFixed(3)
-											.replace(/\.?0*$/, "")
-									}}
-									UTIA
-								</Text>
-								<Skeleton v-else w="50" h="13" />
-								<CopyButton :text="gasPrice.median" />
-							</Flex>
-						</Flex>
-
-						<Flex direction="column" gap="8">
-							<Flex align="center" gap="8">
-								<Icon name="gas_slow" size="14" color="secondary" />
-								<Text size="12" weight="600" color="secondary">Slow</Text>
+								<Flex align="center" gap="8">
+									<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
+										{{
+											Number(gasPrice.median)
+												.toFixed(3)
+												.replace(/\.?0*$/, "")
+										}}
+										UTIA
+									</Text>
+									<Skeleton v-else w="50" h="13" />
+									<CopyButton :text="gasPrice.median" />
+								</Flex>
 							</Flex>
 
-							<Flex align="center" gap="8">
-								<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
-									{{
-										Number(gasPrice.slow)
-											.toFixed(3)
-											.replace(/\.?0*$/, "")
-									}}
-									UTIA
-								</Text>
-								<Skeleton v-else w="50" h="13" />
-								<CopyButton :text="gasPrice.slow" />
+							<Flex direction="column" gap="8">
+								<Flex align="center" gap="8">
+									<Icon name="gas_slow" size="14" color="secondary" />
+									<Text size="12" weight="600" color="secondary">Slow</Text>
+								</Flex>
+
+								<Flex align="center" gap="8">
+									<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
+										{{
+											Number(gasPrice.slow)
+												.toFixed(3)
+												.replace(/\.?0*$/, "")
+										}}
+										UTIA
+									</Text>
+									<Skeleton v-else w="50" h="13" />
+									<CopyButton :text="gasPrice.slow" />
+								</Flex>
 							</Flex>
 						</Flex>
 					</Flex>
@@ -160,9 +192,59 @@ useHead({
 				</Flex>
 
 				<Flex direction="column" gap="4" :class="$style.charts">
-					<div :class="$style.card">
-						<GasPriceChart />
-					</div>
+					<Flex direction="column" gap="16" :class="$style.card">
+						<Flex align="start" justify="between">
+							<Flex align="center" gap="6">
+								<Icon name="chart" size="13" color="primary" />
+								<Text size="13" weight="600" color="primary">Average Gas Price</Text>
+							</Flex>
+
+							<Flex align="center" gap="8">
+								<Dropdown>
+									<Button size="mini" type="secondary">
+										<Icon name="chart" size="12" color="primary" />
+										<Text color="primary" style="text-transform: capitalize">{{ selectedVisualization }}</Text>
+										<Icon name="chevron" size="12" color="secondary" />
+									</Button>
+
+									<template #popup>
+										<DropdownItem
+											v-for="visualization in visualizations"
+											@click="selectedVisualization = visualization.value"
+										>
+											<Flex align="center" gap="8">
+												<Icon
+													:name="visualization.value === selectedVisualization ? 'check' : ''"
+													size="12"
+													color="secondary"
+												/>
+												{{ visualization.title }}
+											</Flex>
+										</DropdownItem>
+									</template>
+								</Dropdown>
+
+								<Dropdown :disabled="selectedVisualization === 'heatmap'">
+									<Button size="mini" type="secondary" :disabled="selectedVisualization === 'heatmap'">
+										{{ selectedPeriod.title }}
+										<Icon name="chevron" size="12" color="secondary" />
+									</Button>
+
+									<template #popup>
+										<DropdownItem v-for="(period, idx) in periods" @click="selectedPeriodIdx = idx">
+											<Flex align="center" gap="8">
+												<Icon :name="idx === selectedPeriodIdx ? 'check' : ''" size="12" color="secondary" />
+												{{ period.title }}
+											</Flex>
+										</DropdownItem>
+									</template>
+								</Dropdown>
+							</Flex>
+						</Flex>
+
+						<GasPriceChart v-if="selectedVisualization === 'line'" :selectedPeriod="selectedPeriod" />
+						<GasPriceHeatmap v-else-if="selectedVisualization === 'heatmap'" :selectedPeriod="selectedPeriod" />
+					</Flex>
 
 					<div :class="$style.card">
 						<GasEfficiencyChart />
@@ -210,6 +292,7 @@ useHead({
 
 .charts {
 	width: 100%;
+	min-width: 0;
 }
 
 .card {

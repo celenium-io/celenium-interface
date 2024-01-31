@@ -1,22 +1,24 @@
 <script setup>
+const wrapper = ref()
+defineExpose({ wrapper })
+
 const props = defineProps({
 	action: {
 		type: Object,
 	},
+	isFocused: {
+		type: Boolean,
+		default: false,
+	},
 })
-const emit = defineEmits(["onReturn"])
-
-const onKeydown = () => {
-	emit("onReturn", props.action)
-}
 </script>
 
 <template>
-	<Flex @keydown.enter="onKeydown" align="center" justify="between" :class="$style.wrapper" tabindex="1">
-		<Flex align="center" gap="8">
+	<Flex ref="wrapper" align="center" justify="between" :class="[$style.wrapper, isFocused && $style.focused]">
+		<Flex align="center" gap="8" :class="$style.left">
 			<Icon :name="action.icon" size="12" color="primary" :class="$style.icon" />
 
-			<Text size="13" weight="500" color="primary">
+			<Text size="13" weight="500" color="primary" :class="$style.title">
 				{{ action.title }}
 			</Text>
 		</Flex>
@@ -36,8 +38,6 @@ const onKeydown = () => {
 
 	padding: 0 8px;
 
-	transition: all 0.1s ease;
-
 	&:hover {
 		background: var(--op-5);
 	}
@@ -46,10 +46,14 @@ const onKeydown = () => {
 		background: var(--op-8);
 	}
 
-	&:focus-visible {
+	&.focused {
 		background: var(--op-8);
 		outline: none;
 	}
+}
+
+.left {
+	min-width: 0;
 }
 
 .icon {
@@ -59,5 +63,10 @@ const onKeydown = () => {
 	background: var(--op-10);
 
 	padding: 4px;
+}
+
+.title {
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 </style>

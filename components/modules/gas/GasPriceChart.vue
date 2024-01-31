@@ -4,30 +4,15 @@ import { DateTime } from "luxon"
 import * as d3 from "d3"
 import { useDebounceFn } from "@vueuse/core"
 
-/** UI */
-import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
-import Button from "@/components/ui/Button.vue"
-
 /** Services */
 import { truncate } from "@/services/utils"
 
 /** API */
 import { fetchGasPriceSeries } from "@/services/api/gas"
 
-const selectedPeriodIdx = ref(0)
-const periods = ref([
-	{
-		title: "24 hours",
-		value: 24,
-		timeframe: "hour",
-	},
-	{
-		title: "31 days",
-		value: 30,
-		timeframe: "day",
-	},
-])
-const selectedPeriod = computed(() => periods.value[selectedPeriodIdx.value])
+const props = defineProps({
+	selectedPeriod: Object,
+})
 
 /** Chart El */
 const chartWrapperEl = ref()
@@ -91,14 +76,14 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 		}
 
 		badgeText.value =
-			selectedPeriod.value.timeframe === "day"
+			props.selectedPeriod.timeframe === "day"
 				? DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
 				: DateTime.fromJSDate(data[idx].date).set({ minutes: 0 }).toFormat("hh:mm a")
 
 		if (!badgeEl.value) return
 		if (idx < 1) {
 			badgeOffset.value = 0
-		} else if (idx > selectedPeriod.value.value - 2) {
+		} else if (idx > props.selectedPeriod.value - 2) {
 			badgeOffset.value = badgeEl.value.getBoundingClientRect().width
 		} else {
 			badgeOffset.value = badgeEl.value.getBoundingClientRect().width / 2
@@ -172,34 +157,34 @@ const getGasPriceSeries = async () => {
 	gasPriceSeries.value = []
 
 	const sizeSeriesRawData = await fetchGasPriceSeries({
-		timeframe: selectedPeriod.value.timeframe,
+		timeframe: props.selectedPeriod.timeframe,
 		to: parseInt(DateTime.now().plus({ minutes: 1 }).ts / 1_000),
 		from: parseInt(
 			DateTime.now()
 				.set({ minutes: 0, seconds: 0 })
 				.minus({
-					days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
-					hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - 1 : 0,
+					days: props.selectedPeriod.timeframe === "day" ? props.selectedPeriod.value : 0,
+					hours: props.selectedPeriod.timeframe === "hour" ? props.selectedPeriod.value - 1 : 0,
 				}).ts / 1_000,
 		),
 	})
 
 	const gasPriceSeriesMap = {}
 	sizeSeriesRawData.forEach((item) => {
-		gasPriceSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] =
+		gasPriceSeriesMap[DateTime.fromISO(item.time).toFormat(props.selectedPeriod.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] =
 			item.value
 	})
 
-	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
+	for (let i = 1; i < props.selectedPeriod.value + 1; i++) {
 		const dt = DateTime.now()
 			.set({ minutes: 0, seconds: 0 })
 			.minus({
-				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
-				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - i : 0,
+				days: props.selectedPeriod.timeframe === "day" ? props.selectedPeriod.value - i : 0,
+				hours: props.selectedPeriod.timeframe === "hour" ? props.selectedPeriod.value - i : 0,
 			})
 		gasPriceSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseFloat(gasPriceSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+			value: parseFloat(gasPriceSeriesMap[dt.toFormat(props.selectedPeriod.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
 }
@@ -215,7 +200,7 @@ const buildGasTrackingCharts = async () => {
 }
 
 watch(
-	() => selectedPeriodIdx.value,
+	() => props.selectedPeriod,
 	() => {
 		buildGasTrackingCharts()
 	},
@@ -238,44 +223,6 @@ onBeforeUnmount(() => {
 
 <template>
 	<Flex direction="column" gap="24" wide>
-		<Flex align="start" justify="between">
-			<Flex align="center" gap="6">
-				<Icon name="chart" size="13" color="primary" />
-				<Text size="13" weight="600" color="primary">Average Gas Price</Text>
-			</Flex>
-
-			<Flex align="center" gap="8">
-				<Dropdown>
-					<Button size="mini" type="secondary">
-						<Icon name="chart" size="12" color="primary" />
-						<Text color="primary">Line</Text>
-						<Icon name="chevron" size="12" color="secondary" />
-					</Button>
-
-					<template #popup>
-						<DropdownItem> Line Chart </DropdownItem>
-						<DropdownItem disabled> Heatmap </DropdownItem>
-					</template>
-				</Dropdown>
-
-				<Dropdown>
-					<Button size="mini" type="secondary">
-						{{ selectedPeriod.title }}
-						<Icon name="chevron" size="12" color="secondary" />
-					</Button>
-
-					<template #popup>
-						<DropdownItem v-for="(period, idx) in periods" @click="selectedPeriodIdx = idx">
-							<Flex align="center" gap="8">
-								<Icon :name="idx === selectedPeriodIdx ? 'check' : ''" size="12" color="secondary" />
-								{{ period.title }}
-							</Flex>
-						</DropdownItem>
-					</template>
-				</Dropdown>
-			</Flex>
-		</Flex>
-
 		<Flex ref="chartWrapperEl" direction="column" :class="$style.chart_wrapper">
 			<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">
 				<Text v-if="gasPriceSeries.length" size="12" weight="600" color="tertiary">
@@ -294,23 +241,23 @@ onBeforeUnmount(() => {
 
 			<Flex :class="[$style.axis, $style.x]">
 				<Flex align="end" justify="between" wide>
-					<Text v-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">
+					<Text v-if="props.selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">
 						{{
 							DateTime.now()
-								.minus({ days: selectedPeriod.value - 1 })
+								.minus({ days: props.selectedPeriod.value - 1 })
 								.toFormat("LLL dd")
 						}}
 					</Text>
 					<Text v-else size="12" weight="600" color="tertiary">
 						{{
 							DateTime.now()
-								.minus({ hours: selectedPeriod.value - 1 })
+								.minus({ hours: props.selectedPeriod.value - 1 })
 								.set({ minutes: 0 })
 								.toFormat("hh:mm a")
 						}}
 					</Text>
 
-					<Text size="12" weight="600" color="tertiary">{{ selectedPeriod.timeframe === "day" ? "Today" : "Now" }}</Text>
+					<Text size="12" weight="600" color="tertiary">{{ props.selectedPeriod.timeframe === "day" ? "Today" : "Now" }}</Text>
 				</Flex>
 			</Flex>
 

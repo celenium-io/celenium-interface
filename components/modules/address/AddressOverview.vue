@@ -20,8 +20,12 @@ import { fetchTxsByAddressHash, fetchBlobsByAddressHash } from "@/services/api/a
 /** Store */
 import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
+import { useBookmarksStore } from "@/store/bookmarks"
+import { useNotificationsStore } from "@/store/notifications"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
+const bookmarksStore = useBookmarksStore()
+const notificationsStore = useNotificationsStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -31,6 +35,13 @@ const props = defineProps({
 		type: Object,
 		required: true,
 	},
+})
+
+const isBookmarkButtonHovered = ref(false)
+const isBookmarked = ref(false)
+const bookmarkText = computed(() => {
+	if (isBookmarkButtonHovered.value && isBookmarked.value) return "Remove"
+	return isBookmarked.value ? "Saved" : "Save"
 })
 
 const activeTab = ref("transactions")
@@ -288,6 +299,48 @@ watch(
 	},
 )
 
+const handleBookmark = () => {
+	if (!isBookmarked.value) {
+		bookmarksStore.bookmarks.addresses.push({
+			id: props.address.hash,
+			type: "Address",
+			ts: new Date().getTime(),
+		})
+		isBookmarked.value = true
+
+		notificationsStore.create({
+			notification: {
+				type: "success",
+				icon: "check",
+				title: "Address added to bookmarks",
+				description: "View all bookmarks on dedicated page",
+				autoDestroy: true,
+				actions: [
+					{
+						name: "Open Bookmarks",
+						callback: () => {
+							router.push("/bookmarks")
+						},
+					},
+				],
+			},
+		})
+	} else {
+		const bookmarkIdx = bookmarksStore.bookmarks.addresses.findIndex((t) => t.id === props.address.hash)
+		bookmarksStore.bookmarks.addresses.splice(bookmarkIdx, 1)
+		isBookmarked.value = false
+
+		notificationsStore.create({
+			notification: {
+				type: "success",
+				icon: "check",
+				title: "Address removed from bookmarks",
+				autoDestroy: true,
+			},
+		})
+	}
+}
+
 const handleViewRawAddress = () => {
 	cacheStore.current._target = "address"
 	modalsStore.open("rawData")
@@ -301,7 +354,7 @@ const handleViewRawTransactions = () => {
 const handleOpenQRModal = () => {
 	cacheStore.qr.data = props.address.hash
 	cacheStore.qr.description = "Scan QR code to get this address"
-	cacheStore.qr.icon = "addresses"
+	cacheStore.qr.icon = "address"
 
 	modalsStore.open("qr")
 }
@@ -311,14 +364,30 @@ const handleOpenQRModal = () => {
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
 			<Flex align="center" gap="8">
-				<Icon name="addresses" size="14" color="primary" />
+				<Icon name="address" size="14" color="primary" />
 				<Text size="13" weight="600" color="primary">Address</Text>
 			</Flex>
 
 			<Flex align="center" gap="8">
+				<Button
+					@click="handleBookmark"
+					@mouseenter="isBookmarkButtonHovered = true"
+					@mouseleave="isBookmarkButtonHovered = false"
+					type="secondary"
+					size="mini"
+				>
+					<Icon
+						:name="isBookmarkButtonHovered && isBookmarked ? 'close' : isBookmarked ? 'bookmark-check' : 'bookmark-plus'"
+						size="12"
+						:color="isBookmarked && !isBookmarkButtonHovered ? 'green' : 'secondary'"
+					/>
+					{{ bookmarkText }}
+				</Button>
+
 				<Button @click="handleOpenQRModal" type="secondary" size="mini">
 					<Icon name="qr" size="12" color="secondary" />
 				</Button>
+
 				<Dropdown>
 					<Button type="secondary" size="mini">
 						<Icon name="dots" size="12" color="secondary" />
@@ -328,7 +397,7 @@ const handleOpenQRModal = () => {
 					<template #popup>
 						<DropdownItem @click="handleViewRawAddress">
 							<Flex align="center" gap="8">
-								<Icon name="addresses" size="12" color="secondary" />
+								<Icon name="address" size="12" color="secondary" />
 								View Raw Address
 							</Flex>
 						</DropdownItem>
@@ -550,7 +619,7 @@ const handleOpenQRModal = () => {
 							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No Blobs</Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									This address does not contain blobs
+									This address did not push any blobs
 								</Text>
 							</Flex>
 						</template>

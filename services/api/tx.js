@@ -45,18 +45,20 @@ export const fetchTxMessages = async (hash) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx/${hash}/messages`)
 
-		const data = await useFetch(url.href)
+		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
 		console.error(error)
 	}
 }
 
-export const fetchTxEvents = async (hash) => {
+export const fetchTxEvents = async ({ hash, offset }) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx/${hash}/events`)
 
-		const data = await useFetch(url.href)
+		if (offset) url.searchParams.append("offset", offset)
+
+		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
 		console.error(error)
@@ -81,6 +83,32 @@ export const fetchTxNamespaces = async ({ hash, limit, offset, sort }) => {
 export const fetchTxNamespacesCount = async (hash) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx/${hash}/namespace/count`)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchTxBlobs = async ({ hash, limit, offset, sort }) => {
+	try {
+		const url = new URL(`${useServerURL()}/tx/${hash}/blobs`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+		if (sort) url.searchParams.append("sort", sort)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchTxBlobsCount = async (hash) => {
+	try {
+		const url = new URL(`${useServerURL()}/tx/${hash}/blobs/count`)
 
 		const data = await $fetch(url.href)
 		return data
