@@ -23,7 +23,7 @@ let removeOutside = null
 const headerEl = ref(null)
 const showPopup = ref(false)
 
-const head = computed(() => appStore.head)
+const head = computed(() => appStore.lastHead)
 
 const featurePreviewMode = ref(false)
 const isWalletAvailable = ref(false)

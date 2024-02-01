@@ -21,6 +21,7 @@ const notificationsStore = useNotificationsStore()
 
 const blocks = computed(() => appStore.latestBlocks)
 const lastBlock = computed(() => appStore.latestBlocks[0])
+const lastHead = computed(() => appStore.lastHead)
 const preview = reactive({
 	block: blocks.value[0],
 	transactions: [],
@@ -50,7 +51,8 @@ const blocksSnapshot = ref([])
 const isPaused = ref(false)
 
 const handlePause = () => {
-	if (!appStore.head.synced) return
+	console.log(lastHead);
+	if (!lastHead?.synced) return
 
 	isPaused.value = !isPaused.value
 }
@@ -82,7 +84,7 @@ watch(
 )
 
 /** Auto-pause for unsynced head */
-if (!appStore.head.synced) {
+if (!lastHead?.synced) {
 	handlePause()
 
 	notificationsStore.create({
@@ -147,12 +149,12 @@ watch(
 
 			<Flex align="center" gap="8">
 				<Tooltip position="end">
-					<Button @click="handlePause" type="tertiary" size="mini" :disabled="!appStore.head.synced">
+					<Button @click="handlePause" type="tertiary" size="mini" :disabled="!lastHead?.synced">
 						<Icon :name="isPaused ? 'resume' : 'pause'" size="14" color="secondary" />
 						{{ isPaused ? "Resume" : "Pause" }}
 					</Button>
 
-					<template v-if="appStore.head.synced" #content>
+					<template v-if="lastHead?.synced" #content>
 						<Flex align="start" direction="column" gap="6">
 							<Text>Stop receiving new blocks</Text>
 							<Text color="tertiary">Resuming will update the list of recent blocks</Text>
