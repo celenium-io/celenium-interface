@@ -51,8 +51,7 @@ const blocksSnapshot = ref([])
 const isPaused = ref(false)
 
 const handlePause = () => {
-	console.log(lastHead);
-	if (!lastHead?.synced) return
+	if (!lastHead?.value.synced) return
 
 	isPaused.value = !isPaused.value
 }
@@ -84,7 +83,7 @@ watch(
 )
 
 /** Auto-pause for unsynced head */
-if (!lastHead?.synced) {
+if (!lastHead?.value.synced) {
 	handlePause()
 
 	notificationsStore.create({
