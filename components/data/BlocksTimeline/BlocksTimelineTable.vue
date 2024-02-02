@@ -83,7 +83,7 @@ watch(
 )
 
 /** Auto-pause for unsynced head */
-if (!lastHead?.value.synced) {
+if (Object.keys(lastHead.value).length !== 0 && !lastHead?.value.synced) {
 	handlePause()
 
 	notificationsStore.create({
