@@ -75,7 +75,6 @@ const sort = reactive({
 const getRollupsCount = async () => {
 	const { data: rollupsCount } = await fetchRollupsCount()
 	count.value = rollupsCount.value
-	console.log(count.value);
 }
 
 await getRollupsCount()
