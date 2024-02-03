@@ -2,23 +2,16 @@
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
-/** API */
-import { fetchSummary } from "@/services/api/stats"
-import { fetchAddressesCount } from "@/services/api/address"
-
 /** Services */
 import { abbreviate } from "@/services/utils"
 
-const totalAccounts = ref(0)
-const totalValidators = ref(0)
+/** Store */
+import { useAppStore } from "@/store/app"
+const appStore = useAppStore()
 
-const { data } = await fetchAddressesCount()
-totalAccounts.value = data.value
+const totalAccounts = computed(() => appStore.lastHead?.total_accounts)
+const totalValidators = computed(() => appStore.lastHead?.total_validators)
 
-onMounted(async () => {
-	const data = await fetchSummary({ table: "validator", func: "count" })
-	totalValidators.value = data
-})
 </script>
 
 <template>
@@ -26,7 +19,7 @@ onMounted(async () => {
 		<Flex direction="column" gap="20" :class="$style.top">
 			<Text size="16" weight="600" color="primary">Accounts</Text>
 
-			<Text size="40" weight="600" color="primary" :class="[$style.ds_font, $style.tpm_num]">
+			<Text v-if="totalAccounts" size="40" weight="600" color="primary" :class="[$style.ds_font, $style.tpm_num]">
 				{{ abbreviate(totalAccounts) }}
 			</Text>
 		</Flex>

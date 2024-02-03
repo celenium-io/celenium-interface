@@ -243,7 +243,7 @@ useHead({
 						</Flex>
 
 						<GasPriceChart v-if="selectedVisualization === 'line'" :selectedPeriod="selectedPeriod" />
-						<GasPriceHeatmap v-else-if="selectedVisualization === 'heatmap'" :selectedPeriod="selectedPeriod" />
+						<GasPriceHeatmap v-else-if="selectedVisualization === 'heatmap'" :selectedPeriod="periods[0]" />
 					</Flex>
 
 					<div :class="$style.card">

@@ -84,7 +84,7 @@ onBeforeMount(async () => {
 				<LatestPFBTable />
 			</Flex>
 
-			<BlocksTimelineTable v-if="appStore.head && appStore.latestBlocks.length" />
+			<BlocksTimelineTable v-if="appStore.lastHead && appStore.latestBlocks.length" />
 		</Flex>
 	</Flex>
 </template>

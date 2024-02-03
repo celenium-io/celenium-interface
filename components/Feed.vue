@@ -15,7 +15,7 @@ import { fetchPrice, fetchPriceSeries } from "@/services/api/stats"
 import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
 
-const head = computed(() => appStore.head)
+const head = computed(() => appStore.lastHead)
 
 const series = ref([])
 const price = reactive({
