@@ -17,6 +17,13 @@ const seriesByDay = ref({})
 const minValue = ref(0)
 const maxValue = ref(0)
 
+const calculateOpacity = (val) => {
+	const normalizedValue = (val - minValue.value) / (maxValue.value - minValue.value);
+	const opacity = 0.2 + normalizedValue * 0.8;
+
+	return opacity;
+}
+
 onMounted(async () => {
 	let rawSeries = []
 
@@ -33,8 +40,8 @@ onMounted(async () => {
 
 	rawSeries = [...data, ...data1.slice(1, data1.length)]
 
-	maxValue.value = Math.max(...rawSeries.map((i) => i.value))
 	minValue.value = Math.min(...rawSeries.map((i) => i.value))
+	maxValue.value = Math.max(...rawSeries.map((i) => i.value))
 
 	for (let idx = 0; idx < 7; idx++) {
 		seriesByDay.value[DateTime.now().minus({ days: idx }).toFormat("d")] = []
@@ -83,7 +90,7 @@ onMounted(async () => {
 								.toFormat('d')
 						]"
 						:class="[!hour.value && $style.not_available]"
-						:style="{ opacity: `${0.2 + (hour.value - minValue) / (maxValue - minValue) * 0.8}` }"
+						:style="{ opacity: calculateOpacity(hour.value) }"
 					>
 						<Tooltip :disabled="!hour.value">
 							<div :class="$style.inner" />
