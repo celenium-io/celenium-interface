@@ -27,8 +27,8 @@ onMounted(async () => {
 
 	Socket.init()
 
-	// const data = await fetchHead()
-	// if (data) appStore.head = data
+	const data = await fetchHead()
+	if (data) appStore.lastHead = data
 
 	window.onbeforeunload = function () {
 		Socket.close()
