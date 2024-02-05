@@ -111,8 +111,7 @@ watch(
 watch(
 	() => preview.transactions,
 	async () => {
-		const hasPFB = !!preview.transactions.filter((t) => t.message_types.includes("MsgPayForBlobs"))
-		if (!hasPFB) {
+		if (preview.block.stats.blobs_size === 0) {
 			preview.isLoadingPfbs = false
 			return
 		}
