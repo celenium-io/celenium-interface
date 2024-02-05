@@ -22,6 +22,7 @@ const totalValidators = computed(() => appStore.lastHead?.total_validators)
 			<Text v-if="totalAccounts" size="40" weight="600" color="primary" :class="[$style.ds_font, $style.tpm_num]">
 				{{ abbreviate(totalAccounts) }}
 			</Text>
+			<Skeleton v-else w="90" h="40" />
 		</Flex>
 
 		<Flex direction="column" gap="24" :class="$style.bottom">
@@ -30,7 +31,7 @@ const totalValidators = computed(() => appStore.lastHead?.total_validators)
 				<Text size="13" weight="600" height="110" color="secondary">Validators</Text>
 			</Flex>
 
-			<Tooltip position="start">
+			<Tooltip v-if="totalValidators" position="start">
 				<Flex gap="2" :class="$style.bars">
 					<div v-for="item in 10" :class="[$style.bar, (100 * 100) / totalValidators > item * 10 && $style.active]" />
 				</Flex>
@@ -49,10 +50,12 @@ const totalValidators = computed(() => appStore.lastHead?.total_validators)
 					</Flex>
 				</template>
 			</Tooltip>
+			<Skeleton v-else w="180" h="20" />
 
 			<Flex align="center" justify="between">
 				<Text size="12" weight="600" color="tertiary"> Active Validators </Text>
-				<Text size="16" weight="600" color="secondary" :class="$style.ds_font">100</Text>
+				<Text v-if="totalValidators" size="16" weight="600" color="secondary" :class="$style.ds_font">100</Text>
+				<Skeleton v-else w="20" h="16" />
 			</Flex>
 		</Flex>
 	</Flex>
