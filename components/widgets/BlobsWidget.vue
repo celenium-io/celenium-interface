@@ -71,8 +71,6 @@ const calculateOpacity = (val) => {
 	if (val) {
 		const normalizedValue = (val - minValue.value) / (maxValue.value - minValue.value);
 		opacity += normalizedValue * 0.6;
-		console.log(val);
-		console.log(opacity);
 	}
 
 	return opacity;

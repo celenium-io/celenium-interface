@@ -18,7 +18,7 @@ export const useNotificationsStore = defineStore("notifications", () => {
 		if (notification.autoDestroy) {
 			setTimeout(() => {
 				remove({ id })
-			}, 4500)
+			}, notification.delay ? notification.delay : 4500)
 		}
 
 		items.value.unshift({ ...notification, id })
