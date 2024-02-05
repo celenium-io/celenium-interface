@@ -72,6 +72,9 @@ const isActive = (link) => {
 		case "namespaces":
 			return splittedPath.includes("namespace") || splittedPath.includes("namespaces")
 
+		case "rollups":
+			return splittedPath.includes("rollup") || splittedPath.includes("rollups")
+
 		default:
 			break
 	}
@@ -124,6 +127,10 @@ const handleConnect = async () => {
 
 				<NuxtLink to="/namespaces" :class="[$style.link, isActive('namespaces') && $style.active]">
 					<Text size="13" weight="600" color="tertiary">Namespaces</Text>
+				</NuxtLink>
+
+				<NuxtLink to="/rollups" :class="[$style.link, isActive('rollups') && $style.active]">
+					<Text size="13" weight="600" color="tertiary">Rollups</Text>
 				</NuxtLink>
 			</Flex>
 
@@ -191,6 +198,10 @@ const handleConnect = async () => {
 
 			<NuxtLink to="/namespaces" :class="[$style.link, isActive('namespaces') && $style.active]">
 				<Text size="13" weight="600" color="tertiary">Namespaces</Text>
+			</NuxtLink>
+
+			<NuxtLink to="/rollups" :class="[$style.link, isActive('rollups') && $style.active]">
+				<Text size="13" weight="600" color="tertiary">Rollups</Text>
 			</NuxtLink>
 		</Flex>
 	</Flex>
