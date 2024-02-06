@@ -36,7 +36,7 @@ isLoading.value = false
 					<thead>
 						<tr>
 							<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
-							<th><Text size="12" weight="600" color="tertiary" noWrap>Height</Text></th>
+							<th><Text size="12" weight="600" color="tertiary" noWrap>Block Height</Text></th>
 							<th><Text size="12" weight="600" color="tertiary" noWrap>Time</Text></th>
 							<th><Text size="12" weight="600" color="tertiary" noWrap>Fee</Text></th>
 						</tr>
