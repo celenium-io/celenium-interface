@@ -772,7 +772,7 @@ const searchAction = {
 				break
 
 			case "rollup":
-				router.push(`/rollup/${data.value[0].result.id}`)
+				router.push(`/rollup/${data.value[0].result.slug}`)
 				break
 
 			default:
@@ -827,7 +827,7 @@ const debouncedSearch = useDebounceFn(async (e) => {
 						break
 
 					case "rollup":
-						router.push(`/rollup/${data.value[i].result.id}`)
+						router.push(`/rollup/${data.value[i].result.slug}`)
 						break
 
 					default:
