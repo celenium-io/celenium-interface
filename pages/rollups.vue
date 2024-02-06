@@ -149,7 +149,7 @@ const handleNext = () => {
 				]"
 			/>
 
-			<Button link="https://forms.gle/nimJyQJG4Lb4BTcG7" type="secondary" size="mini">
+			<Button link="https://forms.gle/nimJyQJG4Lb4BTcG7" target="_blank" type="secondary" size="mini">
 				<Icon name="rollup-plus" size="12" color="secondary" /> Rollup Registration
 			</Button>
 		</Flex>
@@ -229,14 +229,14 @@ const handleNext = () => {
 						<tbody>
 							<tr v-for="(r, index) in rollups">
 								<td>
-									<NuxtLink :to="`/rollup/${r.id}`">
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
 											<Text size="13" weight="600" color="primary">{{ index + 1 }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td style="width: 1px">
-									<NuxtLink :to="`/rollup/${r.id}`">
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center" gap="8">
 											<Flex v-if="r.logo" align="center" justify="center" :class="$style.avatar_container">
 												<img :src="r.logo" :class="$style.avatar_image" />
@@ -251,7 +251,7 @@ const handleNext = () => {
 									</NuxtLink>
 								</td>
 								<td>
-									<NuxtLink :to="`/rollup/${r.id}`">
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex direction="column" justify="center" gap="4">
 											<Text size="12" weight="600" color="primary">
 												{{ DateTime.fromISO(r.last_message_time).toRelative({ locale: "en", style: "short" }) }}
@@ -263,14 +263,14 @@ const handleNext = () => {
 									</NuxtLink>
 								</td>
 								<td>
-									<NuxtLink :to="`/rollup/${r.id}`">
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
 											<Text size="13" weight="600" color="primary">{{ formatBytes(r.size) }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td>
-									<NuxtLink :to="`/rollup/${r.id}`">
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
 											<Text size="13" weight="600" color="primary">{{ comma(r.blobs_count) }}</Text>
 										</Flex>

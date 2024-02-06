@@ -4,7 +4,7 @@ import RollupOverview from "@/components/modules/rollup/RollupOverview.vue"
 import RollupCharts from "@/components/modules/rollup/RollupCharts.vue"
 
 /** API */
-import { fetchRollupByID } from "@/services/api/rollup"
+import { fetchRollupBySlug } from "@/services/api/rollup"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
@@ -17,7 +17,7 @@ const route = useRoute()
 const router = useRouter()
 
 const rollup = ref()
-const { data: rawRollup } = await fetchRollupByID(route.params.id)
+const { data: rawRollup } = await fetchRollupBySlug(route.params.slug)
 
 if (!rawRollup.value) {
 	router.push("/")
@@ -91,7 +91,7 @@ useHead({
 					]"
 				/>
 
-				<Button link="https://forms.gle/nimJyQJG4Lb4BTcG7" type="secondary" size="mini">
+				<Button link="https://forms.gle/nimJyQJG4Lb4BTcG7" target="_blank" type="secondary" size="mini">
 					<Icon name="rollup-plus" size="12" color="secondary" /> Rollup Registration
 				</Button>
 			</Flex>
