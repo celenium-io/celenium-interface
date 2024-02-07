@@ -11,81 +11,77 @@ import { fetchBlockByHeight } from "@/services/api/block"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
-import { useNotificationsStore } from "@/store/notifications"
 const cacheStore = useCacheStore()
-const notificationsStore = useNotificationsStore()
 
 const route = useRoute()
-const router = useRouter()
 
 const block = ref()
 const { data: rawBlock } = await fetchBlockByHeight(route.params.height)
+
 if (!rawBlock.value) {
-	router.push("/")
-	
-	notificationsStore.create({
-		notification: {
-			type: "info",
-			icon: "block",
-			title: `Couldn't find any block by "${route.params.height}"`,
-			autoDestroy: true,
-			delay: 5500,
+	navigateTo({
+		path: "/",
+		query: {
+			error: "not_found",
+			target: "block",
+			id: route.params.height,
 		},
 	})
 } else {
 	block.value = rawBlock.value
 	cacheStore.current.block = block.value
-
-	defineOgImage({
-		title: "Block",
-		block: block.value,
-		component: "BlockImage",
-		cacheKey: `${block.value?.height}`,
-	})
-	useHead({
-		title: `Block ${comma(block.value?.height)} - Celestia Explorer`,
-		link: [
-			{
-				rel: "canonical",
-				href: `https://celenium.io${route.path}`,
-			},
-		],
-		meta: [
-			{
-				name: "description",
-				content: `Celestia Block Height ${block.value?.height}. The timestamp, hash, proposer, metadata, gas used and transactions in the block.`,
-			},
-			{
-				property: "og:title",
-				content: `Block ${comma(block.value?.height)} - Celestia Explorer`,
-			},
-			{
-				property: "og:description",
-				content: `Celestia Block Height ${block.value?.height}. The timestamp, hash, proposer, metadata, gas used and transactions in the block.`,
-			},
-			{
-				property: "og:url",
-				content: `https://celenium.io${route.path}`,
-			},
-			{
-				property: "og:image",
-				content: `https://celenium.io${route.path}__og_image__/og.png`,
-			},
-			{
-				name: "twitter:title",
-				content: `Block ${comma(block.value?.height)} - Celestia Explorer`,
-			},
-			{
-				name: "twitter:description",
-				content: `Celestia Block Height ${block.value?.height}. The timestamp, hash, proposer, metadata, gas used and transactions in the block.`,
-			},
-			{
-				name: "twitter:card",
-				content: "summary_large_image",
-			},
-		],
-	})
 }
+
+defineOgImage({
+	title: "Block",
+	block: block.value,
+	component: "BlockImage",
+	cacheKey: `${block.value?.height}`,
+})
+
+useHead({
+	title: `Block ${comma(block.value?.height)} - Celestia Explorer`,
+	link: [
+		{
+			rel: "canonical",
+			href: `https://celenium.io${route.path}`,
+		},
+	],
+	meta: [
+		{
+			name: "description",
+			content: `Celestia Block Height ${block.value?.height}. The timestamp, hash, proposer, metadata, gas used and transactions in the block.`,
+		},
+		{
+			property: "og:title",
+			content: `Block ${comma(block.value?.height)} - Celestia Explorer`,
+		},
+		{
+			property: "og:description",
+			content: `Celestia Block Height ${block.value?.height}. The timestamp, hash, proposer, metadata, gas used and transactions in the block.`,
+		},
+		{
+			property: "og:url",
+			content: `https://celenium.io${route.path}`,
+		},
+		{
+			property: "og:image",
+			content: `https://celenium.io${route.path}__og_image__/og.png`,
+		},
+		{
+			name: "twitter:title",
+			content: `Block ${comma(block.value?.height)} - Celestia Explorer`,
+		},
+		{
+			name: "twitter:description",
+			content: `Celestia Block Height ${block.value?.height}. The timestamp, hash, proposer, metadata, gas used and transactions in the block.`,
+		},
+		{
+			name: "twitter:card",
+			content: "summary_large_image",
+		},
+	],
+})
 </script>
 
 <template>
