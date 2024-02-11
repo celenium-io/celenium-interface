@@ -165,6 +165,7 @@ const handleLast = async () => {
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Txs</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Events</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Blobs</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Blobs Size</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Total Fees</Text></th>
 							</tr>
@@ -285,6 +286,15 @@ const handleLast = async () => {
 										<Flex align="center">
 											<Text size="13" weight="600" color="primary">
 												{{ block.stats.events_count }}
+											</Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/block/${block.height}`">
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary">
+												{{ block.stats.tx_count }}
 											</Text>
 										</Flex>
 									</NuxtLink>

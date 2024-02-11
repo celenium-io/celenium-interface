@@ -201,6 +201,8 @@ watch(
 								<th><Text size="12" weight="600" color="tertiary">Block Height</Text></th>
 								<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
 								<th><Text size="12" weight="600" color="tertiary">Proposer</Text></th>
+								<th><Text size="12" weight="600" color="tertiary">Txs</Text></th>
+								<th><Text size="12" weight="600" color="tertiary">Blobs</Text></th>
 								<th><Text size="12" weight="600" color="tertiary">Total Fees</Text></th>
 							</tr>
 						</thead>
@@ -223,16 +225,13 @@ watch(
 									</NuxtLink>
 								</td>
 								<td>
-									<Flex direction="column" gap="4">
+									<Flex align="center">
 										<Text size="12" weight="600" color="primary">
 											{{
 												DateTime.fromISO(block.time)
 													.plus({ seconds: block.stats.block_time / 1_000 })
 													.toRelative({ locale: "en", style: "short" })
 											}}
-										</Text>
-										<Text size="12" weight="500" color="tertiary">
-											{{ DateTime.fromISO(block.time).setLocale("en").toFormat("LLL d, t") }}
 										</Text>
 									</Flex>
 								</td>
@@ -271,6 +270,20 @@ watch(
 											</Flex>
 										</template>
 									</Tooltip>
+								</td>
+								<td>
+									<Flex align="center">
+										<Text size="13" weight="600" color="primary">
+											{{ block.stats.tx_count }}
+										</Text>
+									</Flex>
+								</td>
+								<td>
+									<Flex align="center">
+										<Text size="13" weight="600" color="primary">
+											{{ block.stats.tx_count }}
+										</Text>
+									</Flex>
 								</td>
 								<td>
 									<Flex align="center" gap="4">
@@ -603,7 +616,11 @@ watch(
 			text-align: left;
 			padding: 0;
 			padding-bottom: 8px;
-			padding-left: 16px;
+			padding-right: 24px;
+
+			&:first-child {
+				padding-left: 16px;
+			}
 
 			& span {
 				display: flex;
@@ -612,14 +629,19 @@ watch(
 
 		& tr td {
 			padding: 0;
-			padding-right: 24px;
-			padding-left: 16px;
+			padding-right: 16px;
 			padding-top: 8px;
 			padding-bottom: 8px;
 
 			white-space: nowrap;
+			overflow: hidden;
+      		text-overflow: ellipsis;
 
 			border-right: 2px solid transparent;
+
+			&:first-child {
+				padding-left: 16px;
+			}
 		}
 	}
 }
@@ -678,7 +700,7 @@ watch(
 }
 
 .proposer_moniker {
-	max-width: 190px;
+	max-width: 150px;
 
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -718,6 +740,7 @@ watch(
 	}
 
 	.table {
+		width: 604px;
 		border-radius: 4px 4px 8px 8px;
 	}
 }
