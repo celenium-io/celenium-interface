@@ -181,7 +181,7 @@ const handleNext = () => {
 			</Flex>
 
 			<Flex direction="column" gap="16" wide :class="[$style.table, isRefetching && $style.disabled]">
-				<div :class="$style.table_scroller">
+				<div v-if="rollups.length"  :class="$style.table_scroller">
 					<table>
 						<thead>
 							<tr>
@@ -280,6 +280,13 @@ const handleNext = () => {
 						</tbody>
 					</table>
 				</div>
+
+				<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+					<Text size="13" weight="600" color="secondary" align="center"> No rollups found </Text>
+					<Text size="12" weight="500" height="160" color="tertiary" align="center">
+						This network does not contain any rollups
+					</Text>
+				</Flex>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -313,8 +320,6 @@ const handleNext = () => {
 	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 
-	padding-bottom: 12px;
-
 	transition: all 0.2s ease;
 
 	& table {
@@ -322,6 +327,8 @@ const handleNext = () => {
 		height: fit-content;
 
 		border-spacing: 0px;
+
+		padding-bottom: 12px;
 
 		& tbody {
 			& tr {
@@ -433,5 +440,9 @@ const handleNext = () => {
 
 		padding: 16px;
 	}
+}
+
+.empty {
+	padding: 16px 0;
 }
 </style>
