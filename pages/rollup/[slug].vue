@@ -4,7 +4,10 @@ import RollupOverview from "@/components/modules/rollup/RollupOverview.vue"
 import RollupCharts from "@/components/modules/rollup/RollupCharts.vue"
 
 /** API */
-import { fetchRollupByID } from "@/services/api/rollup"
+import { fetchRollupBySlug } from "@/services/api/rollup"
+
+/** UI */
+import Button from "@/components/ui/Button.vue"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
@@ -14,7 +17,7 @@ const route = useRoute()
 const router = useRouter()
 
 const rollup = ref()
-const { data: rawRollup } = await fetchRollupByID(route.params.id)
+const { data: rawRollup } = await fetchRollupBySlug(route.params.slug)
 
 if (!rawRollup.value) {
 	router.push("/")
@@ -78,15 +81,20 @@ useHead({
 <template>
 	<Flex direction="column" gap="32" wide :class="$style.wrapper">
 		<Flex direction="column" gap="16">
-			<Breadcrumbs
-				v-if="rollup"
-				:items="[
-					{ link: '/', name: 'Explore' },
-					{ link: '/rollups', name: 'Rollups' },
-					{ link: route.fullPath, name: rollup.name },
-				]"
-			/>
+			<Flex align="end" justify="between" :class="$style.breadcrumbs">
+				<Breadcrumbs
+					v-if="rollup"
+					:items="[
+						{ link: '/', name: 'Explore' },
+						{ link: '/rollups', name: 'Rollups Leaderboard' },
+						{ link: route.fullPath, name: rollup.name },
+					]"
+				/>
 
+				<Button link="https://forms.gle/nimJyQJG4Lb4BTcG7" target="_blank" type="secondary" size="mini">
+					<Icon name="rollup-plus" size="12" color="secondary" /> Rollup Registration
+				</Button>
+			</Flex>
 			<RollupOverview v-if="rollup" :rollup="rollup" />
 		</Flex>
 
@@ -98,7 +106,7 @@ useHead({
 .wrapper {
 	max-width: calc(var(--base-width) + 48px);
 
-	padding: 40px 24px 60px 24px;
+	padding: 26px 24px 60px 24px;
 }
 
 @media (max-width: 500px) {

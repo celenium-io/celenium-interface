@@ -142,7 +142,7 @@ watch(
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
 			<Flex align="center" gap="8">
-				<Icon name="package" size="14" color="primary" />
+				<Icon name="rollup" size="14" color="primary" />
 				<Text size="13" weight="600" color="primary">Rollup</Text>
 			</Flex>
 

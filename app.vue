@@ -24,14 +24,14 @@ onMounted(async () => {
 	const runtimeConfig = useRuntimeConfig()
 	amp.init(runtimeConfig.public.AMP)
 
-	if (localStorage.bookmarks) {
-		bookmarksStore.bookmarks = JSON.parse(localStorage.bookmarks)
-	}
+	const data = await fetchHead()
+	if (data) appStore.lastHead = data
 
 	Socket.init()
 
-	// const data = await fetchHead()
-	// if (data) appStore.head = data
+	if (localStorage.bookmarks) {
+		bookmarksStore.bookmarks = JSON.parse(localStorage.bookmarks)
+	}
 
 	const data = await fetchGasPrice()
 	appStore.gas = data
