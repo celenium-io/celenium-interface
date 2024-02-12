@@ -3,17 +3,19 @@
 import GasPriceChart from "@/components/modules/gas/GasPriceChart.vue"
 import GasPriceHeatmap from "@/components/modules/gas/GasPriceHeatmap.vue"
 import GasEfficiencyChart from "@/components/modules/gas/GasEfficiencyChart.vue"
+import GasFeeCalculator from "@/components/modules/gas/GasFeeCalculator.vue"
 
 /** UI */
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Button from "@/components/ui/Button.vue"
 
-/** API */
-import { fetchGasPrice } from "@/services/api/gas"
+/** Store */
+import { useAppStore } from "@/store/app"
+const appStore = useAppStore()
 
 const route = useRoute()
 
-const gasPrice = ref({})
+const gasPrice = computed(() => appStore.gas)
 
 const visualizations = ref([
 	{
@@ -41,11 +43,6 @@ const periods = ref([
 	},
 ])
 const selectedPeriod = computed(() => periods.value[selectedPeriodIdx.value])
-
-onMounted(async () => {
-	const data = await fetchGasPrice()
-	gasPrice.value = data
-})
 
 useHead({
 	title: `Celestia Gas Tracker - Celenium`,
@@ -177,17 +174,30 @@ useHead({
 						</Flex>
 					</Flex>
 
-					<Flex direction="column" gap="8" :class="$style.bottom">
-						<Flex align="center" gap="6">
-							<Icon name="help" size="12" color="secondary" />
-							<Text size="12" weight="600" color="secondary"> Fast - 99%, Median - 50%, Slow - 10%</Text>
+					<Flex direction="column" gap="20" :class="$style.bottom">
+						<GasFeeCalculator />
+
+						<Flex direction="column" gap="8">
+							<Flex align="center" gap="12">
+								<Flex align="center" gap="6">
+									<Icon name="gas_fast" size="12" color="secondary" />
+									<Text size="12" weight="600" color="secondary"> Fast <Text color="primary">99%</Text></Text>
+								</Flex>
+								<Flex align="center" gap="6">
+									<Icon name="gas_median" size="12" color="secondary" />
+									<Text size="12" weight="600" color="secondary"> Median <Text color="primary">50%</Text></Text>
+								</Flex>
+								<Flex align="center" gap="6">
+									<Icon name="gas_slow" size="12" color="secondary" />
+									<Text size="12" weight="600" color="secondary"> Slow <Text color="primary">10%</Text></Text>
+								</Flex>
+							</Flex>
+
+							<Text size="12" weight="600" color="tertiary" height="140">
+								Price is calculated on fee payments for the last <Text color="secondary">100</Text> blocks. Each gas price
+								level is the percentage of transactions in which gas price was set below a specified value
+							</Text>
 						</Flex>
-						<Text size="12" weight="600" color="tertiary">
-							Price is calculated on fee payments for the last <Text color="secondary">100</Text> blocks
-						</Text>
-						<Text size="12" weight="500" color="tertiary" height="140">
-							Each gas price level is the percentage of transactions in which gas price was set below a specified value
-						</Text>
 					</Flex>
 				</Flex>
 
@@ -304,8 +314,6 @@ useHead({
 
 .bottom {
 	opacity: 0.6;
-
-	border-top: 2px solid var(--op-5);
 
 	padding-top: 12px;
 }
