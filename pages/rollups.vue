@@ -4,10 +4,9 @@ import { DateTime } from "luxon"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
-import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { space, formatBytes, comma } from "@/services/utils"
+import { formatBytes, comma } from "@/services/utils"
 
 /** API */
 import { fetchRollups, fetchRollupsCount } from "@/services/api/rollup"
@@ -27,7 +26,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: "Rollups - Celestia Explorer",
+			content: "Rollups Leaderboard - Celestia Explorer",
 		},
 		{
 			property: "og:description",
@@ -43,7 +42,7 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: "Rollups - Celestia Explorer",
+			content: "Rollups Leaderboard - Celestia Explorer",
 		},
 		{
 			name: "twitter:description",
@@ -68,7 +67,7 @@ const rollups = ref([])
 const count = ref(0)
 
 const sort = reactive({
-	by: "time",
+	by: "size",
 	dir: "desc",
 })
 
@@ -146,16 +145,20 @@ const handleNext = () => {
 			<Breadcrumbs
 				:items="[
 					{ link: '/', name: 'Explore' },
-					{ link: '/rollups', name: `Rollups` },
+					{ link: '/rollups', name: `Rollups Leaderboard` },
 				]"
 			/>
+
+			<Button link="https://forms.gle/nimJyQJG4Lb4BTcG7" target="_blank" type="secondary" size="mini">
+				<Icon name="rollup-plus" size="12" color="secondary" /> Rollup Registration
+			</Button>
 		</Flex>
 
 		<Flex wide direction="column" gap="4">
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
-					<Icon name="package" size="16" color="secondary" />
-					<Text size="14" weight="600" color="primary">Rollups</Text>
+					<Icon name="rollup" size="16" color="secondary" />
+					<Text size="14" weight="600" color="primary">Rollups Leaderboard</Text>
 				</Flex>
 
 				<!-- Pagination -->
@@ -182,6 +185,7 @@ const handleNext = () => {
 					<table>
 						<thead>
 							<tr>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>#</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Rollup</Text></th>
 								<th @click="handleSort('time')" :class="$style.sortable">
 									<Flex align="center" gap="6">
@@ -223,28 +227,31 @@ const handleNext = () => {
 						</thead>
 
 						<tbody>
-							<tr v-for="r in rollups">
-								<td style="width: 1px">
-									<NuxtLink :to="`/rollup/${r.id}`">
+							<tr v-for="(r, index) in rollups">
+								<td>
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
-											<Tooltip position="start">
-												<Flex align="center" gap="8">
-													<Text size="12" weight="600" color="primary" mono>
-														{{ r.name }}
-													</Text>
+											<Text size="13" weight="600" color="primary">{{ index + 1 }}</Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td style="width: 1px">
+									<NuxtLink :to="`/rollup/${r.slug}`">
+										<Flex align="center" gap="8">
+											<Flex v-if="r.logo" align="center" justify="center" :class="$style.avatar_container">
+												<img :src="r.logo" :class="$style.avatar_image" />
+											</Flex>
 
-													<CopyButton :text="r.name" />
-												</Flex>
+											<Text size="12" weight="600" color="primary" mono>
+												{{ r.name }}
+											</Text>
 
-												<template #content>
-													{{ r.name }}
-												</template>
-											</Tooltip>
+											<CopyButton :text="r.name" />
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td>
-									<NuxtLink :to="`/rollup/${r.id}`">
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex direction="column" justify="center" gap="4">
 											<Text size="12" weight="600" color="primary">
 												{{ DateTime.fromISO(r.last_message_time).toRelative({ locale: "en", style: "short" }) }}
@@ -256,14 +263,14 @@ const handleNext = () => {
 									</NuxtLink>
 								</td>
 								<td>
-									<NuxtLink :to="`/rollup/${r.id}`">
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
 											<Text size="13" weight="600" color="primary">{{ formatBytes(r.size) }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td>
-									<NuxtLink :to="`/rollup/${r.id}`">
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
 											<Text size="13" weight="600" color="primary">{{ comma(r.blobs_count) }}</Text>
 										</Flex>
@@ -346,6 +353,7 @@ const handleNext = () => {
 
 			&:first-child {
 				padding-left: 16px;
+				width: 16px;
 			}
 
 			&.sortable {
@@ -377,6 +385,20 @@ const handleNext = () => {
 			}
 		}
 	}
+}
+
+.avatar_container {
+	position: relative;
+	width: 25px;
+	height: 25px;
+	overflow: hidden;
+	border-radius: 50%;
+}
+
+.avatar_image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .table.disabled {

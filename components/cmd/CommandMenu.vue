@@ -203,6 +203,24 @@ const rawNavigationActions = [
 	{
 		type: "callback",
 		icon: "arrow-narrow-right",
+		title: "Go to Namespaces",
+		runText: "Open Namespaces",
+		callback: () => {
+			router.push("/namespaces")
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
+		title: "Go to Rollups",
+		runText: "Open Rollups",
+		callback: () => {
+			router.push("/rollups")
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Transactions",
 		runText: "Open Transactions",
 		callback: () => {
@@ -216,15 +234,6 @@ const rawNavigationActions = [
 		runText: "Open Blocks",
 		callback: () => {
 			router.push("/blocks")
-		},
-	},
-	{
-		type: "callback",
-		icon: "arrow-narrow-right",
-		title: "Go to Namespaces",
-		runText: "Open Namespaces",
-		callback: () => {
-			router.push("/namespaces")
 		},
 	},
 	{
@@ -731,7 +740,7 @@ const searchAction = {
 		if (!searchTerm.value.length) return
 
 		const { data } = await search(searchTerm.value.trim())
-		if (!data.value) {
+		if (!data.value.length) {
 			notificationsStore.create({
 				notification: {
 					type: "info",
@@ -745,21 +754,25 @@ const searchAction = {
 			return
 		}
 
-		switch (data.value.type) {
+		switch (data.value[0].type) {
 			case "tx":
-				router.push(`/tx/${data.value.result.hash}`)
+				router.push(`/tx/${data.value[0].result.hash}`)
 				break
 
 			case "block":
-				router.push(`/block/${data.value.result.height}`)
+				router.push(`/block/${data.value[0].result.height}`)
 				break
 
 			case "namespace":
-				router.push(`/namespace/${data.value.result.namespace_id}`)
+				router.push(`/namespace/${data.value[0].result.namespace_id}`)
 				break
 
 			case "address":
-				router.push(`/address/${data.value.result.hash}`)
+				router.push(`/address/${data.value[0].result.hash}`)
+				break
+
+			case "rollup":
+				router.push(`/rollup/${data.value[0].result.slug}`)
 				break
 
 			default:
@@ -784,39 +797,45 @@ const autocompleteGroup = computed(() => {
 
 const debouncedSearch = useDebounceFn(async (e) => {
 	const { data } = await search(searchTerm.value.trim())
-	if (!data.value) return
+	if (!data.value.length) return
 
 	autocompleteActions.value = []
-	autocompleteActions.value.push({
-		id: id(),
-		type: "callback",
-		icon: data.value.type,
-		title: data.value.result.hash,
-		subtitle: data.value.type[0].toUpperCase() + data.value.type.slice(1, data.value.type.length),
-		runText: "Open",
-		callback: () => {
-			switch (data.value.type) {
-				case "tx":
-					router.push(`/tx/${data.value.result.hash}`)
-					break
+	for (let i = 0; i < Math.min(3, data.value.length); i++) {
+		autocompleteActions.value.push({
+			id: id(),
+			type: "callback",
+			icon: data.value[i].type,
+			title: data.value[i].result.hash ? data.value[i].result.hash : data.value[i].result.name,
+			subtitle: data.value[i].type.charAt(i).toUpperCase() + data.value[i].type.slice(1),
+			runText: "Open",
+			callback: () => {
+				switch (data.value[i].type) {
+					case "tx":
+						router.push(`/tx/${data.value[i].result.hash}`)
+						break
 
-				case "block":
-					router.push(`/block/${data.value.result.height}`)
-					break
+					case "block":
+						router.push(`/block/${data.value[i].result.height}`)
+						break
 
-				case "namespace":
-					router.push(`/namespace/${data.value.result.namespace_id}`)
-					break
+					case "namespace":
+						router.push(`/namespace/${data.value[i].result.namespace_id}`)
+						break
 
-				case "address":
-					router.push(`/address/${data.value.result.hash}`)
-					break
+					case "address":
+						router.push(`/address/${data.value[i].result.hash}`)
+						break
 
-				default:
-					break
-			}
-		},
-	})
+					case "rollup":
+						router.push(`/rollup/${data.value[i].result.slug}`)
+						break
+
+					default:
+						break
+				}
+			},
+		})
+	}
 }, 250)
 
 const groups = reactive([
@@ -1095,7 +1114,7 @@ const resetRunText = () => {
 							ref="inputEl"
 							:placeholder="
 								!commandMode
-									? 'Find blocks, namespaces, transactions or quick actions...'
+									? 'Find blocks, namespaces, rollups, transactions or quick actions...'
 									: commandMetadata.action.placeholder
 							"
 							tabindex="1"

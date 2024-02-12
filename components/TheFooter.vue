@@ -151,6 +151,9 @@ const handleChangeTheme = (theme) => {
 					<NuxtLink to="/namespaces" :class="$style.link">
 						<Text size="12" weight="500" color="tertiary"> Namespaces </Text>
 					</NuxtLink>
+					<NuxtLink to="/rollups" :class="$style.link">
+						<Text size="12" weight="500" color="tertiary"> Rollups </Text>
+					</NuxtLink>
 					<NuxtLink to="/addresses" :class="$style.link">
 						<Text size="12" weight="500" color="tertiary"> Addresses </Text>
 					</NuxtLink>
