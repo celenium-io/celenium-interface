@@ -60,7 +60,7 @@ const handleViewRawMessage = (message) => {
 					</td>
 					<td>
 						<Flex align="center">
-							<Outline @click.prevent="router.push(`/block/${message.height}`)">
+							<Outline @click.stop="router.push(`/block/${message.height}`)">
 								<Flex align="center" gap="6">
 									<Icon name="block" size="14" color="secondary" />
 
