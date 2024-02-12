@@ -208,7 +208,7 @@ const gasFee = computed(() => {
 		top: 50%;
 		box-sizing: content-box;
 
-		transform: rotate(90deg) translateX(-50%);
+		transform: translateY(-50%);
 
 		border-radius: 50%;
 		background: var(--card-background);
