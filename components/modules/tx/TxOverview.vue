@@ -603,7 +603,7 @@ const handleViewRawEvent = (event) => {
 						</Flex>
 					</Flex>
 
-					<Button @click="handleLoadMore" type="secondary" size="mini" :disabled="tx.events_count == events.length">
+					<Button v-if="tx.events_count !== events.length" @click="handleLoadMore" type="secondary" size="mini">
 						Load More
 					</Button>
 				</Flex>

@@ -109,95 +109,31 @@ useHead({
 
 			<Flex gap="4" :class="$style.content">
 				<Flex direction="column" justify="between" gap="20" :class="$style.left">
-					<Flex direction="column" gap="16">
-						<Text size="12" weight="600" color="primary">Gas Price</Text>
-						<Flex justify="between" wide>
-							<Flex direction="column" gap="8">
-								<Flex align="center" gap="8">
-									<Icon name="gas_fast" size="12" color="green" />
-									<Text size="12" weight="600" color="secondary">Fast</Text>
-								</Flex>
-
-								<Flex align="center" gap="8">
-									<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
-										{{
-											Number(gasPrice.fast)
-												.toFixed(3)
-												.replace(/\.?0*$/, "")
-										}}
-										UTIA
-									</Text>
-									<Skeleton v-else w="50" h="13" />
-									<CopyButton :text="gasPrice.fast" />
-								</Flex>
-							</Flex>
-
-							<Flex direction="column" gap="8">
-								<Flex align="center" gap="8">
-									<Icon name="gas_median" size="12" color="yellow" />
-									<Text size="12" weight="600" color="secondary">Median</Text>
-								</Flex>
-
-								<Flex align="center" gap="8">
-									<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
-										{{
-											Number(gasPrice.median)
-												.toFixed(3)
-												.replace(/\.?0*$/, "")
-										}}
-										UTIA
-									</Text>
-									<Skeleton v-else w="50" h="13" />
-									<CopyButton :text="gasPrice.median" />
-								</Flex>
-							</Flex>
-
-							<Flex direction="column" gap="8">
-								<Flex align="center" gap="8">
-									<Icon name="gas_slow" size="14" color="secondary" />
-									<Text size="12" weight="600" color="secondary">Slow</Text>
-								</Flex>
-
-								<Flex align="center" gap="8">
-									<Text v-if="gasPrice.fast" size="13" weight="600" color="primary">
-										{{
-											Number(gasPrice.slow)
-												.toFixed(3)
-												.replace(/\.?0*$/, "")
-										}}
-										UTIA
-									</Text>
-									<Skeleton v-else w="50" h="13" />
-									<CopyButton :text="gasPrice.slow" />
-								</Flex>
-							</Flex>
-						</Flex>
+					<Flex direction="column" gap="12">
+						<Text size="12" weight="600" color="primary">Fee Calculator</Text>
+						<GasFeeCalculator />
 					</Flex>
 
-					<Flex direction="column" gap="20" :class="$style.bottom">
-						<GasFeeCalculator />
-
-						<Flex direction="column" gap="8">
-							<Flex align="center" gap="12">
-								<Flex align="center" gap="6">
-									<Icon name="gas_fast" size="12" color="secondary" />
-									<Text size="12" weight="600" color="secondary"> Fast <Text color="primary">99%</Text></Text>
-								</Flex>
-								<Flex align="center" gap="6">
-									<Icon name="gas_median" size="12" color="secondary" />
-									<Text size="12" weight="600" color="secondary"> Median <Text color="primary">50%</Text></Text>
-								</Flex>
-								<Flex align="center" gap="6">
-									<Icon name="gas_slow" size="12" color="secondary" />
-									<Text size="12" weight="600" color="secondary"> Slow <Text color="primary">10%</Text></Text>
-								</Flex>
+					<Flex direction="column" gap="8" :class="$style.bottom">
+						<Flex align="center" gap="12">
+							<Flex align="center" gap="6">
+								<Icon name="gas_fast" size="12" color="secondary" />
+								<Text size="12" weight="600" color="secondary"> Fast <Text color="primary">99%</Text></Text>
 							</Flex>
-
-							<Text size="12" weight="600" color="tertiary" height="140">
-								Price is calculated on fee payments for the last <Text color="secondary">100</Text> blocks. Each gas price
-								level is the percentage of transactions in which gas price was set below a specified value
-							</Text>
+							<Flex align="center" gap="6">
+								<Icon name="gas_median" size="12" color="secondary" />
+								<Text size="12" weight="600" color="secondary"> Median <Text color="primary">50%</Text></Text>
+							</Flex>
+							<Flex align="center" gap="6">
+								<Icon name="gas_slow" size="12" color="secondary" />
+								<Text size="12" weight="600" color="secondary"> Slow <Text color="primary">10%</Text></Text>
+							</Flex>
 						</Flex>
+
+						<Text size="12" weight="600" color="tertiary" height="140">
+							Price is calculated on fee payments for the last <Text color="secondary">100</Text> blocks. Each gas price level
+							is the percentage of transactions in which gas price was set below a specified value
+						</Text>
 					</Flex>
 				</Flex>
 

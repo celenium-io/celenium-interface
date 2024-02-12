@@ -356,8 +356,8 @@ const rawQuickCommandsActions = [
 			{
 				type: "input",
 				callback: (str) => {
-					if (parseFloat(str.replace(/[^0-9.]/g, "")) > 999_999_999) return "999999999"
-					return str
+					if (parseFloat(str.replace(/[^0-9.]/g, "")) > 5_665_140_000) return "5665140000"
+					return str.replace(/[^0-9.]/g, "")
 				},
 			},
 		],
@@ -1005,7 +1005,14 @@ const getActionById = () => {
 
 const onActionFocus = () => {
 	const action = getActionById()
-	if (action) runText.value = action.runText
+
+	if (!action) return
+
+	if (!mode.value) {
+		runText.value = action.runText
+	} else {
+		runText.value = action.nestedRunText ? action.nestedRunText : action.runText
+	}
 }
 
 const handleSearchTermInput = () => {
@@ -1173,7 +1180,7 @@ const onKeydown = (e) => {
 watch(
 	() => searchTerm.value,
 	() => {
-		if (searchTerm.value.length > 3 && !mode) {
+		if (searchTerm.value.length > 2 && !mode.value) {
 			debouncedSearch()
 		}
 

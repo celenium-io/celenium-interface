@@ -31,7 +31,7 @@ const tabs = ref([
 const activeTab = ref(tabs.value[0].name)
 const selectedGasPrice = computed(() => appStore.gas[activeTab.value])
 const gasFee = computed(() => {
-	const result = Math.abs(selectedGasPrice.value * parseFloat(props.searchTerm))
+	const result = Math.ceil(Math.abs(selectedGasPrice.value * parseFloat(props.searchTerm)))
 	emit("shareCopyData", result)
 	return result
 })
@@ -70,12 +70,9 @@ const gasFee = computed(() => {
 				<Flex justify="center" :class="$style.right">
 					<template v-if="!isNaN(selectedGasPrice * parseFloat(searchTerm))">
 						<Flex direction="column" align="center" gap="8">
-							<Flex align="center">
-								<Text size="20" weight="600" color="primary">
-									{{ comma(gasFee.toString().split(".")[0], " ") }}
-								</Text>
-								<Text size="20" weight="600" color="tertiary"> .{{ gasFee.toString().split(".")[1].slice(0, 6) }} </Text>
-							</Flex>
+							<Text size="20" weight="600" color="primary">
+								{{ comma(gasFee, " ") }}
+							</Text>
 							<Text size="12" weight="600" color="tertiary">Gas Fee</Text>
 						</Flex>
 					</template>
