@@ -109,10 +109,7 @@ useHead({
 
 			<Flex gap="4" :class="$style.content">
 				<Flex direction="column" justify="between" gap="20" :class="$style.left">
-					<Flex direction="column" gap="12">
-						<Text size="12" weight="600" color="primary">Fee Calculator</Text>
-						<GasFeeCalculator />
-					</Flex>
+					<GasFeeCalculator />
 
 					<Flex direction="column" gap="8" :class="$style.bottom">
 						<Flex align="center" gap="12">

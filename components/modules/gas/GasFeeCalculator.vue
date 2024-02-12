@@ -2,6 +2,9 @@
 /** Services */
 import { comma } from "@/services/utils"
 
+/** UI */
+import Tooltip from "@/components/ui/Tooltip.vue"
+
 /** Store */
 import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
@@ -30,6 +33,16 @@ const gasFee = computed(() => {
 <template>
 	<Flex direction="column" :class="$style.wrapper">
 		<Flex direction="column" gap="12" :class="$style.head">
+			<Flex align="center" justify="between">
+				<Text size="11" weight="600" color="primary">Gas Price</Text>
+
+				<Tooltip position="end">
+					<Icon name="help" size="12" color="tertiary" />
+
+					<template #content> todo: hint </template>
+				</Tooltip>
+			</Flex>
+
 			<Flex justify="between">
 				<Flex direction="column" gap="6">
 					<Flex align="center" gap="6">
