@@ -12,7 +12,7 @@ import Badge from "@/components/ui/Badge.vue"
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 
 /** Services */
-import { tia, comma, space, formatBytes } from "@/services/utils"
+import { tia, comma, space, formatBytes, reverseMapping } from "@/services/utils"
 
 /** API */
 import { fetchTransactionsByBlock } from "@/services/api/tx"
@@ -35,6 +35,7 @@ const MapTabsTypes = {
 	Register: "MsgRegisterEVMAddress",
 	Delegate: "MsgDelegate",
 }
+const ReverseMapTabsTypes = reverseMapping(MapTabsTypes)
 
 const props = defineProps({
 	block: {
@@ -89,6 +90,16 @@ const getTransactions = async () => {
 
 	isRefetching.value = false
 }
+
+/** Find active tab by messages count */
+let finded = false
+tabs.value.forEach((t) => {
+	if (props.block.stats.messages_counts[MapTabsTypes[t]] && !finded) {
+		finded = true
+		activeTab.value = t
+	}
+})
+
 await getTransactions()
 
 onMounted(() => {
@@ -356,7 +367,7 @@ const handleViewRawTransactions = () => {
 							v-for="tab in tabs"
 							align="center"
 							gap="6"
-							:class="[$style.tab, activeTab === tab && $style.active]"
+							:class="[$style.tab, activeTab === tab && $style.active, !getTxnsCountByTab(tab) && $style.hide]"
 						>
 							<Text size="13" weight="600">{{ tab }}</Text>
 
@@ -593,6 +604,10 @@ const handleViewRawTransactions = () => {
 	& span {
 		color: var(--txt-primary);
 	}
+}
+
+.tab.hide {
+	display: none;
 }
 
 .table_scroller {
