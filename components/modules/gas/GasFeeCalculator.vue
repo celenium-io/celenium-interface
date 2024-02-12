@@ -55,7 +55,7 @@ const getFixedLength = (val) => {
 			</Flex>
 
 			<Flex justify="between" align="center" :class="$style.input_box">
-				<input v-model="gasLimit" @input="handleGasLimitInput" placeholder="Input Gas Limit" :class="$style.gas_limit_input" />
+				<input v-model="gasLimit" @input="handleGasLimitInput" placeholder="Input Gas Limit" />
 				<Text size="11" weight="600" color="tertiary" no-wrap>Gas Limit</Text>
 			</Flex>
 		</Flex>
