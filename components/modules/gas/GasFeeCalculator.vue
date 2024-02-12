@@ -66,7 +66,7 @@ const getFixedLength = (val) => {
 			<Flex direction="column" gap="6">
 				<Text size="11" weight="600" color="tertiary">Fast Fee</Text>
 
-				<Flex v-if="gasLimit" align="center" gap="6">
+				<Flex v-if="gasLimit && gasFee.fast" align="center" gap="6">
 					<Flex align="center">
 						<Text size="12" weight="600" color="primary">
 							{{ comma(gasFee.fast.toString().split(".")[0], " ") }}
@@ -82,7 +82,7 @@ const getFixedLength = (val) => {
 			<Flex direction="column" gap="6">
 				<Text size="11" weight="600" color="tertiary">Median Fee</Text>
 
-				<Flex v-if="gasLimit" align="center" gap="6">
+				<Flex v-if="gasLimit && gasFee.median" align="center" gap="6">
 					<Flex align="center">
 						<Text size="12" weight="600" color="primary">
 							{{ comma(gasFee.median.toString().split(".")[0], " ") }}
@@ -98,7 +98,7 @@ const getFixedLength = (val) => {
 			<Flex direction="column" gap="6">
 				<Text size="11" weight="600" color="tertiary">Slow Fee</Text>
 
-				<Flex v-if="gasLimit" align="center" gap="6">
+				<Flex v-if="gasLimit && gasFee.slow" align="center" gap="6">
 					<Flex align="center">
 						<Text size="12" weight="600" color="primary">
 							{{ comma(gasFee.slow.toString().split(".")[0], " ") }}
