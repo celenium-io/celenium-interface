@@ -24,8 +24,8 @@ onMounted(async () => {
 	const runtimeConfig = useRuntimeConfig()
 	amp.init(runtimeConfig.public.AMP)
 
-	const data = await fetchHead()
-	if (data) appStore.lastHead = data
+	const head = await fetchHead()
+	if (head) appStore.lastHead = head
 
 	Socket.init()
 
@@ -33,8 +33,8 @@ onMounted(async () => {
 		bookmarksStore.bookmarks = JSON.parse(localStorage.bookmarks)
 	}
 
-	const data = await fetchGasPrice()
-	appStore.gas = data
+	const gasPrice = await fetchGasPrice()
+	appStore.gas = gasPrice
 
 	window.onbeforeunload = function () {
 		Socket.close()
