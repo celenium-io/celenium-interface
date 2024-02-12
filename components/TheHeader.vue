@@ -351,7 +351,7 @@ const handleConnect = async () => {
 	}
 }
 
-@media (max-width: 700px) {
+@media (max-width: 850px) {
 	.links {
 		display: none;
 	}
@@ -368,6 +368,12 @@ const handleConnect = async () => {
 @media (max-width: 500px) {
 	.container {
 		margin: 0 12px;
+	}
+}
+
+@media (max-width: 400px) {
+	.logo_name {
+		display: none;
 	}
 }
 </style>
