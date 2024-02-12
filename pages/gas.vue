@@ -328,4 +328,10 @@ useHead({
 		max-width: initial;
 	}
 }
+
+@media (max-width: 500px) {
+	.wrapper {
+		padding: 32px 12px;
+	}
+}
 </style>

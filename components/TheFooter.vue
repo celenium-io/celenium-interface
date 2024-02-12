@@ -141,7 +141,7 @@ const handleChangeTheme = (theme) => {
 					</Flex>
 				</Flex>
 
-				<Flex align="center" gap="16">
+				<Flex align="center" gap="16" :class="$style.links">
 					<NuxtLink to="/blocks" :class="$style.link">
 						<Text size="12" weight="500" color="tertiary"> Blocks </Text>
 					</NuxtLink>
@@ -217,6 +217,11 @@ const handleChangeTheme = (theme) => {
 	.container {
 		flex-direction: column;
 		gap: 12px;
+	}
+
+	.links {
+		flex-wrap: wrap;
+		justify-content: center;
 	}
 }
 </style>
