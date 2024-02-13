@@ -29,8 +29,7 @@ onMounted(async () => {
 
 				<template #content>
 					<Flex direction="column" gap="6" style="max-width: 230px; text-align: end">
-						<Text color="secondary" height="140">Fast - 99%, Median - 50%, Slow - 10%</Text>
-						<Text color="tertiary" height="140">Gas price is calculated on fee payments for the last 100 blocks. </Text>
+						<Text color="secondary" height="140">Gas price is calculated on fee payments for the last 100 blocks. </Text>
 						<Text color="tertiary" height="140">
 							Each gas price level is the percentage of transactions in which gas price was set below a specified value</Text
 						>

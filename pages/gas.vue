@@ -112,21 +112,6 @@ useHead({
 					<GasFeeCalculator />
 
 					<Flex direction="column" gap="8" :class="$style.bottom">
-						<Flex align="center" gap="12">
-							<Flex align="center" gap="6">
-								<Icon name="gas_fast" size="12" color="secondary" />
-								<Text size="12" weight="600" color="secondary"> Fast <Text color="primary">99%</Text></Text>
-							</Flex>
-							<Flex align="center" gap="6">
-								<Icon name="gas_median" size="12" color="secondary" />
-								<Text size="12" weight="600" color="secondary"> Median <Text color="primary">50%</Text></Text>
-							</Flex>
-							<Flex align="center" gap="6">
-								<Icon name="gas_slow" size="12" color="secondary" />
-								<Text size="12" weight="600" color="secondary"> Slow <Text color="primary">10%</Text></Text>
-							</Flex>
-						</Flex>
-
 						<Text size="12" weight="600" color="tertiary" height="140">
 							Price is calculated on fee payments for the last <Text color="secondary">100</Text> blocks. Each gas price level
 							is the percentage of transactions in which gas price was set below a specified value
