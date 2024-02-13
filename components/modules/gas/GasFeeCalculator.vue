@@ -36,10 +36,30 @@ const gasFee = computed(() => {
 			<Flex align="center" justify="between">
 				<Text size="11" weight="600" color="primary">Gas Price</Text>
 
-				<Tooltip position="end">
+				<Tooltip position="center" side="left">
 					<Icon name="help" size="12" color="tertiary" />
 
-					<template #content> todo: hint </template>
+					<template #content>
+						<Flex direction="column" gap="8">
+							<Text align="left" height="140">
+								In this form you can calculate<br />
+								<Text color="primary" weight="700">Gas Fee</Text> using the desired
+								<Text color="primary" weight="700">Gas Limit</Text>
+							</Text>
+
+							<Flex align="center" gap="4">
+								<Text mono weight="600" color="primary">Gas Fee</Text> <Icon name="equals" size="12" color="secondary" />
+								<Text mono weight="600" color="primary">Gas Price</Text> <Icon name="close" size="12" color="secondary" />
+								<Text mono weight="600" color="primary">Gas Limit</Text>
+							</Flex>
+
+							<Text align="left" height="140" color="tertiary"
+								>To quickly access the calculator, use the <br />command menu "<Text color="secondary"
+									>Run Fee Calculator</Text
+								>"</Text
+							>
+						</Flex>
+					</template>
 				</Tooltip>
 			</Flex>
 
@@ -115,7 +135,7 @@ const gasFee = computed(() => {
 					@input="handleGasLimitInput"
 					@focus="isInputActive = true"
 					@blur="isInputActive = false"
-					placeholder="Input Gas Limit"
+					placeholder="Specify your tx’s Gas Limit"
 					:class="$style.input_box"
 				/>
 			</Flex>
