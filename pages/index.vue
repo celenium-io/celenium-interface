@@ -8,9 +8,15 @@ import BlocksTimelineTable from "@/components/data/BlocksTimeline/BlocksTimeline
 /** API */
 import { fetchLatestBlocks } from "@/services/api/block"
 
+/** Services */
+import { parseRedirectQueryError } from "@/services/notifications"
+
 /** Store */
 import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
+
+const route = useRoute()
+const router = useRouter()
 
 definePageMeta({
 	layout: "default",
@@ -68,6 +74,11 @@ useHead({
 })
 
 onBeforeMount(async () => {
+	if (Object.keys(route.query).length && route.query.error) {
+		parseRedirectQueryError(route.query)
+		router.replace({ query: null })
+	}
+
 	const data = await fetchLatestBlocks({ limit: 15 })
 	appStore.latestBlocks = data
 	appStore.isLatestBlocksLoaded = true
@@ -84,7 +95,7 @@ onBeforeMount(async () => {
 				<LatestPFBTable />
 			</Flex>
 
-			<BlocksTimelineTable v-if="appStore.head && appStore.latestBlocks.length" />
+			<BlocksTimelineTable v-if="appStore.lastHead && appStore.latestBlocks.length" />
 		</Flex>
 	</Flex>
 </template>

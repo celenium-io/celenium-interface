@@ -13,8 +13,6 @@ import MessagesTable from "@/components/modules/tx/MessagesTable.vue"
 
 /** Services */
 import { comma, tia, splitAddress } from "@/services/utils"
-import { MessageIconMap } from "@/services/constants/mapping"
-import amp from "@/services/amp"
 
 /** API */
 import { fetchTxEvents, fetchTxMessages } from "@/services/api/tx"
@@ -345,7 +343,7 @@ const handleViewRawEvent = (event) => {
 								<Text size="12" weight="500" color="secondary">Address</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<NuxtLink :to="`/address/${event.data.spender}`">
+									<NuxtLink :to="`/address/${event.data.spender}`" @click.stop>
 										<Text size="12" weight="500" color="primary" mono>
 											{{ splitAddress(event.data.spender) }}
 										</Text>
@@ -367,7 +365,7 @@ const handleViewRawEvent = (event) => {
 								<Text size="12" weight="500" color="secondary">Address</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<NuxtLink :to="`/address/${event.data.receiver}`">
+									<NuxtLink :to="`/address/${event.data.receiver}`" @click.stop>
 										<Text size="12" weight="500" color="primary" mono>
 											{{ splitAddress(event.data.receiver) }}
 										</Text>
@@ -389,7 +387,7 @@ const handleViewRawEvent = (event) => {
 								<Text size="12" weight="500" color="secondary">Validator</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<NuxtLink :to="`/address/${event.data.validator}`">
+									<NuxtLink :to="`/address/${event.data.validator}`" @click.stop>
 										<Text size="12" weight="500" color="primary" mono>
 											{{ splitAddress(event.data.validator) }}
 										</Text>
@@ -411,7 +409,7 @@ const handleViewRawEvent = (event) => {
 								<Text size="12" weight="500" color="secondary">Address</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<NuxtLink :to="`/address/${event.data.sender}`">
+									<NuxtLink :to="`/address/${event.data.sender}`" @click.stop>
 										<Text size="12" weight="500" color="primary" mono>
 											{{ splitAddress(event.data.sender) }}
 										</Text>
@@ -431,7 +429,7 @@ const handleViewRawEvent = (event) => {
 								<Text size="12" weight="500" color="secondary">to</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<NuxtLink :to="`/address/${event.data.recipient}`">
+									<NuxtLink :to="`/address/${event.data.recipient}`" @click.stop>
 										<Text size="12" weight="500" color="primary" mono>
 											{{ splitAddress(event.data.recipient) }}
 										</Text>
@@ -463,7 +461,7 @@ const handleViewRawEvent = (event) => {
 									<Text size="12" weight="500" color="secondary">Acc</Text>
 
 									<Tooltip :class="$style.tooltip">
-										<NuxtLink :to="`/address/${event.data.acc_seq.split('/')[0]}`">
+										<NuxtLink :to="`/address/${event.data.acc_seq.split('/')[0]}`" @click.stop>
 											<Text size="12" weight="500" color="primary" mono>
 												{{ splitAddress(event.data.acc_seq.split("/")[0]) }}
 											</Text>
@@ -487,7 +485,7 @@ const handleViewRawEvent = (event) => {
 									<Text size="12" weight="500" color="secondary">Address</Text>
 
 									<Tooltip :class="$style.tooltip">
-										<NuxtLink :to="`/address/${event.data.fee_payer}`">
+										<NuxtLink :to="`/address/${event.data.fee_payer}`" @click.stop>
 											<Text size="12" weight="500" color="primary" mono>
 												{{ splitAddress(event.data.fee_payer) }}
 											</Text>
@@ -522,7 +520,7 @@ const handleViewRawEvent = (event) => {
 									<Text size="12" weight="500" color="secondary">Sender</Text>
 
 									<Tooltip :class="$style.tooltip">
-										<NuxtLink :to="`/address/${event.data.sender}`">
+										<NuxtLink :to="`/address/${event.data.sender}`" @click.stop>
 											<Text size="12" weight="500" color="primary" mono>
 												{{ splitAddress(event.data.sender) }}
 											</Text>
@@ -553,7 +551,7 @@ const handleViewRawEvent = (event) => {
 								<Text size="12" weight="500" color="secondary">Delegator</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<NuxtLink :to="`/address/${event.data.delegator}`">
+									<NuxtLink :to="`/address/${event.data.delegator}`" @click.stop>
 										<Text size="12" weight="500" color="primary" mono>
 											{{ splitAddress(event.data.delegator) }}
 										</Text>
@@ -567,7 +565,7 @@ const handleViewRawEvent = (event) => {
 								<Text size="12" weight="500" color="secondary">validator</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<NuxtLink :to="`/address/${event.data.validator}`">
+									<NuxtLink :to="`/address/${event.data.validator}`" @click.stop>
 										<Text size="12" weight="500" color="primary" mono>
 											{{ splitAddress(event.data.validator) }}
 										</Text>
@@ -605,7 +603,7 @@ const handleViewRawEvent = (event) => {
 						</Flex>
 					</Flex>
 
-					<Button @click="handleLoadMore" type="secondary" size="mini" :disabled="tx.events_count == events.length">
+					<Button v-if="tx.events_count !== events.length" @click="handleLoadMore" type="secondary" size="mini">
 						Load More
 					</Button>
 				</Flex>

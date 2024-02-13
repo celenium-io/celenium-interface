@@ -74,3 +74,11 @@ export const isMac = () => {
 export const isPrefersDarkScheme = () => {
 	return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
 }
+
+export function reverseMapping(obj) {
+	const reversedObj = {}
+	Object.entries(obj).forEach(([key, value]) => {
+		reversedObj[value] = key
+	})
+	return reversedObj
+}

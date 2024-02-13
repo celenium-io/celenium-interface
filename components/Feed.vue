@@ -15,7 +15,7 @@ import { fetchPrice, fetchPriceSeries } from "@/services/api/stats"
 import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
 
-const head = computed(() => appStore.head)
+const head = computed(() => appStore.lastHead)
 
 const series = ref([])
 const price = reactive({
@@ -139,7 +139,7 @@ onMounted(async () => {
 							<Text color="primary">Price diff from the previous day</Text>
 						</Flex>
 
-						<Flex align="center" gap="4">
+						<Flex v-if="series.length" align="center" gap="4">
 							<Text color="tertiary">{{ DateTime.fromISO(series[1].time).setLocale("en").toFormat("ff") }} -></Text>
 							<Text color="primary">${{ parseFloat(series[1].close).toFixed(2) }}</Text>
 						</Flex>

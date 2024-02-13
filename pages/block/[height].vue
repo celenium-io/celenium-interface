@@ -14,13 +14,19 @@ import { useCacheStore } from "@/store/cache"
 const cacheStore = useCacheStore()
 
 const route = useRoute()
-const router = useRouter()
 
 const block = ref()
 const { data: rawBlock } = await fetchBlockByHeight(route.params.height)
 
 if (!rawBlock.value) {
-	router.push("/")
+	navigateTo({
+		path: "/",
+		query: {
+			error: "not_found",
+			target: "block",
+			id: route.params.height,
+		},
+	})
 } else {
 	block.value = rawBlock.value
 	cacheStore.current.block = block.value
@@ -30,7 +36,7 @@ defineOgImage({
 	title: "Block",
 	block: block.value,
 	component: "BlockImage",
-	cacheKey: `${block.value.height}`,
+	cacheKey: `${block.value?.height}`,
 })
 
 useHead({
