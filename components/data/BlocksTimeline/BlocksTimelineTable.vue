@@ -10,7 +10,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { tia, comma, space, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
-import { fetchBlockNamespaces } from "@/services/api/block"
+import { fetchBlockBlobs } from "@/services/api/block"
 import { fetchTransactionsByBlock } from "@/services/api/tx"
 
 /** Store */
@@ -27,7 +27,7 @@ const preview = reactive({
 	transactions: [],
 	pfbs: [],
 
-	isLoadingPfbs: true,
+	isLoadingNamespaces: true,
 })
 
 const autoSelect = ref(true)
@@ -38,7 +38,7 @@ const handleSelectBlock = (b, isUser) => {
 	if (preview.block.height === b.height) return
 
 	preview.block = b
-	preview.pfbs = []
+	preview.namespaces = []
 }
 
 const getTransactionsByBlock = async () => {
@@ -104,7 +104,7 @@ watch(
 	() => preview.block,
 	async () => {
 		if (preview.block.stats.tx_count) {
-			if (preview.block.stats.blobs_size) preview.isLoadingPfbs = true
+			if (preview.block.stats.blobs_size) preview.isLoadingNamespaces = true
 
 			getTransactionsByBlock()
 		}
@@ -115,13 +115,19 @@ watch(
 	() => preview.transactions,
 	async () => {
 		if (preview.block.stats.blobs_size === 0) {
-			preview.isLoadingPfbs = false
+			preview.isLoadingNamespaces = false
 			return
 		}
 
-		const data = await fetchBlockNamespaces({ height: preview.block.height })
-		preview.pfbs = data
-		preview.isLoadingPfbs = false
+		const data = await fetchBlockBlobs({ height: preview.block.height })
+		let namespaces = []
+
+		data.forEach(blob => {
+			namespaces.push(blob.namespace)
+		});
+
+		preview.namespaces = Array.from(new Map(namespaces.map(item => [item.id, item])).values());
+		preview.isLoadingNamespaces = false
 	},
 )
 
@@ -283,7 +289,7 @@ watch(
 								<td>
 									<Flex align="center">
 										<Text size="13" weight="600" color="primary">
-											{{ block.stats.tx_count }}
+											{{ block.stats.blobs_count }}
 										</Text>
 									</Flex>
 								</td>
@@ -460,12 +466,12 @@ watch(
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Namespaces</Text>
 							<Text size="12" weight="600" color="secondary">
-								{{ preview.pfbs?.length > 3 ? "3 /" : "" }} {{ preview.pfbs?.length }}
+								{{ preview.namespaces?.length > 3 ? "3 /" : "" }} {{ preview.namespaces?.length }}
 							</Text>
 						</Flex>
 
 						<Text
-							v-if="preview.isLoadingPfbs"
+							v-if="preview.isLoadingNamespaces"
 							size="12"
 							weight="600"
 							color="tertiary"
@@ -474,15 +480,15 @@ watch(
 						>
 							Loading namespaces..
 						</Text>
-						<Flex v-else-if="preview.pfbs?.length" direction="column" gap="8">
-							<NuxtLink v-for="pfb in preview.pfbs.slice(0, 3)" :to="`/namespace/${pfb.namespace.namespace_id}`">
+						<Flex v-else-if="preview.namespaces?.length" direction="column" gap="8">
+							<NuxtLink v-for="ns in preview.namespaces.slice(0, 3)" :to="`/namespace/${ns.namespace_id}`">
 								<Outline wide height="32" padding="8" radius="6">
 									<Flex align="center" justify="between" wide>
 										<Flex align="center" gap="8">
 											<Icon name="folder" size="12" color="secondary" />
 
 											<Text size="13" weight="600" color="primary" mono>
-												{{ getNamespaceID(pfb.namespace.namespace_id).slice(0, 4) }}
+												{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
 											</Text>
 
 											<Flex align="center" gap="3">
@@ -490,11 +496,11 @@ watch(
 											</Flex>
 
 											<Text size="13" weight="600" color="primary" mono>
-												{{ getNamespaceID(pfb.namespace.namespace_id).slice(-4) }}
+												{{ getNamespaceID(ns.namespace_id).slice(-4) }}
 											</Text>
 										</Flex>
 
-										<Text size="12" weight="600" color="tertiary">{{ formatBytes(pfb.namespace.size) }}</Text>
+										<Text size="12" weight="600" color="tertiary">{{ formatBytes(ns.size) }}</Text>
 									</Flex>
 								</Outline>
 							</NuxtLink>

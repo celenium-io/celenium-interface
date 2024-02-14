@@ -8,7 +8,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
-import { tia, space, comma } from "@/services/utils"
+import { comma, space, splitAddress, tia } from "@/services/utils"
 
 /** API */
 import { fetchLatestPFBs } from "@/services/api/tx"
@@ -37,7 +37,7 @@ isLoading.value = false
 						<tr>
 							<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
 							<th><Text size="12" weight="600" color="tertiary" noWrap>Block Height</Text></th>
-							<th><Text size="12" weight="600" color="tertiary" noWrap>Time</Text></th>
+							<th><Text size="12" weight="600" color="tertiary" noWrap>Signer</Text></th>
 							<th><Text size="12" weight="600" color="tertiary" noWrap>Fee</Text></th>
 						</tr>
 					</thead>
@@ -105,7 +105,7 @@ isLoading.value = false
 								<NuxtLink :to="`/tx/${pfb.hash}`">
 									<Flex align="center">
 										<Text size="12" weight="600" color="primary">
-											{{ DateTime.fromISO(pfb.time).toRelative({ locale: "en", style: "short" }) }}
+											{{ splitAddress(pfb.signers[0]) }}
 										</Text>
 									</Flex>
 								</NuxtLink>
@@ -208,7 +208,7 @@ isLoading.value = false
 
 				min-height: 40px;
 
-				padding-right: 24px;
+				padding-right: 16px;
 			}
 		}
 	}
