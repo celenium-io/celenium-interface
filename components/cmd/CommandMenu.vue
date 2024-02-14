@@ -861,7 +861,7 @@ const debouncedSearch = useDebounceFn(async (e) => {
 			type: "callback",
 			icon: filteredResults[i].type,
 			title: filteredResults[i].result.hash ? filteredResults[i].result.hash : filteredResults[i].result.name,
-			subtitle: filteredResults[i].type.charAt(i).toUpperCase() + filteredResults[i].type.slice(1),
+			subtitle: filteredResults[i].type.charAt(0).toUpperCase() + filteredResults[i].type.slice(1),
 			runText: "Open",
 			callback: () => {
 				switch (filteredResults[i].type) {
