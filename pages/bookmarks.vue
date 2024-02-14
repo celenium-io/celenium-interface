@@ -249,4 +249,10 @@ const handleClearBookmarks = () => {
 		border-radius: 4px 4px 8px 8px;
 	}
 }
+
+@media (max-width: 500px) {
+	.wrapper {
+		padding: 32px 12px;
+	}
+}
 </style>

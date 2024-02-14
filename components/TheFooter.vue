@@ -141,7 +141,7 @@ const handleChangeTheme = (theme) => {
 					</Flex>
 				</Flex>
 
-				<Flex align="center" gap="16">
+				<Flex align="center" gap="16" :class="$style.links">
 					<NuxtLink to="/blocks" :class="$style.link">
 						<Text size="12" weight="500" color="tertiary"> Blocks </Text>
 					</NuxtLink>
@@ -150,6 +150,9 @@ const handleChangeTheme = (theme) => {
 					</NuxtLink>
 					<NuxtLink to="/namespaces" :class="$style.link">
 						<Text size="12" weight="500" color="tertiary"> Namespaces </Text>
+					</NuxtLink>
+					<NuxtLink to="/rollups" :class="$style.link">
+						<Text size="12" weight="500" color="tertiary"> Rollups </Text>
 					</NuxtLink>
 					<NuxtLink to="/addresses" :class="$style.link">
 						<Text size="12" weight="500" color="tertiary"> Addresses </Text>
@@ -214,6 +217,11 @@ const handleChangeTheme = (theme) => {
 	.container {
 		flex-direction: column;
 		gap: 12px;
+	}
+
+	.links {
+		flex-wrap: wrap;
+		justify-content: center;
 	}
 }
 </style>

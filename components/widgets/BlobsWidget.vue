@@ -15,7 +15,8 @@ const days = ref([])
 const weeks = ref([])
 
 const totalSize = ref(0)
-const maxSize = ref(0)
+const minValue = ref(0)
+const maxValue = ref(0)
 
 onMounted(async () => {
 	const data = await fetchSeries({
@@ -28,7 +29,8 @@ onMounted(async () => {
 	days.value.reverse()
 
 	totalSize.value = days.value.reduce((a, b) => (a += parseInt(b.value)), 0)
-	maxSize.value = Math.max(...days.value.map((d) => d.value))
+	minValue.value = Math.min(...days.value.map((d) => d.value).filter(value => value > 0))
+	maxValue.value = Math.max(...days.value.map((d) => d.value))
 
 	const firstDayDt = DateTime.fromISO(days.value[0].time)
 	if (firstDayDt.weekday !== 1) {
@@ -53,7 +55,7 @@ onMounted(async () => {
 })
 
 const getOpacity = (val) => {
-	const pct = (parseInt(val) * 100) / maxSize.value
+	const pct = (parseInt(val) * 100) / maxValue.value
 
 	if (pct < 30) {
 		return 0.3
@@ -62,6 +64,16 @@ const getOpacity = (val) => {
 	} else if (pct < 100) {
 		return 1
 	}
+}
+
+const calculateOpacity = (val) => {
+	let opacity = 0.4
+	if (val) {
+		const normalizedValue = (val - minValue.value) / (maxValue.value - minValue.value);
+		opacity += normalizedValue * 0.6;
+	}
+
+	return opacity;
 }
 </script>
 
@@ -88,7 +100,7 @@ const getOpacity = (val) => {
 						:class="[$style.day, day?.value > 0 && $style.shadow]"
 						:style="{
 							background: parseInt(day?.value) > 0 ? `rgb(10, 219, 111)` : 'var(--op-10)',
-							opacity: !day ? 0.4 : null,
+							opacity: calculateOpacity(day?.value),
 						}"
 					/>
 

@@ -4,6 +4,11 @@ export const useAppStore = defineStore("app", () => {
 	const modalsStore = useModalsStore()
 
 	const head = ref()
+	const gas = ref({
+		fast: 0,
+		median: 0,
+		slow: 0,
+	})
 
 	const latestBlocks = ref([])
 	const lastHead = ref({})
@@ -21,5 +26,5 @@ export const useAppStore = defineStore("app", () => {
 		modalsStore.open("confirmation")
 	}
 
-	return { head, latestBlocks, lastHead, isPaused, isLatestBlocksLoaded, showCmd, theme, confirmation, createConfirmation }
+	return { head, gas, latestBlocks, lastHead, isPaused, isLatestBlocksLoaded, showCmd, theme, confirmation, createConfirmation }
 })

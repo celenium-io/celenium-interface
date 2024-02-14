@@ -139,7 +139,7 @@ onMounted(async () => {
 							<Text color="primary">Price diff from the previous day</Text>
 						</Flex>
 
-						<Flex align="center" gap="4">
+						<Flex v-if="series.length" align="center" gap="4">
 							<Text color="tertiary">{{ DateTime.fromISO(series[1].time).setLocale("en").toFormat("ff") }} -></Text>
 							<Text color="primary">${{ parseFloat(series[1].close).toFixed(2) }}</Text>
 						</Flex>

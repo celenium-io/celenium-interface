@@ -13,6 +13,9 @@ import Kbd from "@/components/ui/Kbd.vue"
 /** Components */
 import Item from "./Item.vue"
 
+/** Custom Components */
+import FeeCalculator from "./custom/FeeCalculator.vue"
+
 /** Services */
 import { isMac, isPrefersDarkScheme } from "@/services/utils/general"
 
@@ -47,6 +50,7 @@ const actionEl = ref(null)
 
 let removeOutside = null
 
+const placeholder = ref()
 const searchTerm = ref("")
 
 const bounce = ref(false)
@@ -54,7 +58,13 @@ const bounce = ref(false)
 const developerMode = ref(false)
 const featurePreviewMode = ref(false)
 
-const commandMode = ref(false)
+const mode = ref(null)
+const isCommandMode = computed(() => mode.value === "command")
+const isCustomMode = computed(() => mode.value === "custom")
+
+const rules = ref([])
+
+/** Command Mode Params */
 const commandMetadata = reactive({
 	action: null,
 })
@@ -62,7 +72,12 @@ const resetMetadata = () => {
 	commandMetadata.action = null
 }
 
+/** Footer Metadata: Run Text */
 const runText = ref("")
+
+/**
+ * Actions & Groups
+ */
 
 const suggestedActions = ref([])
 const makeSuggestions = () => {
@@ -203,6 +218,24 @@ const rawNavigationActions = [
 	{
 		type: "callback",
 		icon: "arrow-narrow-right",
+		title: "Go to Namespaces",
+		runText: "Open Namespaces",
+		callback: () => {
+			router.push("/namespaces")
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
+		title: "Go to Rollups",
+		runText: "Open Rollups",
+		callback: () => {
+			router.push("/rollups")
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Transactions",
 		runText: "Open Transactions",
 		callback: () => {
@@ -216,15 +249,6 @@ const rawNavigationActions = [
 		runText: "Open Blocks",
 		callback: () => {
 			router.push("/blocks")
-		},
-	},
-	{
-		type: "callback",
-		icon: "arrow-narrow-right",
-		title: "Go to Namespaces",
-		runText: "Open Namespaces",
-		callback: () => {
-			router.push("/namespaces")
 		},
 	},
 	{
@@ -301,7 +325,9 @@ const rawQuickCommandsActions = [
 		type: "callback",
 		icon: "gas",
 		title: "Open Gas Tracker",
+		subtitle: "Command",
 		runText: "Open Gas Tracker",
+
 		callback: () => {
 			router.push("/gas")
 		},
@@ -310,9 +336,43 @@ const rawQuickCommandsActions = [
 		type: "callback",
 		icon: "bookmark-plus",
 		title: "Open My Bookmarks",
-		runText: "Open My Bookmarks",
+		subtitle: "Command",
+		runText: "Run Command",
+
 		callback: () => {
 			router.push("/bookmarks")
+		},
+	},
+	{
+		type: "command:custom",
+		icon: "calc",
+		title: "Run Fee Calculator",
+		subtitle: "Command",
+		placeholder: "Type gas limit",
+		runText: "Calculate Gas Fee",
+		nestedRunText: "Copy Result",
+
+		rules: [
+			{
+				type: "input",
+				callback: (str) => {
+					if (parseFloat(str.replace(/[^0-9.]/g, "")) > 5_665_140_000) return "5665140000"
+					return str.replace(/[^0-9.]/g, "")
+				},
+			},
+		],
+
+		callback: () => {
+			window.navigator.clipboard.writeText(copyData.value)
+
+			notificationsStore.create({
+				notification: {
+					type: "info",
+					icon: "check",
+					title: `Gas fee calculation saved into clipboard`,
+					autoDestroy: true,
+				},
+			})
 		},
 	},
 ]
@@ -731,7 +791,7 @@ const searchAction = {
 		if (!searchTerm.value.length) return
 
 		const { data } = await search(searchTerm.value.trim())
-		if (!data.value) {
+		if (!data.value.length) {
 			notificationsStore.create({
 				notification: {
 					type: "info",
@@ -745,21 +805,25 @@ const searchAction = {
 			return
 		}
 
-		switch (data.value.type) {
+		switch (data.value[0].type) {
 			case "tx":
-				router.push(`/tx/${data.value.result.hash}`)
+				router.push(`/tx/${data.value[0].result.hash}`)
 				break
 
 			case "block":
-				router.push(`/block/${data.value.result.height}`)
+				router.push(`/block/${data.value[0].result.height}`)
 				break
 
 			case "namespace":
-				router.push(`/namespace/${data.value.result.namespace_id}`)
+				router.push(`/namespace/${data.value[0].result.namespace_id}`)
 				break
 
 			case "address":
-				router.push(`/address/${data.value.result.hash}`)
+				router.push(`/address/${data.value[0].result.hash}`)
+				break
+
+			case "rollup":
+				router.push(`/rollup/${data.value[0].result.slug}`)
 				break
 
 			default:
@@ -783,40 +847,50 @@ const autocompleteGroup = computed(() => {
 })
 
 const debouncedSearch = useDebounceFn(async (e) => {
+	const UNSUPPORTED_ENTITIES = ["validator"]
+
 	const { data } = await search(searchTerm.value.trim())
-	if (!data.value) return
+	if (!data.value.length) return
+
+	const filteredResults = data.value.filter((item) => !UNSUPPORTED_ENTITIES.includes(item.type))
 
 	autocompleteActions.value = []
-	autocompleteActions.value.push({
-		id: id(),
-		type: "callback",
-		icon: data.value.type,
-		title: data.value.result.hash,
-		subtitle: data.value.type[0].toUpperCase() + data.value.type.slice(1, data.value.type.length),
-		runText: "Open",
-		callback: () => {
-			switch (data.value.type) {
-				case "tx":
-					router.push(`/tx/${data.value.result.hash}`)
-					break
+	for (let i = 0; i < Math.min(3, filteredResults.length); i++) {
+		autocompleteActions.value.push({
+			id: id(),
+			type: "callback",
+			icon: filteredResults[i].type,
+			title: filteredResults[i].result.hash ? filteredResults[i].result.hash : filteredResults[i].result.name,
+			subtitle: filteredResults[i].type.charAt(0).toUpperCase() + filteredResults[i].type.slice(1),
+			runText: "Open",
+			callback: () => {
+				switch (filteredResults[i].type) {
+					case "tx":
+						router.push(`/tx/${filteredResults[i].result.hash}`)
+						break
 
-				case "block":
-					router.push(`/block/${data.value.result.height}`)
-					break
+					case "block":
+						router.push(`/block/${filteredResults[i].result.height}`)
+						break
 
-				case "namespace":
-					router.push(`/namespace/${data.value.result.namespace_id}`)
-					break
+					case "namespace":
+						router.push(`/namespace/${filteredResults[i].result.namespace_id}`)
+						break
 
-				case "address":
-					router.push(`/address/${data.value.result.hash}`)
-					break
+					case "address":
+						router.push(`/address/${filteredResults[i].result.hash}`)
+						break
 
-				default:
-					break
-			}
-		},
-	})
+					case "rollup":
+						router.push(`/rollup/${filteredResults[i].result.slug}`)
+						break
+
+					default:
+						break
+				}
+			},
+		})
+	}
 }, 250)
 
 const groups = reactive([
@@ -832,6 +906,11 @@ const groups = reactive([
 
 const fakeFocus = ref()
 
+const copyData = ref()
+const handleShareCopyData = (data) => {
+	copyData.value = data
+}
+
 onMounted(() => {
 	developerMode.value = localStorage.developer
 	featurePreviewMode.value = localStorage.featurePreview
@@ -840,7 +919,7 @@ onMounted(() => {
 
 	document.addEventListener("keydown", (e) => {
 		if (["Escape"].includes(e.code) && appStore.showCmd) {
-			if (!commandMode.value) {
+			if (!mode.value) {
 				appStore.showCmd = false
 				return
 			} else {
@@ -859,9 +938,11 @@ onMounted(() => {
 })
 
 const exitCommandMode = () => {
-	commandMode.value = false
+	mode.value = null
 	searchTerm.value = ""
 	runText.value = ""
+	placeholder.value = null
+	rules.value = []
 
 	runBounce()
 
@@ -903,33 +984,65 @@ watch(
 	},
 )
 
-const onActionFocus = (action) => {
-	runText.value = action.runText
-}
+const getActionById = () => {
+	const actions = []
+	let target = null
 
-const handleReturn = (action) => {
-	let target = action.id ? action : null
-	let actions = []
+	groups.forEach((g) => {
+		g.value.actions.forEach((a) => {
+			actions.push(a)
 
-	if (!target) {
-		groups.forEach((g) => {
-			g.value.actions.forEach((a) => {
-				actions.push(a)
-
-				if (a.actions) {
-					actions.push(...a.actions)
-				}
-			})
-		})
-
-		actions.forEach((a) => {
-			if (a.id === fakeFocus.value) {
-				target = a
+			if (a.actions) {
+				actions.push(...a.actions)
 			}
 		})
+	})
+
+	actions.forEach((a) => {
+		if (a.id === fakeFocus.value) {
+			target = a
+		}
+	})
+
+	return target
+}
+
+const onActionFocus = () => {
+	const action = getActionById()
+
+	if (!action) return
+
+	if (!mode.value) {
+		runText.value = action.runText
+	} else {
+		runText.value = action.nestedRunText ? action.nestedRunText : action.runText
+	}
+}
+
+const handleSearchTermInput = () => {
+	if (!searchTerm.value.length) return
+	if (!rules.value.length) return
+
+	const inputRules = rules.value.filter((r) => r.type === "input")
+
+	inputRules.forEach((r) => {
+		searchTerm.value = r.callback(searchTerm.value)
+	})
+}
+
+const handleExecute = (action) => {
+	/** Set fake focus on click */
+	if (action && action.id && action.id !== fakeFocus.value) {
+		fakeFocus.value = action.id
 	}
 
-	if (!commandMode.value && target) {
+	let target = action?.id ? action : null
+
+	if (!target) {
+		target = getActionById()
+	}
+
+	if (!isCommandMode.value && target) {
 		switch (target.type) {
 			case "callback":
 				target.callback()
@@ -937,7 +1050,9 @@ const handleReturn = (action) => {
 				break
 
 			case "command:input":
-				commandMode.value = true
+				mode.value = "command"
+
+				if (target.placeholder) placeholder.value = target.placeholder
 
 				commandMetadata.action = target
 
@@ -951,7 +1066,9 @@ const handleReturn = (action) => {
 				break
 
 			case "command:nested":
-				commandMode.value = true
+				mode.value = "command"
+
+				if (target.placeholder) placeholder.value = target.placeholder
 
 				commandMetadata.action = target
 
@@ -968,6 +1085,23 @@ const handleReturn = (action) => {
 
 				break
 
+			case "command:custom":
+				mode.value = "custom"
+
+				runText.value = target.runText
+
+				if (target.placeholder) placeholder.value = target.placeholder
+				if (target.nestedRunText) runText.value = target.nestedRunText
+				if (target.rules) rules.value = target.rules
+
+				commandMetadata.action = target
+
+				searchTerm.value = ""
+
+				runBounce()
+
+				break
+
 			default:
 				break
 		}
@@ -975,7 +1109,7 @@ const handleReturn = (action) => {
 		return
 	}
 
-	if (commandMode.value) {
+	if (isCommandMode.value) {
 		if (commandMetadata.action.type === "command:nested") {
 			target.callback()
 			appStore.showCmd = false
@@ -986,6 +1120,15 @@ const handleReturn = (action) => {
 		}
 
 		if (!searchTerm.value && commandMetadata.action.type === "command:input") return
+
+		commandMetadata.action.callback(searchTerm.value)
+		exitCommandMode()
+
+		appStore.showCmd = false
+	}
+
+	if (isCustomMode.value) {
+		if (!searchTerm.value || !copyData.value) return
 
 		commandMetadata.action.callback(searchTerm.value)
 		exitCommandMode()
@@ -1041,13 +1184,20 @@ const onKeydown = (e) => {
 watch(
 	() => searchTerm.value,
 	() => {
-		if (searchTerm.value.length > 3) {
+		if (searchTerm.value.length > 2 && !mode.value) {
 			debouncedSearch()
 		}
 
 		nextTick(() => {
 			fakeFocus.value = actionEl.value[0]?.wrapper.wrapper.id
 		})
+	},
+)
+
+watch(
+	() => fakeFocus.value,
+	() => {
+		onActionFocus()
 	},
 )
 
@@ -1067,10 +1217,6 @@ const runBounce = () => {
 		bounce.value = false
 	}, 150)
 }
-
-const resetRunText = () => {
-	if (!commandMode.value) runText.value = ""
-}
 </script>
 
 <template>
@@ -1079,7 +1225,7 @@ const resetRunText = () => {
 			<Flex @click.stop="handleFocus" ref="popupEl" direction="column" :class="[$style.popup, bounce && $style.bounce]">
 				<!-- Input Field -->
 				<Flex direction="column" :class="$style.header">
-					<Flex v-if="commandMode" align="center" gap="8" :class="$style.breadcrumbs">
+					<Flex v-if="isCommandMode" align="center" gap="8" :class="$style.breadcrumbs">
 						<Icon @click="exitCommandMode" name="arrow-narrow-left" size="12" color="secondary" :class="$style.back_btn" />
 
 						<Flex align="center" gap="6">
@@ -1093,24 +1239,21 @@ const resetRunText = () => {
 						<input
 							v-model="searchTerm"
 							ref="inputEl"
-							:placeholder="
-								!commandMode
-									? 'Find blocks, namespaces, transactions or quick actions...'
-									: commandMetadata.action.placeholder
-							"
+							:placeholder="placeholder || 'Find blocks, namespaces, rollups, transactions or quick actions...'"
 							tabindex="1"
 							autocomplete="off"
 							autocorrect="off"
 							autocapitalize="off"
 							spellcheck="false"
-							@focus="resetRunText"
-							@keydown.enter="handleReturn"
+							@input="handleSearchTermInput"
+							@keydown.enter="handleExecute"
 						/>
 					</Flex>
 				</Flex>
 
-				<Flex v-if="!commandMode" ref="listEl" direction="column" :class="$style.list">
-					<template v-for="(group, groupIdx) in groups">
+				<!-- Default List -->
+				<Flex v-if="!mode" ref="listEl" direction="column" :class="$style.list">
+					<template v-for="group in groups">
 						<Flex v-if="group.value.actions.length" direction="column" :class="$style.group">
 							<Text size="12" weight="500" color="tertiary" :class="$style.label">{{ group.value.title }}</Text>
 
@@ -1119,17 +1262,17 @@ const resetRunText = () => {
 									v-for="action in group.value.actions"
 									ref="actionEl"
 									:id="action.id"
-									@click="handleReturn(action)"
+									@click="handleExecute(action)"
 									:action="action"
 									:isFocused="action.id === fakeFocus"
-									@focus="onActionFocus(action)"
 								/>
 							</Flex>
 						</Flex>
 					</template>
 				</Flex>
 
-				<Flex v-else direction="column" :class="$style.list">
+				<!-- Command Mode -->
+				<Flex v-else-if="isCommandMode" direction="column" :class="$style.list">
 					<Flex direction="column" :class="$style.group">
 						<Text v-if="commandMetadata.action.nestedTitle" size="12" weight="500" color="tertiary" :class="$style.label">
 							{{ commandMetadata.action.nestedTitle }}
@@ -1140,20 +1283,24 @@ const resetRunText = () => {
 								v-for="action in commandMetadata.action.actions"
 								ref="actionEl"
 								:id="action.id"
-								@click="handleReturn(action)"
+								@click="handleExecute(action)"
 								:action="action"
 								:isFocused="action.id === fakeFocus"
-								@focus="onActionFocus(action)"
 							/>
 						</Flex>
 					</Flex>
 				</Flex>
 
+				<!-- Custom Component Mode -->
+				<Flex v-else-if="isCustomMode" direction="column" :class="$style.list">
+					<FeeCalculator :searchTerm="searchTerm" @shareCopyData="handleShareCopyData" />
+				</Flex>
+
 				<Flex align="center" justify="between" :class="$style.footer">
 					<Icon name="logo" size="14" color="tertiary" />
 
-					<Flex v-if="runText.length" align="center" gap="8">
-						<Text size="13" weight="600" color="tertiary">{{ runText }}</Text>
+					<Flex v-if="runText.length" @click="handleExecute(getActionById())" align="center" gap="8" :class="$style.button">
+						<Text size="13" weight="600" color="secondary">{{ runText }}</Text>
 						<Kbd>
 							<Icon name="return" size="12" color="secondary" />
 						</Kbd>
@@ -1291,6 +1438,17 @@ const resetRunText = () => {
 	border-top: 1px solid var(--op-5);
 
 	padding: 6px 8px;
+}
+
+/** footer button */
+.button {
+	cursor: pointer;
+
+	&:hover {
+		span {
+			color: var(--txt-primary);
+		}
+	}
 }
 
 @media (max-width: 750px) {

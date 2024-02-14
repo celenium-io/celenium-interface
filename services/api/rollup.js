@@ -39,6 +39,17 @@ export const fetchRollupByID = async (id) => {
 	}
 }
 
+export const fetchRollupBySlug = async (slug) => {
+	try {
+		const url = new URL(`${useServerURL()}/rollup/slug/${slug}`)
+
+		const data = await useFetch(encodeURI(url.href))
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchRollupBlobs = async ({ id, limit, offset, sort, sort_by }) => {
 	try {
 		const url = new URL(`${useServerURL()}/rollup/${id}/blobs`)
