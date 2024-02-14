@@ -847,38 +847,42 @@ const autocompleteGroup = computed(() => {
 })
 
 const debouncedSearch = useDebounceFn(async (e) => {
+	const UNSUPPORTED_ENTITIES = ["validator"]
+
 	const { data } = await search(searchTerm.value.trim())
 	if (!data.value.length) return
 
+	const filteredResults = data.value.filter((item) => !UNSUPPORTED_ENTITIES.includes(item.type))
+
 	autocompleteActions.value = []
-	for (let i = 0; i < Math.min(3, data.value.length); i++) {
+	for (let i = 0; i < Math.min(3, filteredResults.length); i++) {
 		autocompleteActions.value.push({
 			id: id(),
 			type: "callback",
-			icon: data.value[i].type,
-			title: data.value[i].result.hash ? data.value[i].result.hash : data.value[i].result.name,
-			subtitle: data.value[i].type.charAt(i).toUpperCase() + data.value[i].type.slice(1),
+			icon: filteredResults[i].type,
+			title: filteredResults[i].result.hash ? filteredResults[i].result.hash : filteredResults[i].result.name,
+			subtitle: filteredResults[i].type.charAt(i).toUpperCase() + filteredResults[i].type.slice(1),
 			runText: "Open",
 			callback: () => {
-				switch (data.value[i].type) {
+				switch (filteredResults[i].type) {
 					case "tx":
-						router.push(`/tx/${data.value[i].result.hash}`)
+						router.push(`/tx/${filteredResults[i].result.hash}`)
 						break
 
 					case "block":
-						router.push(`/block/${data.value[i].result.height}`)
+						router.push(`/block/${filteredResults[i].result.height}`)
 						break
 
 					case "namespace":
-						router.push(`/namespace/${data.value[i].result.namespace_id}`)
+						router.push(`/namespace/${filteredResults[i].result.namespace_id}`)
 						break
 
 					case "address":
-						router.push(`/address/${data.value[i].result.hash}`)
+						router.push(`/address/${filteredResults[i].result.hash}`)
 						break
 
 					case "rollup":
-						router.push(`/rollup/${data.value[i].result.slug}`)
+						router.push(`/rollup/${filteredResults[i].result.slug}`)
 						break
 
 					default:
