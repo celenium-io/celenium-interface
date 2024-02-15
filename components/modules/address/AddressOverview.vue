@@ -513,7 +513,7 @@ const handleOpenQRModal = () => {
 				<Flex direction="column" justify="center" :class="[$style.tables, isRefetching && $style.disabled]">
 					<Flex v-if="activeTab === 'transactions'" wrap="wrap" align="center" gap="8" :class="$style.filters">
 						<Popover :open="isStatusPopoverOpen" @on-close="onStatusPopoverClose" width="200">
-							<Button @click="handleOpenStatusPopover" type="secondary" size="mini">
+							<Button @click="handleOpenStatusPopover" type="secondary" size="mini" :disabled="!transactions.length">
 								<Icon name="plus-circle" size="12" color="tertiary" />
 								<Text color="secondary">Status</Text>
 
@@ -551,7 +551,7 @@ const handleOpenQRModal = () => {
 						</Popover>
 
 						<Popover :open="isMessageTypePopoverOpen" @on-close="onMessageTypePopoverClose" width="250">
-							<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini">
+							<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini" :disabled="!transactions.length">
 								<Icon name="plus-circle" size="12" color="tertiary" />
 								<Text color="secondary">Message Type</Text>
 
