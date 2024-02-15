@@ -12,9 +12,17 @@ const props = defineProps({
 	selectedPeriod: Object,
 })
 
+const days = [7, 6, 5, 4, 3, 2, 1]
 const seriesByDay = ref({})
-
+const minValue = ref(0)
 const maxValue = ref(0)
+
+const calculateOpacity = (val) => {
+	const normalizedValue = (val - minValue.value) / (maxValue.value - minValue.value);
+	const opacity = 0.2 + normalizedValue * 0.8;
+
+	return opacity;
+}
 
 onMounted(async () => {
 	let rawSeries = []
@@ -32,6 +40,7 @@ onMounted(async () => {
 
 	rawSeries = [...data, ...data1.slice(1, data1.length)]
 
+	minValue.value = Math.min(...rawSeries.map((i) => i.value))
 	maxValue.value = Math.max(...rawSeries.map((i) => i.value))
 
 	for (let idx = 0; idx < 7; idx++) {
@@ -43,6 +52,7 @@ onMounted(async () => {
 	})
 
 	Object.keys(seriesByDay.value).forEach((d) => {
+		seriesByDay.value[d].reverse();
 		if (seriesByDay.value[d].length !== 24) {
 			while (seriesByDay.value[d].length !== 24) {
 				seriesByDay.value[d].push({
@@ -72,7 +82,7 @@ onMounted(async () => {
 				</tr>
 			</thead>
 			<tbody>
-				<tr v-for="dayIdx in 7">
+				<tr v-for="dayIdx in days">
 					<td
 						v-for="hour in seriesByDay[
 							DateTime.now()
@@ -80,7 +90,7 @@ onMounted(async () => {
 								.toFormat('d')
 						]"
 						:class="[!hour.value && $style.not_available]"
-						:style="{ opacity: `${hour.value / maxValue}` }"
+						:style="{ opacity: calculateOpacity(hour.value) }"
 					>
 						<Tooltip :disabled="!hour.value">
 							<div :class="$style.inner" />
@@ -93,7 +103,7 @@ onMounted(async () => {
 									</Flex>
 									<Flex align="center" gap="12" justify="between" wide>
 										<Text color="secondary">Time</Text>
-										<Text color="primary">{{ DateTime.fromISO(hour.time).setLocale("en").toFormat("ff") }}</Text>
+										<Text color="primary">{{ DateTime.fromISO(hour.time).setLocale("en").toFormat("LLL d, yyyy, H:mm") }}</Text>
 									</Flex>
 								</Flex>
 							</template>

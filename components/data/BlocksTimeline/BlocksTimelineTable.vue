@@ -21,6 +21,7 @@ const notificationsStore = useNotificationsStore()
 
 const blocks = computed(() => appStore.latestBlocks)
 const lastBlock = computed(() => appStore.latestBlocks[0])
+const lastHead = computed(() => appStore.lastHead)
 const preview = reactive({
 	block: blocks.value[0],
 	transactions: [],
@@ -41,7 +42,10 @@ const handleSelectBlock = (b, isUser) => {
 }
 
 const getTransactionsByBlock = async () => {
-	const { data } = await fetchTransactionsByBlock({ height: preview.block.height })
+	const { data } = await fetchTransactionsByBlock({
+		height: preview.block.height,
+		from: parseInt(DateTime.fromISO(preview.block.time) / 1000),
+	})
 	preview.transactions = data.value
 }
 getTransactionsByBlock()
@@ -50,7 +54,7 @@ const blocksSnapshot = ref([])
 const isPaused = ref(false)
 
 const handlePause = () => {
-	if (!appStore.head.synced) return
+	if (!lastHead?.value.synced) return
 
 	isPaused.value = !isPaused.value
 }
@@ -82,7 +86,7 @@ watch(
 )
 
 /** Auto-pause for unsynced head */
-if (!appStore.head.synced) {
+if (Object.keys(lastHead.value).length !== 0 && !lastHead?.value.synced) {
 	handlePause()
 
 	notificationsStore.create({
@@ -110,8 +114,7 @@ watch(
 watch(
 	() => preview.transactions,
 	async () => {
-		const hasPFB = !!preview.transactions.filter((t) => t.message_types.includes("MsgPayForBlobs"))
-		if (!hasPFB) {
+		if (preview.block.stats.blobs_size === 0) {
 			preview.isLoadingPfbs = false
 			return
 		}
@@ -147,12 +150,12 @@ watch(
 
 			<Flex align="center" gap="8">
 				<Tooltip position="end">
-					<Button @click="handlePause" type="tertiary" size="mini" :disabled="!appStore.head.synced">
+					<Button @click="handlePause" type="tertiary" size="mini" :disabled="!lastHead?.synced">
 						<Icon :name="isPaused ? 'resume' : 'pause'" size="14" color="secondary" />
 						{{ isPaused ? "Resume" : "Pause" }}
 					</Button>
 
-					<template v-if="appStore.head.synced" #content>
+					<template v-if="lastHead?.synced" #content>
 						<Flex align="start" direction="column" gap="6">
 							<Text>Stop receiving new blocks</Text>
 							<Text color="tertiary">Resuming will update the list of recent blocks</Text>

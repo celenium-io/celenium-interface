@@ -1,12 +1,15 @@
 <script setup>
 /** Services */
 import Socket from "@/services/api/socket"
-import { fetchHead } from "@/services/api/main"
 import amp from "@/services/amp"
 
 /** Components */
 import ModalsManager from "@/components/modals/ModalsManager.vue"
 import CommandMenu from "@/components/cmd/CommandMenu.vue"
+
+/** API */
+import { fetchGasPrice } from "@/services/api/gas"
+import { fetchHead } from "@/services/api/main"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -21,14 +24,17 @@ onMounted(async () => {
 	const runtimeConfig = useRuntimeConfig()
 	amp.init(runtimeConfig.public.AMP)
 
+	const head = await fetchHead()
+	if (head) appStore.lastHead = head
+
+	Socket.init()
+
 	if (localStorage.bookmarks) {
 		bookmarksStore.bookmarks = JSON.parse(localStorage.bookmarks)
 	}
 
-	Socket.init()
-
-	const data = await fetchHead()
-	if (data) appStore.head = data
+	const gasPrice = await fetchGasPrice()
+	appStore.gas = gasPrice
 
 	window.onbeforeunload = function () {
 		Socket.close()

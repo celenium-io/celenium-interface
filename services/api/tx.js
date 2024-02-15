@@ -45,18 +45,20 @@ export const fetchTxMessages = async (hash) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx/${hash}/messages`)
 
-		const data = await useFetch(url.href)
+		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
 		console.error(error)
 	}
 }
 
-export const fetchTxEvents = async (hash) => {
+export const fetchTxEvents = async ({ hash, offset }) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx/${hash}/events`)
 
-		const data = await useFetch(url.href)
+		if (offset) url.searchParams.append("offset", offset)
+
+		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
 		console.error(error)
@@ -125,11 +127,12 @@ export const fetchLatestPFBs = async (height) => {
 	}
 }
 
-export const fetchTransactionsByBlock = async ({ limit, offset, sort, height, type, excluded_types }) => {
+export const fetchTransactionsByBlock = async ({ limit, offset, sort, height, from, type, excluded_types }) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx`)
 
 		url.searchParams.append("height", height)
+		if (from) url.searchParams.append("from", from)
 		if (limit) url.searchParams.append("limit", limit)
 		if (sort) url.searchParams.append("sort", sort)
 		if (offset) url.searchParams.append("offset", offset)

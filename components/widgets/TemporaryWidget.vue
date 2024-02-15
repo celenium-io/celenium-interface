@@ -2,23 +2,16 @@
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
-/** API */
-import { fetchSummary } from "@/services/api/stats"
-import { fetchAddressesCount } from "@/services/api/address"
-
 /** Services */
 import { abbreviate } from "@/services/utils"
 
-const totalAccounts = ref(0)
-const totalValidators = ref(0)
+/** Store */
+import { useAppStore } from "@/store/app"
+const appStore = useAppStore()
 
-const { data } = await fetchAddressesCount()
-totalAccounts.value = data.value
+const totalAccounts = computed(() => appStore.lastHead?.total_accounts)
+const totalValidators = computed(() => appStore.lastHead?.total_validators)
 
-onMounted(async () => {
-	const data = await fetchSummary({ table: "validator", func: "count" })
-	totalValidators.value = data
-})
 </script>
 
 <template>
@@ -26,9 +19,10 @@ onMounted(async () => {
 		<Flex direction="column" gap="20" :class="$style.top">
 			<Text size="16" weight="600" color="primary">Accounts</Text>
 
-			<Text size="40" weight="600" color="primary" :class="[$style.ds_font, $style.tpm_num]">
+			<Text v-if="totalAccounts" size="40" weight="600" color="primary" :class="[$style.ds_font, $style.tpm_num]">
 				{{ abbreviate(totalAccounts) }}
 			</Text>
+			<Skeleton v-else w="90" h="40" />
 		</Flex>
 
 		<Flex direction="column" gap="24" :class="$style.bottom">
@@ -37,7 +31,7 @@ onMounted(async () => {
 				<Text size="13" weight="600" height="110" color="secondary">Validators</Text>
 			</Flex>
 
-			<Tooltip position="start">
+			<Tooltip v-if="totalValidators" position="start">
 				<Flex gap="2" :class="$style.bars">
 					<div v-for="item in 10" :class="[$style.bar, (100 * 100) / totalValidators > item * 10 && $style.active]" />
 				</Flex>
@@ -56,10 +50,12 @@ onMounted(async () => {
 					</Flex>
 				</template>
 			</Tooltip>
+			<Skeleton v-else w="180" h="20" />
 
 			<Flex align="center" justify="between">
 				<Text size="12" weight="600" color="tertiary"> Active Validators </Text>
-				<Text size="16" weight="600" color="secondary" :class="$style.ds_font">100</Text>
+				<Text v-if="totalValidators" size="16" weight="600" color="secondary" :class="$style.ds_font">100</Text>
+				<Skeleton v-else w="20" h="16" />
 			</Flex>
 		</Flex>
 	</Flex>

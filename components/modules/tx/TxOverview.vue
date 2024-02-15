@@ -9,14 +9,13 @@ import Button from "~/components/ui/Button.vue"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
+import MessagesTable from "@/components/modules/tx/MessagesTable.vue"
 
 /** Services */
 import { comma, tia, splitAddress } from "@/services/utils"
-import { MessageIconMap } from "@/services/constants/mapping"
-import amp from "@/services/amp"
 
 /** API */
-import { fetchTxEvents } from "@/services/api/tx"
+import { fetchTxEvents, fetchTxMessages } from "@/services/api/tx"
 
 /** Store */
 import { useModalsStore } from "@/store/modals"
@@ -54,22 +53,32 @@ const bookmarkText = computed(() => {
 	return isBookmarked.value ? "Saved" : "Save"
 })
 
-const showAll = ref(false)
-const handleShowAll = () => {
-	showAll.value = !showAll.value
+const activeTab = ref("messages")
 
-	amp.log("toggleShowAll")
+const messages = ref([])
+
+const offset = ref(0)
+const events = ref([])
+
+const handleLoadMore = async () => {
+	if (events.length === props.tx.events_count) return
+
+	offset.value += 10
+
+	const rawEvents = await fetchTxEvents({ hash: props.tx.hash, offset: offset.value })
+	events.value = [...events.value, ...rawEvents].sort((a, b) => a.position - b.position)
+	cacheStore.current.events = events.value
 }
 
-const events = ref([])
-const filteredEvents = computed(() => (showAll.value ? events.value : events.value.slice(0, 10)))
-
-const { data: rawEvents } = await fetchTxEvents(props.tx.hash)
-events.value = rawEvents.value.sort((a, b) => a.position - b.position)
-cacheStore.current.events = events.value
-
-onMounted(() => {
+onMounted(async () => {
 	isBookmarked.value = !!bookmarksStore.bookmarks.txs.find((t) => t.id === props.tx.hash)
+
+	const data = await fetchTxMessages(props.tx.hash)
+	messages.value = data
+
+	const rawEvents = await fetchTxEvents({ hash: props.tx.hash })
+	events.value = rawEvents.sort((a, b) => a.position - b.position)
+	cacheStore.current.events = events.value
 })
 
 const handleBookmark = () => {
@@ -121,6 +130,12 @@ const handleViewRawTransaction = () => {
 
 const handleViewRawEvents = () => {
 	cacheStore.current._target = "events"
+	modalsStore.open("rawData")
+}
+
+const handleViewRawEvent = (event) => {
+	cacheStore.current._target = "event"
+	cacheStore.current.event = event
 	modalsStore.open("rawData")
 }
 </script>
@@ -282,30 +297,35 @@ const handleViewRawEvents = () => {
 				</Flex>
 			</Flex>
 
-			<Flex direction="column" gap="16" wide :class="$style.events_wrapper">
-				<Text size="13" weight="600" color="primary"> Events </Text>
+			<Flex direction="column" gap="4" wide :class="$style.events_wrapper">
+				<Flex align="center" justify="between" :class="$style.tabs_wrapper">
+					<Flex gap="4" :class="$style.tabs">
+						<Flex
+							@click="activeTab = 'messages'"
+							align="center"
+							gap="6"
+							:class="[$style.tab, activeTab === 'messages' && $style.active]"
+						>
+							<Icon name="message" size="12" color="secondary" />
 
-				<Flex direction="column">
-					<Flex align="center" gap="8" :class="$style.message_types">
-						<template v-if="tx.message_types.length">
-							<Icon
-								:name="
-									MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
-										? MessageIconMap[tx.message_types[0].replace('Msg', '').toLowerCase()]
-										: 'zap'
-								"
-								size="14"
-								color="secondary"
-							/>
-							<Text size="12" weight="600" color="primary">
-								{{ tx.message_types.map((type) => type.replace("Msg", "")).join(", ") }}
-							</Text>
-						</template>
+							<Text size="13" weight="600">Messages</Text>
+						</Flex>
 
-						<Text v-else size="12" weight="600" color="tertiary">No Message Types</Text>
+						<Flex
+							@click="activeTab = 'events'"
+							align="center"
+							gap="6"
+							:class="[$style.tab, activeTab === 'events' && $style.active]"
+						>
+							<Icon name="zap" size="12" color="secondary" />
+
+							<Text size="13" weight="600">Events</Text>
+						</Flex>
 					</Flex>
+				</Flex>
 
-					<Flex v-for="(event, idx) in filteredEvents" align="center" gap="12" :class="$style.event">
+				<Flex v-if="activeTab === 'events'" direction="column" :class="[$style.inner, $style.events]">
+					<Flex v-for="(event, idx) in events" @click="handleViewRawEvent(event)" align="center" gap="12" :class="$style.event">
 						<Flex
 							direction="column"
 							align="center"
@@ -323,7 +343,7 @@ const handleViewRawEvents = () => {
 								<Text size="12" weight="500" color="secondary">Address</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<NuxtLink :to="`/address/${event.data.spender}`">
+									<NuxtLink :to="`/address/${event.data.spender}`" @click.stop>
 										<Text size="12" weight="500" color="primary" mono>
 											{{ splitAddress(event.data.spender) }}
 										</Text>
@@ -345,7 +365,7 @@ const handleViewRawEvents = () => {
 								<Text size="12" weight="500" color="secondary">Address</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<NuxtLink :to="`/address/${event.data.receiver}`">
+									<NuxtLink :to="`/address/${event.data.receiver}`" @click.stop>
 										<Text size="12" weight="500" color="primary" mono>
 											{{ splitAddress(event.data.receiver) }}
 										</Text>
@@ -367,7 +387,7 @@ const handleViewRawEvents = () => {
 								<Text size="12" weight="500" color="secondary">Validator</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<NuxtLink :to="`/address/${event.data.validator}`">
+									<NuxtLink :to="`/address/${event.data.validator}`" @click.stop>
 										<Text size="12" weight="500" color="primary" mono>
 											{{ splitAddress(event.data.validator) }}
 										</Text>
@@ -389,7 +409,7 @@ const handleViewRawEvents = () => {
 								<Text size="12" weight="500" color="secondary">Address</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<NuxtLink :to="`/address/${event.data.sender}`">
+									<NuxtLink :to="`/address/${event.data.sender}`" @click.stop>
 										<Text size="12" weight="500" color="primary" mono>
 											{{ splitAddress(event.data.sender) }}
 										</Text>
@@ -409,7 +429,7 @@ const handleViewRawEvents = () => {
 								<Text size="12" weight="500" color="secondary">to</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<NuxtLink :to="`/address/${event.data.recipient}`">
+									<NuxtLink :to="`/address/${event.data.recipient}`" @click.stop>
 										<Text size="12" weight="500" color="primary" mono>
 											{{ splitAddress(event.data.recipient) }}
 										</Text>
@@ -441,7 +461,7 @@ const handleViewRawEvents = () => {
 									<Text size="12" weight="500" color="secondary">Acc</Text>
 
 									<Tooltip :class="$style.tooltip">
-										<NuxtLink :to="`/address/${event.data.acc_seq.split('/')[0]}`">
+										<NuxtLink :to="`/address/${event.data.acc_seq.split('/')[0]}`" @click.stop>
 											<Text size="12" weight="500" color="primary" mono>
 												{{ splitAddress(event.data.acc_seq.split("/")[0]) }}
 											</Text>
@@ -465,7 +485,7 @@ const handleViewRawEvents = () => {
 									<Text size="12" weight="500" color="secondary">Address</Text>
 
 									<Tooltip :class="$style.tooltip">
-										<NuxtLink :to="`/address/${event.data.fee_payer}`">
+										<NuxtLink :to="`/address/${event.data.fee_payer}`" @click.stop>
 											<Text size="12" weight="500" color="primary" mono>
 												{{ splitAddress(event.data.fee_payer) }}
 											</Text>
@@ -500,7 +520,7 @@ const handleViewRawEvents = () => {
 									<Text size="12" weight="500" color="secondary">Sender</Text>
 
 									<Tooltip :class="$style.tooltip">
-										<NuxtLink :to="`/address/${event.data.sender}`">
+										<NuxtLink :to="`/address/${event.data.sender}`" @click.stop>
 											<Text size="12" weight="500" color="primary" mono>
 												{{ splitAddress(event.data.sender) }}
 											</Text>
@@ -531,7 +551,7 @@ const handleViewRawEvents = () => {
 								<Text size="12" weight="500" color="secondary">Delegator</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<NuxtLink :to="`/address/${event.data.delegator}`">
+									<NuxtLink :to="`/address/${event.data.delegator}`" @click.stop>
 										<Text size="12" weight="500" color="primary" mono>
 											{{ splitAddress(event.data.delegator) }}
 										</Text>
@@ -545,7 +565,7 @@ const handleViewRawEvents = () => {
 								<Text size="12" weight="500" color="secondary">validator</Text>
 
 								<Tooltip :class="$style.tooltip">
-									<NuxtLink :to="`/address/${event.data.validator}`">
+									<NuxtLink :to="`/address/${event.data.validator}`" @click.stop>
 										<Text size="12" weight="500" color="primary" mono>
 											{{ splitAddress(event.data.validator) }}
 										</Text>
@@ -582,11 +602,14 @@ const handleViewRawEvents = () => {
 							</Text>
 						</Flex>
 					</Flex>
-				</Flex>
 
-				<Button v-if="events.length > 10" @click="handleShowAll" type="secondary" size="mini">
-					{{ !showAll ? "View More" : "Hide" }}
-				</Button>
+					<Button v-if="tx.events_count !== events.length" @click="handleLoadMore" type="secondary" size="mini">
+						Load More
+					</Button>
+				</Flex>
+				<Flex v-if="activeTab === 'messages'" :class="$style.inner">
+					<MessagesTable :messages="messages" />
+				</Flex>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -655,10 +678,61 @@ const handleViewRawEvents = () => {
 
 .events_wrapper {
 	min-width: 0;
+}
+
+.tabs_wrapper {
+	min-height: 44px;
+	overflow-x: auto;
+
+	border-radius: 4px;
+	background: var(--card-background);
+
+	padding: 0 8px;
+}
+
+.tabs_wrapper::-webkit-scrollbar {
+	display: none;
+}
+
+.tab {
+	height: 28px;
+
+	cursor: pointer;
+	border-radius: 6px;
+
+	padding: 0 8px;
+
+	transition: all 0.1s ease;
+
+	& span {
+		color: var(--txt-tertiary);
+
+		transition: all 0.1s ease;
+	}
+
+	&:hover {
+		& span {
+			color: var(--txt-secondary);
+		}
+	}
+}
+
+.tab.active {
+	background: var(--op-8);
+
+	& span {
+		color: var(--txt-primary);
+	}
+}
+
+.inner {
+	height: 100%;
 
 	border-radius: 4px 4px 8px 4px;
 	background: var(--card-background);
+}
 
+.events {
 	padding: 16px;
 }
 
@@ -675,6 +749,8 @@ const handleViewRawEvents = () => {
 
 .event {
 	height: 36px;
+
+	cursor: pointer;
 
 	& .left {
 		height: 100%;
@@ -750,6 +826,16 @@ const handleViewRawEvents = () => {
 	.data {
 		.main {
 			min-width: initial;
+		}
+	}
+}
+
+@media (max-width: 400px) {
+	.tabs_wrapper {
+		overflow-x: auto;
+
+		&::-webkit-scrollbar {
+			display: none;
 		}
 	}
 }

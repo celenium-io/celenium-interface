@@ -23,12 +23,20 @@ let removeOutside = null
 const headerEl = ref(null)
 const showPopup = ref(false)
 
-const head = computed(() => appStore.head)
+const head = computed(() => appStore.lastHead)
 
 const featurePreviewMode = ref(false)
 const isWalletAvailable = ref(false)
 
-onMounted(() => {
+const account = ref("")
+
+const getAccounts = async () => {
+	const offlineSigner = window.getOfflineSigner("celestia")
+	const accounts = await offlineSigner.getAccounts()
+	if (accounts.length) account.value = accounts[0].address
+}
+
+onMounted(async () => {
 	featurePreviewMode.value = localStorage.featurePreview
 	isWalletAvailable.value = !!window.keplr
 })
@@ -64,6 +72,9 @@ const isActive = (link) => {
 		case "namespaces":
 			return splittedPath.includes("namespace") || splittedPath.includes("namespaces")
 
+		case "rollups":
+			return splittedPath.includes("rollup") || splittedPath.includes("rollups")
+
 		default:
 			break
 	}
@@ -73,8 +84,10 @@ const handleNavigate = (url) => {
 	window.location.replace(url)
 }
 
-const handleConnect = () => {
-	window.keplr.enable("celestia")
+const handleConnect = async () => {
+	await window.keplr.enable("celestia")
+
+	getAccounts()
 }
 </script>
 
@@ -115,6 +128,10 @@ const handleConnect = () => {
 				<NuxtLink to="/namespaces" :class="[$style.link, isActive('namespaces') && $style.active]">
 					<Text size="13" weight="600" color="tertiary">Namespaces</Text>
 				</NuxtLink>
+
+				<NuxtLink to="/rollups" :class="[$style.link, isActive('rollups') && $style.active]">
+					<Text size="13" weight="600" color="tertiary">Rollups</Text>
+				</NuxtLink>
 			</Flex>
 
 			<Flex align="center" gap="8">
@@ -154,8 +171,14 @@ const handleConnect = () => {
 					</template>
 				</Tooltip>
 
-				<Button v-if="featurePreviewMode" @click="handleConnect" type="white" size="small" :disabled="!isWalletAvailable">
-					Connect
+				<Button
+					v-if="featurePreviewMode"
+					@click="handleConnect"
+					type="white"
+					size="small"
+					:disabled="!isWalletAvailable || account.length"
+				>
+					{{ account ? `celestia...${account.slice(-6)}` : "Connect" }}
 				</Button>
 			</Flex>
 		</Flex>
@@ -175,6 +198,10 @@ const handleConnect = () => {
 
 			<NuxtLink to="/namespaces" :class="[$style.link, isActive('namespaces') && $style.active]">
 				<Text size="13" weight="600" color="tertiary">Namespaces</Text>
+			</NuxtLink>
+
+			<NuxtLink to="/rollups" :class="[$style.link, isActive('rollups') && $style.active]">
+				<Text size="13" weight="600" color="tertiary">Rollups</Text>
 			</NuxtLink>
 		</Flex>
 	</Flex>
@@ -324,7 +351,7 @@ const handleConnect = () => {
 	}
 }
 
-@media (max-width: 700px) {
+@media (max-width: 850px) {
 	.links {
 		display: none;
 	}
@@ -341,6 +368,12 @@ const handleConnect = () => {
 @media (max-width: 500px) {
 	.container {
 		margin: 0 12px;
+	}
+}
+
+@media (max-width: 400px) {
+	.logo_name {
+		display: none;
 	}
 }
 </style>

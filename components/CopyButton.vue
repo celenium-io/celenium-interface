@@ -5,7 +5,7 @@ const notificationsStore = useNotificationsStore()
 
 const props = defineProps({
 	text: {
-		type: String,
+		type: [String, Number],
 	},
 	size: {
 		type: String,
