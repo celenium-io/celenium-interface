@@ -17,7 +17,6 @@ import { tia, comma, space, formatBytes, reverseMapping } from "@/services/utils
 
 /** API */
 import { fetchTransactionsByBlock } from "@/services/api/tx"
-import { fetchBlockEvents } from "@/services/api/block"
 
 /** Store */
 import { useModalsStore } from "@/store/modals"
@@ -61,7 +60,7 @@ const activeTab = ref(tabs.value[0])
 
 const isRefetching = ref(false)
 const transactions = ref([])
-const events = ref([])
+
 
 const page = ref(1)
 const pages = computed(() => Math.ceil(props.block.stats.messages_counts[MapTabsTypes[activeTab.value]] / 10))
@@ -94,25 +93,18 @@ const getTransactions = async () => {
 	isRefetching.value = false
 }
 
-const getEvents = async () => {
-	isRefetching.value = true
-
-	const rawEvents = await fetchBlockEvents({ height: props.block.height })
-	events.value = rawEvents.sort((a, b) => a.position - b.position)
-	cacheStore.current.events = events.value
-
-	isRefetching.value = false
-}
-
-
 /** Find active tab by messages count */
 let finded = false
-tabs.value.forEach((t) => {
+if (props.block.stats.tx_count) {
+	tabs.value.forEach((t) => {
 	if (props.block.stats.messages_counts[MapTabsTypes[t]] && !finded) {
-		finded = true
-		activeTab.value = t
-	}
-})
+			finded = true
+			activeTab.value = t
+		}
+	})
+} else {
+	activeTab.value = "Events"
+}
 
 await getTransactions()
 
@@ -132,9 +124,8 @@ watch(
 	() => activeTab.value,
 	() => {
 		page.value = 1
-		activeTab.value !== "Events"
-			? getTransactions()
-			: getEvents()
+		
+		getTransactions()
 	},
 )
 
@@ -538,11 +529,9 @@ const handleViewRawTransactions = () => {
 						</Button>
 					</Flex>
 				</Flex>
-				<Flex v-else direction="column" :class="[$style.inner, $style.events]">
-					<Events :events="events">
+				<Events v-else :block="block">
 
-					</Events>
-				</Flex>
+				</Events>
 			</Flex>
 		</Flex>
 	</Flex>
