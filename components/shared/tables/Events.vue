@@ -1,18 +1,10 @@
 <script setup>
-/** Vendor */
-import { DateTime } from "luxon"
-
 /** UI */
-import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Tooltip from "~/components/ui/Tooltip.vue"
 import Button from "~/components/ui/Button.vue"
 
-/** Shared Components */
-import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
-import MessagesTable from "@/components/modules/tx/MessagesTable.vue"
-
 /** Services */
-import { comma, tia, splitAddress } from "@/services/utils"
+import { tia, splitAddress } from "@/services/utils"
 
 /** API */
 import { fetchTxEvents } from "@/services/api/tx"
@@ -21,12 +13,8 @@ import { fetchBlockEvents } from "@/services/api/block"
 /** Store */
 import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
-import { useBookmarksStore } from "@/store/bookmarks"
-import { useNotificationsStore } from "@/store/notifications"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
-const bookmarksStore = useBookmarksStore()
-const notificationsStore = useNotificationsStore()
 
 const router = useRouter()
 
@@ -50,6 +38,11 @@ const EventIconMapping = {
 	withdraw_rewards: "coins",
 	withdraw_commission: "tag",
 	tx: "zap",
+	proposer_reward: "coins_down",
+	commission: "coins_down",
+	rewards: "coins_down",
+	mint: "coins_down",
+	coinbase: "coins_down"
 }
 
 const getEvents = async () => {
@@ -104,7 +97,6 @@ watch(
 		getEvents()
 	},
 )
-
 </script>
 
 <template>
@@ -380,6 +372,98 @@ watch(
 						<Text size="12" weight="500" color="primary" mono no-wrap>
 							{{ tia(event.data.amount.replace("utia", "")) }} TIA
 						</Text>
+					</Flex>
+					<!-- Event: proposer_reward -->
+					<Flex v-else-if="event.type === 'proposer_reward'" align="center" gap="4" color="secondary" :class="$style.text">
+						<Text size="12" weight="500" color="secondary">Proposer</Text>
+
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.validator}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.validator) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.validator }}
+							</template>
+						</Tooltip>
+
+						<Text size="12" weight="500" color="secondary">received rewards</Text>
+
+						<Text size="12" weight="500" color="primary" mono no-wrap>
+							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA
+						</Text>
+					</Flex>
+					<!-- Event: rewards -->
+					<Flex v-else-if="event.type === 'rewards'" align="center" gap="4" color="secondary" :class="$style.text">
+						<Text size="12" weight="500" color="secondary">Validator</Text>
+
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.validator}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.validator) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.validator }}
+							</template>
+						</Tooltip>
+
+						<Text size="12" weight="500" color="secondary">received rewards</Text>
+
+						<Text size="12" weight="500" color="primary" mono no-wrap>
+							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA
+						</Text>
+					</Flex>
+					<!-- Event: commission -->
+					<Flex v-else-if="event.type === 'commission'" align="center" gap="4" color="secondary" :class="$style.text">
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.validator}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.validator) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.validator }}
+							</template>
+						</Tooltip>
+
+						<Text size="12" weight="500" color="secondary">received commission of</Text>
+
+						<Text size="12" weight="500" color="primary" mono no-wrap>
+							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA
+						</Text>
+					</Flex>
+					<!-- Event: coinbase -->
+					<Flex v-else-if="event.type === 'coinbase'" align="center" gap="4" color="secondary" :class="$style.text">
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.minter}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.minter) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.minter }}
+							</template>
+						</Tooltip>
+
+						<Text size="12" weight="500" color="secondary">received</Text>
+
+						<Text size="12" weight="500" color="primary" mono no-wrap>
+							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA
+						</Text>
+					</Flex>
+					<!-- Event: mint -->
+					<Flex v-else-if="event.type === 'mint'" align="center" gap="4" color="secondary" :class="$style.text">
+						<Text size="12" weight="500" color="primary" mono no-wrap>
+							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA</Text
+						>
+
+						<Text size="12" weight="500" color="secondary">was minted</Text>
 					</Flex>
 
 					<Text size="12" weight="600" color="tertiary" mono>

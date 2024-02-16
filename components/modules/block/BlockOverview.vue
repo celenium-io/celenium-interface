@@ -102,6 +102,9 @@ if (props.block.stats.tx_count) {
 			activeTab.value = t
 		}
 	})
+	if (!finded) {
+		activeTab.value = "Other"
+	}
 } else {
 	activeTab.value = "Events"
 }
