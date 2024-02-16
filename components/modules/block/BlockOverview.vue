@@ -10,12 +10,14 @@ import Badge from "@/components/ui/Badge.vue"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
+import Events from "@/components/shared/tables/Events.vue";
 
 /** Services */
 import { tia, comma, space, formatBytes, reverseMapping } from "@/services/utils"
 
 /** API */
 import { fetchTransactionsByBlock } from "@/services/api/tx"
+import { fetchBlockEvents } from "@/services/api/block"
 
 /** Store */
 import { useModalsStore } from "@/store/modals"
@@ -54,11 +56,12 @@ const bookmarkText = computed(() => {
 	return isBookmarked.value ? "Saved" : "Save"
 })
 
-const tabs = ref(["PFBs", "Transfers", "Register", "Delegate", "Other"])
+const tabs = ref(["PFBs", "Transfers", "Register", "Delegate", "Other", "Events"])
 const activeTab = ref(tabs.value[0])
 
 const isRefetching = ref(false)
 const transactions = ref([])
+const events = ref([])
 
 const page = ref(1)
 const pages = computed(() => Math.ceil(props.block.stats.messages_counts[MapTabsTypes[activeTab.value]] / 10))
@@ -91,6 +94,17 @@ const getTransactions = async () => {
 	isRefetching.value = false
 }
 
+const getEvents = async () => {
+	isRefetching.value = true
+
+	const rawEvents = await fetchBlockEvents({ height: props.block.height })
+	events.value = rawEvents.sort((a, b) => a.position - b.position)
+	cacheStore.current.events = events.value
+
+	isRefetching.value = false
+}
+
+
 /** Find active tab by messages count */
 let finded = false
 tabs.value.forEach((t) => {
@@ -118,8 +132,9 @@ watch(
 	() => activeTab.value,
 	() => {
 		page.value = 1
-
-		getTransactions()
+		activeTab.value !== "Events"
+			? getTransactions()
+			: getEvents()
 	},
 )
 
@@ -142,9 +157,9 @@ const filteredTransactions = computed(() => {
 })
 
 const getTxnsCountByTab = (tab) => {
-	if (tab !== "Other") {
+	if (tab !== "Other" && tab !== "Events") {
 		return props.block.stats.messages_counts[MapTabsTypes[tab]]
-	} else {
+	} else if (tab === "Other") {
 		let unsupportedCounter = 0
 		const unsupportedTypes = []
 
@@ -157,6 +172,8 @@ const getTxnsCountByTab = (tab) => {
 		})
 
 		return unsupportedCounter
+	} else if (tab === "Events") {
+		return props.block.stats.events_count;
 	}
 }
 
@@ -378,7 +395,7 @@ const handleViewRawTransactions = () => {
 					</Flex>
 				</Flex>
 
-				<Flex direction="column" justify="center" gap="8" :class="[$style.table, isRefetching && $style.disabled]">
+				<Flex v-if="activeTab !== 'Events'" direction="column" justify="center" gap="8" :class="[$style.table, isRefetching && $style.disabled]">
 					<div v-if="filteredTransactions.length" :class="$style.table_scroller">
 						<table>
 							<thead>
@@ -521,6 +538,11 @@ const handleViewRawTransactions = () => {
 						</Button>
 					</Flex>
 				</Flex>
+				<Flex v-else direction="column" :class="[$style.inner, $style.events]">
+					<Events :events="events">
+
+					</Events>
+				</Flex>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -616,6 +638,17 @@ const handleViewRawTransactions = () => {
 	height: 100%;
 
 	overflow-x: auto;
+}
+
+.inner {
+	height: 100%;
+
+	border-radius: 4px 4px 8px 4px;
+	background: var(--card-background);
+}
+
+.events {
+	padding: 16px;
 }
 
 .table {
