@@ -139,7 +139,7 @@ const handleChangeTheme = (theme) => {
 							<Icon name="discord" size="14" color="secondary" :class="$style.btn" />
 						</a>
 						<a href="https://www.youtube.com/watch?v=l4IrPuzTR-Q&list=PL3qDmPA7Yigp2fOHRqmQeZBMvZptOYQqB&pp=iAQB" target="_blank">
-							<Icon name="youtube" size="18" color="secondary" :class="$style.btn_youtube" />
+							<Icon name="youtube" size="14" color="secondary" :class="$style.btn" />
 						</a>
 					</Flex>
 				</Flex>
@@ -198,25 +198,6 @@ const handleChangeTheme = (theme) => {
 	cursor: pointer;
 
 	padding: 6px;
-
-	transition: all 0.2s ease;
-
-	&:hover {
-		background: var(--op-10);
-	}
-
-	&:active {
-		background: var(--op-15);
-	}
-}
-
-.btn_youtube {
-	box-sizing: content-box;
-	border-radius: 5px;
-	background: var(--op-8);
-	cursor: pointer;
-
-	padding: 4px;
 
 	transition: all 0.2s ease;
 
