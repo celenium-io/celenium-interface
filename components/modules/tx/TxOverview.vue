@@ -357,7 +357,7 @@ const handleViewRawTransaction = () => {
 }
 
 .events_wrapper {
-	min-width: 384px;
+	min-width: 0;
 }
 
 .tabs_wrapper {
