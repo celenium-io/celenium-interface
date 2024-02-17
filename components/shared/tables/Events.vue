@@ -498,7 +498,6 @@ watch(
 <style module>
 .data {
 	min-width: 100%;
-	width: 0;
 	height: 100%;
 
 	overflow-x: auto;

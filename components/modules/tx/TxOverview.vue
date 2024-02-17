@@ -287,8 +287,9 @@ const handleViewRawTransaction = () => {
 				<Flex v-if="activeTab === 'messages'" :class="$style.inner">
 					<MessagesTable :messages="messages" />
 				</Flex>
-				<Events v-else-if="activeTab === 'events'" :tx="tx">
-				</Events>
+				<Flex v-if="activeTab === 'events'" :class="$style.inner">
+					<Events :tx="tx" />
+				</Flex>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -356,7 +357,7 @@ const handleViewRawTransaction = () => {
 }
 
 .events_wrapper {
-	min-width: 0;
+	min-width: 384px;
 }
 
 .tabs_wrapper {
