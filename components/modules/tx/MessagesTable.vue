@@ -3,7 +3,7 @@
 import { DateTime } from "luxon"
 
 /** UI */
-import Tooltip from "@/components/ui/Tooltip.vue"
+import Button from "~/components/ui/Button.vue"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
@@ -31,51 +31,101 @@ const handleViewRawMessage = (message) => {
 	cacheStore.current.message = message
 	modalsStore.open("rawData")
 }
+
+// Pagination
+const page = ref(1)
+const itemsPerPage = 10
+const pages = computed(() => Math.ceil(props.messages.length / itemsPerPage))
+const messagesToShow = computed(() => {
+	let start = (page.value - 1) * itemsPerPage;
+	let end = start + itemsPerPage;
+	return props.messages.slice(start, end); 
+})
+const handleNext = () => {
+	if (page.value === pages.value) return
+	page.value += 1
+}
+const handlePrev = () => {
+	if (page.value === 1) return
+	page.value -= 1
+}
 </script>
 
 <template>
-	<div :class="$style.wrapper_tx_messages">
-		<table :class="$style.table">
-			<thead>
-				<tr>
-					<th><Text size="12" weight="600" color="tertiary">Type</Text></th>
-					<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
-					<th><Text size="12" weight="600" color="tertiary">Block</Text></th>
-				</tr>
-			</thead>
+	<Flex direction="column" justify="between" :class="$style.data">
+		<div :class="$style.wrapper_tx_messages">
+			<table :class="$style.table">
+				<thead>
+					<tr>
+						<th><Text size="12" weight="600" color="tertiary">Type</Text></th>
+						<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
+						<th><Text size="12" weight="600" color="tertiary">Block</Text></th>
+					</tr>
+				</thead>
 
-			<tbody>
-				<tr v-for="message in messages" @click="handleViewRawMessage(message)">
-					<td style="width: 1px">
-						<Flex align="center">
-							<MessageTypeBadge :types="[message.type]" />
-						</Flex>
-					</td>
-					<td>
-						<Flex align="center">
-							<Text size="13" weight="600" color="primary">
-								{{ DateTime.fromISO(message.time).toRelative({ locale: "en", style: "short" }) }}
-							</Text>
-						</Flex>
-					</td>
-					<td>
-						<Flex align="center">
-							<Outline @click.stop="router.push(`/block/${message.height}`)">
-								<Flex align="center" gap="6">
-									<Icon name="block" size="14" color="secondary" />
+				<tbody>
+					<tr v-for="message in messagesToShow" @click="handleViewRawMessage(message)">
+						<td style="width: 1px">
+							<Flex align="center">
+								<MessageTypeBadge :types="[message.type]" />
+							</Flex>
+						</td>
+						<td>
+							<Flex align="center">
+								<Text size="13" weight="600" color="primary">
+									{{ DateTime.fromISO(message.time).toRelative({ locale: "en", style: "short" }) }}
+								</Text>
+							</Flex>
+						</td>
+						<td>
+							<Flex align="center">
+								<Outline @click.stop="router.push(`/block/${message.height}`)">
+									<Flex align="center" gap="6">
+										<Icon name="block" size="14" color="secondary" />
 
-									<Text size="13" weight="600" color="primary" tabular>{{ comma(message.height) }}</Text>
-								</Flex>
-							</Outline>
-						</Flex>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+										<Text size="13" weight="600" color="primary" tabular>{{ comma(message.height) }}</Text>
+									</Flex>
+								</Outline>
+							</Flex>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<!-- Pagination -->
+		<Flex v-if="messagesToShow.length && pages === 1" align="center" gap="6" :class="$style.pagination">
+			<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
+				<Icon name="arrow-left-stop" size="12" color="primary" />
+			</Button>
+			<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
+				<Icon name="arrow-left" size="12" color="primary" />
+			</Button>
+
+			<Button type="secondary" size="mini" disabled>
+				<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
+			</Button>
+
+			<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
+				<Icon name="arrow-right" size="12" color="primary" />
+			</Button>
+			<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages">
+				<Icon name="arrow-right-stop" size="12" color="primary" />
+			</Button>
+		</Flex>
+	</Flex>
 </template>
 
 <style module>
+.data {
+	min-width: 100%;
+	height: 100%;
+
+	overflow-x: auto;
+
+	background: var(--card-background);
+}
+
 .wrapper_tx_messages {
 	min-width: 100%;
 	width: 0;
@@ -136,5 +186,9 @@ const handleViewRawMessage = (message) => {
 			}
 		}
 	}
+}
+
+.pagination {
+	padding: 0 16px 16px 16px;
 }
 </style>

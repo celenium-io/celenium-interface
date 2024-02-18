@@ -1,4 +1,7 @@
 <script setup>
+/** Vendor */
+import { DateTime } from "luxon"
+
 /** UI */
 import Tooltip from "~/components/ui/Tooltip.vue"
 import Button from "~/components/ui/Button.vue"
@@ -42,7 +45,13 @@ const EventIconMapping = {
 	commission: "coins_down",
 	rewards: "coins_down",
 	mint: "coins_down",
-	coinbase: "coins_down"
+	coinbase: "coins_down",
+	unbond: "arrow-circle-right-up",
+	redelegate: "arrow-circle-right-up",
+	complete_unbonding: "coins_down",
+	complete_redelegation: "arrow-circle-right-up",
+	slash: "arrow-circle-right-up",
+	cancel_unbonding_delegation: "arrow-circle-right-up",
 }
 
 const getEvents = async () => {
@@ -464,6 +473,202 @@ watch(
 						>
 
 						<Text size="12" weight="500" color="secondary">was minted</Text>
+					</Flex>
+					<!-- Event: undond -->
+					<Flex v-else-if="event.type === 'unbond'" align="center" gap="4" color="secondary" :class="$style.text">
+						<Text size="12" weight="500" color="primary" mono no-wrap>
+							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA</Text
+						>
+
+						<Text size="12" weight="500" color="secondary">will unbond from</Text>
+
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.validator}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.validator) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.validator }}
+							</template>
+						</Tooltip>
+
+						<Text size="12" weight="500" color="secondary">at</Text>
+
+						<Tooltip :class="$style.tooltip">
+							<Text size="12" weight="500" color="primary" mono>
+								{{ DateTime.fromISO(event.data.completion_time).setLocale("en").toFormat("MMMM d h:mm a") }}
+							</Text>
+
+							<template #content>
+								{{ DateTime.fromISO(event.data.completion_time).setLocale("en").toFormat("ff") }}
+							</template>
+						</Tooltip>
+					</Flex>
+					<!-- Event: redelegate -->
+					<Flex v-else-if="event.type === 'redelegate'" align="center" gap="4" color="secondary" :class="$style.text">
+						<Text size="12" weight="500" color="primary" mono no-wrap>
+							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA</Text
+						>
+
+						<Text size="12" weight="500" color="secondary">will redelegate from</Text>
+
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.source_validator}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.source_validator) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.source_validator }}
+							</template>
+						</Tooltip>
+
+						<Text size="12" weight="500" color="secondary">to</Text>
+
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.destination_validator}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.destination_validator) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.destination_validator }}
+							</template>
+						</Tooltip>
+
+						<Text size="12" weight="500" color="secondary">at</Text>
+
+						<Tooltip :class="$style.tooltip">
+							<Text size="12" weight="500" color="primary" mono>
+								{{ DateTime.fromISO(event.data.completion_time).setLocale("en").toFormat("MMMM d h:mm a") }}
+							</Text>
+
+							<template #content>
+								{{ DateTime.fromISO(event.data.completion_time).setLocale("en").toFormat("ff") }}
+							</template>
+						</Tooltip>
+					</Flex>
+					<!-- Event: complete_unbonding -->
+					<Flex v-else-if="event.type === 'complete_unbonding'" align="center" gap="4" color="secondary" :class="$style.text">
+						<Text size="12" weight="500" color="primary" mono no-wrap>
+							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA</Text
+						>
+
+						<Text size="12" weight="500" color="secondary">was unbonded from</Text>
+
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.validator}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.validator) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.validator }}
+							</template>
+						</Tooltip>
+
+						<Text size="12" weight="500" color="secondary">to</Text>
+
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.delegator}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.delegator) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.delegator }}
+							</template>
+						</Tooltip>
+					</Flex>
+					<!-- Event: complete_redelegation -->
+					<Flex v-else-if="event.type === 'complete_redelegation'" align="center" gap="4" color="secondary" :class="$style.text">
+						<Text size="12" weight="500" color="primary" mono no-wrap>
+							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA</Text
+						>
+
+						<Text size="12" weight="500" color="secondary">was redelegated from</Text>
+
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.source_validator}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.source_validator) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.source_validator }}
+							</template>
+						</Tooltip>
+
+						<Text size="12" weight="500" color="secondary">to</Text>
+
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.destination_validator}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.destination_validator) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.destination_validator }}
+							</template>
+						</Tooltip>
+					</Flex>
+					<!-- Event: slash -->
+					<Flex v-else-if="event.type === 'slash'" align="center" gap="4" color="secondary" :class="$style.text">
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.jailed}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.jailed) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.jailed }}
+							</template>
+						</Tooltip>
+
+						<Text size="12" weight="500" color="secondary">was jailed for</Text>
+
+						<Tooltip :class="$style.tooltip">
+								<Text size="12" weight="500" color="primary" mono>
+									{{ event.data.reason }}
+								</Text>
+
+							<template #content>
+								{{ event.data.reason }}
+							</template>
+						</Tooltip>
+					</Flex>
+					<!-- Event: cancel_unbonding_delegation -->
+					<Flex v-else-if="event.type === 'cancel_unbonding_delegation'" align="center" gap="4" color="secondary" :class="$style.text">
+						<Text size="12" weight="500" color="secondary">Unbonding</Text>
+
+						<Text size="12" weight="500" color="primary" mono no-wrap>
+							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA</Text
+						>
+
+						<Text size="12" weight="500" color="secondary">from</Text>
+
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.validator}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.validator) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.validator }}
+							</template>
+						</Tooltip>
+
+						<Text size="12" weight="500" color="secondary">was canceled</Text>
 					</Flex>
 
 					<Text size="12" weight="600" color="tertiary" mono>
