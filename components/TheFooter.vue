@@ -138,6 +138,9 @@ const handleChangeTheme = (theme) => {
 						<a href="https://discord.com/channels/846362414039695391/1168936555302355005" target="_blank">
 							<Icon name="discord" size="14" color="secondary" :class="$style.btn" />
 						</a>
+						<a href="https://www.youtube.com/watch?v=l4IrPuzTR-Q&list=PL3qDmPA7Yigp2fOHRqmQeZBMvZptOYQqB&pp=iAQB" target="_blank">
+							<Icon name="youtube" size="14" color="secondary" :class="$style.btn" />
+						</a>
 					</Flex>
 				</Flex>
 
