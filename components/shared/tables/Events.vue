@@ -46,12 +46,13 @@ const EventIconMapping = {
 	rewards: "coins_down",
 	mint: "coins_down",
 	coinbase: "coins_down",
-	unbond: "arrow-circle-right-up",
-	redelegate: "arrow-circle-right-up",
-	complete_unbonding: "coins_down",
-	complete_redelegation: "arrow-circle-right-up",
-	slash: "arrow-circle-right-up",
-	cancel_unbonding_delegation: "arrow-circle-right-up",
+	unbond: "unlock",
+	redelegate: "redelegate",
+	complete_unbonding: "unlock",
+	complete_redelegation: "redelegate",
+	slash: "grid",
+	cancel_unbonding_delegation: "unlock",
+	liveness: "close-circle",
 }
 
 const getEvents = async () => {
@@ -126,8 +127,6 @@ watch(
 				<Flex wide justify="between" align="center" gap="6" :class="$style.right">
 					<!-- Event: coin_spent -->
 					<Flex v-if="event.type === 'coin_spent'" align="center" gap="4" color="secondary" :class="$style.text">
-						<Text size="12" weight="500" color="secondary">Address</Text>
-
 						<Tooltip :class="$style.tooltip">
 							<NuxtLink :to="`/address/${event.data.spender}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
@@ -148,8 +147,6 @@ watch(
 					</Flex>
 					<!-- Event: coin_received -->
 					<Flex v-else-if="event.type === 'coin_received'" align="center" gap="4" color="secondary" :class="$style.text">
-						<Text size="12" weight="500" color="secondary">Address</Text>
-
 						<Tooltip :class="$style.tooltip">
 							<NuxtLink :to="`/address/${event.data.receiver}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
@@ -192,8 +189,6 @@ watch(
 					</Flex>
 					<!-- Event: transfer -->
 					<Flex v-else-if="event.type === 'transfer'" align="center" gap="4" color="secondary" :class="$style.text">
-						<Text size="12" weight="500" color="secondary">Address</Text>
-
 						<Tooltip :class="$style.tooltip">
 							<NuxtLink :to="`/address/${event.data.sender}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
@@ -268,8 +263,6 @@ watch(
 						</template>
 						<!-- fee -->
 						<template v-if="event.data.fee">
-							<Text size="12" weight="500" color="secondary">Address</Text>
-
 							<Tooltip :class="$style.tooltip">
 								<NuxtLink :to="`/address/${event.data.fee_payer}`" @click.stop>
 									<Text size="12" weight="500" color="primary" mono>
@@ -669,6 +662,28 @@ watch(
 						</Tooltip>
 
 						<Text size="12" weight="500" color="secondary">was canceled</Text>
+					</Flex>
+					<!-- Event: liveness -->
+					<Flex v-else-if="event.type === 'liveness'" align="center" gap="4" color="secondary" :class="$style.text">
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.address}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.address) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.address }}
+							</template>
+						</Tooltip>
+
+						<Text size="12" weight="500" color="secondary">missed</Text>
+
+						<Text size="12" weight="500" color="primary" mono no-wrap>
+							{{ event.data.missed_blocks }}</Text
+						>
+
+						<Text size="12" weight="500" color="secondary">blocks</Text>
 					</Flex>
 
 					<Text size="12" weight="600" color="tertiary" mono>
