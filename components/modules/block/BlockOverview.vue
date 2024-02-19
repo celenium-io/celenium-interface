@@ -53,7 +53,7 @@ const bookmarkText = computed(() => {
 
 const activeTab = ref("transactions")
 
-const isRefetching = ref(false)
+const isLoading = ref(false)
 const transactions = ref([])
 
 
@@ -66,8 +66,6 @@ const handlePrev = () => {
 	if (page.value === 1) return
 	page.value -= 1
 }
-
-console.log(props.block.message_types);
 
 /** Filters */
 const filters = reactive({
@@ -208,7 +206,7 @@ const resetFilters = (target, refetch) => {
 }
 
 const getTransactions = async () => {
-	isRefetching.value = true
+	isLoading.value = true
 
 	const { data } = await fetchTransactionsByBlock({
 		height: props.block.height,
@@ -231,7 +229,7 @@ const getTransactions = async () => {
 	transactions.value = data.value
 	cacheStore.current.transactions = transactions.value
 
-	isRefetching.value = false
+	isLoading.value = false
 }
 
 await getTransactions()
@@ -485,10 +483,10 @@ const handleViewRawTransactions = () => {
 					</Flex>
 				</Flex>
 
-				<Flex v-if="activeTab === 'transactions'" direction="column" :class="[$style.table, isRefetching && $style.disabled]">
+				<Flex v-if="activeTab === 'transactions'" direction="column" :class="[$style.table, isLoading && $style.disabled]">
 					<Flex wrap="wrap" align="center" justify="start" gap="8" :class="$style.filters">
 						<Popover :open="isStatusPopoverOpen" @on-close="onStatusPopoverClose" width="200">
-							<Button @click="handleOpenStatusPopover" type="secondary" size="mini">
+							<Button @click="handleOpenStatusPopover" type="secondary" size="mini" :disabled="!transactions.length">
 								<Icon name="plus-circle" size="12" color="tertiary" />
 								<Text color="secondary">Status</Text>
 
@@ -526,7 +524,7 @@ const handleViewRawTransactions = () => {
 						</Popover>
 
 						<Popover :open="isMessageTypePopoverOpen" @on-close="onMessageTypePopoverClose" width="250">
-							<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini">
+							<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini" :disabled="!transactions.length">
 								<Icon name="plus-circle" size="12" color="tertiary" />
 								<Text color="secondary">Message Type</Text>
 
@@ -952,7 +950,7 @@ const handleViewRawTransactions = () => {
 }
 
 .pagination {
-	padding: 0 16px 16px 16px;
+	padding: 8px 16px 16px 16px;
 }
 
 @media (max-width: 800px) {
