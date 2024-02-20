@@ -196,12 +196,17 @@ const handleNext = () => {
 							<tr v-for="v in validators">
 								<td style="width: 1px">
 									<NuxtLink :to="`/validator/${v.id}`">
-										<Flex align="center" gap="6">
+										<Flex v-if="v.moniker" align="center" gap="6">
 											<Text size="13" weight="600" color="primary" mono>
 												{{ v.moniker }}
 											</Text>
 
 											<CopyButton :text="v.moniker" />
+										</Flex>
+										<Flex v-else align="center" gap="6">
+											<AddressBadge :hash="v.address" />
+
+											<CopyButton :text="v.address" />
 										</Flex>
 									</NuxtLink>
 								</td>
@@ -253,7 +258,7 @@ const handleNext = () => {
 .wrapper {
 	max-width: calc(var(--base-width) + 48px);
 
-	padding: 26px 24px 60px 24px;
+	padding: 40px 24px 60px 24px;
 }
 
 .breadcrumbs {
