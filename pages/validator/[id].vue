@@ -86,7 +86,7 @@ useHead({
 					:items="[
 						{ link: '/', name: 'Explore' },
 						{ link: '/validators', name: 'Validators' },
-						{ link: route.fullPath, name: validator.moniker },
+						{ link: route.fullPath, name: validator.moniker ? validator.moniker : validator.address },
 					]"
 				/>
 

@@ -173,7 +173,7 @@ watch(
 						</Flex>
 					</Flex>
 					<Flex direction="column" gap="8">
-						<Text size="12" weight="600" color="secondary">Delegator</Text>
+						<Text size="12" weight="600" color="secondary">Delegator Address</Text>
 						<Flex align="center" gap="10">
 							<AddressBadge :hash="validator.delegator" color="tertiary" />
 
