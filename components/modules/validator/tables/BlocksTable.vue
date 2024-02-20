@@ -30,7 +30,7 @@ const props = defineProps({
 					<th><Text size="12" weight="600" color="tertiary" noWrap>Height</Text></th>
 					<th><Text size="12" weight="600" color="tertiary" noWrap>Time</Text></th>
 					<th><Text size="12" weight="600" color="tertiary" noWrap>Txs</Text></th>
-					<th><Text size="12" weight="600" color="tertiary" noWrap>Events</Text></th>
+					<th><Text size="12" weight="600" color="tertiary" noWrap>Blobs</Text></th>
 					<th><Text size="12" weight="600" color="tertiary" noWrap>Total Fees</Text></th>
 				</tr>
 			</thead>
@@ -82,7 +82,7 @@ const props = defineProps({
 						<NuxtLink :to="`/block/${block.height}`">
 							<Flex align="center">
 								<Text size="13" weight="600" color="primary">
-									{{ block.stats.events_count }}
+									{{ block.stats.blobs_count }}
 								</Text>
 							</Flex>
 						</NuxtLink>

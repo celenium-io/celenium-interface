@@ -12,7 +12,7 @@ import BlocksTable from "./tables/BlocksTable.vue"
 import NamespacesTable from "./tables/NamespacesTable.vue"
 
 /** Services */
-import { comma, formatBytes } from "@/services/utils"
+import { comma, numToPercent, splitAddress } from "@/services/utils"
 
 /** API */
 import { fetchRollupBlobs, fetchRollupNamespaces } from "@/services/api/rollup"
@@ -33,7 +33,7 @@ const props = defineProps({
 
 const tabs = ref([
 	{
-		name: "Validated Blocks",
+		name: "Proposed Blocks",
 		icon: "block",
 	},
 ])
@@ -69,40 +69,6 @@ const getBlocks = async () => {
 	isRefetching.value = false
 }
 
-
-// const getBlobs = async () => {
-// 	isRefetching.value = true
-
-// 	const { data } = await fetchRollupBlobs({
-// 		id: props.rollup.id,
-// 		offset: (page.value - 1) * 10,
-// 		limit: 10,
-// 	})
-
-// 	if (data.value?.length) {
-// 		blobs.value = data.value
-// 		cacheStore.current.blobs = blobs.value
-// 	}
-
-// 	isRefetching.value = false
-// }
-// const getNamespaces = async () => {
-// 	isRefetching.value = true
-
-// 	const { data } = await fetchRollupNamespaces({
-// 		id: props.rollup.id,
-// 		offset: (page.value - 1) * 10,
-// 		limit: 10,
-// 	})
-
-// 	if (data.value?.length) {
-// 		namespaces.value = data.value
-// 		cacheStore.current.namespaces = namespaces.value
-// 	}
-
-// 	isRefetching.value = false
-// }
-
 /** Initital fetch for blocks */
 await getBlocks()
 
@@ -111,41 +77,49 @@ watch(
 	() => page.value,
 	() => {
 		switch (activeTab.value) {
-			case "Validated Blocks":
+			case "Proposed Blocks":
 				getBlocks()
 				break
 		}
 	},
 )
 
-/** Refetch Blobs/Namespaces on tab changing */
-// watch(
-// 	() => activeTab.value,
-// 	() => {
-// 		page.value = 1
 
-// 		switch (activeTab.value) {
-// 			case "Blobs":
-// 				getBlobs()
-// 				break
+const parsedContacts = computed(() => {
+	let res = []
+	const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+	const emails = props.validator.contacts.match(emailRegex);
 
-// 			case "Namespaces":
-// 				getNamespaces()
-// 				break
-// 		}
-// 	},
-// )
+	if (emails) {
+		emails.forEach(email => {
+			res.push({
+				type: 'email',
+				value: 'mailto:' + email,
+			});
+		});
+	}
 
-// const handleViewRawNamespaces = () => {
-// 	cacheStore.current._target = "namespaces"
-// 	modalsStore.open("rawData")
-// }
+	const telegramRegex = /https?:\/\/t\.me\/([A-Za-z0-9_]+)/g;
+	const telegrams = props.validator.contacts.match(telegramRegex);
 
-// const handleViewRawBlobs = () => {
-// 	cacheStore.current._target = "blobs"
-// 	modalsStore.open("rawData")
-// }
+	if (telegrams) {
+		telegrams.forEach(telegram => {
+			res.push({
+				type: 'telegram',
+				value: telegram,
+			});
+		});
+	}
 
+	// if (!res.length) {
+	// 	res.push({
+	// 		type: 'unknown',
+	// 		value: props.validator.contacts,
+	// 	})
+	// }
+
+	return res
+})
 </script>
 
 <template>
@@ -162,22 +136,15 @@ watch(
 				<Flex direction="column" gap="24" :class="$style.main">
 					<Flex align="center" gap="12" :class="$style.key_value">
 						<Flex direction="column" gap="8" :class="$style.key_value">
-							<Flex v-if="validator.moniker" align="center" gap="10">
-								<Text size="13" weight="600" color="primary">{{ validator.moniker }} </Text>
-							</Flex>
 							<Flex align="center" gap="10">
-								<AddressBadge :hash="validator.address" color="tertiary" />
+								<Text v-if="validator.moniker" size="13" weight="600" color="primary">{{ validator.moniker }} </Text>
+								<Text v-else size="13" weight="600" color="primary">Validator</Text>
+							</Flex>
+							<Flex align="center" gap="6">
+								<Text size="12" weight="600" color="tertiary"> {{ splitAddress(validator.address) }} </Text>
 
 								<CopyButton :text="validator.address" />
 							</Flex>
-						</Flex>
-					</Flex>
-					<Flex direction="column" gap="8">
-						<Text size="12" weight="600" color="secondary">Delegator Address</Text>
-						<Flex align="center" gap="10">
-							<AddressBadge :hash="validator.delegator" color="tertiary" />
-
-							<CopyButton :text="validator.delegator" />
 						</Flex>
 					</Flex>
 					<Flex v-if="validator.details" direction="column" gap="6">
@@ -200,17 +167,30 @@ watch(
 							</template>
 						</Tooltip>
 
-						<!-- <Tooltip v-if="rollup.twitter" position="start" delay="500">
-							<a :href="rollup.twitter" target="_blank">
-								<Icon name="twitter" size="14" color="secondary" :class="$style.btn" />
+						<template v-for="c in parsedContacts">
+							<Tooltip v-if="c.type !== 'unknown'" position="start" delay="500">
+								<a :href="c.value" target="_blank">
+									<Icon :name="c.type" size="14" color="secondary" :class="$style.btn" />
+								</a>
+
+								<template #content>
+									{{ c.value }}
+								</template>
+							</Tooltip>
+						</template>
+
+
+						<!-- <Tooltip v-if="validator.contacts" position="start" delay="500">
+							<a :href="validator.contacts" target="_blank">
+								<Icon name="email" size="14" color="secondary" :class="$style.btn" />
 							</a>
 
 							<template #content>
-								{{ rollup.twitter }}
+								{{ validator.contacts }}
 							</template>
-						</Tooltip>
+						</Tooltip> -->
 
-						<Tooltip v-if="rollup.github" position="start" delay="500">
+						<!-- <Tooltip v-if="rollup.github" position="start" delay="500">
 							<a :href="rollup.github" target="_blank">
 								<Icon name="github" size="14" color="secondary" :class="$style.btn" />
 							</a>
@@ -224,19 +204,48 @@ watch(
 					<Flex direction="column" gap="16">
 						<Text size="12" weight="600" color="secondary">Details</Text>
 
+						<Flex v-if="!parsedContacts.length" align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Contact</Text>
+							<Text size="12" weight="600" color="secondary"> {{ validator.contacts }} </Text>
+						</Flex>
+
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Delegator Address</Text>
+							<Flex gap="6">
+								<AddressBadge :hash="validator.delegator" color="tertiary" />
+								<CopyButton :text="validator.delegator" />
+							</Flex>
+						</Flex>
+
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Consensus Address</Text>
+							<Flex gap="6">
+								<Text size="12" weight="600" color="tertiary"> {{ splitAddress(validator.cons_address) }} </Text>
+								<CopyButton :text="validator.cons_address" />
+							</Flex>
+						</Flex>
+
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Identity</Text>
+							<Flex gap="6">
+								<Text size="12" weight="600" color="tertiary"> {{ validator.identity }} </Text>
+								<CopyButton :text="validator.identity" />
+							</Flex>
+						</Flex>
+
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Rate</Text>
-							<Text size="12" weight="600" color="secondary"> {{ comma(validator.rate) }} </Text>
+							<Text size="12" weight="600" color="secondary"> {{ numToPercent(validator.rate) }} </Text>
 						</Flex>
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Max Rate</Text>
-							<Text size="12" weight="600" color="secondary"> {{ comma(validator.max_rate) }} </Text>
+							<Text size="12" weight="600" color="secondary"> {{ numToPercent(validator.max_rate) }} </Text>
 						</Flex>
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Max Change Rate</Text>
-							<Text size="12" weight="600" color="secondary"> {{ comma(validator.max_change_rate) }} </Text>
+							<Text size="12" weight="600" color="secondary"> {{ numToPercent(validator.max_change_rate) }} </Text>
 						</Flex>
 
 						<Flex align="center" justify="between">

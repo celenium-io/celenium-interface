@@ -6,7 +6,7 @@ import { DateTime } from "luxon"
 import Button from "@/components/ui/Button.vue"
 
 /** Services */
-import { comma } from "@/services/utils"
+import { comma, numToPercent } from "@/services/utils"
 
 /** API */
 import { fetchValidators } from "@/services/api/validator"
@@ -213,21 +213,21 @@ const handleNext = () => {
 								<td>
 									<NuxtLink :to="`/validator/${v.id}`">
 										<Flex align="center">
-											<Text size="13" weight="600" color="primary">{{ comma(v.rate) }}</Text>
+											<Text size="13" weight="600" color="primary">{{ numToPercent(v.rate) }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td>
 									<NuxtLink :to="`/validator/${v.id}`">
 										<Flex align="center">
-											<Text size="13" weight="600" color="primary">{{ comma(v.max_rate) }}</Text>
+											<Text size="13" weight="600" color="primary">{{ numToPercent(v.max_rate) }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td>
 									<NuxtLink :to="`/validator/${v.id}`">
 										<Flex align="center">
-											<Text size="13" weight="600" color="primary">{{ comma(v.max_change_rate) }}</Text>
+											<Text size="13" weight="600" color="primary">{{ numToPercent(v.max_change_rate) }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
