@@ -204,7 +204,7 @@ const parsedContacts = computed(() => {
 					<Flex direction="column" gap="16">
 						<Text size="12" weight="600" color="secondary">Details</Text>
 
-						<Flex v-if="!parsedContacts.length" align="center" justify="between">
+						<Flex v-if="!parsedContacts.length && validator.contacts" align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Contact</Text>
 							<Text size="12" weight="600" color="secondary"> {{ validator.contacts }} </Text>
 						</Flex>
