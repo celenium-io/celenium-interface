@@ -330,8 +330,6 @@ const parsedContacts = computed(() => {
 
 .data {
 	min-width: 384px;
-	max-width: 384px;
-	/* max-height: 534px; */
 
 	border-radius: 4px 4px 4px 8px;
 	background: var(--card-background);
@@ -358,6 +356,7 @@ const parsedContacts = computed(() => {
 	}
 
 	.memo {
+		max-width: 352px;
 		text-overflow: ellipsis;
 		overflow: hidden;
 	}
