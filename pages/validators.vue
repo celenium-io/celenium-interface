@@ -35,7 +35,7 @@ useHead({
 		},
 		{
 			property: "og:image",
-			content: "/img/seo/rollups.png",
+			content: "/img/seo/validators.png",
 		},
 		{
 			name: "twitter:title",
@@ -51,7 +51,7 @@ useHead({
 		},
 		{
 			name: "twitter:image",
-			content: "https://celenium.io/img/seo/rollups.png",
+			content: "https://celenium.io/img/seo/validators.png",
 		},
 	],
 })
