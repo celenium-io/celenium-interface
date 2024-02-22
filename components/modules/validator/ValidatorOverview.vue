@@ -7,15 +7,13 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import BlocksTable from "./tables/BlocksTable.vue"
 
 /** Services */
-import { comma, numToPercent, splitAddress } from "@/services/utils"
+import { comma, numToPercent, shortHex, splitAddress } from "@/services/utils"
 
 /** API */
 import { fetchValidatorBlocks, fetchValidatorUptime } from "@/services/api/validator";
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
-import { useAppStore } from "@/store/app"
-const appStore = useAppStore()
 const cacheStore = useCacheStore()
 
 const props = defineProps({
@@ -36,7 +34,6 @@ const activeTab = ref(tabs.value[0].name)
 const isRefetching = ref(false)
 const blocks = ref([])
 const uptime = ref([])
-const lastBlock = computed(() => appStore.latestBlocks[0])
 
 const page = ref(1)
 // const pages = computed(() => activeTab.value === "Blobs" ? Math.ceil(props.rollup.blobs_count / 10) : 1)
@@ -185,7 +182,7 @@ watch(
 
 						<Flex v-if="!parsedContacts.length && validator.contacts" align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Contact</Text>
-							<Text size="12" weight="600" color="secondary"> {{ validator.contacts }} </Text>
+							<Text size="12" weight="600" color="tertiary" selectable> {{ validator.contacts }} </Text>
 						</Flex>
 
 						<Flex align="center" justify="between">
@@ -199,7 +196,7 @@ watch(
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Consensus Address</Text>
 							<Flex gap="6">
-								<Text size="12" weight="600" color="tertiary"> {{ splitAddress(validator.cons_address) }} </Text>
+								<Text size="12" weight="600" color="tertiary"> {{ shortHex(validator.cons_address) }} </Text>
 								<CopyButton :text="validator.cons_address" />
 							</Flex>
 						</Flex>

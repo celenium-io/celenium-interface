@@ -35,6 +35,14 @@ export const strToHex = (str) => {
 	return hex
 }
 
+export const shortHex = (hex) => {
+	if (hex.length > 16) {
+		return `${hex.slice(0, 8)} ••• ${hex.slice(-8)}`
+	} else {
+		return hex
+	}
+}
+
 export const splitAddress = (address, format = "string") => {
 	if (address.startsWith("celestiavaloper")) {
 		return format === "array" ? [`celestiavaloper`, address.slice(-4)] : `celestiavaloper ••• ${address.slice(-4)}`
