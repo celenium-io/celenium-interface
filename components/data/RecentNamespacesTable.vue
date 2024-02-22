@@ -65,7 +65,7 @@ const handleSort = (by) => {
 					<thead>
 						<tr>
 							<th><Text size="12" weight="600" color="tertiary">Namespace</Text></th>
-							<th><Text size="12" weight="600" color="tertiary">Height</Text></th>
+							<th><Text size="12" weight="600" color="tertiary">Block Height</Text></th>
 							<th @click="handleSort('time')" :class="$style.sortable">
 								<Flex align="center" gap="6">
 									<Text size="12" weight="600" color="tertiary">Time</Text>
