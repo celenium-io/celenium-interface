@@ -43,15 +43,15 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: `Rollup ${validator.value?.moniker} blobs, namespaces, metadata, social links, contacts and other data.`,
+			content: `Validator ${validator.value?.moniker} blocks, metadata, uptime, rates, social links, contacts and other data.`,
 		},
 		{
 			property: "og:title",
-			content: `Rollup ${validator.value?.moniker} - Celestia Explorer`,
+			content: `Validator ${validator.value?.moniker} - Celestia Explorer`,
 		},
 		{
 			property: "og:description",
-			content: `Rollup ${validator.value?.moniker} blobs, namespaces, metadata, social links, contacts and other data.`,
+			content: `Validator ${validator.value?.moniker} blocks, metadata, uptime, rates, social links, contacts and other data.`,
 		},
 		{
 			property: "og:url",
@@ -63,11 +63,11 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: `Rollup ${validator.value?.moniker} - Celestia Explorer`,
+			content: `Validator ${validator.value?.moniker} - Celestia Explorer`,
 		},
 		{
 			name: "twitter:description",
-			content: `Rollup ${validator.value?.moniker} blobs, namespaces, metadata, social links, contacts and other data.`,
+			content: `Validator ${validator.value?.moniker} blocks, metadata, uptime, rates, social links, contacts and other data.`,
 		},
 		{
 			name: "twitter:card",

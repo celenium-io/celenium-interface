@@ -1,7 +1,4 @@
 <script setup>
-/** Vendor */
-import { DateTime } from "luxon"
-
 /** UI */
 import Button from "@/components/ui/Button.vue"
 
@@ -22,19 +19,19 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: "Rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
+			content: "Validators in the Celestia Blockchain. Validators name, description, rates, blocks, uptime, social links, contacts are shown.",
 		},
 		{
 			property: "og:title",
-			content: "Rollups Leaderboard - Celestia Explorer",
+			content: "Validators - Celestia Explorer",
 		},
 		{
 			property: "og:description",
-			content: "Rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
+			content: "Validators in the Celestia Blockchain. Validators name, description, rates, blocks, uptime, social links, contacts are shown.",
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io/rollups`,
+			content: `https://celenium.io/validators`,
 		},
 		{
 			property: "og:image",
@@ -42,11 +39,11 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: "Rollups Leaderboard - Celestia Explorer",
+			content: "Validators - Celestia Explorer",
 		},
 		{
 			name: "twitter:description",
-			content: "Rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
+			content: "Validators in the Celestia Blockchain. Validators name, description, rates, blocks, uptime, social links, contacts are shown.",
 		},
 		{
 			name: "twitter:card",
@@ -147,10 +144,6 @@ const handleNext = () => {
 					{ link: '/validators', name: `Validators` },
 				]"
 			/>
-
-			<!-- <Button link="https://forms.gle/nimJyQJG4Lb4BTcG7" target="_blank" type="secondary" size="mini">
-				<Icon name="rollup-plus" size="12" color="secondary" /> Rollup Registration
-			</Button> -->
 		</Flex>
 
 		<Flex wide direction="column" gap="4">
@@ -242,13 +235,6 @@ const handleNext = () => {
 						</tbody>
 					</table>
 				</div>
-<!-- 
-				<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
-					<Text size="13" weight="600" color="secondary" align="center"> No rollups found </Text>
-					<Text size="12" weight="500" height="160" color="tertiary" align="center">
-						This network does not contain any rollups
-					</Text>
-				</Flex> -->
 			</Flex>
 		</Flex>
 	</Flex>
@@ -356,37 +342,9 @@ const handleNext = () => {
 	}
 }
 
-.avatar_container {
-	position: relative;
-	width: 25px;
-	height: 25px;
-	overflow: hidden;
-	border-radius: 50%;
-}
-
-.avatar_image {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-}
-
 .table.disabled {
 	opacity: 0.5;
 	pointer-events: none;
-}
-
-.message_type {
-	max-width: 100px;
-	text-overflow: ellipsis;
-	overflow: hidden;
-}
-
-.badge {
-	border-radius: 5px;
-	background: var(--op-5);
-	box-shadow: inset 0 0 0 1px var(--op-10);
-
-	padding: 4px 6px;
 }
 
 @media (max-width: 500px) {

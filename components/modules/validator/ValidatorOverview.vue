@@ -1,27 +1,21 @@
 <script setup>
-/** Vendor */
-import { DateTime } from "luxon"
-
 /** UI */
 import Button from "@/components/ui/Button.vue"
-import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Tables */
 import BlocksTable from "./tables/BlocksTable.vue"
-import NamespacesTable from "./tables/NamespacesTable.vue"
 
 /** Services */
 import { comma, numToPercent, splitAddress } from "@/services/utils"
 
 /** API */
-import { fetchRollupBlobs, fetchRollupNamespaces } from "@/services/api/rollup"
-import { fetchValidatorBlocks } from "@/services/api/validator";
+import { fetchValidatorBlocks, fetchValidatorUptime } from "@/services/api/validator";
 
 /** Store */
-import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
-const modalsStore = useModalsStore()
+import { useAppStore } from "@/store/app"
+const appStore = useAppStore()
 const cacheStore = useCacheStore()
 
 const props = defineProps({
@@ -41,6 +35,8 @@ const activeTab = ref(tabs.value[0].name)
 
 const isRefetching = ref(false)
 const blocks = ref([])
+const uptime = ref([])
+const lastBlock = computed(() => appStore.latestBlocks[0])
 
 const page = ref(1)
 // const pages = computed(() => activeTab.value === "Blobs" ? Math.ceil(props.rollup.blobs_count / 10) : 1)
@@ -69,21 +65,20 @@ const getBlocks = async () => {
 	isRefetching.value = false
 }
 
-/** Initital fetch for blocks */
+const getUptime = async () => {
+	const { data } = await fetchValidatorUptime({
+		id: props.validator.id,
+		limit: 100,
+	})
+
+	if (data.value?.blocks?.length) {
+		uptime.value = data.value.blocks.sort((a, b) => a.height - b.height)
+	}
+}
+
+/** Initital fetch for blocks and uptime */
 await getBlocks()
-
-/** Refetch Blobs/Messages on new page */
-watch(
-	() => page.value,
-	() => {
-		switch (activeTab.value) {
-			case "Proposed Blocks":
-				getBlocks()
-				break
-		}
-	},
-)
-
+await getUptime()
 
 const parsedContacts = computed(() => {
 	let res = []
@@ -111,15 +106,20 @@ const parsedContacts = computed(() => {
 		});
 	}
 
-	// if (!res.length) {
-	// 	res.push({
-	// 		type: 'unknown',
-	// 		value: props.validator.contacts,
-	// 	})
-	// }
-
 	return res
 })
+
+/** Refetch Blobs/Messages on new page */
+watch(
+	() => page.value,
+	() => {
+		switch (activeTab.value) {
+			case "Proposed Blocks":
+				getBlocks()
+				break
+		}
+	},
+)
 </script>
 
 <template>
@@ -178,27 +178,6 @@ const parsedContacts = computed(() => {
 								</template>
 							</Tooltip>
 						</template>
-
-
-						<!-- <Tooltip v-if="validator.contacts" position="start" delay="500">
-							<a :href="validator.contacts" target="_blank">
-								<Icon name="email" size="14" color="secondary" :class="$style.btn" />
-							</a>
-
-							<template #content>
-								{{ validator.contacts }}
-							</template>
-						</Tooltip> -->
-
-						<!-- <Tooltip v-if="rollup.github" position="start" delay="500">
-							<a :href="rollup.github" target="_blank">
-								<Icon name="github" size="14" color="secondary" :class="$style.btn" />
-							</a>
-
-							<template #content>
-								{{ rollup.github }}
-							</template>
-						</Tooltip> -->
 					</Flex>
 
 					<Flex direction="column" gap="16">
@@ -253,20 +232,30 @@ const parsedContacts = computed(() => {
 							<Text size="12" weight="600" color="secondary"> {{ comma(validator.min_self_delegation) }} </Text>
 						</Flex>
 
-						<!-- <Flex align="start" justify="between">
-							<Text size="12" weight="600" color="tertiary">Was Active</Text>
-							<Tooltip position="start" delay="500">
-								<Text size="12" weight="600" color="primary">
-									{{ DateTime.fromISO(rollup.last_message_time).toRelative({ locale: "en", style: "short" }) }}
-								</Text>
+						<div :class="$style.horizontal_divider" />
+
+						<!-- Validator Uptime -->
+						<Text size="12" weight="600" color="secondary">Validator Uptime</Text>
+
+						<Flex :class="$style.uptime_wrapper">
+							<Tooltip v-for="t in uptime">
+								<Flex
+									:class="$style.uptime"
+									:style="{
+										background: t.signed ? 'rgb(10, 219, 111)' : 'red',
+									}"
+								/>
 
 								<template #content>
-									{{ DateTime.fromISO(rollup.last_message_time).setLocale("en").toFormat("LLL d, t") }}
+									<Flex direction="column" gap="4">
+										<Text color="primary">{{ t.height }}</Text>
+										<Text color="secondary">{{ t.signed ? 'Signed' : 'Missed' }}</Text>
+									</Flex>
 								</template>
 							</Tooltip>
-						</Flex> -->
+						</Flex>
 					</Flex>
-				</Flex>
+				</Flex>				
 			</Flex>
 
 			<Flex direction="column" gap="4" wide :class="$style.txs_wrapper">
@@ -341,24 +330,36 @@ const parsedContacts = computed(() => {
 			max-width: 100%;
 		}
 	}
-	.avatar_container {
-		position: relative;
-		width: 50px;
-		height: 50px;
-		overflow: hidden;
-		border-radius: 50%;
-	}
-
-	.avatar_image {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
 
 	.memo {
 		max-width: 352px;
 		text-overflow: ellipsis;
 		overflow: hidden;
+	}
+
+	.uptime_wrapper {
+		max-width: 384px;
+		flex-wrap: wrap;
+	}
+
+	.uptime {
+		width: 10px;
+		height: 10px;
+
+		border-radius: 2px;
+		cursor: pointer;
+
+		margin-right: 6px;
+		margin-bottom: 6px;
+	}
+
+	.horizontal_divider {
+		width: 100%;
+		height: 2px;
+		background: var(--op-5);
+
+		margin-top: 4px;
+		margin-bottom: 4px;
 	}
 }
 

@@ -16,17 +16,6 @@ export const fetchValidators = async ({ limit, offset, sort }) => {
 	}
 }
 
-// export const fetchRollupsCount = async () => {
-// 	try {
-// 		const url = new URL(`${useServerURL()}/rollup/count`)
-
-// 		const data = await useFetch(url.href)
-// 		return data
-// 	} catch (error) {
-// 		console.error(error)
-// 	}
-// }
-
 export const fetchValidatorByID = async (id) => {
 	try {
 		const url = new URL(`${useServerURL()}/validators/${id}`)
@@ -37,17 +26,6 @@ export const fetchValidatorByID = async (id) => {
 		console.error(error)
 	}
 }
-
-// export const fetchRollupBySlug = async (slug) => {
-// 	try {
-// 		const url = new URL(`${useServerURL()}/rollup/slug/${slug}`)
-
-// 		const data = await useFetch(encodeURI(url.href))
-// 		return data
-// 	} catch (error) {
-// 		console.error(error)
-// 	}
-// }
 
 export const fetchValidatorBlocks = async ({ id, limit, offset }) => {
 	try {
