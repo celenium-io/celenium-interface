@@ -55,6 +55,22 @@ export const fetchTxsByAddressHash = async ({ limit, offset, sort, hash, status,
 	}
 }
 
+export const fetchMessagesByAddressHash = async ({ limit, offset, sort, hash, msg_type }) => {
+	try {
+		const url = new URL(`${useServerURL()}/address/${hash}/messages`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+		if (sort) url.searchParams.append("sort", sort)
+		if (msg_type) url.searchParams.append("msg_type", msg_type)
+
+		const data = await useFetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchBlobsByAddressHash = async ({ limit, offset, sort, hash }) => {
 	try {
 		const url = new URL(`${useServerURL()}/address/${hash}/blobs`)
