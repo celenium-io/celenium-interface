@@ -37,7 +37,7 @@ const tabs = ref([
 	},
 	{
 		name: "Namespaces",
-		icon: "folder",
+		icon: "namespace",
 	},
 ])
 const activeTab = ref(tabs.value[0].name)

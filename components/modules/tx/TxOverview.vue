@@ -12,7 +12,7 @@ import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 import MessagesTable from "@/components/modules/tx/MessagesTable.vue"
 
 /** Services */
-import { comma, tia } from "@/services/utils"
+import { comma, splitAddress, tia } from "@/services/utils"
 
 /** API */
 import { fetchTxMessages } from "@/services/api/tx"
@@ -231,6 +231,15 @@ const handleViewRawTransaction = () => {
 					<Flex direction="column" gap="16">
 						<Text size="12" weight="600" color="secondary">Details</Text>
 
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary"> Signer</Text>
+							<Flex align="center" gap="6">
+								<AddressBadge :hash="tx.signers[0]" color="secondary" />
+
+								<CopyButton :text="tx.signers[0]" />
+							</Flex>
+							<!-- <Text size="12" weight="600" color="secondary"> {{ splitAddress(tx.signers[0]) }} </Text> -->
+						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Events</Text>
 							<Text size="12" weight="600" color="secondary"> {{ tx.events_count }} </Text>

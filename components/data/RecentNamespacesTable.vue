@@ -55,7 +55,7 @@ const handleSort = (by) => {
 <template>
 	<Flex wide direction="column" gap="4">
 		<Flex align="center" gap="8" :class="$style.header">
-			<Icon name="folder" size="14" color="primary" />
+			<Icon name="namespace" size="14" color="primary" />
 			<Text size="13" weight="600" color="primary">Namespaces</Text>
 		</Flex>
 

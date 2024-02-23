@@ -13,7 +13,7 @@ import Checkbox from "@/components/ui/Checkbox.vue"
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 
 /** Services */
-import { comma, space, tia } from "@/services/utils"
+import { comma, space, splitAddress, tia } from "@/services/utils"
 import { MsgTypes } from "@/services/constants/messages"
 
 /** API */
@@ -203,6 +203,7 @@ const config = reactive({
 	columns: {
 		time: true,
 		messages: true,
+		signer: true,
 		block: true,
 		gas: true,
 		fee: true,
@@ -490,6 +491,9 @@ const handleNext = () => {
 								<Checkbox v-model="config.columns.messages">
 									<Text size="12" weight="500" color="primary">Messages</Text>
 								</Checkbox>
+								<Checkbox v-model="config.columns.signer">
+									<Text size="12" weight="500" color="primary">Signer</Text>
+								</Checkbox>
 								<Checkbox v-model="config.columns.block">
 									<Text size="12" weight="500" color="primary">Block</Text>
 								</Checkbox>
@@ -627,6 +631,13 @@ const handleNext = () => {
 										</Flex>
 									</NuxtLink>
 								</td>
+								<td v-if="config.columns.signer" style="width: 1px">
+									<NuxtLink :to="`/tx/${tx.hash}`">
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary"> {{ splitAddress(tx.signers[0]) }} </Text>
+										</Flex>
+									</NuxtLink>
+								</td>
 								<td v-if="config.columns.block" style="width: 1px">
 									<NuxtLink :to="`/tx/${tx.hash}`">
 										<Flex align="center">
@@ -702,7 +713,7 @@ const handleNext = () => {
 
 <style module>
 .wrapper {
-	max-width: calc(var(--base-width) + 48px);
+	max-width: calc(var(--base-width) + 124px);
 
 	padding: 40px 24px 60px 24px;
 }

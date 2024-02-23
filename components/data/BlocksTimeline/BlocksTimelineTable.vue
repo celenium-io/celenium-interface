@@ -485,7 +485,7 @@ watch(
 								<Outline wide height="32" padding="8" radius="6">
 									<Flex align="center" justify="between" wide>
 										<Flex align="center" gap="8">
-											<Icon name="folder" size="12" color="secondary" />
+											<Icon name="namespace" size="12" color="secondary" />
 
 											<Text size="13" weight="600" color="primary" mono>
 												{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}

@@ -731,11 +731,11 @@ const handleViewRawTransactions = () => {
 					</Flex>
 
 					<!-- Pagination -->
-					<Flex v-if="transactions.length < 10" align="center" gap="6" :class="$style.pagination">
-						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1 || transactions.length !== 10">
+					<Flex v-if="transactions.length" align="center" gap="6" :class="$style.pagination">
+						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 							<Icon name="arrow-left-stop" size="12" color="primary" />
 						</Button>
-						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1 || transactions.length !== 10">
+						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
 							<Icon name="arrow-left" size="12" color="primary" />
 						</Button>
 
