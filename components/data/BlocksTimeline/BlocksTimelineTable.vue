@@ -7,7 +7,7 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { tia, comma, space, formatBytes, getNamespaceID } from "@/services/utils"
+import { comma, formatBytes, getNamespaceID, shortHex, space, tia } from "@/services/utils"
 
 /** API */
 import { fetchBlockBlobs } from "@/services/api/block"
@@ -361,27 +361,16 @@ watch(
 							<Text size="12" weight="600" color="tertiary">Proposer</Text>
 
 							<Flex direction="column" gap="8">
-								<Text size="13" weight="600" color="primary">
-									{{ preview.block.proposer.moniker }}
-								</Text>
+								<NuxtLink :to="`/validator/${preview.block.proposer.id}`">
+									<Text size="13" weight="600" color="primary">
+										{{ preview.block.proposer.moniker }}
+									</Text>
+								</NuxtLink>
 
 								<Flex align="center" gap="6">
-									<Text size="12" weight="600" color="tertiary" mono>{{
-										preview.block.proposer.cons_address.slice(0, 4)
+									<Text size="12" weight="600" color="tertiary">{{
+										shortHex(preview.block.proposer.cons_address)
 									}}</Text>
-
-									<Flex align="center" gap="3">
-										<div v-for="dot in 3" class="dot" />
-									</Flex>
-
-									<Text size="12" weight="600" color="tertiary" mono>
-										{{
-											preview.block.proposer.cons_address.slice(
-												preview.block.proposer.cons_address.length - 4,
-												preview.block.proposer.cons_address.length,
-											)
-										}}
-									</Text>
 
 									<CopyButton :text="preview.block.proposer.cons_address" size="10" />
 								</Flex>

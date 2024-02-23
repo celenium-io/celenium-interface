@@ -16,7 +16,7 @@ import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 import Events from "@/components/shared/tables/Events.vue";
 
 /** Services */
-import { tia, comma, space, formatBytes, reverseMapping } from "@/services/utils"
+import { comma, formatBytes, reverseMapping, space, shortHex, tia } from "@/services/utils"
 
 /** API */
 import { fetchTransactionsByBlock } from "@/services/api/tx"
@@ -398,25 +398,14 @@ const handleViewRawTransactions = () => {
 						<Text size="12" weight="600" color="tertiary">Proposer</Text>
 
 						<Flex direction="column" gap="8">
-							<Text size="13" weight="600" color="primary">
-								{{ block.proposer.moniker }}
-							</Text>
+							<NuxtLink :to="`/validator/${block.proposer.id}`">
+								<Text size="13" weight="600" color="primary">
+									{{ block.proposer.moniker }}
+								</Text>
+							</NuxtLink>
 
 							<Flex align="center" gap="6">
-								<Text size="12" weight="600" color="tertiary" mono>{{ block.proposer.cons_address.slice(0, 4) }}</Text>
-
-								<Flex align="center" gap="3">
-									<div v-for="dot in 3" class="dot" />
-								</Flex>
-
-								<Text size="12" weight="600" color="tertiary" mono>
-									{{
-										block.proposer.cons_address.slice(
-											block.proposer.cons_address.length - 4,
-											block.proposer.cons_address.length,
-										)
-									}}
-								</Text>
+								<Text size="12" weight="600" color="tertiary">{{ shortHex(block.proposer.cons_address) }}</Text>
 
 								<CopyButton :text="block.proposer.cons_address" size="10" />
 							</Flex>

@@ -254,6 +254,15 @@ const rawNavigationActions = [
 	{
 		type: "callback",
 		icon: "arrow-narrow-right",
+		title: "Go to Validators",
+		runText: "Open Validators",
+		callback: () => {
+			router.push("/validators")
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Addresses",
 		runText: "Open Addresses",
 		callback: () => {
@@ -1239,7 +1248,7 @@ const runBounce = () => {
 						<input
 							v-model="searchTerm"
 							ref="inputEl"
-							:placeholder="placeholder || 'Find blocks, namespaces, rollups, transactions or quick actions...'"
+							:placeholder="placeholder || 'Find blocks, validators, namespaces, rollups, transactions or quick actions...'"
 							tabindex="1"
 							autocomplete="off"
 							autocorrect="off"

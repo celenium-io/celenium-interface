@@ -9,6 +9,11 @@ export const formatBytes = (bytes, decimals = 2) => {
 	return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(dm))} ${sizes[i]}`
 }
 
+export const numToPercent = (num) => {
+	return (num * 100).toFixed(0) + "%"
+}
+
+
 export const getNamespaceID = (target) => {
 	let s = target
 
@@ -28,6 +33,14 @@ export const strToHex = (str) => {
 		hex += hexValue.padStart(2, "0")
 	}
 	return hex
+}
+
+export const shortHex = (hex) => {
+	if (hex.length > 16) {
+		return `${hex.slice(0, 8)} ••• ${hex.slice(-8)}`
+	} else {
+		return hex
+	}
 }
 
 export const splitAddress = (address, format = "string") => {

@@ -145,14 +145,17 @@ const handleChangeTheme = (theme) => {
 					<NuxtLink to="/blocks" :class="$style.link">
 						<Text size="12" weight="500" color="tertiary"> Blocks </Text>
 					</NuxtLink>
+					<NuxtLink to="/validators" :class="$style.link">
+						<Text size="12" weight="500" color="tertiary"> Validators </Text>
+					</NuxtLink>
 					<NuxtLink to="/txs" :class="$style.link">
 						<Text size="12" weight="500" color="tertiary"> Transactions </Text>
 					</NuxtLink>
-					<NuxtLink to="/namespaces" :class="$style.link">
-						<Text size="12" weight="500" color="tertiary"> Namespaces </Text>
-					</NuxtLink>
 					<NuxtLink to="/rollups" :class="$style.link">
 						<Text size="12" weight="500" color="tertiary"> Rollups </Text>
+					</NuxtLink>
+					<NuxtLink to="/namespaces" :class="$style.link">
+						<Text size="12" weight="500" color="tertiary"> Namespaces </Text>
 					</NuxtLink>
 					<NuxtLink to="/addresses" :class="$style.link">
 						<Text size="12" weight="500" color="tertiary"> Addresses </Text>
