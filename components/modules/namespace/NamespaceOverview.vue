@@ -207,7 +207,7 @@ const handleViewRawMessages = () => {
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
 			<Flex align="center" gap="8">
-				<Icon name="folder" size="14" color="primary" />
+				<Icon name="namespace" size="14" color="primary" />
 				<Text size="13" weight="600" color="primary">Namespace</Text>
 			</Flex>
 

@@ -162,7 +162,7 @@ const handleLast = async () => {
 		<Flex wide direction="column" gap="4">
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
-					<Icon name="folder" size="16" color="secondary" />
+					<Icon name="namespace" size="16" color="secondary" />
 					<Text size="14" weight="600" color="primary">Namespaces</Text>
 				</Flex>
 

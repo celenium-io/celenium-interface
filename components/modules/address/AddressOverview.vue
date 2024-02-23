@@ -454,7 +454,7 @@ const handleOpenQRModal = () => {
 					<Flex direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Spendable Balance</Text>
 
-						<Text size="13" weight="600" color="primary">{{ parseInt(address.balance.value) / 1_000_000 }} TIA</Text>
+						<Text size="13" weight="600" color="primary">{{ comma(address.balance.value / 1_000_000) }} TIA</Text>
 					</Flex>
 
 					<Flex direction="column" gap="16">

@@ -98,7 +98,7 @@ const makeSuggestions = () => {
 	if (route.name === "namespace-id") {
 		suggestedActions.value.push({
 			type: "callback",
-			icon: "folder",
+			icon: "namespace",
 			title: "View Raw Namespace",
 			runText: "View",
 			callback: () => {
@@ -299,7 +299,7 @@ const rawQuickCommandsActions = [
 	},
 	{
 		type: "command:input",
-		icon: "folder",
+		icon: "namespace",
 		title: "Open Namespace..",
 		subtitle: "Command",
 		placeholder: "Type namespace ID...",
