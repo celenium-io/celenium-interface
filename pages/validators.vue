@@ -3,7 +3,7 @@
 import Button from "@/components/ui/Button.vue"
 
 /** Services */
-import { comma, numToPercent } from "@/services/utils"
+import { comma, numToPercent, splitAddress } from "@/services/utils"
 
 /** API */
 import { fetchValidators } from "@/services/api/validator"
@@ -197,7 +197,9 @@ const handleNext = () => {
 											<CopyButton :text="v.moniker" />
 										</Flex>
 										<Flex v-else align="center" gap="6">
-											<AddressBadge :hash="v.address" />
+											<Text size="13" weight="600" color="primary" mono>
+												{{ splitAddress(v.address) }}
+											</Text>
 
 											<CopyButton :text="v.address" />
 										</Flex>
