@@ -4,8 +4,8 @@ const init = (t) => {
 	amp.init(t, { defaultTracking: true })
 }
 
-const log = (event) => {
-	amp.track(event)
+const log = (event, props) => {
+	amp.track(event, props)
 }
 
 export default { init, log }

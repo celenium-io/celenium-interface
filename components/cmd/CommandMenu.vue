@@ -17,6 +17,7 @@ import Item from "./Item.vue"
 import FeeCalculator from "./custom/FeeCalculator.vue"
 
 /** Services */
+import amp from "@/services/amp"
 import { isMac, isPrefersDarkScheme } from "@/services/utils/general"
 
 /** API */
@@ -372,6 +373,8 @@ const rawQuickCommandsActions = [
 		],
 
 		callback: () => {
+			amp.track("copyFeeResult", { loc: "cmd" })
+
 			window.navigator.clipboard.writeText(copyData.value)
 
 			notificationsStore.create({
@@ -863,6 +866,8 @@ const debouncedSearch = useDebounceFn(async (e) => {
 
 	const filteredResults = data.value.filter((item) => !UNSUPPORTED_ENTITIES.includes(item.type))
 
+	amp.track("showAutocomplete", { count: filteredResults.length, firstType: filteredResults[0].type })
+
 	autocompleteActions.value = []
 	for (let i = 0; i < Math.min(3, filteredResults.length); i++) {
 		autocompleteActions.value.push({
@@ -942,6 +947,10 @@ onMounted(() => {
 			e.preventDefault()
 
 			appStore.showCmd = !appStore.showCmd
+
+			if (appStore.showCmd) {
+				amp.track("openCmd")
+			}
 		}
 	})
 })
@@ -1096,6 +1105,8 @@ const handleExecute = (action) => {
 
 			case "command:custom":
 				mode.value = "custom"
+
+				amp.track("openFeeCalculator")
 
 				runText.value = target.runText
 
