@@ -2,7 +2,7 @@ export const formatBytes = (bytes, decimals = 2) => {
 	if (!+bytes) return "0 Byte"
 
 	const dm = decimals < 0 ? 0 : decimals
-	const sizes = ["Bytes", "Kb", "Mb", "Gb", "Tb", "Pb"]
+	const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB"]
 
 	const i = Math.floor(Math.log(bytes) / Math.log(1024))
 
