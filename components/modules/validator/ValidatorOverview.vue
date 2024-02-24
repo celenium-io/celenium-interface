@@ -232,7 +232,10 @@ watch(
 						<div :class="$style.horizontal_divider" />
 
 						<!-- Validator Uptime -->
-						<Text size="12" weight="600" color="secondary">Validator Uptime</Text>
+						<Flex align="center" gap="6">
+							<Text size="12" weight="600" color="secondary">Validator Uptime</Text>
+							<Text size="12" weight="600" color="tertiary">(last 100 blocks)</Text>
+						</Flex>
 
 						<Flex :class="$style.uptime_wrapper">
 							<Tooltip v-for="t in uptime">
