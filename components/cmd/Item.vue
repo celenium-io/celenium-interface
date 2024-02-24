@@ -18,7 +18,7 @@ const props = defineProps({
 		<Flex align="center" gap="8" :class="$style.left">
 			<Icon :name="action.icon" size="12" color="primary" :class="$style.icon" />
 
-			<Text size="13" weight="500" color="primary" :class="$style.title">
+			<Text size="13" weight="500" height="13" color="primary" :class="$style.title">
 				{{ action.title }}
 			</Text>
 		</Flex>
