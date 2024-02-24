@@ -8,6 +8,10 @@ import { comma, numToPercent, splitAddress } from "@/services/utils"
 /** API */
 import { fetchValidators } from "@/services/api/validator"
 
+/** Store */
+import { useAppStore } from "@/store/app"
+const appStore = useAppStore()
+
 useHead({
 	title: "Validators - Celestia Explorer",
 	link: [
@@ -68,17 +72,9 @@ const count = ref(0)
 // 	dir: "desc",
 // })
 
-// const getRollupsCount = async () => {
-// 	const { data: rollupsCount } = await fetchRollupsCount()
-// 	count.value = rollupsCount.value
-// }
-
-// await getRollupsCount()
-
-// const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-// const pages = computed(() => Math.ceil(30 / 20))
+count.value = appStore.lastHead.total_validators
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = computed(() => 21)
+const pages = computed(() => Math.ceil(count.value / 20))
 
 const getValidators = async () => {
 	isLoading.value = true
@@ -121,18 +117,17 @@ watch(
 // 	getRollups()
 // }
 
-const handlePrev = () => {
-	if (page.value === 1) return
-
-	page.value -= 1
-}
-
 const handleNext = () => {
 	if (page.value === pages.value) return
 
 	page.value += 1
 }
 
+const handlePrev = () => {
+	if (page.value === 1) return
+
+	page.value -= 1
+}
 </script>
 
 <template>
@@ -154,20 +149,23 @@ const handleNext = () => {
 				</Flex>
 
 				<!-- Pagination -->
-				<Flex align="center" gap="6" :class="$style.pagination">
+				<Flex v-if="pages" align="center" gap="6">
 					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 						<Icon name="arrow-left-stop" size="12" color="primary" />
 					</Button>
-					<Button @click="handlePrev" type="secondary" size="mini" :disabled="page === 1">
+					<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
 						<Icon name="arrow-left" size="12" color="primary" />
 					</Button>
 
 					<Button type="secondary" size="mini" disabled>
-						<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
+						<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
 					</Button>
 
-					<Button @click="handleNext" type="secondary" size="mini" :disabled="validators.length < 20">
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
 						<Icon name="arrow-right" size="12" color="primary" />
+					</Button>
+					<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages">
+						<Icon name="arrow-right-stop" size="12" color="primary" />
 					</Button>
 				</Flex>
 			</Flex>
@@ -189,19 +187,10 @@ const handleNext = () => {
 							<tr v-for="v in validators">
 								<td style="width: 1px">
 									<NuxtLink :to="`/validator/${v.id}`">
-										<Flex v-if="v.moniker" align="center" gap="6">
+										<Flex align="center" gap="6">
 											<Text size="13" weight="600" color="primary" mono>
-												{{ v.moniker }}
+												{{ v.moniker ? v.moniker : splitAddress(v.address) }}
 											</Text>
-
-											<CopyButton :text="v.moniker" />
-										</Flex>
-										<Flex v-else align="center" gap="6">
-											<Text size="13" weight="600" color="primary" mono>
-												{{ splitAddress(v.address) }}
-											</Text>
-
-											<CopyButton :text="v.address" />
 										</Flex>
 									</NuxtLink>
 								</td>

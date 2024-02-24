@@ -327,21 +327,12 @@ watch(
 						color="secondary"
 						:class="$style.text"
 					>
-						<Text size="12" weight="500" color="secondary">Delegator</Text>
+						<Text size="12" weight="500" color="secondary">Withdrawal</Text>
 
-						<Tooltip :class="$style.tooltip">
-							<NuxtLink :to="`/address/${event.data.delegator}`" @click.stop>
-								<Text size="12" weight="500" color="primary" mono>
-									{{ splitAddress(event.data.delegator) }}
-								</Text>
-							</NuxtLink>
+						<Text size="12" weight="500" color="primary" mono no-wrap>
+							{{ tia(event.data.amount.replace("utia", "")) }} TIA</Text>
 
-							<template #content>
-								{{ event.data.delegator }}
-							</template>
-						</Tooltip>
-
-						<Text size="12" weight="500" color="secondary">validator</Text>
+						<Text size="12" weight="500" color="secondary">from</Text>
 
 						<Tooltip :class="$style.tooltip">
 							<NuxtLink :to="`/address/${event.data.validator}`" @click.stop>
@@ -354,12 +345,6 @@ watch(
 								{{ event.data.validator }}
 							</template>
 						</Tooltip>
-
-						<Text size="12" weight="500" color="secondary">Amount:</Text>
-
-						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ tia(event.data.amount.replace("utia", "")) }} TIA
-						</Text>
 					</Flex>
 					<!-- Event: withdraw_commission -->
 					<Flex
