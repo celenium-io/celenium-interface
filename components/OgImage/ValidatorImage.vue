@@ -25,17 +25,15 @@ const bgStyles = computed(() => {
 </script>
 
 <template>
-	<div class="w-full h-full" :style="{ background: '#111111', padding: '100px 120px', fontFamily: 'IBM+Plex+Mono' }">
+	<div class="w-full h-full" :style="{ background: '#111111', padding: '100px 80px', fontFamily: 'IBM+Plex+Mono' }">
 		<img src="/img/bg.png" v-bind="bgStyles" />
 
-		<div :style="{ height: '100%', display: 'flex', flexDirection: 'column', gap: '40px' }">
+		<div :style="{ height: '100%', display: 'flex', flexDirection: 'column', gap: '50px' }">
 			<div :style="{ display: 'flex', alignItems: 'center' }">
-				<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.9)' }">validator</span>
-				<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.3)' }">('</span>
-				<span :style="{ fontSize: '70px', color: '#FF8351' }">
-					{{ splitAddress(validator.address) }}
-				</span>
-				<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.3)' }">')</span>
+				<span :style="{ fontSize: '60px', color: 'rgba(255,255,255, 0.9)' }">validator</span>
+				<span :style="{ fontSize: '60px', color: 'rgba(255,255,255, 0.3)' }">('</span>
+				<span :style="{ fontSize: '40px', color: '#FF8351' }"> celestiavaloper•••{{ validator.address.slice(-4) }} </span>
+				<span :style="{ fontSize: '60px', color: 'rgba(255,255,255, 0.3)' }">')</span>
 			</div>
 
 			<span :style="{ fontSize: '46px', color: 'rgba(255,255,255, 0.9)' }">
