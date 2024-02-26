@@ -79,8 +79,7 @@ const getRollupsCount = async () => {
 await getRollupsCount()
 
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = computed(() => Math.ceil(30 / 20))
-// const pages = computed(() => Math.ceil(count.value / 20))
+const pages = computed(() => Math.ceil(count.value / 20))
 
 const getRollups = async () => {
 	isRefetching.value = true
@@ -162,20 +161,23 @@ const handleNext = () => {
 				</Flex>
 
 				<!-- Pagination -->
-				<Flex align="center" gap="6" :class="$style.pagination">
+				<Flex v-if="pages" align="center" gap="6">
 					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 						<Icon name="arrow-left-stop" size="12" color="primary" />
 					</Button>
-					<Button @click="handlePrev" type="secondary" size="mini" :disabled="page === 1">
+					<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
 						<Icon name="arrow-left" size="12" color="primary" />
 					</Button>
 
 					<Button type="secondary" size="mini" disabled>
-						<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
+						<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
 					</Button>
 
-					<Button @click="handleNext" type="secondary" size="mini" :disabled="rollups.length < 10">
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
 						<Icon name="arrow-right" size="12" color="primary" />
+					</Button>
+					<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages">
+						<Icon name="arrow-right-stop" size="12" color="primary" />
 					</Button>
 				</Flex>
 			</Flex>
@@ -245,8 +247,6 @@ const handleNext = () => {
 											<Text size="12" weight="600" color="primary" mono>
 												{{ r.name }}
 											</Text>
-
-											<CopyButton :text="r.name" />
 										</Flex>
 									</NuxtLink>
 								</td>

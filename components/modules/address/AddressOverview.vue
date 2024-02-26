@@ -427,12 +427,6 @@ const handleOpenQRModal = () => {
 								View Raw Address
 							</Flex>
 						</DropdownItem>
-						<DropdownItem @click="handleViewRawTransactions">
-							<Flex align="center" gap="8">
-								<Icon name="tx" size="12" color="secondary" />
-								View Raw Transactions
-							</Flex>
-						</DropdownItem>
 					</template>
 				</Dropdown>
 			</Flex>
@@ -513,7 +507,7 @@ const handleOpenQRModal = () => {
 				<Flex direction="column" justify="center" :class="[$style.tables, isRefetching && $style.disabled]">
 					<Flex v-if="activeTab === 'transactions'" wrap="wrap" align="center" gap="8" :class="$style.filters">
 						<Popover :open="isStatusPopoverOpen" @on-close="onStatusPopoverClose" width="200">
-							<Button @click="handleOpenStatusPopover" type="secondary" size="mini" :disabled="!transactions.length">
+							<Button @click="handleOpenStatusPopover" type="secondary" size="mini" :disabled="!transactions.length && !hasActiveFilters">
 								<Icon name="plus-circle" size="12" color="tertiary" />
 								<Text color="secondary">Status</Text>
 
@@ -551,7 +545,7 @@ const handleOpenQRModal = () => {
 						</Popover>
 
 						<Popover :open="isMessageTypePopoverOpen" @on-close="onMessageTypePopoverClose" width="250">
-							<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini" :disabled="!transactions.length">
+							<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini" :disabled="!transactions.length && !hasActiveFilters">
 								<Icon name="plus-circle" size="12" color="tertiary" />
 								<Text color="secondary">Message Type</Text>
 
@@ -644,8 +638,11 @@ const handleOpenQRModal = () => {
 
 							<Flex v-else direction="column" align="center" justify="center" gap="8" :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No transactions </Text>
-								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+								<Text v-if="page === 1" size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
 									This address did not signed any transactions
+								</Text>
+								<Text v-else size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+									This address did not signed any more transactions
 								</Text>
 							</Flex>
 						</template>
@@ -676,11 +673,11 @@ const handleOpenQRModal = () => {
 					</Flex>
 
 					<!-- Pagination -->
-					<Flex v-if="transactions.length" align="center" gap="6" :class="$style.pagination">
-						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1 || transactions.length !== 10">
+					<Flex v-if="transactions.length || page !== 1" align="center" gap="6" :class="$style.pagination">
+						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 							<Icon name="arrow-left-stop" size="12" color="primary" />
 						</Button>
-						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1 || transactions.length !== 10">
+						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
 							<Icon name="arrow-left" size="12" color="primary" />
 						</Button>
 
