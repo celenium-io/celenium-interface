@@ -231,7 +231,20 @@ watch(
 						</Flex>
 
 						<Flex align="start" justify="between">
-							<Text size="12" weight="600" color="tertiary">Was Active</Text>
+							<Text size="12" weight="600" color="tertiary">First Seen</Text>
+							<Tooltip position="start" delay="500">
+								<Text size="12" weight="600" color="primary">
+									{{ DateTime.fromISO(rollup.first_message_time).toRelative({ locale: "en", style: "short" }) }}
+								</Text>
+
+								<template #content>
+									{{ DateTime.fromISO(rollup.first_message_time).setLocale("en").toFormat("LLL d, t") }}
+								</template>
+							</Tooltip>
+						</Flex>
+
+						<Flex align="start" justify="between">
+							<Text size="12" weight="600" color="tertiary">Last Active</Text>
 							<Tooltip position="start" delay="500">
 								<Text size="12" weight="600" color="primary">
 									{{ DateTime.fromISO(rollup.last_message_time).toRelative({ locale: "en", style: "short" }) }}

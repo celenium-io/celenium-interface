@@ -54,6 +54,7 @@ const blobs = ref([])
 
 const page = ref(1)
 const pages = computed(() => 1)
+const handleNextCondition = ref(true)
 const handleNext = () => {
 	page.value += 1
 }
@@ -245,6 +246,7 @@ const getTransactions = async () => {
 
 	transactions.value = data.value
 	cacheStore.current.transactions = transactions.value
+	handleNextCondition.value = transactions.value.length < 10
 
 	isRefetching.value = false
 }
@@ -261,6 +263,7 @@ const getMessages = async () => {
 
 	messages.value = data.value
 	cacheStore.current.messages = messages.value
+	handleNextCondition.value = messages.value.length < 10
 
 	isRefetching.value = false
 }
@@ -278,6 +281,7 @@ const getBlobs = async () => {
 	if (data.value?.length) {
 		blobs.value = data.value.map((b) => ({ ...b, signer: props.address.hash }))
 	}
+	handleNextCondition.value = data.value.length < 10
 
 	isRefetching.value = false
 }
@@ -295,12 +299,12 @@ watch(
 				getTransactions()
 				break
 
-			case "blobs":
-				getBlobs()
-				break
-
 			case "messages":
 				getMessages()
+				break
+			
+			case "blobs":
+				getBlobs()
 				break
 		}
 	},
@@ -638,11 +642,8 @@ const handleOpenQRModal = () => {
 
 							<Flex v-else direction="column" align="center" justify="center" gap="8" :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No transactions </Text>
-								<Text v-if="page === 1" size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									This address did not signed any transactions
-								</Text>
-								<Text v-else size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									This address did not signed any more transactions
+								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+									This address did not signed any {{ page === 1 ? '' : 'more' }} transactions
 								</Text>
 							</Flex>
 						</template>
@@ -654,7 +655,7 @@ const handleOpenQRModal = () => {
 							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No Messages </Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									No activity with this address
+									No {{ page === 1 ? 'activity' : 'more messages' }} with this address
 								</Text>
 							</Flex>
 						</template>
@@ -666,14 +667,14 @@ const handleOpenQRModal = () => {
 							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No Blobs </Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									This address did not push any blobs
+									This address did not push any {{ page === 1 ? '' : 'more' }} blobs
 								</Text>
 							</Flex>
 						</template>
 					</Flex>
 
 					<!-- Pagination -->
-					<Flex v-if="transactions.length || page !== 1" align="center" gap="6" :class="$style.pagination">
+					<Flex align="center" gap="6" :class="$style.pagination">
 						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 							<Icon name="arrow-left-stop" size="12" color="primary" />
 						</Button>
@@ -685,7 +686,7 @@ const handleOpenQRModal = () => {
 							<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
 						</Button>
 
-						<Button @click="handleNext" type="secondary" size="mini" :disabled="transactions.length !== 10">
+						<Button @click="handleNext" type="secondary" size="mini" :disabled="handleNextCondition">
 							<Icon name="arrow-right" size="12" color="primary" />
 						</Button>
 					</Flex>
