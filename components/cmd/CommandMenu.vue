@@ -17,6 +17,7 @@ import Item from "./Item.vue"
 import FeeCalculator from "./custom/FeeCalculator.vue"
 
 /** Services */
+import amp from "@/services/amp"
 import { isMac, isPrefersDarkScheme } from "@/services/utils/general"
 
 /** API */
@@ -98,7 +99,7 @@ const makeSuggestions = () => {
 	if (route.name === "namespace-id") {
 		suggestedActions.value.push({
 			type: "callback",
-			icon: "folder",
+			icon: "namespace",
 			title: "View Raw Namespace",
 			runText: "View",
 			callback: () => {
@@ -254,6 +255,15 @@ const rawNavigationActions = [
 	{
 		type: "callback",
 		icon: "arrow-narrow-right",
+		title: "Go to Validators",
+		runText: "Open Validators",
+		callback: () => {
+			router.push("/validators")
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Addresses",
 		runText: "Open Addresses",
 		callback: () => {
@@ -299,7 +309,19 @@ const rawQuickCommandsActions = [
 	},
 	{
 		type: "command:input",
-		icon: "folder",
+		icon: "validator",
+		title: "Open Validator..",
+		subtitle: "Command",
+		placeholder: "Type validator moniker...",
+		runText: "Run Command",
+
+		callback: (id) => {
+			router.push(`/validator/${id}`)
+		},
+	},
+	{
+		type: "command:input",
+		icon: "namespace",
 		title: "Open Namespace..",
 		subtitle: "Command",
 		placeholder: "Type namespace ID...",
@@ -363,6 +385,8 @@ const rawQuickCommandsActions = [
 		],
 
 		callback: () => {
+			amp.log("copyFeeResult", { loc: "cmd" })
+
 			window.navigator.clipboard.writeText(copyData.value)
 
 			notificationsStore.create({
@@ -826,6 +850,10 @@ const searchAction = {
 				router.push(`/rollup/${data.value[0].result.slug}`)
 				break
 
+			case "validator":
+				router.push(`/validator/${data.value[0].result.id}`)
+				break
+
 			default:
 				break
 		}
@@ -847,47 +875,62 @@ const autocompleteGroup = computed(() => {
 })
 
 const debouncedSearch = useDebounceFn(async (e) => {
-	const UNSUPPORTED_ENTITIES = ["validator"]
+	const UNSUPPORTED_ENTITIES = [""]
 
 	const { data } = await search(searchTerm.value.trim())
 	if (!data.value.length) return
 
 	const filteredResults = data.value.filter((item) => !UNSUPPORTED_ENTITIES.includes(item.type))
 
+	amp.log("showAutocomplete", { count: filteredResults.length, firstType: filteredResults[0].type })
+
 	autocompleteActions.value = []
+	let title
+	let routerLink
 	for (let i = 0; i < Math.min(3, filteredResults.length); i++) {
+		switch (filteredResults[i].type) {
+			case "tx":
+				title = filteredResults[i].result.hash
+				routerLink = `/tx/${filteredResults[i].result.hash}`
+				break
+
+			case "block":
+				title = filteredResults[i].result.hash
+				routerLink = `/block/${filteredResults[i].result.height}`
+				break
+
+			case "namespace":
+				title = filteredResults[i].result.hash
+				routerLink = `/namespace/${filteredResults[i].result.namespace_id}`
+				break
+
+			case "address":
+				title = filteredResults[i].result.hash
+				routerLink = `/address/${filteredResults[i].result.hash}`
+				break
+
+			case "rollup":
+				title = filteredResults[i].result.name
+				routerLink = `/rollup/${filteredResults[i].result.slug}`
+				break
+
+			case "validator":
+				title = filteredResults[i].result.moniker ? filteredResults[i].result.moniker : filteredResults[i].result.address
+				routerLink = `/validator/${filteredResults[i].result.id}`
+				break
+
+			default:
+				break
+		}
 		autocompleteActions.value.push({
 			id: id(),
 			type: "callback",
 			icon: filteredResults[i].type,
-			title: filteredResults[i].result.hash ? filteredResults[i].result.hash : filteredResults[i].result.name,
+			title: title,
 			subtitle: filteredResults[i].type.charAt(0).toUpperCase() + filteredResults[i].type.slice(1),
 			runText: "Open",
 			callback: () => {
-				switch (filteredResults[i].type) {
-					case "tx":
-						router.push(`/tx/${filteredResults[i].result.hash}`)
-						break
-
-					case "block":
-						router.push(`/block/${filteredResults[i].result.height}`)
-						break
-
-					case "namespace":
-						router.push(`/namespace/${filteredResults[i].result.namespace_id}`)
-						break
-
-					case "address":
-						router.push(`/address/${filteredResults[i].result.hash}`)
-						break
-
-					case "rollup":
-						router.push(`/rollup/${filteredResults[i].result.slug}`)
-						break
-
-					default:
-						break
-				}
+				router.push(routerLink)
 			},
 		})
 	}
@@ -933,6 +976,10 @@ onMounted(() => {
 			e.preventDefault()
 
 			appStore.showCmd = !appStore.showCmd
+
+			if (appStore.showCmd) {
+				amp.log("openCmd")
+			}
 		}
 	})
 })
@@ -1088,6 +1135,8 @@ const handleExecute = (action) => {
 			case "command:custom":
 				mode.value = "custom"
 
+				amp.log("openFeeCalculator")
+
 				runText.value = target.runText
 
 				if (target.placeholder) placeholder.value = target.placeholder
@@ -1184,7 +1233,9 @@ const onKeydown = (e) => {
 watch(
 	() => searchTerm.value,
 	() => {
-		if (searchTerm.value.length > 2 && !mode.value) {
+		if (searchTerm.value.length < 3 && !mode.value) {
+			autocompleteActions.value = []
+		} else if (searchTerm.value.length > 2 && !mode.value) {
 			debouncedSearch()
 		}
 
@@ -1239,7 +1290,7 @@ const runBounce = () => {
 						<input
 							v-model="searchTerm"
 							ref="inputEl"
-							:placeholder="placeholder || 'Find blocks, namespaces, rollups, transactions or quick actions...'"
+							:placeholder="placeholder || 'Find blocks, validators, namespaces, rollups, transactions or quick actions...'"
 							tabindex="1"
 							autocomplete="off"
 							autocorrect="off"

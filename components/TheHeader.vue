@@ -75,6 +75,9 @@ const isActive = (link) => {
 		case "rollups":
 			return splittedPath.includes("rollup") || splittedPath.includes("rollups")
 
+		case "rollups":
+			return splittedPath.includes("validator") || splittedPath.includes("validators")
+
 		default:
 			break
 	}
@@ -117,6 +120,10 @@ const handleConnect = async () => {
 					<Text size="13" weight="600" color="tertiary">Explore</Text>
 				</NuxtLink>
 
+				<NuxtLink to="/rollups" :class="[$style.link, isActive('rollups') && $style.active]">
+					<Text size="13" weight="600" color="tertiary">Rollups</Text>
+				</NuxtLink>
+				
 				<NuxtLink to="/txs" :class="[$style.link, isActive('txs') && $style.active]">
 					<Text size="13" weight="600" color="tertiary">Transactions</Text>
 				</NuxtLink>
@@ -125,12 +132,12 @@ const handleConnect = async () => {
 					<Text size="13" weight="600" color="tertiary">Blocks</Text>
 				</NuxtLink>
 
-				<NuxtLink to="/namespaces" :class="[$style.link, isActive('namespaces') && $style.active]">
-					<Text size="13" weight="600" color="tertiary">Namespaces</Text>
+				<NuxtLink to="/validators" :class="[$style.link, isActive('validators') && $style.active]">
+					<Text size="13" weight="600" color="tertiary">Validators</Text>
 				</NuxtLink>
 
-				<NuxtLink to="/rollups" :class="[$style.link, isActive('rollups') && $style.active]">
-					<Text size="13" weight="600" color="tertiary">Rollups</Text>
+				<NuxtLink to="/namespaces" :class="[$style.link, isActive('namespaces') && $style.active]">
+					<Text size="13" weight="600" color="tertiary">Namespaces</Text>
 				</NuxtLink>
 			</Flex>
 
@@ -188,6 +195,10 @@ const handleConnect = async () => {
 				<Text size="13" weight="600" color="tertiary">Explore</Text>
 			</NuxtLink>
 
+			<NuxtLink to="/rollups" :class="[$style.link, isActive('rollups') && $style.active]">
+				<Text size="13" weight="600" color="tertiary">Rollups</Text>
+			</NuxtLink>
+
 			<NuxtLink to="/txs" :class="[$style.link, isActive('txs') && $style.active]">
 				<Text size="13" weight="600" color="tertiary">Transactions</Text>
 			</NuxtLink>
@@ -196,13 +207,14 @@ const handleConnect = async () => {
 				<Text size="13" weight="600" color="tertiary">Blocks</Text>
 			</NuxtLink>
 
+			<NuxtLink to="/validators" :class="[$style.link, isActive('validators') && $style.active]">
+				<Text size="13" weight="600" color="tertiary">Validators</Text>
+			</NuxtLink>
+
 			<NuxtLink to="/namespaces" :class="[$style.link, isActive('namespaces') && $style.active]">
 				<Text size="13" weight="600" color="tertiary">Namespaces</Text>
 			</NuxtLink>
 
-			<NuxtLink to="/rollups" :class="[$style.link, isActive('rollups') && $style.active]">
-				<Text size="13" weight="600" color="tertiary">Rollups</Text>
-			</NuxtLink>
 		</Flex>
 	</Flex>
 </template>

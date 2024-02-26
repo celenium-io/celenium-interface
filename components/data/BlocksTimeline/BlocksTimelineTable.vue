@@ -7,10 +7,10 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { tia, comma, space, formatBytes, getNamespaceID } from "@/services/utils"
+import { comma, formatBytes, getNamespaceID, shortHex, space, tia } from "@/services/utils"
 
 /** API */
-import { fetchBlockNamespaces } from "@/services/api/block"
+import { fetchBlockBlobs } from "@/services/api/block"
 import { fetchTransactionsByBlock } from "@/services/api/tx"
 
 /** Store */
@@ -27,7 +27,7 @@ const preview = reactive({
 	transactions: [],
 	pfbs: [],
 
-	isLoadingPfbs: true,
+	isLoadingNamespaces: true,
 })
 
 const autoSelect = ref(true)
@@ -38,7 +38,7 @@ const handleSelectBlock = (b, isUser) => {
 	if (preview.block.height === b.height) return
 
 	preview.block = b
-	preview.pfbs = []
+	preview.namespaces = []
 }
 
 const getTransactionsByBlock = async () => {
@@ -104,7 +104,7 @@ watch(
 	() => preview.block,
 	async () => {
 		if (preview.block.stats.tx_count) {
-			if (preview.block.stats.blobs_size) preview.isLoadingPfbs = true
+			if (preview.block.stats.blobs_size) preview.isLoadingNamespaces = true
 
 			getTransactionsByBlock()
 		}
@@ -115,13 +115,19 @@ watch(
 	() => preview.transactions,
 	async () => {
 		if (preview.block.stats.blobs_size === 0) {
-			preview.isLoadingPfbs = false
+			preview.isLoadingNamespaces = false
 			return
 		}
 
-		const data = await fetchBlockNamespaces({ height: preview.block.height })
-		preview.pfbs = data
-		preview.isLoadingPfbs = false
+		const data = await fetchBlockBlobs({ height: preview.block.height })
+		let namespaces = []
+
+		data.forEach(blob => {
+			namespaces.push(blob.namespace)
+		});
+
+		preview.namespaces = Array.from(new Map(namespaces.map(item => [item.id, item])).values());
+		preview.isLoadingNamespaces = false
 	},
 )
 
@@ -200,9 +206,11 @@ watch(
 					<table>
 						<thead>
 							<tr>
-								<th><Text size="12" weight="600" color="tertiary">Height</Text></th>
+								<th><Text size="12" weight="600" color="tertiary">Block Height</Text></th>
 								<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
 								<th><Text size="12" weight="600" color="tertiary">Proposer</Text></th>
+								<th><Text size="12" weight="600" color="tertiary">Txs</Text></th>
+								<th><Text size="12" weight="600" color="tertiary">Blobs</Text></th>
 								<th><Text size="12" weight="600" color="tertiary">Total Fees</Text></th>
 							</tr>
 						</thead>
@@ -225,16 +233,13 @@ watch(
 									</NuxtLink>
 								</td>
 								<td>
-									<Flex direction="column" gap="4">
+									<Flex align="center">
 										<Text size="12" weight="600" color="primary">
 											{{
 												DateTime.fromISO(block.time)
 													.plus({ seconds: block.stats.block_time / 1_000 })
 													.toRelative({ locale: "en", style: "short" })
 											}}
-										</Text>
-										<Text size="12" weight="500" color="tertiary">
-											{{ DateTime.fromISO(block.time).setLocale("en").toFormat("LLL d, t") }}
 										</Text>
 									</Flex>
 								</td>
@@ -273,6 +278,20 @@ watch(
 											</Flex>
 										</template>
 									</Tooltip>
+								</td>
+								<td>
+									<Flex align="center">
+										<Text size="13" weight="600" color="primary">
+											{{ block.stats.tx_count }}
+										</Text>
+									</Flex>
+								</td>
+								<td>
+									<Flex align="center">
+										<Text size="13" weight="600" color="primary">
+											{{ block.stats.blobs_count }}
+										</Text>
+									</Flex>
 								</td>
 								<td>
 									<Flex align="center" gap="4">
@@ -342,27 +361,16 @@ watch(
 							<Text size="12" weight="600" color="tertiary">Proposer</Text>
 
 							<Flex direction="column" gap="8">
-								<Text size="13" weight="600" color="primary">
-									{{ preview.block.proposer.moniker }}
-								</Text>
+								<NuxtLink :to="`/validator/${preview.block.proposer.id}`">
+									<Text size="13" weight="600" color="primary">
+										{{ preview.block.proposer.moniker }}
+									</Text>
+								</NuxtLink>
 
 								<Flex align="center" gap="6">
-									<Text size="12" weight="600" color="tertiary" mono>{{
-										preview.block.proposer.cons_address.slice(0, 4)
+									<Text size="12" weight="600" color="tertiary">{{
+										shortHex(preview.block.proposer.cons_address)
 									}}</Text>
-
-									<Flex align="center" gap="3">
-										<div v-for="dot in 3" class="dot" />
-									</Flex>
-
-									<Text size="12" weight="600" color="tertiary" mono>
-										{{
-											preview.block.proposer.cons_address.slice(
-												preview.block.proposer.cons_address.length - 4,
-												preview.block.proposer.cons_address.length,
-											)
-										}}
-									</Text>
 
 									<CopyButton :text="preview.block.proposer.cons_address" size="10" />
 								</Flex>
@@ -447,12 +455,12 @@ watch(
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Namespaces</Text>
 							<Text size="12" weight="600" color="secondary">
-								{{ preview.pfbs?.length > 3 ? "3 /" : "" }} {{ preview.pfbs?.length }}
+								{{ preview.namespaces?.length > 3 ? "3 /" : "" }} {{ preview.namespaces?.length }}
 							</Text>
 						</Flex>
 
 						<Text
-							v-if="preview.isLoadingPfbs"
+							v-if="preview.isLoadingNamespaces"
 							size="12"
 							weight="600"
 							color="tertiary"
@@ -461,15 +469,15 @@ watch(
 						>
 							Loading namespaces..
 						</Text>
-						<Flex v-else-if="preview.pfbs?.length" direction="column" gap="8">
-							<NuxtLink v-for="pfb in preview.pfbs.slice(0, 3)" :to="`/namespace/${pfb.namespace.namespace_id}`">
+						<Flex v-else-if="preview.namespaces?.length" direction="column" gap="8">
+							<NuxtLink v-for="ns in preview.namespaces.slice(0, 3)" :to="`/namespace/${ns.namespace_id}`">
 								<Outline wide height="32" padding="8" radius="6">
 									<Flex align="center" justify="between" wide>
 										<Flex align="center" gap="8">
-											<Icon name="folder" size="12" color="secondary" />
+											<Icon name="namespace" size="12" color="secondary" />
 
 											<Text size="13" weight="600" color="primary" mono>
-												{{ getNamespaceID(pfb.namespace.namespace_id).slice(0, 4) }}
+												{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
 											</Text>
 
 											<Flex align="center" gap="3">
@@ -477,11 +485,11 @@ watch(
 											</Flex>
 
 											<Text size="13" weight="600" color="primary" mono>
-												{{ getNamespaceID(pfb.namespace.namespace_id).slice(-4) }}
+												{{ getNamespaceID(ns.namespace_id).slice(-4) }}
 											</Text>
 										</Flex>
 
-										<Text size="12" weight="600" color="tertiary">{{ formatBytes(pfb.namespace.size) }}</Text>
+										<Text size="12" weight="600" color="tertiary">{{ formatBytes(ns.size) }}</Text>
 									</Flex>
 								</Outline>
 							</NuxtLink>
@@ -605,7 +613,11 @@ watch(
 			text-align: left;
 			padding: 0;
 			padding-bottom: 8px;
-			padding-left: 16px;
+			padding-right: 24px;
+
+			&:first-child {
+				padding-left: 16px;
+			}
 
 			& span {
 				display: flex;
@@ -614,14 +626,19 @@ watch(
 
 		& tr td {
 			padding: 0;
-			padding-right: 24px;
-			padding-left: 16px;
+			padding-right: 16px;
 			padding-top: 8px;
 			padding-bottom: 8px;
 
 			white-space: nowrap;
+			overflow: hidden;
+      		text-overflow: ellipsis;
 
 			border-right: 2px solid transparent;
+
+			&:first-child {
+				padding-left: 16px;
+			}
 		}
 	}
 }
@@ -680,7 +697,7 @@ watch(
 }
 
 .proposer_moniker {
-	max-width: 190px;
+	max-width: 150px;
 
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -720,6 +737,7 @@ watch(
 	}
 
 	.table {
+		width: 604px;
 		border-radius: 4px 4px 8px 8px;
 	}
 }

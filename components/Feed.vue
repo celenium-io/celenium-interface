@@ -78,7 +78,7 @@ onMounted(async () => {
 
 				<Tooltip>
 					<Flex align="center" gap="6" :class="$style.stat">
-						<Icon name="folder" size="12" color="secondary" :class="$style.icon" />
+						<Icon name="namespace" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Blobs Size:</Text>
 

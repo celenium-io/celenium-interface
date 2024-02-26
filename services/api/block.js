@@ -113,3 +113,17 @@ export const fetchBlockBlobsCount = async (height) => {
 		console.error(error)
 	}
 }
+
+export const fetchBlockEvents = async ({ height, limit, offset }) => {
+	try {
+		const url = new URL(`${useServerURL()}/block/${height}/events`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}

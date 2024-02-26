@@ -24,7 +24,7 @@ const handleEditBookmarkAlias = () => {
 const getIcon = () => {
 	switch (props.item.type.toLowerCase()) {
 		case "namespace":
-			return "folder"
+			return "namespace"
 
 		case "transaction":
 			return "tx"

@@ -86,7 +86,7 @@ const calculateOpacity = (val) => {
 			</Flex>
 
 			<Flex align="center" gap="6">
-				<Icon name="folder" size="12" color="primary" />
+				<Icon name="namespace" size="12" color="primary" />
 
 				<Text v-if="totalSize" size="13" color="primary" weight="600">{{ formatBytes(totalSize) }}</Text>
 				<Skeleton v-else w="56" h="13" />

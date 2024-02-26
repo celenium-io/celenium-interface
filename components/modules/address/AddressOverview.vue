@@ -8,6 +8,7 @@ import Input from "@/components/ui/Input.vue"
 
 /** Components */
 import TransactionsTable from "./TransactionsTable.vue"
+import MessagesTable from "@/components/modules/namespace/tables/MessagesTable.vue"
 import BlobsTable from "@/components/modules/namespace/tables/BlobsTable.vue"
 
 /** Services */
@@ -15,7 +16,7 @@ import { comma } from "@/services/utils"
 import { MsgTypes } from "@/services/constants/messages"
 
 /** API */
-import { fetchTxsByAddressHash, fetchBlobsByAddressHash } from "@/services/api/address"
+import { fetchTxsByAddressHash, fetchMessagesByAddressHash, fetchBlobsByAddressHash } from "@/services/api/address"
 
 /** Store */
 import { useModalsStore } from "@/store/modals"
@@ -48,10 +49,12 @@ const activeTab = ref("transactions")
 
 const isRefetching = ref(false)
 const transactions = ref([])
+const messages = ref([])
 const blobs = ref([])
 
 const page = ref(1)
 const pages = computed(() => 1)
+const handleNextCondition = ref(true)
 const handleNext = () => {
 	page.value += 1
 }
@@ -243,6 +246,24 @@ const getTransactions = async () => {
 
 	transactions.value = data.value
 	cacheStore.current.transactions = transactions.value
+	handleNextCondition.value = transactions.value.length < 10
+
+	isRefetching.value = false
+}
+
+const getMessages = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchMessagesByAddressHash({
+		hash: props.address.hash,
+		limit: 10,
+		offset: (page.value - 1) * 10,
+		sort: "desc",
+	})
+
+	messages.value = data.value
+	cacheStore.current.messages = messages.value
+	handleNextCondition.value = messages.value.length < 10
 
 	isRefetching.value = false
 }
@@ -260,6 +281,7 @@ const getBlobs = async () => {
 	if (data.value?.length) {
 		blobs.value = data.value.map((b) => ({ ...b, signer: props.address.hash }))
 	}
+	handleNextCondition.value = data.value.length < 10
 
 	isRefetching.value = false
 }
@@ -277,6 +299,10 @@ watch(
 				getTransactions()
 				break
 
+			case "messages":
+				getMessages()
+				break
+			
 			case "blobs":
 				getBlobs()
 				break
@@ -294,6 +320,10 @@ watch(
 
 			case "blobs":
 				getBlobs()
+				break
+
+			case "messages":
+				getMessages()
 				break
 		}
 	},
@@ -401,12 +431,6 @@ const handleOpenQRModal = () => {
 								View Raw Address
 							</Flex>
 						</DropdownItem>
-						<DropdownItem @click="handleViewRawTransactions">
-							<Flex align="center" gap="8">
-								<Icon name="tx" size="12" color="secondary" />
-								View Raw Transactions
-							</Flex>
-						</DropdownItem>
 					</template>
 				</Dropdown>
 			</Flex>
@@ -428,7 +452,7 @@ const handleOpenQRModal = () => {
 					<Flex direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Spendable Balance</Text>
 
-						<Text size="13" weight="600" color="primary">{{ parseInt(address.balance.value) / 1_000_000 }} TIA</Text>
+						<Text size="13" weight="600" color="primary">{{ comma(address.balance.value / 1_000_000) }} TIA</Text>
 					</Flex>
 
 					<Flex direction="column" gap="16">
@@ -457,7 +481,18 @@ const handleOpenQRModal = () => {
 						>
 							<Icon name="tx" size="12" color="secondary" />
 
-							<Text size="13" weight="600">Transactions</Text>
+							<Text size="13" weight="600">Signed Transactions</Text>
+						</Flex>
+
+						<Flex
+							@click="activeTab = 'messages'"
+							align="center"
+							gap="6"
+							:class="[$style.tab, activeTab === 'messages' && $style.active]"
+						>
+							<Icon name="message" size="12" color="secondary" />
+
+							<Text size="13" weight="600">Messages</Text>
 						</Flex>
 
 						<Flex
@@ -476,7 +511,7 @@ const handleOpenQRModal = () => {
 				<Flex direction="column" justify="center" :class="[$style.tables, isRefetching && $style.disabled]">
 					<Flex v-if="activeTab === 'transactions'" wrap="wrap" align="center" gap="8" :class="$style.filters">
 						<Popover :open="isStatusPopoverOpen" @on-close="onStatusPopoverClose" width="200">
-							<Button @click="handleOpenStatusPopover" type="secondary" size="mini">
+							<Button @click="handleOpenStatusPopover" type="secondary" size="mini" :disabled="!transactions.length && !hasActiveFilters">
 								<Icon name="plus-circle" size="12" color="tertiary" />
 								<Text color="secondary">Status</Text>
 
@@ -514,7 +549,7 @@ const handleOpenQRModal = () => {
 						</Popover>
 
 						<Popover :open="isMessageTypePopoverOpen" @on-close="onMessageTypePopoverClose" width="250">
-							<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini">
+							<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini" :disabled="!transactions.length && !hasActiveFilters">
 								<Icon name="plus-circle" size="12" color="tertiary" />
 								<Text color="secondary">Message Type</Text>
 
@@ -608,29 +643,42 @@ const handleOpenQRModal = () => {
 							<Flex v-else direction="column" align="center" justify="center" gap="8" :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No transactions </Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									This address does not contain transactions of the selected type
+									This address did not signed any {{ page === 1 ? '' : 'more' }} transactions
 								</Text>
 							</Flex>
 						</template>
+
+						<!-- Messages Table -->
+						<template v-if="activeTab === 'messages'">
+							<MessagesTable v-if="messages.length" :messages="messages" />
+
+							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+								<Text size="13" weight="600" color="secondary" align="center"> No Messages </Text>
+								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+									No {{ page === 1 ? 'activity' : 'more messages' }} with this address
+								</Text>
+							</Flex>
+						</template>
+
 						<!-- Blobs Table -->
 						<template v-if="activeTab === 'blobs'">
 							<BlobsTable v-if="blobs.length" :blobs="blobs" />
 
 							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
-								<Text size="13" weight="600" color="secondary" align="center"> No Blobs</Text>
+								<Text size="13" weight="600" color="secondary" align="center"> No Blobs </Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									This address did not push any blobs
+									This address did not push any {{ page === 1 ? '' : 'more' }} blobs
 								</Text>
 							</Flex>
 						</template>
 					</Flex>
 
 					<!-- Pagination -->
-					<Flex v-if="transactions.length" align="center" gap="6" :class="$style.pagination">
-						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1 || transactions.length !== 10">
+					<Flex align="center" gap="6" :class="$style.pagination">
+						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 							<Icon name="arrow-left-stop" size="12" color="primary" />
 						</Button>
-						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1 || transactions.length !== 10">
+						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
 							<Icon name="arrow-left" size="12" color="primary" />
 						</Button>
 
@@ -638,7 +686,7 @@ const handleOpenQRModal = () => {
 							<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
 						</Button>
 
-						<Button @click="handleNext" type="secondary" size="mini" :disabled="transactions.length !== 10">
+						<Button @click="handleNext" type="secondary" size="mini" :disabled="handleNextCondition">
 							<Icon name="arrow-right" size="12" color="primary" />
 						</Button>
 					</Flex>
@@ -763,6 +811,7 @@ const handleOpenQRModal = () => {
 	flex: 1;
 
 	padding-top: 16px;
+	padding-bottom: 16px;
 }
 
 .pagination {

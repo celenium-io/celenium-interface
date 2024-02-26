@@ -169,28 +169,42 @@ const handleLast = async () => {
 						</thead>
 
 						<tbody>
-							<tr v-for="address in addresses" @click="router.push(`/address/${address.hash}`)">
+							<tr v-for="address in addresses">
 								<td style="width: 1px">
-									<Tooltip position="start" delay="500">
-										<Flex align="center" gap="8">
-											<AddressBadge :hash="address.hash" />
+									<NuxtLink :to="`/address/${address.hash}`">
+										<Tooltip position="start" delay="500">
+											<Flex align="center" gap="8">
+												<AddressBadge :hash="address.hash" />
 
-											<CopyButton :text="address.hash" />
-										</Flex>
+												<CopyButton :text="address.hash" />
+											</Flex>
 
-										<template #content>
-											{{ address.hash }}
-										</template>
-									</Tooltip>
+											<template #content>
+												{{ address.hash }}
+											</template>
+										</Tooltip>
+									</NuxtLink>
 								</td>
 								<td>
-									<Text size="13" weight="600" color="primary"> {{ comma(tia(address.balance.value)) }} TIA </Text>
+									<NuxtLink :to="`/address/${address.hash}`">
+										<Text size="13" weight="600" color="primary">
+											{{ comma(tia(address.balance.value)) }} TIA
+										</Text>
+									</NuxtLink>
 								</td>
 								<td>
-									<Text size="13" weight="600" color="primary"> {{ comma(address.first_height) }} </Text>
+									<NuxtLink :to="`/address/${address.hash}`">
+										<Text size="13" weight="600" color="primary">
+											{{ comma(address.first_height) }}
+										</Text>
+									</NuxtLink>
 								</td>
 								<td>
-									<Text size="13" weight="600" color="primary"> {{ comma(address.last_height) }} </Text>
+									<NuxtLink :to="`/address/${address.hash}`">
+										<Text size="13" weight="600" color="primary">
+											{{ comma(address.last_height) }}
+										</Text>
+									</NuxtLink>
 								</td>
 							</tr>
 						</tbody>
@@ -311,7 +325,6 @@ const handleLast = async () => {
 	}
 
 	.header {
-		flex-direction: column;
 		gap: 16px;
 
 		height: initial;

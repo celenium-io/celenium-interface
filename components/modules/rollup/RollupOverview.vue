@@ -37,7 +37,7 @@ const tabs = ref([
 	},
 	{
 		name: "Namespaces",
-		icon: "folder",
+		icon: "namespace",
 	},
 ])
 const activeTab = ref(tabs.value[0].name)
@@ -231,7 +231,20 @@ watch(
 						</Flex>
 
 						<Flex align="start" justify="between">
-							<Text size="12" weight="600" color="tertiary">Was Active</Text>
+							<Text size="12" weight="600" color="tertiary">First Seen</Text>
+							<Tooltip position="start" delay="500">
+								<Text size="12" weight="600" color="primary">
+									{{ DateTime.fromISO(rollup.first_message_time).toRelative({ locale: "en", style: "short" }) }}
+								</Text>
+
+								<template #content>
+									{{ DateTime.fromISO(rollup.first_message_time).setLocale("en").toFormat("LLL d, t") }}
+								</template>
+							</Tooltip>
+						</Flex>
+
+						<Flex align="start" justify="between">
+							<Text size="12" weight="600" color="tertiary">Last Active</Text>
 							<Tooltip position="start" delay="500">
 								<Text size="12" weight="600" color="primary">
 									{{ DateTime.fromISO(rollup.last_message_time).toRelative({ locale: "en", style: "short" }) }}
@@ -343,8 +356,6 @@ watch(
 
 .data {
 	min-width: 384px;
-	max-width: 384px;
-	/* max-height: 534px; */
 
 	border-radius: 4px 4px 4px 8px;
 	background: var(--card-background);
@@ -371,6 +382,7 @@ watch(
 	}
 
 	.memo {
+		max-width: 352px;
 		text-overflow: ellipsis;
 		overflow: hidden;
 	}

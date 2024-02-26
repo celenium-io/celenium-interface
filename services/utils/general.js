@@ -2,12 +2,17 @@ export const formatBytes = (bytes, decimals = 2) => {
 	if (!+bytes) return "0 Byte"
 
 	const dm = decimals < 0 ? 0 : decimals
-	const sizes = ["Bytes", "Kb", "Mb", "Gb", "Tb", "Pb"]
+	const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB"]
 
 	const i = Math.floor(Math.log(bytes) / Math.log(1024))
 
 	return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(dm))} ${sizes[i]}`
 }
+
+export const numToPercent = (num) => {
+	return (num * 100).toFixed(0) + "%"
+}
+
 
 export const getNamespaceID = (target) => {
 	let s = target
@@ -28,6 +33,14 @@ export const strToHex = (str) => {
 		hex += hexValue.padStart(2, "0")
 	}
 	return hex
+}
+
+export const shortHex = (hex) => {
+	if (hex.length > 16) {
+		return `${hex.slice(0, 8)} ••• ${hex.slice(-8)}`
+	} else {
+		return hex
+	}
 }
 
 export const splitAddress = (address, format = "string") => {

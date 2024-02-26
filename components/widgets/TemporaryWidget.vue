@@ -26,9 +26,15 @@ const totalValidators = computed(() => appStore.lastHead?.total_validators)
 		</Flex>
 
 		<Flex direction="column" gap="24" :class="$style.bottom">
-			<Flex align="center" gap="6">
-				<Icon name="address" size="12" color="secondary" />
-				<Text size="13" weight="600" height="110" color="secondary">Validators</Text>
+			<Flex align="center" justify="between">
+				<Flex align="center" gap="6">
+					<Icon name="validator" size="12" color="secondary" />
+					<Text size="13" weight="600" height="110" color="secondary">Validators</Text>
+				</Flex>
+				
+				<NuxtLink :to="'/validators'" :class="$style.link">
+					<Text size="11" weight="600" height="110" color="tertiary">View All</Text>
+				</NuxtLink>
 			</Flex>
 
 			<Tooltip v-if="totalValidators" position="start">
@@ -114,6 +120,18 @@ const totalValidators = computed(() => appStore.lastHead?.total_validators)
 		&.active {
 			background: linear-gradient(var(--txt-primary), var(--txt-support));
 			opacity: 1;
+		}
+	}
+}
+
+.link {
+	height: 24px;
+
+	& span {
+		transition: all 0.2s ease;
+
+		&:hover {
+			color: var(--txt-primary);
 		}
 	}
 }
