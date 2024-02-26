@@ -638,8 +638,11 @@ const handleOpenQRModal = () => {
 
 							<Flex v-else direction="column" align="center" justify="center" gap="8" :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No transactions </Text>
-								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+								<Text v-if="page === 1" size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
 									This address did not signed any transactions
+								</Text>
+								<Text v-else size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+									This address did not signed any more transactions
 								</Text>
 							</Flex>
 						</template>
@@ -670,11 +673,11 @@ const handleOpenQRModal = () => {
 					</Flex>
 
 					<!-- Pagination -->
-					<Flex v-if="transactions.length" align="center" gap="6" :class="$style.pagination">
-						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1 || transactions.length !== 10">
+					<Flex v-if="transactions.length || page !== 1" align="center" gap="6" :class="$style.pagination">
+						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 							<Icon name="arrow-left-stop" size="12" color="primary" />
 						</Button>
-						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1 || transactions.length !== 10">
+						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
 							<Icon name="arrow-left" size="12" color="primary" />
 						</Button>
 
