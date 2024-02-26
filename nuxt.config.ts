@@ -111,10 +111,6 @@ export default defineNuxtConfig({
 
 	ogImage: {
 		fonts: ["Inter:400", "Inter:600", "IBM+Plex+Mono:400"],
-		runtimeCacheStorage: {
-			driver: "cloudflare-kv-binding",
-			binding: "OG_IMAGE_CACHE",
-		},
 	},
 
 	devtools: {
