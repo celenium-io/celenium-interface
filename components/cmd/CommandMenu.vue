@@ -385,7 +385,7 @@ const rawQuickCommandsActions = [
 		],
 
 		callback: () => {
-			amp.track("copyFeeResult", { loc: "cmd" })
+			amp.log("copyFeeResult", { loc: "cmd" })
 
 			window.navigator.clipboard.writeText(copyData.value)
 
@@ -882,7 +882,7 @@ const debouncedSearch = useDebounceFn(async (e) => {
 
 	const filteredResults = data.value.filter((item) => !UNSUPPORTED_ENTITIES.includes(item.type))
 
-	amp.track("showAutocomplete", { count: filteredResults.length, firstType: filteredResults[0].type })
+	amp.log("showAutocomplete", { count: filteredResults.length, firstType: filteredResults[0].type })
 
 	autocompleteActions.value = []
 	let title
@@ -978,7 +978,7 @@ onMounted(() => {
 			appStore.showCmd = !appStore.showCmd
 
 			if (appStore.showCmd) {
-				amp.track("openCmd")
+				amp.log("openCmd")
 			}
 		}
 	})
@@ -1135,7 +1135,7 @@ const handleExecute = (action) => {
 			case "command:custom":
 				mode.value = "custom"
 
-				amp.track("openFeeCalculator")
+				amp.log("openFeeCalculator")
 
 				runText.value = target.runText
 
