@@ -87,6 +87,10 @@ const getAddresses = async () => {
 	isRefetching.value = false
 }
 
+const calculateTotalBalance = (address) => {
+	return parseInt(address.balance.spendable) + parseInt(address.balance.delegated) + parseInt(address.balance.unbonding)
+}
+
 getAddresses()
 
 /** Refetch addresses */
@@ -188,7 +192,7 @@ const handleLast = async () => {
 								<td>
 									<NuxtLink :to="`/address/${address.hash}`">
 										<Text size="13" weight="600" color="primary">
-											{{ comma(tia(address.balance.value)) }} TIA
+											{{ comma(tia(calculateTotalBalance(address))) }} TIA
 										</Text>
 									</NuxtLink>
 								</td>

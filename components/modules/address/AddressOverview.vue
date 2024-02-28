@@ -12,7 +12,7 @@ import MessagesTable from "@/components/modules/namespace/tables/MessagesTable.v
 import BlobsTable from "@/components/modules/namespace/tables/BlobsTable.vue"
 
 /** Services */
-import { comma } from "@/services/utils"
+import { comma, tia } from "@/services/utils"
 import { MsgTypes } from "@/services/constants/messages"
 
 /** API */
@@ -452,7 +452,7 @@ const handleOpenQRModal = () => {
 					<Flex direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Spendable Balance</Text>
 
-						<Text size="13" weight="600" color="primary">{{ comma(address.balance.value / 1_000_000) }} TIA</Text>
+						<Text size="13" weight="600" color="primary">{{ comma(tia(address.balance.spendable)) }} TIA</Text>
 					</Flex>
 
 					<Flex direction="column" gap="16">

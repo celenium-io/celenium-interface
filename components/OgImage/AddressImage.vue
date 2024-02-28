@@ -39,7 +39,7 @@ const bgStyles = computed(() => {
 				<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.3)' }">')</span>
 			</div>
 
-			<span :style="{ fontSize: '40px', color: 'rgba(255,255,255, 0.7)' }"> {{ comma(tia(address.balance.value)) }} TIA </span>
+			<span :style="{ fontSize: '40px', color: 'rgba(255,255,255, 0.7)' }"> {{ comma(tia(address.balance.spendable)) }} TIA </span>
 
 			<div :style="{ display: 'flex', flexDirection: 'column', gap: '24px' }">
 				<div :style="{ display: 'flex', gap: '12px' }">
