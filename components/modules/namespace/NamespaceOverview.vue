@@ -3,6 +3,7 @@ import { getNamespaceID } from '~/services/utils';
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Tables */
 import BlobsTable from "./tables/BlobsTable.vue"
@@ -12,7 +13,7 @@ import MessagesTable from "./tables/MessagesTable.vue"
 import { comma, space, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
-import { fetchNamespaceBlobs, fetchNamespaceMessagesById } from "@/services/api/namespace"
+import { fetchNamespaceBlobs, fetchNamespaceMessagesById, fetchNamespaceRollups } from "@/services/api/namespace"
 
 /** Store */
 import { useModalsStore } from "@/store/modals"
@@ -55,6 +56,7 @@ const activeTab = ref(tabs.value[0].name)
 const isRefetching = ref(false)
 const messages = ref([])
 const blobs = ref([])
+const rollups = ref([])
 
 const page = ref(1)
 const pages = computed(() => {
@@ -103,9 +105,20 @@ const getMessages = async () => {
 
 	isRefetching.value = false
 }
+const getRollups = async () => {
+	const { data } = await fetchNamespaceRollups({
+		id: props.namespace.namespace_id,
+		version: props.namespace.version,
+	})
 
-/** Initital fetch for blobs */
+	if (data.value?.length) {
+		rollups.value = data.value
+	}
+}
+
+/** Initital fetch for blobs and rollups */
 await getBlobs()
+await getRollups()
 
 onMounted(() => {
 	isBookmarked.value = !!bookmarksStore.bookmarks.namespaces.find((t) => t.id === props.namespace.namespace_id)
@@ -299,6 +312,28 @@ const handleViewRawMessages = () => {
 							</Text>
 						</Flex>
 					</Flex>
+
+					<Flex v-if="rollups.length" direction="column" gap="16">
+						<div :class="$style.horizontal_divider" />
+						
+						<Text size="12" weight="600" color="secondary">Used By Rollups</Text>
+						<Flex direction="row" gap="8">
+							<Tooltip v-for="r in rollups">
+								<NuxtLink :to="`/rollup/${r.slug}`">
+									<Flex align="center" justify="center" :class="$style.avatar_container">
+										<img :src="r.logo" :class="$style.avatar_image" />
+									</Flex>
+								</NuxtLink>
+
+								<template #content>
+									<Flex direction="column" gap="4">
+										<Text color="secondary">{{ r.name }}</Text>
+									</Flex>
+								</template>
+							</Tooltip>
+						</Flex>
+
+					</Flex>
 				</Flex>
 			</Flex>
 
@@ -391,6 +426,15 @@ const handleViewRawMessages = () => {
 			max-width: 100%;
 		}
 	}
+
+	.horizontal_divider {
+		width: 100%;
+		height: 2px;
+		background: var(--op-5);
+
+		margin-top: 4px;
+		margin-bottom: 4px;
+	}
 }
 
 .txs_wrapper {
@@ -460,6 +504,20 @@ const handleViewRawMessages = () => {
 
 .pagination {
 	padding: 0 16px 16px 16px;
+}
+
+.avatar_container {
+	position: relative;
+	width: 25px;
+	height: 25px;
+	overflow: hidden;
+	border-radius: 50%;
+}
+
+.avatar_image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 @media (max-width: 800px) {
