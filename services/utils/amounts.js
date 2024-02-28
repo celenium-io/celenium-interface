@@ -46,8 +46,15 @@ export const truncate = (num) => {
 
 export const tia = (amount) => {
 	if (!amount || !parseInt(amount)) return 0
-	return truncate(parseInt(amount) / 1_000_000)
+	return truncateDecimalPart(parseInt(amount) / 1_000_000)
 }
+
+export const truncateDecimalPart = (amount) => {
+	const numberString = amount.toFixed(6).replace(/\.?0+$/, '')
+
+	return parseFloat(numberString)
+}
+
 
 export const abbreviate = (n, h = 1) => {
 	if (n < 1e3) return n

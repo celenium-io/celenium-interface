@@ -288,6 +288,11 @@ const getBlobs = async () => {
 
 await getTransactions()
 
+/** Delegation */
+const isActiveDelegator = props.address.balance.deleaged > 0 || props.address.balance.unbonding > 0
+const collapseBalances = ref(!isActiveDelegator)
+const totalBalance = parseInt(props.address.balance.spendable) + parseInt(props.address.balance.delegated) + parseInt(props.address.balance.unbonding)
+
 /** Refetch transactions */
 watch(
 	() => activeTab.value,
@@ -449,11 +454,44 @@ const handleOpenQRModal = () => {
 						</Flex>
 					</Flex>
 
-					<Flex direction="column" gap="8" :class="$style.key_value">
-						<Text size="12" weight="600" color="secondary">Spendable Balance</Text>
+						<Flex direction="column" gap="16" :class="$style.key_value">
+							<Flex
+								@click="collapseBalances = !collapseBalances"
+								align="center"
+								justify="between"
+								style="cursor: pointer"
+							>
+								<Flex direction="column" gap="8">
+									<Text size="12" weight="600" color="secondary">Total Balance</Text>
+									<Text size="13" weight="600" color="primary" selectable>{{ tia(totalBalance) }} TIA</Text>
+								</Flex>
 
-						<Text size="13" weight="600" color="primary">{{ comma(tia(address.balance.spendable)) }} TIA</Text>
-					</Flex>
+								<Icon
+									name="chevron"
+									size="14"
+									color="secondary"
+									:style="{ transform: `rotate(${collapseBalances ? '0' : '180'}deg)` }"
+								/>
+							</Flex>
+							
+							<Flex v-if="!collapseBalances" direction="column" gap="12" :class="$style.key_value">
+								<Flex align="center" justify="between">
+									<Text size="12" weight="600" color="tertiary"> Spendable</Text>
+									<Text size="12" weight="600" color="secondary"> {{ tia(address.balance.spendable) }} TIA</Text>
+								</Flex>
+
+								<Flex align="center" justify="between">
+									<Text size="12" weight="600" color="tertiary"> Delegated</Text>
+									<Text size="12" weight="600" color="secondary"> {{ tia(address.balance.delegated) }} TIA</Text>
+								</Flex>
+
+								<Flex align="center" justify="between">
+									<Text size="12" weight="600" color="tertiary"> Unbonding</Text>
+									<Text size="12" weight="600" color="secondary"> {{ tia(address.balance.unbonding) }} TIA</Text>
+								</Flex>
+							</Flex>
+						</Flex>
+
 
 					<Flex direction="column" gap="16">
 						<Text size="12" weight="600" color="secondary">Details</Text>
