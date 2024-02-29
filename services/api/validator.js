@@ -41,6 +41,34 @@ export const fetchValidatorBlocks = async ({ id, limit, offset }) => {
 	}
 }
 
+export const fetchValidatorDelegators = async ({ id, limit, offset }) => {
+	try {
+		const url = new URL(`${useServerURL()}/validators/${id}/delegators`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+
+		const data = await useFetch(encodeURI(url.href))
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchValidatorJails = async ({ id, limit, offset }) => {
+	try {
+		const url = new URL(`${useServerURL()}/validators/${id}/jails`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+
+		const data = await useFetch(encodeURI(url.href))
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchValidatorUptime = async ({ id, limit }) => {
 	try {
 		const url = new URL(`${useServerURL()}/validators/${id}/uptime`)

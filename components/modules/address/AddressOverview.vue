@@ -406,6 +406,18 @@ watch(
 			case "messages":
 				getMessages()
 				break
+			
+			case "delegations":
+				getDelegations()
+				break
+			
+			case "redelegations":
+				getRedelegations()
+				break
+			
+			case "undelegations":
+				getUndelegations()
+				break
 		}
 	},
 )
@@ -827,7 +839,7 @@ const handleOpenQRModal = () => {
 							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No Delegations </Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									This address has not any {{ page === 1 ? '' : 'more' }} delegations
+									This address doesn't have any {{ page === 1 ? '' : 'more' }} delegations
 								</Text>
 							</Flex>
 						</template>
@@ -839,7 +851,7 @@ const handleOpenQRModal = () => {
 							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No Redelegations </Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									This address has not any {{ page === 1 ? '' : 'more' }} redelegations
+									This address doesn't have any {{ page === 1 ? '' : 'more' }} redelegations
 								</Text>
 							</Flex>
 						</template>
@@ -851,7 +863,7 @@ const handleOpenQRModal = () => {
 							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No Undelegations </Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									This address has not any {{ page === 1 ? '' : 'more' }} undelegations
+									This address doesn't have any {{ page === 1 ? '' : 'more' }} undelegations
 								</Text>
 							</Flex>
 						</template>

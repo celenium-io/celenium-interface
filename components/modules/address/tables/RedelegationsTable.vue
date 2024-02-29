@@ -63,13 +63,16 @@ const props = defineProps({
 						</Flex>
 					</td>
 					<td>
-						<Flex justify="center" direction="column" gap="4">
-							<Text size="12" weight="600" color="primary">
-								{{ DateTime.fromISO(rd.time).toRelative({ locale: "en", style: "short" }) }}
-							</Text>
-							<Text size="12" weight="500" color="tertiary">
-								{{ DateTime.fromISO(rd.time).setLocale("en").toFormat("LLL d, t") }}
-							</Text>
+						<Flex justify="center" direction="column" gap="6">
+							<Tooltip position="start" delay="500">
+								<Text size="12" weight="600" color="primary">
+									{{ DateTime.fromISO(rd.time).toRelative({ locale: "en", style: "short" }) }}
+								</Text>
+
+								<template #content>
+									{{ DateTime.fromISO(rd.time).setLocale("en").toFormat("LLL d, t") }}
+								</template>
+							</Tooltip>
 						</Flex>
 					</td>
 					<td>
@@ -82,13 +85,16 @@ const props = defineProps({
 						</NuxtLink>
 					</td>
 					<td>
-						<Flex justify="center" direction="column" gap="4">
-							<Text size="12" weight="600" color="primary">
-								{{ DateTime.fromISO(rd.completion_time).toRelative({ locale: "en", style: "short" }) }}
-							</Text>
-							<Text size="12" weight="500" color="tertiary">
-								{{ DateTime.fromISO(rd.completion_time).setLocale("en").toFormat("LLL d, t") }}
-							</Text>
+						<Flex justify="center" direction="column" gap="6">
+							<Tooltip position="start" delay="500">
+								<Text size="12" weight="600" color="primary">
+									{{ DateTime.fromISO(rd.completion_time).toRelative({ locale: "en", style: "short" }) }}
+								</Text>
+
+								<template #content>
+									{{ DateTime.fromISO(rd.completion_time).setLocale("en").toFormat("LLL d, t") }}
+								</template>
+							</Tooltip>
 						</Flex>
 					</td>
 				</tr>

@@ -6,13 +6,7 @@ import { DateTime } from "luxon"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { tia, comma, space, formatBytes } from "@/services/utils"
-
-/** Store */
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
-const cacheStore = useCacheStore()
-const modalsStore = useModalsStore()
+import { comma, tia, utia } from "@/services/utils"
 
 const props = defineProps({
 	blocks: {
@@ -32,6 +26,8 @@ const props = defineProps({
 					<th><Text size="12" weight="600" color="tertiary" noWrap>Txs</Text></th>
 					<th><Text size="12" weight="600" color="tertiary" noWrap>Blobs</Text></th>
 					<th><Text size="12" weight="600" color="tertiary" noWrap>Total Fees</Text></th>
+					<th><Text size="12" weight="600" color="tertiary" noWrap>Rewards</Text></th>
+					<th><Text size="12" weight="600" color="tertiary" noWrap>Commissions</Text></th>
 				</tr>
 			</thead>
 
@@ -94,6 +90,26 @@ const props = defineProps({
 									{{ tia(block.stats.fee) }}
 								</Text>
 								<Text size="13" weight="600" color="tertiary"> TIA </Text>
+							</Flex>
+						</NuxtLink>
+					</td>
+					<td>
+						<NuxtLink :to="`/block/${block.height}`">
+							<Flex align="center" gap="4">
+								<Text size="13" weight="600" :color="parseFloat(block.stats.rewards) ? 'primary' : 'tertiary'">
+									{{ utia(block.stats.rewards) }}
+								</Text>
+								<Text size="13" weight="600" color="tertiary"> utia </Text>
+							</Flex>
+						</NuxtLink>
+					</td>
+					<td>
+						<NuxtLink :to="`/block/${block.height}`">
+							<Flex align="center" gap="4">
+								<Text size="13" weight="600" :color="parseFloat(block.stats.commissions) ? 'primary' : 'tertiary'">
+									{{ utia(block.stats.commissions) }}
+								</Text>
+								<Text size="13" weight="600" color="tertiary"> utia </Text>
 							</Flex>
 						</NuxtLink>
 					</td>

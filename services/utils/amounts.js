@@ -49,12 +49,24 @@ export const tia = (amount) => {
 	return truncateDecimalPart(parseInt(amount) / 1_000_000)
 }
 
-export const truncateDecimalPart = (amount) => {
-	const numberString = amount.toFixed(6).replace(/\.?0+$/, '')
+export const utia = (amount) => {
+	if (!amount || !parseInt(amount)) return 0
+	return parseInt(amount)
+}
+
+export const truncateDecimalPart = (amount, decimal = 6) => {
+	const numberString = amount.toFixed(decimal).replace(/\.?0+$/, '')
 
 	return parseFloat(numberString)
 }
 
+export const numToPercent = (num) => {
+	return (num * 100).toFixed(0) + "%"
+}
+
+export const shareOfTotal = (amount, total, decimal = 2) => {
+	return truncateDecimalPart((amount / total * 100), decimal)
+}
 
 export const abbreviate = (n, h = 1) => {
 	if (n < 1e3) return n

@@ -9,11 +9,6 @@ export const formatBytes = (bytes, decimals = 2) => {
 	return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(dm))} ${sizes[i]}`
 }
 
-export const numToPercent = (num) => {
-	return (num * 100).toFixed(0) + "%"
-}
-
-
 export const getNamespaceID = (target) => {
 	let s = target
 

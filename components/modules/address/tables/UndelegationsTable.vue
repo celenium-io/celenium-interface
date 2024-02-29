@@ -62,23 +62,29 @@ const props = defineProps({
 						</Flex>
 					</td>
 					<td>
-						<Flex justify="center" direction="column" gap="4">
-							<Text size="12" weight="600" color="primary">
-								{{ DateTime.fromISO(ud.time).toRelative({ locale: "en", style: "short" }) }}
-							</Text>
-							<Text size="12" weight="500" color="tertiary">
-								{{ DateTime.fromISO(ud.time).setLocale("en").toFormat("LLL d, t") }}
-							</Text>
+						<Flex justify="center" direction="column" gap="6">
+							<Tooltip position="start" delay="500">
+								<Text size="12" weight="600" color="primary">
+									{{ DateTime.fromISO(ud.time).toRelative({ locale: "en", style: "short" }) }}
+								</Text>
+
+								<template #content>
+									{{ DateTime.fromISO(ud.time).setLocale("en").toFormat("LLL d, t") }}
+								</template>
+							</Tooltip>
 						</Flex>
 					</td>
 					<td>
-						<Flex justify="center" direction="column" gap="4">
-							<Text size="12" weight="600" color="primary">
-								{{ DateTime.fromISO(ud.completion_time).toRelative({ locale: "en", style: "short" }) }}
-							</Text>
-							<Text size="12" weight="500" color="tertiary">
-								{{ DateTime.fromISO(ud.completion_time).setLocale("en").toFormat("LLL d, t") }}
-							</Text>
+						<Flex justify="center" direction="column" gap="6">
+							<Tooltip position="start" delay="500">
+								<Text size="12" weight="600" color="primary">
+									{{ DateTime.fromISO(ud.completion_time).toRelative({ locale: "en", style: "short" }) }}
+								</Text>
+
+								<template #content>
+									{{ DateTime.fromISO(ud.completion_time).setLocale("en").toFormat("LLL d, t") }}
+								</template>
+							</Tooltip>
 						</Flex>
 					</td>
 				</tr>
