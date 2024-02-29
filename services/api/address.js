@@ -85,3 +85,45 @@ export const fetchBlobsByAddressHash = async ({ limit, offset, sort, hash }) => 
 		console.error(error)
 	}
 }
+
+export const fetchAddressDelegations = async ({ hash, limit, offset }) => {
+	try {
+		const url = new URL(`${useServerURL()}/address/${hash}/delegations`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+
+		const data = await useFetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchAddressRedelegations = async ({ hash, limit, offset }) => {
+	try {
+		const url = new URL(`${useServerURL()}/address/${hash}/redelegations`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+
+		const data = await useFetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchAddressUndelegations = async ({ hash, limit, offset }) => {
+	try {
+		const url = new URL(`${useServerURL()}/address/${hash}/undelegations`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+
+		const data = await useFetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}

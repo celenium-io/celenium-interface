@@ -7,16 +7,26 @@ import Checkbox from "@/components/ui/Checkbox.vue"
 import Input from "@/components/ui/Input.vue"
 
 /** Components */
-import TransactionsTable from "./TransactionsTable.vue"
+import TransactionsTable from "./tables/TransactionsTable.vue"
 import MessagesTable from "@/components/modules/namespace/tables/MessagesTable.vue"
 import BlobsTable from "@/components/modules/namespace/tables/BlobsTable.vue"
+import DelegationsTable from "./tables/DelegationsTable.vue"
+import RedelegationsTable from "./tables/RedelegationsTable.vue"
+import UndelegationsTable from "./tables/UndelegationsTable.vue"
 
 /** Services */
 import { comma, tia } from "@/services/utils"
 import { MsgTypes } from "@/services/constants/messages"
 
 /** API */
-import { fetchTxsByAddressHash, fetchMessagesByAddressHash, fetchBlobsByAddressHash } from "@/services/api/address"
+import {
+	fetchTxsByAddressHash,
+	fetchMessagesByAddressHash,
+	fetchBlobsByAddressHash,
+	fetchAddressDelegations,
+	fetchAddressRedelegations,
+	fetchAddressUndelegations
+} from "@/services/api/address"
 
 /** Store */
 import { useModalsStore } from "@/store/modals"
@@ -292,6 +302,60 @@ await getTransactions()
 const isActiveDelegator = props.address.balance.deleaged > 0 || props.address.balance.unbonding > 0
 const collapseBalances = ref(!isActiveDelegator)
 const totalBalance = parseInt(props.address.balance.spendable) + parseInt(props.address.balance.delegated) + parseInt(props.address.balance.unbonding)
+const delegations = ref([])
+const redelegations = ref([])
+const undelegations = ref([])
+
+const getDelegations = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchAddressDelegations({
+		hash: props.address.hash,
+		limit: 10,
+		offset: (page.value - 1) * 10,
+	})
+
+	if (data.value?.length) {
+		delegations.value = data.value
+	}
+	handleNextCondition.value = data.value.length < 10
+
+	isRefetching.value = false
+}
+
+const getRedelegations = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchAddressRedelegations({
+		hash: props.address.hash,
+		limit: 10,
+		offset: (page.value - 1) * 10,
+	})
+
+	if (data.value?.length) {
+		redelegations.value = data.value
+	}
+	handleNextCondition.value = data.value.length < 10
+
+	isRefetching.value = false
+}
+
+const getUndelegations = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchAddressUndelegations({
+		hash: props.address.hash,
+		limit: 10,
+		offset: (page.value - 1) * 10,
+	})
+
+	if (data.value?.length) {
+		undelegations.value = data.value
+	}
+	handleNextCondition.value = data.value.length < 10
+
+	isRefetching.value = false
+}
 
 /** Refetch transactions */
 watch(
@@ -310,6 +374,18 @@ watch(
 			
 			case "blobs":
 				getBlobs()
+				break
+			
+			case "delegations":
+				getDelegations()
+				break
+			
+			case "redelegations":
+				getRedelegations()
+				break
+			
+			case "undelegations":
+				getUndelegations()
 				break
 		}
 	},
@@ -543,6 +619,40 @@ const handleOpenQRModal = () => {
 
 							<Text size="13" weight="600">Blobs</Text>
 						</Flex>
+
+						<Flex
+							@click="activeTab = 'delegations'"
+							align="center"
+							gap="6"
+							:class="[$style.tab, activeTab === 'delegations' && $style.active]"
+						>
+							<Icon name="coins_up" size="12" color="secondary" />
+
+							<Text size="13" weight="600">Delegations</Text>
+						</Flex>
+
+						<Flex
+							@click="activeTab = 'redelegations'"
+							align="center"
+							gap="6"
+							:class="[$style.tab, activeTab === 'redelegations' && $style.active]"
+						>
+							<Icon name="redelegate" size="12" color="secondary" />
+
+							<Text size="13" weight="600">Redelegations</Text>
+						</Flex>
+
+						<Flex
+							v-if="address.balance.unbonding > 0"
+							@click="activeTab = 'undelegations'"
+							align="center"
+							gap="6"
+							:class="[$style.tab, activeTab === 'undelegations' && $style.active]"
+						>
+							<Icon name="unlock" size="12" color="secondary" />
+
+							<Text size="13" weight="600">Undelegations</Text>
+						</Flex>
 					</Flex>
 				</Flex>
 
@@ -709,6 +819,42 @@ const handleOpenQRModal = () => {
 								</Text>
 							</Flex>
 						</template>
+
+						<!-- Delegations Table -->
+						<template v-if="activeTab === 'delegations'">
+							<DelegationsTable v-if="delegations.length" :delegations="delegations" />
+
+							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+								<Text size="13" weight="600" color="secondary" align="center"> No Delegations </Text>
+								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+									This address has not any {{ page === 1 ? '' : 'more' }} delegations
+								</Text>
+							</Flex>
+						</template>
+
+						<!-- Redelegations Table -->
+						<template v-if="activeTab === 'redelegations'">
+							<RedelegationsTable v-if="redelegations.length" :redelegations="redelegations" />
+
+							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+								<Text size="13" weight="600" color="secondary" align="center"> No Redelegations </Text>
+								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+									This address has not any {{ page === 1 ? '' : 'more' }} redelegations
+								</Text>
+							</Flex>
+						</template>
+
+						<!-- Undelegations Table -->
+						<template v-if="activeTab === 'undelegations'">
+							<UndelegationsTable v-if="undelegations.length" :undelegations="undelegations" />
+
+							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+								<Text size="13" weight="600" color="secondary" align="center"> No Undelegations </Text>
+								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+									This address has not any {{ page === 1 ? '' : 'more' }} undelegations
+								</Text>
+							</Flex>
+						</template>
 					</Flex>
 
 					<!-- Pagination -->
@@ -786,6 +932,8 @@ const handleOpenQRModal = () => {
 
 .tab {
 	height: 28px;
+	
+	white-space: nowrap;
 
 	cursor: pointer;
 	border-radius: 6px;

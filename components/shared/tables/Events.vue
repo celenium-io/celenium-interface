@@ -452,7 +452,7 @@ watch(
 
 						<Text size="12" weight="500" color="secondary">was minted</Text>
 					</Flex>
-					<!-- Event: undond -->
+					<!-- Event: unbond -->
 					<Flex v-else-if="event.type === 'unbond'" align="center" gap="4" color="secondary" :class="$style.text">
 						<Text size="12" weight="500" color="primary" mono no-wrap>
 							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA</Text
