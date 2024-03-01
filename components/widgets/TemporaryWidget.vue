@@ -3,29 +3,116 @@
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { abbreviate } from "@/services/utils"
+import { abbreviate, capitilize, numToPercent, shareOfTotal } from "@/services/utils"
+
+/** API */
+import { fetchValidatorsCount } from "@/services/api/validator";
 
 /** Store */
 import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
+const lastHead = computed(() => appStore.lastHead)
+const stakingShare = computed(() => shareOfTotal(lastHead?.value.total_stake, lastHead?.value.total_supply, 2))
 
-const totalAccounts = computed(() => appStore.lastHead?.total_accounts)
-const totalValidators = computed(() => appStore.lastHead?.total_validators)
+const isRefetching = ref(false)
+const totalValidators = ref(0)
+const activeValidators = ref(0)
+const validatorsStats = ref({})
+const validatorsGraph = ref([
+	{
+		title: "active",
+		count: 0,
+		width: 0,
+		color: "var(--validator-active)",
+	},
+	{
+		title: "inactive",
+		count: 0,
+		width: 0,
+		color: "var(--validator-inactive)",
+	},
+	{
+		title: "jailed",
+		count: 0,
+		width: 0,
+		color: "var(--validator-jailed)",
+	},
+])
+
+const getValidatorsStats = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchValidatorsCount()
+	validatorsStats.value = data.value
+
+	isRefetching.value = false
+}
+
+const fillValidatorsGraph = () => {
+	totalValidators.value = validatorsStats.value["total"]
+	activeValidators.value = validatorsStats.value["active"]
+
+	for (let item of validatorsGraph.value) {
+		let value = validatorsStats.value[item.title]
+
+		if (value) {
+			item.count = value
+			item.width = (value / totalValidators.value * 100).toFixed(2)
+		}
+	}
+}
+
+await getValidatorsStats()
+fillValidatorsGraph()
 
 </script>
 
 <template>
 	<Flex direction="column" wide :class="$style.wrapper">
 		<Flex direction="column" gap="20" :class="$style.top">
-			<Text size="16" weight="600" color="primary">Accounts</Text>
+			<Text size="16" weight="600" color="primary">Staking</Text>
 
-			<Text v-if="totalAccounts" size="40" weight="600" color="primary" :class="[$style.ds_font, $style.tpm_num]">
-				{{ abbreviate(totalAccounts) }}
-			</Text>
+			<template v-if="lastHead.total_supply">
+				<Tooltip side="top">
+					<div
+						:class="$style.staking_bar"
+						:style="`--percentStaking: ${stakingShare}%`"
+					></div>
+
+					<template #content>
+						<Flex align="center" justify="between" gap="8">
+							<Text color="secondary">Staking Share</Text>
+							<Text color="primary">{{ stakingShare }}%</Text>
+						</Flex>
+					</template>
+				</Tooltip>
+
+				<Flex direction="column" gap="12">
+					<Flex align="center" justify="between">
+						<Text size="12" weight="600" color="tertiary">
+							Total Supply
+						</Text>
+
+						<Text size="12" weight="600" color="secondary">
+							{{ abbreviate(lastHead.total_supply) }} TIA
+						</Text>
+					</Flex>
+
+					<Flex align="center" justify="between">
+						<Text size="12" weight="600" color="tertiary">
+							Voting Power
+						</Text>
+						
+						<Text size="12" weight="600" color="secondary">
+							{{ abbreviate(lastHead.total_voting_power) }} TIA
+						</Text>
+					</Flex>
+				</Flex>
+			</template>
 			<Skeleton v-else w="90" h="40" />
 		</Flex>
 
-		<Flex direction="column" gap="24" :class="$style.bottom">
+		<Flex direction="column" gap="20" :class="$style.bottom">
 			<Flex align="center" justify="between">
 				<Flex align="center" gap="6">
 					<Icon name="validator" size="12" color="secondary" />
@@ -37,31 +124,49 @@ const totalValidators = computed(() => appStore.lastHead?.total_validators)
 				</NuxtLink>
 			</Flex>
 
-			<Tooltip v-if="totalValidators" position="start">
-				<Flex gap="2" :class="$style.bars">
-					<div v-for="item in 10" :class="[$style.bar, (100 * 100) / totalValidators > item * 10 && $style.active]" />
+			<Tooltip v-if="!isRefetching" position="start" side="top">
+				<Flex :class="$style.validator_bars_wrapper">
+					<div
+						v-for="v in validatorsGraph"
+						:class="$style.validator_bar"
+						:style="{
+							width: `${v.width}%`,
+							background: v.color
+						}"
+					></div>
 				</Flex>
 
 				<template #content>
 					<Flex direction="column" gap="4">
-						<Flex justify="between" align="center" gap="40">
+						<Flex align="center" justify="between" gap="40">
 							<Text color="secondary">Active / Total</Text>
-							<Text color="primary"> 100 / {{ totalValidators }} </Text>
+							<Text color="primary"> {{ activeValidators }} / {{ totalValidators }} </Text>
 						</Flex>
 
-						<Flex justify="between" align="center" gap="8">
+						<Flex align="center" justify="between" gap="8">
 							<Text color="secondary">Percentage</Text>
-							<Text color="primary">{{ ((100 * 100) / totalValidators).toFixed(2) }}%</Text>
+							<Text color="primary">{{ numToPercent((activeValidators / totalValidators), 2) }}</Text>
 						</Flex>
 					</Flex>
 				</template>
 			</Tooltip>
 			<Skeleton v-else w="180" h="20" />
 
-			<Flex align="center" justify="between">
-				<Text size="12" weight="600" color="tertiary"> Active Validators </Text>
-				<Text v-if="totalValidators" size="16" weight="600" color="secondary" :class="$style.ds_font">100</Text>
-				<Skeleton v-else w="20" h="16" />
+			<Flex direction="column" gap="6">
+				<Flex v-for="v in validatorsGraph" justify="between" gap="4">
+					<Flex gap="4">
+						<div
+							:class="$style.validator_legend"
+							:style="{
+								background: v.color,
+							}">
+						</div>
+
+						<Text size="12" weight="500" color="tertiary"> {{ capitilize(v.title) }} </Text>
+					</Flex>
+
+					<Text size="12" weight="500" color="secondary"> {{ v.count }} </Text>
+				</Flex>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -95,7 +200,7 @@ const totalValidators = computed(() => appStore.lastHead?.total_validators)
 	background: var(--network-widget-background);
 	border-top: 2px solid var(--op-5);
 
-	padding: 20px 16px;
+	padding: 16px 16px;
 }
 
 .bars {
@@ -123,6 +228,42 @@ const totalValidators = computed(() => appStore.lastHead?.total_validators)
 		}
 	}
 }
+
+.staking_bar {
+	width: 184px;
+	height: 4px;
+
+	border-radius: 2px;
+
+	/* FE5E5F */
+
+	background: linear-gradient(90deg, var(--staking) var(--percentStaking), var(--supply) var(--percentStaking));
+}
+
+.validator_bars_wrapper {
+	width: 184px;
+}
+
+.validator_bar {
+	height: 4px;
+
+	border-radius: 2px;
+	cursor: pointer;
+
+	margin-right: 4px;
+	margin-bottom: 4px;
+}
+
+.validator_legend {
+		width: 10px;
+		height: 10px;
+
+		border-radius: 2px;
+		cursor: pointer;
+
+		margin-right: 6px;
+		/* margin-bottom: 6px; */
+	}
 
 .link {
 	height: 24px;

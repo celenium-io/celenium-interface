@@ -18,7 +18,7 @@ import FeeCalculator from "./custom/FeeCalculator.vue"
 
 /** Services */
 import amp from "@/services/amp"
-import { isMac, isPrefersDarkScheme } from "@/services/utils/general"
+import { capitilize, isMac, isPrefersDarkScheme } from "@/services/utils/general"
 
 /** API */
 import { search } from "@/services/api/search"
@@ -927,7 +927,7 @@ const debouncedSearch = useDebounceFn(async (e) => {
 			type: "callback",
 			icon: filteredResults[i].type,
 			title: title,
-			subtitle: filteredResults[i].type.charAt(0).toUpperCase() + filteredResults[i].type.slice(1),
+			subtitle: capitilize(filteredResults[i].type),
 			runText: "Open",
 			callback: () => {
 				router.push(routerLink)

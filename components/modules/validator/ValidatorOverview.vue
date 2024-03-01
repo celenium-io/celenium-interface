@@ -214,7 +214,7 @@ watch(
 											<Text color="neutral-green">Active</Text>
 										</Flex>
 										<Flex align="center" gap="4">
-											<Text color="secondary">and can propose and sign blocks</Text>
+											<Text color="secondary">and can propose or sign blocks</Text>
 										</Flex>
 									</Flex>
 									<Flex v-else direction="column" gap="6">

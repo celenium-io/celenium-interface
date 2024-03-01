@@ -16,6 +16,17 @@ export const fetchValidators = async ({ limit, offset, sort }) => {
 	}
 }
 
+export const fetchValidatorsCount = async () => {
+	try {
+		const url = new URL(`${useServerURL()}/validators/count`)
+
+		const data = await useFetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchValidatorByID = async (id) => {
 	try {
 		const url = new URL(`${useServerURL()}/validators/${id}`)

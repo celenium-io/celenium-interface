@@ -61,8 +61,8 @@ export const truncateDecimalPart = (amount, decimal = 6) => {
 	return parseFloat(numberString)
 }
 
-export const numToPercent = (num) => {
-	return (num * 100).toFixed(0) + "%"
+export const numToPercent = (num, decimal = 0) => {
+	return (num * 100).toFixed(decimal) + "%"
 }
 
 export const shareOfTotal = (amount, total, decimal = 2) => {
