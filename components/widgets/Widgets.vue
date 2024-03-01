@@ -2,7 +2,7 @@
 /** Components: Widgets */
 import BlockWidget from "./BlockWidget.vue"
 import BlobsWidget from "./BlobsWidget.vue"
-import TemporaryWidget from "./TemporaryWidget.vue"
+import StakingWidget from "./StakingWidget.vue"
 import TransactionsWidget from "./TransactionsWidget.vue"
 import GasWidget from "./GasWidget.vue"
 
@@ -22,7 +22,7 @@ onBeforeMount(() => {
 			<BlobsWidget />
 		</Flex>
 
-		<TemporaryWidget />
+		<StakingWidget />
 
 		<Flex direction="column" gap="20" wide :class="$style.column">
 			<TransactionsWidget />

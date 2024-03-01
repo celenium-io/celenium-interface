@@ -109,7 +109,20 @@ fillValidatorsGraph()
 					</Flex>
 				</Flex>
 			</template>
-			<Skeleton v-else w="90" h="40" />
+
+			<Flex v-else direction="column" gap="20">
+				<Skeleton w="180" h="5" />
+
+				<Flex justify="between">
+					<Skeleton w="70" h="12" />
+					<Skeleton w="70" h="12" />
+				</Flex>
+
+				<Flex justify="between">
+					<Skeleton w="70" h="12" />
+					<Skeleton w="70" h="12" />
+				</Flex>
+			</Flex>
 		</Flex>
 
 		<Flex direction="column" gap="20" :class="$style.bottom">
@@ -150,9 +163,9 @@ fillValidatorsGraph()
 					</Flex>
 				</template>
 			</Tooltip>
-			<Skeleton v-else w="180" h="20" />
+			<Skeleton v-else w="180" h="5" />
 
-			<Flex direction="column" gap="6">
+			<Flex v-if="!isRefetching" direction="column" gap="6">
 				<Flex v-for="v in validatorsGraph" justify="between" gap="4">
 					<Flex gap="4">
 						<div
@@ -166,6 +179,16 @@ fillValidatorsGraph()
 					</Flex>
 
 					<Text size="12" weight="500" color="secondary"> {{ v.count }} </Text>
+				</Flex>
+			</Flex>
+			<Flex v-else direction="column" gap="6">
+				<Flex v-for="i in 3" justify="between" gap="4">
+					<Flex gap="4">
+						<Skeleton w="10" h="10" />
+						<Skeleton w="45" h="12" />
+					</Flex>
+
+					<Skeleton w="15" h="12" />
 				</Flex>
 			</Flex>
 		</Flex>
