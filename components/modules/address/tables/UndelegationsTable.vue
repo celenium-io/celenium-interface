@@ -60,7 +60,7 @@ const props = defineProps({
 						</Tooltip>
 					</td>
 					<td>
-						<Flex align="center">
+						<Flex align="center" :class="$style.link">
 							<Outline @click.prevent="router.push(`/block/${ud.height}`)">
 								<Flex align="center" gap="6">
 									<Icon name="block" size="14" color="secondary" />
@@ -156,6 +156,8 @@ const props = defineProps({
 
 		white-space: nowrap;
 
+		cursor: default;
+
 		&:first-child {
 			padding-left: 16px;
 		}
@@ -168,5 +170,9 @@ const props = defineProps({
 			padding-right: 24px;
 		}
 	}
+}
+
+.link {
+	cursor: pointer;
 }
 </style>

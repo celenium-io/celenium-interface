@@ -18,6 +18,14 @@ const props = defineProps({
 		required: true,
 	}
 })
+
+const calculateShare = (amount) => {
+	if (amount < 0.01) return 0
+
+	let share = shareOfTotal(amount, props.validator.stake)
+
+	return share < 0.01 ? '<0.01' : share
+}
 </script>
 
 <template>
@@ -74,8 +82,8 @@ const props = defineProps({
 					<td>
 						<NuxtLink :to="`/address/${d.delegator}`">
 							<Flex align="center" gap="4">
-								<Text size="13" weight="600" color="primary">
-									{{ shareOfTotal(d.amount, validator.stake) }}
+								<Text size="13" weight="600" :color="parseFloat(d.amount) ? 'primary' : 'tertiary'">
+									{{ calculateShare(d.amount) }}
 								</Text>
 								<Text size="13" weight="600" color="tertiary"> %</Text>
 							</Flex>

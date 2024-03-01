@@ -18,7 +18,8 @@ import FeeCalculator from "./custom/FeeCalculator.vue"
 
 /** Services */
 import amp from "@/services/amp"
-import { capitilize, isMac, isPrefersDarkScheme } from "@/services/utils/general"
+import { isMac, isPrefersDarkScheme } from "@/services/utils/general"
+import { capitilize } from "@/services/utils/strings";
 
 /** API */
 import { search } from "@/services/api/search"

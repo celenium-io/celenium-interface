@@ -33,15 +33,17 @@ const props = defineProps({
 			<tbody>
 				<tr v-for="j in jails">
 					<td>
-						<Flex align="center">
-							<Outline @click.prevent="router.push(`/block/${j.height}`)">
-								<Flex align="center" gap="6">
-									<Icon name="block" size="14" color="secondary" />
+						<NuxtLink :to="`/block/${j.height}`">
+							<Flex align="center">
+								<Outline>
+									<Flex align="center" gap="6">
+										<Icon name="block" size="14" color="secondary" />
 
-									<Text size="13" weight="600" color="primary" tabular>{{ comma(j.height) }}</Text>
-								</Flex>
-							</Outline>
-						</Flex>
+										<Text size="13" weight="600" color="primary" tabular>{{ comma(j.height) }}</Text>
+									</Flex>
+								</Outline>
+							</Flex>
+						</NuxtLink>
 					</td>
 					<td>
 						<Flex justify="center" direction="column" gap="6">
@@ -133,6 +135,8 @@ const props = defineProps({
 		padding-right: 24px;
 
 		white-space: nowrap;
+
+		cursor: default;
 
 		&:first-child {
 			padding-left: 16px;
