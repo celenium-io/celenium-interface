@@ -41,7 +41,7 @@ const props = defineProps({
 								</Text>
 
 								<Tooltip v-if="validator.delegator === d.delegator" position="start" delay="500">
-									<Icon name="self-delegation" size="14" color="green" />
+									<Icon name="self-delegation" size="14" color="neutral-green" />
 
 									<template #content>
 										<Text size="13" weight="600" color="secondary">

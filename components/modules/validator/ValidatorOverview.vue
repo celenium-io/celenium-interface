@@ -199,19 +199,45 @@ watch(
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">
 				<Flex direction="column" gap="24" :class="$style.main">
-					<Flex align="center" gap="12" :class="$style.key_value">
-						<Flex direction="column" gap="8" :class="$style.key_value">
-							<Flex align="center" gap="10">
-								<Text v-if="validator.moniker" size="13" weight="600" color="primary">{{ validator.moniker }} </Text>
-								<Text v-else size="13" weight="600" color="primary">Validator</Text>
-							</Flex>
-							<Flex align="center" gap="6">
-								<Text size="12" weight="600" color="tertiary"> {{ splitAddress(validator.address) }} </Text>
+					<Flex direction="column" gap="8" :class="$style.key_value">
+						<Flex align="center" justify="between">
+							<Text v-if="validator.moniker" size="13" weight="600" color="primary">{{ validator.moniker }} </Text>
+							<Text v-else size="13" weight="600" color="primary">Validator</Text>
 
-								<CopyButton :text="validator.address" />
-							</Flex>
+							<Tooltip position="start" delay="500">
+								<Text size="13" weight="600" :color="!validator.jailed ? 'neutral-green' : 'red'"> {{ !validator.jailed ? 'Active' : 'Jailed' }} </Text>
+
+								<template #content>
+									<Flex v-if="!validator.jailed" direction="column" gap="6">
+										<Flex align="center" gap="4">
+											<Text color="secondary">This validator is</Text>
+											<Text color="neutral-green">Active</Text>
+										</Flex>
+										<Flex align="center" gap="4">
+											<Text color="secondary">and can propose and sign blocks</Text>
+										</Flex>
+									</Flex>
+									<Flex v-else direction="column" gap="6">
+										<Flex align="center" gap="4">
+											<Text color="secondary">This validator is</Text>
+											<Text color="red">Jailed</Text>
+										</Flex>
+										<Flex align="center" gap="4">
+											<Text color="secondary">and cannot propose or sign blocks</Text>
+										</Flex>
+									</Flex>
+								</template>
+							</Tooltip>
+
+							
+						</Flex>
+						<Flex align="center" gap="6">
+							<Text size="12" weight="600" color="tertiary"> {{ splitAddress(validator.address) }} </Text>
+
+							<CopyButton :text="validator.address" />
 						</Flex>
 					</Flex>
+
 					<Flex v-if="validator.details" direction="column" gap="6">
 						<Text size="12" weight="600" color="secondary">Description</Text>
 
