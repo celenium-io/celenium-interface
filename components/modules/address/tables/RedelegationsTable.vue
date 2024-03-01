@@ -44,12 +44,20 @@ const props = defineProps({
 						</NuxtLink>
 					</td>
 					<td>
-						<Flex align="center" gap="4">
-							<Text size="12" weight="600" :color="parseFloat(rd.amount) ? 'primary' : 'tertiary'">
-								{{ tia(rd.amount) }}
-							</Text>
-							<Text size="12" weight="600" color="tertiary"> TIA </Text>
-						</Flex>
+						<Tooltip position="start" delay="500">
+							<Flex align="center" gap="4">
+								<Text size="12" weight="600" :color="parseFloat(rd.amount) ? 'primary' : 'tertiary'">
+									{{ comma(tia(rd.amount)) }}
+								</Text>
+								<Text size="12" weight="600" color="tertiary"> TIA </Text>
+							</Flex>
+							<template #content>
+								<Text size="13" weight="600" color="primary">
+									{{ tia(rd.amount) }}
+								</Text>
+								<Text size="13" weight="600" color="tertiary"> TIA </Text>
+							</template>
+						</Tooltip>
 					</td>
 					<td>
 						<Flex align="center">

@@ -6,7 +6,7 @@ import { DateTime } from "luxon"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { shareOfTotal, splitAddress, tia } from "@/services/utils"
+import { comma, shareOfTotal, splitAddress, tia } from "@/services/utils"
 
 const props = defineProps({
 	delegators: {
@@ -54,12 +54,21 @@ const props = defineProps({
 					</td>
 					<td>
 						<NuxtLink :to="`/address/${d.delegator}`">
-							<Flex align="center" gap="4">
-								<Text size="13" weight="600" :color="parseFloat(d.amount) ? 'primary' : 'tertiary'">
-									{{ tia(d.amount) }}
-								</Text>
-								<Text size="13" weight="600" color="tertiary"> TIA </Text>
-							</Flex>
+							<Tooltip position="start" delay="500">
+								<Flex align="center" gap="4">
+									<Text size="13" weight="600" :color="parseFloat(d.amount) ? 'primary' : 'tertiary'">
+										{{ comma(tia(d.amount)) }}
+									</Text>
+									<Text size="13" weight="600" color="tertiary"> TIA </Text>
+								</Flex>
+
+								<template #content>
+									<Text size="13" weight="600" color="primary">
+										{{ tia(d.amount) }}
+									</Text>
+									<Text size="13" weight="600" color="tertiary"> TIA </Text>
+								</template>
+							</Tooltip>
 						</NuxtLink>
 					</td>
 					<td>

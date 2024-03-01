@@ -46,6 +46,7 @@ export const truncate = (num) => {
 
 export const tia = (amount) => {
 	if (!amount || !parseInt(amount)) return 0
+
 	return truncateDecimalPart(parseInt(amount) / 1_000_000)
 }
 

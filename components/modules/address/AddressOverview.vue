@@ -299,7 +299,7 @@ const getBlobs = async () => {
 await getTransactions()
 
 /** Delegation */
-const isActiveDelegator = props.address.balance.deleaged > 0 || props.address.balance.unbonding > 0
+const isActiveDelegator = props.address.balance.delegated > 0 || props.address.balance.unbonding > 0
 const collapseBalances = ref(!isActiveDelegator)
 const totalBalance = parseInt(props.address.balance.spendable) + parseInt(props.address.balance.delegated) + parseInt(props.address.balance.unbonding)
 const delegations = ref([])
@@ -551,7 +551,7 @@ const handleOpenQRModal = () => {
 							>
 								<Flex direction="column" gap="8">
 									<Text size="12" weight="600" color="secondary">Total Balance</Text>
-									<Text size="13" weight="600" color="primary" selectable>{{ tia(totalBalance) }} TIA</Text>
+									<Text size="13" weight="600" color="primary" selectable>{{ tia(totalBalance).toLocaleString('en-US') }} TIA</Text>
 								</Flex>
 
 								<Icon
@@ -565,17 +565,17 @@ const handleOpenQRModal = () => {
 							<Flex v-if="!collapseBalances" direction="column" gap="12" :class="$style.key_value">
 								<Flex align="center" justify="between">
 									<Text size="12" weight="600" color="tertiary"> Spendable</Text>
-									<Text size="12" weight="600" color="secondary"> {{ tia(address.balance.spendable) }} TIA</Text>
+									<Text size="12" weight="600" color="secondary"> {{ tia(address.balance.spendable).toLocaleString('en-US') }} TIA</Text>
 								</Flex>
 
 								<Flex align="center" justify="between">
 									<Text size="12" weight="600" color="tertiary"> Delegated</Text>
-									<Text size="12" weight="600" color="secondary"> {{ tia(address.balance.delegated) }} TIA</Text>
+									<Text size="12" weight="600" color="secondary"> {{ tia(address.balance.delegated).toLocaleString('en-US') }} TIA</Text>
 								</Flex>
 
 								<Flex align="center" justify="between">
 									<Text size="12" weight="600" color="tertiary"> Unbonding</Text>
-									<Text size="12" weight="600" color="secondary"> {{ tia(address.balance.unbonding) }} TIA</Text>
+									<Text size="12" weight="600" color="secondary"> {{ tia(address.balance.unbonding).toLocaleString('en-US') }} TIA</Text>
 								</Flex>
 							</Flex>
 						</Flex>
