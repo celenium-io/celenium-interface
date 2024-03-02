@@ -96,10 +96,21 @@ const getSectorName = (item) => {
 			<Flex align="center" gap="6">
 				<Icon name="tx" size="16" color="primary" />
 				<Flex gap="4" align="end">
-					<Text v-if="txCounter" size="16" weight="600" color="primary">{{ abbreviate(txCounter) }}</Text>
-					<Skeleton v-else w="36" h="16" />
+					<Tooltip v-if="txCounter">
+						<Flex gap="4" align="end">
+							<Text size="16" weight="600" color="primary">{{ abbreviate(txCounter) }}</Text>
 
-					<Text size="12" weight="700" color="tertiary">TXs</Text>
+							<Text size="12" weight="700" color="tertiary">TXs</Text>
+						</Flex>
+						<template #content>
+							<Flex gap="4" align="end">
+								<Text size="14" weight="600" color="primary">{{ txCounter }}</Text>
+								<Text size="11" weight="700" color="tertiary">TXs/24h</Text>
+							</Flex>
+						</template>
+					</Tooltip>
+					
+					<Skeleton v-else w="36" h="16" />
 				</Flex>
 			</Flex>
 
