@@ -69,6 +69,14 @@ export const shareOfTotal = (amount, total, decimal = 2) => {
 	return truncateDecimalPart((amount / total * 100), decimal)
 }
 
+export const shareOfTotalString = (amount, total, decimal = 2) => {
+	if (amount < 0.01) return 0
+
+	let share = shareOfTotal(amount, total, decimal)
+
+	return share < 0.01 ? '<0.01' : share
+}
+
 export const abbreviate = (n, h = 1) => {
 	if (n < 1e3) return n
 	if (n >= 1e3 && n < 1e6) return +(n / 1e3).toFixed(h) + "K"

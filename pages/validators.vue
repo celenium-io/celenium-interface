@@ -1,9 +1,10 @@
 <script setup>
 /** UI */
 import Button from "@/components/ui/Button.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { comma, numToPercent, splitAddress } from "@/services/utils"
+import { comma, numToPercent, shareOfTotal, shareOfTotalString, splitAddress, tia } from "@/services/utils"
 
 /** API */
 import { fetchValidators } from "@/services/api/validator"
@@ -65,14 +66,14 @@ const router = useRouter()
 
 const isLoading = ref(false)
 const validators = ref([])
-const count = ref(0)
+const count = computed(() => appStore.lastHead?.total_validators)
+const totalVotingPower = computed(() => appStore.lastHead?.total_voting_power)
 
 // const sort = reactive({
 // 	by: "size",
 // 	dir: "desc",
 // })
 
-count.value = appStore.lastHead.total_validators
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
 const pages = computed(() => Math.ceil(count.value / 20))
 
@@ -176,6 +177,9 @@ const handlePrev = () => {
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Validator</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Voting Power</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Outgoing Rewards</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Commissions</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Rate</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Max Rate</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Max Change Rate</Text></th>
@@ -191,6 +195,38 @@ const handlePrev = () => {
 											<Text size="13" weight="600" color="primary" mono>
 												{{ v.moniker ? v.moniker : splitAddress(v.address) }}
 											</Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/validator/${v.id}`">
+										<Flex align="start" justify="center" direction="column" gap="4">
+											<Tooltip position="start" delay="400">
+												<Text size="12" weight="600" color="primary">{{ comma(v.voting_power) }}</Text>
+
+												<template #content>
+													<Flex align="center" justify="between" gap="8">
+														<Text size="12" weight="600" color="tertiary">Staking Share</Text>
+														<Text size="12" weight="600" color="primary">{{ shareOfTotalString(v.voting_power, totalVotingPower) }}%</Text>
+													</Flex>
+												</template>
+											</Tooltip>
+
+											<Text size="12" weight="600" color="tertiary">{{ shareOfTotalString(v.voting_power, totalVotingPower) }}%</Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/validator/${v.id}`">
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary">{{ comma(tia(v.rewards)) }}</Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/validator/${v.id}`">
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary">{{ comma(tia(v.commissions)) }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
