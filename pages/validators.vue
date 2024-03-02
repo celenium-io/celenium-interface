@@ -154,8 +154,8 @@ const tabs = ref(["active", "inactive", "jailed"])
 const activeTab = ref(route.query.status && tabs.value.filter(tab => tab === route.query.status).length > 0 ? route.query.status.toLowerCase() : "active")
 const dropdownItems = computed(() => tabs.value.filter(tab => tab !== activeTab.value))
 
-getValidatorsStats()
-getValidators()
+await getValidatorsStats()
+await getValidators()
 
 /** Refetch validators */
 watch(
@@ -244,7 +244,6 @@ watch(
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Rate</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Max Rate</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Max Change Rate</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Min Self Delegation</Text></th>
 							</tr>
 						</thead>
 
@@ -309,13 +308,6 @@ watch(
 									<NuxtLink :to="`/validator/${v.id}`">
 										<Flex align="center">
 											<Text size="13" weight="600" color="primary">{{ numToPercent(v.max_change_rate) }}</Text>
-										</Flex>
-									</NuxtLink>
-								</td>
-								<td>
-									<NuxtLink :to="`/validator/${v.id}`">
-										<Flex align="center">
-											<Text size="13" weight="600" color="primary">{{ comma(v.min_self_delegation) }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
