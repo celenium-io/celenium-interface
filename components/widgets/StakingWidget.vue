@@ -315,6 +315,14 @@ fillValidatorsGraph()
 		border-top: initial;
 		border-left: 2px solid var(--op-5);
 	}
+
+	.validator_bars_wrapper {
+		width: 365px;
+	}
+
+	.staking_bar {
+		width: 365px;
+	}
 }
 
 @media (max-width: 420px) {
@@ -329,6 +337,14 @@ fillValidatorsGraph()
 	.bottom {
 		border-top: 2px solid var(--op-5);
 		border-left: initial;
+	}
+
+	.validator_bars_wrapper {
+		width: 365px;
+	}
+
+	.staking_bar {
+		width: 365px;
 	}
 }
 </style>

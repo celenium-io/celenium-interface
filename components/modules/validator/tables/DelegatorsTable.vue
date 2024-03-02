@@ -59,6 +59,7 @@ const props = defineProps({
 									<Text size="13" weight="600" :color="parseFloat(d.amount) ? 'primary' : 'tertiary'">
 										{{ comma(tia(d.amount)) }}
 									</Text>
+									
 									<Text size="13" weight="600" color="tertiary"> TIA </Text>
 								</Flex>
 
@@ -66,6 +67,7 @@ const props = defineProps({
 									<Text size="13" weight="600" color="primary">
 										{{ tia(d.amount) }}
 									</Text>
+
 									<Text size="13" weight="600" color="tertiary"> TIA </Text>
 								</template>
 							</Tooltip>
@@ -75,8 +77,9 @@ const props = defineProps({
 						<NuxtLink :to="`/address/${d.delegator}`">
 							<Flex align="center" gap="4">
 								<Text size="13" weight="600" :color="parseFloat(d.amount) ? 'primary' : 'tertiary'">
-									{{ shareOfTotalString(d.amount) }}
+									{{ shareOfTotalString(d.amount, validator.stake) }}
 								</Text>
+
 								<Text size="13" weight="600" color="tertiary"> %</Text>
 							</Flex>
 						</NuxtLink>
