@@ -2,12 +2,13 @@
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 
 /** Services */
-import { comma, numToPercent, shareOfTotal, shareOfTotalString, splitAddress, tia } from "@/services/utils"
+import { capitilize, comma, numToPercent, shareOfTotalString, splitAddress, tia } from "@/services/utils"
 
 /** API */
-import { fetchValidators } from "@/services/api/validator"
+import { fetchValidators, fetchValidatorsCount } from "@/services/api/validator"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -66,18 +67,21 @@ const router = useRouter()
 
 const isLoading = ref(false)
 const validators = ref([])
-const count = computed(() => appStore.lastHead?.total_validators)
+const validatorsStats = ref({})
 const totalVotingPower = computed(() => appStore.lastHead?.total_voting_power)
 
-// const sort = reactive({
-// 	by: "size",
-// 	dir: "desc",
-// })
+const getValidatorsStats = async () => {
+	isLoading.value = true
 
-const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = computed(() => Math.ceil(count.value / 20))
+	const { data } = await fetchValidatorsCount()
+	validatorsStats.value = data.value
+	console.log(validatorsStats.value[activeTab.value])
+	console.log(pages.value);
 
-const getValidators = async () => {
+	isLoading.value = false
+}
+
+const getActiveValidators = async () => {
 	isLoading.value = true
 
 	const { data } = await fetchValidators({
@@ -89,34 +93,51 @@ const getValidators = async () => {
 	isLoading.value = false
 }
 
-getValidators()
+const getInactiveValidators = async () => {
+	isLoading.value = true
 
-/** Refetch validators */
-watch(
-	() => page.value,
-	async () => {
-		getValidators()
+	const { data } = await fetchValidators({
+		jailed: false,
+		limit: 20,
+		offset: validatorsStats.value.active + ((page.value - 1) * 20),
+	})
+	validators.value = data.value
 
-		router.replace({ query: { page: page.value } })
-	},
-)
+	isLoading.value = false
+}
 
-// const handleSort = (by) => {
-// 	switch (sort.dir) {
-// 		case "desc":
-// 			if (sort.by == by) sort.dir = "asc"
-// 			break
+const getJailedValidators = async () => {
+	isLoading.value = true
 
-// 		case "asc":
-// 			sort.dir = "desc"
+	const { data } = await fetchValidators({
+		jailed: true,
+		limit: 20,
+		offset: (page.value - 1) * 20,
+	})
+	validators.value = data.value
 
-// 			break
-// 	}
+	isLoading.value = false
+}
 
-// 	sort.by = by
+const getValidators = async () => {
+	switch (activeTab.value) {
+			case "active":
+				getActiveValidators()
+				break;
+			case "inactive":
+				getInactiveValidators()
+				break;
+			case "jailed":
+				getJailedValidators()
+				break;
+			default:
+				break;
+		}
+}
 
-// 	getRollups()
-// }
+/** Pagination */
+const page = ref(route.query.page ? parseInt(route.query.page) : 1)
+const pages = computed(() => Math.ceil(validatorsStats.value[activeTab.value.toLowerCase()] / 20))
 
 const handleNext = () => {
 	if (page.value === pages.value) return
@@ -129,6 +150,35 @@ const handlePrev = () => {
 
 	page.value -= 1
 }
+
+/** Tabs */
+const tabs = ref(["active", "inactive", "jailed"])
+const activeTab = ref(route.query.status && tabs.value.filter(tab => tab === route.query.status).length > 0 ? route.query.status.toLowerCase() : "active")
+const dropdownItems = computed(() => tabs.value.filter(tab => tab !== activeTab.value))
+
+getValidatorsStats()
+getValidators()
+
+/** Refetch validators */
+watch(
+	() => page.value,
+	async () => {
+		getValidators()
+
+		router.replace({ query: { status: activeTab.value, page: page.value } })
+	},
+)
+
+watch(
+	() => activeTab.value,
+	async () => {
+		page.value = 1
+		
+		getValidators()
+
+		router.replace({ query: { status: activeTab.value, page: page.value } })
+	},
+)
 </script>
 
 <template>
@@ -149,25 +199,38 @@ const handlePrev = () => {
 					<Text size="14" weight="600" color="primary">Validators</Text>
 				</Flex>
 
-				<!-- Pagination -->
-				<Flex v-if="pages" align="center" gap="6">
-					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
-						<Icon name="arrow-left-stop" size="12" color="primary" />
-					</Button>
-					<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
-						<Icon name="arrow-left" size="12" color="primary" />
-					</Button>
+				<Flex align="center" gap="16">
+					<Dropdown>
+						<Button type="secondary" size="mini">
+							{{ capitilize(activeTab) }}
+							<Icon name="chevron" size="16" color="secondary" />
+						</Button>
 
-					<Button type="secondary" size="mini" disabled>
-						<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
-					</Button>
+						<template #popup>
+							<DropdownItem v-for="item in dropdownItems" @click="activeTab = item"> {{ capitilize(item) }} </DropdownItem>
+						</template>
+					</Dropdown>
 
-					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
-						<Icon name="arrow-right" size="12" color="primary" />
-					</Button>
-					<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages">
-						<Icon name="arrow-right-stop" size="12" color="primary" />
-					</Button>
+					<!-- Pagination -->
+					<Flex v-if="pages" align="center" gap="6">
+						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
+							<Icon name="arrow-left-stop" size="12" color="primary" />
+						</Button>
+						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
+							<Icon name="arrow-left" size="12" color="primary" />
+						</Button>
+
+						<Button type="secondary" size="mini" disabled>
+							<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
+						</Button>
+
+						<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
+							<Icon name="arrow-right" size="12" color="primary" />
+						</Button>
+						<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages">
+							<Icon name="arrow-right-stop" size="12" color="primary" />
+						</Button>
+					</Flex>
 				</Flex>
 			</Flex>
 
@@ -205,14 +268,14 @@ const handlePrev = () => {
 												<Text size="12" weight="600" color="primary">{{ comma(v.voting_power) }}</Text>
 
 												<template #content>
-													<Flex align="center" justify="between" gap="8">
+													<Flex v-if="activeTab === 'active'" align="center" justify="between" gap="8">
 														<Text size="12" weight="600" color="tertiary">Staking Share</Text>
 														<Text size="12" weight="600" color="primary">{{ shareOfTotalString(v.voting_power, totalVotingPower) }}%</Text>
 													</Flex>
 												</template>
 											</Tooltip>
 
-											<Text size="12" weight="600" color="tertiary">{{ shareOfTotalString(v.voting_power, totalVotingPower) }}%</Text>
+											<Text v-if="activeTab === 'active'" size="12" weight="600" color="tertiary">{{ shareOfTotalString(v.voting_power, totalVotingPower) }}%</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
