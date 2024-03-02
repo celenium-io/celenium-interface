@@ -75,8 +75,6 @@ const getValidatorsStats = async () => {
 
 	const { data } = await fetchValidatorsCount()
 	validatorsStats.value = data.value
-	console.log(validatorsStats.value[activeTab.value])
-	console.log(pages.value);
 
 	isLoading.value = false
 }
