@@ -223,7 +223,7 @@ fillValidatorsGraph()
 	background: var(--network-widget-background);
 	border-top: 2px solid var(--op-5);
 
-	padding: 16px 16px;
+	padding: 8px 16px 10px 16px;
 }
 
 .bars {
@@ -285,7 +285,6 @@ fillValidatorsGraph()
 		cursor: pointer;
 
 		margin-right: 6px;
-		/* margin-bottom: 6px; */
 	}
 
 .link {
