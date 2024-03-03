@@ -47,7 +47,7 @@ const props = defineProps({
 						<Tooltip position="start" delay="500">
 							<Flex align="center" gap="4">
 								<Text size="12" weight="600" :color="parseFloat(rd.amount) ? 'primary' : 'tertiary'">
-									{{ comma(tia(rd.amount)) }}
+									{{ amountToString(tia(rd.amount)) }}
 								</Text>
 								<Text size="12" weight="600" color="tertiary"> TIA </Text>
 							</Flex>

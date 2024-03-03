@@ -1,12 +1,9 @@
 <script setup>
-/** Vendor */
-import { DateTime } from "luxon"
-
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { comma, shareOfTotalString, splitAddress, tia } from "@/services/utils"
+import { amountToString, shareOfTotalString, splitAddress, tia } from "@/services/utils"
 
 const props = defineProps({
 	delegators: {
@@ -57,9 +54,9 @@ const props = defineProps({
 							<Tooltip position="start" delay="500">
 								<Flex align="center" gap="4">
 									<Text size="13" weight="600" :color="parseFloat(d.amount) ? 'primary' : 'tertiary'">
-										{{ comma(tia(d.amount)) }}
+										{{ amountToString(tia(d.amount)) }}
 									</Text>
-									
+
 									<Text size="13" weight="600" color="tertiary"> TIA </Text>
 								</Flex>
 

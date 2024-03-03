@@ -70,11 +70,13 @@ export const shareOfTotal = (amount, total, decimal = 2) => {
 }
 
 export const shareOfTotalString = (amount, total, decimal = 2) => {
-	if (amount < 0.01) return 0
+	return amountToString(shareOfTotal(amount, total, decimal))
+}
 
-	let share = shareOfTotal(amount, total, decimal)
+export const amountToString = (amount) => {
+	if (amount === 0) return 0
 
-	return share < 0.01 ? '<0.01' : share
+	return amount < 0.01 ? '<0.01' : truncateDecimalPart(amount, 2)
 }
 
 export const abbreviate = (n, h = 1) => {

@@ -1,15 +1,9 @@
 <script setup>
-/** Vendor */
-import { DateTime } from "luxon"
-
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
-/** Shared Components */
-import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
-
 /** Services */
-import { comma, space, tia } from "@/services/utils"
+import { amountToString, tia } from "@/services/utils"
 
 const router = useRouter()
 
@@ -46,7 +40,7 @@ const props = defineProps({
 						<Tooltip position="start" delay="500">
 							<Flex align="center" gap="4">
 								<Text size="12" weight="600" :color="parseFloat(d.amount) ? 'primary' : 'tertiary'">
-									{{ comma(tia(d.amount)) }}
+									{{ amountToString(tia(d.amount)) }}
 								</Text>
 								<Text size="12" weight="600" color="tertiary"> TIA </Text>
 							</Flex>

@@ -197,7 +197,7 @@ watch(
 					<Text size="14" weight="600" color="primary">Validators</Text>
 				</Flex>
 
-				<Flex align="center" gap="16">
+				<Flex align="center" gap="6">
 					<Dropdown>
 						<Button type="secondary" size="mini">
 							{{ capitilize(activeTab) }}
@@ -433,11 +433,11 @@ watch(
 	}
 
 	.header {
-		gap: 16px;
+		gap: 4px;
 
 		height: initial;
 
-		padding: 16px;
+		padding: 8px;
 	}
 }
 

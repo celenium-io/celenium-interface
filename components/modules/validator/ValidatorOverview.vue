@@ -120,6 +120,33 @@ const getUptime = async () => {
 await getDelegators()
 await getUptime()
 
+const validatorStatus = computed(() => {
+	let res = {
+		name: "",
+		color: "",
+		description: "",
+	}
+
+	if (!props.validator.jailed) {
+		if (uptime.value?.slice(-1)[0].signed) {
+			res.name = "Active"
+			res.color = "var(--validator-active)"
+			res.description = "This validator is in the active set and can|propose or sign blocks and receive rewards".split("|")
+		} else {
+			res.name = "Inactive"
+			res.color = "var(--validator-inactive)"
+			res.description = "This validator is not in the active set and cannot|propose or sign blocks and earn rewards".split("|")
+		}
+
+	} else {
+		res.name = "Jailed"
+		res.color = "var(--validator-jailed)"
+		res.description = "This validator is jailed|and cannot propose or sign blocks".split("|")
+	}
+
+	return res
+})
+
 const parsedContacts = computed(() => {
 	let res = []
 	const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
@@ -204,27 +231,12 @@ watch(
 							<Text v-if="validator.moniker" size="13" weight="600" color="primary">{{ validator.moniker }} </Text>
 							<Text v-else size="13" weight="600" color="primary">Validator</Text>
 
-							<Tooltip position="start" delay="500">
-								<Text size="13" weight="600" :color="!validator.jailed ? 'neutral-green' : 'red'"> {{ !validator.jailed ? 'Active' : 'Jailed' }} </Text>
+							<Tooltip position="start" textAlign="left" delay="200">
+								<Text size="13" weight="600" :style="{color: validatorStatus.color}"> {{ validatorStatus.name }} </Text>
 
 								<template #content>
-									<Flex v-if="!validator.jailed" direction="column" gap="6">
-										<Flex align="center" gap="4">
-											<Text color="secondary">This validator is</Text>
-											<Text color="neutral-green">Active</Text>
-										</Flex>
-										<Flex align="center" gap="4">
-											<Text color="secondary">and can propose or sign blocks</Text>
-										</Flex>
-									</Flex>
-									<Flex v-else direction="column" gap="6">
-										<Flex align="center" gap="4">
-											<Text color="secondary">This validator is</Text>
-											<Text color="red">Jailed</Text>
-										</Flex>
-										<Flex align="center" gap="4">
-											<Text color="secondary">and cannot propose or sign blocks</Text>
-										</Flex>
+									<Flex direction="column" gap="4">
+										<Text v-for="s in validatorStatus.description" color="secondary">{{ s }}</Text>
 									</Flex>
 								</template>
 							</Tooltip>
