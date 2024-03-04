@@ -3,13 +3,13 @@ export const Server = {
 		mainnet: "https://api.celenium.io/v1",
 		mocha: "https://api-mocha-4.celenium.io/v1",
 		arabica: "https://api-arabica-11.celenium.io/v1",
-		dev: "https://api-test.celenium.io/v1",
+		dev: "https://api-dev.celenium.io/v1",
 	},
 	WSS: {
 		mainnet: "wss://api.celenium.io/v1/ws",
 		mocha: "wss://api-mocha-4.celenium.io/v1/ws",
 		arabica: "wss://api-arabica-11.celenium.io/v1/ws",
-		dev: "wss://api-test.celenium.io/v1/ws",
+		dev: "wss://api-dev.celenium.io/v1/ws",
 	},
 }
 
