@@ -22,7 +22,7 @@ onMounted(async () => {
 	const data = await fetchSeries({
 		table: "blobs_size",
 		period: "day",
-		from: parseInt(DateTime.now().minus({ days: 120 }).ts / 1_000),
+		from: parseInt(DateTime.now().minus({ days: 168 }).ts / 1_000),
 	})
 
 	days.value = data
