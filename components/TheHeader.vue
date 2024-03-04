@@ -75,7 +75,7 @@ const isActive = (link) => {
 		case "rollups":
 			return splittedPath.includes("rollup") || splittedPath.includes("rollups")
 
-		case "rollups":
+		case "validators":
 			return splittedPath.includes("validator") || splittedPath.includes("validators")
 
 		default:

@@ -140,7 +140,7 @@ fillValidatorsGraph()
 			<Tooltip v-if="!isRefetching" position="start" side="top">
 				<Flex :class="$style.validator_bars_wrapper">
 					<div
-						v-for="v in validatorsGraph"
+						v-for="v in validatorsGraph.filter(item => item.width !== 0)"
 						:class="$style.validator_bar"
 						:style="{
 							width: `${v.width}%`,
