@@ -494,14 +494,16 @@ watch(
 	}
 
 	.uptime {
-		width: 10px;
-		height: 10px;
+		/* width: 10px;
+		height: 10px; */
+		width: 0.6rem;
+		height: 0.6rem;
 
 		border-radius: 2px;
 		cursor: pointer;
 
-		margin-right: 6px;
-		margin-bottom: 6px;
+		margin-right: 0.35rem;
+		margin-bottom: 0.35rem;
 	}
 
 	.horizontal_divider {
