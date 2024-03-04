@@ -167,18 +167,18 @@ fillValidatorsGraph()
 
 			<Flex v-if="!isRefetching" direction="column" gap="6">
 				<Flex v-for="v in validatorsGraph" justify="between" gap="4">
-					<Flex gap="4">
+					<Text size="12" weight="500" color="tertiary"> {{ capitilize(v.title) }} </Text>
+
+					<Flex align="center" gap="4">
+						<Text size="12" weight="500" color="secondary"> {{ v.count }} </Text>
+
 						<div
 							:class="$style.validator_legend"
 							:style="{
 								background: v.color,
 							}">
 						</div>
-
-						<Text size="12" weight="500" color="tertiary"> {{ capitilize(v.title) }} </Text>
 					</Flex>
-
-					<Text size="12" weight="500" color="secondary"> {{ v.count }} </Text>
 				</Flex>
 			</Flex>
 			<Flex v-else direction="column" gap="6">
@@ -223,7 +223,7 @@ fillValidatorsGraph()
 	background: var(--network-widget-background);
 	border-top: 2px solid var(--op-5);
 
-	padding: 8px 16px 10px 16px;
+	padding: 8px 16px 12px 16px;
 }
 
 .bars {
@@ -258,8 +258,6 @@ fillValidatorsGraph()
 
 	border-radius: 2px;
 
-	/* FE5E5F */
-
 	background: linear-gradient(90deg, var(--staking) var(--percentStaking), var(--supply) var(--percentStaking));
 }
 
@@ -278,10 +276,10 @@ fillValidatorsGraph()
 }
 
 .validator_legend {
-		width: 10px;
-		height: 10px;
+		width: 6px;
+		height: 6px;
 
-		border-radius: 2px;
+		border-radius: 5px;
 		cursor: pointer;
 
 		margin-right: 6px;

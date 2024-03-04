@@ -55,15 +55,76 @@ const bookmarkText = computed(() => {
 	return isBookmarked.value ? "Saved" : "Save"
 })
 
-const activeTab = ref("transactions")
-
 const isRefetching = ref(false)
 const transactions = ref([])
 const messages = ref([])
 const blobs = ref([])
 
+/** Tabs */
+const tabs = ref([
+	{
+		alias: "transactions",
+		displayName: "Signed Transactions",
+		icon: "tx",
+		show: true,
+	},
+	{
+		alias: "messages",
+		displayName: "Messages",
+		icon: "message",
+		show: true,
+	},
+	{
+		alias: "blobs",
+		displayName: "Blobs",
+		icon: "blob",
+		show: true,
+	},
+	{
+		alias: "delegations",
+		displayName: "Delegations",
+		icon: "coins_up",
+		show: true,
+	},
+	{
+		alias: "redelegations",
+		displayName: "Redelegations",
+		icon: "redelegate",
+		show: true,
+	},
+	{
+		alias: "undelegations",
+		displayName: "Undelegations",
+		icon: "unlock",
+		show: props.address.balance.unbonding > 0,
+	},
+])
+
+const activeTab = ref(tabs.value[0].alias)
+const tabsEl = ref(null)
+
+const handleSelect = (tab) => {
+	if (activeTab.value !== tab) {
+		activeTab.value = tab
+
+		let tabCenter = 0
+		for (let i = 0; i < tabsEl.value.wrapper.children.length; i++) {
+			if (tabsEl.value.wrapper.children[i].dataset.tab === tab) {
+				tabCenter = tabsEl.value.wrapper.children[i].offsetLeft + tabsEl.value.wrapper.children[i].offsetWidth / 2
+				break
+			}
+		}
+
+		if (tabCenter) {
+			let wrapperCenter = tabsEl.value.wrapper.offsetLeft + tabsEl.value.wrapper.offsetWidth / 2
+
+			tabsEl.value.wrapper.scroll({left: tabCenter - wrapperCenter})
+		}
+	}
+}
+
+/** Pagination */
 const page = ref(1)
-const pages = computed(() => 1)
 const handleNextCondition = ref(true)
 const handleNext = () => {
 	page.value += 1
@@ -73,6 +134,7 @@ const handlePrev = () => {
 	page.value -= 1
 }
 
+/** Sorting */
 const sort = reactive({
 	by: "time",
 	dir: "desc",
@@ -597,75 +659,22 @@ const handleOpenQRModal = () => {
 			</Flex>
 
 			<Flex direction="column" gap="4" wide :class="$style.txs_wrapper">
-				<Flex align="center" justify="between" :class="$style.tabs_wrapper">
-					<Flex gap="4" :class="$style.tabs">
+				<Flex align="center" gap="4" :class="$style.tabs_wrapper" ref="tabsEl">
+					<template v-for="tab in tabs">
 						<Flex
-							@click="activeTab = 'transactions'"
+							v-if="tab.show"
+							:data-tab="tab.alias"
+							@click="handleSelect(tab.alias)"
 							align="center"
 							gap="6"
-							:class="[$style.tab, activeTab === 'transactions' && $style.active]"
+							:class="[$style.tab, activeTab === tab.alias && $style.active]"
+							:style="{transition: 'all 200ms ease'}"
 						>
-							<Icon name="tx" size="12" color="secondary" />
+							<Icon :name="tab.icon" size="12" color="secondary" />
 
-							<Text size="13" weight="600">Signed Transactions</Text>
+							<Text size="13" weight="600">{{ tab.displayName }}</Text>
 						</Flex>
-
-						<Flex
-							@click="activeTab = 'messages'"
-							align="center"
-							gap="6"
-							:class="[$style.tab, activeTab === 'messages' && $style.active]"
-						>
-							<Icon name="message" size="12" color="secondary" />
-
-							<Text size="13" weight="600">Messages</Text>
-						</Flex>
-
-						<Flex
-							@click="activeTab = 'blobs'"
-							align="center"
-							gap="6"
-							:class="[$style.tab, activeTab === 'blobs' && $style.active]"
-						>
-							<Icon name="blob" size="12" color="secondary" />
-
-							<Text size="13" weight="600">Blobs</Text>
-						</Flex>
-
-						<Flex
-							@click="activeTab = 'delegations'"
-							align="center"
-							gap="6"
-							:class="[$style.tab, activeTab === 'delegations' && $style.active]"
-						>
-							<Icon name="coins_up" size="12" color="secondary" />
-
-							<Text size="13" weight="600">Delegations</Text>
-						</Flex>
-
-						<Flex
-							@click="activeTab = 'redelegations'"
-							align="center"
-							gap="6"
-							:class="[$style.tab, activeTab === 'redelegations' && $style.active]"
-						>
-							<Icon name="redelegate" size="12" color="secondary" />
-
-							<Text size="13" weight="600">Redelegations</Text>
-						</Flex>
-
-						<Flex
-							v-if="address.balance.unbonding > 0"
-							@click="activeTab = 'undelegations'"
-							align="center"
-							gap="6"
-							:class="[$style.tab, activeTab === 'undelegations' && $style.active]"
-						>
-							<Icon name="unlock" size="12" color="secondary" />
-
-							<Text size="13" weight="600">Undelegations</Text>
-						</Flex>
-					</Flex>
+					</template>
 				</Flex>
 
 				<Flex direction="column" justify="center" :class="[$style.tables, isRefetching && $style.disabled]">
@@ -936,6 +945,8 @@ const handleOpenQRModal = () => {
 	background: var(--card-background);
 
 	padding: 0 8px;
+
+	scroll-behavior: smooth;
 }
 
 .tabs_wrapper::-webkit-scrollbar {
@@ -1050,6 +1061,8 @@ const handleOpenQRModal = () => {
 @media (max-width: 400px) {
 	.tabs_wrapper {
 		overflow-x: auto;
+
+		scroll-behavior: smooth;
 
 		&::-webkit-scrollbar {
 			display: none;

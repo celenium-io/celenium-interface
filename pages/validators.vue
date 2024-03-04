@@ -199,10 +199,20 @@ watch(
 
 				<Flex align="center" gap="6">
 					<Dropdown>
-						<Button type="secondary" size="mini">
-							{{ capitilize(activeTab) }}
-							<Icon name="chevron" size="16" color="secondary" />
-						</Button>
+						<template #trigger="{isOpen}">
+							<Button type="secondary" size="mini">
+								{{ capitilize(activeTab) }}
+								<Icon
+									name="chevron"
+									size="16"
+									color="secondary"
+									:style="{
+										transform: `rotate(${!isOpen ? '0' : '180deg'})`,
+										transition: 'all 200ms ease',
+									}"
+								/>
+							</Button>
+						</template>
 
 						<template #popup>
 							<DropdownItem v-for="item in dropdownItems" @click="activeTab = item"> {{ capitilize(item) }} </DropdownItem>
