@@ -135,7 +135,7 @@ const getValidators = async () => {
 
 /** Pagination */
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = computed(() => Math.ceil(validatorsStats.value[activeTab.value.toLowerCase()] / 20))
+const pages = computed(() => Math.max(1, Math.ceil(validatorsStats.value[activeTab.value.toLowerCase()] / 20)))
 
 const handleNext = () => {
 	if (page.value === pages.value) return
@@ -220,7 +220,7 @@ watch(
 					</Dropdown>
 
 					<!-- Pagination -->
-					<Flex v-if="pages" align="center" gap="6">
+					<Flex align="center" gap="6">
 						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 							<Icon name="arrow-left-stop" size="12" color="primary" />
 						</Button>
@@ -325,6 +325,13 @@ watch(
 						</tbody>
 					</table>
 				</div>
+				<Flex v-else direction="column" gap="20" align="center" :class="$style.empty">
+					<Flex direction="column" gap="8" align="center">
+						<Text size="13" weight="600" color="secondary"> No validators found </Text>
+						<Text size="12" weight="400" color="tertiary"> Try to select another status </Text>
+					</Flex>
+				</Flex>
+
 			</Flex>
 		</Flex>
 	</Flex>
