@@ -270,6 +270,15 @@ const rawNavigationActions = [
 			router.push("/addresses")
 		},
 	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
+		title: "Go to Documentation",
+		runText: "Open Documentation",
+		callback: () => {
+			window.open("https://docs.celenium.io", "_blank")
+		},
+	},
 ]
 const navigationGroup = computed(() => {
 	const actions = rawNavigationActions.map((a) => ({ id: id(), ...a }))
