@@ -45,6 +45,7 @@ const EventIconMapping = {
 	commission: "coins_down",
 	rewards: "coins_down",
 	mint: "coins_down",
+	burn: "burn",
 	coinbase: "coins_down",
 	unbond: "unlock",
 	redelegate: "redelegate",
@@ -451,6 +452,14 @@ watch(
 						>
 
 						<Text size="12" weight="500" color="secondary">was minted</Text>
+					</Flex>
+					<!-- Event: burn -->
+					<Flex v-else-if="event.type === 'burn'" align="center" gap="4" color="secondary" :class="$style.text">
+						<Text size="12" weight="500" color="primary" mono no-wrap>
+							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA</Text
+						>
+
+						<Text size="12" weight="500" color="secondary">was burned</Text>
 					</Flex>
 					<!-- Event: unbond -->
 					<Flex v-else-if="event.type === 'unbond'" align="center" gap="4" color="secondary" :class="$style.text">
