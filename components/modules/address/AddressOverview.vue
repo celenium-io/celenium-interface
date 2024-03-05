@@ -620,7 +620,10 @@ const handleOpenQRModal = () => {
 									name="chevron"
 									size="14"
 									color="secondary"
-									:style="{ transform: `rotate(${collapseBalances ? '0' : '180'}deg)` }"
+									:style="{
+										transform: `rotate(${collapseBalances ? '0' : '180'}deg)`,
+										transition: 'all 400ms ease',
+									}"
 								/>
 							</Flex>
 							
