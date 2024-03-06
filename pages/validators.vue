@@ -5,7 +5,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 
 /** Services */
-import { capitilize, comma, numToPercent, shareOfTotalString, splitAddress, tia } from "@/services/utils"
+import { amountToString, capitilize, comma, numToPercent, shareOfTotalString, splitAddress, tia } from "@/services/utils"
 
 /** API */
 import { fetchValidators, fetchValidatorsCount } from "@/services/api/validator"
@@ -288,15 +288,17 @@ watch(
 								</td>
 								<td>
 									<NuxtLink :to="`/validator/${v.id}`">
-										<Flex align="center">
+										<Flex align="center" gap="4">
 											<Text size="13" weight="600" color="primary">{{ comma(tia(v.rewards)) }}</Text>
+											<Text size="13" weight="600" color="tertiary"> TIA </Text>
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td>
 									<NuxtLink :to="`/validator/${v.id}`">
-										<Flex align="center">
+										<Flex align="center" gap="4">
 											<Text size="13" weight="600" color="primary">{{ comma(tia(v.commissions)) }}</Text>
+											<Text size="13" weight="600" color="tertiary"> TIA </Text>
 										</Flex>
 									</NuxtLink>
 								</td>
