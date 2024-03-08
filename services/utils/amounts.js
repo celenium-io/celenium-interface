@@ -46,7 +46,37 @@ export const truncate = (num) => {
 
 export const tia = (amount) => {
 	if (!amount || !parseInt(amount)) return 0
-	return truncate(parseInt(amount) / 1_000_000)
+
+	return truncateDecimalPart(parseInt(amount) / 1_000_000)
+}
+
+export const utia = (amount) => {
+	if (!amount || !parseInt(amount)) return 0
+	return parseInt(amount)
+}
+
+export const truncateDecimalPart = (amount, decimal = 6) => {
+	const numberString = amount.toFixed(decimal).replace(/\.?0+$/, '')
+
+	return parseFloat(numberString)
+}
+
+export const numToPercent = (num, decimal = 0) => {
+	return (num * 100).toFixed(decimal) + "%"
+}
+
+export const shareOfTotal = (amount, total, decimal = 2) => {
+	return truncateDecimalPart((amount / total * 100), decimal)
+}
+
+export const shareOfTotalString = (amount, total, decimal = 2) => {
+	return amountToString(shareOfTotal(amount, total, decimal))
+}
+
+export const amountToString = (amount) => {
+	if (amount === 0) return 0
+
+	return amount < 0.01 ? '<0.01' : truncateDecimalPart(amount, 2)
 }
 
 export const abbreviate = (n, h = 1) => {

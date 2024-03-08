@@ -210,6 +210,7 @@ const onKeydown = (event) => {
 	<div :class="$style.wrapper">
 		<div ref="trigger" id="trigger" @click="toggleDropdown" :class="$style.trigger">
 			<slot />
+			<slot name="trigger" :isOpen="isOpen" />
 		</div>
 
 		<ClientOnly>

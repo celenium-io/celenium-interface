@@ -89,6 +89,19 @@ export const fetchNamespaceBlobs = async ({ id, version, limit, offset }) => {
 	}
 }
 
+export const fetchNamespaceRollups = async ({ id, version, limit }) => {
+	try {
+		const url = new URL(`${useServerURL()}/namespace/${id}/${version}/rollups`)
+
+		if (limit) url.searchParams.append("limit", limit)
+
+		const data = await useFetch(encodeURI(url.href))
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchBlobByMetadata = async ({ hash, height, commitment }) => {
 	try {
 		const url = new URL(`${useServerURL()}/blob`)

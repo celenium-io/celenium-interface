@@ -737,7 +737,7 @@ watch(
 	}
 
 	.table {
-		width: 604px;
+		flex: 1;
 		border-radius: 4px 4px 8px 8px;
 	}
 }

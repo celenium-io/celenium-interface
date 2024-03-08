@@ -9,11 +9,6 @@ export const formatBytes = (bytes, decimals = 2) => {
 	return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(dm))} ${sizes[i]}`
 }
 
-export const numToPercent = (num) => {
-	return (num * 100).toFixed(0) + "%"
-}
-
-
 export const getNamespaceID = (target) => {
 	let s = target
 
@@ -44,6 +39,8 @@ export const shortHex = (hex) => {
 }
 
 export const splitAddress = (address, format = "string") => {
+	if (!address) return
+	
 	if (address.startsWith("celestiavaloper")) {
 		return format === "array" ? [`celestiavaloper`, address.slice(-4)] : `celestiavaloper ••• ${address.slice(-4)}`
 	} else if (address.startsWith("celestiavalcons")) {

@@ -103,8 +103,6 @@ watch(
 					}
 					break
 
-					break
-
 				case "right":
 					xPos = triggerRect.right + 8
 

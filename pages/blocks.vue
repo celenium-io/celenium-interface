@@ -294,7 +294,7 @@ const handleLast = async () => {
 									<NuxtLink :to="`/block/${block.height}`">
 										<Flex align="center">
 											<Text size="13" weight="600" color="primary">
-												{{ block.stats.tx_count }}
+												{{ block.stats.blobs_count }}
 											</Text>
 										</Flex>
 									</NuxtLink>
