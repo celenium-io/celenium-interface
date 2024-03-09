@@ -76,7 +76,7 @@ export const shareOfTotalString = (amount, total, decimal = 2) => {
 export const amountToString = (amount, decimal = 2) => {
 	if (amount === 0) return 0
 
-	return amount < 0.01 ? `<0.01` : truncateDecimalPart(amount, decimal).toLocaleString('en-US')
+	return amount < 0.01 ? '<0.01' : truncateDecimalPart(amount, decimal).toLocaleString('en-US')
 }
 
 export const abbreviate = (n, h = 1) => {

@@ -26,6 +26,8 @@ const price = reactive({
 
 onMounted(async () => {
 	const dataPrice = await fetchPrice()
+	appStore.currentPrice = dataPrice
+
 	const dataSeries = await fetchPriceSeries()
 	price.value = parseFloat(dataPrice.close)
 	series.value = dataSeries
