@@ -28,7 +28,7 @@ onMounted(async () => {
 	const dataPrice = await fetchPrice()
 	appStore.currentPrice = dataPrice
 
-	const dataSeries = await fetchPriceSeries()
+	const dataSeries = await fetchPriceSeries( {from: parseInt(DateTime.now().minus({ days: 2 }).ts / 1_000)})
 	price.value = parseFloat(dataPrice.close)
 	series.value = dataSeries
 
