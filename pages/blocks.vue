@@ -5,6 +5,7 @@ import { DateTime } from "luxon"
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
 import { tia, comma, space, formatBytes } from "@/services/utils"
@@ -311,10 +312,7 @@ const handleLast = async () => {
 								<td>
 									<NuxtLink :to="`/block/${block.height}`">
 										<Flex align="center" gap="4">
-											<Text size="13" weight="600" :color="parseFloat(block.stats.fee) ? 'primary' : 'tertiary'">
-												{{ tia(block.stats.fee) }}
-											</Text>
-											<Text size="13" weight="600" color="tertiary"> TIA </Text>
+											<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 6 }" :styles="{ amount: { size: 13 } }" />
 										</Flex>
 									</NuxtLink>
 								</td>

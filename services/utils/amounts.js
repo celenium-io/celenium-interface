@@ -58,7 +58,7 @@ export const utia = (amount) => {
 export const truncateDecimalPart = (amount, decimal = 6) => {
 	const numberString = amount.toFixed(decimal).replace(/\.?0+$/, '')
 
-	return parseFloat(numberString)
+	return numberString
 }
 
 export const numToPercent = (num, decimal = 0) => {
@@ -76,7 +76,7 @@ export const shareOfTotalString = (amount, total, decimal = 2) => {
 export const amountToString = (amount, decimal = 2) => {
 	if (amount === 0) return 0
 
-	return amount < 0.01 ? '<0.01' : truncateDecimalPart(amount, decimal).toLocaleString('en-US')
+	return amount < 0.01 && decimal < 3 ? '<0.01' : truncateDecimalPart(amount, decimal).toLocaleString('en-US')
 }
 
 export const abbreviate = (n, h = 1) => {

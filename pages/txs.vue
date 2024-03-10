@@ -8,6 +8,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import Input from "@/components/ui/Input.vue"
 import Popover from "@/components/ui/Popover.vue"
 import Checkbox from "@/components/ui/Checkbox.vue"
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
@@ -678,7 +679,7 @@ const handleNext = () => {
 								<td v-if="config.columns.fee" style="width: 1px">
 									<NuxtLink :to="`/tx/${tx.hash}`">
 										<Flex align="center">
-											<Text size="13" weight="600" color="primary"> {{ tia(tx.fee) }} TIA </Text>
+											<AmountInCurrency :amount="{ value: tx.fee, decimal: 6 }" :styles="{ amount: { size: 13 } }" />
 										</Flex>
 									</NuxtLink>
 								</td>

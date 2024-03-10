@@ -6,6 +6,7 @@ import { DateTime } from "luxon"
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 import Spinner from "@/components/ui/Spinner.vue"
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
 import { comma, space, splitAddress, tia } from "@/services/utils"
@@ -112,10 +113,7 @@ isLoading.value = false
 							</td>
 							<td>
 								<NuxtLink :to="`/tx/${pfb.hash}`">
-									<Flex align="center" gap="4">
-										<Text size="13" weight="600" color="primary"> {{ tia(pfb.fee) }} </Text>
-										<Text size="13" weight="600" color="tertiary"> TIA </Text>
-									</Flex>
+									<AmountInCurrency :amount="{ value: pfb.fee, decimal: 6 }" />
 								</NuxtLink>
 							</td>
 						</tr>

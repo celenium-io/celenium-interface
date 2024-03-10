@@ -45,7 +45,7 @@ const defaultAmountStyle = {
 
 const defaultCurrencyStyle = {
 	color: "tertiary",
-	size: "13",
+	size: "12",
 	weight: "600",
 }
 
@@ -99,12 +99,12 @@ const calculatedAmount = computed(() => {
 			currency: finalAmount.amount.currency,
 		}
 		finalAmount.display.tooltip = {
-			value: amountToString(amountConverted, finalAmount.amount.decimal),
+			value: amountToString(amountConverted, 2),
 			currency: "USD",
 		}
 	} else {
 		finalAmount.display.show = {
-			value: amountToString(amountConverted, finalAmount.amount.decimal),
+			value: amountToString(amountConverted, 2),
 			currency: "USD",
 		}
 		finalAmount.display.tooltip = {

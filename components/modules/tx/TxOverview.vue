@@ -6,6 +6,7 @@ import { DateTime } from "luxon"
 import Events from "@/components/shared/tables/Events.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Button from "~/components/ui/Button.vue"
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
@@ -250,7 +251,7 @@ const handleViewRawTransaction = () => {
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Fee </Text>
-							<Text size="12" weight="600" color="secondary" no-wrap> {{ tia(tx.fee) }} TIA</Text>
+							<AmountInCurrency :amount="{ value: tx.fee, decimal: 6 }" :styles="{ amount: {color: 'secondary' }, currency: {color: 'secondary' } }" />
 						</Flex>
 						<Flex v-if="tx.codespace" align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Codespace</Text>
