@@ -6,7 +6,7 @@ import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { capitilize, comma, numToPercent, shareOfTotalString, splitAddress, tia } from "@/services/utils"
+import { capitilize, comma, numToPercent, shareOfTotalString, splitAddress } from "@/services/utils"
 
 /** API */
 import { fetchValidators, fetchValidatorsCount } from "@/services/api/validator"

@@ -436,7 +436,7 @@ const handleViewRawTransactions = () => {
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Total Fees </Text>
-							<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 6 }" :styles="{ amount: { color: 'secondary' } }" />
+							<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 6 }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Bytes in block </Text>

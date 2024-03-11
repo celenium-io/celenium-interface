@@ -10,7 +10,7 @@ import DelegatorsTable from "./tables/DelegatorsTable.vue"
 import JailsTable from "./tables/JailsTable.vue"
 
 /** Services */
-import { comma, numToPercent, shortHex, splitAddress, tia } from "@/services/utils"
+import { comma, numToPercent, shortHex, splitAddress } from "@/services/utils"
 
 /** API */
 import { fetchValidatorBlocks, fetchValidatorDelegators, fetchValidatorJails, fetchValidatorUptime } from "@/services/api/validator";
@@ -260,7 +260,7 @@ watch(
 							</Text>
 						</Flex>
 					</Flex>
-					<Flex align="center" justify="start" gap="12">
+					<Flex v-if="validator.website || parsedContacts.length" align="center" justify="start" gap="12">
 						<Tooltip v-if="validator.website" position="start" delay="500">
 							<a :href="validator.website" target="_blank">
 								<Icon name="globe" size="14" color="secondary" :class="$style.btn" />

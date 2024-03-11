@@ -78,9 +78,9 @@ export const shareOfTotalString = (amount, total, decimal = 2) => {
 }
 
 export const amountToString = (amount, decimal = 2) => {
-	if (!amount) return 0
-
 	amount = parseFloat(amount)
+
+	if (!amount) return 0
 
 	return amount < 0.01 && decimal < 3 ? '<0.01' : truncateDecimalPart(amount, decimal).toLocaleString('en-US', { maximumFractionDigits: decimal })
 }
