@@ -48,9 +48,11 @@ export const fetchPrice = async () => {
 	}
 }
 
-export const fetchPriceSeries = async () => {
+export const fetchPriceSeries = async ({ from }) => {
 	try {
 		const url = new URL(`${useServerURL()}/stats/price/series/1d`)
+
+		if (from) url.searchParams.append("from", from)
 
 		const data = await $fetch(url.href)
 		return data

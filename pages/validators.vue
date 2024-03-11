@@ -3,9 +3,10 @@
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { amountToString, capitilize, comma, numToPercent, shareOfTotalString, splitAddress, tia } from "@/services/utils"
+import { capitilize, comma, numToPercent, shareOfTotalString, splitAddress, tia } from "@/services/utils"
 
 /** API */
 import { fetchValidators, fetchValidatorsCount } from "@/services/api/validator"
@@ -72,7 +73,7 @@ const totalVotingPower = computed(() => appStore.lastHead?.total_voting_power)
 
 const getValidatorsStats = async () => {
 	isLoading.value = true
-
+	
 	const { data } = await fetchValidatorsCount()
 	validatorsStats.value = data.value
 
@@ -288,18 +289,12 @@ watch(
 								</td>
 								<td>
 									<NuxtLink :to="`/validator/${v.id}`">
-										<Flex align="center" gap="4">
-											<Text size="13" weight="600" color="primary">{{ comma(tia(v.rewards)) }}</Text>
-											<Text size="13" weight="600" color="tertiary"> TIA </Text>
-										</Flex>
+										<AmountInCurrency :amount="{ value: v.rewards }" :styles=" {amount: { size: 13 }, currency: { size: 13 } }" />
 									</NuxtLink>
 								</td>
 								<td>
 									<NuxtLink :to="`/validator/${v.id}`">
-										<Flex align="center" gap="4">
-											<Text size="13" weight="600" color="primary">{{ comma(tia(v.commissions)) }}</Text>
-											<Text size="13" weight="600" color="tertiary"> TIA </Text>
-										</Flex>
+										<AmountInCurrency :amount="{ value: v.commissions }" :styles=" {amount: { size: 13 }, currency: { size: 13 } }" />
 									</NuxtLink>
 								</td>
 								<td>

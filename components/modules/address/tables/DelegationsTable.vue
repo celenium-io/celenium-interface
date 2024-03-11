@@ -1,11 +1,6 @@
 <script setup>
 /** UI */
-import Tooltip from "@/components/ui/Tooltip.vue"
-
-/** Services */
-import { amountToString, tia } from "@/services/utils"
-
-const router = useRouter()
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 const props = defineProps({
 	delegations: {
@@ -37,20 +32,9 @@ const props = defineProps({
 						</NuxtLink>
 					</td>
 					<td>
-						<Tooltip position="start" delay="500">
-							<Flex align="center" gap="4">
-								<Text size="12" weight="600" :color="parseFloat(d.amount) ? 'primary' : 'tertiary'">
-									{{ amountToString(tia(d.amount)) }}
-								</Text>
-								<Text size="12" weight="600" color="tertiary"> TIA </Text>
-							</Flex>
-							<template #content>
-								<Text size="13" weight="600" color="primary">
-									{{ tia(d.amount) }}
-								</Text>
-								<Text size="13" weight="600" color="tertiary"> TIA </Text>
-							</template>
-						</Tooltip>
+						<NuxtLink :to="`/validator/${d.validator.id}`">
+							<AmountInCurrency :amount="{ value: d.amount, decimal: 2 }" :styles="{ amount: { size: 13 }, currency: { size: 13 }}" />
+						</NuxtLink>
 					</td>
 				</tr>
 			</tbody>

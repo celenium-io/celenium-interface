@@ -4,9 +4,10 @@ import { DateTime } from "luxon"
 
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { amountToString, comma, tia } from "@/services/utils"
+import { comma } from "@/services/utils"
 
 const router = useRouter()
 
@@ -43,21 +44,7 @@ const props = defineProps({
 						</NuxtLink>
 					</td>
 					<td>
-						<Tooltip position="start" delay="500">
-							<Flex align="center" gap="4">
-								<Text size="12" weight="600" :color="parseFloat(ud.amount) ? 'primary' : 'tertiary'">
-									{{ amountToString(tia(ud.amount)) }}
-								</Text>
-								<Text size="12" weight="600" color="tertiary"> TIA </Text>
-							</Flex>
-
-							<template #content>
-								<Text size="13" weight="600" color="primary">
-									{{ tia(ud.amount) }}
-								</Text>
-								<Text size="13" weight="600" color="tertiary"> TIA </Text>
-							</template>
-						</Tooltip>
+						<AmountInCurrency :amount="{ value: ud.amount, decimal: 2 }" :styles="{ amount: { size: 13 }, currency: { size: 13 }}" />
 					</td>
 					<td>
 						<Flex align="center" :class="$style.link">

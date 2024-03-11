@@ -876,59 +876,57 @@ const autocompleteGroup = computed(() => {
 })
 
 const debouncedSearch = useDebounceFn(async (e) => {
-	const UNSUPPORTED_ENTITIES = [""]
-
 	const { data } = await search(searchTerm.value.trim())
 	if (!data.value.length) return
 
-	const filteredResults = data.value.filter((item) => !UNSUPPORTED_ENTITIES.includes(item.type))
-
-	amp.log("showAutocomplete", { count: filteredResults.length, firstType: filteredResults[0].type })
+	amp.log("showAutocomplete", { count: data.value.length, firstType: data.value[0].type })
 
 	autocompleteActions.value = []
-	let title
-	let routerLink
-	for (let i = 0; i < Math.min(3, filteredResults.length); i++) {
-		switch (filteredResults[i].type) {
+	
+	for (let i = 0; i < Math.min(3, data.value.length); i++) {
+		let title
+		let routerLink
+		switch (data.value[i].type) {
 			case "tx":
-				title = filteredResults[i].result.hash
-				routerLink = `/tx/${filteredResults[i].result.hash}`
+				title = data.value[i].result.hash
+				routerLink = `/tx/${data.value[i].result.hash}`
 				break
 
 			case "block":
-				title = filteredResults[i].result.hash
-				routerLink = `/block/${filteredResults[i].result.height}`
+				title = data.value[i].result.hash
+				routerLink = `/block/${data.value[i].result.height}`
 				break
 
 			case "namespace":
-				title = filteredResults[i].result.hash
-				routerLink = `/namespace/${filteredResults[i].result.namespace_id}`
+				title = data.value[i].result.hash
+				routerLink = `/namespace/${data.value[i].result.namespace_id}`
 				break
 
 			case "address":
-				title = filteredResults[i].result.hash
-				routerLink = `/address/${filteredResults[i].result.hash}`
+				title = data.value[i].result.hash
+				routerLink = `/address/${data.value[i].result.hash}`
 				break
 
 			case "rollup":
-				title = filteredResults[i].result.name
-				routerLink = `/rollup/${filteredResults[i].result.slug}`
+				title = data.value[i].result.name
+				routerLink = `/rollup/${data.value[i].result.slug}`
 				break
 
 			case "validator":
-				title = filteredResults[i].result.moniker ? filteredResults[i].result.moniker : filteredResults[i].result.address
-				routerLink = `/validator/${filteredResults[i].result.id}`
+				title = data.value[i].result.moniker ? data.value[i].result.moniker : data.value[i].result.address
+				routerLink = `/validator/${data.value[i].result.id}`
 				break
 
 			default:
 				break
 		}
+
 		autocompleteActions.value.push({
 			id: id(),
 			type: "callback",
-			icon: filteredResults[i].type,
+			icon: data.value[i].type,
 			title: title,
-			subtitle: capitilize(filteredResults[i].type),
+			subtitle: capitilize(data.value[i].type),
 			runText: "Open",
 			callback: () => {
 				router.push(routerLink)

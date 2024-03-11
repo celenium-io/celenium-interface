@@ -13,6 +13,7 @@ import BlobsTable from "@/components/modules/namespace/tables/BlobsTable.vue"
 import DelegationsTable from "./tables/DelegationsTable.vue"
 import RedelegationsTable from "./tables/RedelegationsTable.vue"
 import UndelegationsTable from "./tables/UndelegationsTable.vue"
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
 import { comma, tia } from "@/services/utils"
@@ -613,7 +614,8 @@ const handleOpenQRModal = () => {
 							>
 								<Flex direction="column" gap="8">
 									<Text size="12" weight="600" color="secondary">Total Balance</Text>
-									<Text size="13" weight="600" color="primary" selectable>{{ tia(totalBalance).toLocaleString('en-US') }} TIA</Text>
+									<AmountInCurrency :amount="{ value: totalBalance }" :styles="{ amount: { size: 13 }, currency: { size: 13, color: 'primary' } }" />
+									<!-- <Text size="13" weight="600" color="primary" selectable>{{ tia(totalBalance).toLocaleString('en-US') }} TIA</Text> -->
 								</Flex>
 
 								<Icon
@@ -630,17 +632,17 @@ const handleOpenQRModal = () => {
 							<Flex v-if="!collapseBalances" direction="column" gap="12" :class="$style.key_value">
 								<Flex align="center" justify="between">
 									<Text size="12" weight="600" color="tertiary"> Spendable</Text>
-									<Text size="12" weight="600" color="secondary"> {{ tia(address.balance.spendable).toLocaleString('en-US') }} TIA</Text>
+									<AmountInCurrency :amount="{ value: address.balance.spendable }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
 								</Flex>
 
 								<Flex align="center" justify="between">
 									<Text size="12" weight="600" color="tertiary"> Delegated</Text>
-									<Text size="12" weight="600" color="secondary"> {{ tia(address.balance.delegated).toLocaleString('en-US') }} TIA</Text>
+									<AmountInCurrency :amount="{ value: address.balance.delegated }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
 								</Flex>
 
 								<Flex align="center" justify="between">
 									<Text size="12" weight="600" color="tertiary"> Unbonding</Text>
-									<Text size="12" weight="600" color="secondary"> {{ tia(address.balance.unbonding).toLocaleString('en-US') }} TIA</Text>
+									<AmountInCurrency :amount="{ value: address.balance.unbonding }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
 								</Flex>
 							</Flex>
 						</Flex>
