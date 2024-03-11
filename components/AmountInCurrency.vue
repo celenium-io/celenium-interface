@@ -88,6 +88,7 @@ const calculatedAmount = computed(() => {
 			tiaDisplay = finalAmount.amount.value
 		}
 	} else {
+		tiaDisplay = finalAmount.amount.value
 		tiaExchange = finalAmount.amount.value
 	}
 

@@ -2,6 +2,7 @@
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Tables */
 import BlocksTable from "./tables/BlocksTable.vue"
@@ -289,17 +290,17 @@ watch(
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Voting Power</Text>
-							<Text size="12" weight="600" color="tertiary" selectable> {{ comma(validator.voting_power) }} TIA</Text>
+							<AmountInCurrency :amount="{ value: validator.voting_power, unit: 'TIA' }" :styles=" { amount: { color: 'tertiary' }}" />
 						</Flex>
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Outgoing Rewards</Text>
-							<Text size="12" weight="600" color="tertiary" selectable> {{ comma(tia(validator.rewards)) }} TIA</Text>
+							<AmountInCurrency :amount="{ value: validator.rewards }" :styles=" { amount: { color: 'tertiary' }}" />
 						</Flex>
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Commissions</Text>
-							<Text size="12" weight="600" color="tertiary" selectable> {{ comma(tia(validator.commissions)) }} TIA</Text>
+							<AmountInCurrency :amount="{ value: validator.commissions }" :styles=" { amount: { color: 'tertiary' }}" />
 						</Flex>
 					</Flex>
 

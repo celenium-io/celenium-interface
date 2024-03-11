@@ -1,9 +1,10 @@
 <script setup>
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { amountToString, shareOfTotalString, splitAddress, tia } from "@/services/utils"
+import { shareOfTotalString, splitAddress } from "@/services/utils"
 
 const props = defineProps({
 	delegators: {
@@ -51,23 +52,7 @@ const props = defineProps({
 					</td>
 					<td>
 						<NuxtLink :to="`/address/${d.delegator}`">
-							<Tooltip position="start" delay="500">
-								<Flex align="center" gap="4">
-									<Text size="13" weight="600" :color="parseFloat(d.amount) ? 'primary' : 'tertiary'">
-										{{ amountToString(tia(d.amount)) }}
-									</Text>
-
-									<Text size="13" weight="600" color="tertiary"> TIA </Text>
-								</Flex>
-
-								<template #content>
-									<Text size="13" weight="600" color="primary">
-										{{ tia(d.amount) }}
-									</Text>
-
-									<Text size="13" weight="600" color="tertiary"> TIA </Text>
-								</template>
-							</Tooltip>
+							<AmountInCurrency :amount="{ value: d.amount, decimal: 2 }" :styles="{ amount: { size: 13 }, currency: { size: 13 }}" />
 						</NuxtLink>
 					</td>
 					<td>
