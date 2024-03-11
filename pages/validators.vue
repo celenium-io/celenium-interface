@@ -73,7 +73,7 @@ const totalVotingPower = computed(() => appStore.lastHead?.total_voting_power)
 
 const getValidatorsStats = async () => {
 	isLoading.value = true
-
+	
 	const { data } = await fetchValidatorsCount()
 	validatorsStats.value = data.value
 
@@ -289,11 +289,7 @@ watch(
 								</td>
 								<td>
 									<NuxtLink :to="`/validator/${v.id}`">
-										<AmountInCurrency :amount="{ value: v.rewards }" />
-										<!-- <Flex align="center" gap="4">
-											<Text size="13" weight="600" color="primary">{{ comma(tia(v.rewards)) }}</Text>
-											<Text size="13" weight="600" color="tertiary"> TIA </Text>
-										</Flex> -->
+										<AmountInCurrency :amount="{ value: v.rewards }" :styles=" {amount: { size: 13 }, currency: { size: 13 } }" />
 									</NuxtLink>
 								</td>
 								<td>

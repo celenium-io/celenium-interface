@@ -53,7 +53,6 @@ export const fetchPriceSeries = async ({ from }) => {
 		const url = new URL(`${useServerURL()}/stats/price/series/1d`)
 
 		if (from) url.searchParams.append("from", from)
-		console.log(url);
 
 		const data = await $fetch(url.href)
 		return data
