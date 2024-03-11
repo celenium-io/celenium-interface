@@ -12,7 +12,7 @@ import { fetchValidatorsCount } from "@/services/api/validator";
 import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
 const lastHead = computed(() => appStore.lastHead)
-const stakingShare = computed(() => shareOfTotal(lastHead?.value.total_stake, lastHead?.value.total_supply, 2))
+const bondedShare = computed(() => shareOfTotal(lastHead?.value.total_voting_power * 1_000_000, lastHead?.value.total_supply, 2))
 
 const isRefetching = ref(false)
 const totalValidators = ref(0)
@@ -76,13 +76,13 @@ fillValidatorsGraph()
 				<Tooltip side="top">
 					<div
 						:class="$style.staking_bar"
-						:style="`--percentStaking: ${stakingShare}%`"
+						:style="`--percentStaking: ${bondedShare}%`"
 					></div>
 
 					<template #content>
 						<Flex align="center" justify="between" gap="8">
-							<Text color="secondary">Staking Share</Text>
-							<Text color="primary">{{ stakingShare }}%</Text>
+							<Text color="secondary">Bonded Share</Text>
+							<Text color="primary">{{ bondedShare }}%</Text>
 						</Flex>
 					</template>
 				</Tooltip>
@@ -94,13 +94,13 @@ fillValidatorsGraph()
 						</Text>
 
 						<Text size="12" weight="600" color="secondary">
-							{{ abbreviate(lastHead.total_supply) }} TIA
+							{{ abbreviate(lastHead.total_supply / 1_000_000, 2) }} TIA
 						</Text>
 					</Flex>
 
 					<Flex align="center" justify="between">
 						<Text size="12" weight="600" color="tertiary">
-							Voting Power
+							Bonded
 						</Text>
 						
 						<Text size="12" weight="600" color="secondary">
