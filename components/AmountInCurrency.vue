@@ -92,7 +92,7 @@ const calculatedAmount = computed(() => {
 		tiaExchange = finalAmount.amount.value
 	}
 
-	let amountConverted = tiaExchange * currentPrice.value.close
+	let amountConverted = tiaExchange * (currentPrice.value?.close ? currentPrice.value.close : 0)
 
 	if (displayCurrency.value === "TIA") {
 		finalAmount.display.show = {

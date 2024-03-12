@@ -52,7 +52,7 @@ const props = defineProps({
 					</td>
 					<td>
 						<NuxtLink :to="`/address/${d.delegator}`">
-							<AmountInCurrency :amount="{ value: d.amount, decimal: 2 }" :styles="{ amount: { size: 13 }, currency: { size: 13 }}" />
+							<AmountInCurrency :amount="{ value: d.amount, decimal: 2 }" :styles="{ amount: { size: '13' }, currency: { size: '13' }}" />
 						</NuxtLink>
 					</td>
 					<td>

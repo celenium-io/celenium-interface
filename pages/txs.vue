@@ -679,7 +679,7 @@ const handleNext = () => {
 								<td v-if="config.columns.fee" style="width: 1px">
 									<NuxtLink :to="`/tx/${tx.hash}`">
 										<Flex align="center">
-											<AmountInCurrency :amount="{ value: tx.fee, decimal: 6 }" :styles="{ amount: { size: 13 } }" />
+											<AmountInCurrency :amount="{ value: tx.fee, decimal: 6 }" :styles="{ amount: { size: '13' } }" />
 										</Flex>
 									</NuxtLink>
 								</td>

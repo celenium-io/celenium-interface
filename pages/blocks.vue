@@ -312,7 +312,7 @@ const handleLast = async () => {
 								<td>
 									<NuxtLink :to="`/block/${block.height}`">
 										<Flex align="center" gap="4">
-											<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 6 }" :styles="{ amount: { size: 13 } }" />
+											<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 6 }" :styles="{ amount: { size: '13' } }" />
 										</Flex>
 									</NuxtLink>
 								</td>

@@ -682,7 +682,7 @@ const handleViewRawTransactions = () => {
 									</td>
 									<td>
 										<NuxtLink :to="`/tx/${tx.hash}`">
-											<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 6 }" :styles="{ amount: { size: 13 }, currency: { size: 13 } }" />
+											<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 6 }" :styles="{ amount: { size: '13' }, currency: { size: '13' } }" />
 										</NuxtLink>
 									</td>
 								</tr>

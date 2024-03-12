@@ -289,12 +289,12 @@ watch(
 								</td>
 								<td>
 									<NuxtLink :to="`/validator/${v.id}`">
-										<AmountInCurrency :amount="{ value: v.rewards }" :styles=" {amount: { size: 13 }, currency: { size: 13 } }" />
+										<AmountInCurrency :amount="{ value: v.rewards }" :styles=" {amount: { size: '13' }, currency: { size: '13' } }" />
 									</NuxtLink>
 								</td>
 								<td>
 									<NuxtLink :to="`/validator/${v.id}`">
-										<AmountInCurrency :amount="{ value: v.commissions }" :styles=" {amount: { size: 13 }, currency: { size: 13 } }" />
+										<AmountInCurrency :amount="{ value: v.commissions }" :styles=" {amount: { size: '13' }, currency: { size: '13' } }" />
 									</NuxtLink>
 								</td>
 								<td>

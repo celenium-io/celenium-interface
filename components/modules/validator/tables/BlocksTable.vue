@@ -86,17 +86,17 @@ const props = defineProps({
 					</td>
 					<td>
 						<NuxtLink :to="`/block/${block.height}`">
-							<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 6 }" :styles="{ amount: { size: 13 }, currency: { size: 13 }}" />
+							<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 6 }" :styles="{ amount: { size: '13' }, currency: { size: '13' }}" />
 						</NuxtLink>
 					</td>
 					<td>
 						<NuxtLink :to="`/block/${block.height}`">
-							<AmountInCurrency :amount="{ value: block.stats.rewards, decimal: 6 }" :styles="{ amount: { size: 13 }, currency: { size: 13 }}" />
+							<AmountInCurrency :amount="{ value: block.stats.rewards, decimal: 6 }" :styles="{ amount: { size: '13' }, currency: { size: '13' }}" />
 						</NuxtLink>
 					</td>
 					<td>
 						<NuxtLink :to="`/block/${block.height}`">
-							<AmountInCurrency :amount="{ value: block.stats.commissions, decimal: 6 }" :styles="{ amount: { size: 13 }, currency: { size: 13 }}" />
+							<AmountInCurrency :amount="{ value: block.stats.commissions, decimal: 6 }" :styles="{ amount: { size: '13' }, currency: { size: '13' }}" />
 						</NuxtLink>
 					</td>
 				</tr>

@@ -45,7 +45,7 @@ const props = defineProps({
 						</NuxtLink>
 					</td>
 					<td>
-						<AmountInCurrency :amount="{ value: rd.amount, decimal: 2 }" :styles="{ amount: { size: 13 }, currency: { size: 13 }}" />
+						<AmountInCurrency :amount="{ value: rd.amount, decimal: 2 }" :styles="{ amount: { size: '13' }, currency: { size: '13' }}" />
 					</td>
 					<td>
 						<Flex align="center" :class="$style.link">

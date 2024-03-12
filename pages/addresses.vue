@@ -192,7 +192,7 @@ const handleLast = async () => {
 								</td>
 								<td>
 									<NuxtLink :to="`/address/${address.hash}`">
-										<AmountInCurrency :amount="{ value: calculateTotalBalance(address) }" :styles=" {amount: { size: 13 }, currency: { size: 13 } }" />
+										<AmountInCurrency :amount="{ value: calculateTotalBalance(address) }" :styles=" {amount: { size: '13' }, currency: { size: '13' } }" />
 									</NuxtLink>
 								</td>
 								<td>
