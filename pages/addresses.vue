@@ -2,6 +2,7 @@
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
 import { comma, tia } from "@/services/utils"
@@ -85,6 +86,10 @@ const getAddresses = async () => {
 	addresses.value = data.value
 
 	isRefetching.value = false
+}
+
+const calculateTotalBalance = (address) => {
+	return parseInt(address.balance.spendable) + parseInt(address.balance.delegated) + parseInt(address.balance.unbonding)
 }
 
 getAddresses()
@@ -187,9 +192,7 @@ const handleLast = async () => {
 								</td>
 								<td>
 									<NuxtLink :to="`/address/${address.hash}`">
-										<Text size="13" weight="600" color="primary">
-											{{ comma(tia(address.balance.value)) }} TIA
-										</Text>
+										<AmountInCurrency :amount="{ value: calculateTotalBalance(address) }" :styles=" {amount: { size: '13' }, currency: { size: '13' } }" />
 									</NuxtLink>
 								</td>
 								<td>

@@ -89,15 +89,10 @@ useHead({
 						{ link: route.fullPath, name: validator.moniker ? validator.moniker : validator.address },
 					]"
 				/>
-
-				<!-- <Button link="https://forms.gle/nimJyQJG4Lb4BTcG7" target="_blank" type="secondary" size="mini">
-					<Icon name="rollup-plus" size="12" color="secondary" /> Rollup Registration
-				</Button> -->
 			</Flex>
+
 			<ValidatorOverview v-if="validator" :validator="validator" />
 		</Flex>
-
-		<!-- <RollupCharts v-if="rollup" :id="rollup.id" /> -->
 	</Flex>
 </template>
 

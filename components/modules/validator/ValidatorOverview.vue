@@ -2,15 +2,18 @@
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Tables */
 import BlocksTable from "./tables/BlocksTable.vue"
+import DelegatorsTable from "./tables/DelegatorsTable.vue"
+import JailsTable from "./tables/JailsTable.vue"
 
 /** Services */
 import { comma, numToPercent, shortHex, splitAddress } from "@/services/utils"
 
 /** API */
-import { fetchValidatorBlocks, fetchValidatorUptime } from "@/services/api/validator";
+import { fetchValidatorBlocks, fetchValidatorDelegators, fetchValidatorJails, fetchValidatorUptime } from "@/services/api/validator";
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
@@ -24,19 +27,29 @@ const props = defineProps({
 })
 
 const tabs = ref([
+{
+		name: "Delegators",
+		icon: "address",
+	},
 	{
 		name: "Proposed Blocks",
 		icon: "block",
+	},
+	{
+		name: "Jails",
+		icon: "grid",
 	},
 ])
 const activeTab = ref(tabs.value[0].name)
 
 const isRefetching = ref(false)
+const delegators = ref([])
 const blocks = ref([])
+const jails = ref([])
 const uptime = ref([])
 
 const page = ref(1)
-// const pages = computed(() => activeTab.value === "Blobs" ? Math.ceil(props.rollup.blobs_count / 10) : 1)
+const handleNextCondition = ref(true)
 
 const handleNext = () => {
 	page.value += 1
@@ -57,7 +70,38 @@ const getBlocks = async () => {
 	if (data.value?.length) {
 		blocks.value = data.value
 		cacheStore.current.blocks = blocks.value
+		handleNextCondition.value = blocks.value.length < 10
 	}
+
+	isRefetching.value = false
+}
+
+const getDelegators = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchValidatorDelegators({
+		id: props.validator.id,
+		limit: 10,
+		offset: (page.value - 1) * 10,
+	})
+
+	delegators.value = data.value
+	handleNextCondition.value = delegators.value.length < 10
+
+	isRefetching.value = false
+}
+
+const getJails = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchValidatorJails({
+		id: props.validator.id,
+		limit: 10,
+		offset: (page.value - 1) * 10,
+	})
+
+	jails.value = data.value
+	handleNextCondition.value = jails.value.length < 10
 
 	isRefetching.value = false
 }
@@ -73,9 +117,36 @@ const getUptime = async () => {
 	}
 }
 
-/** Initital fetch for blocks and uptime */
-await getBlocks()
+/** Initital fetch for delegators and uptime */
+await getDelegators()
 await getUptime()
+
+const validatorStatus = computed(() => {
+	let res = {
+		name: "",
+		color: "",
+		description: "",
+	}
+
+	if (!props.validator.jailed) {
+		if (uptime.value?.slice(-1)[0].signed) {
+			res.name = "Active"
+			res.color = "var(--validator-active)"
+			res.description = "This validator is in the active set and can|propose or sign blocks and receive rewards".split("|")
+		} else {
+			res.name = "Inactive"
+			res.color = "var(--validator-inactive)"
+			res.description = "This validator is not in the active set and cannot|propose or sign blocks and earn rewards".split("|")
+		}
+
+	} else {
+		res.name = "Jailed"
+		res.color = "var(--validator-jailed)"
+		res.description = "This validator is jailed|and cannot propose or sign blocks".split("|")
+	}
+
+	return res
+})
 
 const parsedContacts = computed(() => {
 	let res = []
@@ -111,8 +182,33 @@ watch(
 	() => page.value,
 	() => {
 		switch (activeTab.value) {
+			case "Delegators":
+				getDelegators()
+				break
 			case "Proposed Blocks":
 				getBlocks()
+				break
+			case "Jails":
+				getJails()
+				break
+		}
+	},
+)
+
+watch(
+	() => activeTab.value,
+	() => {
+		page.value = 1
+
+		switch (activeTab.value) {
+			case "Delegators":
+				getDelegators()
+				break
+			case "Proposed Blocks":
+				getBlocks()
+				break
+			case "Jails":
+				getJails()
 				break
 		}
 	},
@@ -131,19 +227,30 @@ watch(
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">
 				<Flex direction="column" gap="24" :class="$style.main">
-					<Flex align="center" gap="12" :class="$style.key_value">
-						<Flex direction="column" gap="8" :class="$style.key_value">
-							<Flex align="center" gap="10">
-								<Text v-if="validator.moniker" size="13" weight="600" color="primary">{{ validator.moniker }} </Text>
-								<Text v-else size="13" weight="600" color="primary">Validator</Text>
-							</Flex>
-							<Flex align="center" gap="6">
-								<Text size="12" weight="600" color="tertiary"> {{ splitAddress(validator.address) }} </Text>
+					<Flex direction="column" gap="8" :class="$style.key_value">
+						<Flex align="center" justify="between">
+							<Text v-if="validator.moniker" size="13" weight="600" color="primary">{{ validator.moniker }} </Text>
+							<Text v-else size="13" weight="600" color="primary">Validator</Text>
 
-								<CopyButton :text="validator.address" />
-							</Flex>
+							<Tooltip position="start" textAlign="left" delay="200">
+								<Text size="13" weight="600" :style="{color: validatorStatus.color}"> {{ validatorStatus.name }} </Text>
+
+								<template #content>
+									<Flex direction="column" gap="4">
+										<Text v-for="s in validatorStatus.description" color="secondary">{{ s }}</Text>
+									</Flex>
+								</template>
+							</Tooltip>
+
+							
+						</Flex>
+						<Flex align="center" gap="6">
+							<Text size="12" weight="600" color="tertiary"> {{ splitAddress(validator.address) }} </Text>
+
+							<CopyButton :text="validator.address" />
 						</Flex>
 					</Flex>
+
 					<Flex v-if="validator.details" direction="column" gap="6">
 						<Text size="12" weight="600" color="secondary">Description</Text>
 
@@ -153,7 +260,7 @@ watch(
 							</Text>
 						</Flex>
 					</Flex>
-					<Flex align="center" justify="start" gap="12">
+					<Flex v-if="validator.website || parsedContacts.length" align="center" justify="start" gap="12">
 						<Tooltip v-if="validator.website" position="start" delay="500">
 							<a :href="validator.website" target="_blank">
 								<Icon name="globe" size="14" color="secondary" :class="$style.btn" />
@@ -177,6 +284,27 @@ watch(
 						</template>
 					</Flex>
 
+					<!-- Staking -->
+					<Flex direction="column" gap="16">
+						<Text size="12" weight="600" color="secondary">Staking</Text>
+
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Voting Power</Text>
+							<AmountInCurrency :amount="{ value: validator.voting_power, unit: 'TIA' }" :styles=" { amount: { color: 'tertiary' }}" />
+						</Flex>
+
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Outgoing Rewards</Text>
+							<AmountInCurrency :amount="{ value: validator.rewards }" :styles=" { amount: { color: 'tertiary' }}" />
+						</Flex>
+
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Commissions</Text>
+							<AmountInCurrency :amount="{ value: validator.commissions }" :styles=" { amount: { color: 'tertiary' }}" />
+						</Flex>
+					</Flex>
+
+					<!-- Details -->
 					<Flex direction="column" gap="16">
 						<Text size="12" weight="600" color="secondary">Details</Text>
 
@@ -275,21 +403,45 @@ watch(
 				</Flex>
 
 				<Flex direction="column" justify="center" gap="8" :class="[$style.table, isRefetching && $style.disabled]">
-					<BlocksTable v-if="blocks.length" :blocks="blocks" />
+					<template v-if="activeTab === 'Delegators'">
+						<DelegatorsTable v-if="delegators.length" :delegators="delegators" :validator="validator" />
 
-					<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
-						<Text size="13" weight="600" color="secondary" align="center"> No blocks </Text>
-						<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-							This validator did not propose any block
-						</Text>
-					</Flex>
+						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+							<Text size="13" weight="600" color="secondary" align="center"> No delegators </Text>
+							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+								This validator does not have any {{ page === 1 ? '' : 'more' }} delegators
+							</Text>
+						</Flex>
+					</template>
+
+					<template v-if="activeTab === 'Proposed Blocks'">
+						<BlocksTable v-if="blocks.length" :blocks="blocks" />
+
+						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+							<Text size="13" weight="600" color="secondary" align="center"> No blocks </Text>
+							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+								This validator did not propose any {{ page === 1 ? '' : 'more' }} blocks
+							</Text>
+						</Flex>
+					</template>
+
+					<template v-if="activeTab === 'Jails'">
+						<JailsTable v-if="jails.length" :jails="jails" />
+
+						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+							<Text size="13" weight="600" color="secondary" align="center"> No penalties </Text>
+							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+								This validator doesn't have any {{ page === 1 ? '' : 'more' }} penalties
+							</Text>
+						</Flex>
+					</template>
 
 					<!-- Pagination -->
-					<Flex v-if="blocks.length" align="center" gap="6" :class="$style.pagination">
-						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1 || blocks.length !== 10">
+					<Flex align="center" gap="6" :class="$style.pagination">
+						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 							<Icon name="arrow-left-stop" size="12" color="primary" />
 						</Button>
-						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1 || blocks.length !== 10">
+						<Button @click="handlePrev" type="secondary" size="mini" :disabled="page === 1">
 							<Icon name="arrow-left" size="12" color="primary" />
 						</Button>
 
@@ -297,7 +449,7 @@ watch(
 							<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
 						</Button>
 
-						<Button @click="handleNext" type="secondary" size="mini" :disabled="blocks.length !== 10">
+						<Button @click="handleNext" type="secondary" size="mini" :disabled="handleNextCondition">
 							<Icon name="arrow-right" size="12" color="primary" />
 						</Button>
 					</Flex>
@@ -343,14 +495,16 @@ watch(
 	}
 
 	.uptime {
-		width: 10px;
-		height: 10px;
+		/* width: 10px;
+		height: 10px; */
+		width: 0.6rem;
+		height: 0.6rem;
 
 		border-radius: 2px;
 		cursor: pointer;
 
-		margin-right: 6px;
-		margin-bottom: 6px;
+		margin-right: 0.35rem;
+		margin-bottom: 0.35rem;
 	}
 
 	.horizontal_divider {
@@ -425,7 +579,10 @@ watch(
 }
 
 .empty {
+	flex: 1;
+
 	padding-top: 16px;
+	padding-bottom: 16px;
 }
 
 .pagination {

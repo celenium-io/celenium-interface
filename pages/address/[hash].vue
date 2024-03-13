@@ -26,7 +26,7 @@ defineOgImage({
 	title: "Address",
 	address: address.value,
 	component: "AddressImage",
-	cacheKey: `${address.value?.hash.slice(-4)}-${address.value?.balance.value}-${address.value?.first_height}-${
+	cacheKey: `${address.value?.hash.slice(-4)}-${address.value?.balance.spendable}-${address.value?.first_height}-${
 		address.value?.last_height
 	}`,
 })

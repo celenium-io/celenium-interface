@@ -9,7 +9,7 @@ import { comma, formatBytes, abbreviate } from "@/services/utils"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** API */
-import { fetchPrice, fetchPriceSeries } from "@/services/api/stats"
+import { fetchPriceSeries } from "@/services/api/stats"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -25,10 +25,10 @@ const price = reactive({
 })
 
 onMounted(async () => {
-	const dataPrice = await fetchPrice()
-	const dataSeries = await fetchPriceSeries()
-	price.value = parseFloat(dataPrice.close)
+	const dataSeries = await fetchPriceSeries( {from: parseInt(DateTime.now().minus({ days: 2 }).ts / 1_000)})
 	series.value = dataSeries
+	appStore.currentPrice = series.value[0]
+	price.value = parseFloat(series.value[0].close)
 
 	const prevDayClosePrice = parseFloat(series.value[1].close)
 	price.diff = (Math.abs(prevDayClosePrice - price.value) / ((prevDayClosePrice + price.value) / 2)) * 100

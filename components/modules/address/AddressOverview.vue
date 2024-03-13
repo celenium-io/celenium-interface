@@ -7,16 +7,27 @@ import Checkbox from "@/components/ui/Checkbox.vue"
 import Input from "@/components/ui/Input.vue"
 
 /** Components */
-import TransactionsTable from "./TransactionsTable.vue"
+import TransactionsTable from "./tables/TransactionsTable.vue"
 import MessagesTable from "@/components/modules/namespace/tables/MessagesTable.vue"
 import BlobsTable from "@/components/modules/namespace/tables/BlobsTable.vue"
+import DelegationsTable from "./tables/DelegationsTable.vue"
+import RedelegationsTable from "./tables/RedelegationsTable.vue"
+import UndelegationsTable from "./tables/UndelegationsTable.vue"
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { comma } from "@/services/utils"
+import { comma, tia } from "@/services/utils"
 import { MsgTypes } from "@/services/constants/messages"
 
 /** API */
-import { fetchTxsByAddressHash, fetchMessagesByAddressHash, fetchBlobsByAddressHash } from "@/services/api/address"
+import {
+	fetchTxsByAddressHash,
+	fetchMessagesByAddressHash,
+	fetchBlobsByAddressHash,
+	fetchAddressDelegations,
+	fetchAddressRedelegations,
+	fetchAddressUndelegations
+} from "@/services/api/address"
 
 /** Store */
 import { useModalsStore } from "@/store/modals"
@@ -45,15 +56,76 @@ const bookmarkText = computed(() => {
 	return isBookmarked.value ? "Saved" : "Save"
 })
 
-const activeTab = ref("transactions")
-
 const isRefetching = ref(false)
 const transactions = ref([])
 const messages = ref([])
 const blobs = ref([])
 
+/** Tabs */
+const tabs = ref([
+	{
+		alias: "transactions",
+		displayName: "Signed Transactions",
+		icon: "tx",
+		show: true,
+	},
+	{
+		alias: "messages",
+		displayName: "Messages",
+		icon: "message",
+		show: true,
+	},
+	{
+		alias: "blobs",
+		displayName: "Blobs",
+		icon: "blob",
+		show: true,
+	},
+	{
+		alias: "delegations",
+		displayName: "Delegations",
+		icon: "coins_up",
+		show: true,
+	},
+	{
+		alias: "redelegations",
+		displayName: "Redelegations",
+		icon: "redelegate",
+		show: true,
+	},
+	{
+		alias: "undelegations",
+		displayName: "Undelegations",
+		icon: "unlock",
+		show: props.address.balance.unbonding > 0,
+	},
+])
+
+const activeTab = ref(tabs.value[0].alias)
+const tabsEl = ref(null)
+
+const handleSelect = (tab) => {
+	if (activeTab.value !== tab) {
+		activeTab.value = tab
+
+		let tabCenter = 0
+		for (let i = 0; i < tabsEl.value.wrapper.children.length; i++) {
+			if (tabsEl.value.wrapper.children[i].dataset.tab === tab) {
+				tabCenter = tabsEl.value.wrapper.children[i].offsetLeft + tabsEl.value.wrapper.children[i].offsetWidth / 2
+				break
+			}
+		}
+
+		if (tabCenter) {
+			let wrapperCenter = tabsEl.value.wrapper.offsetLeft + tabsEl.value.wrapper.offsetWidth / 2
+
+			tabsEl.value.wrapper.scroll({left: tabCenter - wrapperCenter})
+		}
+	}
+}
+
+/** Pagination */
 const page = ref(1)
-const pages = computed(() => 1)
 const handleNextCondition = ref(true)
 const handleNext = () => {
 	page.value += 1
@@ -63,6 +135,7 @@ const handlePrev = () => {
 	page.value -= 1
 }
 
+/** Sorting */
 const sort = reactive({
 	by: "time",
 	dir: "desc",
@@ -288,6 +361,65 @@ const getBlobs = async () => {
 
 await getTransactions()
 
+/** Delegation */
+const isActiveDelegator = props.address.balance.delegated > 0 || props.address.balance.unbonding > 0
+const collapseBalances = ref(!isActiveDelegator)
+const totalBalance = parseInt(props.address.balance.spendable) + parseInt(props.address.balance.delegated) + parseInt(props.address.balance.unbonding)
+const delegations = ref([])
+const redelegations = ref([])
+const undelegations = ref([])
+
+const getDelegations = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchAddressDelegations({
+		hash: props.address.hash,
+		limit: 10,
+		offset: (page.value - 1) * 10,
+	})
+
+	if (data.value?.length) {
+		delegations.value = data.value
+	}
+	handleNextCondition.value = data.value.length < 10
+
+	isRefetching.value = false
+}
+
+const getRedelegations = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchAddressRedelegations({
+		hash: props.address.hash,
+		limit: 10,
+		offset: (page.value - 1) * 10,
+	})
+
+	if (data.value?.length) {
+		redelegations.value = data.value
+	}
+	handleNextCondition.value = data.value.length < 10
+
+	isRefetching.value = false
+}
+
+const getUndelegations = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchAddressUndelegations({
+		hash: props.address.hash,
+		limit: 10,
+		offset: (page.value - 1) * 10,
+	})
+
+	if (data.value?.length) {
+		undelegations.value = data.value
+	}
+	handleNextCondition.value = data.value.length < 10
+
+	isRefetching.value = false
+}
+
 /** Refetch transactions */
 watch(
 	() => activeTab.value,
@@ -305,6 +437,18 @@ watch(
 			
 			case "blobs":
 				getBlobs()
+				break
+			
+			case "delegations":
+				getDelegations()
+				break
+			
+			case "redelegations":
+				getRedelegations()
+				break
+			
+			case "undelegations":
+				getUndelegations()
 				break
 		}
 	},
@@ -324,6 +468,18 @@ watch(
 
 			case "messages":
 				getMessages()
+				break
+			
+			case "delegations":
+				getDelegations()
+				break
+			
+			case "redelegations":
+				getRedelegations()
+				break
+			
+			case "undelegations":
+				getUndelegations()
 				break
 		}
 	},
@@ -449,11 +605,48 @@ const handleOpenQRModal = () => {
 						</Flex>
 					</Flex>
 
-					<Flex direction="column" gap="8" :class="$style.key_value">
-						<Text size="12" weight="600" color="secondary">Spendable Balance</Text>
+						<Flex direction="column" gap="16" :class="$style.key_value">
+							<Flex
+								@click="collapseBalances = !collapseBalances"
+								align="center"
+								justify="between"
+								style="cursor: pointer"
+							>
+								<Flex direction="column" gap="8">
+									<Text size="12" weight="600" color="secondary">Total Balance</Text>
+									<AmountInCurrency :amount="{ value: totalBalance }" :styles="{ amount: { size: '13' }, currency: { size: '13', color: 'primary' } }" />
+									<!-- <Text size="13" weight="600" color="primary" selectable>{{ tia(totalBalance).toLocaleString('en-US') }} TIA</Text> -->
+								</Flex>
 
-						<Text size="13" weight="600" color="primary">{{ comma(address.balance.value / 1_000_000) }} TIA</Text>
-					</Flex>
+								<Icon
+									name="chevron"
+									size="14"
+									color="secondary"
+									:style="{
+										transform: `rotate(${collapseBalances ? '0' : '180'}deg)`,
+										transition: 'all 400ms ease',
+									}"
+								/>
+							</Flex>
+							
+							<Flex v-if="!collapseBalances" direction="column" gap="12" :class="$style.key_value">
+								<Flex align="center" justify="between">
+									<Text size="12" weight="600" color="tertiary"> Spendable</Text>
+									<AmountInCurrency :amount="{ value: address.balance.spendable }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
+								</Flex>
+
+								<Flex align="center" justify="between">
+									<Text size="12" weight="600" color="tertiary"> Delegated</Text>
+									<AmountInCurrency :amount="{ value: address.balance.delegated }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
+								</Flex>
+
+								<Flex align="center" justify="between">
+									<Text size="12" weight="600" color="tertiary"> Unbonding</Text>
+									<AmountInCurrency :amount="{ value: address.balance.unbonding }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
+								</Flex>
+							</Flex>
+						</Flex>
+
 
 					<Flex direction="column" gap="16">
 						<Text size="12" weight="600" color="secondary">Details</Text>
@@ -471,41 +664,22 @@ const handleOpenQRModal = () => {
 			</Flex>
 
 			<Flex direction="column" gap="4" wide :class="$style.txs_wrapper">
-				<Flex align="center" justify="between" :class="$style.tabs_wrapper">
-					<Flex gap="4" :class="$style.tabs">
+				<Flex align="center" gap="4" :class="$style.tabs_wrapper" ref="tabsEl">
+					<template v-for="tab in tabs">
 						<Flex
-							@click="activeTab = 'transactions'"
+							v-if="tab.show"
+							:data-tab="tab.alias"
+							@click="handleSelect(tab.alias)"
 							align="center"
 							gap="6"
-							:class="[$style.tab, activeTab === 'transactions' && $style.active]"
+							:class="[$style.tab, activeTab === tab.alias && $style.active]"
+							:style="{transition: 'all 200ms ease'}"
 						>
-							<Icon name="tx" size="12" color="secondary" />
+							<Icon :name="tab.icon" size="12" color="secondary" />
 
-							<Text size="13" weight="600">Signed Transactions</Text>
+							<Text size="13" weight="600">{{ tab.displayName }}</Text>
 						</Flex>
-
-						<Flex
-							@click="activeTab = 'messages'"
-							align="center"
-							gap="6"
-							:class="[$style.tab, activeTab === 'messages' && $style.active]"
-						>
-							<Icon name="message" size="12" color="secondary" />
-
-							<Text size="13" weight="600">Messages</Text>
-						</Flex>
-
-						<Flex
-							@click="activeTab = 'blobs'"
-							align="center"
-							gap="6"
-							:class="[$style.tab, activeTab === 'blobs' && $style.active]"
-						>
-							<Icon name="blob" size="12" color="secondary" />
-
-							<Text size="13" weight="600">Blobs</Text>
-						</Flex>
-					</Flex>
+					</template>
 				</Flex>
 
 				<Flex direction="column" justify="center" :class="[$style.tables, isRefetching && $style.disabled]">
@@ -671,6 +845,42 @@ const handleOpenQRModal = () => {
 								</Text>
 							</Flex>
 						</template>
+
+						<!-- Delegations Table -->
+						<template v-if="activeTab === 'delegations'">
+							<DelegationsTable v-if="delegations.length" :delegations="delegations" />
+
+							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+								<Text size="13" weight="600" color="secondary" align="center"> No Delegations </Text>
+								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+									This address doesn't have any {{ page === 1 ? '' : 'more' }} delegations
+								</Text>
+							</Flex>
+						</template>
+
+						<!-- Redelegations Table -->
+						<template v-if="activeTab === 'redelegations'">
+							<RedelegationsTable v-if="redelegations.length" :redelegations="redelegations" />
+
+							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+								<Text size="13" weight="600" color="secondary" align="center"> No Redelegations </Text>
+								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+									This address doesn't have any {{ page === 1 ? '' : 'more' }} redelegations
+								</Text>
+							</Flex>
+						</template>
+
+						<!-- Undelegations Table -->
+						<template v-if="activeTab === 'undelegations'">
+							<UndelegationsTable v-if="undelegations.length" :undelegations="undelegations" />
+
+							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+								<Text size="13" weight="600" color="secondary" align="center"> No Undelegations </Text>
+								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+									This address doesn't have any {{ page === 1 ? '' : 'more' }} undelegations
+								</Text>
+							</Flex>
+						</template>
 					</Flex>
 
 					<!-- Pagination -->
@@ -740,6 +950,8 @@ const handleOpenQRModal = () => {
 	background: var(--card-background);
 
 	padding: 0 8px;
+
+	scroll-behavior: smooth;
 }
 
 .tabs_wrapper::-webkit-scrollbar {
@@ -748,6 +960,8 @@ const handleOpenQRModal = () => {
 
 .tab {
 	height: 28px;
+	
+	white-space: nowrap;
 
 	cursor: pointer;
 	border-radius: 6px;
@@ -852,6 +1066,8 @@ const handleOpenQRModal = () => {
 @media (max-width: 400px) {
 	.tabs_wrapper {
 		overflow-x: auto;
+
+		scroll-behavior: smooth;
 
 		&::-webkit-scrollbar {
 			display: none;

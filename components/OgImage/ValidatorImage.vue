@@ -1,6 +1,6 @@
 <script setup>
 /** Services */
-import { splitAddress } from "@/services/utils"
+import { abbreviate } from "@/services/utils"
 
 defineOptions({
 	inheritAttrs: false,
@@ -40,10 +40,14 @@ const bgStyles = computed(() => {
 				{{ validator.moniker }}
 			</span>
 
-			<div :style="{ display: 'flex', flexDirection: 'column', gap: '24px' }">
-				<div v-if="validator.website" :style="{ display: 'flex', gap: '12px' }">
-					<span :style="{ fontSize: '40px', color: 'rgba(255,255,255, 0.6)' }">{{ validator.website }} </span>
-				</div>
+			<div :style="{ display: 'flex', gap: '12px' }">
+				<span :style="{ fontSize: '40px', color: 'rgba(255,255,255, 0.3)' }">Voting Power: </span>
+				<span :style="{ fontSize: '40px', color: 'rgba(255,255,255, 0.6)' }">{{ abbreviate(validator.voting_power) }} TIA</span>
+			</div>
+		</div>
+		<div :style="{ display: 'flex', flexDirection: 'column', gap: '24px' }">
+			<div v-if="validator.website" :style="{ display: 'flex', gap: '12px' }">
+				<span :style="{ fontSize: '40px', color: 'rgba(255,255,255, 0.3)' }">{{ validator.website }} </span>
 			</div>
 		</div>
 	</div>

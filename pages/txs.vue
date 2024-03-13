@@ -8,6 +8,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import Input from "@/components/ui/Input.vue"
 import Popover from "@/components/ui/Popover.vue"
 import Checkbox from "@/components/ui/Checkbox.vue"
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
@@ -17,7 +18,7 @@ import { comma, space, splitAddress, tia } from "@/services/utils"
 import { MsgTypes } from "@/services/constants/messages"
 
 /** API */
-import { fetchTransactions, fetchTxsCount } from "@/services/api/tx"
+import { fetchTransactions } from "@/services/api/tx"
 
 useHead({
 	title: "Transactions - Celestia Explorer",
@@ -150,6 +151,8 @@ const handleApplyStatusFilters = () => {
 	savedFiltersBeforeChanges.value = null
 	isStatusPopoverOpen.value = false
 
+	page.value = 1
+
 	getTransactions()
 
 	updateRouteQuery()
@@ -179,6 +182,8 @@ const handleApplyMessageTypeFilters = () => {
 	savedFiltersBeforeChanges.value = null
 	isMessageTypePopoverOpen.value = false
 
+	page.value = 1
+
 	getTransactions()
 
 	updateRouteQuery()
@@ -190,6 +195,8 @@ const resetFilters = (target, refetch) => {
 	})
 
 	if (refetch) {
+		page.value = 1
+
 		updateRouteQuery()
 
 		getTransactions()
@@ -226,19 +233,11 @@ const isConfigurePopoverOpen = ref(false)
 const isLoaded = ref(false)
 const isRefetching = ref(false)
 const transactions = ref([])
-const count = ref(0)
 
 const sort = reactive({
 	by: "time",
 	dir: "desc",
 })
-
-const getTxsCount = async () => {
-	const { data: txsCount } = await fetchTxsCount()
-	count.value = txsCount.value
-}
-
-await getTxsCount()
 
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
 const pages = computed(() => Math.ceil(count.value / 20))
@@ -311,6 +310,10 @@ const handleSort = (by) => {
 	}
 
 	sort.by = by
+	
+	if (page.value !== 1) {
+		page.value = 1
+	}
 
 	getTransactions()
 }
@@ -322,8 +325,6 @@ const handlePrev = () => {
 }
 
 const handleNext = () => {
-	if (page.value === pages.value) return
-
 	page.value += 1
 }
 </script>
@@ -357,7 +358,7 @@ const handleNext = () => {
 						<Text size="12" weight="600" color="primary">Page {{ comma(page) }} </Text>
 					</Button>
 
-					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="!transactions.length">
 						<Icon name="arrow-right" size="12" color="primary" />
 					</Button>
 				</Flex>
@@ -678,7 +679,7 @@ const handleNext = () => {
 								<td v-if="config.columns.fee" style="width: 1px">
 									<NuxtLink :to="`/tx/${tx.hash}`">
 										<Flex align="center">
-											<Text size="13" weight="600" color="primary"> {{ tia(tx.fee) }} TIA </Text>
+											<AmountInCurrency :amount="{ value: tx.fee, decimal: 6 }" :styles="{ amount: { size: '13' } }" />
 										</Flex>
 									</NuxtLink>
 								</td>

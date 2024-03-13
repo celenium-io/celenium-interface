@@ -5,6 +5,7 @@ import { DateTime } from "luxon"
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
 import { comma, formatBytes, getNamespaceID, shortHex, space, tia } from "@/services/utils"
@@ -295,11 +296,7 @@ watch(
 								</td>
 								<td>
 									<Flex align="center" gap="4">
-										<Text size="13" weight="600" :color="parseFloat(block.stats.fee) ? 'primary' : 'tertiary'">
-											{{ tia(block.stats.fee) }}
-										</Text>
-
-										<Text size="13" weight="600" color="tertiary"> TIA </Text>
+										<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 6 }" :styles="{ amount: { size: '13' } }" />
 									</Flex>
 								</td>
 							</tr>
@@ -512,7 +509,7 @@ watch(
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Total Fees </Text>
-							<Text size="12" weight="600" color="secondary"> {{ tia(preview.block.stats.fee) }} TIA </Text>
+							<AmountInCurrency :amount="{ value: preview.block.stats.fee, decimal: 6 }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
 						</Flex>
 					</Flex>
 				</Flex>
@@ -737,7 +734,7 @@ watch(
 	}
 
 	.table {
-		width: 604px;
+		flex: 1;
 		border-radius: 4px 4px 8px 8px;
 	}
 }

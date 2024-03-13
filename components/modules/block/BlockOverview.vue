@@ -10,6 +10,7 @@ import Badge from "@/components/ui/Badge.vue"
 import Popover from "@/components/ui/Popover.vue"
 import Checkbox from "@/components/ui/Checkbox.vue"
 import Input from "@/components/ui/Input.vue"
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
@@ -435,7 +436,7 @@ const handleViewRawTransactions = () => {
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Total Fees </Text>
-							<Text size="12" weight="600" color="secondary"> {{ tia(block.stats.fee) }} TIA</Text>
+							<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 6 }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Bytes in block </Text>
@@ -681,10 +682,7 @@ const handleViewRawTransactions = () => {
 									</td>
 									<td>
 										<NuxtLink :to="`/tx/${tx.hash}`">
-											<Flex align="center" gap="4">
-												<Text size="13" weight="600" color="primary"> {{ tia(tx.fee) }} </Text>
-												<Text size="13" weight="600" color="tertiary">TIA</Text>
-											</Flex>
+											<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 6 }" :styles="{ amount: { size: '13' }, currency: { size: '13' } }" />
 										</NuxtLink>
 									</td>
 								</tr>
