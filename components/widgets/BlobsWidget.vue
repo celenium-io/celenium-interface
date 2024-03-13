@@ -47,10 +47,15 @@ onMounted(async () => {
 	while (weeks.value[weeks.value.length - 1].length < 7) {
 		weeks.value[weeks.value.length - 1].push(null)
 	}
-
+	
 	/** fill empty weeks */
 	while (weeks.value.length < 24) {
 		weeks.value.push(new Array(7))
+	}
+
+	/** remove first weeks */
+	while (weeks.value.length > 24) {
+		weeks.value.shift()
 	}
 })
 
