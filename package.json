@@ -23,6 +23,7 @@
 	"dependencies": {
 		"@amplitude/analytics-browser": "^2.3.3",
 		"@codemirror/lang-json": "^6.0.1",
+		"@keplr-wallet/cosmos": "^0.12.70",
 		"@pinia/nuxt": "0.4.11",
 		"@vueuse/core": "^10.7.0",
 		"codemirror": "^6.0.1",
