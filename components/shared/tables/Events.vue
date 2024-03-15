@@ -679,12 +679,12 @@ watch(
 						<Tooltip :class="$style.tooltip">
 							<NuxtLink :to="`/address/${event.data.granter}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
-									{{ splitAddress(event.data.granter) }}
+									{{ splitAddress(event.data.granter.replace(/"/g,'')) }}
 								</Text>
 							</NuxtLink>
 
 							<template #content>
-								{{ event.data.granter }}
+								{{ event.data.granter.replace(/"/g,'') }}
 							</template>
 						</Tooltip>
 
@@ -699,12 +699,12 @@ watch(
 						<Tooltip :class="$style.tooltip">
 							<NuxtLink :to="`/address/${event.data.grantee}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
-									{{ splitAddress(event.data.grantee) }}
+									{{ splitAddress(event.data.grantee.replace(/"/g,'')) }}
 								</Text>
 							</NuxtLink>
 
 							<template #content>
-								{{ event.data.grantee }}
+								{{ event.data.grantee.replace(/"/g,'') }}
 							</template>
 						</Tooltip>
 					</Flex>
@@ -713,12 +713,12 @@ watch(
 						<Tooltip :class="$style.tooltip">
 							<NuxtLink :to="`/address/${event.data.granter}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
-									{{ splitAddress(event.data.granter) }}
+									{{ splitAddress(event.data.granter.replace(/"/g,'')) }}
 								</Text>
 							</NuxtLink>
 
 							<template #content>
-								{{ event.data.granter }}
+								{{ event.data.granter.replace(/"/g,'') }}
 							</template>
 						</Tooltip>
 
@@ -733,17 +733,17 @@ watch(
 						<Tooltip :class="$style.tooltip">
 							<NuxtLink :to="`/address/${event.data.grantee}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
-									{{ splitAddress(event.data.grantee) }}
+									{{ splitAddress(event.data.grantee.replace(/"/g,'')) }}
 								</Text>
 							</NuxtLink>
 
 							<template #content>
-								{{ event.data.grantee }}
+								{{ event.data.grantee.replace(/"/g,'') }}
 							</template>
 						</Tooltip>
 					</Flex>
-					<!-- Event: cosmos.authz.v1beta1.EventRevoke -->
-					<Flex v-else-if="event.type === 'cosmos.authz.v1beta1.EventRevoke'" align="center" gap="4" color="secondary" :class="$style.text">
+					<!-- Event: set_feegrant -->
+					<Flex v-else-if="event.type === 'set_feegrant'" align="center" gap="4" color="secondary" :class="$style.text">
 						<Tooltip :class="$style.tooltip">
 							<NuxtLink :to="`/address/${event.data.granter}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
@@ -756,13 +756,7 @@ watch(
 							</template>
 						</Tooltip>
 
-						<Text size="12" weight="500" color="secondary">revoked grant on</Text>
-
-						<Text size="12" weight="500" color="primary" mono>
-							{{ handlingEventActionType(event.data.msg_type_url) }}
-						</Text>
-
-						<Text size="12" weight="500" color="secondary">from</Text>
+						<Text size="12" weight="500" color="secondary">grants fee allowances to</Text>
 
 						<Tooltip :class="$style.tooltip">
 							<NuxtLink :to="`/address/${event.data.grantee}`" @click.stop>
