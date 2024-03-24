@@ -32,7 +32,11 @@ onMounted(async () => {
 
 	const prevDayClosePrice = parseFloat(series.value[1].close)
 	price.diff = (Math.abs(prevDayClosePrice - price.value) / ((prevDayClosePrice + price.value) / 2)) * 100
-	price.side = price.value - prevDayClosePrice > 0 ? "rise" : "fall"
+	let side = 'stay'
+	if (price.value - prevDayClosePrice !== 0) {
+		side = price.value - prevDayClosePrice > 0 ? 'rise' : 'fall'
+	}
+	price.side = side
 })
 </script>
 
@@ -122,11 +126,11 @@ onMounted(async () => {
 						<Skeleton v-else w="36" h="12" />
 					</Flex>
 
-					<Flex v-if="price.diff" align="center" gap="4">
+					<Flex v-if="!isNaN(price.diff)" align="center" gap="4">
 						<Icon v-if="price.side === 'rise'" name="arrow-circle-right-up" size="12" color="neutral-green" />
-						<Icon v-else name="arrow-circle-right-down" size="12" color="red" />
+						<Icon v-else-if="price.side === 'fall'" name="arrow-circle-right-down" size="12" color="red" />
 
-						<Text size="12" weight="600" :color="price.side === 'rise' ? 'neutral-green' : 'red'" noWrap>
+						<Text size="12" weight="600" :color="price.side === 'fall' ? 'red' : 'neutral-green'" noWrap>
 							{{ price.diff.toFixed(2) }}%</Text
 						>
 					</Flex>
