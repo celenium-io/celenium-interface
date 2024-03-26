@@ -16,6 +16,12 @@ import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
 
 const head = computed(() => appStore.lastHead)
+const currentPrice = computed(() => appStore.currentPrice)
+
+const totalSupply = computed(() => head.value.total_supply / 1_000_000)
+const totalSupplyUSD = computed(() => totalSupply.value * currentPrice.value?.close)
+const totalFees = computed(() => head.value.total_fee / 1_000_000)
+const totalFeesUSD = computed(() => totalFees.value * currentPrice.value?.close)
 
 const series = ref([])
 const price = reactive({
@@ -69,13 +75,13 @@ onMounted(async () => {
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Supply:</Text>
 
 							<Text v-if="head" size="12" weight="600" noWrap :class="$style.value">
-								{{ abbreviate(head.total_supply / 1_000_000, 2) }} TIA
+								{{ abbreviate(totalSupply, 2) }} TIA
 							</Text>
 							<Skeleton v-else w="55" h="12" />
 						</Flex>
 					</Flex>
 
-					<template #content> {{ comma(head.total_supply) }} UTIA </template>
+					<template #content> {{ abbreviate(totalSupplyUSD, 2) }} USD </template>
 				</Tooltip>
 
 				<div :class="$style.dot" />
@@ -105,13 +111,13 @@ onMounted(async () => {
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Fees:</Text>
 
 							<Text v-if="head" size="12" weight="600" noWrap :class="$style.value">
-								{{ abbreviate(parseInt(head.total_fee / 1_000_000)) }} TIA
+								{{ abbreviate(parseInt(totalFees)) }} TIA
 							</Text>
 							<Skeleton v-else w="55" h="12" />
 						</Flex>
 					</Flex>
 
-					<template #content> {{ comma(head.total_fee) }} UTIA </template>
+					<template #content> {{ abbreviate(totalFeesUSD) }} USD </template>
 				</Tooltip>
 			</Flex>
 
