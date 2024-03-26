@@ -11,7 +11,15 @@ import { fetchValidatorsCount } from "@/services/api/validator";
 /** Store */
 import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
+
+const currentPrice = computed(() => appStore.currentPrice)
 const lastHead = computed(() => appStore.lastHead)
+
+const totalSupply = computed(() => lastHead.value.total_supply / 1_000_000)
+const totalSupplyUSD = computed(() => totalSupply.value * currentPrice.value?.close)
+const totalVotingPower = computed(() => lastHead.value.total_voting_power)
+const totalVotingPowerUSD = computed(() => totalVotingPower.value * currentPrice.value?.close)
+
 const bondedShare = computed(() => shareOfTotal(lastHead?.value.total_voting_power * 1_000_000, lastHead?.value.total_supply, 2))
 
 const isRefetching = ref(false)
@@ -93,19 +101,35 @@ fillValidatorsGraph()
 							Total Supply
 						</Text>
 
-						<Text size="12" weight="600" color="secondary">
-							{{ abbreviate(lastHead.total_supply / 1_000_000, 2) }} TIA
-						</Text>
+						<Tooltip>
+							<Text size="12" weight="600" color="secondary">
+								{{ abbreviate(totalSupply, 2) }} TIA
+							</Text>
+
+							<template #content>
+								<Text size="12" weight="600" color="secondary">
+									{{ abbreviate(totalSupplyUSD, 2) }} USD
+								</Text>
+							</template>
+						</Tooltip>
 					</Flex>
 
 					<Flex align="center" justify="between">
 						<Text size="12" weight="600" color="tertiary">
 							Bonded
 						</Text>
-						
-						<Text size="12" weight="600" color="secondary">
-							{{ abbreviate(lastHead.total_voting_power) }} TIA
-						</Text>
+
+						<Tooltip>
+							<Text size="12" weight="600" color="secondary">
+								{{ abbreviate(totalVotingPower) }} TIA
+							</Text>
+
+							<template #content>
+								<Text size="12" weight="600" color="secondary">
+									{{ abbreviate(totalVotingPowerUSD, 2) }} USD
+								</Text>
+							</template>
+						</Tooltip>
 					</Flex>
 				</Flex>
 			</template>

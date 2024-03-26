@@ -197,16 +197,20 @@ const handleLast = async () => {
 								</td>
 								<td>
 									<NuxtLink :to="`/address/${address.hash}`">
-										<Text size="13" weight="600" color="primary">
-											{{ comma(address.first_height) }}
-										</Text>
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary">
+												{{ comma(address.first_height) }}
+											</Text>
+										</Flex>
 									</NuxtLink>
 								</td>
 								<td>
 									<NuxtLink :to="`/address/${address.hash}`">
-										<Text size="13" weight="600" color="primary">
-											{{ comma(address.last_height) }}
-										</Text>
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary">
+												{{ comma(address.last_height) }}
+											</Text>
+										</Flex>
 									</NuxtLink>
 								</td>
 							</tr>
@@ -290,14 +294,19 @@ const handleLast = async () => {
 
 		& tr td {
 			padding: 0;
-			padding-right: 24px;
-			padding-top: 10px;
-			padding-bottom: 10px;
 
 			white-space: nowrap;
 
 			&:first-child {
 				padding-left: 16px;
+			}
+
+			& > a {
+				display: flex;
+
+				min-height: 44px;
+
+				padding-right: 24px;
 			}
 		}
 	}

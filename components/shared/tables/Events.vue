@@ -76,6 +76,23 @@ const getEvents = async () => {
 	isLoading.value = false
 }
 
+const handlingEventType = (type) => {
+	switch (type) {
+		case 'cosmos.authz.v1beta1.EventGrant':
+			return 'grant'
+
+		case 'cosmos.authz.v1beta1.EventRevoke':
+			return 'revoke'
+	
+		default:
+			return type
+	}
+}
+
+const handlingEventActionType = (type) => {
+	return type.split('.').slice(-1)[0].replace('\"','')
+}
+
 const handleViewRawEvent = (event) => {
 	cacheStore.current._target = "event"
 	cacheStore.current.event = event
@@ -292,7 +309,7 @@ watch(
 							<Text size="12" weight="500" color="secondary" no-wrap>Call action</Text>
 
 							<Text size="12" weight="500" color="primary" mono>
-								{{ event.data.action }}
+								{{ handlingEventActionType(event.data.action) }}
 							</Text>
 						</template>
 						<!-- sender -->
@@ -657,6 +674,102 @@ watch(
 
 						<Text size="12" weight="500" color="secondary">was canceled</Text>
 					</Flex>
+					<!-- Event: cosmos.authz.v1beta1.EventGrant -->
+					<Flex v-else-if="event.type === 'cosmos.authz.v1beta1.EventGrant'" align="center" gap="4" color="secondary" :class="$style.text">
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.granter}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.granter.replace(/"/g,'')) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.granter.replace(/"/g,'') }}
+							</template>
+						</Tooltip>
+
+						<Text size="12" weight="500" color="secondary">gives authority on</Text>
+
+						<Text size="12" weight="500" color="primary" mono>
+							{{ handlingEventActionType(event.data.msg_type_url) }}
+						</Text>
+
+						<Text size="12" weight="500" color="secondary">for</Text>
+
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.grantee}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.grantee.replace(/"/g,'')) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.grantee.replace(/"/g,'') }}
+							</template>
+						</Tooltip>
+					</Flex>
+					<!-- Event: cosmos.authz.v1beta1.EventRevoke -->
+					<Flex v-else-if="event.type === 'cosmos.authz.v1beta1.EventRevoke'" align="center" gap="4" color="secondary" :class="$style.text">
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.granter}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.granter.replace(/"/g,'')) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.granter.replace(/"/g,'') }}
+							</template>
+						</Tooltip>
+
+						<Text size="12" weight="500" color="secondary">revoked grant on</Text>
+
+						<Text size="12" weight="500" color="primary" mono>
+							{{ handlingEventActionType(event.data.msg_type_url) }}
+						</Text>
+
+						<Text size="12" weight="500" color="secondary">from</Text>
+
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.grantee}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.grantee.replace(/"/g,'')) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.grantee.replace(/"/g,'') }}
+							</template>
+						</Tooltip>
+					</Flex>
+					<!-- Event: set_feegrant -->
+					<Flex v-else-if="event.type === 'set_feegrant'" align="center" gap="4" color="secondary" :class="$style.text">
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.granter}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.granter) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.granter }}
+							</template>
+						</Tooltip>
+
+						<Text size="12" weight="500" color="secondary">grants fee allowances to</Text>
+
+						<Tooltip :class="$style.tooltip">
+							<NuxtLink :to="`/address/${event.data.grantee}`" @click.stop>
+								<Text size="12" weight="500" color="primary" mono>
+									{{ splitAddress(event.data.grantee) }}
+								</Text>
+							</NuxtLink>
+
+							<template #content>
+								{{ event.data.grantee }}
+							</template>
+						</Tooltip>
+					</Flex>
 					<!-- Event: liveness -->
 					<Flex v-else-if="event.type === 'liveness'" align="center" gap="4" color="secondary" :class="$style.text">
 						<Tooltip :class="$style.tooltip">
@@ -681,7 +794,7 @@ watch(
 					</Flex>
 
 					<Text size="12" weight="600" color="tertiary" mono>
-						{{ event.type }}
+						{{ handlingEventType(event.type) }}
 					</Text>
 				</Flex>
 			</Flex>

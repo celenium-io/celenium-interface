@@ -23,10 +23,12 @@ import { comma, formatBytes, reverseMapping, space, shortHex, tia } from "@/serv
 import { fetchTransactionsByBlock } from "@/services/api/tx"
 
 /** Store */
+import { useAppStore } from "@/store/app"
 import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
 import { useBookmarksStore } from "@/store/bookmarks"
 import { useNotificationsStore } from "@/store/notifications"
+const appStore = useAppStore()
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
 const bookmarksStore = useBookmarksStore()
@@ -44,6 +46,8 @@ const props = defineProps({
 		type: Array,
 	},
 })
+
+const lastBlock = computed(() => appStore.latestBlocks[0])
 
 const isBookmarkButtonHovered = ref(false)
 const isBookmarked = ref(false)
@@ -314,9 +318,33 @@ const handleViewRawTransactions = () => {
 <template>
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
-			<Flex align="center" gap="8">
-				<Icon name="block" size="14" color="primary" />
-				<Text size="13" weight="600" color="primary">Block </Text>
+			<Flex align="center" gap="12">
+				<Flex align="center" gap="8">
+					<Icon name="block" size="14" color="primary" />
+					<Text size="13" weight="600" color="primary">Block </Text>
+				</Flex>
+
+				<Flex align="center" gap="8">
+					<Button
+						@click="router.push(`/block/${block.height - 1}`)"
+						type="secondary"
+						size="mini"
+						:disabled="block.height === 1"
+					>
+						<Icon name="arrow-redo-right" size="16" color="secondary" :style="{transform: 'scaleX(-1)'}" />
+						Prev
+					</Button>
+
+					<Button
+						@click="router.push(`/block/${block.height + 1}`)"
+						type="secondary"
+						size="mini"
+						:disabled="block.height === lastBlock?.height"
+					>
+						Next
+						<Icon name="arrow-redo-right" size="16" color="secondary" />
+					</Button>
+				</Flex>
 			</Flex>
 
 			<Flex align="center" gap="8">
