@@ -4,12 +4,13 @@ import { DateTime } from "luxon"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Components */
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { formatBytes, comma } from "@/services/utils"
+import { formatBytes, comma, shareOfTotalString } from "@/services/utils"
 
 /** API */
 import { fetchRollups, fetchRollupsCount } from "@/services/api/rollup"
@@ -68,6 +69,14 @@ const router = useRouter()
 const isRefetching = ref(false)
 const rollups = ref([])
 const count = ref(0)
+
+const totalSize = computed(() => rollups.value.reduce((acc, rollup) => {
+	return acc + rollup.size
+}, 0))
+
+const totalFee = computed(() => rollups.value.reduce((acc, rollup) => {
+	return acc + (+rollup.fee)
+}, 0))
 
 const sort = reactive({
 	by: "size",
@@ -271,6 +280,7 @@ const handleNext = () => {
 											<Text size="12" weight="600" color="primary">
 												{{ DateTime.fromISO(r.last_message_time).toRelative({ locale: "en", style: "short" }) }}
 											</Text>
+											
 											<Text size="12" weight="500" color="tertiary">
 												{{ DateTime.fromISO(r.last_message_time).setLocale("en").toFormat("LLL d, t") }}
 											</Text>
@@ -279,8 +289,22 @@ const handleNext = () => {
 								</td>
 								<td>
 									<NuxtLink :to="`/rollup/${r.slug}`">
-										<Flex align="center">
-											<Text size="13" weight="600" color="primary">{{ formatBytes(r.size) }}</Text>
+										<Flex align="start" justify="center" direction="column" gap="4">
+											<Tooltip position="start" delay="400">
+												<Flex direction="column" gap="4">
+													<Text size="13" weight="600" color="primary">{{ formatBytes(r.size) }}</Text>
+
+													<Text size="12" weight="600" color="tertiary">{{ shareOfTotalString(r.size, totalSize) }}%</Text>
+												</Flex>
+
+												<template #content>
+													<Flex align="end" gap="8">
+														<Text size="12" weight="600" color="tertiary">Share of total size</Text>
+
+														<Text size="12" weight="600" color="primary">{{ shareOfTotalString(r.size, totalSize) }}%</Text>
+													</Flex>
+												</template>
+											</Tooltip>
 										</Flex>
 									</NuxtLink>
 								</td>
@@ -293,10 +317,21 @@ const handleNext = () => {
 								</td>
 								<td>
 									<NuxtLink :to="`/rollup/${r.slug}`">
-										<AmountInCurrency :amount="{ value: r.fee }" />
-										<!-- <Flex align="center">
-											<Text size="13" weight="600" color="primary">{{ comma(r.fee) }}</Text>
-										</Flex> -->
+										<Flex align="start" justify="center" direction="column" gap="4">
+											<AmountInCurrency :amount="{ value: r.fee }" />
+
+											<Tooltip position="start" delay="400">
+												<Text size="12" weight="600" color="tertiary">{{ shareOfTotalString(r.fee, totalFee) }}%</Text>
+
+												<template #content>
+													<Flex align="end" gap="8">
+														<Text size="12" weight="600" color="tertiary">Share of total fee</Text>
+
+														<Text size="12" weight="600" color="primary">{{ shareOfTotalString(r.fee, totalFee) }}%</Text>
+													</Flex>
+												</template>
+											</Tooltip>
+										</Flex>
 									</NuxtLink>
 								</td>
 							</tr>
