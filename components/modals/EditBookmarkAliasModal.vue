@@ -95,7 +95,7 @@ const handleSave = () => {
 		notification: {
 			type: "success",
 			icon: "check",
-			title: "Alias successfuly updated",
+			title: "Alias successfully updated",
 			autoDestroy: true,
 		},
 	})

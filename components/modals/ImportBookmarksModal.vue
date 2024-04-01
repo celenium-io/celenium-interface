@@ -57,7 +57,7 @@ const handleDrop = (e) => {
 					notification: {
 						type: "success",
 						icon: "bookmark-plus",
-						title: "Successfuly parsed & imported",
+						title: "Successfully parsed & imported",
 						autoDestroy: true,
 					},
 				})
@@ -69,7 +69,7 @@ const handleDrop = (e) => {
 					notification: {
 						type: "success",
 						icon: "bookmark-plus",
-						title: "Successfuly parsed & imported & merged",
+						title: "Successfully parsed & imported & merged",
 						autoDestroy: true,
 					},
 				})

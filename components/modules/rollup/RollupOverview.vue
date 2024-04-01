@@ -190,6 +190,15 @@ const handleCSVDownload = async (period) => {
 	document.body.appendChild(link)
 	link.click()
 	document.body.removeChild(link)
+
+	notificationsStore.create({
+		notification: {
+			type: "success",
+			icon: "check",
+			title: "Data successfully downloaded",
+			autoDestroy: true,
+		},
+	})
 }
 
 </script>
