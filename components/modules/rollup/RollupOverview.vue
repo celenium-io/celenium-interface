@@ -4,6 +4,7 @@ import { DateTime } from "luxon"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Components */
@@ -17,13 +18,13 @@ import NamespacesTable from "./tables/NamespacesTable.vue"
 import { comma, formatBytes } from "@/services/utils"
 
 /** API */
-import { fetchRollupBlobs, fetchRollupNamespaces } from "@/services/api/rollup"
+import { fetchRollupBlobs, fetchRollupExportData, fetchRollupNamespaces } from "@/services/api/rollup"
 
 /** Store */
-import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
-const modalsStore = useModalsStore()
+import { useNotificationsStore } from "@/store/notifications"
 const cacheStore = useCacheStore()
+const notificationsStore = useNotificationsStore()
 
 const props = defineProps({
 	rollup: {
@@ -128,15 +129,68 @@ watch(
 	},
 )
 
-// const handleViewRawNamespaces = () => {
-// 	cacheStore.current._target = "namespaces"
-// 	modalsStore.open("rawData")
-// }
+const periods = ref([
+	{
+		title: "Last 24 hours",
+		timeRange: "day",
+	},
+	{
+		title: "Last 7 days",
+		timeRange: "week",
+	},
+	{
+		title: "Last 31 days",
+		timeRange: "month",
+	},
+])
 
-// const handleViewRawBlobs = () => {
-// 	cacheStore.current._target = "blobs"
-// 	modalsStore.open("rawData")
-// }
+const handleCSVDownload = async (period) => {
+	let from
+	switch (period) {
+		case "day":
+			from = parseInt(DateTime.now().minus({ days: 1 }).toMillis() / 1_000)
+			break
+		case "week":
+			from = parseInt(DateTime.now().minus({ weeks: 1 }).toMillis() / 1_000)
+			break
+		case "month":
+			from = parseInt(DateTime.now().minus({ months: 1 }).toMillis() / 1_000)
+			break
+		default:
+			break
+	}
+	let to = parseInt(DateTime.now().toMillis() / 1_000)
+	
+	const { data } = await fetchRollupExportData({
+		id: props.rollup.id,
+		from: from,
+		to: to,
+	})
+
+	if (!data.value) {
+		notificationsStore.create({
+			notification: {
+				type: "error",
+				icon: "close",
+				title: "Failed to load data",
+				autoDestroy: true,
+			},
+		})
+
+		return
+	}
+
+	const blob = new Blob([data.value], { type: 'text/csv;charset=utf-8;' })
+	const link = document.createElement("a")
+
+	link.href = URL.createObjectURL(blob)
+	link.download = `${props.rollup.slug}-blobs-last-${period}.csv`
+
+	link.style.visibility = 'hidden'
+	document.body.appendChild(link)
+	link.click()
+	document.body.removeChild(link)
+}
 
 </script>
 
@@ -148,6 +202,26 @@ watch(
 
 				<Text size="13" weight="600" color="primary">Rollup</Text>
 			</Flex>
+
+			<Dropdown>
+				<Tooltip>
+					<Button type="secondary" size="mini">
+						<Icon name="download" size="12" color="secondary" />
+
+						<Text>Export</Text>
+					</Button>
+
+					<template #content>
+						<Text color="tertiary">Export blobs to CSV</Text>
+					</template>
+				</Tooltip>
+
+				<template #popup>
+					<DropdownItem v-for="period in periods" @click="handleCSVDownload(period.timeRange)">
+						{{ period.title }}
+					</DropdownItem>
+				</template>
+			</Dropdown>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
