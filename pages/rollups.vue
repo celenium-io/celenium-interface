@@ -5,6 +5,9 @@ import { DateTime } from "luxon"
 /** UI */
 import Button from "@/components/ui/Button.vue"
 
+/** Components */
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
+
 /** Services */
 import { formatBytes, comma } from "@/services/utils"
 
@@ -225,6 +228,18 @@ const handleNext = () => {
 										/>
 									</Flex>
 								</th>
+								<th @click="handleSort('fee')" :class="$style.sortable">
+									<Flex align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap>Blob Fees Paid</Text>
+										<Icon
+											v-if="sort.by === 'fee'"
+											name="chevron"
+											size="12"
+											color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+										/>
+									</Flex>
+								</th>
 							</tr>
 						</thead>
 
@@ -274,6 +289,14 @@ const handleNext = () => {
 										<Flex align="center">
 											<Text size="13" weight="600" color="primary">{{ comma(r.blobs_count) }}</Text>
 										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/rollup/${r.slug}`">
+										<AmountInCurrency :amount="{ value: r.fee }" />
+										<!-- <Flex align="center">
+											<Text size="13" weight="600" color="primary">{{ comma(r.fee) }}</Text>
+										</Flex> -->
 									</NuxtLink>
 								</td>
 							</tr>

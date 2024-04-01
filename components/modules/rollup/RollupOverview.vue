@@ -4,8 +4,10 @@ import { DateTime } from "luxon"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
-// import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Tooltip from "@/components/ui/Tooltip.vue"
+
+/** Components */
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Tables */
 import BlobsTable from "./tables/BlobsTable.vue"
@@ -143,19 +145,9 @@ watch(
 		<Flex align="center" justify="between" :class="$style.header">
 			<Flex align="center" gap="8">
 				<Icon name="rollup" size="14" color="primary" />
+
 				<Text size="13" weight="600" color="primary">Rollup</Text>
 			</Flex>
-
-			<!-- <Dropdown>
-				<Button type="tertiary" size="mini">
-					<Icon name="dots" size="16" color="secondary" />
-				</Button>
-
-				<template #popup>
-					<DropdownItem @click="handleViewRawNamespaces"> View Raw Namespaces </DropdownItem>
-					<DropdownItem @click="handleViewRawBlobs"> View Raw Blobs </DropdownItem>
-				</template>
-			</Dropdown> -->
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
@@ -228,6 +220,11 @@ watch(
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Blobs</Text>
 							<Text size="12" weight="600" color="secondary"> {{ comma(rollup.blobs_count) }} </Text>
+						</Flex>
+
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Blob Fees Paid</Text>
+							<AmountInCurrency :amount="{ value: rollup.fee }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
 						</Flex>
 
 						<Flex align="start" justify="between">
