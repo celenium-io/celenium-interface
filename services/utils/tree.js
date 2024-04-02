@@ -51,8 +51,8 @@ export class Tree {
 			return this.leavesHashes[0]
 		} else {
 			let sp = getSplitPoint(l)
-			let left = this.getRoot(start, start + sp)
-			let right = this.getRoot(start + sp, end)
+			let left = this._computeRoot(start, start + sp)
+			let right = this._computeRoot(start + sp, end)
 			return this.hashNode(left, right)
 		}
 	}

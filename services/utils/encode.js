@@ -149,38 +149,40 @@ function infoByte(version, isFirstShare) {
 
 function createShares(blob) {
 	let shares = []
-	var [share, left] = createCompactShare(blob, true)
+	var [share, left] = createCompactShare(blob, blob.data, true)
 	shares.push(share)
 
 	while (left !== undefined) {
-		;[share, left] = createCompactShare(blob, false)
+		;[share, left] = createCompactShare(blob, left, false)
 		shares.push(share)
 	}
 
 	return shares
 }
 
-function createCompactShare(blob, isFirstShare) {
+function createCompactShare(blob, data, isFirstShare) {
 	let shareData = [blob.version]
 	shareData.push(...blob.namespace_id)
 	shareData.push(infoByte(blob.version, isFirstShare))
-	shareData.push(...int32ToBytes(blob.data.length))
+	if (isFirstShare) {
+		shareData.push(...int32ToBytes(data.length))
+	}
 	let padding = shareSize - shareData.length
 
-	if (padding >= blob.data.length) {
-		shareData.push(...blob.data)
-		for (let i = blob.data.length; i < padding; i++) {
+	if (padding >= data.length) {
+		shareData.push(...data)
+		for (let i = data.length; i < padding; i++) {
 			shareData.push(0)
 		}
 		return [shareData, undefined]
 	}
 
-	shareData.push(...blob.data.slice(0, padding))
-	return [shareData, blob.data.slice(padding, blob.data.length)]
+	shareData.push(...data.slice(0, padding))
+	return [shareData, data.slice(padding, data.length)]
 }
 
 function subTreeWidth(sharesCount, threshold) {
-	let s = Math.ceil(sharesCount / threshold)
+	let s = Math.floor(sharesCount / threshold)
 	if (sharesCount % threshold != 0) {
 		s++
 	}
@@ -253,7 +255,7 @@ export function getSplitPoint(length) {
 		return 0
 	}
 	let b = 0
-	for (let i = 1; i < length; i << 1) {
+	for (let i = 1; i < length; i <<= 1) {
 		b++
 	}
 	let k = 1 << (b - 1)
