@@ -17,6 +17,9 @@ export const useAppStore = defineStore("app", () => {
 		close: "0",
 	})
 
+	const address = ref("")
+	const balance = ref(0)
+
 	const latestBlocks = ref([])
 	const lastHead = ref({})
 	const isLatestBlocksLoaded = ref(false)
@@ -33,5 +36,19 @@ export const useAppStore = defineStore("app", () => {
 		modalsStore.open("confirmation")
 	}
 
-	return { head, gas, currentPrice, latestBlocks, lastHead, isPaused, isLatestBlocksLoaded, showCmd, theme, confirmation, createConfirmation }
+	return {
+		head,
+		gas,
+		currentPrice,
+		address,
+		balance,
+		latestBlocks,
+		lastHead,
+		isPaused,
+		isLatestBlocksLoaded,
+		showCmd,
+		theme,
+		confirmation,
+		createConfirmation,
+	}
 })

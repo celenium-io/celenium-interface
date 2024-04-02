@@ -76,6 +76,10 @@ useHead({
 		},
 	],
 })
+
+onBeforeRouteLeave(() => {
+	cacheStore.current.namespace = null
+})
 </script>
 
 <template>

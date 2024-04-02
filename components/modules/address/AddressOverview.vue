@@ -26,7 +26,7 @@ import {
 	fetchBlobsByAddressHash,
 	fetchAddressDelegations,
 	fetchAddressRedelegations,
-	fetchAddressUndelegations
+	fetchAddressUndelegations,
 } from "@/services/api/address"
 
 /** Store */
@@ -119,7 +119,7 @@ const handleSelect = (tab) => {
 		if (tabCenter) {
 			let wrapperCenter = tabsEl.value.wrapper.offsetLeft + tabsEl.value.wrapper.offsetWidth / 2
 
-			tabsEl.value.wrapper.scroll({left: tabCenter - wrapperCenter})
+			tabsEl.value.wrapper.scroll({ left: tabCenter - wrapperCenter })
 		}
 	}
 }
@@ -364,7 +364,8 @@ await getTransactions()
 /** Delegation */
 const isActiveDelegator = props.address.balance.delegated > 0 || props.address.balance.unbonding > 0
 const collapseBalances = ref(!isActiveDelegator)
-const totalBalance = parseInt(props.address.balance.spendable) + parseInt(props.address.balance.delegated) + parseInt(props.address.balance.unbonding)
+const totalBalance =
+	parseInt(props.address.balance.spendable) + parseInt(props.address.balance.delegated) + parseInt(props.address.balance.unbonding)
 const delegations = ref([])
 const redelegations = ref([])
 const undelegations = ref([])
@@ -434,19 +435,19 @@ watch(
 			case "messages":
 				getMessages()
 				break
-			
+
 			case "blobs":
 				getBlobs()
 				break
-			
+
 			case "delegations":
 				getDelegations()
 				break
-			
+
 			case "redelegations":
 				getRedelegations()
 				break
-			
+
 			case "undelegations":
 				getUndelegations()
 				break
@@ -469,15 +470,15 @@ watch(
 			case "messages":
 				getMessages()
 				break
-			
+
 			case "delegations":
 				getDelegations()
 				break
-			
+
 			case "redelegations":
 				getRedelegations()
 				break
-			
+
 			case "undelegations":
 				getUndelegations()
 				break
@@ -525,6 +526,10 @@ const handleBookmark = () => {
 			},
 		})
 	}
+}
+
+const handleSend = () => {
+	modalsStore.open("send")
 }
 
 const handleViewRawAddress = () => {
@@ -581,6 +586,13 @@ const handleOpenQRModal = () => {
 					</Button>
 
 					<template #popup>
+						<DropdownItem @click="handleSend">
+							<Flex align="center" gap="8">
+								<Icon name="coins" size="12" color="secondary" />
+								Send TIA
+							</Flex>
+						</DropdownItem>
+
 						<DropdownItem @click="handleViewRawAddress">
 							<Flex align="center" gap="8">
 								<Icon name="address" size="12" color="secondary" />
@@ -605,48 +617,54 @@ const handleOpenQRModal = () => {
 						</Flex>
 					</Flex>
 
-						<Flex direction="column" gap="16" :class="$style.key_value">
-							<Flex
-								@click="collapseBalances = !collapseBalances"
-								align="center"
-								justify="between"
-								style="cursor: pointer"
-							>
-								<Flex direction="column" gap="8">
-									<Text size="12" weight="600" color="secondary">Total Balance</Text>
-									<AmountInCurrency :amount="{ value: totalBalance }" :styles="{ amount: { size: '13' }, currency: { size: '13', color: 'primary' } }" />
-									<!-- <Text size="13" weight="600" color="primary" selectable>{{ tia(totalBalance).toLocaleString('en-US') }} TIA</Text> -->
-								</Flex>
-
-								<Icon
-									name="chevron"
-									size="14"
-									color="secondary"
-									:style="{
-										transform: `rotate(${collapseBalances ? '0' : '180'}deg)`,
-										transition: 'all 400ms ease',
-									}"
+					<Flex direction="column" gap="16" :class="$style.key_value">
+						<Flex @click="collapseBalances = !collapseBalances" align="center" justify="between" style="cursor: pointer">
+							<Flex direction="column" gap="8">
+								<Text size="12" weight="600" color="secondary">Total Balance</Text>
+								<AmountInCurrency
+									:amount="{ value: totalBalance }"
+									:styles="{ amount: { size: '13' }, currency: { size: '13', color: 'primary' } }"
 								/>
+								<!-- <Text size="13" weight="600" color="primary" selectable>{{ tia(totalBalance).toLocaleString('en-US') }} TIA</Text> -->
 							</Flex>
-							
-							<Flex v-if="!collapseBalances" direction="column" gap="12" :class="$style.key_value">
-								<Flex align="center" justify="between">
-									<Text size="12" weight="600" color="tertiary"> Spendable</Text>
-									<AmountInCurrency :amount="{ value: address.balance.spendable }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
-								</Flex>
 
-								<Flex align="center" justify="between">
-									<Text size="12" weight="600" color="tertiary"> Delegated</Text>
-									<AmountInCurrency :amount="{ value: address.balance.delegated }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
-								</Flex>
-
-								<Flex align="center" justify="between">
-									<Text size="12" weight="600" color="tertiary"> Unbonding</Text>
-									<AmountInCurrency :amount="{ value: address.balance.unbonding }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
-								</Flex>
-							</Flex>
+							<Icon
+								name="chevron"
+								size="14"
+								color="secondary"
+								:style="{
+									transform: `rotate(${collapseBalances ? '0' : '180'}deg)`,
+									transition: 'all 400ms ease',
+								}"
+							/>
 						</Flex>
 
+						<Flex v-if="!collapseBalances" direction="column" gap="12" :class="$style.key_value">
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary"> Spendable</Text>
+								<AmountInCurrency
+									:amount="{ value: address.balance.spendable }"
+									:styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }"
+								/>
+							</Flex>
+
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary"> Delegated</Text>
+								<AmountInCurrency
+									:amount="{ value: address.balance.delegated }"
+									:styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }"
+								/>
+							</Flex>
+
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary"> Unbonding</Text>
+								<AmountInCurrency
+									:amount="{ value: address.balance.unbonding }"
+									:styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }"
+								/>
+							</Flex>
+						</Flex>
+					</Flex>
 
 					<Flex direction="column" gap="16">
 						<Text size="12" weight="600" color="secondary">Details</Text>
@@ -673,7 +691,7 @@ const handleOpenQRModal = () => {
 							align="center"
 							gap="6"
 							:class="[$style.tab, activeTab === tab.alias && $style.active]"
-							:style="{transition: 'all 200ms ease'}"
+							:style="{ transition: 'all 200ms ease' }"
 						>
 							<Icon :name="tab.icon" size="12" color="secondary" />
 
@@ -685,7 +703,12 @@ const handleOpenQRModal = () => {
 				<Flex direction="column" justify="center" :class="[$style.tables, isRefetching && $style.disabled]">
 					<Flex v-if="activeTab === 'transactions'" wrap="wrap" align="center" gap="8" :class="$style.filters">
 						<Popover :open="isStatusPopoverOpen" @on-close="onStatusPopoverClose" width="200">
-							<Button @click="handleOpenStatusPopover" type="secondary" size="mini" :disabled="!transactions.length && !hasActiveFilters">
+							<Button
+								@click="handleOpenStatusPopover"
+								type="secondary"
+								size="mini"
+								:disabled="!transactions.length && !hasActiveFilters"
+							>
 								<Icon name="plus-circle" size="12" color="tertiary" />
 								<Text color="secondary">Status</Text>
 
@@ -723,7 +746,12 @@ const handleOpenQRModal = () => {
 						</Popover>
 
 						<Popover :open="isMessageTypePopoverOpen" @on-close="onMessageTypePopoverClose" width="250">
-							<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini" :disabled="!transactions.length && !hasActiveFilters">
+							<Button
+								@click="handleOpenMessageTypePopover"
+								type="secondary"
+								size="mini"
+								:disabled="!transactions.length && !hasActiveFilters"
+							>
 								<Icon name="plus-circle" size="12" color="tertiary" />
 								<Text color="secondary">Message Type</Text>
 
@@ -817,7 +845,7 @@ const handleOpenQRModal = () => {
 							<Flex v-else direction="column" align="center" justify="center" gap="8" :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No transactions </Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									This address did not signed any {{ page === 1 ? '' : 'more' }} transactions
+									This address did not signed any {{ page === 1 ? "" : "more" }} transactions
 								</Text>
 							</Flex>
 						</template>
@@ -829,7 +857,7 @@ const handleOpenQRModal = () => {
 							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No Messages </Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									No {{ page === 1 ? 'activity' : 'more messages' }} with this address
+									No {{ page === 1 ? "activity" : "more messages" }} with this address
 								</Text>
 							</Flex>
 						</template>
@@ -841,7 +869,7 @@ const handleOpenQRModal = () => {
 							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No Blobs </Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									This address did not push any {{ page === 1 ? '' : 'more' }} blobs
+									This address did not push any {{ page === 1 ? "" : "more" }} blobs
 								</Text>
 							</Flex>
 						</template>
@@ -853,7 +881,7 @@ const handleOpenQRModal = () => {
 							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No Delegations </Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									This address doesn't have any {{ page === 1 ? '' : 'more' }} delegations
+									This address doesn't have any {{ page === 1 ? "" : "more" }} delegations
 								</Text>
 							</Flex>
 						</template>
@@ -865,7 +893,7 @@ const handleOpenQRModal = () => {
 							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No Redelegations </Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									This address doesn't have any {{ page === 1 ? '' : 'more' }} redelegations
+									This address doesn't have any {{ page === 1 ? "" : "more" }} redelegations
 								</Text>
 							</Flex>
 						</template>
@@ -877,7 +905,7 @@ const handleOpenQRModal = () => {
 							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No Undelegations </Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									This address doesn't have any {{ page === 1 ? '' : 'more' }} undelegations
+									This address doesn't have any {{ page === 1 ? "" : "more" }} undelegations
 								</Text>
 							</Flex>
 						</template>
@@ -960,7 +988,7 @@ const handleOpenQRModal = () => {
 
 .tab {
 	height: 28px;
-	
+
 	white-space: nowrap;
 
 	cursor: pointer;

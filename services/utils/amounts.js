@@ -9,11 +9,21 @@ export const comma = (target, symbol = ",", fixed = 2) => {
 		num = num.toFixed(fixed)
 	}
 
-	if (num.split(".").length && fixed !== 2) {
+	if (num.includes(".")) {
+		while (num[num.length - 1] === "0") {
+			num = num.slice(0, num.length - 1)
+		}
+		if (num[num.length - 1] === ".") {
+			num = num.slice(0, num.length - 1)
+		}
+	}
+
+	if (num.split(".").length > 1 && fixed !== 2) {
 		return `${num
 			.split(".")[0]
 			.toString()
 			.replace(/\B(?=(\d{3})+(?!\d))/g, symbol)}.${num.split(".")[1]}`
+		x
 	} else {
 		return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, symbol)
 	}
@@ -58,7 +68,7 @@ export const utia = (amount) => {
 export const truncateDecimalPart = (amount, decimal = 6) => {
 	if (!amount) return 0
 
-	const numberString = amount.toFixed(decimal).replace(/\.?0+$/, '')
+	const numberString = amount.toFixed(decimal).replace(/\.?0+$/, "")
 
 	return parseFloat(numberString)
 }
@@ -70,7 +80,7 @@ export const numToPercent = (num, decimal = 0) => {
 export const shareOfTotal = (amount, total, decimal = 2) => {
 	if (!total) return 0
 
-	return truncateDecimalPart((amount / total * 100), decimal)
+	return truncateDecimalPart((amount / total) * 100, decimal)
 }
 
 export const shareOfTotalString = (amount, total, decimal = 2) => {
@@ -82,7 +92,9 @@ export const amountToString = (amount, decimal = 2) => {
 
 	if (!amount) return 0
 
-	return amount < 0.01 && decimal < 3 ? '<0.01' : truncateDecimalPart(amount, decimal).toLocaleString('en-US', { maximumFractionDigits: decimal })
+	return amount < 0.01 && decimal < 3
+		? "<0.01"
+		: truncateDecimalPart(amount, decimal).toLocaleString("en-US", { maximumFractionDigits: decimal })
 }
 
 export const abbreviate = (n, h = 1) => {
@@ -91,4 +103,24 @@ export const abbreviate = (n, h = 1) => {
 	if (n >= 1e6 && n < 1e9) return +(n / 1e6).toFixed(h) + "M"
 	if (n >= 1e9 && n < 1e12) return +(n / 1e9).toFixed(h) + "B"
 	if (n >= 1e12) return +(n / 1e12).toFixed(h) + "T"
+}
+
+export const purgeNumber = (target) => {
+	if (/^(0|[1-9]\d*)(\.\d+)?$/.test(target)) return target
+	return target.replace(/[^0-9.]/g, "")
+}
+
+export const normalizeAmount = (target, max = 9_999_999_999_999, maxStr = "9 999 999 999 999") => {
+	if (target === ".") return "0."
+
+	let dotCounter = 0
+	target.split("").forEach((char) => {
+		if (char === ".") dotCounter++
+	})
+	if (dotCounter > 1) return target.slice(0, target.length - 1)
+
+	if (target[target.length - 1] === ".") return target
+	if (!target.length) return ""
+	if (target.length === 1 && !/^(0|[1-9]\d*)(\.\d+)?$/.test(target)) return ""
+	if (parseFloat(purgeNumber(target)) >= max) return maxStr
 }

@@ -67,3 +67,14 @@ export const fetchGasEfficiencySeries = async ({ timeframe, from, to }) => {
 		console.error(error)
 	}
 }
+
+export const fetchEstimatedGas = async (length) => {
+	try {
+		const url = new URL(`${useServerURL()}/gas/estimate_for_pfb?sizes=${length}`)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}

@@ -74,6 +74,10 @@ useHead({
 		},
 	],
 })
+
+onBeforeRouteLeave(() => {
+	cacheStore.current.address = null
+})
 </script>
 
 <template>

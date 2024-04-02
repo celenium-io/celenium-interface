@@ -1,3 +1,5 @@
+import { nodePolyfills } from "vite-plugin-node-polyfills"
+
 export default defineNuxtConfig({
 	modules: ["nuxt-simple-sitemap", "@pinia/nuxt", "nuxt-og-image"],
 
@@ -115,5 +117,9 @@ export default defineNuxtConfig({
 
 	devtools: {
 		enabled: true,
+	},
+
+	vite: {
+		plugins: [nodePolyfills()],
 	},
 })

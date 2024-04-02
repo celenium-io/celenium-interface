@@ -2,7 +2,7 @@ import { getNamespaceID } from '~/services/utils';
 <script setup>
 /** UI */
 import Button from "@/components/ui/Button.vue"
-import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
+import { Dropdown, DropdownItem, DropdownDivider } from "@/components/ui/Dropdown"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Tables */
@@ -247,6 +247,8 @@ const handleViewRawMessages = () => {
 					</Button>
 
 					<template #popup>
+						<DropdownItem @click="modalsStore.open('pfb')"> Submit data blob </DropdownItem>
+						<DropdownDivider />
 						<DropdownItem @click="handleViewRawNamespace"> View Raw Namespace </DropdownItem>
 						<DropdownItem @click="handleViewRawBlobs"> View Raw Blobs </DropdownItem>
 						<DropdownItem @click="handleViewRawMessages"> View Raw Messages </DropdownItem>
@@ -315,7 +317,7 @@ const handleViewRawMessages = () => {
 
 					<Flex v-if="rollups.length" direction="column" gap="16">
 						<div :class="$style.horizontal_divider" />
-						
+
 						<Text size="12" weight="600" color="secondary">Used By Rollups</Text>
 						<Flex direction="row" gap="8">
 							<Tooltip v-for="r in rollups">
@@ -332,7 +334,6 @@ const handleViewRawMessages = () => {
 								</template>
 							</Tooltip>
 						</Flex>
-
 					</Flex>
 				</Flex>
 			</Flex>

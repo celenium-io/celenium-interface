@@ -19,7 +19,7 @@ import FeeCalculator from "./custom/FeeCalculator.vue"
 /** Services */
 import amp from "@/services/amp"
 import { isMac, isPrefersDarkScheme } from "@/services/utils/general"
-import { capitilize } from "@/services/utils/strings";
+import { capitilize } from "@/services/utils/strings"
 
 /** API */
 import { search } from "@/services/api/search"
@@ -282,6 +282,28 @@ const navigationGroup = computed(() => {
 })
 
 const rawQuickCommandsActions = [
+	{
+		type: "callback",
+		icon: "coins",
+		title: "Send TIA",
+		subtitle: "Command",
+		runText: "Send via Keplr",
+
+		callback: () => {
+			modalsStore.open("send")
+		},
+	},
+	{
+		type: "callback",
+		icon: "coins",
+		title: "Submit data blob",
+		subtitle: "Command",
+		runText: "Submit via Keplr",
+
+		callback: () => {
+			modalsStore.open("pfb")
+		},
+	},
 	{
 		type: "command:input",
 		icon: "tx",
@@ -877,12 +899,12 @@ const autocompleteGroup = computed(() => {
 
 const debouncedSearch = useDebounceFn(async (e) => {
 	const { data } = await search(searchTerm.value.trim())
-	if (!data.value.length) return
+	if (!data.value?.length) return
 
 	amp.log("showAutocomplete", { count: data.value.length, firstType: data.value[0].type })
 
 	autocompleteActions.value = []
-	
+
 	for (let i = 0; i < Math.min(3, data.value.length); i++) {
 		let title
 		let routerLink

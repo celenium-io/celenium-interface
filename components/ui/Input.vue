@@ -16,6 +16,10 @@ const props = defineProps({
 	label: {
 		type: String,
 	},
+	suffix: {
+		type: String,
+		required: false,
+	},
 	icon: {
 		type: String,
 	},
@@ -30,6 +34,10 @@ const props = defineProps({
 		type: Boolean,
 	},
 	autofocus: {
+		type: Boolean,
+		default: false,
+	},
+	disablePaste: {
 		type: Boolean,
 		default: false,
 	},
@@ -90,6 +98,10 @@ const handleBlur = () => {
 	isFocused.value = false
 	emit("blur")
 }
+
+const handlePaste = (e) => {
+	if (props.disablePaste) e.preventDefault()
+}
 </script>
 
 <template>
@@ -112,10 +124,13 @@ const handleBlur = () => {
 					@focus="handleFocus"
 					@blur="handleBlur"
 					@keydown="handleKeydown"
+					@paste="handlePaste"
 					:placeholder="placeholder"
 					spellcheck="false"
 				/>
 			</Flex>
+
+			<Text size="12" weight="600" color="tertiary">{{ suffix }}</Text>
 		</div>
 	</Flex>
 </template>

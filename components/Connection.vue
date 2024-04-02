@@ -3,22 +3,49 @@
 import Button from "@/components/ui/Button.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
+
 /** Services */
 import { suggestChain, getAccounts } from "@/services/keplr"
+
 /** Store */
+import { useAppStore } from "@/store/app"
 import { useNotificationsStore } from "@/store/notifications"
+const appStore = useAppStore()
 const notificationsStore = useNotificationsStore()
+
 const isWalletAvailable = ref(false)
 const isFetchingAccounts = ref(true)
 const account = ref()
+
+const getBalance = async () => {
+	const key = await window.keplr.getKey("arabica-11")
+
+	if (key) {
+		const uri = `https://api.celestia-arabica-11.com/cosmos/bank/v1beta1/balances/${key.bech32Address}?pagination.limit=1000`
+
+		const data = await $fetch(uri)
+		const celestiaBalance = data.balances.find((balance) => balance.denom === "utia")
+
+		appStore.balance = parseFloat(celestiaBalance.amount / 1_000_000) || 0
+	}
+}
+
 onMounted(async () => {
 	isWalletAvailable.value = !!window.keplr
+
 	try {
 		const accounts = await getAccounts()
-		if (accounts.length) account.value = accounts[0].address
+		if (accounts.length) {
+			account.value = accounts[0].address
+			appStore.address = accounts[0].address
+		}
+
+		getBalance()
 	} catch (error) {}
+
 	isFetchingAccounts.value = false
 })
+
 const handleConnect = async () => {
 	try {
 		await suggestChain()
@@ -35,32 +62,6 @@ const handleConnect = async () => {
 					},
 				})
 				break
-		}
-	}
-}
-const test = async () => {
-	const key = await window.keplr.getKey(OsmosisChainInfo.chainId)
-	const protoMsgs = {
-		typeUrl: "/cosmos.bank.v1beta1.MsgSend",
-		value: MsgSend.encode({
-			fromAddress: key.bech32Address,
-			toAddress: recipient,
-			amount: [
-				{
-					denom: "uosmo",
-					amount: DecUtils.getTenExponentN(6).mul(new Dec(amount)).truncate().toString(),
-				},
-			],
-		}).finish(),
-	}
-	try {
-		await sendMsgs(window.keplr, OsmosisChainInfo, key.bech32Address, [protoMsgs], {
-			amount: [{ denom: "uosmo", amount: "236" }],
-			gas: Math.floor(gasUsed * 1.5).toString(),
-		})
-	} catch (e) {
-		if (e instanceof Error) {
-			console.log(e.message)
 		}
 	}
 }
@@ -94,8 +95,8 @@ const test = async () => {
 
 	<Button v-else-if="!account" @click="handleConnect" type="white" size="small"> Connect </Button>
 
-	<Button v-else @click="test" type="secondary" size="small">
+	<Button v-else type="secondary" size="small">
 		<Icon name="address" size="14" color="primary" />
-		celestia ... {{ account.slice(-4) }}
+		{{ appStore.balance }} TIA
 	</Button>
 </template>
