@@ -42,6 +42,7 @@ watch(
 			}
 		} else {
 			namespace.value = ""
+			blob.value = null
 		}
 	},
 )
@@ -58,6 +59,7 @@ const handleDrop = (e) => {
 				autoDestroy: true,
 			},
 		})
+		return
 	}
 
 	const reader = new FileReader()
