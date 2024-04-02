@@ -1,8 +1,5 @@
-import { env, nodeless } from "unenv"
-const { alias } = env(nodeless)
-const { buffer: _, ...rest } = alias
-
 import { nodePolyfills } from "vite-plugin-node-polyfills"
+import path from "path"
 
 export default defineNuxtConfig({
 	modules: ["nuxt-simple-sitemap", "@pinia/nuxt", "nuxt-og-image"],
@@ -129,7 +126,7 @@ export default defineNuxtConfig({
 		},
 		resolve: {
 			alias: {
-				...rest,
+				"unenv/runtime/node/buffer/index/": path.resolve(__dirname, "./node_modules/buffer/index"),
 			},
 		},
 		plugins: [nodePolyfills()],

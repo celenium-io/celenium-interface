@@ -1,4 +1,8 @@
+import Buffer from "buffer"
+
 export default defineNuxtPlugin((nuxtApp) => {
+	window.Buffer = Buffer
+
 	nuxtApp.hook("app:created", () => {
 		useHead({
 			script: [

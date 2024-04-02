@@ -1,5 +1,3 @@
-import { TendermintTxTracer } from "@keplr-wallet/cosmos"
-
 import Base64 from "crypto-js/enc-base64"
 import Hex from "crypto-js/enc-hex"
 
@@ -270,10 +268,10 @@ export const sendMsgs = async (sender, proto, fee) => {
 
 		const txHash = await broadcastTxSync(arabica.chainId, signedTx.tx)
 
-		const txTracer = new TendermintTxTracer(arabica.rpc, "/websocket")
-		txTracer.traceTx(txHash).then((tx) => {
-			console.log(tx)
-		})
+		// const txTracer = new TendermintTxTracer(arabica.rpc, "/websocket")
+		// txTracer.traceTx(txHash).then((tx) => {
+		// 	console.log(tx)
+		// })
 	}
 }
 
