@@ -1,3 +1,7 @@
+import { env, nodeless } from "unenv"
+const { alias } = env(nodeless)
+const { buffer: _, ...rest } = alias
+
 import { nodePolyfills } from "vite-plugin-node-polyfills"
 
 export default defineNuxtConfig({
@@ -120,6 +124,14 @@ export default defineNuxtConfig({
 	},
 
 	vite: {
+		define: {
+			global: "globalThis",
+		},
+		resolve: {
+			alias: {
+				...rest,
+			},
+		},
 		plugins: [nodePolyfills()],
 	},
 })
