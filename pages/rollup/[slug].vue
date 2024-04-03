@@ -95,6 +95,7 @@ useHead({
 					<Icon name="rollup-plus" size="12" color="secondary" /> Rollup Registration
 				</Button>
 			</Flex>
+			
 			<RollupOverview v-if="rollup" :rollup="rollup" />
 		</Flex>
 

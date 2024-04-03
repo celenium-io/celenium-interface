@@ -16,6 +16,12 @@ import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
 
 const head = computed(() => appStore.lastHead)
+const currentPrice = computed(() => appStore.currentPrice)
+
+const totalSupply = computed(() => head.value.total_supply / 1_000_000)
+const totalSupplyUSD = computed(() => totalSupply.value * currentPrice.value?.close)
+const totalFees = computed(() => head.value.total_fee / 1_000_000)
+const totalFeesUSD = computed(() => totalFees.value * currentPrice.value?.close)
 
 const series = ref([])
 const price = reactive({
@@ -25,14 +31,18 @@ const price = reactive({
 })
 
 onMounted(async () => {
-	const dataSeries = await fetchPriceSeries( {from: parseInt(DateTime.now().minus({ days: 2 }).ts / 1_000)})
+	const dataSeries = await fetchPriceSeries( {from: parseInt(DateTime.now().minus({ days: 3 }).ts / 1_000)})
 	series.value = dataSeries
 	appStore.currentPrice = series.value[0]
 	price.value = parseFloat(series.value[0].close)
 
 	const prevDayClosePrice = parseFloat(series.value[1].close)
 	price.diff = (Math.abs(prevDayClosePrice - price.value) / ((prevDayClosePrice + price.value) / 2)) * 100
-	price.side = price.value - prevDayClosePrice > 0 ? "rise" : "fall"
+	let side = 'stay'
+	if (price.value - prevDayClosePrice !== 0) {
+		side = price.value - prevDayClosePrice > 0 ? 'rise' : 'fall'
+	}
+	price.side = side
 })
 </script>
 
@@ -65,13 +75,13 @@ onMounted(async () => {
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Supply:</Text>
 
 							<Text v-if="head" size="12" weight="600" noWrap :class="$style.value">
-								{{ abbreviate(head.total_supply / 1_000_000, 2) }} TIA
+								{{ abbreviate(totalSupply, 2) }} TIA
 							</Text>
 							<Skeleton v-else w="55" h="12" />
 						</Flex>
 					</Flex>
 
-					<template #content> {{ comma(head.total_supply) }} UTIA </template>
+					<template #content> {{ abbreviate(totalSupplyUSD, 2) }} USD </template>
 				</Tooltip>
 
 				<div :class="$style.dot" />
@@ -101,13 +111,13 @@ onMounted(async () => {
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Fees:</Text>
 
 							<Text v-if="head" size="12" weight="600" noWrap :class="$style.value">
-								{{ abbreviate(parseInt(head.total_fee / 1_000_000)) }} TIA
+								{{ abbreviate(parseInt(totalFees)) }} TIA
 							</Text>
 							<Skeleton v-else w="55" h="12" />
 						</Flex>
 					</Flex>
 
-					<template #content> {{ comma(head.total_fee) }} UTIA </template>
+					<template #content> {{ abbreviate(totalFeesUSD) }} USD </template>
 				</Tooltip>
 			</Flex>
 
@@ -122,11 +132,11 @@ onMounted(async () => {
 						<Skeleton v-else w="36" h="12" />
 					</Flex>
 
-					<Flex v-if="price.diff" align="center" gap="4">
+					<Flex v-if="!isNaN(price.diff)" align="center" gap="4">
 						<Icon v-if="price.side === 'rise'" name="arrow-circle-right-up" size="12" color="neutral-green" />
-						<Icon v-else name="arrow-circle-right-down" size="12" color="red" />
+						<Icon v-else-if="price.side === 'fall'" name="arrow-circle-right-down" size="12" color="red" />
 
-						<Text size="12" weight="600" :color="price.side === 'rise' ? 'neutral-green' : 'red'" noWrap>
+						<Text size="12" weight="600" :color="price.side === 'fall' ? 'red' : 'neutral-green'" noWrap>
 							{{ price.diff.toFixed(2) }}%</Text
 						>
 					</Flex>

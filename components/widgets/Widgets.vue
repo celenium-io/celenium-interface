@@ -22,7 +22,7 @@ onBeforeMount(() => {
 			<BlobsWidget />
 		</Flex>
 
-		<StakingWidget />
+		<StakingWidget :class="$style.staking_widget" />
 
 		<Flex direction="column" gap="20" wide :class="$style.column">
 			<TransactionsWidget />
@@ -34,6 +34,10 @@ onBeforeMount(() => {
 <style module>
 .column {
 	min-width: 368px;
+}
+
+.staking_widget {
+	min-width: 216px;
 }
 
 @media (max-width: 1100px) {

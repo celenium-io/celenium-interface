@@ -9,7 +9,7 @@ import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 
 /** Services */
-import { abbreviate, formatBytes } from "@/services/utils"
+import { abbreviate, formatBytes, tia } from "@/services/utils"
 
 /** API */
 import { fetchRollupSeries } from "@/services/api/stats"
@@ -45,14 +45,17 @@ const selectedPeriod = computed(() => periods.value[selectedPeriodIdx.value])
 const chartWrapperEl = ref()
 const sizeSeriesChartEl = ref()
 const pfbSeriesChartEl = ref()
+const feeSeriesChartEl = ref()
 
 /** Data */
 const sizeSeries = ref([])
 const pfbSeries = ref([])
+const feeSeries = ref([])
 
 /** Tooltip */
 const showSeriesTooltip = ref(false)
 const showPfbTooltip = ref(false)
+const showFeeTooltip = ref(false)
 const tooltipEl = ref()
 const tooltipXOffset = ref(0)
 const tooltipYOffset = ref(0)
@@ -248,6 +251,38 @@ const getPfbSeries = async () => {
 	}
 }
 
+const getFeeSeries = async () => {
+	feeSeries.value = []
+
+	const feeSeriesRawData = await fetchRollupSeries({
+		id: props.id,
+		name: "fee",
+		timeframe: selectedPeriod.value.timeframe,
+		from: parseInt(
+			DateTime.now().minus({
+				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
+				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
+			}).ts / 1_000,
+		),
+	})
+
+	const feeSeriesMap = {}
+	feeSeriesRawData.forEach((item) => {
+		feeSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
+	})
+
+	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
+		const dt = DateTime.now().minus({
+			days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
+			hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - i : 0,
+		})
+		feeSeries.value.push({
+			date: dt.toJSDate(),
+			value: parseInt(feeSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+		})
+	}
+}
+
 const buildNamespaceCharts = async () => {
 	await getSizeSeries()
 	buildChart(
@@ -263,6 +298,14 @@ const buildNamespaceCharts = async () => {
 		pfbSeries.value,
 		() => (showPfbTooltip.value = true),
 		() => (showPfbTooltip.value = false),
+	)
+
+	await getFeeSeries()
+	buildChart(
+		feeSeriesChartEl.value.wrapper,
+		feeSeries.value,
+		() => (showFeeTooltip.value = true),
+		() => (showFeeTooltip.value = false),
 	)
 }
 
@@ -313,182 +356,279 @@ onBeforeUnmount(() => {
 			</Dropdown>
 		</Flex>
 
-		<Flex justify="between" gap="32" :class="$style.data">
-			<Flex direction="column" gap="20" wide>
-				<Text size="13" weight="600" color="primary">DA Usage</Text>
+		<Flex direction="column">
+			<Flex justify="between" gap="32" :class="$style.data">
+				<Flex direction="column" gap="20" wide>
+					<Text size="13" weight="600" color="primary">DA Usage</Text>
 
-				<Flex ref="chartWrapperEl" direction="column" :class="$style.chart_wrapper">
-					<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">
-						<Text
-							v-if="sizeSeries.length"
-							size="12"
-							weight="600"
-							color="tertiary"
-							:style="{ opacity: Math.max(...sizeSeries.map((d) => d.value)) ? 1 : 0 }"
-						>
-							{{ formatBytes(Math.max(...sizeSeries.map((d) => d.value)), 0) }}
-						</Text>
-						<Skeleton v-else-if="!sizeSeries.length" w="32" h="12" />
-
-						<Text
-							v-if="sizeSeries.length"
-							size="12"
-							weight="600"
-							color="tertiary"
-							:style="{
-								opacity:
-									Math.round(Math.max(...sizeSeries.map((d) => d.value)) / 2) !==
-									Math.max(...sizeSeries.map((d) => d.value))
-										? 1
-										: 0,
-							}"
-						>
-							{{ formatBytes(Math.round(Math.max(...sizeSeries.map((d) => d.value)) / 2), 0) }}
-						</Text>
-						<Skeleton v-else-if="!sizeSeries.length" w="24" h="12" />
-
-						<Text v-if="sizeSeries.length" size="12" weight="600" color="tertiary"> 0 </Text>
-						<Skeleton v-else-if="!sizeSeries.length" w="16" h="12" />
-					</Flex>
-
-					<Flex :class="[$style.axis, $style.x]">
-						<Flex align="end" justify="between" wide>
-							<Text v-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">
-								{{
-									DateTime.now()
-										.minus({ days: selectedPeriod.value - 1 })
-										.toFormat("LLL dd")
-								}}
+					<Flex ref="chartWrapperEl" direction="column" :class="$style.chart_wrapper">
+						<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">
+							<Text
+								v-if="sizeSeries.length"
+								size="12"
+								weight="600"
+								color="tertiary"
+								:style="{ opacity: Math.max(...sizeSeries.map((d) => d.value)) ? 1 : 0 }"
+							>
+								{{ formatBytes(Math.max(...sizeSeries.map((d) => d.value)), 0) }}
 							</Text>
-							<Text v-else size="12" weight="600" color="tertiary">
-								{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
-							</Text>
+							<Skeleton v-else-if="!sizeSeries.length" w="32" h="12" />
 
-							<Text size="12" weight="600" color="tertiary">{{ selectedPeriod.timeframe === "day" ? "Today" : "Now" }}</Text>
+							<Text
+								v-if="sizeSeries.length"
+								size="12"
+								weight="600"
+								color="tertiary"
+								:style="{
+									opacity:
+										Math.round(Math.max(...sizeSeries.map((d) => d.value)) / 2) !==
+										Math.max(...sizeSeries.map((d) => d.value))
+											? 1
+											: 0,
+								}"
+							>
+								{{ formatBytes(Math.round(Math.max(...sizeSeries.map((d) => d.value)) / 2), 0) }}
+							</Text>
+							<Skeleton v-else-if="!sizeSeries.length" w="24" h="12" />
+
+							<Text v-if="sizeSeries.length" size="12" weight="600" color="tertiary"> 0 </Text>
+							<Skeleton v-else-if="!sizeSeries.length" w="16" h="12" />
 						</Flex>
-					</Flex>
 
-					<Transition name="fastfade">
-						<div v-if="showSeriesTooltip" :class="$style.tooltip_wrapper">
-							<div
-								:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
-								:class="$style.dot"
-							/>
-							<div :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
-							<div
-								ref="badgeEl"
-								:style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"
-								:class="$style.badge"
-							>
-								<Text size="12" weight="600" color="secondary">
-									{{ badgeText }}
+						<Flex :class="[$style.axis, $style.x]">
+							<Flex align="end" justify="between" wide>
+								<Text v-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">
+									{{
+										DateTime.now()
+											.minus({ days: selectedPeriod.value - 1 })
+											.toFormat("LLL dd")
+									}}
 								</Text>
-							</div>
-							<Flex
-								ref="tooltipEl"
-								:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYDataOffset - 40}px)` }"
-								direction="column"
-								gap="8"
-								:class="$style.tooltip"
-							>
-								<Flex align="center" gap="16">
-									<Text size="12" weight="600" color="secondary">Usage</Text>
-									<Text size="12" weight="600" color="primary"> {{ formatBytes(tooltipText) }} </Text>
-								</Flex>
-							</Flex>
-						</div>
-					</Transition>
+								<Text v-else size="12" weight="600" color="tertiary">
+									{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
+								</Text>
 
-					<Flex ref="sizeSeriesChartEl" :class="$style.chart" />
+								<Text size="12" weight="600" color="tertiary">{{ selectedPeriod.timeframe === "day" ? "Today" : "Now" }}</Text>
+							</Flex>
+						</Flex>
+
+						<Transition name="fastfade">
+							<div v-if="showSeriesTooltip" :class="$style.tooltip_wrapper">
+								<div
+									:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
+									:class="$style.dot"
+								/>
+								<div :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
+								<div
+									ref="badgeEl"
+									:style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"
+									:class="$style.badge"
+								>
+									<Text size="12" weight="600" color="secondary">
+										{{ badgeText }}
+									</Text>
+								</div>
+								<Flex
+									ref="tooltipEl"
+									:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYDataOffset - 40}px)` }"
+									direction="column"
+									gap="8"
+									:class="$style.tooltip"
+								>
+									<Flex align="center" gap="16">
+										<Text size="12" weight="600" color="secondary">Usage</Text>
+										<Text size="12" weight="600" color="primary"> {{ formatBytes(tooltipText) }} </Text>
+									</Flex>
+								</Flex>
+							</div>
+						</Transition>
+
+						<Flex ref="sizeSeriesChartEl" :class="$style.chart" />
+					</Flex>
+				</Flex>
+
+				<Flex direction="column" gap="20" wide>
+					<Text size="13" weight="600" color="primary">Blobs Count</Text>
+
+					<Flex direction="column" :class="$style.chart_wrapper">
+						<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">
+							<Text
+								v-if="pfbSeries.length"
+								size="12"
+								weight="600"
+								color="tertiary"
+								:style="{ opacity: Math.max(...pfbSeries.map((d) => d.value)) ? 1 : 0 }"
+							>
+								{{ abbreviate(Math.max(...pfbSeries.map((d) => d.value)), 0) }}
+							</Text>
+							<Skeleton v-else-if="!pfbSeries.length" w="32" h="12" />
+
+							<Text
+								v-if="pfbSeries.length"
+								size="12"
+								weight="600"
+								color="tertiary"
+								:style="{
+									opacity:
+										Math.round(Math.max(...pfbSeries.map((d) => d.value)) / 2) != Math.max(...pfbSeries.map((d) => d.value))
+											? 1
+											: 0,
+								}"
+							>
+								{{ abbreviate(Math.round(Math.max(...pfbSeries.map((d) => d.value)) / 2), 0) }}
+							</Text>
+							<Skeleton v-else-if="!pfbSeries.length" w="24" h="12" />
+
+							<Text v-if="pfbSeries.length" size="12" weight="600" color="tertiary"> 0 </Text>
+							<Skeleton v-else-if="!pfbSeries.length" w="16" h="12" />
+						</Flex>
+
+						<Flex :class="[$style.axis, $style.x]">
+							<Flex align="end" justify="between" wide>
+								<Text v-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">
+									{{
+										DateTime.now()
+											.minus({ days: selectedPeriod.value - 1 })
+											.toFormat("LLL dd")
+									}}
+								</Text>
+								<Text v-else size="12" weight="600" color="tertiary">
+									{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
+								</Text>
+
+								<Text size="12" weight="600" color="tertiary">{{ selectedPeriod.timeframe === "day" ? "Today" : "Now" }}</Text>
+							</Flex>
+						</Flex>
+
+						<Transition name="fastfade">
+							<div v-if="showPfbTooltip" :class="$style.tooltip_wrapper">
+								<div
+									:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
+									:class="$style.dot"
+								/>
+								<div :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
+								<div
+									ref="badgeEl"
+									:style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"
+									:class="$style.badge"
+								>
+									<Text size="12" weight="600" color="secondary">
+										{{ badgeText }}
+									</Text>
+								</div>
+								<Flex
+									ref="tooltipEl"
+									:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYDataOffset - 40}px)` }"
+									direction="column"
+									gap="8"
+									:class="$style.tooltip"
+								>
+									<Flex align="center" gap="16">
+										<Text size="12" weight="600" color="secondary">Count</Text>
+										<Text size="12" weight="600" color="primary"> {{ abbreviate(tooltipText) }} </Text>
+									</Flex>
+								</Flex>
+							</div>
+						</Transition>
+
+						<Flex ref="pfbSeriesChartEl" :class="$style.chart" />
+					</Flex>
 				</Flex>
 			</Flex>
 
-			<Flex direction="column" gap="16" wide>
-				<Text size="13" weight="600" color="primary">Blobs Count</Text>
+			<Flex justify="between" gap="32" :class="$style.data">
+				<Flex direction="column" gap="20" wide>
+					<Text size="13" weight="600" color="primary">Fee Paid</Text>
 
-				<Flex direction="column" :class="$style.chart_wrapper">
-					<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">
-						<Text
-							v-if="pfbSeries.length"
-							size="12"
-							weight="600"
-							color="tertiary"
-							:style="{ opacity: Math.max(...pfbSeries.map((d) => d.value)) ? 1 : 0 }"
-						>
-							{{ abbreviate(Math.max(...pfbSeries.map((d) => d.value)), 0) }}
-						</Text>
-						<Skeleton v-else-if="!pfbSeries.length" w="32" h="12" />
-
-						<Text
-							v-if="pfbSeries.length"
-							size="12"
-							weight="600"
-							color="tertiary"
-							:style="{
-								opacity:
-									Math.round(Math.max(...pfbSeries.map((d) => d.value)) / 2) != Math.max(...pfbSeries.map((d) => d.value))
-										? 1
-										: 0,
-							}"
-						>
-							{{ abbreviate(Math.round(Math.max(...pfbSeries.map((d) => d.value)) / 2), 0) }}
-						</Text>
-						<Skeleton v-else-if="!pfbSeries.length" w="24" h="12" />
-
-						<Text v-if="pfbSeries.length" size="12" weight="600" color="tertiary"> 0 </Text>
-						<Skeleton v-else-if="!pfbSeries.length" w="16" h="12" />
-					</Flex>
-
-					<Flex :class="[$style.axis, $style.x]">
-						<Flex align="end" justify="between" wide>
-							<Text v-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">
-								{{
-									DateTime.now()
-										.minus({ days: selectedPeriod.value - 1 })
-										.toFormat("LLL dd")
-								}}
+					<Flex direction="column" :class="$style.chart_wrapper_single">
+						<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">
+							<Text
+								v-if="feeSeries.length"
+								size="12"
+								weight="600"
+								color="tertiary"
+								:style="{ opacity: Math.max(...feeSeries.map((d) => d.value)) ? 1 : 0 }"
+							>
+								{{ tia(Math.max(...feeSeries.map((d) => d.value)), 0) > 1
+									? tia(Math.max(...feeSeries.map((d) => d.value)), 0)
+									: tia(Math.max(...feeSeries.map((d) => d.value)), 2) }} TIA
 							</Text>
-							<Text v-else size="12" weight="600" color="tertiary">
-								{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
-							</Text>
+							<Skeleton v-else-if="!feeSeries.length" w="32" h="12" />
 
-							<Text size="12" weight="600" color="tertiary">{{ selectedPeriod.timeframe === "day" ? "Today" : "Now" }}</Text>
+							<Text
+								v-if="feeSeries.length"
+								size="12"
+								weight="600"
+								color="tertiary"
+								:style="{
+									opacity:
+										Math.round(Math.max(...feeSeries.map((d) => d.value)) / 2) != Math.max(...feeSeries.map((d) => d.value))
+											? 1
+											: 0,
+								}"
+							>
+								{{ tia(Math.round(Math.max(...feeSeries.map((d) => d.value)) / 2), 0) > 1
+									? tia(Math.round(Math.max(...feeSeries.map((d) => d.value)) / 2), 0)
+									: tia(Math.round(Math.max(...feeSeries.map((d) => d.value)) / 2), 2) }} TIA
+							</Text>
+							<Skeleton v-else-if="!feeSeries.length" w="24" h="12" />
+
+							<Text v-if="feeSeries.length" size="12" weight="600" color="tertiary"> 0 </Text>
+							<Skeleton v-else-if="!feeSeries.length" w="16" h="12" />
 						</Flex>
-					</Flex>
 
-					<Transition name="fastfade">
-						<div v-if="showPfbTooltip" :class="$style.tooltip_wrapper">
-							<div
-								:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
-								:class="$style.dot"
-							/>
-							<div :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
-							<div
-								ref="badgeEl"
-								:style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"
-								:class="$style.badge"
-							>
-								<Text size="12" weight="600" color="secondary">
-									{{ badgeText }}
+						<Flex :class="[$style.axis, $style.x]">
+							<Flex align="end" justify="between" wide>
+								<Text v-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">
+									{{
+										DateTime.now()
+											.minus({ days: selectedPeriod.value - 1 })
+											.toFormat("LLL dd")
+									}}
 								</Text>
-							</div>
-							<Flex
-								ref="tooltipEl"
-								:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYDataOffset - 40}px)` }"
-								direction="column"
-								gap="8"
-								:class="$style.tooltip"
-							>
-								<Flex align="center" gap="16">
-									<Text size="12" weight="600" color="secondary">Count</Text>
-									<Text size="12" weight="600" color="primary"> {{ abbreviate(tooltipText) }} </Text>
-								</Flex>
-							</Flex>
-						</div>
-					</Transition>
+								<Text v-else size="12" weight="600" color="tertiary">
+									{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
+								</Text>
 
-					<Flex ref="pfbSeriesChartEl" :class="$style.chart" />
+								<Text size="12" weight="600" color="tertiary">{{ selectedPeriod.timeframe === "day" ? "Today" : "Now" }}</Text>
+							</Flex>
+						</Flex>
+
+						<Transition name="fastfade">
+							<div v-if="showFeeTooltip" :class="$style.tooltip_wrapper">
+								<div
+									:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
+									:class="$style.dot"
+								/>
+								<div :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
+								<div
+									ref="badgeEl"
+									:style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"
+									:class="$style.badge"
+								>
+									<Text size="12" weight="600" color="secondary">
+										{{ badgeText }}
+									</Text>
+								</div>
+								<Flex
+									ref="tooltipEl"
+									:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYDataOffset - 40}px)` }"
+									direction="column"
+									gap="8"
+									:class="$style.tooltip"
+								>
+									<Flex align="center" gap="16">
+										<Text size="12" weight="600" color="secondary">Spent</Text>
+										<Text size="12" weight="600" color="primary"> {{ tia(tooltipText) }} TIA</Text>
+									</Flex>
+								</Flex>
+							</div>
+						</Transition>
+
+						<Flex ref="feeSeriesChartEl" :class="$style.chart" />
+					</Flex>
 				</Flex>
+				
 			</Flex>
 		</Flex>
 	</Flex>
@@ -513,6 +653,14 @@ onBeforeUnmount(() => {
 
 .chart_wrapper {
 	position: relative;
+
+	height: 180px;
+}
+
+.chart_wrapper_single {
+	position: relative;
+
+	max-width: 464px;
 
 	height: 180px;
 }
@@ -596,6 +744,10 @@ onBeforeUnmount(() => {
 @media (max-width: 800px) {
 	.data {
 		flex-direction: column;
+	}
+
+	.chart_wrapper_single {
+		max-width: 100%;
 	}
 }
 </style>

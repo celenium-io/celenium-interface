@@ -1,6 +1,6 @@
 <script setup>
 /** Services */
-import { amountToString, tia } from "@/services/utils"
+import { amountToString } from "@/services/utils"
 
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"

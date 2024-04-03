@@ -54,10 +54,10 @@ export const truncate = (num) => {
 	return left + (result ? `.${result}` : "")
 }
 
-export const tia = (amount) => {
+export const tia = (amount, decimal = 6) => {
 	if (!amount || !parseInt(amount)) return 0
 
-	return truncateDecimalPart(parseInt(amount) / 1_000_000)
+	return truncateDecimalPart(parseInt(amount) / 1_000_000, decimal)
 }
 
 export const utia = (amount) => {
