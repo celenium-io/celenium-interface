@@ -78,6 +78,12 @@ const totalFee = computed(() => rollups.value.reduce((acc, rollup) => {
 	return acc + (+rollup.fee)
 }, 0))
 
+const utiaPerMB = (rollup) => {
+	let totalRollupMB = rollup.size / (1024 * 1024)
+	
+	return rollup.fee / totalRollupMB
+}
+
 const sort = reactive({
 	by: "size",
 	dir: "desc",
@@ -249,6 +255,7 @@ const handleNext = () => {
 										/>
 									</Flex>
 								</th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Paid per MB</Text></th>
 							</tr>
 						</thead>
 
@@ -331,6 +338,13 @@ const handleNext = () => {
 													</Flex>
 												</template>
 											</Tooltip>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/rollup/${r.slug}`">
+										<Flex align="center">
+											<AmountInCurrency :amount="{ value: utiaPerMB(r) }" />
 										</Flex>
 									</NuxtLink>
 								</td>
