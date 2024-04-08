@@ -38,6 +38,8 @@ const notificationsStore = useNotificationsStore()
 
 const appConfig = useAppConfig()
 
+const theme = useCookie("theme", { default: () => "dark" })
+
 const route = useRoute()
 const router = useRouter()
 
@@ -453,6 +455,7 @@ const rawSettingsActions = [
 				callback: () => {
 					root.setAttribute("theme", "dark")
 					appStore.theme = "dark"
+					theme.value = "dark"
 				},
 			},
 			{
@@ -465,6 +468,7 @@ const rawSettingsActions = [
 				callback: () => {
 					root.setAttribute("theme", "light")
 					appStore.theme = "light"
+					theme.value = "light"
 				},
 			},
 			{
@@ -477,6 +481,7 @@ const rawSettingsActions = [
 				callback: () => {
 					root.setAttribute("theme", "dimmed")
 					appStore.theme = "dimmed"
+					theme.value = "dimmed"
 				},
 			},
 			{
@@ -489,6 +494,7 @@ const rawSettingsActions = [
 				callback: () => {
 					root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
 					appStore.theme = "system"
+					theme.value = "system"
 				},
 			},
 		],
