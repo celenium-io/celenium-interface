@@ -26,6 +26,8 @@ const props = defineProps({
 })
 
 const namespace = ref("")
+const namespaceError = ref()
+
 const blob = ref()
 const fileType = ref()
 
@@ -33,8 +35,20 @@ const warningBannerText = ref("")
 
 const isAwaiting = ref(false)
 const isReadyToContinue = computed(() => {
-	return namespace.value.length >= 4 && blob.value && appStore.address.length
+	return namespace.value.length >= 4 && blob.value && appStore.address.length && !namespaceError.value.length
 })
+
+watch(
+	() => namespace.value,
+	() => {
+		if ((!/^[0-9a-fA-F]+$/g.test(namespace.value) && namespace.value.length >= 4) || namespace.value.length > 256) {
+			namespaceError.value = "Validation error"
+			return
+		}
+
+		namespaceError.value = ""
+	},
+)
 
 watch(
 	() => props.show,
@@ -211,7 +225,15 @@ const handleContinue = async () => {
 					</Flex>
 				</Flex>
 
-				<Input v-model="namespace" label="Namespace" placeholder=""> </Input>
+				<Input v-model="namespace" label="Namespace" placeholder="">
+					<template #rightText>
+						<Flex v-if="namespaceError.length" align="center" gap="4">
+							<Icon name="danger" size="12" color="yellow" />
+							<Text size="12" weight="600" color="yellow">{{ namespaceError }}</Text>
+						</Flex>
+						<Text v-else />
+					</template>
+				</Input>
 
 				<Flex direction="column" gap="8">
 					<Text size="12" weight="600" color="secondary">File</Text>
