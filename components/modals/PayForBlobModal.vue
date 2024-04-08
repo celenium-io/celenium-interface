@@ -27,6 +27,7 @@ const props = defineProps({
 
 const namespace = ref("")
 const blob = ref()
+const fileType = ref()
 
 const isAwaiting = ref(false)
 const isReadyToContinue = computed(() => {
@@ -78,6 +79,7 @@ const handleDrop = (e) => {
 	reader.onloadend = function (e) {
 		const bytes = new Uint8Array(e.target.result)
 		blob.value = bytes
+		fileType.value = file.type
 	}
 	reader.readAsArrayBuffer(file)
 }
@@ -230,7 +232,7 @@ const handleContinue = async () => {
 							<Icon name="tx" size="16" color="primary" />
 							<Flex direction="column" gap="6">
 								<Text size="13" weight="600" color="primary">File to submit</Text>
-								<Text size="12" weight="500" color="tertiary">text/plain</Text>
+								<Text size="12" weight="500" color="tertiary">{{ fileType }}</Text>
 							</Flex>
 						</Flex>
 
