@@ -3,9 +3,10 @@
 import Button from "@/components/ui/Button.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
+import { Dropdown, DropdownItem, DropdownDivider } from "@/components/ui/Dropdown"
 
 /** Services */
-import { suggestChain, getAccounts } from "@/services/keplr"
+import { suggestChain, getAccounts, disconnect } from "@/services/keplr"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -14,7 +15,7 @@ const appStore = useAppStore()
 const notificationsStore = useNotificationsStore()
 
 const isWalletAvailable = ref(false)
-const isFetchingAccounts = ref(true)
+const isFetchingAccounts = ref(false)
 const account = ref()
 
 const getBalance = async () => {
@@ -32,8 +33,14 @@ const getBalance = async () => {
 
 onMounted(async () => {
 	isWalletAvailable.value = !!window.keplr
+})
 
+const handleConnect = async () => {
 	try {
+		await suggestChain()
+
+		isFetchingAccounts.value = true
+
 		const accounts = await getAccounts()
 		if (accounts.length) {
 			account.value = accounts[0].address
@@ -41,14 +48,8 @@ onMounted(async () => {
 		}
 
 		getBalance()
-	} catch (error) {}
 
-	isFetchingAccounts.value = false
-})
-
-const handleConnect = async () => {
-	try {
-		await suggestChain()
+		isFetchingAccounts.value = false
 	} catch (error) {
 		switch (error.message) {
 			case "Request rejected":
@@ -64,6 +65,36 @@ const handleConnect = async () => {
 				break
 		}
 	}
+}
+
+const handleCopy = (target) => {
+	window.navigator.clipboard.writeText(target)
+
+	notificationsStore.create({
+		notification: {
+			type: "info",
+			icon: "check",
+			title: "Successfully copied to clipboard",
+			autoDestroy: true,
+		},
+	})
+}
+
+const handleDisconnect = () => {
+	disconnect()
+
+	account.value = null
+	appStore.address = ""
+	appStore.balance = 0
+
+	notificationsStore.create({
+		notification: {
+			type: "info",
+			icon: "check",
+			title: "Successfully disconnected",
+			autoDestroy: true,
+		},
+	})
 }
 </script>
 
@@ -95,8 +126,21 @@ const handleConnect = async () => {
 
 	<Button v-else-if="!account" @click="handleConnect" type="white" size="small"> Connect </Button>
 
-	<Button v-else type="secondary" size="small">
-		<Icon name="address" size="14" color="primary" />
-		{{ appStore.balance }} TIA
-	</Button>
+	<Dropdown v-else>
+		<Button type="secondary" size="small">
+			<Icon name="address" size="14" color="primary" />
+			{{ appStore.balance }} TIA
+		</Button>
+
+		<template #popup>
+			<DropdownItem @click="handleCopy(appStore.address)">
+				<Flex direction="column" gap="6">
+					<Text>Copy address</Text>
+					<Text size="12" color="tertiary">celestia...{{ appStore.address.slice(-4) }}</Text>
+				</Flex>
+			</DropdownItem>
+			<DropdownDivider />
+			<DropdownItem @click="handleDisconnect">Disconnect</DropdownItem>
+		</template>
+	</Dropdown>
 </template>

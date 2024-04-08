@@ -66,6 +66,10 @@ export const suggestChain = () => {
 	})
 }
 
+export const disconnect = () => {
+	window.keplr.disable()
+}
+
 export const getAccounts = () => {
 	return new Promise(async (resolve, reject) => {
 		try {
