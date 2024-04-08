@@ -4,8 +4,11 @@ import { DateTime } from "luxon"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
-// import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Tooltip from "@/components/ui/Tooltip.vue"
+
+/** Components */
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Tables */
 import BlobsTable from "./tables/BlobsTable.vue"
@@ -15,13 +18,13 @@ import NamespacesTable from "./tables/NamespacesTable.vue"
 import { comma, formatBytes } from "@/services/utils"
 
 /** API */
-import { fetchRollupBlobs, fetchRollupNamespaces } from "@/services/api/rollup"
+import { fetchRollupBlobs, fetchRollupExportData, fetchRollupNamespaces } from "@/services/api/rollup"
 
 /** Store */
-import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
-const modalsStore = useModalsStore()
+import { useNotificationsStore } from "@/store/notifications"
 const cacheStore = useCacheStore()
+const notificationsStore = useNotificationsStore()
 
 const props = defineProps({
 	rollup: {
@@ -126,15 +129,77 @@ watch(
 	},
 )
 
-// const handleViewRawNamespaces = () => {
-// 	cacheStore.current._target = "namespaces"
-// 	modalsStore.open("rawData")
-// }
+const periods = ref([
+	{
+		title: "Last 24 hours",
+		timeRange: "day",
+	},
+	{
+		title: "Last 7 days",
+		timeRange: "week",
+	},
+	{
+		title: "Last 31 days",
+		timeRange: "month",
+	},
+])
 
-// const handleViewRawBlobs = () => {
-// 	cacheStore.current._target = "blobs"
-// 	modalsStore.open("rawData")
-// }
+const handleCSVDownload = async (period) => {
+	let from
+	switch (period) {
+		case "day":
+			from = parseInt(DateTime.now().minus({ days: 1 }).toMillis() / 1_000)
+			break
+		case "week":
+			from = parseInt(DateTime.now().minus({ weeks: 1 }).toMillis() / 1_000)
+			break
+		case "month":
+			from = parseInt(DateTime.now().minus({ months: 1 }).toMillis() / 1_000)
+			break
+		default:
+			break
+	}
+	let to = parseInt(DateTime.now().toMillis() / 1_000)
+	
+	const { data } = await fetchRollupExportData({
+		id: props.rollup.id,
+		from: from,
+		to: to,
+	})
+
+	if (!data.value) {
+		notificationsStore.create({
+			notification: {
+				type: "error",
+				icon: "close",
+				title: "Failed to load data",
+				autoDestroy: true,
+			},
+		})
+
+		return
+	}
+
+	const blob = new Blob([data.value], { type: 'text/csv;charset=utf-8;' })
+	const link = document.createElement("a")
+
+	link.href = URL.createObjectURL(blob)
+	link.download = `${props.rollup.slug}-blobs-last-${period}.csv`
+
+	link.style.visibility = 'hidden'
+	document.body.appendChild(link)
+	link.click()
+	document.body.removeChild(link)
+
+	notificationsStore.create({
+		notification: {
+			type: "success",
+			icon: "check",
+			title: "Data successfully downloaded",
+			autoDestroy: true,
+		},
+	})
+}
 
 </script>
 
@@ -143,19 +208,29 @@ watch(
 		<Flex align="center" justify="between" :class="$style.header">
 			<Flex align="center" gap="8">
 				<Icon name="rollup" size="14" color="primary" />
+
 				<Text size="13" weight="600" color="primary">Rollup</Text>
 			</Flex>
 
-			<!-- <Dropdown>
-				<Button type="tertiary" size="mini">
-					<Icon name="dots" size="16" color="secondary" />
-				</Button>
+			<Dropdown>
+				<Tooltip>
+					<Button type="secondary" size="mini">
+						<Icon name="download" size="12" color="secondary" />
+
+						<Text>Export</Text>
+					</Button>
+
+					<template #content>
+						<Text color="tertiary">Export blobs to CSV</Text>
+					</template>
+				</Tooltip>
 
 				<template #popup>
-					<DropdownItem @click="handleViewRawNamespaces"> View Raw Namespaces </DropdownItem>
-					<DropdownItem @click="handleViewRawBlobs"> View Raw Blobs </DropdownItem>
+					<DropdownItem v-for="period in periods" @click="handleCSVDownload(period.timeRange)">
+						{{ period.title }}
+					</DropdownItem>
 				</template>
-			</Dropdown> -->
+			</Dropdown>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
@@ -228,6 +303,11 @@ watch(
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Blobs</Text>
 							<Text size="12" weight="600" color="secondary"> {{ comma(rollup.blobs_count) }} </Text>
+						</Flex>
+
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Blob Fees Paid</Text>
+							<AmountInCurrency :amount="{ value: rollup.fee }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
 						</Flex>
 
 						<Flex align="start" justify="between">

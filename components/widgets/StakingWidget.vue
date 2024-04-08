@@ -11,7 +11,19 @@ import { fetchValidatorsCount } from "@/services/api/validator";
 /** Store */
 import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
+
+const currentPrice = computed(() => appStore.currentPrice)
 const lastHead = computed(() => appStore.lastHead)
+
+const wrapperEl = ref(null)
+const wrapperWidth = ref(0)
+const barWidth = computed(() => Math.round(wrapperWidth.value - 32))
+
+const totalSupply = computed(() => lastHead.value.total_supply / 1_000_000)
+const totalSupplyUSD = computed(() => totalSupply.value * currentPrice.value?.close)
+const totalVotingPower = computed(() => lastHead.value.total_voting_power)
+const totalVotingPowerUSD = computed(() => totalVotingPower.value * currentPrice.value?.close)
+
 const bondedShare = computed(() => shareOfTotal(lastHead?.value.total_voting_power * 1_000_000, lastHead?.value.total_supply, 2))
 
 const isRefetching = ref(false)
@@ -65,10 +77,14 @@ const fillValidatorsGraph = () => {
 await getValidatorsStats()
 fillValidatorsGraph()
 
+onMounted(() => {
+	wrapperWidth.value = wrapperEl.value.wrapper.offsetWidth
+})
+
 </script>
 
 <template>
-	<Flex direction="column" wide :class="$style.wrapper">
+	<Flex ref="wrapperEl" direction="column" wide :class="$style.wrapper">
 		<Flex direction="column" gap="20" :class="$style.top">
 			<Text size="16" weight="600" color="primary">Staking</Text>
 
@@ -76,7 +92,8 @@ fillValidatorsGraph()
 				<Tooltip side="top">
 					<div
 						:class="$style.staking_bar"
-						:style="`--percentStaking: ${bondedShare}%`"
+						:style="`--percentStaking: ${bondedShare}%;
+								width: ${barWidth}px`"
 					></div>
 
 					<template #content>
@@ -93,25 +110,41 @@ fillValidatorsGraph()
 							Total Supply
 						</Text>
 
-						<Text size="12" weight="600" color="secondary">
-							{{ abbreviate(lastHead.total_supply / 1_000_000, 2) }} TIA
-						</Text>
+						<Tooltip>
+							<Text size="12" weight="600" color="secondary">
+								{{ abbreviate(totalSupply, 2) }} TIA
+							</Text>
+
+							<template #content>
+								<Text size="12" weight="600" color="secondary">
+									{{ abbreviate(totalSupplyUSD, 2) }} USD
+								</Text>
+							</template>
+						</Tooltip>
 					</Flex>
 
 					<Flex align="center" justify="between">
 						<Text size="12" weight="600" color="tertiary">
 							Bonded
 						</Text>
-						
-						<Text size="12" weight="600" color="secondary">
-							{{ abbreviate(lastHead.total_voting_power) }} TIA
-						</Text>
+
+						<Tooltip>
+							<Text size="12" weight="600" color="secondary">
+								{{ abbreviate(totalVotingPower) }} TIA
+							</Text>
+
+							<template #content>
+								<Text size="12" weight="600" color="secondary">
+									{{ abbreviate(totalVotingPowerUSD, 2) }} USD
+								</Text>
+							</template>
+						</Tooltip>
 					</Flex>
 				</Flex>
 			</template>
 
 			<Flex v-else direction="column" gap="20">
-				<Skeleton w="180" h="5" />
+				<Skeleton :w="barWidth" h="5" />
 
 				<Flex justify="between">
 					<Skeleton w="70" h="12" />
@@ -138,7 +171,7 @@ fillValidatorsGraph()
 			</Flex>
 
 			<Tooltip v-if="!isRefetching" position="start" side="top">
-				<Flex :class="$style.validator_bars_wrapper">
+				<Flex :style="`width: ${barWidth}px`">
 					<div
 						v-for="v in validatorsGraph.filter(item => item.width !== 0)"
 						:class="$style.validator_bar"
@@ -163,7 +196,7 @@ fillValidatorsGraph()
 					</Flex>
 				</template>
 			</Tooltip>
-			<Skeleton v-else w="180" h="5" />
+			<Skeleton v-else :w="barWidth" h="5" />
 
 			<Flex v-if="!isRefetching" direction="column" gap="6">
 				<Flex v-for="v in validatorsGraph" justify="between" gap="4">
@@ -226,43 +259,12 @@ fillValidatorsGraph()
 	padding: 8px 16px 12px 16px;
 }
 
-.bars {
-	width: fit-content;
-	height: 20px;
-
-	border-radius: 5px;
-	border: 1px solid var(--txt-secondary);
-
-	padding: 2px;
-
-	.bar {
-		min-width: 16px;
-		height: 14px;
-
-		background: linear-gradient(var(--txt-primary), var(--txt-support));
-		border-radius: 2px;
-		opacity: 0.2;
-
-		transition: all 0.5s ease;
-
-		&.active {
-			background: linear-gradient(var(--txt-primary), var(--txt-support));
-			opacity: 1;
-		}
-	}
-}
-
 .staking_bar {
-	width: 184px;
 	height: 4px;
 
 	border-radius: 2px;
 
 	background: linear-gradient(90deg, var(--staking) var(--percentStaking), var(--supply) var(--percentStaking));
-}
-
-.validator_bars_wrapper {
-	width: 184px;
 }
 
 .validator_bar {
@@ -298,10 +300,6 @@ fillValidatorsGraph()
 }
 
 @media (max-width: 1100px) {
-	.wrapper {
-		flex-direction: row;
-	}
-
 	.top {
 		flex: 1;
 	}
@@ -311,14 +309,6 @@ fillValidatorsGraph()
 
 		border-top: initial;
 		border-left: 2px solid var(--op-5);
-	}
-
-	.validator_bars_wrapper {
-		width: 365px;
-	}
-
-	.staking_bar {
-		width: 365px;
 	}
 }
 
@@ -334,14 +324,6 @@ fillValidatorsGraph()
 	.bottom {
 		border-top: 2px solid var(--op-5);
 		border-left: initial;
-	}
-
-	.validator_bars_wrapper {
-		width: 365px;
-	}
-
-	.staking_bar {
-		width: 365px;
 	}
 }
 </style>
