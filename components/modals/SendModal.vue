@@ -405,7 +405,7 @@ const handleContinue = async () => {
 					placeholder="0.00"
 				/>
 
-				<Flex direction="column" gap="12">
+				<Flex direction="column" gap="12" style="opacity: 0.3; pointer-events: none">
 					<Flex direction="column" gap="8">
 						<Text size="12" weight="600" color="secondary">Gas Fees</Text>
 
@@ -453,6 +453,14 @@ const handleContinue = async () => {
 							</Flex>
 						</NuxtLink>
 					</Flex>
+				</Flex>
+
+				<Flex gap="6">
+					<Icon name="info" size="12" color="tertiary" style="margin-top: 1px" />
+					<Text size="12" weight="500" height="140" color="tertiary">
+						Keplr does not currently support receiving a Gas Fee from outside.<br />
+						You need to select the appropriate fee in the pop-up window.
+					</Text>
 				</Flex>
 			</Flex>
 
