@@ -295,7 +295,7 @@ const rawQuickCommandsActions = [
 	},
 	{
 		type: "callback",
-		icon: "coins",
+		icon: "blob",
 		title: "Submit data blob",
 		subtitle: "Command",
 		runText: "Submit via Keplr",

@@ -29,15 +29,23 @@ const namespace = ref("")
 const blob = ref()
 const fileType = ref()
 
+const warningBannerText = ref("")
+
 const isAwaiting = ref(false)
 const isReadyToContinue = computed(() => {
-	return namespace.value.length >= 4 && blob.value
+	return namespace.value.length >= 4 && blob.value && appStore.address.length
 })
 
 watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
+			if (!appStore.address?.length) {
+				warningBannerText.value = "Keplr wallet connection is required to submit a blob."
+			} else {
+				warningBannerText.value = "You are currently on mocha.celenium.io. The transaction will be performed on the test network."
+			}
+
 			if (cacheStore.current.namespace) {
 				namespace.value = getNamespaceID(cacheStore.current.namespace.namespace_id)
 			}
@@ -244,8 +252,7 @@ const handleContinue = async () => {
 			<Flex align="center" gap="12" :class="$style.warning_banner">
 				<Icon name="danger" size="16" color="yellow" />
 				<Text size="13" height="140" weight="500" color="tertiary" style="max-width: 350px">
-					You are currently on <Text color="secondary">mocha.celenium.io</Text>. The transaction will be performed on the test
-					network.
+					{{ warningBannerText }}
 				</Text>
 			</Flex>
 

@@ -165,6 +165,8 @@ const runGasLimitEstimation = async () => {
 	estimatedGasLimit.value = parseInt(gasUsed)
 }
 
+const warningBannerText = ref("")
+
 const isAwaiting = ref(false)
 const isReadyToContinue = computed(() => {
 	return (
@@ -180,6 +182,12 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
+			if (!appStore.address?.length) {
+				warningBannerText.value = "Keplr wallet connection is required to send TIA."
+			} else {
+				warningBannerText.value = "You are currently on mocha.celenium.io. The transaction will be performed on the test network."
+			}
+
 			if (cacheStore.current.address) {
 				address.value = cacheStore.current.address.hash
 			}
@@ -451,8 +459,7 @@ const handleContinue = async () => {
 			<Flex align="center" gap="12" :class="$style.warning_banner">
 				<Icon name="danger" size="16" color="yellow" />
 				<Text size="13" height="140" weight="500" color="tertiary" style="max-width: 350px">
-					You are currently on <Text color="secondary">mocha.celenium.io</Text>. The transaction will be performed on the test
-					network.
+					{{ warningBannerText }}
 				</Text>
 			</Flex>
 
