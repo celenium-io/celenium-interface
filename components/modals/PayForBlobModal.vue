@@ -41,7 +41,7 @@ const isReadyToContinue = computed(() => {
 watch(
 	() => namespace.value,
 	() => {
-		if ((!/^[0-9a-fA-F]+$/g.test(namespace.value) && namespace.value.length >= 4) || namespace.value.length > 256) {
+		if ((!/^[0-9a-fA-F]+$/g.test(namespace.value) && namespace.value.length >= 4) || namespace.value.length > 56) {
 			namespaceError.value = "Validation error"
 			return
 		}
