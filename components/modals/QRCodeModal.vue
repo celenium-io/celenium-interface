@@ -14,8 +14,6 @@ const props = defineProps({
 	show: Boolean,
 })
 
-const qrEl = ref()
-
 watch(
 	() => props.show,
 	() => {
@@ -23,17 +21,6 @@ watch(
 			nextTick(() => {
 				const qrCode = generate(cacheStore.qr.data)
 				qrCode.toCanvas(document.getElementById("my-qr-code"))
-				// qrcode.toDataURL(
-				// 	cacheStore.qr.data,
-				// 	{
-				// 		color: {
-				// 			light: "#0000",
-				// 		},
-				// 	},
-				// 	(err, url) => {
-				// 		qrEl.value.src = url
-				// 	},
-				// )
 			})
 		}
 	},

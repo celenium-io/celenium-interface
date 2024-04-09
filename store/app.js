@@ -3,6 +3,8 @@ import { useModalsStore } from "./modals"
 export const useAppStore = defineStore("app", () => {
 	const modalsStore = useModalsStore()
 
+	const network = ref()
+
 	const head = ref()
 	const gas = ref({
 		fast: 0,
@@ -16,6 +18,9 @@ export const useAppStore = defineStore("app", () => {
 		low: "0",
 		close: "0",
 	})
+
+	const address = ref("")
+	const balance = ref(0)
 
 	const latestBlocks = ref([])
 	const lastHead = ref({})
@@ -33,5 +38,20 @@ export const useAppStore = defineStore("app", () => {
 		modalsStore.open("confirmation")
 	}
 
-	return { head, gas, currentPrice, latestBlocks, lastHead, isPaused, isLatestBlocksLoaded, showCmd, theme, confirmation, createConfirmation }
+	return {
+		network,
+		head,
+		gas,
+		currentPrice,
+		address,
+		balance,
+		latestBlocks,
+		lastHead,
+		isPaused,
+		isLatestBlocksLoaded,
+		showCmd,
+		theme,
+		confirmation,
+		createConfirmation,
+	}
 })

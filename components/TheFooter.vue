@@ -11,29 +11,28 @@ const appStore = useAppStore()
 
 const appConfig = useAppConfig()
 
-let root = null
+const theme = useCookie("theme", { default: () => "dark" })
+switch (theme.value) {
+	case "dark":
+	case "dimmed":
+	case "light":
+		appStore.theme = theme.value
+
+		break
+
+	case "system":
+		appStore.theme = "system"
+
+		break
+}
 
 onMounted(() => {
-	root = document.querySelector("html")
+	let root = document.querySelector("html")
 
-	if (!localStorage.theme) {
-		localStorage.theme = "dark"
-	}
-
-	switch (localStorage.theme) {
-		case "dark":
-		case "dimmed":
-		case "light":
-			appStore.theme = localStorage.theme
-			root.setAttribute("theme", appStore.theme)
-
-			break
-
-		case "system":
-			appStore.theme = "system"
-			root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
-
-			break
+	if (appStore.theme === "system") {
+		root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
+	} else {
+		root.setAttribute("theme", appStore.theme)
 	}
 })
 
@@ -48,12 +47,12 @@ watch(
 	},
 )
 
-const handleChangeTheme = (theme) => {
+const handleChangeTheme = (target) => {
 	const root = document.querySelector("html")
 
-	root.setAttribute("theme", theme)
-	appStore.theme = theme
-	localStorage.theme = theme
+	root.setAttribute("theme", target)
+	appStore.theme = target
+	theme.value = target
 }
 </script>
 
@@ -138,7 +137,10 @@ const handleChangeTheme = (theme) => {
 						<a href="https://discord.com/channels/846362414039695391/1168936555302355005" target="_blank">
 							<Icon name="discord" size="14" color="secondary" :class="$style.btn" />
 						</a>
-						<a href="https://www.youtube.com/watch?v=l4IrPuzTR-Q&list=PL3qDmPA7Yigp2fOHRqmQeZBMvZptOYQqB&pp=iAQB" target="_blank">
+						<a
+							href="https://www.youtube.com/watch?v=l4IrPuzTR-Q&list=PL3qDmPA7Yigp2fOHRqmQeZBMvZptOYQqB&pp=iAQB"
+							target="_blank"
+						>
 							<Icon name="youtube" size="14" color="secondary" :class="$style.btn" />
 						</a>
 					</Flex>

@@ -19,12 +19,12 @@ const gasPrice = computed(() => appStore.gas)
 
 const visualizations = ref([
 	{
-		title: "Line Chart",
-		value: "line",
-	},
-	{
 		title: "Heatmap",
 		value: "heatmap",
+	},
+	{
+		title: "Line Chart",
+		value: "line",
 	},
 ])
 const selectedVisualization = ref(visualizations.value[0].value)

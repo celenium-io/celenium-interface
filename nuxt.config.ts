@@ -1,3 +1,6 @@
+import { nodePolyfills } from "vite-plugin-node-polyfills"
+import path from "path"
+
 export default defineNuxtConfig({
 	modules: ["nuxt-simple-sitemap", "@pinia/nuxt", "nuxt-og-image"],
 
@@ -115,5 +118,17 @@ export default defineNuxtConfig({
 
 	devtools: {
 		enabled: true,
+	},
+
+	vite: {
+		define: {
+			global: "globalThis",
+		},
+		resolve: {
+			alias: {
+				"unenv/runtime/node/buffer/index/": path.resolve(__dirname, "./node_modules/buffer/index"),
+			},
+		},
+		plugins: [nodePolyfills()],
 	},
 })

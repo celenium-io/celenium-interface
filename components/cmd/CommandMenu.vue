@@ -19,7 +19,7 @@ import FeeCalculator from "./custom/FeeCalculator.vue"
 /** Services */
 import amp from "@/services/amp"
 import { isMac, isPrefersDarkScheme } from "@/services/utils/general"
-import { capitilize } from "@/services/utils/strings";
+import { capitilize } from "@/services/utils/strings"
 
 /** API */
 import { search } from "@/services/api/search"
@@ -37,6 +37,8 @@ const bookmarksStore = useBookmarksStore()
 const notificationsStore = useNotificationsStore()
 
 const appConfig = useAppConfig()
+
+const theme = useCookie("theme", { default: () => "dark" })
 
 const route = useRoute()
 const router = useRouter()
@@ -292,6 +294,28 @@ const navigationGroup = computed(() => {
 
 const rawQuickCommandsActions = [
 	{
+		type: "callback",
+		icon: "coins",
+		title: "Send TIA",
+		subtitle: "Command",
+		runText: "Send via Keplr",
+
+		callback: () => {
+			modalsStore.open("send")
+		},
+	},
+	{
+		type: "callback",
+		icon: "blob",
+		title: "Submit data blob",
+		subtitle: "Command",
+		runText: "Submit via Keplr",
+
+		callback: () => {
+			modalsStore.open("pfb")
+		},
+	},
+	{
 		type: "command:input",
 		icon: "tx",
 		title: "Open Transaction..",
@@ -440,6 +464,7 @@ const rawSettingsActions = [
 				callback: () => {
 					root.setAttribute("theme", "dark")
 					appStore.theme = "dark"
+					theme.value = "dark"
 				},
 			},
 			{
@@ -452,6 +477,7 @@ const rawSettingsActions = [
 				callback: () => {
 					root.setAttribute("theme", "light")
 					appStore.theme = "light"
+					theme.value = "light"
 				},
 			},
 			{
@@ -464,6 +490,7 @@ const rawSettingsActions = [
 				callback: () => {
 					root.setAttribute("theme", "dimmed")
 					appStore.theme = "dimmed"
+					theme.value = "dimmed"
 				},
 			},
 			{
@@ -476,6 +503,7 @@ const rawSettingsActions = [
 				callback: () => {
 					root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
 					appStore.theme = "system"
+					theme.value = "system"
 				},
 			},
 		],
@@ -886,12 +914,12 @@ const autocompleteGroup = computed(() => {
 
 const debouncedSearch = useDebounceFn(async (e) => {
 	const { data } = await search(searchTerm.value.trim())
-	if (!data.value.length) return
+	if (!data.value?.length) return
 
 	amp.log("showAutocomplete", { count: data.value.length, firstType: data.value[0].type })
 
 	autocompleteActions.value = []
-	
+
 	for (let i = 0; i < Math.min(3, data.value.length); i++) {
 		let title
 		let routerLink

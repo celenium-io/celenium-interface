@@ -16,6 +16,14 @@ const props = defineProps({
 	label: {
 		type: String,
 	},
+	leftText: {
+		type: String,
+		required: false,
+	},
+	suffix: {
+		type: String,
+		required: false,
+	},
 	icon: {
 		type: String,
 	},
@@ -30,6 +38,10 @@ const props = defineProps({
 		type: Boolean,
 	},
 	autofocus: {
+		type: Boolean,
+		default: false,
+	},
+	disablePaste: {
 		type: Boolean,
 		default: false,
 	},
@@ -90,6 +102,10 @@ const handleBlur = () => {
 	isFocused.value = false
 	emit("blur")
 }
+
+const handlePaste = (e) => {
+	if (props.disablePaste) e.preventDefault()
+}
 </script>
 
 <template>
@@ -103,6 +119,7 @@ const handleBlur = () => {
 		<div ref="base" @click="handleClick" :class="[$style.base, isFocused && $style.focused, disabled && $style.disabled, $style[size]]">
 			<Flex align="center" gap="6" wide :class="$style.left">
 				<Icon v-if="icon" :name="icon" size="14" color="tertiary" />
+				<Text size="13" weight="600" color="tertiary">{{ leftText }}</Text>
 
 				<input
 					ref="inputEl"
@@ -112,10 +129,13 @@ const handleBlur = () => {
 					@focus="handleFocus"
 					@blur="handleBlur"
 					@keydown="handleKeydown"
+					@paste="handlePaste"
 					:placeholder="placeholder"
 					spellcheck="false"
 				/>
 			</Flex>
+
+			<Text size="12" weight="600" color="tertiary">{{ suffix }}</Text>
 		</div>
 	</Flex>
 </template>

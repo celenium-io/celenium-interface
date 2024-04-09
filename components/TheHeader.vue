@@ -26,19 +26,9 @@ const showPopup = ref(false)
 const head = computed(() => appStore.lastHead)
 
 const featurePreviewMode = ref(false)
-const isWalletAvailable = ref(false)
-
-const account = ref("")
-
-const getAccounts = async () => {
-	const offlineSigner = window.getOfflineSigner("celestia")
-	const accounts = await offlineSigner.getAccounts()
-	if (accounts.length) account.value = accounts[0].address
-}
 
 onMounted(async () => {
 	featurePreviewMode.value = localStorage.featurePreview
-	isWalletAvailable.value = !!window.keplr
 })
 
 watch(
@@ -86,12 +76,6 @@ const isActive = (link) => {
 const handleNavigate = (url) => {
 	window.location.replace(url)
 }
-
-const handleConnect = async () => {
-	await window.keplr.enable("celestia")
-
-	getAccounts()
-}
 </script>
 
 <template>
@@ -123,7 +107,7 @@ const handleConnect = async () => {
 				<NuxtLink to="/rollups" :class="[$style.link, isActive('rollups') && $style.active]">
 					<Text size="13" weight="600" color="tertiary">Rollups</Text>
 				</NuxtLink>
-				
+
 				<NuxtLink to="/txs" :class="[$style.link, isActive('txs') && $style.active]">
 					<Text size="13" weight="600" color="tertiary">Transactions</Text>
 				</NuxtLink>
@@ -178,15 +162,7 @@ const handleConnect = async () => {
 					</template>
 				</Tooltip>
 
-				<Button
-					v-if="featurePreviewMode"
-					@click="handleConnect"
-					type="white"
-					size="small"
-					:disabled="!isWalletAvailable || account.length"
-				>
-					{{ account ? `celestia...${account.slice(-6)}` : "Connect" }}
-				</Button>
+				<Connection v-if="featurePreviewMode" />
 			</Flex>
 		</Flex>
 
@@ -214,7 +190,6 @@ const handleConnect = async () => {
 			<NuxtLink to="/namespaces" :class="[$style.link, isActive('namespaces') && $style.active]">
 				<Text size="13" weight="600" color="tertiary">Namespaces</Text>
 			</NuxtLink>
-
 		</Flex>
 	</Flex>
 </template>

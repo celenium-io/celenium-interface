@@ -79,3 +79,17 @@ export const fetchRollupNamespaces = async ({ id, limit, offset }) => {
 		console.error(error)
 	}
 }
+
+export const fetchRollupExportData = async ({ id, from, to }) => {
+	try {
+		const url = new URL(`${useServerURL()}/rollup/${id}/export`)
+
+		url.searchParams.append("from", from)
+		url.searchParams.append("to", to)
+
+		const data = await useFetch(encodeURI(url.href))
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}

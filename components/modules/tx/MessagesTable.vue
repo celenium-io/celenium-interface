@@ -9,7 +9,7 @@ import Button from "~/components/ui/Button.vue"
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 
 /** Services */
-import { comma, space } from "@/services/utils"
+import { comma, formatBytes } from "@/services/utils"
 
 /** Store */
 import { useModalsStore } from "@/store/modals"
@@ -59,6 +59,7 @@ const handlePrev = () => {
 					<tr>
 						<th><Text size="12" weight="600" color="tertiary">Type</Text></th>
 						<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
+						<th><Text size="12" weight="600" color="tertiary">Size</Text></th>
 						<th><Text size="12" weight="600" color="tertiary">Block</Text></th>
 					</tr>
 				</thead>
@@ -74,6 +75,13 @@ const handlePrev = () => {
 							<Flex align="center">
 								<Text size="13" weight="600" color="primary">
 									{{ DateTime.fromISO(message.time).toRelative({ locale: "en", style: "short" }) }}
+								</Text>
+							</Flex>
+						</td>
+						<td>
+							<Flex align="center">
+								<Text size="13" weight="600" color="primary">
+									{{ formatBytes(message.size) }}
 								</Text>
 							</Flex>
 						</td>
