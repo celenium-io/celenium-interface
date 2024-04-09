@@ -135,9 +135,12 @@ const handleDisconnect = () => {
 		<template #popup>
 			<DropdownItem @click="handleCopy(appStore.address)">
 				<Flex direction="column" gap="6">
-					<Text>Copy address</Text>
+					<Text>Open my address</Text>
 					<Text size="12" color="tertiary">celestia...{{ appStore.address.slice(-4) }}</Text>
 				</Flex>
+			</DropdownItem>
+			<DropdownItem @click="handleCopy(appStore.address)">
+				<Text>Copy address</Text>
 			</DropdownItem>
 			<DropdownDivider />
 			<DropdownItem @click="handleDisconnect">Disconnect</DropdownItem>
