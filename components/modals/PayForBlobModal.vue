@@ -41,9 +41,20 @@ const isReadyToContinue = computed(() => {
 watch(
 	() => namespace.value,
 	() => {
-		if ((!/^[0-9a-fA-F]+$/g.test(namespace.value) && namespace.value.length >= 4) || namespace.value.length > 56) {
+		if ((!/^[0-9a-fA-F]+$/g.test(namespace.value) && namespace.value.length >= 4) || namespace.value.length > 58) {
 			namespaceError.value = "Validation error"
 			return
+		}
+
+		if (namespace.value.length) {
+			const numValue = BigInt("0x" + namespace.value)
+			const maxValue = BigInt("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00")
+
+			if (numValue > 0xff && numValue < maxValue) {
+			} else {
+				namespaceError.value = "Validation error"
+				return
+			}
 		}
 
 		namespaceError.value = ""
@@ -225,7 +236,7 @@ const handleContinue = async () => {
 					</Flex>
 				</Flex>
 
-				<Input v-model="namespace" label="Namespace" placeholder="">
+				<Input v-model="namespace" label="Namespace" placeholder="" leftText="0x">
 					<template #rightText>
 						<Flex v-if="namespaceError.length" align="center" gap="4">
 							<Icon name="danger" size="12" color="yellow" />

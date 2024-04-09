@@ -16,6 +16,10 @@ const props = defineProps({
 	label: {
 		type: String,
 	},
+	leftText: {
+		type: String,
+		required: false,
+	},
 	suffix: {
 		type: String,
 		required: false,
@@ -115,6 +119,7 @@ const handlePaste = (e) => {
 		<div ref="base" @click="handleClick" :class="[$style.base, isFocused && $style.focused, disabled && $style.disabled, $style[size]]">
 			<Flex align="center" gap="6" wide :class="$style.left">
 				<Icon v-if="icon" :name="icon" size="14" color="tertiary" />
+				<Text size="13" weight="600" color="tertiary">{{ leftText }}</Text>
 
 				<input
 					ref="inputEl"
