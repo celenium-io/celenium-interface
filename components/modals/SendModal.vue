@@ -161,7 +161,12 @@ const runGasLimitEstimation = async () => {
 		}).finish(),
 	}
 
-	const gasUsed = await simulateMsgs("celestia1pssnclfxcn4vgxyyy7z8sdvr2xcznwq84d0wvy", [protoMsgs], [{ denom: "utia", amount: "1" }])
+	const gasUsed = await simulateMsgs(
+		appStore.network,
+		"celestia1pssnclfxcn4vgxyyy7z8sdvr2xcznwq84d0wvy",
+		[protoMsgs],
+		[{ denom: "utia", amount: "1" }],
+	)
 	estimatedGasLimit.value = parseInt(gasUsed)
 }
 
@@ -207,7 +212,7 @@ watch(
 )
 
 const handleContinue = async () => {
-	const key = await window.keplr?.getKey("arabica-11")
+	const key = await window.keplr?.getKey(appStore.network.chainId)
 
 	const proto = [
 		{
@@ -239,7 +244,7 @@ const handleContinue = async () => {
 
 	try {
 		isAwaiting.value = true
-		await sendMsgs(key.bech32Address, proto, stdFee)
+		await sendMsgs(appStore.network, key.bech32Address, proto, stdFee)
 		isAwaiting.value = false
 
 		notificationsStore.create({

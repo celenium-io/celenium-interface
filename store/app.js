@@ -3,6 +3,8 @@ import { useModalsStore } from "./modals"
 export const useAppStore = defineStore("app", () => {
 	const modalsStore = useModalsStore()
 
+	const network = ref()
+
 	const head = ref()
 	const gas = ref({
 		fast: 0,
@@ -37,6 +39,7 @@ export const useAppStore = defineStore("app", () => {
 	}
 
 	return {
+		network,
 		head,
 		gas,
 		currentPrice,

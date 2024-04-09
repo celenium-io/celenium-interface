@@ -1,3 +1,4 @@
+import Long from "long"
 import Base64 from "crypto-js/enc-base64"
 import Hex from "crypto-js/enc-hex"
 
@@ -5,59 +6,12 @@ import { AuthInfo, Fee, TxBody, TxRaw, SignerInfo } from "./proto/gen/tx"
 import { SignMode } from "./proto/gen/signing"
 import { PubKey } from "./proto/gen/keys"
 
-import Long from "long"
-
-const arabica = {
-	chainId: "arabica-11",
-	chainName: "Arabica Celestia",
-	rpc: "https://rpc.celestia-arabica-11.com",
-	rest: "https://api.celestia-arabica-11.com",
-	bip44: {
-		coinType: 118,
-	},
-	bech32Config: {
-		bech32PrefixAccAddr: "celestia",
-		bech32PrefixAccPub: "celestia" + "pub",
-		bech32PrefixValAddr: "celestia" + "valoper",
-		bech32PrefixValPub: "celestia" + "valoperpub",
-		bech32PrefixConsAddr: "celestia" + "valcons",
-		bech32PrefixConsPub: "celestia" + "valconspub",
-	},
-	currencies: [
-		{
-			coinDenom: "TIA",
-			coinMinimalDenom: "utia",
-			coinDecimals: 6,
-			coinGeckoId: "celestia",
-		},
-	],
-	feeCurrencies: [
-		{
-			coinDenom: "TIA",
-			coinMinimalDenom: "utia",
-			coinDecimals: 6,
-			coinGeckoId: "celestia",
-			gasPriceStep: {
-				low: 0.01,
-				average: 0.025,
-				high: 0.3,
-			},
-		},
-	],
-	stakeCurrency: {
-		coinDenom: "TIA",
-		coinMinimalDenom: "utia",
-		coinDecimals: 6,
-		coinGeckoId: "celestia",
-	},
-}
-
-export const suggestChain = () => {
+export const suggestChain = (network) => {
 	return new Promise(async (resolve, reject) => {
 		try {
-			await window.keplr.experimentalSuggestChain(arabica)
+			await window.keplr.experimentalSuggestChain(network)
 
-			await window.keplr.enable(arabica.chainId)
+			await window.keplr.enable(network.chainId)
 
 			resolve({ success: true })
 		} catch (error) {
@@ -70,10 +24,10 @@ export const disconnect = () => {
 	window.keplr.disable()
 }
 
-export const getAccounts = () => {
+export const getAccounts = (network) => {
 	return new Promise(async (resolve, reject) => {
 		try {
-			const offlineSigner = window.getOfflineSigner(arabica.chainId)
+			const offlineSigner = window.getOfflineSigner(network.chainId)
 			const accounts = await offlineSigner.getAccounts()
 			resolve(accounts)
 		} catch (error) {
@@ -90,9 +44,9 @@ const buildPayForBlob = (tx, blob) => {
 	return blobTx.serializeBinary()
 }
 
-export const sendPayForBlob = async (sender, proto, fee, blob) => {
-	const account = await fetchAccountInfo(sender)
-	const { pubKey } = await window.keplr.getKey(arabica.chainId)
+export const sendPayForBlob = async (network, sender, proto, fee, blob) => {
+	const account = await fetchAccountInfo(network, sender)
+	const { pubKey } = await window.keplr.getKey(network.chainId)
 
 	const tx = TxBody.encode(
 		TxBody.fromPartial({
@@ -132,11 +86,11 @@ export const sendPayForBlob = async (sender, proto, fee, blob) => {
 					gasLimit: fee.gas,
 				}),
 			}).finish(),
-			chainId: arabica.chainId,
+			chainId: network.chainId,
 			accountNumber: Long.fromString(account.account_number),
 		}
 
-		const signed = await keplr.signDirect(arabica.chainId, sender, signDoc)
+		const signed = await keplr.signDirect(network.chainId, sender, signDoc)
 
 		const body = buildPayForBlob(
 			TxRaw.encode({
@@ -152,13 +106,13 @@ export const sendPayForBlob = async (sender, proto, fee, blob) => {
 			signDoc: signed.signed,
 		}
 
-		const txHash = await broadcastTxSync(arabica.chainId, signedTx.tx)
+		const txHash = await broadcastTxSync(network.chainId, signedTx.tx)
 		return txHash
 	}
 }
 
-export const simulateMsgs = async (sender, proto, fee) => {
-	const account = await fetchAccountInfo(sender)
+export const simulateMsgs = async (network, sender, proto, fee) => {
+	const account = await fetchAccountInfo(network, sender)
 
 	if (account) {
 		const unsignedTx = TxRaw.encode({
@@ -192,7 +146,7 @@ export const simulateMsgs = async (sender, proto, fee) => {
 			signatures: [new Uint8Array(64)],
 		}).finish()
 
-		const simulatedResult = await $fetch(`${arabica.rest}/cosmos/tx/v1beta1/simulate`, {
+		const simulatedResult = await $fetch(`${network.rest}/cosmos/tx/v1beta1/simulate`, {
 			method: "POST",
 			headers: {
 				"content-type": "application/json",
@@ -213,9 +167,9 @@ export const simulateMsgs = async (sender, proto, fee) => {
 	return undefined
 }
 
-export const sendMsgs = async (sender, proto, fee) => {
-	const account = await fetchAccountInfo(sender)
-	const { pubKey } = await window.keplr.getKey(arabica.chainId)
+export const sendMsgs = async (network, sender, proto, fee) => {
+	const account = await fetchAccountInfo(network, sender)
+	const { pubKey } = await window.keplr.getKey(network.chainId)
 
 	const tx = TxBody.encode(
 		TxBody.fromPartial({
@@ -255,11 +209,11 @@ export const sendMsgs = async (sender, proto, fee) => {
 					gasLimit: fee.gas,
 				}),
 			}).finish(),
-			chainId: arabica.chainId,
+			chainId: network.chainId,
 			accountNumber: Long.fromString(account.account_number),
 		}
 
-		const signed = await window.keplr.signDirect(arabica.chainId, sender, signDoc)
+		const signed = await window.keplr.signDirect(network.chainId, sender, signDoc)
 
 		const signedTx = {
 			tx: TxRaw.encode({
@@ -270,18 +224,13 @@ export const sendMsgs = async (sender, proto, fee) => {
 			signDoc: signed.signed,
 		}
 
-		const txHash = await broadcastTxSync(arabica.chainId, signedTx.tx)
-
-		// const txTracer = new TendermintTxTracer(arabica.rpc, "/websocket")
-		// txTracer.traceTx(txHash).then((tx) => {
-		// 	console.log(tx)
-		// })
+		const txHash = await broadcastTxSync(network.chainId, signedTx.tx)
 	}
 }
 
-export const fetchAccountInfo = async (address) => {
+export const fetchAccountInfo = async (network, address) => {
 	try {
-		const uri = `${arabica.rest}/cosmos/auth/v1beta1/accounts/${address}`
+		const uri = `${network.rest}/cosmos/auth/v1beta1/accounts/${address}`
 		const response = await $fetch(uri)
 		return response.account
 	} catch (e) {

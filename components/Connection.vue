@@ -7,6 +7,7 @@ import { Dropdown, DropdownItem, DropdownDivider } from "@/components/ui/Dropdow
 
 /** Services */
 import { suggestChain, getAccounts, disconnect } from "@/services/keplr"
+import { arabica, mocha } from "@/services/chains"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -20,11 +21,27 @@ const isWalletAvailable = ref(false)
 const isFetchingAccounts = ref(false)
 const account = ref()
 
+const { hostname } = useRequestURL()
+
+switch (hostname) {
+	case "dev.celenium.io":
+	case "arabica.celenium.io":
+	case "celenium.io":
+	case "localhost":
+		appStore.network = arabica
+		break
+
+	case "mocha.celenium.io":
+	case "mocha-4.celenium.io":
+		appStore.network = mocha
+		break
+}
+
 const getBalance = async () => {
-	const key = await window.keplr.getKey("arabica-11")
+	const key = await window.keplr.getKey(appStore.network.chainId)
 
 	if (key) {
-		const uri = `https://api.celestia-arabica-11.com/cosmos/bank/v1beta1/balances/${key.bech32Address}?pagination.limit=1000`
+		const uri = `${appStore.network.rest}/cosmos/bank/v1beta1/balances/${key.bech32Address}?pagination.limit=1000`
 
 		const data = await $fetch(uri)
 		const celestiaBalance = data.balances.find((balance) => balance.denom === "utia")
@@ -39,11 +56,11 @@ onMounted(async () => {
 
 const handleConnect = async () => {
 	try {
-		await suggestChain()
+		await suggestChain(appStore.network)
 
 		isFetchingAccounts.value = true
 
-		const accounts = await getAccounts()
+		const accounts = await getAccounts(appStore.network)
 		if (accounts.length) {
 			account.value = accounts[0].address
 			appStore.address = accounts[0].address

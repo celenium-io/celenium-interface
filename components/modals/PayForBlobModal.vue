@@ -147,7 +147,7 @@ const handleContinue = async () => {
 
 	try {
 		isAwaiting.value = true
-		await sendPayForBlob(appStore.address, proto, stdFee, decodableBlob)
+		await sendPayForBlob(appStore.network, appStore.address, proto, stdFee, decodableBlob)
 		isAwaiting.value = false
 
 		notificationsStore.create({
