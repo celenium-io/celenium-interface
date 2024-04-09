@@ -560,6 +560,11 @@ const handleOpenQRModal = () => {
 			</Flex>
 
 			<Flex align="center" gap="8">
+				<Button @click="handleSend" type="secondary" size="mini">
+					<Icon name="coins" size="12" color="secondary" />
+					Send
+				</Button>
+
 				<Button
 					@click="handleBookmark"
 					@mouseenter="isBookmarkButtonHovered = true"
@@ -575,10 +580,6 @@ const handleOpenQRModal = () => {
 					{{ bookmarkText }}
 				</Button>
 
-				<Button @click="handleOpenQRModal" type="secondary" size="mini">
-					<Icon name="qr" size="12" color="secondary" />
-				</Button>
-
 				<Dropdown>
 					<Button type="secondary" size="mini">
 						<Icon name="dots" size="12" color="secondary" />
@@ -586,13 +587,12 @@ const handleOpenQRModal = () => {
 					</Button>
 
 					<template #popup>
-						<DropdownItem @click="handleSend">
+						<DropdownItem @click="handleOpenQRModal">
 							<Flex align="center" gap="8">
-								<Icon name="coins" size="12" color="secondary" />
-								Send TIA
+								<Icon name="qr" size="12" color="secondary" />
+								Get QR Code
 							</Flex>
 						</DropdownItem>
-
 						<DropdownItem @click="handleViewRawAddress">
 							<Flex align="center" gap="8">
 								<Icon name="address" size="12" color="secondary" />
