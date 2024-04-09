@@ -14,6 +14,8 @@ import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
 const notificationsStore = useNotificationsStore()
 
+const router = useRouter()
+
 const isWalletAvailable = ref(false)
 const isFetchingAccounts = ref(false)
 const account = ref()
@@ -133,7 +135,7 @@ const handleDisconnect = () => {
 		</Button>
 
 		<template #popup>
-			<DropdownItem @click="handleCopy(appStore.address)">
+			<DropdownItem @click="router.push(`/address/${appStore.address}`)">
 				<Flex direction="column" gap="6">
 					<Text>Open my address</Text>
 					<Text size="12" color="tertiary">celestia...{{ appStore.address.slice(-4) }}</Text>
