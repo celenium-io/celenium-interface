@@ -242,7 +242,7 @@ const handleContinue = async () => {
 							<Icon name="danger" size="12" color="yellow" />
 							<Text size="12" weight="600" color="yellow">{{ namespaceError }}</Text>
 						</Flex>
-						<Text v-else />
+						<Text v-else size="12" weight="600" color="tertiary">Required</Text>
 					</template>
 				</Input>
 
