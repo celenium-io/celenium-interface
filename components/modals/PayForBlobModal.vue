@@ -20,6 +20,8 @@ const appStore = useAppStore()
 const cacheStore = useCacheStore()
 const notificationsStore = useNotificationsStore()
 
+const { hostname } = useRequestURL()
+
 const emit = defineEmits(["onClose"])
 const props = defineProps({
 	show: Boolean,
@@ -67,8 +69,10 @@ watch(
 		if (props.show) {
 			if (!appStore.address?.length) {
 				warningBannerText.value = "Keplr wallet connection is required to submit a blob."
+			} else if (hostname !== "celenium.io") {
+				warningBannerText.value = `You are currently on ${hostname}. The transaction will be performed on the test network.`
 			} else {
-				warningBannerText.value = "You are currently on mocha.celenium.io. The transaction will be performed on the test network."
+				warningBannerText.value = ""
 			}
 
 			if (cacheStore.current.namespace) {
@@ -282,7 +286,7 @@ const handleContinue = async () => {
 				</Flex>
 			</Flex>
 
-			<Flex align="center" gap="12" :class="$style.warning_banner">
+			<Flex v-if="warningBannerText.length" align="center" gap="12" :class="$style.warning_banner">
 				<Icon name="danger" size="16" color="yellow" />
 				<Text size="13" height="140" weight="500" color="tertiary" style="max-width: 350px">
 					{{ warningBannerText }}
