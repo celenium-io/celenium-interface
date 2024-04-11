@@ -84,7 +84,11 @@ const handleAmountInput = (e) => {
 		return
 	}
 
-	amount.value = comma(purgeNumber(amount.value), " ", MAX_DIGITS)
+	amount.value = purgeNumber(amount.value)
+}
+
+const handleAmountBlur = () => {
+	amount.value = comma(amount.value, " ", MAX_DIGITS)
 }
 
 const handleGasLimitInput = (e) => {
@@ -178,7 +182,7 @@ const isAwaiting = ref(false)
 const isReadyToContinue = computed(() => {
 	return (
 		!addressError.value.length &&
-		amount.value &&
+		parseFloat(amount.value) > 0 &&
 		address.value?.length &&
 		((selectedGasLimit.value === "Estimated" && estimatedGasLimit.value) ||
 			(selectedGasLimit.value === "Custom" && customGasLimit.value))
@@ -341,12 +345,14 @@ const handleContinue = async () => {
 					<Input
 						v-model="amount"
 						@input="handleAmountInput"
+						@blur="handleAmountBlur"
 						label="Amount"
 						placeholder="0.00"
 						ref="inputEl"
 						suffix="TIA"
 						autofocus
 						disable-paste
+						:disabled="!appStore.address?.length"
 					>
 						<template #rightText>
 							<Text size="12" weight="600" color="secondary"> ${{ comma(amountInUSD) }} </Text>
