@@ -88,12 +88,12 @@ watch(
 const handleDrop = (e) => {
 	const file = e.dataTransfer.files[0]
 
-	if (file.size > 100_000) {
+	if (file.size > 25_000) {
 		notificationsStore.create({
 			notification: {
 				type: "error",
 				icon: "close",
-				title: "Max 100kb",
+				title: "Max 25kb",
 				autoDestroy: true,
 			},
 		})
@@ -269,7 +269,7 @@ const handleContinue = async () => {
 
 						<Flex direction="column" gap="8">
 							<Text size="13" weight="500" color="tertiary" align="center"> Drag and drop the file you want to submit </Text>
-							<Text size="13" weight="500" color="support" align="center"> PNG, JPEG or TXT, max size 100kb </Text>
+							<Text size="13" weight="500" color="support" align="center"> PNG, JPEG or TXT, max size 25kb </Text>
 						</Flex>
 					</Flex>
 					<Flex v-else align="center" justify="between" :class="$style.file">
