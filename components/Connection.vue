@@ -9,6 +9,9 @@ import { Dropdown, DropdownItem, DropdownDivider } from "@/components/ui/Dropdow
 import { suggestChain, getAccounts, disconnect } from "@/services/keplr"
 import { arabica, mocha } from "@/services/chains"
 
+/** API */
+import { fetchAddressByHash } from "@/services/api/address"
+
 /** Store */
 import { useAppStore } from "@/store/app"
 import { useNotificationsStore } from "@/store/notifications"
@@ -41,12 +44,11 @@ const getBalance = async () => {
 	const key = await window.keplr.getKey(appStore.network.chainId)
 
 	if (key) {
-		const uri = `${appStore.network.rest}/cosmos/bank/v1beta1/balances/${key.bech32Address}?pagination.limit=1000`
+		const { data } = await fetchAddressByHash(key.bech32Address)
 
-		const data = await $fetch(uri)
-		const celestiaBalance = data.balances.find((balance) => balance.denom === "utia")
-
-		appStore.balance = parseFloat(celestiaBalance.amount / 1_000_000) || 0
+		if (data.value?.balance) {
+			appStore.balance = parseFloat(data.value.balance.spendable / 1_000_000) || 0
+		}
 	}
 }
 

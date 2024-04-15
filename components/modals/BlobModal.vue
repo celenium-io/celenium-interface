@@ -82,7 +82,12 @@ watch(
 				return
 			}
 
-			getBlobMetadata()
+			await getBlobMetadata()
+
+			/** auto preview for small images */
+			if (["image/png", "image/jpeg"].includes(blob.value.content_type) && cacheStore.selectedBlob.size < 100_000) {
+				handlePreviewContent()
+			}
 		} else {
 			isStopped.value = false
 			isDecode.value = false

@@ -30,6 +30,8 @@ const props = defineProps({
 const namespace = ref("")
 const namespaceError = ref()
 
+const uploadInputRef = ref()
+
 const blob = ref()
 const fileType = ref()
 
@@ -85,8 +87,8 @@ watch(
 	},
 )
 
-const handleDrop = (e) => {
-	const file = e.dataTransfer.files[0]
+const handleUpload = (e, target) => {
+	const file = target === "drop" ? e.dataTransfer.files[0] : uploadInputRef.value.files[0]
 
 	if (file.size > 25_000) {
 		notificationsStore.create({
@@ -253,25 +255,37 @@ const handleContinue = async () => {
 				<Flex direction="column" gap="8">
 					<Text size="12" weight="600" color="secondary">File</Text>
 
-					<Flex
-						v-if="!blob"
-						id="drop_zone"
-						@drop.prevent="handleDrop"
-						@dragenter.prevent
-						@dragover.prevent
-						direction="column"
-						align="center"
-						justify="center"
-						gap="20"
-						:class="$style.drop_zone"
-					>
-						<Icon name="upload" size="20" color="tertiary" />
+					<label v-if="!blob" :class="$style.drop_zone">
+						<input
+							ref="uploadInputRef"
+							@change="(e) => handleUpload(e, 'select')"
+							type="file"
+							name="file"
+							accept="image/png, image/jpeg, text/plain"
+							size="25000"
+						/>
 
-						<Flex direction="column" gap="8">
-							<Text size="13" weight="500" color="tertiary" align="center"> Drag and drop the file you want to submit </Text>
-							<Text size="13" weight="500" color="support" align="center"> PNG, JPEG or TXT, max size 25kb </Text>
+						<Flex
+							id="drop_zone"
+							@drop.prevent="(e) => handleUpload(e, 'drop')"
+							@dragenter.prevent
+							@dragover.prevent
+							direction="column"
+							align="center"
+							justify="center"
+							gap="20"
+						>
+							<Icon name="upload" size="20" color="tertiary" />
+
+							<Flex direction="column" gap="8">
+								<Text size="13" weight="500" color="tertiary" align="center">
+									Drag and drop the file you want to submit
+								</Text>
+								<Text size="13" weight="500" color="support" align="center"> PNG, JPEG or TXT, max size 25kb </Text>
+							</Flex>
 						</Flex>
-					</Flex>
+					</label>
+
 					<Flex v-else align="center" justify="between" :class="$style.file">
 						<Flex align="center" gap="12">
 							<Icon name="tx" size="16" color="primary" />
@@ -374,8 +388,18 @@ const handleContinue = async () => {
 	border: 2px dashed var(--op-5);
 	border-radius: 12px;
 	background: rgba(0, 0, 0, 10%);
+	cursor: pointer;
 
 	padding: 40px;
+
+	& input[type="file"] {
+		position: absolute;
+		z-index: -1;
+		opacity: 0;
+		display: block;
+		width: 0;
+		height: 0;
+	}
 }
 
 .warning_banner {
