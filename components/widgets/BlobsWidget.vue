@@ -52,6 +52,11 @@ onMounted(async () => {
 	while (weeks.value.length < 24) {
 		weeks.value.push(new Array(7))
 	}
+
+	/** remove unnecessary weeks */
+	while (weeks.value.length > 24) {
+		weeks.value.shift()
+	}
 })
 
 const getOpacity = (val) => {
