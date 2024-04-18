@@ -28,7 +28,7 @@ const props = defineProps({
 })
 
 const namespace = ref("")
-const namespaceError = ref()
+const namespaceError = ref("")
 
 const uploadInputRef = ref()
 

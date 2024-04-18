@@ -7,15 +7,17 @@ import { Dropdown, DropdownItem, DropdownDivider } from "@/components/ui/Dropdow
 
 /** Services */
 import { suggestChain, getAccounts, disconnect } from "@/services/keplr"
-import { arabica, mocha } from "@/services/chains"
+import { arabica, mocha, mainnet } from "@/services/chains"
 
 /** API */
 import { fetchAddressByHash } from "@/services/api/address"
 
 /** Store */
 import { useAppStore } from "@/store/app"
+import { useModalsStore } from "@/store/modals"
 import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
+const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
 
 const router = useRouter()
@@ -27,10 +29,13 @@ const account = ref()
 const { hostname } = useRequestURL()
 
 switch (hostname) {
+	case "localhost":
 	case "dev.celenium.io":
+		appStore.network = mainnet
+		break
+
 	case "arabica.celenium.io":
 	case "celenium.io":
-	case "localhost":
 		appStore.network = arabica
 		break
 
@@ -154,6 +159,9 @@ const handleDisconnect = () => {
 		</Button>
 
 		<template #popup>
+			<DropdownItem @click="modalsStore.open('send')">Send TIA</DropdownItem>
+			<DropdownItem @click="modalsStore.open('pfb')">Submit Blob</DropdownItem>
+			<DropdownDivider />
 			<DropdownItem @click="router.push(`/address/${appStore.address}`)">
 				<Flex direction="column" gap="6">
 					<Text>Open my address</Text>
