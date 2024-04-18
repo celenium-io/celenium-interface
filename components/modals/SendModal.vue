@@ -156,7 +156,7 @@ const runGasLimitEstimation = async () => {
 	const protoMsgs = {
 		typeUrl: "/cosmos.bank.v1beta1.MsgSend",
 		value: MsgSend.encode({
-			fromAddress: "celestia1pssnclfxcn4vgxyyy7z8sdvr2xcznwq84d0wvy",
+			fromAddress: "celestia15hgtsr3sezr6tl6jsf0afdh3qlgpgq48czxqpw",
 			toAddress: "celestia1uvm9gzwqukm97s7vsq3x6wlcm7hjfvv6u50a4t",
 			amount: [
 				{
@@ -169,7 +169,7 @@ const runGasLimitEstimation = async () => {
 
 	const gasUsed = await simulateMsgs(
 		appStore.network,
-		"celestia1pssnclfxcn4vgxyyy7z8sdvr2xcznwq84d0wvy",
+		"celestia15hgtsr3sezr6tl6jsf0afdh3qlgpgq48czxqpw",
 		[protoMsgs],
 		[{ denom: "utia", amount: "1" }],
 	)
