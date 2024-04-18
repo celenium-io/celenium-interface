@@ -14,8 +14,8 @@
 	"devDependencies": {
 		"@nuxt/devtools": "latest",
 		"cross-env": "^7.0.3",
-		"nuxt": "3.9.1",
-		"nuxt-og-image": "2.0.28",
+		"nuxt": "3.11.2",
+		"nuxt-og-image": "3.0.0-rc.52",
 		"nuxt-simple-sitemap": "^4.2.0",
 		"sass": "1.66.1",
 		"sass-loader": "13.3.2",

@@ -29,13 +29,13 @@ const account = ref()
 const { hostname } = useRequestURL()
 
 switch (hostname) {
-	case "localhost":
-	case "dev.celenium.io":
+	case "celenium.io":
 		appStore.network = mainnet
 		break
 
+	case "dev.celenium.io":
 	case "arabica.celenium.io":
-	case "celenium.io":
+	case "localhost":
 		appStore.network = arabica
 		break
 

@@ -25,12 +25,6 @@ const showPopup = ref(false)
 
 const head = computed(() => appStore.lastHead)
 
-const featurePreviewMode = ref(false)
-
-onMounted(async () => {
-	featurePreviewMode.value = localStorage.featurePreview
-})
-
 watch(
 	() => showPopup.value,
 	() => {
@@ -162,7 +156,7 @@ const handleNavigate = (url) => {
 					</template>
 				</Tooltip>
 
-				<Connection v-if="featurePreviewMode" />
+				<Connection :class="$style.connection_btn" />
 			</Flex>
 		</Flex>
 
@@ -355,6 +349,10 @@ const handleNavigate = (url) => {
 @media (max-width: 500px) {
 	.container {
 		margin: 0 12px;
+	}
+
+	.connection_btn {
+		display: none;
 	}
 }
 
