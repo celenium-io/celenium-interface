@@ -156,16 +156,25 @@ const handleContinue = async () => {
 
 	try {
 		isAwaiting.value = true
-		await sendPayForBlob(appStore.network, appStore.address, proto, stdFee, decodableBlob)
+		const txHash = await sendPayForBlob(appStore.network, appStore.address, proto, stdFee, decodableBlob)
 		isAwaiting.value = false
 
-		amp.log("successfullPfb")
+		amp.log("successfulPfb")
 
 		notificationsStore.create({
 			notification: {
 				type: "success",
 				icon: "check-circle",
-				title: `Successfuly submited`,
+				title: `Successfuly sent`,
+				actions: [
+					{
+						icon: "copy",
+						name: "Copy Tx Hash",
+						callback: () => {
+							window.navigator.clipboard.writeText(txHash)
+						},
+					},
+				],
 				autoDestroy: true,
 			},
 		})

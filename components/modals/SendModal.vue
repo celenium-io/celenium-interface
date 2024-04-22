@@ -16,6 +16,7 @@ import amp from "@/services/amp"
 import { normalizeAmount, purgeNumber, comma } from "@/services/utils/amounts"
 import { simulateMsgs, sendMsgs } from "@/services/keplr"
 import { MsgSend } from "@/services/proto/gen/msg_send"
+import { space } from "@/services/utils"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -255,16 +256,25 @@ const handleContinue = async () => {
 
 	try {
 		isAwaiting.value = true
-		await sendMsgs(appStore.network, key.bech32Address, proto, stdFee)
+		const txHash = await sendMsgs(appStore.network, key.bech32Address, proto, stdFee)
 		isAwaiting.value = false
 
-		amp.log("successfullSend")
+		amp.log("successfulSend")
 
 		notificationsStore.create({
 			notification: {
 				type: "success",
 				icon: "check-circle",
 				title: `Successfuly sent`,
+				actions: [
+					{
+						icon: "copy",
+						name: "Copy Tx Hash",
+						callback: () => {
+							window.navigator.clipboard.writeText(txHash)
+						},
+					},
+				],
 				autoDestroy: true,
 			},
 		})

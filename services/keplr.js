@@ -107,7 +107,7 @@ export const sendPayForBlob = async (network, sender, proto, fee, blob) => {
 		}
 
 		const txHash = await broadcastTxSync(network.chainId, signedTx.tx)
-		return txHash
+		return Buffer.from(txHash).toString("hex")
 	}
 }
 
@@ -225,6 +225,7 @@ export const sendMsgs = async (network, sender, proto, fee) => {
 		}
 
 		const txHash = await broadcastTxSync(network.chainId, signedTx.tx)
+		return Buffer.from(txHash).toString("hex")
 	}
 }
 
