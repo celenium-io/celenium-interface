@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button.vue"
 import { fetchEstimatedGas } from "@/services/api/gas"
 
 /** Services */
+import amp from "@/services/amp"
 import { getNamespaceID } from "@/services/utils"
 import { sendPayForBlob } from "@/services/keplr"
 import { prepareBlob } from "@/services/utils/encode"
@@ -69,6 +70,8 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
+			amp.log("showPfbModal")
+
 			if (!appStore.address?.length) {
 				warningBannerText.value = "Keplr wallet connection is required to submit a blob."
 			} else if (hostname !== "celenium.io") {
@@ -156,6 +159,8 @@ const handleContinue = async () => {
 		await sendPayForBlob(appStore.network, appStore.address, proto, stdFee, decodableBlob)
 		isAwaiting.value = false
 
+		amp.log("successfullPfb")
+
 		notificationsStore.create({
 			notification: {
 				type: "success",
@@ -168,6 +173,8 @@ const handleContinue = async () => {
 		emit("onClose")
 	} catch (e) {
 		isAwaiting.value = false
+
+		amp.log("failedPfb")
 
 		if (e.message.startsWith("Request rejected")) {
 			notificationsStore.create({

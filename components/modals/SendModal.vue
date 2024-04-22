@@ -12,6 +12,7 @@ import Button from "@/components/ui/Button.vue"
 import { search } from "@/services/api/search"
 
 /** Services */
+import amp from "@/services/amp"
 import { normalizeAmount, purgeNumber, comma } from "@/services/utils/amounts"
 import { simulateMsgs, sendMsgs } from "@/services/keplr"
 import { MsgSend } from "@/services/proto/gen/msg_send"
@@ -193,6 +194,8 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
+			amp.log("showSendModal")
+
 			if (!appStore.address?.length) {
 				warningBannerText.value = "Keplr wallet connection is required to send TIA."
 			} else if (hostname !== "celenium.io") {
@@ -255,6 +258,8 @@ const handleContinue = async () => {
 		await sendMsgs(appStore.network, key.bech32Address, proto, stdFee)
 		isAwaiting.value = false
 
+		amp.log("successfullSend")
+
 		notificationsStore.create({
 			notification: {
 				type: "success",
@@ -267,6 +272,8 @@ const handleContinue = async () => {
 		emit("onClose")
 	} catch (e) {
 		isAwaiting.value = false
+
+		amp.log("failedSend")
 
 		if (e.message.startsWith("Request rejected")) {
 			notificationsStore.create({

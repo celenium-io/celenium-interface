@@ -6,6 +6,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { Dropdown, DropdownItem, DropdownDivider } from "@/components/ui/Dropdown"
 
 /** Services */
+import amp from "@/services/amp"
 import { suggestChain, getAccounts, disconnect } from "@/services/keplr"
 import { arabica, mocha, mainnet } from "@/services/chains"
 
@@ -76,7 +77,11 @@ const handleConnect = async () => {
 		getBalance()
 
 		isFetchingAccounts.value = false
+
+		amp.log("connect")
 	} catch (error) {
+		amp.log("rejectConnect")
+
 		switch (error.message) {
 			case "Request rejected":
 				notificationsStore.create({
@@ -108,6 +113,8 @@ const handleCopy = (target) => {
 
 const handleDisconnect = () => {
 	disconnect()
+
+	amp.log("disconnect")
 
 	account.value = null
 	appStore.address = ""
