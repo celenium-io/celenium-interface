@@ -33,7 +33,7 @@ export const useServerURL = () => {
 			return Server.API.dev
 
 		default:
-			return Server.API.arabica
+			return Server.API.dev
 	}
 }
 
