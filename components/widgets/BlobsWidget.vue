@@ -29,7 +29,7 @@ onMounted(async () => {
 	days.value.reverse()
 
 	totalSize.value = days.value.reduce((a, b) => (a += parseInt(b.value)), 0)
-	minValue.value = Math.min(...days.value.map((d) => d.value).filter(value => value > 0))
+	minValue.value = Math.min(...days.value.map((d) => d.value).filter((value) => value > 0))
 	maxValue.value = Math.max(...days.value.map((d) => d.value))
 
 	const firstDayDt = DateTime.fromISO(days.value[0].time)
@@ -47,7 +47,7 @@ onMounted(async () => {
 	while (weeks.value[weeks.value.length - 1].length < 7) {
 		weeks.value[weeks.value.length - 1].push(null)
 	}
-	
+
 	/** fill empty weeks */
 	while (weeks.value.length < 24) {
 		weeks.value.push(new Array(7))
@@ -74,11 +74,11 @@ const getOpacity = (val) => {
 const calculateOpacity = (val) => {
 	let opacity = 0.4
 	if (val) {
-		const normalizedValue = (val - minValue.value) / (maxValue.value - minValue.value);
-		opacity += normalizedValue * 0.6;
+		const normalizedValue = (val - minValue.value) / (maxValue.value - minValue.value)
+		opacity += normalizedValue * 0.6
 	}
 
-	return opacity;
+	return opacity
 }
 </script>
 

@@ -12,9 +12,11 @@ import Button from "@/components/ui/Button.vue"
 import { search } from "@/services/api/search"
 
 /** Services */
+import amp from "@/services/amp"
 import { normalizeAmount, purgeNumber, comma } from "@/services/utils/amounts"
 import { simulateMsgs, sendMsgs } from "@/services/keplr"
 import { MsgSend } from "@/services/proto/gen/msg_send"
+import { space } from "@/services/utils"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -23,6 +25,8 @@ import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
 const cacheStore = useCacheStore()
 const notificationsStore = useNotificationsStore()
+
+const { hostname } = useRequestURL()
 
 const emit = defineEmits(["onClose"])
 const props = defineProps({
@@ -82,7 +86,11 @@ const handleAmountInput = (e) => {
 		return
 	}
 
-	amount.value = comma(purgeNumber(amount.value), " ", MAX_DIGITS)
+	amount.value = purgeNumber(amount.value)
+}
+
+const handleAmountBlur = () => {
+	amount.value = comma(amount.value, " ", MAX_DIGITS)
 }
 
 const handleGasLimitInput = (e) => {
@@ -150,7 +158,7 @@ const runGasLimitEstimation = async () => {
 	const protoMsgs = {
 		typeUrl: "/cosmos.bank.v1beta1.MsgSend",
 		value: MsgSend.encode({
-			fromAddress: "celestia1pssnclfxcn4vgxyyy7z8sdvr2xcznwq84d0wvy",
+			fromAddress: "celestia15hgtsr3sezr6tl6jsf0afdh3qlgpgq48czxqpw",
 			toAddress: "celestia1uvm9gzwqukm97s7vsq3x6wlcm7hjfvv6u50a4t",
 			amount: [
 				{
@@ -163,7 +171,7 @@ const runGasLimitEstimation = async () => {
 
 	const gasUsed = await simulateMsgs(
 		appStore.network,
-		"celestia1pssnclfxcn4vgxyyy7z8sdvr2xcznwq84d0wvy",
+		"celestia15hgtsr3sezr6tl6jsf0afdh3qlgpgq48czxqpw",
 		[protoMsgs],
 		[{ denom: "utia", amount: "1" }],
 	)
@@ -176,7 +184,7 @@ const isAwaiting = ref(false)
 const isReadyToContinue = computed(() => {
 	return (
 		!addressError.value.length &&
-		amount.value &&
+		parseFloat(amount.value) > 0 &&
 		address.value?.length &&
 		((selectedGasLimit.value === "Estimated" && estimatedGasLimit.value) ||
 			(selectedGasLimit.value === "Custom" && customGasLimit.value))
@@ -187,10 +195,14 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
+			amp.log("showSendModal")
+
 			if (!appStore.address?.length) {
 				warningBannerText.value = "Keplr wallet connection is required to send TIA."
+			} else if (hostname !== "celenium.io") {
+				warningBannerText.value = `You are currently on ${hostname}. The transaction will be performed on the test network.`
 			} else {
-				warningBannerText.value = "You are currently on mocha.celenium.io. The transaction will be performed on the test network."
+				warningBannerText.value = ``
 			}
 
 			if (cacheStore.current.address) {
@@ -244,14 +256,25 @@ const handleContinue = async () => {
 
 	try {
 		isAwaiting.value = true
-		await sendMsgs(appStore.network, key.bech32Address, proto, stdFee)
+		const txHash = await sendMsgs(appStore.network, key.bech32Address, proto, stdFee)
 		isAwaiting.value = false
+
+		amp.log("successfulSend")
 
 		notificationsStore.create({
 			notification: {
 				type: "success",
 				icon: "check-circle",
 				title: `Successfuly sent`,
+				actions: [
+					{
+						icon: "copy",
+						name: "Copy Tx Hash",
+						callback: () => {
+							window.navigator.clipboard.writeText(txHash)
+						},
+					},
+				],
 				autoDestroy: true,
 			},
 		})
@@ -259,6 +282,8 @@ const handleContinue = async () => {
 		emit("onClose")
 	} catch (e) {
 		isAwaiting.value = false
+
+		amp.log("failedSend")
 
 		if (e.message.startsWith("Request rejected")) {
 			notificationsStore.create({
@@ -337,12 +362,14 @@ const handleContinue = async () => {
 					<Input
 						v-model="amount"
 						@input="handleAmountInput"
+						@blur="handleAmountBlur"
 						label="Amount"
 						placeholder="0.00"
 						ref="inputEl"
 						suffix="TIA"
 						autofocus
 						disable-paste
+						:disabled="!appStore.address?.length"
 					>
 						<template #rightText>
 							<Text size="12" weight="600" color="secondary"> ${{ comma(amountInUSD) }} </Text>
@@ -469,7 +496,7 @@ const handleContinue = async () => {
 				</Flex>
 			</Flex>
 
-			<Flex align="center" gap="12" :class="$style.warning_banner">
+			<Flex v-if="warningBannerText.length" align="center" gap="12" :class="$style.warning_banner">
 				<Icon name="danger" size="16" color="yellow" />
 				<Text size="13" height="140" weight="500" color="tertiary" style="max-width: 350px">
 					{{ warningBannerText }}

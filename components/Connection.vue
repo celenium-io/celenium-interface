@@ -6,13 +6,19 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { Dropdown, DropdownItem, DropdownDivider } from "@/components/ui/Dropdown"
 
 /** Services */
+import amp from "@/services/amp"
 import { suggestChain, getAccounts, disconnect } from "@/services/keplr"
-import { arabica, mocha } from "@/services/chains"
+import { arabica, mocha, mainnet } from "@/services/chains"
+
+/** API */
+import { fetchAddressByHash } from "@/services/api/address"
 
 /** Store */
 import { useAppStore } from "@/store/app"
+import { useModalsStore } from "@/store/modals"
 import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
+const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
 
 const router = useRouter()
@@ -24,9 +30,12 @@ const account = ref()
 const { hostname } = useRequestURL()
 
 switch (hostname) {
+	case "celenium.io":
+		appStore.network = mainnet
+		break
+
 	case "dev.celenium.io":
 	case "arabica.celenium.io":
-	case "celenium.io":
 	case "localhost":
 		appStore.network = arabica
 		break
@@ -41,12 +50,11 @@ const getBalance = async () => {
 	const key = await window.keplr.getKey(appStore.network.chainId)
 
 	if (key) {
-		const uri = `${appStore.network.rest}/cosmos/bank/v1beta1/balances/${key.bech32Address}?pagination.limit=1000`
+		const { data } = await fetchAddressByHash(key.bech32Address)
 
-		const data = await $fetch(uri)
-		const celestiaBalance = data.balances.find((balance) => balance.denom === "utia")
-
-		appStore.balance = parseFloat(celestiaBalance.amount / 1_000_000) || 0
+		if (data.value?.balance) {
+			appStore.balance = parseFloat(data.value.balance.spendable / 1_000_000) || 0
+		}
 	}
 }
 
@@ -69,7 +77,11 @@ const handleConnect = async () => {
 		getBalance()
 
 		isFetchingAccounts.value = false
+
+		amp.log("connect")
 	} catch (error) {
+		amp.log("rejectConnect")
+
 		switch (error.message) {
 			case "Request rejected":
 				notificationsStore.create({
@@ -101,6 +113,8 @@ const handleCopy = (target) => {
 
 const handleDisconnect = () => {
 	disconnect()
+
+	amp.log("disconnect")
 
 	account.value = null
 	appStore.address = ""
@@ -152,6 +166,9 @@ const handleDisconnect = () => {
 		</Button>
 
 		<template #popup>
+			<DropdownItem @click="modalsStore.open('send')">Send TIA</DropdownItem>
+			<DropdownItem @click="modalsStore.open('pfb')">Submit Blob</DropdownItem>
+			<DropdownDivider />
 			<DropdownItem @click="router.push(`/address/${appStore.address}`)">
 				<Flex direction="column" gap="6">
 					<Text>Open my address</Text>

@@ -6,7 +6,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { abbreviate, capitilize, numToPercent, shareOfTotal } from "@/services/utils"
 
 /** API */
-import { fetchValidatorsCount } from "@/services/api/validator";
+import { fetchValidatorsCount } from "@/services/api/validator"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -69,7 +69,7 @@ const fillValidatorsGraph = () => {
 
 		if (value) {
 			item.count = value
-			item.width = (value / totalValidators.value * 100).toFixed(2)
+			item.width = ((value / totalValidators.value) * 100).toFixed(2)
 		}
 	}
 }
@@ -80,7 +80,6 @@ fillValidatorsGraph()
 onMounted(() => {
 	wrapperWidth.value = wrapperEl.value.wrapper.offsetWidth
 })
-
 </script>
 
 <template>
@@ -94,7 +93,7 @@ onMounted(() => {
 						:class="$style.staking_bar"
 						:style="`--percentStaking: ${bondedShare}%;
 								width: ${barWidth}px`"
-					></div>
+					/>
 
 					<template #content>
 						<Flex align="center" justify="between" gap="8">
@@ -106,37 +105,25 @@ onMounted(() => {
 
 				<Flex direction="column" gap="12">
 					<Flex align="center" justify="between">
-						<Text size="12" weight="600" color="tertiary">
-							Total Supply
-						</Text>
+						<Text size="12" weight="600" color="tertiary"> Total Supply </Text>
 
-						<Tooltip>
-							<Text size="12" weight="600" color="secondary">
-								{{ abbreviate(totalSupply, 2) }} TIA
-							</Text>
+						<Tooltip side="top" position="end">
+							<Text size="12" weight="600" color="secondary"> {{ abbreviate(totalSupply, 2) }} TIA </Text>
 
 							<template #content>
-								<Text size="12" weight="600" color="secondary">
-									{{ abbreviate(totalSupplyUSD, 2) }} USD
-								</Text>
+								<Text size="12" weight="600" color="secondary"> {{ abbreviate(totalSupplyUSD, 2) }} USD </Text>
 							</template>
 						</Tooltip>
 					</Flex>
 
 					<Flex align="center" justify="between">
-						<Text size="12" weight="600" color="tertiary">
-							Bonded
-						</Text>
+						<Text size="12" weight="600" color="tertiary"> Bonded </Text>
 
-						<Tooltip>
-							<Text size="12" weight="600" color="secondary">
-								{{ abbreviate(totalVotingPower) }} TIA
-							</Text>
+						<Tooltip side="top" position="end">
+							<Text size="12" weight="600" color="secondary"> {{ abbreviate(totalVotingPower) }} TIA </Text>
 
 							<template #content>
-								<Text size="12" weight="600" color="secondary">
-									{{ abbreviate(totalVotingPowerUSD, 2) }} USD
-								</Text>
+								<Text size="12" weight="600" color="secondary"> {{ abbreviate(totalVotingPowerUSD, 2) }} USD </Text>
 							</template>
 						</Tooltip>
 					</Flex>
@@ -164,7 +151,7 @@ onMounted(() => {
 					<Icon name="validator" size="12" color="secondary" />
 					<Text size="13" weight="600" height="110" color="secondary">Validators</Text>
 				</Flex>
-				
+
 				<NuxtLink :to="'/validators'" :class="$style.link">
 					<Text size="11" weight="600" height="110" color="tertiary">View All</Text>
 				</NuxtLink>
@@ -173,11 +160,11 @@ onMounted(() => {
 			<Tooltip v-if="!isRefetching" position="start" side="top">
 				<Flex :style="`width: ${barWidth}px`">
 					<div
-						v-for="v in validatorsGraph.filter(item => item.width !== 0)"
+						v-for="v in validatorsGraph.filter((item) => item.width !== 0)"
 						:class="$style.validator_bar"
 						:style="{
 							width: `${v.width}%`,
-							background: v.color
+							background: v.color,
 						}"
 					></div>
 				</Flex>
@@ -191,7 +178,7 @@ onMounted(() => {
 
 						<Flex align="center" justify="between" gap="8">
 							<Text color="secondary">Percentage</Text>
-							<Text color="primary">{{ numToPercent((activeValidators / totalValidators), 2) }}</Text>
+							<Text color="primary">{{ numToPercent(activeValidators / totalValidators, 2) }}</Text>
 						</Flex>
 					</Flex>
 				</template>
@@ -209,8 +196,8 @@ onMounted(() => {
 							:class="$style.validator_legend"
 							:style="{
 								background: v.color,
-							}">
-						</div>
+							}"
+						></div>
 					</Flex>
 				</Flex>
 			</Flex>
@@ -278,14 +265,14 @@ onMounted(() => {
 }
 
 .validator_legend {
-		width: 6px;
-		height: 6px;
+	width: 6px;
+	height: 6px;
 
-		border-radius: 5px;
-		cursor: pointer;
+	border-radius: 5px;
+	cursor: pointer;
 
-		margin-right: 6px;
-	}
+	margin-right: 6px;
+}
 
 .link {
 	height: 24px;

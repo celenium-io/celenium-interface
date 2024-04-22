@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button.vue"
 import { fetchEstimatedGas } from "@/services/api/gas"
 
 /** Services */
+import amp from "@/services/amp"
 import { getNamespaceID } from "@/services/utils"
 import { sendPayForBlob } from "@/services/keplr"
 import { prepareBlob } from "@/services/utils/encode"
@@ -20,13 +21,17 @@ const appStore = useAppStore()
 const cacheStore = useCacheStore()
 const notificationsStore = useNotificationsStore()
 
+const { hostname } = useRequestURL()
+
 const emit = defineEmits(["onClose"])
 const props = defineProps({
 	show: Boolean,
 })
 
 const namespace = ref("")
-const namespaceError = ref()
+const namespaceError = ref("")
+
+const uploadInputRef = ref()
 
 const blob = ref()
 const fileType = ref()
@@ -65,10 +70,14 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
+			amp.log("showPfbModal")
+
 			if (!appStore.address?.length) {
 				warningBannerText.value = "Keplr wallet connection is required to submit a blob."
+			} else if (hostname !== "celenium.io") {
+				warningBannerText.value = `You are currently on ${hostname}. The transaction will be performed on the test network.`
 			} else {
-				warningBannerText.value = "You are currently on mocha.celenium.io. The transaction will be performed on the test network."
+				warningBannerText.value = ""
 			}
 
 			if (cacheStore.current.namespace) {
@@ -81,15 +90,15 @@ watch(
 	},
 )
 
-const handleDrop = (e) => {
-	const file = e.dataTransfer.files[0]
+const handleUpload = (e, target) => {
+	const file = target === "drop" ? e.dataTransfer.files[0] : uploadInputRef.value.files[0]
 
-	if (file.size > 100_000) {
+	if (file.size > 25_000) {
 		notificationsStore.create({
 			notification: {
 				type: "error",
 				icon: "close",
-				title: "Max 100kb",
+				title: "Max 25kb",
 				autoDestroy: true,
 			},
 		})
@@ -147,14 +156,25 @@ const handleContinue = async () => {
 
 	try {
 		isAwaiting.value = true
-		await sendPayForBlob(appStore.network, appStore.address, proto, stdFee, decodableBlob)
+		const txHash = await sendPayForBlob(appStore.network, appStore.address, proto, stdFee, decodableBlob)
 		isAwaiting.value = false
+
+		amp.log("successfulPfb")
 
 		notificationsStore.create({
 			notification: {
 				type: "success",
 				icon: "check-circle",
-				title: `Successfuly submited`,
+				title: `Successfuly sent`,
+				actions: [
+					{
+						icon: "copy",
+						name: "Copy Tx Hash",
+						callback: () => {
+							window.navigator.clipboard.writeText(txHash)
+						},
+					},
+				],
 				autoDestroy: true,
 			},
 		})
@@ -162,6 +182,8 @@ const handleContinue = async () => {
 		emit("onClose")
 	} catch (e) {
 		isAwaiting.value = false
+
+		amp.log("failedPfb")
 
 		if (e.message.startsWith("Request rejected")) {
 			notificationsStore.create({
@@ -249,25 +271,37 @@ const handleContinue = async () => {
 				<Flex direction="column" gap="8">
 					<Text size="12" weight="600" color="secondary">File</Text>
 
-					<Flex
-						v-if="!blob"
-						id="drop_zone"
-						@drop.prevent="handleDrop"
-						@dragenter.prevent
-						@dragover.prevent
-						direction="column"
-						align="center"
-						justify="center"
-						gap="20"
-						:class="$style.drop_zone"
-					>
-						<Icon name="upload" size="20" color="tertiary" />
+					<label v-if="!blob" :class="$style.drop_zone">
+						<input
+							ref="uploadInputRef"
+							@change="(e) => handleUpload(e, 'select')"
+							type="file"
+							name="file"
+							accept="image/png, image/jpeg, text/plain"
+							size="25000"
+						/>
 
-						<Flex direction="column" gap="8">
-							<Text size="13" weight="500" color="tertiary" align="center"> Drag and drop the file you want to submit </Text>
-							<Text size="13" weight="500" color="support" align="center"> PNG, JPEG or TXT, max size 100kb </Text>
+						<Flex
+							id="drop_zone"
+							@drop.prevent="(e) => handleUpload(e, 'drop')"
+							@dragenter.prevent
+							@dragover.prevent
+							direction="column"
+							align="center"
+							justify="center"
+							gap="20"
+						>
+							<Icon name="upload" size="20" color="tertiary" />
+
+							<Flex direction="column" gap="8">
+								<Text size="13" weight="500" color="tertiary" align="center">
+									Drag and drop the file you want to submit
+								</Text>
+								<Text size="13" weight="500" color="support" align="center"> PNG, JPEG or TXT, max size 25kb </Text>
+							</Flex>
 						</Flex>
-					</Flex>
+					</label>
+
 					<Flex v-else align="center" justify="between" :class="$style.file">
 						<Flex align="center" gap="12">
 							<Icon name="tx" size="16" color="primary" />
@@ -282,7 +316,7 @@ const handleContinue = async () => {
 				</Flex>
 			</Flex>
 
-			<Flex align="center" gap="12" :class="$style.warning_banner">
+			<Flex v-if="warningBannerText.length" align="center" gap="12" :class="$style.warning_banner">
 				<Icon name="danger" size="16" color="yellow" />
 				<Text size="13" height="140" weight="500" color="tertiary" style="max-width: 350px">
 					{{ warningBannerText }}
@@ -370,8 +404,18 @@ const handleContinue = async () => {
 	border: 2px dashed var(--op-5);
 	border-radius: 12px;
 	background: rgba(0, 0, 0, 10%);
+	cursor: pointer;
 
 	padding: 40px;
+
+	& input[type="file"] {
+		position: absolute;
+		z-index: -1;
+		opacity: 0;
+		display: block;
+		width: 0;
+		height: 0;
+	}
 }
 
 .warning_banner {
