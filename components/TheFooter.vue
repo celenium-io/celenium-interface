@@ -166,7 +166,10 @@ const handleChangeTheme = (target) => {
 						<Text size="12" weight="500" color="tertiary"> Addresses </Text>
 					</NuxtLink>
 					<NuxtLink to="/gas" :class="$style.link">
-						<Text size="12" weight="500" color="tertiary">Gas Tracker</Text>
+						<Text size="12" weight="500" color="tertiary"> Gas Tracker </Text>
+					</NuxtLink>
+					<NuxtLink to="https://docs.celenium.io" :class="$style.link" target="_blank">
+						<Text size="12" weight="500" color="tertiary"> Docs </Text>
 					</NuxtLink>
 				</Flex>
 			</Flex>
