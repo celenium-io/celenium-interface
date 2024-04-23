@@ -28,6 +28,7 @@ const cacheStore = useCacheStore()
 const bookmarksStore = useBookmarksStore()
 const notificationsStore = useNotificationsStore()
 
+const route = useRoute()
 const router = useRouter()
 
 const props = defineProps({
@@ -44,8 +45,19 @@ const bookmarkText = computed(() => {
 	return isBookmarked.value ? "Saved" : "Save"
 })
 
-const activeTab = ref("messages")
+const preselectedTab = route.query.tab && ["messages", "events"].includes(route.query.tab) ? route.query.tab : "messages"
+const activeTab = ref(preselectedTab)
 const messages = ref([])
+
+watch(
+	() => activeTab.value,
+	() =>
+		router.replace({
+			query: {
+				tab: activeTab.value,
+			},
+		}),
+)
 
 onMounted(async () => {
 	isBookmarked.value = !!bookmarksStore.bookmarks.txs.find((t) => t.id === props.tx.hash)
@@ -251,7 +263,10 @@ const handleViewRawTransaction = () => {
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Fee </Text>
-							<AmountInCurrency :amount="{ value: tx.fee, decimal: 6 }" :styles="{ amount: {color: 'secondary' }, currency: {color: 'secondary' } }" />
+							<AmountInCurrency
+								:amount="{ value: tx.fee, decimal: 6 }"
+								:styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }"
+							/>
 						</Flex>
 						<Flex v-if="tx.codespace" align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Codespace</Text>

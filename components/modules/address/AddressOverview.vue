@@ -101,7 +101,10 @@ const tabs = ref([
 	},
 ])
 
-const activeTab = ref(tabs.value[0].alias)
+const preselectedTab =
+	route.query.tab && tabs.value.map((tab) => tab.alias).includes(route.query.tab) ? route.query.tab : tabs.value[0].alias
+const activeTab = ref(preselectedTab)
+
 const tabsEl = ref(null)
 
 const handleSelect = (tab) => {
@@ -200,7 +203,7 @@ const searchTerm = ref("")
 
 /** Parse route query */
 Object.keys(route.query).forEach((key) => {
-	if (key === "page") return
+	if (key === "page" || key === "tab") return
 
 	if (route.query[key].split(",").length) {
 		route.query[key].split(",").forEach((item) => {
@@ -359,8 +362,6 @@ const getBlobs = async () => {
 	isRefetching.value = false
 }
 
-await getTransactions()
-
 /** Delegation */
 const isActiveDelegator = props.address.balance.delegated > 0 || props.address.balance.unbonding > 0
 const collapseBalances = ref(!isActiveDelegator)
@@ -421,10 +422,22 @@ const getUndelegations = async () => {
 	isRefetching.value = false
 }
 
+if (activeTab.value === "transactions") await getTransactions()
+if (activeTab.value === "messages") await getMessages()
+if (activeTab.value === "blobs") await getBlobs()
+if (activeTab.value === "delegations") await getDelegations()
+if (activeTab.value === "redelegations") await getRedelegations()
+
 /** Refetch transactions */
 watch(
 	() => activeTab.value,
 	() => {
+		router.replace({
+			query: {
+				tab: activeTab.value,
+			},
+		})
+
 		page.value = 1
 
 		switch (activeTab.value) {

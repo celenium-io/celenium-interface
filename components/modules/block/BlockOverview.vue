@@ -14,7 +14,7 @@ import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
-import Events from "@/components/shared/tables/Events.vue";
+import Events from "@/components/shared/tables/Events.vue"
 
 /** Services */
 import { comma, formatBytes, reverseMapping, space, shortHex, tia } from "@/services/utils"
@@ -56,11 +56,11 @@ const bookmarkText = computed(() => {
 	return isBookmarked.value ? "Saved" : "Save"
 })
 
-const activeTab = ref("transactions")
+const preselectedTab = route.query.tab && ["transactions", "events"].includes(route.query.tab) ? route.query.tab : "transactions"
+const activeTab = ref(preselectedTab)
 
 const isLoading = ref(false)
 const transactions = ref([])
-
 
 const page = ref(1)
 const pages = computed(() => 1)
@@ -247,7 +247,7 @@ onMounted(() => {
 watch(
 	() => page.value,
 	() => {
-		if (activeTab.value === 'transactions') {
+		if (activeTab.value === "transactions") {
 			getTransactions()
 		}
 	},
@@ -256,8 +256,14 @@ watch(
 watch(
 	() => activeTab.value,
 	() => {
+		router.replace({
+			query: {
+				tab: activeTab.value,
+			},
+		})
+
 		page.value = 1
-		
+
 		getTransactions()
 	},
 )
@@ -325,13 +331,8 @@ const handleViewRawTransactions = () => {
 				</Flex>
 
 				<Flex align="center" gap="8">
-					<Button
-						@click="router.push(`/block/${block.height - 1}`)"
-						type="secondary"
-						size="mini"
-						:disabled="block.height === 1"
-					>
-						<Icon name="arrow-redo-right" size="16" color="secondary" :style="{transform: 'scaleX(-1)'}" />
+					<Button @click="router.push(`/block/${block.height - 1}`)" type="secondary" size="mini" :disabled="block.height === 1">
+						<Icon name="arrow-redo-right" size="16" color="secondary" :style="{ transform: 'scaleX(-1)' }" />
 						Prev
 					</Button>
 
@@ -464,7 +465,10 @@ const handleViewRawTransactions = () => {
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Total Fees </Text>
-							<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 6 }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
+							<AmountInCurrency
+								:amount="{ value: block.stats.fee, decimal: 6 }"
+								:styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }"
+							/>
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Bytes in block </Text>
@@ -605,7 +609,7 @@ const handleViewRawTransactions = () => {
 								</Flex>
 							</template>
 						</Popover>
-					</Flex>					
+					</Flex>
 
 					<Flex v-if="transactions.length" :class="$style.table_scroller">
 						<table>
@@ -710,7 +714,10 @@ const handleViewRawTransactions = () => {
 									</td>
 									<td>
 										<NuxtLink :to="`/tx/${tx.hash}`">
-											<AmountInCurrency :amount="{ value: tx.fee, decimal: 6 }" :styles="{ amount: { size: '13' }, currency: { size: '13' } }" />
+											<AmountInCurrency
+												:amount="{ value: tx.fee, decimal: 6 }"
+												:styles="{ amount: { size: '13' }, currency: { size: '13' } }"
+											/>
 										</NuxtLink>
 									</td>
 								</tr>
@@ -763,9 +770,7 @@ const handleViewRawTransactions = () => {
 						</Button>
 					</Flex>
 				</Flex>
-				<Events v-else :block="block">
-
-				</Events>
+				<Events v-else :block="block"> </Events>
 			</Flex>
 		</Flex>
 	</Flex>

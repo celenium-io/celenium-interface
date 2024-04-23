@@ -25,6 +25,7 @@ const cacheStore = useCacheStore()
 const bookmarksStore = useBookmarksStore()
 const notificationsStore = useNotificationsStore()
 
+const route = useRoute()
 const router = useRouter()
 
 const props = defineProps({
@@ -51,7 +52,8 @@ const tabs = ref([
 		icon: "message",
 	},
 ])
-const activeTab = ref(tabs.value[0].name)
+const preselectedTab = route.query.tab && tabs.value.map((tab) => tab.name).includes(route.query.tab) ? route.query.tab : tabs.value[0].name
+const activeTab = ref(preselectedTab)
 
 const isRefetching = ref(false)
 const messages = ref([])
@@ -117,7 +119,8 @@ const getRollups = async () => {
 }
 
 /** Initital fetch for blobs and rollups */
-await getBlobs()
+if (activeTab.value === "Blobs") await getBlobs()
+if (activeTab.value === "Messages") await getMessages()
 await getRollups()
 
 onMounted(() => {
@@ -144,6 +147,12 @@ watch(
 watch(
 	() => activeTab.value,
 	() => {
+		router.replace({
+			query: {
+				tab: activeTab.value,
+			},
+		})
+
 		page.value = 1
 
 		switch (activeTab.value) {
