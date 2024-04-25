@@ -21,6 +21,10 @@ bookmarksStore.$subscribe((mutation, state) => {
 })
 
 onMounted(async () => {
+	if (localStorage.bookmarks) {
+		bookmarksStore.bookmarks = JSON.parse(localStorage.bookmarks)
+	}
+
 	const runtimeConfig = useRuntimeConfig()
 	amp.init(runtimeConfig.public.AMP)
 
@@ -28,10 +32,6 @@ onMounted(async () => {
 	if (head) appStore.lastHead = head
 
 	Socket.init()
-
-	if (localStorage.bookmarks) {
-		bookmarksStore.bookmarks = JSON.parse(localStorage.bookmarks)
-	}
 
 	const gasPrice = await fetchGasPrice()
 	appStore.gas = gasPrice
