@@ -60,3 +60,5 @@ export const useSocketURL = () => {
 			return Server.WSS.dev
 	}
 }
+
+export const useBlobstreamURL = "https://api-blobstream.celenium.io/v1"
