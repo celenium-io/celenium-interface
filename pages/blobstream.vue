@@ -82,7 +82,7 @@ const sort = ref("desc")
 
 const getNetworks = async () => {
 	const { data } = await fetchNetworks()
-	networks.value = data.value
+	networks.value = data.value.filter(n => n.last_height > 0)
 }
 
 const getCommitments = async () => {
@@ -281,39 +281,35 @@ getCommitments()
 								</td>
 								<td>
 									<Flex align="center" gap="6">
-										<NuxtLink :to="`/block/${c.celestia_start_height}`">
-											<Flex align="center">
-												<Outline>
-													<Flex align="center" gap="6">
-														<Icon
-															name="block"
-															size="14"
-															color="tertiary"
-														/>
+										<Flex align="center">
+											<Outline @click.prevent.stop="router.push(`/block/${c.celestia_start_height}`)">
+												<Flex align="center" gap="6">
+													<Icon
+														name="block"
+														size="14"
+														color="tertiary"
+													/>
 
-														<Text size="13" weight="600" color="primary" tabular>{{ comma(c.celestia_start_height) }}</Text>
-													</Flex>
-												</Outline>
-											</Flex>
-										</NuxtLink>
+													<Text size="13" weight="600" color="primary" tabular>{{ comma(c.celestia_start_height) }}</Text>
+												</Flex>
+											</Outline>
+										</Flex>
 
 										<Text size="12" weight="600" color="primary">—</Text>
 
-										<NuxtLink :to="`/block/${c.celestia_end_height}`">
-											<Flex align="center">
-												<Outline>
-													<Flex align="center" gap="6">
-														<Icon
-															name="block"
-															size="14"
-															color="tertiary"
-														/>
+										<Flex align="center">
+											<Outline @click.prevent.stop="router.push(`/block/${c.celestia_end_height}`)">
+												<Flex align="center" gap="6">
+													<Icon
+														name="block"
+														size="14"
+														color="tertiary"
+													/>
 
-														<Text size="13" weight="600" color="primary" tabular>{{ comma(c.celestia_end_height) }}</Text>
-													</Flex>
-												</Outline>
-											</Flex>
-										</NuxtLink>
+													<Text size="13" weight="600" color="primary" tabular>{{ comma(c.celestia_end_height) }}</Text>
+												</Flex>
+											</Outline>
+										</Flex>
 									</Flex>
 								</td>
 								<td>

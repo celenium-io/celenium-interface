@@ -3,7 +3,7 @@ import { useBlobstreamURL } from "@/services/config"
 
 export const fetchNetworks = async () => {
 	try {
-		const url = new URL(`${useBlobstreamURL}/network`)
+		const url = new URL(`${useBlobstreamURL()}/network`)
 
 		const data = await useFetch(url.href)
 		return data
@@ -14,7 +14,7 @@ export const fetchNetworks = async () => {
 
 export const fetchCommitments = async ({ limit, offset, sort }) => {
 	try {
-		const url = new URL(`${useBlobstreamURL}/commitments`)
+		const url = new URL(`${useBlobstreamURL()}/commitments`)
 
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
@@ -29,7 +29,7 @@ export const fetchCommitments = async ({ limit, offset, sort }) => {
 
 export const fetchCommitmentsByNetwork = async ({ network, limit, offset, sort }) => {
 	try {
-		const url = new URL(`${useBlobstreamURL}/network/${network}/commitments`)
+		const url = new URL(`${useBlobstreamURL()}/network/${network}/commitments`)
 
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
@@ -44,7 +44,7 @@ export const fetchCommitmentsByNetwork = async ({ network, limit, offset, sort }
 
 export const fetchContracts = async (address) => {
 	try {
-		const url = new URL(`${useBlobstreamURL}/contracts`)
+		const url = new URL(`${useBlobstreamURL()}/contracts`)
 
 		if (address) url + `/${address}`
 
