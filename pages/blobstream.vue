@@ -13,6 +13,12 @@ import { capitilize, comma, shortHex } from "@/services/utils"
 /** API */
 import { fetchNetworks, fetchCommitments, fetchCommitmentsByNetwork, fetchContracts } from "@/services/api/blobstream";
 
+/** Store */
+import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals"
+const cacheStore = useCacheStore()
+const modalsStore = useModalsStore()
+
 useHead({
 	title: "Blobstream - Celestia Explorer",
 	link: [
@@ -75,13 +81,8 @@ const limit = ref(20)
 const sort = ref("desc")
 
 const getNetworks = async () => {
-	isRefetching.value = true
-
 	const { data } = await fetchNetworks()
 	networks.value = data.value
-	networks.value.forEach(h => h.active = false)
-
-	isRefetching.value = false
 }
 
 const getCommitments = async () => {
@@ -158,6 +159,12 @@ const handleSelectNetwork = (network) => {
 	} else {
 		selectedNetwork.value = network
 	}
+}
+
+const handleViewCommitment = (commitment) => {
+	cacheStore.current.commitment = commitment
+
+	modalsStore.open("commitment")
 }
 
 getNetworks()
@@ -251,7 +258,7 @@ getCommitments()
 						</thead>
 
 						<tbody>
-							<tr v-for="c in commitments">
+							<tr v-for="c in commitments" @click.stop="handleViewCommitment(c)">
 								<td style="width: 1px">
 									<Flex justify="center" direction="column" gap="6">
 										<Text size="12" weight="600" color="primary">
@@ -317,9 +324,12 @@ getCommitments()
 									</Flex>
 								</td>
 								<td>
-									<Flex align="center">
+									<Flex justify="center" direction="column" gap="6">
 										<Text size="12" weight="600" color="primary">
 											{{ shortHex(c.l1_info.tx_hash) }}
+										</Text>
+										<Text size="12" weight="500" color="tertiary">
+											Height {{ comma(c.l1_info.height) }}
 										</Text>
 									</Flex>
 								</td>
