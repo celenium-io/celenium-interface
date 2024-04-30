@@ -31,10 +31,10 @@ const { hostname } = useRequestURL()
 
 switch (hostname) {
 	case "celenium.io":
+	case "dev.celenium.io":
 		appStore.network = mainnet
 		break
 
-	case "dev.celenium.io":
 	case "arabica.celenium.io":
 	case "localhost":
 		appStore.network = arabica
