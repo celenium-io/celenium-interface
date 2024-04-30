@@ -11,6 +11,10 @@ export const Server = {
 		arabica: "wss://api-arabica-11.celenium.io/v1/ws",
 		dev: "wss://api-dev.celenium.io/v1/ws",
 	},
+	BLOBSTREAM: {
+		mainnet: "https://api-blobstream.celenium.io/v1",
+		testnet: "https://api-blobstream-testnet.celenium.io/v1",
+	}
 }
 
 export const useServerURL = () => {
@@ -58,5 +62,23 @@ export const useSocketURL = () => {
 
 		default:
 			return Server.WSS.arabica
+	}
+}
+
+export const useBlobstreamURL = () => {
+	const requestURL = useRequestURL()
+
+	switch (requestURL.hostname) {
+		case "mocha-4.celenium.io":
+			return Server.BLOBSTREAM.testnet
+
+		case "mocha.celenium.io":
+			return Server.BLOBSTREAM.testnet
+
+		case "arabica.celenium.io":
+			return Server.BLOBSTREAM.testnet
+
+		default:
+			return Server.BLOBSTREAM.mainnet
 	}
 }

@@ -499,6 +499,10 @@ const handleNext = () => {
 	padding: 4px 6px;
 }
 
+.empty {
+	padding: 16px 0;
+}
+
 @media (max-width: 500px) {
 	.wrapper {
 		padding: 32px 12px;
@@ -511,9 +515,5 @@ const handleNext = () => {
 
 		padding: 16px;
 	}
-}
-
-.empty {
-	padding: 16px 0;
 }
 </style>
