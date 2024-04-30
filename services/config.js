@@ -75,6 +75,9 @@ export const useBlobstreamURL = () => {
 		case "mocha.celenium.io":
 			return Server.BLOBSTREAM.testnet
 
+		case "arabica.celenium.io":
+			return Server.BLOBSTREAM.testnet
+
 		default:
 			return Server.BLOBSTREAM.mainnet
 	}

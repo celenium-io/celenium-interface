@@ -4,14 +4,13 @@ import { DateTime } from "luxon"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
-import Tooltip from "@/components/ui/Tooltip.vue"
-import AmountInCurrency from "@/components/AmountInCurrency.vue"
+// import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
 import { capitilize, comma, shortHex } from "@/services/utils"
 
 /** API */
-import { fetchNetworks, fetchCommitments, fetchCommitmentsByNetwork, fetchContracts } from "@/services/api/blobstream";
+import { fetchNetworks, fetchCommitments, fetchCommitmentsByNetwork } from "@/services/api/blobstream";
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
@@ -72,10 +71,10 @@ const router = useRouter()
 
 const isRefetching = ref(false)
 const networks = ref([])
-const selectedNetwork = ref("")
 const commitments = ref([])
 
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
+const selectedNetwork = ref(route.query.network ? route.query.network : "")
 const handleNextCondition = ref(true)
 const limit = ref(20)
 const sort = ref("desc")
@@ -83,6 +82,10 @@ const sort = ref("desc")
 const getNetworks = async () => {
 	const { data } = await fetchNetworks()
 	networks.value = data.value.filter(n => n.last_height > 0)
+
+	if (networks.value.length === 1) {
+		selectedNetwork.value = networks.value[0].network
+	}
 }
 
 const getCommitments = async () => {
@@ -107,9 +110,18 @@ const getCommitments = async () => {
 		commitments.value = data.value
 	}
 	
-	handleNextCondition.value = commitments.value.length < limit.value
+	handleNextCondition.value = commitments.value?.length < limit.value
 
 	isRefetching.value = false
+}
+
+const updateRouteQuery = () => {
+	router.replace({
+		query: {
+			network: selectedNetwork.value ? selectedNetwork.value : undefined,
+			page: page.value,
+		},
+	})
 }
 
 /** Refetch commitments */
@@ -118,7 +130,7 @@ watch(
 	async () => {
 		getCommitments()
 
-		router.replace({ query: { page: page.value } })
+		updateRouteQuery()
 	},
 )
 
@@ -130,6 +142,8 @@ watch(
 		} else {
 			page.value = 1
 		}
+
+		updateRouteQuery()
 	},
 )
 
@@ -189,7 +203,7 @@ getCommitments()
 				align="center"
 				direction="column"
 				gap="12"
-				:class="[$style.card_network, selectedNetwork === n.network && $style.card_active, isRefetching && $style.disabled]"
+				:class="[$style.card_network, selectedNetwork === n.network && $style.card_active, isRefetching && $style.disabled, networks?.length === 1 && $style.unclickable]"
 			>
 				<Flex align="center" gap="6">
 					<Text size="13" weight="600" height="110" color="primary"> {{ capitilize(n.network) }} </Text>
@@ -235,7 +249,7 @@ getCommitments()
 			</Flex>
 
 			<Flex direction="column" gap="16" wide :class="[$style.table, isRefetching && $style.disabled]">
-				<div v-if="commitments.length > 0" :class="$style.table_scroller">
+				<div v-if="commitments?.length > 0" :class="$style.table_scroller">
 					<table>
 						<thead>
 							<tr>
@@ -487,7 +501,11 @@ getCommitments()
 }
 
 .card_active {
-	box-shadow: inset 0 0 0 1px var(--neutral-green);
+	box-shadow: inset 0 0 0 1px var(--green);
+}
+
+.unclickable {
+	pointer-events: none;
 }
 
 .empty {
