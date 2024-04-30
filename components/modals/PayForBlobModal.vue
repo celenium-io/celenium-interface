@@ -16,9 +16,11 @@ import { prepareBlob } from "@/services/utils/encode"
 /** Store */
 import { useAppStore } from "@/store/app"
 import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals"
 import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
 const cacheStore = useCacheStore()
+const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
 
 const { hostname } = useRequestURL()
@@ -161,25 +163,15 @@ const handleContinue = async () => {
 
 		amp.log("successfulPfb")
 
-		notificationsStore.create({
-			notification: {
-				type: "success",
-				icon: "check-circle",
-				title: `Successfuly sent`,
-				actions: [
-					{
-						icon: "copy",
-						name: "Copy Tx Hash",
-						callback: () => {
-							window.navigator.clipboard.writeText(txHash)
-						},
-					},
-				],
-				autoDestroy: true,
-			},
-		})
+		cacheStore.tx.hash = txHash
+		cacheStore.tx.from = appStore.address
+		cacheStore.tx.to = namespace.value
+		cacheStore.tx.file = fileType.value
+		cacheStore.tx.network = appStore.network
+		cacheStore.tx.ts = new Date().getTime()
+		cacheStore.tx.type = "pfb"
 
-		emit("onClose")
+		modalsStore.open("awaiting")
 	} catch (e) {
 		isAwaiting.value = false
 

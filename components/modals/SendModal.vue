@@ -16,13 +16,14 @@ import amp from "@/services/amp"
 import { normalizeAmount, purgeNumber, comma } from "@/services/utils/amounts"
 import { simulateMsgs, sendMsgs } from "@/services/keplr"
 import { MsgSend } from "@/services/proto/gen/msg_send"
-import { space } from "@/services/utils"
 
 /** Store */
 import { useAppStore } from "@/store/app"
+import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
 import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
+const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
 const notificationsStore = useNotificationsStore()
 
@@ -261,25 +262,15 @@ const handleContinue = async () => {
 
 		amp.log("successfulSend")
 
-		notificationsStore.create({
-			notification: {
-				type: "success",
-				icon: "check-circle",
-				title: `Successfuly sent`,
-				actions: [
-					{
-						icon: "copy",
-						name: "Copy Tx Hash",
-						callback: () => {
-							window.navigator.clipboard.writeText(txHash)
-						},
-					},
-				],
-				autoDestroy: true,
-			},
-		})
+		cacheStore.tx.hash = txHash
+		cacheStore.tx.from = appStore.address
+		cacheStore.tx.to = address.value
+		cacheStore.tx.amount = amount.value
+		cacheStore.tx.network = appStore.network
+		cacheStore.tx.ts = new Date().getTime()
+		cacheStore.tx.type = "send"
 
-		emit("onClose")
+		modalsStore.open("awaiting")
 	} catch (e) {
 		isAwaiting.value = false
 
@@ -400,14 +391,10 @@ const handleContinue = async () => {
 				<div :class="$style.divider" />
 
 				<Flex direction="column" gap="8">
-					<Tooltip position="start">
-						<Flex align="center" gap="4">
-							<Text size="12" weight="600" color="secondary">Gas Limit</Text>
-							<Icon name="info" size="12" color="tertiary" />
-						</Flex>
-
-						<template #content> Tooltip about estimated & custom gas limit </template>
-					</Tooltip>
+					<Flex align="center" gap="4">
+						<Text size="12" weight="600" color="secondary">Gas Limit</Text>
+						<Icon name="info" size="12" color="tertiary" />
+					</Flex>
 
 					<Flex align="center" justify="between" gap="12">
 						<Flex

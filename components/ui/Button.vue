@@ -118,10 +118,10 @@ const getStyles = () => {
 }
 
 .wrapper.medium {
-	height: 36px;
-	font-size: 14px;
+	height: 32px;
+	font-size: 13px;
 	line-height: 1;
-	gap: 8px;
+	gap: 6px;
 
 	border-radius: 6px;
 
