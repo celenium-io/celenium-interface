@@ -9,6 +9,7 @@ import ImportBookmarksModal from "./ImportBookmarksModal.vue"
 import EditBookmarkAliasModal from "./EditBookmarkAliasModal.vue"
 import SendModal from "./SendModal.vue"
 import PayForBlobModal from "./PayForBlobModal.vue"
+import AwaitingModal from "./AwaitingModal.vue"
 
 /**
  * Store
@@ -28,4 +29,5 @@ const modalsStore = useModalsStore()
 	<EditBookmarkAliasModal :show="modalsStore.modals.edit_alias" @onClose="modalsStore.close('edit_alias')" />
 	<SendModal :show="modalsStore.modals.send" @onClose="modalsStore.close('send')" />
 	<PayForBlobModal :show="modalsStore.modals.pfb" @onClose="modalsStore.close('pfb')" />
+	<AwaitingModal :show="modalsStore.modals.awaiting" @onClose="modalsStore.close('awaiting')" />
 </template>
