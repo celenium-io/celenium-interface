@@ -119,7 +119,7 @@ const handleClose = () => {
 						<Flex
 							direction="column"
 							justify="between"
-							:class="[$style.bg, !isFound && $style.sending, tx?.status === 'success' ? $style.success : $style.failed]"
+							:class="[$style.bg, !isFound ? $style.sending : tx.status === 'success' ? $style.success : $style.failed]"
 						>
 							<Flex v-for="i in 8" align="center" justify="between">
 								<div
@@ -153,7 +153,7 @@ const handleClose = () => {
 						<Flex
 							direction="column"
 							justify="between"
-							:class="[$style.bg, !isFound && $style.sending, tx?.status === 'success' ? $style.success : $style.failed]"
+							:class="[$style.bg, !isFound ? $style.sending : tx.status === 'success' ? $style.success : $style.failed]"
 						>
 							<Flex v-for="i in 8" align="center" justify="between">
 								<div
