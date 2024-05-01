@@ -50,7 +50,7 @@ watch(
 watch(
 	() => appStore.lastBlock,
 	async () => {
-		if (!awaitTx.value) return
+		if (!awaitTx.value || tx.value) return
 
 		const { data } = await fetchTxByHash(cacheStore.tx.hash)
 		if (data.value) {
