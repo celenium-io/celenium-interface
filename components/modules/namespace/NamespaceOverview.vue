@@ -233,31 +233,37 @@ const handleViewRawMessages = () => {
 				<Text size="13" weight="600" color="primary">Namespace</Text>
 			</Flex>
 
-			<Flex align="center" gap="8">
-				<Button
-					@click="handleBookmark"
-					@mouseenter="isBookmarkButtonHovered = true"
-					@mouseleave="isBookmarkButtonHovered = false"
-					type="secondary"
-					size="mini"
-				>
-					<Icon
-						:name="isBookmarkButtonHovered && isBookmarked ? 'close' : isBookmarked ? 'bookmark-check' : 'bookmark-plus'"
-						size="12"
-						:color="isBookmarked && !isBookmarkButtonHovered ? 'green' : 'secondary'"
-					/>
-					{{ bookmarkText }}
-				</Button>
+			<Flex align="center" gap="12">
+				<Flex align="center" gap="8">
+					<Button @click="modalsStore.open('pfb')" type="secondary" size="mini">
+						<Icon name="arrow-circle-broken-right" size="12" color="primary" />
+						Submit Blob
+					</Button>
+
+					<Button
+						@click="handleBookmark"
+						@mouseenter="isBookmarkButtonHovered = true"
+						@mouseleave="isBookmarkButtonHovered = false"
+						type="secondary"
+						size="mini"
+					>
+						<Icon
+							:name="isBookmarkButtonHovered && isBookmarked ? 'close' : isBookmarked ? 'bookmark-check' : 'bookmark-plus'"
+							size="12"
+							:color="isBookmarked && !isBookmarkButtonHovered ? 'green' : 'primary'"
+						/>
+						{{ bookmarkText }}
+					</Button>
+				</Flex>
+
+				<div class="divider_v" />
 
 				<Dropdown>
 					<Button type="secondary" size="mini">
-						<Icon name="dots" size="16" color="secondary" />
-						More
+						<Icon name="dots" size="16" color="primary" />
 					</Button>
 
 					<template #popup>
-						<DropdownItem @click="modalsStore.open('pfb')"> Submit data blob </DropdownItem>
-						<DropdownDivider />
 						<DropdownItem @click="handleViewRawNamespace"> View Raw Namespace </DropdownItem>
 						<DropdownItem @click="handleViewRawBlobs"> View Raw Blobs </DropdownItem>
 						<DropdownItem @click="handleViewRawMessages"> View Raw Messages </DropdownItem>
