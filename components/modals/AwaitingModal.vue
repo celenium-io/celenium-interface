@@ -80,10 +80,16 @@ const handleClose = () => {
 					</Text>
 				</Flex>
 				<Flex v-else align="center" gap="6">
-					<Icon name="check-circle" size="12" color="green" />
-					<Text size="14" weight="600" color="primary">
+					<Icon
+						:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
+						size="12"
+						:color="tx.status === 'success' ? 'green' : 'red'"
+					/>
+
+					<Text v-if="tx.status === 'success'" size="14" weight="600" color="primary">
 						{{ cacheStore.tx.type === "send" ? "Successfuly sent" : "Successfuly submited" }}
 					</Text>
+					<Text v-else size="14" weight="600" color="primary"> Failed </Text>
 				</Flex>
 
 				<Text size="13" weight="600" color="tertiary">
@@ -110,7 +116,11 @@ const handleClose = () => {
 							<div :class="$style.line" />
 						</div>
 
-						<Flex direction="column" justify="between" :class="[$style.bg, !isFound ? $style.sending : $style.success]">
+						<Flex
+							direction="column"
+							justify="between"
+							:class="[$style.bg, !isFound && $style.sending, tx?.status === 'success' ? $style.success : $style.failed]"
+						>
 							<Flex v-for="i in 8" align="center" justify="between">
 								<div
 									v-for="j in 50"
@@ -140,7 +150,11 @@ const handleClose = () => {
 							<Text size="12" weight="500" color="tertiary" :selectable="true"> {{ cacheStore.tx.to }} </Text>
 						</Flex>
 
-						<Flex direction="column" justify="between" :class="[$style.bg, !isFound ? $style.awaiting : $style.success]">
+						<Flex
+							direction="column"
+							justify="between"
+							:class="[$style.bg, !isFound && $style.sending, tx?.status === 'success' ? $style.success : $style.failed]"
+						>
 							<Flex v-for="i in 8" align="center" justify="between">
 								<div
 									v-for="j in 50"
@@ -224,6 +238,11 @@ const handleClose = () => {
 					</Flex>
 				</Flex>
 
+				<Flex v-if="tx?.status === 'failed'" direction="column" gap="8" :class="$style.error_msg">
+					<Text size="12" weight="500" color="secondary" mono> Error Message </Text>
+					<Text size="12" weight="500" height="120" color="tertiary" mono> {{ tx?.error }}</Text>
+				</Flex>
+
 				<Flex direction="column" gap="8">
 					<Button @click="handleClose" :link="`/tx/${tx?.hash}`" type="secondary" size="small" wide :disabled="!isFound">
 						View Transaction
@@ -237,6 +256,13 @@ const handleClose = () => {
 </template>
 
 <style module>
+.error_msg {
+	border-radius: 6px;
+	background: var(--op-5);
+
+	padding: 8px;
+}
+
 .wallet {
 	position: relative;
 
@@ -330,6 +356,12 @@ const handleClose = () => {
 	&.success {
 		& .circle {
 			background: var(--green);
+		}
+	}
+
+	&.failed {
+		& .circle {
+			background: var(--red);
 		}
 	}
 }
