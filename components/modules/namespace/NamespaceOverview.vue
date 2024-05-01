@@ -124,6 +124,12 @@ if (activeTab.value === "Messages") await getMessages()
 await getRollups()
 
 onMounted(() => {
+	router.replace({
+		query: {
+			tab: activeTab.value,
+		},
+	})
+
 	isBookmarked.value = !!bookmarksStore.bookmarks.namespaces.find((t) => t.id === props.namespace.namespace_id)
 })
 

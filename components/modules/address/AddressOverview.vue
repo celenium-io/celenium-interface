@@ -201,6 +201,14 @@ const handleClearAllFilters = () => {
 
 const searchTerm = ref("")
 
+onMounted(() => {
+	router.replace({
+		query: {
+			tab: activeTab.value,
+		},
+	})
+})
+
 /** Parse route query */
 Object.keys(route.query).forEach((key) => {
 	if (key === "page" || key === "tab") return

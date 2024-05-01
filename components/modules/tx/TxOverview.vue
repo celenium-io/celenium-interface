@@ -60,6 +60,12 @@ watch(
 )
 
 onMounted(async () => {
+	router.replace({
+		query: {
+			tab: activeTab.value,
+		},
+	})
+
 	isBookmarked.value = !!bookmarksStore.bookmarks.txs.find((t) => t.id === props.tx.hash)
 
 	const data = await fetchTxMessages(props.tx.hash)

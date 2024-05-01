@@ -240,6 +240,12 @@ const getTransactions = async () => {
 await getTransactions()
 
 onMounted(() => {
+	router.replace({
+		query: {
+			tab: activeTab.value,
+		},
+	})
+
 	isBookmarked.value = !!bookmarksStore.bookmarks.blocks.find((t) => t.id === props.block.height)
 })
 
