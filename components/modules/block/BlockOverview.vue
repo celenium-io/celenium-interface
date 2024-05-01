@@ -240,6 +240,12 @@ const getTransactions = async () => {
 await getTransactions()
 
 onMounted(() => {
+	router.replace({
+		query: {
+			tab: activeTab.value,
+		},
+	})
+
 	isBookmarked.value = !!bookmarksStore.bookmarks.blocks.find((t) => t.id === props.block.height)
 })
 
@@ -348,7 +354,7 @@ const handleViewRawTransactions = () => {
 				</Flex>
 			</Flex>
 
-			<Flex align="center" gap="8">
+			<Flex align="center" gap="12">
 				<Button
 					@click="handleBookmark"
 					@mouseenter="isBookmarkButtonHovered = true"
@@ -359,15 +365,16 @@ const handleViewRawTransactions = () => {
 					<Icon
 						:name="isBookmarkButtonHovered && isBookmarked ? 'close' : isBookmarked ? 'bookmark-check' : 'bookmark-plus'"
 						size="12"
-						:color="isBookmarked && !isBookmarkButtonHovered ? 'green' : 'secondary'"
+						:color="isBookmarked && !isBookmarkButtonHovered ? 'green' : 'primary'"
 					/>
 					{{ bookmarkText }}
 				</Button>
 
+				<div class="divider_v" />
+
 				<Dropdown>
 					<Button type="secondary" size="mini">
-						<Icon name="dots" size="16" color="secondary" />
-						More
+						<Icon name="dots" size="16" color="primary" />
 					</Button>
 
 					<template #popup>

@@ -201,6 +201,14 @@ const handleClearAllFilters = () => {
 
 const searchTerm = ref("")
 
+onMounted(() => {
+	router.replace({
+		query: {
+			tab: activeTab.value,
+		},
+	})
+})
+
 /** Parse route query */
 Object.keys(route.query).forEach((key) => {
 	if (key === "page" || key === "tab") return
@@ -572,31 +580,34 @@ const handleOpenQRModal = () => {
 				<Text size="13" weight="600" color="primary">Address</Text>
 			</Flex>
 
-			<Flex align="center" gap="8">
-				<Button @click="handleSend" type="secondary" size="mini">
-					<Icon name="coins" size="12" color="secondary" />
-					Send
-				</Button>
+			<Flex align="center" gap="12">
+				<Flex align="center" gap="8">
+					<Button @click="handleSend" type="secondary" size="mini">
+						<Icon name="arrow-circle-broken-right" size="12" color="primary" />
+						Send
+					</Button>
 
-				<Button
-					@click="handleBookmark"
-					@mouseenter="isBookmarkButtonHovered = true"
-					@mouseleave="isBookmarkButtonHovered = false"
-					type="secondary"
-					size="mini"
-				>
-					<Icon
-						:name="isBookmarkButtonHovered && isBookmarked ? 'close' : isBookmarked ? 'bookmark-check' : 'bookmark-plus'"
-						size="12"
-						:color="isBookmarked && !isBookmarkButtonHovered ? 'green' : 'secondary'"
-					/>
-					{{ bookmarkText }}
-				</Button>
+					<Button
+						@click="handleBookmark"
+						@mouseenter="isBookmarkButtonHovered = true"
+						@mouseleave="isBookmarkButtonHovered = false"
+						type="secondary"
+						size="mini"
+					>
+						<Icon
+							:name="isBookmarkButtonHovered && isBookmarked ? 'close' : isBookmarked ? 'bookmark-check' : 'bookmark-plus'"
+							size="12"
+							:color="isBookmarked && !isBookmarkButtonHovered ? 'green' : 'primary'"
+						/>
+						{{ bookmarkText }}
+					</Button>
+				</Flex>
+
+				<div class="divider_v"></div>
 
 				<Dropdown>
 					<Button type="secondary" size="mini">
-						<Icon name="dots" size="12" color="secondary" />
-						More
+						<Icon name="dots" size="16" color="primary" />
 					</Button>
 
 					<template #popup>

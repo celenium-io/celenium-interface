@@ -204,7 +204,7 @@ const getStyles = () => {
 }
 
 .wrapper.secondary {
-	background: linear-gradient(var(--op-10), var(--op-5));
+	background: linear-gradient(var(--op-3), var(--op-5));
 	fill: var(--txt-secondary);
 	box-shadow: inset 0 0 0 1px var(--op-10), inset 0 0 8px var(--op-5);
 }

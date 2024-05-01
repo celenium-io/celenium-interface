@@ -100,6 +100,14 @@ const getNamespaces = async () => {
 if (activeTab.value === "Blobs") await getBlobs()
 if (activeTab.value === "Namespaces") await getNamespaces()
 
+onMounted(() => {
+	router.replace({
+		query: {
+			tab: activeTab.value,
+		},
+	})
+})
+
 /** Refetch Blobs/Messages on new page */
 watch(
 	() => page.value,
