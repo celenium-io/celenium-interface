@@ -207,6 +207,8 @@ onMounted(() => {
 			tab: activeTab.value,
 		},
 	})
+
+	isBookmarked.value = !!bookmarksStore.bookmarks.addresses.find((t) => t.id === props.address.hash)
 })
 
 /** Parse route query */
