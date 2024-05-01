@@ -61,6 +61,18 @@ watch(
 				</Flex>
 
 				<Flex align="center" justify="between" wide :class="$style.metadata">
+					<Text size="12" weight="500" color="tertiary">Nonce:</Text>
+
+					<Flex align="center" gap="8" :class="$style.value_wrapper">
+						<CopyButton :text="commitment.proof_nonce" />
+
+						<Text size="13" weight="600" color="primary" :class="$style.value">
+							{{ commitment.proof_nonce }}
+						</Text>
+					</Flex>
+				</Flex>
+
+				<Flex align="center" justify="between" wide :class="$style.metadata">
 					<Text size="12" weight="500" color="tertiary">Block Range:</Text>
 
 					<Flex align="center" gap="8" :class="$style.value_wrapper">

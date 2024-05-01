@@ -308,6 +308,26 @@ const handleCSVDownload = async (period) => {
 								{{ rollup.github }}
 							</template>
 						</Tooltip>
+
+						<Tooltip v-if="rollup.l2_beat" position="start" delay="500">
+							<a :href="rollup.l2_beat" target="_blank">
+								<Icon name="l2beat" size="14" color="secondary" :class="$style.btn" />
+							</a>
+
+							<template #content>
+								{{ rollup.l2_beat }}
+							</template>
+						</Tooltip>
+
+						<Tooltip v-if="rollup.explorer" position="start" delay="500">
+							<a :href="rollup.explorer" target="_blank">
+								<Icon name="blockscout" size="14" color="secondary" :class="$style.btn" />
+							</a>
+
+							<template #content>
+								{{ rollup.explorer }}
+							</template>
+						</Tooltip>
 					</Flex>
 
 					<Flex direction="column" gap="16">
