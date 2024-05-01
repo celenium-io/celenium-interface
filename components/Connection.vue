@@ -25,16 +25,15 @@ const router = useRouter()
 
 const isWalletAvailable = ref(false)
 const isFetchingAccounts = ref(false)
-const account = ref()
 
 const { hostname } = useRequestURL()
 
 switch (hostname) {
 	case "celenium.io":
+	case "dev.celenium.io":
 		appStore.network = mainnet
 		break
 
-	case "dev.celenium.io":
 	case "arabica.celenium.io":
 	case "localhost":
 		appStore.network = arabica
@@ -70,7 +69,6 @@ const handleConnect = async () => {
 
 		const accounts = await getAccounts(appStore.network)
 		if (accounts.length) {
-			account.value = accounts[0].address
 			appStore.address = accounts[0].address
 		}
 
@@ -116,7 +114,6 @@ const handleDisconnect = () => {
 
 	amp.log("disconnect")
 
-	account.value = null
 	appStore.address = ""
 	appStore.balance = 0
 
@@ -157,7 +154,7 @@ const handleDisconnect = () => {
 		<template #content> Insall Keplr Wallet before connection </template>
 	</Tooltip>
 
-	<Button v-else-if="!account" @click="handleConnect" type="white" size="small"> Connect </Button>
+	<Button v-else-if="!appStore.address" @click="handleConnect" type="white" size="small"> Connect </Button>
 
 	<Dropdown v-else>
 		<Button type="secondary" size="small">

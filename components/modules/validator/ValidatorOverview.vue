@@ -13,11 +13,14 @@ import JailsTable from "./tables/JailsTable.vue"
 import { comma, numToPercent, shortHex, splitAddress } from "@/services/utils"
 
 /** API */
-import { fetchValidatorBlocks, fetchValidatorDelegators, fetchValidatorJails, fetchValidatorUptime } from "@/services/api/validator";
+import { fetchValidatorBlocks, fetchValidatorDelegators, fetchValidatorJails, fetchValidatorUptime } from "@/services/api/validator"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
 const cacheStore = useCacheStore()
+
+const route = useRoute()
+const router = useRouter()
 
 const props = defineProps({
 	validator: {
@@ -27,7 +30,7 @@ const props = defineProps({
 })
 
 const tabs = ref([
-{
+	{
 		name: "Delegators",
 		icon: "address",
 	},
@@ -40,7 +43,8 @@ const tabs = ref([
 		icon: "grid",
 	},
 ])
-const activeTab = ref(tabs.value[0].name)
+const preselectedTab = route.query.tab && tabs.value.map((tab) => tab.name).includes(route.query.tab) ? route.query.tab : tabs.value[0].name
+const activeTab = ref(preselectedTab)
 
 const isRefetching = ref(false)
 const delegators = ref([])
@@ -118,8 +122,19 @@ const getUptime = async () => {
 }
 
 /** Initital fetch for delegators and uptime */
-await getDelegators()
+if (activeTab.value === "Delegators") await getDelegators()
+if (activeTab.value === "Proposed Blocks") await getBlocks()
+if (activeTab.value === "Jails") await getJails()
+
 await getUptime()
+
+onMounted(() => {
+	router.replace({
+		query: {
+			tab: activeTab.value,
+		},
+	})
+})
 
 const validatorStatus = computed(() => {
 	let res = {
@@ -138,7 +153,6 @@ const validatorStatus = computed(() => {
 			res.color = "var(--validator-inactive)"
 			res.description = "This validator is not in the active set and cannot|propose or sign blocks and earn rewards".split("|")
 		}
-
 	} else {
 		res.name = "Jailed"
 		res.color = "var(--validator-jailed)"
@@ -150,28 +164,28 @@ const validatorStatus = computed(() => {
 
 const parsedContacts = computed(() => {
 	let res = []
-	const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
-	const emails = props.validator.contacts.match(emailRegex);
+	const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g
+	const emails = props.validator.contacts.match(emailRegex)
 
 	if (emails) {
-		emails.forEach(email => {
+		emails.forEach((email) => {
 			res.push({
-				type: 'email',
-				value: 'mailto:' + email,
-			});
-		});
+				type: "email",
+				value: "mailto:" + email,
+			})
+		})
 	}
 
-	const telegramRegex = /https?:\/\/t\.me\/([A-Za-z0-9_]+)/g;
-	const telegrams = props.validator.contacts.match(telegramRegex);
+	const telegramRegex = /https?:\/\/t\.me\/([A-Za-z0-9_]+)/g
+	const telegrams = props.validator.contacts.match(telegramRegex)
 
 	if (telegrams) {
-		telegrams.forEach(telegram => {
+		telegrams.forEach((telegram) => {
 			res.push({
-				type: 'telegram',
+				type: "telegram",
 				value: telegram,
-			});
-		});
+			})
+		})
 	}
 
 	return res
@@ -198,6 +212,12 @@ watch(
 watch(
 	() => activeTab.value,
 	() => {
+		router.replace({
+			query: {
+				tab: activeTab.value,
+			},
+		})
+
 		page.value = 1
 
 		switch (activeTab.value) {
@@ -233,7 +253,7 @@ watch(
 							<Text v-else size="13" weight="600" color="primary">Validator</Text>
 
 							<Tooltip position="start" textAlign="left" delay="200">
-								<Text size="13" weight="600" :style="{color: validatorStatus.color}"> {{ validatorStatus.name }} </Text>
+								<Text size="13" weight="600" :style="{ color: validatorStatus.color }"> {{ validatorStatus.name }} </Text>
 
 								<template #content>
 									<Flex direction="column" gap="4">
@@ -241,8 +261,6 @@ watch(
 									</Flex>
 								</template>
 							</Tooltip>
-
-							
 						</Flex>
 						<Flex align="center" gap="6">
 							<Text size="12" weight="600" color="tertiary"> {{ splitAddress(validator.address) }} </Text>
@@ -290,17 +308,20 @@ watch(
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Voting Power</Text>
-							<AmountInCurrency :amount="{ value: validator.voting_power, unit: 'TIA' }" :styles=" { amount: { color: 'tertiary' }}" />
+							<AmountInCurrency
+								:amount="{ value: validator.voting_power, unit: 'TIA' }"
+								:styles="{ amount: { color: 'tertiary' } }"
+							/>
 						</Flex>
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Outgoing Rewards</Text>
-							<AmountInCurrency :amount="{ value: validator.rewards }" :styles=" { amount: { color: 'tertiary' }}" />
+							<AmountInCurrency :amount="{ value: validator.rewards }" :styles="{ amount: { color: 'tertiary' } }" />
 						</Flex>
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Commissions</Text>
-							<AmountInCurrency :amount="{ value: validator.commissions }" :styles=" { amount: { color: 'tertiary' }}" />
+							<AmountInCurrency :amount="{ value: validator.commissions }" :styles="{ amount: { color: 'tertiary' } }" />
 						</Flex>
 					</Flex>
 
@@ -377,13 +398,13 @@ watch(
 								<template #content>
 									<Flex direction="column" gap="4">
 										<Text color="primary">{{ t.height }}</Text>
-										<Text color="secondary">{{ t.signed ? 'Signed' : 'Missed' }}</Text>
+										<Text color="secondary">{{ t.signed ? "Signed" : "Missed" }}</Text>
 									</Flex>
 								</template>
 							</Tooltip>
 						</Flex>
 					</Flex>
-				</Flex>				
+				</Flex>
 			</Flex>
 
 			<Flex direction="column" gap="4" wide :class="$style.txs_wrapper">
@@ -409,7 +430,7 @@ watch(
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 							<Text size="13" weight="600" color="secondary" align="center"> No delegators </Text>
 							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-								This validator does not have any {{ page === 1 ? '' : 'more' }} delegators
+								This validator does not have any {{ page === 1 ? "" : "more" }} delegators
 							</Text>
 						</Flex>
 					</template>
@@ -420,7 +441,7 @@ watch(
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 							<Text size="13" weight="600" color="secondary" align="center"> No blocks </Text>
 							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-								This validator did not propose any {{ page === 1 ? '' : 'more' }} blocks
+								This validator did not propose any {{ page === 1 ? "" : "more" }} blocks
 							</Text>
 						</Flex>
 					</template>
@@ -431,7 +452,7 @@ watch(
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 							<Text size="13" weight="600" color="secondary" align="center"> No penalties </Text>
 							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-								This validator doesn't have any {{ page === 1 ? '' : 'more' }} penalties
+								This validator doesn't have any {{ page === 1 ? "" : "more" }} penalties
 							</Text>
 						</Flex>
 					</template>

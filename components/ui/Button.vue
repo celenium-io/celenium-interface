@@ -118,10 +118,10 @@ const getStyles = () => {
 }
 
 .wrapper.medium {
-	height: 36px;
-	font-size: 14px;
+	height: 32px;
+	font-size: 13px;
 	line-height: 1;
-	gap: 8px;
+	gap: 6px;
 
 	border-radius: 6px;
 
@@ -204,7 +204,7 @@ const getStyles = () => {
 }
 
 .wrapper.secondary {
-	background: linear-gradient(var(--op-10), var(--op-5));
+	background: linear-gradient(var(--op-3), var(--op-5));
 	fill: var(--txt-secondary);
 	box-shadow: inset 0 0 0 1px var(--op-10), inset 0 0 8px var(--op-5);
 }

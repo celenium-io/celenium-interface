@@ -5,9 +5,6 @@ import RecentNamespacesTable from "@/components/data/RecentNamespacesTable.vue"
 import LatestPFBTable from "@/components/data/LatestPFBTable.vue"
 import BlocksTimelineTable from "@/components/data/BlocksTimeline/BlocksTimelineTable.vue"
 
-/** API */
-import { fetchLatestBlocks } from "@/services/api/block"
-
 /** Services */
 import { parseRedirectQueryError } from "@/services/notifications"
 
@@ -78,10 +75,6 @@ onBeforeMount(async () => {
 		parseRedirectQueryError(route.query)
 		router.replace({ query: null })
 	}
-
-	const data = await fetchLatestBlocks({ limit: 15 })
-	appStore.latestBlocks = data
-	appStore.isLatestBlocksLoaded = true
 })
 </script>
 

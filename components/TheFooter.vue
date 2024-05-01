@@ -165,6 +165,9 @@ const handleChangeTheme = (target) => {
 					<NuxtLink to="/addresses" :class="$style.link">
 						<Text size="12" weight="500" color="tertiary"> Addresses </Text>
 					</NuxtLink>
+					<NuxtLink to="/blobstream" :class="$style.link">
+						<Text size="12" weight="500" color="tertiary"> Blobstream </Text>
+					</NuxtLink>
 					<NuxtLink to="/gas" :class="$style.link">
 						<Text size="12" weight="500" color="tertiary"> Gas Tracker </Text>
 					</NuxtLink>

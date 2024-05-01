@@ -201,8 +201,8 @@ const onKeydown = (e) => {
 
 .close_icon {
 	position: absolute;
-	top: 16px;
-	right: 16px;
+	top: 12px;
+	right: 12px;
 
 	fill: var(--txt-tertiary);
 	background: transparent;

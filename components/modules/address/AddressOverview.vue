@@ -101,7 +101,10 @@ const tabs = ref([
 	},
 ])
 
-const activeTab = ref(tabs.value[0].alias)
+const preselectedTab =
+	route.query.tab && tabs.value.map((tab) => tab.alias).includes(route.query.tab) ? route.query.tab : tabs.value[0].alias
+const activeTab = ref(preselectedTab)
+
 const tabsEl = ref(null)
 
 const handleSelect = (tab) => {
@@ -198,9 +201,19 @@ const handleClearAllFilters = () => {
 
 const searchTerm = ref("")
 
+onMounted(() => {
+	router.replace({
+		query: {
+			tab: activeTab.value,
+		},
+	})
+
+	isBookmarked.value = !!bookmarksStore.bookmarks.addresses.find((t) => t.id === props.address.hash)
+})
+
 /** Parse route query */
 Object.keys(route.query).forEach((key) => {
-	if (key === "page") return
+	if (key === "page" || key === "tab") return
 
 	if (route.query[key].split(",").length) {
 		route.query[key].split(",").forEach((item) => {
@@ -359,8 +372,6 @@ const getBlobs = async () => {
 	isRefetching.value = false
 }
 
-await getTransactions()
-
 /** Delegation */
 const isActiveDelegator = props.address.balance.delegated > 0 || props.address.balance.unbonding > 0
 const collapseBalances = ref(!isActiveDelegator)
@@ -421,10 +432,22 @@ const getUndelegations = async () => {
 	isRefetching.value = false
 }
 
+if (activeTab.value === "transactions") await getTransactions()
+if (activeTab.value === "messages") await getMessages()
+if (activeTab.value === "blobs") await getBlobs()
+if (activeTab.value === "delegations") await getDelegations()
+if (activeTab.value === "redelegations") await getRedelegations()
+
 /** Refetch transactions */
 watch(
 	() => activeTab.value,
 	() => {
+		router.replace({
+			query: {
+				tab: activeTab.value,
+			},
+		})
+
 		page.value = 1
 
 		switch (activeTab.value) {
@@ -559,31 +582,34 @@ const handleOpenQRModal = () => {
 				<Text size="13" weight="600" color="primary">Address</Text>
 			</Flex>
 
-			<Flex align="center" gap="8">
-				<Button @click="handleSend" type="secondary" size="mini">
-					<Icon name="coins" size="12" color="secondary" />
-					Send
-				</Button>
+			<Flex align="center" gap="12">
+				<Flex align="center" gap="8">
+					<Button @click="handleSend" type="secondary" size="mini">
+						<Icon name="arrow-circle-broken-right" size="12" color="primary" />
+						Send
+					</Button>
 
-				<Button
-					@click="handleBookmark"
-					@mouseenter="isBookmarkButtonHovered = true"
-					@mouseleave="isBookmarkButtonHovered = false"
-					type="secondary"
-					size="mini"
-				>
-					<Icon
-						:name="isBookmarkButtonHovered && isBookmarked ? 'close' : isBookmarked ? 'bookmark-check' : 'bookmark-plus'"
-						size="12"
-						:color="isBookmarked && !isBookmarkButtonHovered ? 'green' : 'secondary'"
-					/>
-					{{ bookmarkText }}
-				</Button>
+					<Button
+						@click="handleBookmark"
+						@mouseenter="isBookmarkButtonHovered = true"
+						@mouseleave="isBookmarkButtonHovered = false"
+						type="secondary"
+						size="mini"
+					>
+						<Icon
+							:name="isBookmarkButtonHovered && isBookmarked ? 'close' : isBookmarked ? 'bookmark-check' : 'bookmark-plus'"
+							size="12"
+							:color="isBookmarked && !isBookmarkButtonHovered ? 'green' : 'primary'"
+						/>
+						{{ bookmarkText }}
+					</Button>
+				</Flex>
+
+				<div class="divider_v"></div>
 
 				<Dropdown>
 					<Button type="secondary" size="mini">
-						<Icon name="dots" size="12" color="secondary" />
-						More
+						<Icon name="dots" size="16" color="primary" />
 					</Button>
 
 					<template #popup>

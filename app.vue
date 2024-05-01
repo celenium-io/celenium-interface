@@ -10,6 +10,7 @@ import CommandMenu from "@/components/cmd/CommandMenu.vue"
 /** API */
 import { fetchGasPrice } from "@/services/api/gas"
 import { fetchHead } from "@/services/api/main"
+import { fetchLatestBlocks } from "@/services/api/block"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -21,17 +22,21 @@ bookmarksStore.$subscribe((mutation, state) => {
 })
 
 onMounted(async () => {
+	if (localStorage.bookmarks) {
+		bookmarksStore.bookmarks = JSON.parse(localStorage.bookmarks)
+	}
+
 	const runtimeConfig = useRuntimeConfig()
 	amp.init(runtimeConfig.public.AMP)
+
+	const data = await fetchLatestBlocks({ limit: 15 })
+	appStore.latestBlocks = data
+	appStore.isLatestBlocksLoaded = true
 
 	const head = await fetchHead()
 	if (head) appStore.lastHead = head
 
 	Socket.init()
-
-	if (localStorage.bookmarks) {
-		bookmarksStore.bookmarks = JSON.parse(localStorage.bookmarks)
-	}
 
 	const gasPrice = await fetchGasPrice()
 	appStore.gas = gasPrice

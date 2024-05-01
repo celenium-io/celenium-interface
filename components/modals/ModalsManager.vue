@@ -1,5 +1,6 @@
 <script setup>
 import BlobModal from "./BlobModal.vue"
+import CommitmentModal from "./CommitmentModal.vue";
 import ConfirmationModal from "./ConfirmationModal.vue"
 import RawDataModal from "./RawDataModal.vue"
 import ConstantsModal from "./ConstantsModal.vue"
@@ -8,6 +9,7 @@ import ImportBookmarksModal from "./ImportBookmarksModal.vue"
 import EditBookmarkAliasModal from "./EditBookmarkAliasModal.vue"
 import SendModal from "./SendModal.vue"
 import PayForBlobModal from "./PayForBlobModal.vue"
+import AwaitingModal from "./AwaitingModal.vue"
 
 /**
  * Store
@@ -18,6 +20,7 @@ const modalsStore = useModalsStore()
 
 <template>
 	<BlobModal :show="modalsStore.modals.blob" @onClose="modalsStore.close('blob')" />
+	<CommitmentModal :show="modalsStore.modals.commitment" @onClose="modalsStore.close('commitment')" />
 	<ConfirmationModal :show="modalsStore.modals.confirmation" @onClose="modalsStore.close('confirmation')" />
 	<RawDataModal :show="modalsStore.modals.rawData" @onClose="modalsStore.close('rawData')" />
 	<ConstantsModal :show="modalsStore.modals.constants" @onClose="modalsStore.close('constants')" />
@@ -26,4 +29,5 @@ const modalsStore = useModalsStore()
 	<EditBookmarkAliasModal :show="modalsStore.modals.edit_alias" @onClose="modalsStore.close('edit_alias')" />
 	<SendModal :show="modalsStore.modals.send" @onClose="modalsStore.close('send')" />
 	<PayForBlobModal :show="modalsStore.modals.pfb" @onClose="modalsStore.close('pfb')" />
+	<AwaitingModal :show="modalsStore.modals.awaiting" @onClose="modalsStore.close('awaiting')" />
 </template>

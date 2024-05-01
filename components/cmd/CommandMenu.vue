@@ -276,6 +276,15 @@ const rawNavigationActions = [
 	{
 		type: "callback",
 		icon: "arrow-narrow-right",
+		title: "Go to Blobstream",
+		runText: "Open Blobstream",
+		callback: () => {
+			router.push("/blobstream")
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Documentation",
 		runText: "Open Documentation",
 		callback: () => {

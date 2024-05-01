@@ -26,6 +26,9 @@ import { useNotificationsStore } from "@/store/notifications"
 const cacheStore = useCacheStore()
 const notificationsStore = useNotificationsStore()
 
+const route = useRoute()
+const router = useRouter()
+
 const props = defineProps({
 	rollup: {
 		type: Object,
@@ -43,14 +46,15 @@ const tabs = ref([
 		icon: "namespace",
 	},
 ])
-const activeTab = ref(tabs.value[0].name)
+const preselectedTab = route.query.tab && tabs.value.map((tab) => tab.name).includes(route.query.tab) ? route.query.tab : tabs.value[0].name
+const activeTab = ref(preselectedTab)
 
 const isRefetching = ref(false)
 const namespaces = ref([])
 const blobs = ref([])
 
 const page = ref(1)
-const pages = computed(() => activeTab.value === "Blobs" ? Math.ceil(props.rollup.blobs_count / 10) : 1)
+const pages = computed(() => (activeTab.value === "Blobs" ? Math.ceil(props.rollup.blobs_count / 10) : 1))
 
 const handleNext = () => {
 	page.value += 1
@@ -93,7 +97,16 @@ const getNamespaces = async () => {
 }
 
 /** Initital fetch for blobs */
-await getBlobs()
+if (activeTab.value === "Blobs") await getBlobs()
+if (activeTab.value === "Namespaces") await getNamespaces()
+
+onMounted(() => {
+	router.replace({
+		query: {
+			tab: activeTab.value,
+		},
+	})
+})
 
 /** Refetch Blobs/Messages on new page */
 watch(
@@ -115,6 +128,12 @@ watch(
 watch(
 	() => activeTab.value,
 	() => {
+		router.replace({
+			query: {
+				tab: activeTab.value,
+			},
+		})
+
 		page.value = 1
 
 		switch (activeTab.value) {
@@ -160,7 +179,7 @@ const handleCSVDownload = async (period) => {
 			break
 	}
 	let to = parseInt(DateTime.now().toMillis() / 1_000)
-	
+
 	const { data } = await fetchRollupExportData({
 		id: props.rollup.id,
 		from: from,
@@ -180,13 +199,13 @@ const handleCSVDownload = async (period) => {
 		return
 	}
 
-	const blob = new Blob([data.value], { type: 'text/csv;charset=utf-8;' })
+	const blob = new Blob([data.value], { type: "text/csv;charset=utf-8;" })
 	const link = document.createElement("a")
 
 	link.href = URL.createObjectURL(blob)
 	link.download = `${props.rollup.slug}-blobs-last-${period}.csv`
 
-	link.style.visibility = 'hidden'
+	link.style.visibility = "hidden"
 	document.body.appendChild(link)
 	link.click()
 	document.body.removeChild(link)
@@ -200,7 +219,6 @@ const handleCSVDownload = async (period) => {
 		},
 	})
 }
-
 </script>
 
 <template>
@@ -290,6 +308,26 @@ const handleCSVDownload = async (period) => {
 								{{ rollup.github }}
 							</template>
 						</Tooltip>
+
+						<Tooltip v-if="rollup.l2_beat" position="start" delay="500">
+							<a :href="rollup.l2_beat" target="_blank">
+								<Icon name="l2beat" size="14" color="secondary" :class="$style.btn" />
+							</a>
+
+							<template #content>
+								{{ rollup.l2_beat }}
+							</template>
+						</Tooltip>
+
+						<Tooltip v-if="rollup.explorer" position="start" delay="500">
+							<a :href="rollup.explorer" target="_blank">
+								<Icon name="blockscout" size="14" color="secondary" :class="$style.btn" />
+							</a>
+
+							<template #content>
+								{{ rollup.explorer }}
+							</template>
+						</Tooltip>
 					</Flex>
 
 					<Flex direction="column" gap="16">
@@ -307,7 +345,10 @@ const handleCSVDownload = async (period) => {
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Blob Fees Paid</Text>
-							<AmountInCurrency :amount="{ value: rollup.fee }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
+							<AmountInCurrency
+								:amount="{ value: rollup.fee }"
+								:styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }"
+							/>
 						</Flex>
 
 						<Flex align="start" justify="between">
@@ -387,7 +428,7 @@ const handleCSVDownload = async (period) => {
 								<Icon name="arrow-right-stop" size="12" color="primary" />
 							</Button>
 						</Flex>
-				</template>
+					</template>
 					<!-- Namespaces Table -->
 					<template v-if="activeTab === 'Namespaces'">
 						<NamespacesTable v-if="namespaces.length" :namespaces="namespaces" />
@@ -416,7 +457,6 @@ const handleCSVDownload = async (period) => {
 								<Icon name="arrow-right" size="12" color="primary" />
 							</Button>
 						</Flex>
-
 					</template>
 				</Flex>
 			</Flex>

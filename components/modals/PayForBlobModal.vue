@@ -6,19 +6,23 @@ import Button from "@/components/ui/Button.vue"
 
 /** API */
 import { fetchEstimatedGas } from "@/services/api/gas"
+import { fetchAddressByHash } from "@/services/api/address"
 
 /** Services */
 import amp from "@/services/amp"
 import { getNamespaceID } from "@/services/utils"
 import { sendPayForBlob } from "@/services/keplr"
 import { prepareBlob } from "@/services/utils/encode"
+import { suggestChain, getAccounts } from "@/services/keplr"
 
 /** Store */
 import { useAppStore } from "@/store/app"
 import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals"
 import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
 const cacheStore = useCacheStore()
+const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
 
 const { hostname } = useRequestURL()
@@ -126,6 +130,49 @@ const handleUpload = (e, target) => {
 	reader.readAsArrayBuffer(file)
 }
 
+const getBalance = async () => {
+	const key = await window.keplr.getKey(appStore.network.chainId)
+
+	if (key) {
+		const { data } = await fetchAddressByHash(key.bech32Address)
+
+		if (data.value?.balance) {
+			appStore.balance = parseFloat(data.value.balance.spendable / 1_000_000) || 0
+		}
+	}
+}
+
+const handleConnect = async () => {
+	try {
+		await suggestChain(appStore.network)
+
+		const accounts = await getAccounts(appStore.network)
+		if (accounts.length) {
+			appStore.address = accounts[0].address
+		}
+
+		getBalance()
+
+		amp.log("connect")
+	} catch (error) {
+		amp.log("rejectConnect")
+
+		switch (error.message) {
+			case "Request rejected":
+				notificationsStore.create({
+					notification: {
+						type: "info",
+						icon: "close",
+						title: "Request rejected",
+						description: "You canceled the Keplr wallet request",
+						autoDestroy: true,
+					},
+				})
+				break
+		}
+	}
+}
+
 const handleContinue = async () => {
 	let [data, decodableBlob, length] = prepareBlob(
 		appStore.address,
@@ -161,25 +208,15 @@ const handleContinue = async () => {
 
 		amp.log("successfulPfb")
 
-		notificationsStore.create({
-			notification: {
-				type: "success",
-				icon: "check-circle",
-				title: `Successfuly sent`,
-				actions: [
-					{
-						icon: "copy",
-						name: "Copy Tx Hash",
-						callback: () => {
-							window.navigator.clipboard.writeText(txHash)
-						},
-					},
-				],
-				autoDestroy: true,
-			},
-		})
+		cacheStore.tx.hash = txHash
+		cacheStore.tx.from = appStore.address
+		cacheStore.tx.to = namespace.value
+		cacheStore.tx.file = fileType.value
+		cacheStore.tx.network = appStore.network
+		cacheStore.tx.ts = new Date().getTime()
+		cacheStore.tx.type = "pfb"
 
-		emit("onClose")
+		modalsStore.open("awaiting")
 	} catch (e) {
 		isAwaiting.value = false
 
@@ -240,10 +277,17 @@ const handleContinue = async () => {
 							</Text>
 						</Text>
 
-						<Text size="12" weight="500" color="tertiary" :selectable="true"> {{ appStore.address }} </Text>
+						<Text v-if="appStore.address" size="12" weight="500" color="tertiary" :selectable="true">
+							{{ appStore.address }}
+						</Text>
+						<Text v-else size="12" weight="500" color="yellow" :selectable="true">
+							Connect with your wallet to submit blob
+						</Text>
 					</Flex>
 
-					<Flex direction="column" justify="between" :class="$style.bg">
+					<div :class="[$style.auth_line, appStore.address && $style.anim]" />
+
+					<Flex direction="column" justify="between" :class="[$style.bg, !appStore.address && $style.unauth]">
 						<Flex v-for="i in 8" align="center" justify="between">
 							<div
 								v-for="j in 50"
@@ -323,7 +367,8 @@ const handleContinue = async () => {
 				</Text>
 			</Flex>
 
-			<Button @click="handleContinue" type="secondary" size="small" wide :disabled="!isReadyToContinue || isAwaiting">
+			<Button v-if="!appStore.address" @click="handleConnect" type="white" size="small" wide>Connect</Button>
+			<Button v-else @click="handleContinue" type="secondary" size="small" wide :disabled="!isReadyToContinue || isAwaiting">
 				{{ isAwaiting ? "Awaiting..." : "Continue" }}
 			</Button>
 		</Flex>
@@ -336,6 +381,7 @@ const handleContinue = async () => {
 
 	border-radius: 12px;
 	background: rgba(0, 0, 0, 15%);
+	overflow: hidden;
 
 	padding: 16px;
 
@@ -351,6 +397,37 @@ const handleContinue = async () => {
 		border-radius: 10px;
 
 		padding: 12px;
+	}
+}
+
+.auth_line {
+	position: absolute;
+	bottom: 1px;
+	left: 50%;
+	right: 50%;
+
+	height: 1px;
+	background: linear-gradient(90deg, rgba(10, 222, 113, 0%) 0%, rgba(10, 222, 113, 100%), rgba(10, 222, 113, 0%) 100%);
+
+	&.anim {
+		animation: fadeout 1s ease;
+	}
+}
+
+@keyframes fadeout {
+	0% {
+		opacity: 0;
+	}
+
+	30% {
+		opacity: 1;
+	}
+
+	100% {
+		left: -200px;
+		right: -200px;
+
+		opacity: 0;
 	}
 }
 
@@ -372,6 +449,12 @@ const handleContinue = async () => {
 
 		animation: blink 3s ease infinite;
 		animation-delay: var(--delay);
+	}
+
+	&.unauth {
+		& .circle {
+			background: var(--op-40);
+		}
 	}
 }
 

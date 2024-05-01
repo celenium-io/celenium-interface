@@ -28,6 +28,7 @@ const cacheStore = useCacheStore()
 const bookmarksStore = useBookmarksStore()
 const notificationsStore = useNotificationsStore()
 
+const route = useRoute()
 const router = useRouter()
 
 const props = defineProps({
@@ -44,10 +45,27 @@ const bookmarkText = computed(() => {
 	return isBookmarked.value ? "Saved" : "Save"
 })
 
-const activeTab = ref("messages")
+const preselectedTab = route.query.tab && ["messages", "events"].includes(route.query.tab) ? route.query.tab : "messages"
+const activeTab = ref(preselectedTab)
 const messages = ref([])
 
+watch(
+	() => activeTab.value,
+	() =>
+		router.replace({
+			query: {
+				tab: activeTab.value,
+			},
+		}),
+)
+
 onMounted(async () => {
+	router.replace({
+		query: {
+			tab: activeTab.value,
+		},
+	})
+
 	isBookmarked.value = !!bookmarksStore.bookmarks.txs.find((t) => t.id === props.tx.hash)
 
 	const data = await fetchTxMessages(props.tx.hash)
@@ -110,7 +128,7 @@ const handleViewRawTransaction = () => {
 				<Text size="13" weight="600" color="primary">Transaction</Text>
 			</Flex>
 
-			<Flex align="center" gap="8">
+			<Flex align="center" gap="12">
 				<Button
 					@click="handleBookmark"
 					@mouseenter="isBookmarkButtonHovered = true"
@@ -126,10 +144,11 @@ const handleViewRawTransaction = () => {
 					{{ bookmarkText }}
 				</Button>
 
+				<div class="divider_v" />
+
 				<Dropdown>
 					<Button type="secondary" size="mini">
-						<Icon name="dots" size="16" color="secondary" />
-						More
+						<Icon name="dots" size="16" color="primary" />
 					</Button>
 
 					<template #popup>
@@ -251,7 +270,10 @@ const handleViewRawTransaction = () => {
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Fee </Text>
-							<AmountInCurrency :amount="{ value: tx.fee, decimal: 6 }" :styles="{ amount: {color: 'secondary' }, currency: {color: 'secondary' } }" />
+							<AmountInCurrency
+								:amount="{ value: tx.fee, decimal: 6 }"
+								:styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }"
+							/>
 						</Flex>
 						<Flex v-if="tx.codespace" align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Codespace</Text>
