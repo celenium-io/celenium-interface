@@ -114,7 +114,7 @@ const searchTerm = ref("")
 
 /** Parse route query */
 Object.keys(route.query).forEach((key) => {
-	if (key === "page") return
+	if (key === "page" || key === "tab") return
 
 	if (route.query[key].split(",").length) {
 		route.query[key].split(",").forEach((item) => {
