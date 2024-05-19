@@ -357,7 +357,7 @@ onBeforeUnmount(() => {
 		</Flex>
 
 		<Flex direction="column">
-			<Flex justify="between" gap="32" :class="$style.data">
+			<Flex justify="between" gap="32" :class="[$style.data, $style.top]">
 				<Flex direction="column" gap="20" wide>
 					<Text size="13" weight="600" color="primary">DA Usage</Text>
 
@@ -536,7 +536,7 @@ onBeforeUnmount(() => {
 				</Flex>
 			</Flex>
 
-			<Flex justify="between" gap="32" :class="$style.data">
+			<Flex justify="between" gap="32" :class="[$style.data, $style.bottom]">
 				<Flex direction="column" gap="20" wide>
 					<Text size="13" weight="600" color="primary">Fee Paid</Text>
 
@@ -645,10 +645,17 @@ onBeforeUnmount(() => {
 }
 
 .data {
-	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 
 	padding: 16px;
+}
+
+.top {
+	border-radius: 4px 4px 0px 0px;
+}
+
+.bottom {
+	border-radius: 0px 0px 8px 8px;
 }
 
 .chart_wrapper {
