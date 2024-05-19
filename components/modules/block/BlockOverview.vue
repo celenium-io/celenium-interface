@@ -392,9 +392,10 @@ const handleViewRawTransactions = () => {
 						<Flex align="center" gap="6">
 							<Icon name="block" size="14" color="secondary" />
 
-							<Flex tag="h1" align="center" gap="4">
+							<Flex tag="h1" align="center" gap="6">
 								<Text size="12" weight="600" color="secondary"> Height </Text>
 								<Text size="12" weight="600" color="primary">{{ comma(block.height) }}</Text>
+								<CopyButton :text="block.height" size="10" />
 							</Flex>
 						</Flex>
 
