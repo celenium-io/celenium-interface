@@ -38,6 +38,14 @@ export const shortHex = (hex) => {
 	}
 }
 
+export const midHex = (hex) => {
+	if (hex.length > 32) {
+		return `${hex.slice(0, 16)} ••• ${hex.slice(-16)}`
+	} else {
+		return hex
+	}
+}
+
 export const splitAddress = (address, format = "string") => {
 	if (!address) return
 
