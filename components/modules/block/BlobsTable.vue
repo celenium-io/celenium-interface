@@ -171,6 +171,7 @@ const handlePrev = () => {
 							<th><Text size="12" weight="600" color="tertiary">Share Commitments</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Size</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Version</Text></th>
+							<th><Text size="12" weight="600" color="tertiary">Rollup</Text></th>
 						</tr>
 					</thead>
 
@@ -270,7 +271,17 @@ const handlePrev = () => {
 								<Text size="13" weight="600" color="primary">{{ blob.namespace.version }}</Text>
 							</td>
 							<td style="width: 1px">
-								<Icon name="arrow-narrow-up-right" size="14" color="tertiary" />
+								<NuxtLink v-if="blob.rollup?.logo" :to="`/rollup/${blob.rollup.slug}`" @click.stop>
+									<Tooltip position="start" delay="500">
+										<Flex align="center" justify="center" :class="$style.avatar_container">
+											<img :src="blob.rollup.logo" :class="$style.avatar_image" />
+										</Flex>
+
+										<template #content>
+											{{ blob.rollup.name }}
+										</template>
+									</Tooltip>
+								</NuxtLink>
 							</td>
 						</tr>
 					</tbody>
@@ -364,6 +375,20 @@ const handlePrev = () => {
 			}
 		}
 	}
+}
+
+.avatar_container {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	overflow: hidden;
+	border-radius: 50%;
+}
+
+.avatar_image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .table.disabled {

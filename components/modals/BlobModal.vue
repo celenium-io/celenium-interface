@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
-import { space, formatBytes, getNamespaceID, strToHex } from "@/services/utils"
+import { comma, formatBytes, getNamespaceID, space, strToHex } from "@/services/utils"
 
 /** API */
 import { fetchBlobByMetadata } from "@/services/api/namespace"
@@ -248,6 +248,18 @@ const handlePreviewContent = () => {
 								<Text size="13" weight="600" color="primary">
 									{{ cacheStore.selectedBlob.tx.hash.slice(-4) }}
 								</Text>
+
+								<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
+							</Flex>
+						</Flex>
+					</NuxtLink>
+
+					<NuxtLink :to="`/block/${cacheStore.selectedBlob.height}`" target="_blank" :class="[$style.badge, $style.selectable]">
+						<Flex direction="column" gap="8">
+							<Text size="12" weight="500" color="secondary"> Height </Text>
+
+							<Flex align="center" gap="8">
+								<Text size="13" weight="600" color="primary">{{ comma(cacheStore.selectedBlob.height) }}</Text>
 
 								<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
 							</Flex>
