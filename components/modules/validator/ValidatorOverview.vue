@@ -128,6 +128,14 @@ if (activeTab.value === "Jails") await getJails()
 
 await getUptime()
 
+onMounted(() => {
+	router.replace({
+		query: {
+			tab: activeTab.value,
+		},
+	})
+})
+
 const validatorStatus = computed(() => {
 	let res = {
 		name: "",

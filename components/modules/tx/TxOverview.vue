@@ -60,6 +60,12 @@ watch(
 )
 
 onMounted(async () => {
+	router.replace({
+		query: {
+			tab: activeTab.value,
+		},
+	})
+
 	isBookmarked.value = !!bookmarksStore.bookmarks.txs.find((t) => t.id === props.tx.hash)
 
 	const data = await fetchTxMessages(props.tx.hash)
@@ -122,7 +128,7 @@ const handleViewRawTransaction = () => {
 				<Text size="13" weight="600" color="primary">Transaction</Text>
 			</Flex>
 
-			<Flex align="center" gap="8">
+			<Flex align="center" gap="12">
 				<Button
 					@click="handleBookmark"
 					@mouseenter="isBookmarkButtonHovered = true"
@@ -138,10 +144,11 @@ const handleViewRawTransaction = () => {
 					{{ bookmarkText }}
 				</Button>
 
+				<div class="divider_v" />
+
 				<Dropdown>
 					<Button type="secondary" size="mini">
-						<Icon name="dots" size="16" color="secondary" />
-						More
+						<Icon name="dots" size="16" color="primary" />
 					</Button>
 
 					<template #popup>

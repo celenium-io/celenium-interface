@@ -10,6 +10,7 @@ export const useModalsStore = defineStore("modals", () => {
 	const lastModal = ref()
 	const modals = reactive({
 		blob: false,
+		commitment: false,
 		confirmation: false,
 		rawData: false,
 		constants: false,
@@ -18,6 +19,7 @@ export const useModalsStore = defineStore("modals", () => {
 		edit_alias: false,
 		send: false,
 		pfb: false,
+		awaiting: false,
 	})
 
 	const open = (target) => {
@@ -54,7 +56,15 @@ export const useModalsStore = defineStore("modals", () => {
 		}
 	}
 
-	return { history, lastModal, modals, open, close }
+	const closeAll = () => {
+		history.value = []
+
+		Object.keys(modals).forEach((key) => {
+			modals[key] = false
+		})
+	}
+
+	return { history, lastModal, modals, open, close, closeAll }
 })
 
 if (import.meta.hot) {

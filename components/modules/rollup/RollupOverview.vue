@@ -100,6 +100,14 @@ const getNamespaces = async () => {
 if (activeTab.value === "Blobs") await getBlobs()
 if (activeTab.value === "Namespaces") await getNamespaces()
 
+onMounted(() => {
+	router.replace({
+		query: {
+			tab: activeTab.value,
+		},
+	})
+})
+
 /** Refetch Blobs/Messages on new page */
 watch(
 	() => page.value,
@@ -298,6 +306,26 @@ const handleCSVDownload = async (period) => {
 
 							<template #content>
 								{{ rollup.github }}
+							</template>
+						</Tooltip>
+
+						<Tooltip v-if="rollup.l2_beat" position="start" delay="500">
+							<a :href="rollup.l2_beat" target="_blank">
+								<Icon name="l2beat" size="14" color="secondary" :class="$style.btn" />
+							</a>
+
+							<template #content>
+								{{ rollup.l2_beat }}
+							</template>
+						</Tooltip>
+
+						<Tooltip v-if="rollup.explorer" position="start" delay="500">
+							<a :href="rollup.explorer" target="_blank">
+								<Icon name="blockscout" size="14" color="secondary" :class="$style.btn" />
+							</a>
+
+							<template #content>
+								{{ rollup.explorer }}
 							</template>
 						</Tooltip>
 					</Flex>
