@@ -7,6 +7,10 @@ defineProps({
 	color: {
 		type: String,
 		default: "primary"
+	},
+	displayName: {
+		type: String,
+		default: '',
 	}
 })
 </script>
@@ -14,7 +18,10 @@ defineProps({
 <template>
 	<NuxtLink :to="`/address/${hash}`" @click.stop>
 		<Flex align="center" gap="6">
-			<template v-if="hash.startsWith('celestiavaloper')">
+			<template v-if="displayName !== hash">
+				<Text size="13" weight="600" :color="color"> {{ displayName }} </Text>
+			</template>
+			<template v-else-if="hash.startsWith('celestiavaloper')">
 				<Text size="13" weight="600" :color="color"> celestiavaloper </Text>
 
 				<Flex align="center" gap="3">

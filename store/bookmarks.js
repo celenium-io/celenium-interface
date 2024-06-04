@@ -25,13 +25,39 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 		return has
 	})
 
+	const getBookmarkAlias = (type, hash) => {
+		switch (type) {
+			case 'tx':
+				return findBookmark('txs', hash)
+			case 'block':
+				return findBookmark('blocks', hash)
+			case 'namespace':
+				return findBookmark('namespaces', hash)
+			case 'address':
+				return findBookmark('addresses', hash)
+			default:
+				return hash
+		}
+	}
+
+	const findBookmark = (key, id) => {
+		for (let i = 0; i < bookmarks.value[key].length; i++) {
+			const el = bookmarks.value[key][i]
+			if (el.id === id) {
+				return el.alias
+			}
+		}
+
+		return id
+	}
+
 	const clearBookmarks = () => {
 		Object.keys(bookmarks.value).forEach((b) => {
 			bookmarks.value[b] = []
 		})
 	}
 
-	return { bookmarks, recentBookmarks, clearBookmarks, hasBookmarks }
+	return { bookmarks, recentBookmarks, clearBookmarks, hasBookmarks, getBookmarkAlias }
 })
 
 if (import.meta.hot) {
