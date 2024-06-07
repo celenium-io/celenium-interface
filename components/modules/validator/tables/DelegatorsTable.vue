@@ -34,8 +34,8 @@ const props = defineProps({
 					<td>
 						<NuxtLink :to="`/address/${d.delegator}`">
 							<Flex align="center" direction="row" gap="12">
-								<Text size="12" weight="600" color="primary">
-									{{ splitAddress(d.delegator) }}
+								<Text size="12" weight="600" color="primary" class="table_column_alias">
+									{{ $getDisplayName('addresses', d.delegator) }}
 								</Text>
 
 								<Tooltip v-if="validator.delegator === d.delegator" position="start" delay="500">

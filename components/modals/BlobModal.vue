@@ -238,15 +238,7 @@ const handlePreviewContent = () => {
 
 							<Flex align="center" gap="8">
 								<Text size="13" weight="600" color="primary">
-									{{ cacheStore.selectedBlob.tx.hash.slice(0, 4) }}
-								</Text>
-
-								<Flex align="center" gap="3">
-									<div v-for="dot in 3" class="dot" />
-								</Flex>
-
-								<Text size="13" weight="600" color="primary">
-									{{ cacheStore.selectedBlob.tx.hash.slice(-4) }}
+									{{ $getDisplayName('txs', cacheStore.selectedBlob.tx.hash) }}
 								</Text>
 
 								<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
@@ -281,7 +273,8 @@ const handlePreviewContent = () => {
 							<CopyButton :text="getNamespaceID(cacheStore.selectedBlob.namespace_id)" />
 
 							<Text size="13" weight="600" color="primary" :class="$style.value">
-								{{ space(getNamespaceID(cacheStore.selectedBlob.namespace_id)) }}
+								{{ $getDisplayName('namespaces', cacheStore.selectedBlob.namespace_id) }}
+								
 								<Text
 									v-if="getNamespaceID(cacheStore.selectedBlob.namespace_id) !== cacheStore.selectedBlob.namespace_name"
 									color="secondary"
@@ -313,7 +306,7 @@ const handlePreviewContent = () => {
 							<NuxtLink :to="`/address/${cacheStore.selectedBlob.signer}`" target="_blank">
 								<Flex align="center" gap="6">
 									<Text size="13" weight="600" color="primary" :class="$style.value">
-										{{ cacheStore.selectedBlob.signer }}
+										{{ $getDisplayName('addresses', cacheStore.selectedBlob.signer) }}
 									</Text>
 
 									<Icon name="arrow-narrow-up-right" size="12" color="secondary" />

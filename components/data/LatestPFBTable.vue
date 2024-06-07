@@ -48,23 +48,15 @@ isLoading.value = false
 							<td style="width: 1px">
 								<NuxtLink :to="`/tx/${pfb.hash}`">
 									<Tooltip position="start">
-										<Flex align="center" gap="8">
+										<Flex align="center" gap="6">
 											<Icon
 												:name="pfb.status === 'success' ? 'check-circle' : 'close-circle'"
-												size="14"
+												size="13"
 												:color="pfb.status === 'success' ? 'green' : 'red'"
 											/>
 
-											<Text size="13" weight="600" color="primary" mono>
-												{{ pfb.hash.slice(0, 4).toUpperCase() }}
-											</Text>
-
-											<Flex align="center" gap="3">
-												<div v-for="dot in 3" class="dot" />
-											</Flex>
-
-											<Text size="13" weight="600" color="primary" mono>
-												{{ pfb.hash.slice(pfb.hash.length - 4, pfb.hash.length).toUpperCase() }}
+											<Text size="12" weight="600" color="primary" mono class="table_column_alias">
+												{{ $getDisplayName('txs', pfb.hash) }}
 											</Text>
 
 											<CopyButton :text="pfb.hash.toUpperCase()" />
@@ -96,7 +88,7 @@ isLoading.value = false
 											<Flex align="center" gap="6">
 												<Icon name="block" size="14" color="secondary" />
 
-												<Text size="13" weight="600" color="primary" tabular>{{ comma(pfb.height) }}</Text>
+												<Text size="13" weight="600" color="primary" tabular class="table_column_alias">{{ $getDisplayName('blocks', pfb.height) }}</Text>
 											</Flex>
 										</Outline>
 									</Flex>
@@ -104,9 +96,9 @@ isLoading.value = false
 							</td>
 							<td>
 								<NuxtLink :to="`/tx/${pfb.hash}`">
-									<Flex align="center">
-										<Text size="12" weight="600" color="primary">
-											{{ splitAddress(pfb.signers[0]) }}
+									<Flex align="center" justify="center">
+										<Text size="12" weight="600" color="primary" class="table_column_alias">
+											{{ $getDisplayName('addresses', pfb.signers[0]) }}
 										</Text>
 									</Flex>
 								</NuxtLink>
@@ -153,6 +145,7 @@ isLoading.value = false
 }
 
 .pfb_body {
+	max-width: 500px;
 	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 

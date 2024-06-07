@@ -338,3 +338,17 @@ body {
 .slide-leave-to {
 	transform: translateY(-25px);
 }
+
+.table_column_alias {
+	max-width: 125px;
+
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.overflow_ellipsis {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}

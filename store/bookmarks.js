@@ -25,19 +25,15 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 		return has
 	})
 
-	const getBookmarkAlias = (type, hash) => {
-		switch (type) {
-			case 'tx':
-				return findBookmark('txs', hash)
-			case 'block':
-				return findBookmark('blocks', hash)
-			case 'namespace':
-				return findBookmark('namespaces', hash)
-			case 'address':
-				return findBookmark('addresses', hash)
-			default:
-				return hash
+	const getBookmarkAlias = (type, id) => {
+		for (let i = 0; i < bookmarks.value[type].length; i++) {
+			const el = bookmarks.value[type][i]
+			if (el.id === id) {
+				return el.alias
+			}
 		}
+
+		return id
 	}
 
 	const findBookmark = (key, id) => {

@@ -100,25 +100,9 @@ const handleSort = (by) => {
 									<Flex align="center">
 										<Tooltip position="start">
 											<Flex direction="column" gap="4">
-												<Flex v-if="getNamespaceID(ns.namespace_id).length > 8" align="center" gap="8">
-													<Text size="12" weight="600" color="primary" mono>
-														{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
-													</Text>
-
-													<Flex align="center" gap="3">
-														<div v-for="dot in 3" class="dot" />
-													</Flex>
-
-													<Text size="12" weight="600" color="primary" mono>
-														{{ getNamespaceID(ns.namespace_id).slice(-4) }}
-													</Text>
-
-													<CopyButton :text="getNamespaceID(ns.namespace_id)" />
-												</Flex>
-
-												<Flex v-else align="center" gap="8">
-													<Text size="12" weight="600" color="primary" mono>
-														{{ space(getNamespaceID(ns.namespace_id)) }}
+												<Flex align="center" gap="8">
+													<Text size="12" weight="600" color="primary" mono class="table_column_alias">
+														{{ $getDisplayName('namespaces', ns.namespace_id) }}
 													</Text>
 
 													<CopyButton :text="getNamespaceID(ns.namespace_id)" />
@@ -148,7 +132,7 @@ const handleSort = (by) => {
 											<Flex align="center" gap="6">
 												<Icon name="block" size="14" color="secondary" />
 
-												<Text size="13" weight="600" color="primary" tabular>{{ comma(ns.last_height) }}</Text>
+												<Text size="13" weight="600" color="primary" tabular class="table_column_alias">{{ $getDisplayName('blocks', ns.last_height) }}</Text>
 											</Flex>
 										</Outline>
 									</Flex>
@@ -274,7 +258,7 @@ const handleSort = (by) => {
 
 				min-height: 40px;
 
-				padding-right: 24px;
+				padding-right: 16px;
 			}
 		}
 	}
