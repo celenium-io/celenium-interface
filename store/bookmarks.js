@@ -3,10 +3,10 @@ import { defineStore, acceptHMRUpdate } from "pinia"
 
 export const useBookmarksStore = defineStore("bookmarks", () => {
 	const bookmarks = ref({
-		txs: [],
+		addresses: [],
 		blocks: [],
 		namespaces: [],
-		addresses: [],
+		txs: [],
 	})
 
 	const recentBookmarks = computed(() => {
@@ -26,8 +26,12 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 	})
 
 	const getBookmarkAlias = (type, id) => {
-		for (let i = 0; i < bookmarks.value[type].length; i++) {
-			const el = bookmarks.value[type][i]
+		let store = getStoreByType(type)
+
+		if (!store) return id
+
+		for (let i = 0; i < store.length; i++) {
+			let el = store[i]
 			if (el.id === id) {
 				return el.alias
 			}
@@ -36,15 +40,61 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 		return id
 	}
 
-	const findBookmark = (key, id) => {
-		for (let i = 0; i < bookmarks.value[key].length; i++) {
-			const el = bookmarks.value[key][i]
+	const getBookmark = (type, id) => {
+		let store = getStoreByType(type)
+
+		if (!store) return null
+		
+		for (let i = 0; i < store.length; i++) {
+			let el = store[i]
 			if (el.id === id) {
-				return el.alias
+				return el
 			}
 		}
 
-		return id
+		return null
+	}
+
+	const addBookmark = (bookmark) => {
+		let store = getStoreByType(bookmark.type)
+
+		if (!store) return false
+
+		store.push(bookmark)
+
+		return true
+	}
+
+	const removeBookmark = (type, id) => {
+		let store = getStoreByType(type)
+		if (!store) return false
+
+		let idx = store.findIndex((el) => el.id === id)
+
+		if (idx === -1) return false
+
+		store.splice(idx, 1)
+
+		return true
+	}
+
+	const getStoreByType = (type) => {
+		switch (type.toLowerCase()) {
+			case 'address':
+			case 'addresses':
+				return bookmarks.value.addresses
+			case 'block':
+			case 'blocks':
+				return bookmarks.value.blocks
+			case 'namespace':
+			case 'namespaces':
+				return bookmarks.value.namespaces
+			case 'tx':
+			case 'txs':
+				return bookmarks.value.txs
+			default:
+				return null
+		}
 	}
 
 	const clearBookmarks = () => {
@@ -53,7 +103,7 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 		})
 	}
 
-	return { bookmarks, recentBookmarks, clearBookmarks, hasBookmarks, getBookmarkAlias }
+	return { bookmarks, hasBookmarks, recentBookmarks, addBookmark, clearBookmarks, getBookmark, getBookmarkAlias, removeBookmark }
 })
 
 if (import.meta.hot) {
