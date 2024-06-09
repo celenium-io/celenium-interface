@@ -18,14 +18,20 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 	const hasBookmarks = computed(() => {
 		let has = false
 
-		Object.keys(bookmarks.value).forEach((b) => {
-			if (bookmarks.value[b].length) has = true
-		})
+		let keys = Object.keys(bookmarks.value)
+		for (let i = 0; i < keys.length; i++) {
+			if (bookmarks.value[keys[i]].length) {
+				has = true
+				break
+			}
+		}
 
 		return has
 	})
 
 	const getBookmarkAlias = (type, id) => {
+		if (!hasBookmarks) return id
+
 		let store = getStoreByType(type)
 
 		if (!store) return id
@@ -41,6 +47,8 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 	}
 
 	const getBookmark = (type, id) => {
+		if (!hasBookmarks) return null
+		
 		let store = getStoreByType(type)
 
 		if (!store) return null
@@ -97,13 +105,33 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 		}
 	}
 
+	const searchBookmark = (searchString) => {
+		if (!hasBookmarks) return []
+		
+		let res = []
+		
+		Object.keys(bookmarks.value).forEach((b) => {
+			
+			bookmarks.value[b].forEach((el) => {
+				if (el.alias?.toUpperCase().includes(searchString.toUpperCase())) {
+					res.push({
+						result: el,
+						type: el.type.toLowerCase(),
+					})
+				}
+			})
+		})
+
+		return res
+	}
+
 	const clearBookmarks = () => {
 		Object.keys(bookmarks.value).forEach((b) => {
 			bookmarks.value[b] = []
 		})
 	}
 
-	return { bookmarks, hasBookmarks, recentBookmarks, addBookmark, clearBookmarks, getBookmark, getBookmarkAlias, removeBookmark }
+	return { bookmarks, hasBookmarks, recentBookmarks, addBookmark, clearBookmarks, getBookmark, getBookmarkAlias, removeBookmark, searchBookmark }
 })
 
 if (import.meta.hot) {

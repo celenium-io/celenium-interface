@@ -862,6 +862,7 @@ const searchAction = {
 		if (!searchTerm.value.length) return
 
 		const { data } = await search(searchTerm.value.trim())
+		console.log('Manual search data', data);
 		if (!data.value.length) {
 			notificationsStore.create({
 				notification: {
@@ -922,7 +923,14 @@ const autocompleteGroup = computed(() => {
 })
 
 const debouncedSearch = useDebounceFn(async (e) => {
+	const bookmarks = bookmarksStore.searchBookmark(searchTerm.value)
 	const { data } = await search(searchTerm.value.trim())
+
+	data.value = [...bookmarks, ...data.value]
+
+	console.log('debouncedSearch data', data);
+	console.log('debouncedSearch bookmarks', bookmarks);
+
 	if (!data.value?.length) return
 
 	amp.log("showAutocomplete", { count: data.value.length, firstType: data.value[0].type })
@@ -934,23 +942,23 @@ const debouncedSearch = useDebounceFn(async (e) => {
 		let routerLink
 		switch (data.value[i].type) {
 			case "tx":
-				title = data.value[i].result.hash
-				routerLink = `/tx/${data.value[i].result.hash}`
+				title = data.value[i].result.alias || data.value[i].result.hash
+				routerLink = `/tx/${data.value[i].result.id || data.value[i].result.hash}`
 				break
 
 			case "block":
-				title = data.value[i].result.hash
-				routerLink = `/block/${data.value[i].result.height}`
+				title = data.value[i].result.alias || data.value[i].result.hash
+				routerLink = `/block/${data.value[i].result.id || data.value[i].result.height}`
 				break
 
 			case "namespace":
-				title = data.value[i].result.hash
-				routerLink = `/namespace/${data.value[i].result.namespace_id}`
+				title = data.value[i].result.alias || data.value[i].result.hash
+				routerLink = `/namespace/${data.value[i].result.id || data.value[i].result.namespace_id}`
 				break
 
 			case "address":
-				title = data.value[i].result.hash
-				routerLink = `/address/${data.value[i].result.hash}`
+				title = data.value[i].result.alias || data.value[i].result.hash
+				routerLink = `/address/${data.value[i].result.id || data.value[i].result.hash}`
 				break
 
 			case "rollup":
@@ -959,7 +967,7 @@ const debouncedSearch = useDebounceFn(async (e) => {
 				break
 
 			case "validator":
-				title = data.value[i].result.moniker ? data.value[i].result.moniker : data.value[i].result.address
+				title = data.value[i].result.alias || data.value[i].result.moniker ? data.value[i].result.moniker : data.value[i].result.address
 				routerLink = `/validator/${data.value[i].result.id}`
 				break
 

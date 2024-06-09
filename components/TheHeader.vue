@@ -156,6 +156,20 @@ const handleNavigate = (url) => {
 					</template>
 				</Tooltip>
 
+				<Tooltip position="end" delay="250">
+					<NuxtLink to="/bookmarks">
+						<Button type="secondary" size="mini">
+							<Icon name="bookmark" size="16" color="secondary" />
+						</Button>
+					</NuxtLink>
+
+					<template #content>
+						<Flex align="center" gap="8">
+							Open My Bookmarks
+						</Flex>
+					</template>
+				</Tooltip>
+
 				<Connection :class="$style.connection_btn" />
 			</Flex>
 		</Flex>
