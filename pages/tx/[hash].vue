@@ -82,6 +82,12 @@ useHead({
 		},
 	],
 })
+
+const displayName = computed(() => {
+	const { $getDisplayName } = useNuxtApp()
+
+  	return $getDisplayName('tx', tx.value?.hash)
+})
 </script>
 
 <template>
@@ -93,7 +99,7 @@ useHead({
 				{ link: '/txs', name: 'Transactions' },
 				{
 					link: route.fullPath,
-					name: `Transaction ${tx.hash.toUpperCase().slice(0, 4)} ••• ${tx.hash.toUpperCase().slice(-4)}`,
+					name: `${displayName}`,
 				},
 			]"
 			:class="$style.breadcrumbs"

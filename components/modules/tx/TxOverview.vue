@@ -76,7 +76,7 @@ const handleViewRawTransaction = () => {
 
 			<Flex align="center" gap="12">
 				<BookmarkButton
-					type="tx"
+					type="transaction"
 					:id="tx.hash"
 				/>
 
@@ -194,7 +194,6 @@ const handleViewRawTransaction = () => {
 
 								<CopyButton :text="tx.signers[0]" />
 							</Flex>
-							<!-- <Text size="12" weight="600" color="secondary"> {{ splitAddress(tx.signers[0]) }} </Text> -->
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Events</Text>

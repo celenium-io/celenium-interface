@@ -862,7 +862,6 @@ const searchAction = {
 		if (!searchTerm.value.length) return
 
 		const { data } = await search(searchTerm.value.trim())
-		console.log('Manual search data', data);
 		if (!data.value.length) {
 			notificationsStore.create({
 				notification: {
@@ -927,9 +926,6 @@ const debouncedSearch = useDebounceFn(async (e) => {
 	const { data } = await search(searchTerm.value.trim())
 
 	data.value = [...bookmarks, ...data.value]
-
-	console.log('debouncedSearch data', data);
-	console.log('debouncedSearch bookmarks', bookmarks);
 
 	if (!data.value?.length) return
 

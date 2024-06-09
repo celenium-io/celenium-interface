@@ -17,7 +17,7 @@ import UndelegationsTable from "./tables/UndelegationsTable.vue"
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { comma, tia } from "@/services/utils"
+import { comma, splitAddress } from "@/services/utils"
 import { MsgTypes } from "@/services/constants/messages"
 
 /** API */
@@ -573,7 +573,7 @@ const handleOpenQRModal = () => {
 						<Text size="12" weight="600" color="secondary">Address</Text>
 
 						<Flex align="center" gap="10">
-							<AddressBadge :hash="address.hash" />
+							<Text size="12" weight="600" color="secondary"> {{ splitAddress(address.hash) }} </Text>
 
 							<CopyButton :text="address.hash" />
 						</Flex>

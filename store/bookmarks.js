@@ -39,7 +39,7 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 		for (let i = 0; i < store.length; i++) {
 			let el = store[i]
 			if (el.id === id) {
-				return el.alias
+				return el.alias || el.id
 			}
 		}
 
@@ -99,6 +99,7 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 				return bookmarks.value.namespaces
 			case 'tx':
 			case 'txs':
+			case 'transaction':
 				return bookmarks.value.txs
 			default:
 				return null
