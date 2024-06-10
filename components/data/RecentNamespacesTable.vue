@@ -132,7 +132,7 @@ const handleSort = (by) => {
 											<Flex align="center" gap="6">
 												<Icon name="block" size="14" color="secondary" />
 
-												<Text size="13" weight="600" color="primary" tabular class="table_column_alias">{{ $getDisplayName('blocks', ns.last_height) }}</Text>
+												<Text size="13" weight="600" color="primary" tabular>{{ comma(ns.last_height) }}</Text>
 											</Flex>
 										</Outline>
 									</Flex>

@@ -578,9 +578,17 @@ const handleViewRawTransactions = () => {
 														:color="tx.status === 'success' ? 'green' : 'red'"
 													/>
 
-													<Text size="12" weight="600" color="primary" mono class="table_column_alias">
-														{{ $getDisplayName('txs', tx.hash) }}
-													</Text>
+													<Text size="13" weight="600" color="primary" mono>{{
+														tx.hash.slice(0, 4).toUpperCase()
+													}}</Text>
+
+													<Flex align="center" gap="3">
+														<div v-for="dot in 3" class="dot" />
+													</Flex>
+
+													<Text size="13" weight="600" color="primary" mono>{{
+														tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase()
+													}}</Text>
 
 													<CopyButton :text="tx.hash" />
 												</Flex>

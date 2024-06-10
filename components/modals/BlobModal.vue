@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
-import { comma, formatBytes, getNamespaceID, space, strToHex } from "@/services/utils"
+import { comma, formatBytes, getNamespaceID, shortHash, space, strToHex } from "@/services/utils"
 
 /** API */
 import { fetchBlobByMetadata } from "@/services/api/namespace"
@@ -238,7 +238,15 @@ const handlePreviewContent = () => {
 
 							<Flex align="center" gap="8">
 								<Text size="13" weight="600" color="primary">
-									{{ $getDisplayName('txs', cacheStore.selectedBlob.tx.hash) }}
+									{{ cacheStore.selectedBlob.tx.hash.slice(0, 4) }}
+								</Text>
+
+								<Flex align="center" gap="3">
+									<div v-for="dot in 3" class="dot" />
+								</Flex>
+
+								<Text size="13" weight="600" color="primary">
+									{{ cacheStore.selectedBlob.tx.hash.slice(-4) }}
 								</Text>
 
 								<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
@@ -292,7 +300,7 @@ const handlePreviewContent = () => {
 							<CopyButton :text="cacheStore.selectedBlob.commitment" />
 
 							<Text size="13" weight="600" color="primary" :class="$style.value">
-								{{ cacheStore.selectedBlob.commitment }}
+								{{ shortHash(cacheStore.selectedBlob.commitment) }}
 							</Text>
 						</Flex>
 					</Flex>
@@ -313,6 +321,24 @@ const handlePreviewContent = () => {
 								</Flex>
 							</NuxtLink>
 						</Flex>
+					</Flex>
+
+					<Flex v-if="cacheStore.selectedBlob.rollup" align="center" justify="between" wide :class="$style.metadata">
+						<Text size="12" weight="500" color="tertiary">Rollup:</Text>
+
+						<NuxtLink :to="`/rollup/${cacheStore.selectedBlob.rollup.slug}`" target="_blank">
+							<Flex align="center" gap="6">
+								<Flex align="center" justify="center" :class="$style.avatar_container">
+									<img :src="cacheStore.selectedBlob.rollup.logo" :class="$style.avatar_image" />
+								</Flex>
+
+								<Text size="13" weight="600" color="primary" :class="$style.value">
+									{{ cacheStore.selectedBlob.rollup.name }}
+								</Text>
+
+								<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
+							</Flex>
+						</NuxtLink>
 					</Flex>
 				</Flex>
 			</Flex>
@@ -431,6 +457,20 @@ const handlePreviewContent = () => {
 	&:hover {
 		color: var(--txt-primary);
 	}
+}
+
+.avatar_container {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	overflow: hidden;
+	border-radius: 50%;
+}
+
+.avatar_image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 @media (max-width: 550px) {

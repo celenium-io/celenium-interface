@@ -55,8 +55,16 @@ isLoading.value = false
 												:color="pfb.status === 'success' ? 'green' : 'red'"
 											/>
 
-											<Text size="12" weight="600" color="primary" mono class="table_column_alias">
-												{{ $getDisplayName('txs', pfb.hash) }}
+											<Text size="13" weight="600" color="primary" mono>
+												{{ pfb.hash.slice(0, 4).toUpperCase() }}
+											</Text>
+
+											<Flex align="center" gap="3">
+												<div v-for="dot in 3" class="dot" />
+											</Flex>
+
+											<Text size="13" weight="600" color="primary" mono>
+												{{ pfb.hash.slice(pfb.hash.length - 4, pfb.hash.length).toUpperCase() }}
 											</Text>
 
 											<CopyButton :text="pfb.hash.toUpperCase()" />
@@ -88,7 +96,7 @@ isLoading.value = false
 											<Flex align="center" gap="6">
 												<Icon name="block" size="14" color="secondary" />
 
-												<Text size="13" weight="600" color="primary" tabular class="table_column_alias">{{ $getDisplayName('blocks', pfb.height) }}</Text>
+												<Text size="13" weight="600" color="primary" tabular>{{ comma(pfb.height) }}</Text>
 											</Flex>
 										</Outline>
 									</Flex>

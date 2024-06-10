@@ -106,6 +106,7 @@ const handleViewBlob = (blob) => {
 		signer: blob.signer,
 		size: blob.size,
 		tx: blob.tx,
+		rollup: blob.rollup,
 	}
 
 	modalsStore.open("blob")
@@ -171,7 +172,7 @@ const handlePrev = () => {
 							<th><Text size="12" weight="600" color="tertiary">Share Commitments</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Size</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Version</Text></th>
-							<th><Text size="12" weight="600" color="tertiary">Rollup</Text></th>
+							<th><Text size="12" weight="600" color="tertiary"></Text></th>
 						</tr>
 					</thead>
 

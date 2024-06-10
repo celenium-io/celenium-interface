@@ -922,7 +922,7 @@ const autocompleteGroup = computed(() => {
 })
 
 const debouncedSearch = useDebounceFn(async (e) => {
-	const bookmarks = bookmarksStore.searchBookmark(searchTerm.value)
+	const bookmarks = bookmarksStore.searchBookmarks(searchTerm.value)
 	const { data } = await search(searchTerm.value.trim())
 
 	data.value = [...bookmarks, ...data.value]
@@ -933,7 +933,7 @@ const debouncedSearch = useDebounceFn(async (e) => {
 
 	autocompleteActions.value = []
 
-	for (let i = 0; i < Math.min(3, data.value.length); i++) {
+	for (let i = 0; i < Math.min(5, data.value.length); i++) {
 		let title
 		let routerLink
 		switch (data.value[i].type) {
@@ -974,6 +974,7 @@ const debouncedSearch = useDebounceFn(async (e) => {
 		autocompleteActions.value.push({
 			id: id(),
 			type: "callback",
+			bookmark: data.value[i].bookmark,
 			icon: data.value[i].type,
 			title: title,
 			subtitle: capitilize(data.value[i].type),

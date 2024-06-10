@@ -1,5 +1,5 @@
 /** Services */
-import { comma, getShortHash, getShortNamespaceID, space, splitAddress } from "@/services/utils"
+import { comma, getShortNamespaceID, shortHash, splitAddress } from "@/services/utils"
 
 /** Store */
 import { useBookmarksStore } from "@/store/bookmarks"
@@ -22,7 +22,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 			case 'namespaces':
 				return getShortNamespaceID(id)
 			case 'txs':
-				return getShortHash(id)
+				return shortHash(id)
 			default:
 				return id
 		}

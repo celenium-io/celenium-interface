@@ -45,8 +45,14 @@ const props = defineProps({
 										:color="message.tx.status === 'success' ? 'green' : 'red'"
 									/>
 
-									<Text size="12" weight="600" color="primary" mono class="table_column_alias">
-										{{ $getDisplayName('txs', message.tx.hash) }}
+									<Text size="13" weight="600" color="primary" mono>{{ message.tx.hash.slice(0, 4).toUpperCase() }}</Text>
+
+									<Flex align="center" gap="3">
+										<div v-for="dot in 3" class="dot" />
+									</Flex>
+
+									<Text size="13" weight="600" color="primary" mono>
+										{{ message.tx.hash.slice(message.tx.hash.length - 4, message.tx.hash.length).toUpperCase() }}
 									</Text>
 
 									<CopyButton :text="message.tx.hash" />

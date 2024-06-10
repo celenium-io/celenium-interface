@@ -31,7 +31,7 @@ export const getShortNamespaceID = (id) => {
 	}
 }
 
-export const getShortHash = (hash) => {
+export const shortHash = (hash) => {
 	return `${hash.slice(0, 4).toUpperCase()} ••• ${hash.slice(-4).toUpperCase()}`
 }
 

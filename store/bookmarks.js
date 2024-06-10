@@ -106,7 +106,7 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 		}
 	}
 
-	const searchBookmark = (searchString) => {
+	const searchBookmarks = (searchString) => {
 		if (!hasBookmarks) return []
 		
 		let res = []
@@ -118,6 +118,7 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 					res.push({
 						result: el,
 						type: el.type.toLowerCase(),
+						bookmark: true,
 					})
 				}
 			})
@@ -132,7 +133,7 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 		})
 	}
 
-	return { bookmarks, hasBookmarks, recentBookmarks, addBookmark, clearBookmarks, getBookmark, getBookmarkAlias, removeBookmark, searchBookmark }
+	return { bookmarks, hasBookmarks, recentBookmarks, addBookmark, clearBookmarks, getBookmark, getBookmarkAlias, removeBookmark, searchBookmarks }
 })
 
 if (import.meta.hot) {
