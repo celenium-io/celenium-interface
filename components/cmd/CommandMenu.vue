@@ -936,25 +936,27 @@ const debouncedSearch = useDebounceFn(async (e) => {
 	for (let i = 0; i < Math.min(5, data.value.length); i++) {
 		let title
 		let routerLink
-		switch (data.value[i].type) {
+		switch (data.value[i].type.toLowerCase()) {
 			case "tx":
+			case "transaction":
+				data.value[i].type = "tx"
 				title = data.value[i].result.alias || data.value[i].result.hash
-				routerLink = `/tx/${data.value[i].result.id || data.value[i].result.hash}`
+				routerLink = `/tx/${data.value[i].bookmark ? data.value[i].result.id : data.value[i].result.hash}`
 				break
 
 			case "block":
 				title = data.value[i].result.alias || data.value[i].result.hash
-				routerLink = `/block/${data.value[i].result.id || data.value[i].result.height}`
+				routerLink = `/block/${data.value[i].bookmark ? data.value[i].result.id : data.value[i].result.height}`
 				break
 
 			case "namespace":
 				title = data.value[i].result.alias || data.value[i].result.hash
-				routerLink = `/namespace/${data.value[i].result.id || data.value[i].result.namespace_id}`
+				routerLink = `/namespace/${data.value[i].bookmark ? data.value[i].result.id : data.value[i].result.namespace_id}`
 				break
 
 			case "address":
 				title = data.value[i].result.alias || data.value[i].result.hash
-				routerLink = `/address/${data.value[i].result.id || data.value[i].result.hash}`
+				routerLink = `/address/${data.value[i].bookmark ? data.value[i].result.id : data.value[i].result.hash}`
 				break
 
 			case "rollup":
