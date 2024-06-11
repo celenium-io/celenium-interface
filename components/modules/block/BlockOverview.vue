@@ -3,14 +3,15 @@
 import { DateTime } from "luxon"
 
 /** UI */
-import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
-import Tooltip from "@/components/ui/Tooltip.vue"
-import Button from "@/components/ui/Button.vue"
-import Badge from "@/components/ui/Badge.vue"
-import Popover from "@/components/ui/Popover.vue"
-import Checkbox from "@/components/ui/Checkbox.vue"
-import Input from "@/components/ui/Input.vue"
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
+import Badge from "@/components/ui/Badge.vue"
+import BookmarkButton from "@/components/BookmarkButton.vue"
+import Button from "@/components/ui/Button.vue"
+import Checkbox from "@/components/ui/Checkbox.vue"
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
+import Input from "@/components/ui/Input.vue"
+import Popover from "@/components/ui/Popover.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
@@ -26,13 +27,9 @@ import { fetchTransactionsByBlock } from "@/services/api/tx"
 import { useAppStore } from "@/store/app"
 import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
-import { useBookmarksStore } from "@/store/bookmarks"
-import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
-const bookmarksStore = useBookmarksStore()
-const notificationsStore = useNotificationsStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -48,13 +45,6 @@ const props = defineProps({
 })
 
 const lastBlock = computed(() => appStore.latestBlocks[0])
-
-const isBookmarkButtonHovered = ref(false)
-const isBookmarked = ref(false)
-const bookmarkText = computed(() => {
-	if (isBookmarkButtonHovered.value && isBookmarked.value) return "Remove"
-	return isBookmarked.value ? "Saved" : "Save"
-})
 
 const preselectedTab = route.query.tab && ["transactions", "events"].includes(route.query.tab) ? route.query.tab : "transactions"
 const activeTab = ref(preselectedTab)
@@ -245,8 +235,6 @@ onMounted(() => {
 			tab: activeTab.value,
 		},
 	})
-
-	isBookmarked.value = !!bookmarksStore.bookmarks.blocks.find((t) => t.id === props.block.height)
 })
 
 /** Refetch transactions */
@@ -273,48 +261,6 @@ watch(
 		getTransactions()
 	},
 )
-
-const handleBookmark = () => {
-	if (!isBookmarked.value) {
-		bookmarksStore.bookmarks.blocks.push({
-			id: props.block.height,
-			type: "Block",
-			ts: new Date().getTime(),
-		})
-		isBookmarked.value = true
-
-		notificationsStore.create({
-			notification: {
-				type: "success",
-				icon: "check",
-				title: "Block added to bookmarks",
-				description: "View all bookmarks on dedicated page",
-				autoDestroy: true,
-				actions: [
-					{
-						name: "Open Bookmarks",
-						callback: () => {
-							router.push("/bookmarks")
-						},
-					},
-				],
-			},
-		})
-	} else {
-		const bookmarkIdx = bookmarksStore.bookmarks.blocks.findIndex((t) => t.id === props.block.height)
-		bookmarksStore.bookmarks.blocks.splice(bookmarkIdx, 1)
-		isBookmarked.value = false
-
-		notificationsStore.create({
-			notification: {
-				type: "success",
-				icon: "check",
-				title: "Block removed from bookmarks",
-				autoDestroy: true,
-			},
-		})
-	}
-}
 
 const handleViewRawBlock = () => {
 	cacheStore.current._target = "block"
@@ -355,20 +301,10 @@ const handleViewRawTransactions = () => {
 			</Flex>
 
 			<Flex align="center" gap="12">
-				<Button
-					@click="handleBookmark"
-					@mouseenter="isBookmarkButtonHovered = true"
-					@mouseleave="isBookmarkButtonHovered = false"
-					type="secondary"
-					size="mini"
-				>
-					<Icon
-						:name="isBookmarkButtonHovered && isBookmarked ? 'close' : isBookmarked ? 'bookmark-check' : 'bookmark-plus'"
-						size="12"
-						:color="isBookmarked && !isBookmarkButtonHovered ? 'green' : 'primary'"
-					/>
-					{{ bookmarkText }}
-				</Button>
+				<BookmarkButton
+					type="block"
+					:id="block.height"
+				/>
 
 				<div class="divider_v" />
 
@@ -392,9 +328,10 @@ const handleViewRawTransactions = () => {
 						<Flex align="center" gap="6">
 							<Icon name="block" size="14" color="secondary" />
 
-							<Flex tag="h1" align="center" gap="4">
+							<Flex tag="h1" align="center" gap="6">
 								<Text size="12" weight="600" color="secondary"> Height </Text>
 								<Text size="12" weight="600" color="primary">{{ comma(block.height) }}</Text>
+								<CopyButton :text="block.height" size="10" />
 							</Flex>
 						</Flex>
 
@@ -637,7 +574,7 @@ const handleViewRawTransactions = () => {
 												<Flex align="center" gap="8">
 													<Icon
 														:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
-														size="14"
+														size="13"
 														:color="tx.status === 'success' ? 'green' : 'red'"
 													/>
 

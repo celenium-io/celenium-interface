@@ -922,35 +922,39 @@ const autocompleteGroup = computed(() => {
 })
 
 const debouncedSearch = useDebounceFn(async (e) => {
+	const bookmarks = bookmarksStore.searchBookmarks(searchTerm.value)
 	const { data } = await search(searchTerm.value.trim())
+
+	data.value = [...bookmarks, ...data.value]
+
 	if (!data.value?.length) return
 
 	amp.log("showAutocomplete", { count: data.value.length, firstType: data.value[0].type })
 
 	autocompleteActions.value = []
 
-	for (let i = 0; i < Math.min(3, data.value.length); i++) {
+	for (let i = 0; i < Math.min(5, data.value.length); i++) {
 		let title
 		let routerLink
 		switch (data.value[i].type) {
 			case "tx":
-				title = data.value[i].result.hash
-				routerLink = `/tx/${data.value[i].result.hash}`
+				title = data.value[i].result.alias || data.value[i].result.hash
+				routerLink = `/tx/${data.value[i].result.id || data.value[i].result.hash}`
 				break
 
 			case "block":
-				title = data.value[i].result.hash
-				routerLink = `/block/${data.value[i].result.height}`
+				title = data.value[i].result.alias || data.value[i].result.hash
+				routerLink = `/block/${data.value[i].result.id || data.value[i].result.height}`
 				break
 
 			case "namespace":
-				title = data.value[i].result.hash
-				routerLink = `/namespace/${data.value[i].result.namespace_id}`
+				title = data.value[i].result.alias || data.value[i].result.hash
+				routerLink = `/namespace/${data.value[i].result.id || data.value[i].result.namespace_id}`
 				break
 
 			case "address":
-				title = data.value[i].result.hash
-				routerLink = `/address/${data.value[i].result.hash}`
+				title = data.value[i].result.alias || data.value[i].result.hash
+				routerLink = `/address/${data.value[i].result.id || data.value[i].result.hash}`
 				break
 
 			case "rollup":
@@ -959,7 +963,7 @@ const debouncedSearch = useDebounceFn(async (e) => {
 				break
 
 			case "validator":
-				title = data.value[i].result.moniker ? data.value[i].result.moniker : data.value[i].result.address
+				title = data.value[i].result.alias || data.value[i].result.moniker ? data.value[i].result.moniker : data.value[i].result.address
 				routerLink = `/validator/${data.value[i].result.id}`
 				break
 
@@ -970,6 +974,7 @@ const debouncedSearch = useDebounceFn(async (e) => {
 		autocompleteActions.value.push({
 			id: id(),
 			type: "callback",
+			bookmark: data.value[i].bookmark,
 			icon: data.value[i].type,
 			title: title,
 			subtitle: capitilize(data.value[i].type),

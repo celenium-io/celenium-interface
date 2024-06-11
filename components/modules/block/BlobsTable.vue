@@ -106,6 +106,7 @@ const handleViewBlob = (blob) => {
 		signer: blob.signer,
 		size: blob.size,
 		tx: blob.tx,
+		rollup: blob.rollup,
 	}
 
 	modalsStore.open("blob")
@@ -171,6 +172,7 @@ const handlePrev = () => {
 							<th><Text size="12" weight="600" color="tertiary">Share Commitments</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Size</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Version</Text></th>
+							<th><Text size="12" weight="600" color="tertiary"></Text></th>
 						</tr>
 					</thead>
 
@@ -180,25 +182,9 @@ const handlePrev = () => {
 								<NuxtLink :to="`/namespace/${blob.namespace.namespace_id}`" @click.stop>
 									<Tooltip position="start" delay="500">
 										<Flex direction="column" gap="4">
-											<Flex v-if="getNamespaceID(blob.namespace.namespace_id).length > 8" align="center" gap="8">
-												<Text size="12" weight="600" color="primary" mono>
-													{{ getNamespaceID(blob.namespace.namespace_id).slice(0, 4) }}
-												</Text>
-
-												<Flex align="center" gap="3">
-													<div v-for="dot in 3" class="dot" />
-												</Flex>
-
-												<Text size="12" weight="600" color="primary" mono>
-													{{ getNamespaceID(blob.namespace.namespace_id).slice(-4) }}
-												</Text>
-
-												<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
-											</Flex>
-
-											<Flex v-else align="center" gap="8">
-												<Text size="12" weight="600" color="primary" mono>
-													{{ space(getNamespaceID(blob.namespace.namespace_id)) }}
+											<Flex align="center" gap="8">
+												<Text size="12" weight="600" color="primary" mono class="table_column_alias">
+													{{ $getDisplayName('namespaces', blob.namespace.namespace_id) }}
 												</Text>
 
 												<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
@@ -270,7 +256,17 @@ const handlePrev = () => {
 								<Text size="13" weight="600" color="primary">{{ blob.namespace.version }}</Text>
 							</td>
 							<td style="width: 1px">
-								<Icon name="arrow-narrow-up-right" size="14" color="tertiary" />
+								<NuxtLink v-if="blob.rollup?.logo" :to="`/rollup/${blob.rollup.slug}`" @click.stop>
+									<Tooltip position="start" delay="500">
+										<Flex align="center" justify="center" :class="$style.avatar_container">
+											<img :src="blob.rollup.logo" :class="$style.avatar_image" />
+										</Flex>
+
+										<template #content>
+											{{ blob.rollup.name }}
+										</template>
+									</Tooltip>
+								</NuxtLink>
 							</td>
 						</tr>
 					</tbody>
@@ -364,6 +360,20 @@ const handlePrev = () => {
 			}
 		}
 	}
+}
+
+.avatar_container {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	overflow: hidden;
+	border-radius: 50%;
+}
+
+.avatar_image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .table.disabled {

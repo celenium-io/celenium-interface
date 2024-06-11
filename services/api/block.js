@@ -94,6 +94,8 @@ export const fetchBlockBlobs = async ({ height, limit, offset, sort }) => {
 	try {
 		const url = new URL(`${useServerURL()}/block/${height}/blobs`)
 
+		url.searchParams.append("sort_by", 'time')
+		
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 		if (sort) url.searchParams.append("sort", sort)

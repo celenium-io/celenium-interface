@@ -245,7 +245,7 @@ body {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 
-	user-select: none;
+	user-select: text;
 }
 
 *::-webkit-scrollbar {
@@ -337,4 +337,18 @@ body {
 .slide-enter-from,
 .slide-leave-to {
 	transform: translateY(-25px);
+}
+
+.table_column_alias {
+	max-width: 125px;
+
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.overflow_ellipsis {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }

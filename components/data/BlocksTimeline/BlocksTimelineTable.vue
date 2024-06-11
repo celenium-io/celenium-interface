@@ -473,16 +473,8 @@ watch(
 										<Flex align="center" gap="8">
 											<Icon name="namespace" size="12" color="secondary" />
 
-											<Text size="13" weight="600" color="primary" mono>
-												{{ getNamespaceID(ns.namespace_id).slice(0, 4) }}
-											</Text>
-
-											<Flex align="center" gap="3">
-												<div v-for="dot in 3" class="dot" />
-											</Flex>
-
-											<Text size="13" weight="600" color="primary" mono>
-												{{ getNamespaceID(ns.namespace_id).slice(-4) }}
+											<Text size="13" weight="600" color="primary" mono class="overflow_ellipsis" style="max-width: 250px">
+												{{ $getDisplayName('namespaces', ns.namespace_id) }}
 											</Text>
 										</Flex>
 

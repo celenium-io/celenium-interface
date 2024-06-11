@@ -7,6 +7,7 @@ import { fetchAddressByHash } from "@/services/api/address"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
+
 const cacheStore = useCacheStore()
 
 const route = useRoute()
@@ -78,6 +79,12 @@ useHead({
 onBeforeRouteLeave(() => {
 	cacheStore.current.address = null
 })
+
+const displayName = computed(() => {
+	const { $getDisplayName } = useNuxtApp()
+
+  	return $getDisplayName('address', address.value.hash)
+})
 </script>
 
 <template>
@@ -87,7 +94,7 @@ onBeforeRouteLeave(() => {
 			:items="[
 				{ link: '/', name: 'Explore' },
 				{ link: '/addresses', name: 'Addresses' },
-				{ link: route.fullPath, name: `${address.hash}` },
+				{ link: route.fullPath, name: `${displayName}` },
 			]"
 			:class="$style.breadcrumbs"
 		/>

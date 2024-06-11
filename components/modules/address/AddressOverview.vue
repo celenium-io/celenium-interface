@@ -1,10 +1,11 @@
 <script setup>
 /** UI */
-import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
+import BookmarkButton from "@/components/BookmarkButton.vue"
 import Button from "@/components/ui/Button.vue"
-import Popover from "@/components/ui/Popover.vue"
 import Checkbox from "@/components/ui/Checkbox.vue"
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Input from "@/components/ui/Input.vue"
+import Popover from "@/components/ui/Popover.vue"
 
 /** Components */
 import TransactionsTable from "./tables/TransactionsTable.vue"
@@ -16,7 +17,7 @@ import UndelegationsTable from "./tables/UndelegationsTable.vue"
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { comma, tia } from "@/services/utils"
+import { comma, splitAddress } from "@/services/utils"
 import { MsgTypes } from "@/services/constants/messages"
 
 /** API */
@@ -32,12 +33,8 @@ import {
 /** Store */
 import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
-import { useBookmarksStore } from "@/store/bookmarks"
-import { useNotificationsStore } from "@/store/notifications"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
-const bookmarksStore = useBookmarksStore()
-const notificationsStore = useNotificationsStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -47,13 +44,6 @@ const props = defineProps({
 		type: Object,
 		required: true,
 	},
-})
-
-const isBookmarkButtonHovered = ref(false)
-const isBookmarked = ref(false)
-const bookmarkText = computed(() => {
-	if (isBookmarkButtonHovered.value && isBookmarked.value) return "Remove"
-	return isBookmarked.value ? "Saved" : "Save"
 })
 
 const isRefetching = ref(false)
@@ -207,8 +197,6 @@ onMounted(() => {
 			tab: activeTab.value,
 		},
 	})
-
-	isBookmarked.value = !!bookmarksStore.bookmarks.addresses.find((t) => t.id === props.address.hash)
 })
 
 /** Parse route query */
@@ -509,48 +497,6 @@ watch(
 	},
 )
 
-const handleBookmark = () => {
-	if (!isBookmarked.value) {
-		bookmarksStore.bookmarks.addresses.push({
-			id: props.address.hash,
-			type: "Address",
-			ts: new Date().getTime(),
-		})
-		isBookmarked.value = true
-
-		notificationsStore.create({
-			notification: {
-				type: "success",
-				icon: "check",
-				title: "Address added to bookmarks",
-				description: "View all bookmarks on dedicated page",
-				autoDestroy: true,
-				actions: [
-					{
-						name: "Open Bookmarks",
-						callback: () => {
-							router.push("/bookmarks")
-						},
-					},
-				],
-			},
-		})
-	} else {
-		const bookmarkIdx = bookmarksStore.bookmarks.addresses.findIndex((t) => t.id === props.address.hash)
-		bookmarksStore.bookmarks.addresses.splice(bookmarkIdx, 1)
-		isBookmarked.value = false
-
-		notificationsStore.create({
-			notification: {
-				type: "success",
-				icon: "check",
-				title: "Address removed from bookmarks",
-				autoDestroy: true,
-			},
-		})
-	}
-}
-
 const handleSend = () => {
 	modalsStore.open("send")
 }
@@ -589,20 +535,10 @@ const handleOpenQRModal = () => {
 						Send
 					</Button>
 
-					<Button
-						@click="handleBookmark"
-						@mouseenter="isBookmarkButtonHovered = true"
-						@mouseleave="isBookmarkButtonHovered = false"
-						type="secondary"
-						size="mini"
-					>
-						<Icon
-							:name="isBookmarkButtonHovered && isBookmarked ? 'close' : isBookmarked ? 'bookmark-check' : 'bookmark-plus'"
-							size="12"
-							:color="isBookmarked && !isBookmarkButtonHovered ? 'green' : 'primary'"
-						/>
-						{{ bookmarkText }}
-					</Button>
+					<BookmarkButton
+						type="address"
+						:id="address.hash"
+					/>
 				</Flex>
 
 				<div class="divider_v"></div>
@@ -637,7 +573,7 @@ const handleOpenQRModal = () => {
 						<Text size="12" weight="600" color="secondary">Address</Text>
 
 						<Flex align="center" gap="10">
-							<AddressBadge :hash="address.hash" />
+							<Text size="12" weight="600" color="secondary"> {{ splitAddress(address.hash) }} </Text>
 
 							<CopyButton :text="address.hash" />
 						</Flex>

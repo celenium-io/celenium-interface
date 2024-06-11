@@ -1,3 +1,5 @@
+import { space } from "./strings.js"
+
 export const formatBytes = (bytes, decimals = 2) => {
 	if (!+bytes) return "0 Byte"
 
@@ -19,6 +21,20 @@ export const getNamespaceID = (target) => {
 	return s
 }
 
+export const getShortNamespaceID = (id) => {
+	let s = getNamespaceID(id)
+
+	if (s.length > 8) {
+		return `${s.slice(0, 4)} ••• ${s.slice(-4)}`
+	} else {
+		return space(s)
+	}
+}
+
+export const shortHash = (hash) => {
+	return `${hash.slice(0, 4).toUpperCase()} ••• ${hash.slice(-4).toUpperCase()}`
+}
+
 export const strToHex = (str) => {
 	let hex = ""
 	for (let i = 0; i < str.length; i++) {
@@ -33,6 +49,14 @@ export const strToHex = (str) => {
 export const shortHex = (hex) => {
 	if (hex.length > 16) {
 		return `${hex.slice(0, 8)} ••• ${hex.slice(-8)}`
+	} else {
+		return hex
+	}
+}
+
+export const midHex = (hex) => {
+	if (hex.length > 32) {
+		return `${hex.slice(0, 16)} ••• ${hex.slice(-16)}`
 	} else {
 		return hex
 	}
