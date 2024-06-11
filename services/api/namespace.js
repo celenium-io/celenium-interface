@@ -119,3 +119,21 @@ export const fetchBlobByMetadata = async ({ hash, height, commitment }) => {
 		console.error(error)
 	}
 }
+
+export const fetchBlobMetadata = async ({ hash, height, commitment }) => {
+	try {
+		const url = new URL(`${useServerURL()}/blob/metadata`)
+
+		const data = await useFetch(encodeURI(url.href), {
+			method: "post",
+			body: {
+				hash,
+				height,
+				commitment,
+			},
+		})
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}

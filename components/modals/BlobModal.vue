@@ -313,6 +313,16 @@ const handlePreviewContent = () => {
 			</Flex>
 
 			<Flex align="center" gap="8" :class="$style.buttons">
+				<Button
+					:link="`/blob?commitment=${cacheStore.selectedBlob.commitment}&hash=${cacheStore.selectedBlob.hash}&height=${cacheStore.selectedBlob.height}`"
+					target="_blank"
+					type="secondary"
+					size="small"
+				>
+					Open Hex Viewer
+					<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
+				</Button>
+
 				<Button @click="handleDownload" type="secondary" size="small" :disabled="isLoading">
 					<Icon name="download" size="14" color="secondary" />
 
