@@ -552,7 +552,7 @@ const handleNext = () => {
 												<Flex align="center" gap="8">
 													<Icon
 														:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
-														size="14"
+														size="13"
 														:color="tx.status === 'success' ? 'green' : 'red'"
 													/>
 
@@ -574,7 +574,7 @@ const handleNext = () => {
 											<template v-else>
 												<Flex align="center" gap="8">
 													<Icon name="tx" size="14" color="secondary" />
-													<Text size="13" weight="600" color="primary">Genesis</Text>
+													<Text size="12" weight="600" color="primary">Genesis</Text>
 												</Flex>
 											</template>
 
@@ -635,7 +635,9 @@ const handleNext = () => {
 								<td v-if="config.columns.signer" style="width: 1px">
 									<NuxtLink :to="`/tx/${tx.hash}`">
 										<Flex align="center">
-											<Text size="13" weight="600" color="primary"> {{ splitAddress(tx.signers[0]) }} </Text>
+											<Text size="12" weight="600" color="primary" mono class="table_column_alias">
+												{{ $getDisplayName('addresses', tx.signers[0]) }}
+											</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
@@ -714,7 +716,7 @@ const handleNext = () => {
 
 <style module>
 .wrapper {
-	max-width: calc(var(--base-width) + 124px);
+	max-width: calc(var(--base-width) + 48px);
 
 	padding: 40px 24px 60px 24px;
 }
@@ -826,7 +828,7 @@ const handleNext = () => {
 
 				min-height: 44px;
 
-				padding-right: 24px;
+				padding-right: 16px;
 			}
 		}
 	}

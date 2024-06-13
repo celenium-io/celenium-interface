@@ -48,10 +48,10 @@ isLoading.value = false
 							<td style="width: 1px">
 								<NuxtLink :to="`/tx/${pfb.hash}`">
 									<Tooltip position="start">
-										<Flex align="center" gap="8">
+										<Flex align="center" gap="6">
 											<Icon
 												:name="pfb.status === 'success' ? 'check-circle' : 'close-circle'"
-												size="14"
+												size="13"
 												:color="pfb.status === 'success' ? 'green' : 'red'"
 											/>
 
@@ -104,9 +104,9 @@ isLoading.value = false
 							</td>
 							<td>
 								<NuxtLink :to="`/tx/${pfb.hash}`">
-									<Flex align="center">
-										<Text size="12" weight="600" color="primary">
-											{{ splitAddress(pfb.signers[0]) }}
+									<Flex align="center" justify="center">
+										<Text size="12" weight="600" color="primary" class="table_column_alias">
+											{{ $getDisplayName('addresses', pfb.signers[0]) }}
 										</Text>
 									</Flex>
 								</NuxtLink>
@@ -153,6 +153,7 @@ isLoading.value = false
 }
 
 .pfb_body {
+	max-width: 500px;
 	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 

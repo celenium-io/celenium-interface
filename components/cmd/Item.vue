@@ -23,9 +23,13 @@ const props = defineProps({
 			</Text>
 		</Flex>
 
-		<Text v-if="action.subtitle" size="12" weight="600" color="tertiary">
-			{{ action.subtitle }}
-		</Text>
+		<Flex align="center" gap="8">
+			<Icon v-if="action.bookmark" name="bookmark-check" size="12" color="tertiary" />
+
+			<Text v-if="action.subtitle" size="12" weight="600" color="tertiary">
+				{{ action.subtitle }}
+			</Text>
+		</Flex>
 	</Flex>
 </template>
 

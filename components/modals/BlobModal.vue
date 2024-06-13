@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
-import { space, formatBytes, getNamespaceID, strToHex } from "@/services/utils"
+import { comma, formatBytes, getNamespaceID, shortHash, space, strToHex } from "@/services/utils"
 
 /** API */
 import { fetchBlobByMetadata } from "@/services/api/namespace"
@@ -254,6 +254,18 @@ const handlePreviewContent = () => {
 						</Flex>
 					</NuxtLink>
 
+					<NuxtLink :to="`/block/${cacheStore.selectedBlob.height}`" target="_blank" :class="[$style.badge, $style.selectable]">
+						<Flex direction="column" gap="8">
+							<Text size="12" weight="500" color="secondary"> Height </Text>
+
+							<Flex align="center" gap="8">
+								<Text size="13" weight="600" color="primary">{{ comma(cacheStore.selectedBlob.height) }}</Text>
+
+								<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
+							</Flex>
+						</Flex>
+					</NuxtLink>
+
 					<Flex direction="column" gap="8" :class="$style.badge">
 						<Text size="12" weight="500" color="secondary"> Size </Text>
 
@@ -269,7 +281,8 @@ const handlePreviewContent = () => {
 							<CopyButton :text="getNamespaceID(cacheStore.selectedBlob.namespace_id)" />
 
 							<Text size="13" weight="600" color="primary" :class="$style.value">
-								{{ space(getNamespaceID(cacheStore.selectedBlob.namespace_id)) }}
+								{{ $getDisplayName('namespaces', cacheStore.selectedBlob.namespace_id) }}
+								
 								<Text
 									v-if="getNamespaceID(cacheStore.selectedBlob.namespace_id) !== cacheStore.selectedBlob.namespace_name"
 									color="secondary"
@@ -287,7 +300,7 @@ const handlePreviewContent = () => {
 							<CopyButton :text="cacheStore.selectedBlob.commitment" />
 
 							<Text size="13" weight="600" color="primary" :class="$style.value">
-								{{ cacheStore.selectedBlob.commitment }}
+								{{ shortHash(cacheStore.selectedBlob.commitment) }}
 							</Text>
 						</Flex>
 					</Flex>
@@ -301,13 +314,31 @@ const handlePreviewContent = () => {
 							<NuxtLink :to="`/address/${cacheStore.selectedBlob.signer}`" target="_blank">
 								<Flex align="center" gap="6">
 									<Text size="13" weight="600" color="primary" :class="$style.value">
-										{{ cacheStore.selectedBlob.signer }}
+										{{ $getDisplayName('addresses', cacheStore.selectedBlob.signer) }}
 									</Text>
 
 									<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
 								</Flex>
 							</NuxtLink>
 						</Flex>
+					</Flex>
+
+					<Flex v-if="cacheStore.selectedBlob.rollup" align="center" justify="between" wide :class="$style.metadata">
+						<Text size="12" weight="500" color="tertiary">Rollup:</Text>
+
+						<NuxtLink :to="`/rollup/${cacheStore.selectedBlob.rollup.slug}`" target="_blank">
+							<Flex align="center" gap="6">
+								<Flex align="center" justify="center" :class="$style.avatar_container">
+									<img :src="cacheStore.selectedBlob.rollup.logo" :class="$style.avatar_image" />
+								</Flex>
+
+								<Text size="13" weight="600" color="primary" :class="$style.value">
+									{{ cacheStore.selectedBlob.rollup.name }}
+								</Text>
+
+								<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
+							</Flex>
+						</NuxtLink>
 					</Flex>
 				</Flex>
 			</Flex>
@@ -426,6 +457,20 @@ const handlePreviewContent = () => {
 	&:hover {
 		color: var(--txt-primary);
 	}
+}
+
+.avatar_container {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	overflow: hidden;
+	border-radius: 50%;
+}
+
+.avatar_image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 @media (max-width: 550px) {

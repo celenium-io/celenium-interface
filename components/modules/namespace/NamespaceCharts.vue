@@ -361,7 +361,7 @@ onBeforeUnmount(() => {
 								}}
 							</Text>
 							<Text v-else size="12" weight="600" color="tertiary">
-								{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
+								{{ DateTime.now().minus({ hours: selectedPeriod.value - 1 }).set({ minutes: 0 }).toFormat("hh:mm a") }}
 							</Text>
 
 							<Text size="12" weight="600" color="tertiary">{{ selectedPeriod.timeframe === "day" ? "Today" : "Now" }}</Text>
@@ -449,7 +449,7 @@ onBeforeUnmount(() => {
 								}}
 							</Text>
 							<Text v-else size="12" weight="600" color="tertiary">
-								{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
+								{{ DateTime.now().minus({ hours: selectedPeriod.value - 1 }).set({ minutes: 0 }).toFormat("hh:mm a") }}
 							</Text>
 
 							<Text size="12" weight="600" color="tertiary">{{ selectedPeriod.timeframe === "day" ? "Today" : "Now" }}</Text>
