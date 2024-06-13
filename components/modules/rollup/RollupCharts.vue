@@ -21,7 +21,7 @@ const props = defineProps({
 	},
 })
 
-const selectedPeriodIdx = ref(1)
+const selectedPeriodIdx = ref(0)
 const periods = ref([
 	{
 		title: "Last 24 hours",
