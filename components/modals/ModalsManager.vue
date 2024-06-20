@@ -1,6 +1,6 @@
 <script setup>
 import BlobModal from "./BlobModal.vue"
-import CommitmentModal from "./CommitmentModal.vue";
+import CommitmentModal from "./CommitmentModal.vue"
 import ConfirmationModal from "./ConfirmationModal.vue"
 import RawDataModal from "./RawDataModal.vue"
 import ConstantsModal from "./ConstantsModal.vue"
@@ -10,6 +10,7 @@ import EditBookmarkAliasModal from "./EditBookmarkAliasModal.vue"
 import SendModal from "./SendModal.vue"
 import PayForBlobModal from "./PayForBlobModal.vue"
 import AwaitingModal from "./AwaitingModal.vue"
+import ChangeBlobModal from "./ChangeBlobModal.vue"
 
 /**
  * Store
@@ -30,4 +31,5 @@ const modalsStore = useModalsStore()
 	<SendModal :show="modalsStore.modals.send" @onClose="modalsStore.close('send')" />
 	<PayForBlobModal :show="modalsStore.modals.pfb" @onClose="modalsStore.close('pfb')" />
 	<AwaitingModal :show="modalsStore.modals.awaiting" @onClose="modalsStore.close('awaiting')" />
+	<ChangeBlobModal :show="modalsStore.modals.changeBlob" @onClose="modalsStore.close('changeBlob')" />
 </template>

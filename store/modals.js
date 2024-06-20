@@ -20,6 +20,7 @@ export const useModalsStore = defineStore("modals", () => {
 		send: false,
 		pfb: false,
 		awaiting: false,
+		changeBlob: false,
 	})
 
 	const open = (target) => {

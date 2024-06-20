@@ -3,29 +3,36 @@ const props = defineProps({
 	blob: {
 		type: Object,
 	},
+	bytes: {
+		type: Array,
+	},
+	hex: {
+		type: Array,
+	},
+	range: {
+		type: Object,
+	},
 })
+const emit = defineEmits(["onSelect"])
 
 const cards = ref({
 	hex: true,
 	inspector: true,
 })
 
-const bytesEl = ref()
-const bytes = ref([])
+const viewerEl = ref()
 const scrollOffset = ref(0)
-
-const range = reactive({ start: null, end: null })
-
-const hex = ref([])
-const selectedByte = ref()
 
 const isSelecting = ref(false)
 const selectedBytes = ref([])
 
 const onKeydown = (e) => {
 	if (e.code === "Escape") {
-		range.start = null
-		range.end = null
+		emit("onSelect", [null, null])
+	}
+
+	if (e.code === "PageUp") {
+		scrollOffset.value = 0
 	}
 }
 
@@ -37,26 +44,23 @@ onBeforeUnmount(() => {
 	document.removeEventListener("keydown", onKeydown)
 })
 
-const isASCII = (str) => {
-	return /^[\x00-\x7F]*$/.test(str)
-}
-
 const onScroll = (e) => {
 	e.preventDefault()
 
-	if (bytes.value.length < 40) return
+	if (scrollOffset.value + 40 + 1 > props.hex.length && e.deltaY > 0) return
+	if (props.bytes.length < 40) return
 	if (e.deltaY < 0 && scrollOffset.value === 0) return
 	scrollOffset.value += e.deltaY > 0 ? 1 : -1
 }
 
 const onMouseEnter = (e) => {
-	bytesEl.value.addEventListener("wheel", onScroll)
+	viewerEl.value.wrapper.addEventListener("wheel", onScroll)
 }
 
 const onMouseLeave = (e) => {
 	isSelecting.value = false
 
-	bytesEl.value.removeEventListener("wheel", onScroll)
+	viewerEl.value.wrapper.removeEventListener("wheel", onScroll)
 }
 
 /** Multi-select */
@@ -64,7 +68,7 @@ const onPointerDown = (idx, byte) => {
 	isSelecting.value = true
 
 	const relativeIdx = idx + scrollOffset.value * 16
-	range.start = relativeIdx
+	emit("onSelect", [relativeIdx, undefined])
 
 	const alreadySelectedByte = selectedBytes.value.find((b) => b.idx === relativeIdx && b.value === byte)
 	if (alreadySelectedByte) {
@@ -78,13 +82,13 @@ const onPointerUp = (idx, byte) => {
 	isSelecting.value = false
 
 	const relativeIdx = idx + scrollOffset.value * 16
-	range.end = relativeIdx
+	emit("onSelect", [undefined, relativeIdx])
 }
 const onByteSelect = (idx, byte) => {
 	if (!isSelecting.value) return
 
 	const relativeIdx = idx + scrollOffset.value * 16
-	range.end = relativeIdx
+	emit("onSelect", [undefined, relativeIdx])
 
 	const alreadySelectedByte = selectedBytes.value.find((b) => b.idx === relativeIdx && b.value === byte)
 	if (alreadySelectedByte) {
@@ -96,53 +100,29 @@ const onByteSelect = (idx, byte) => {
 }
 const isSelected = (idx) => {
 	const relativeIdx = idx + scrollOffset.value * 16
-	if (range.start <= range.end) {
-		return relativeIdx >= range.start && relativeIdx <= range.end
+	if (props.range.start <= props.range.end) {
+		return relativeIdx >= props.range.start && relativeIdx <= props.range.end
 	} else {
-		return relativeIdx >= range.end && relativeIdx <= range.start
+		return relativeIdx >= props.range.end && relativeIdx <= props.range.start
 	}
-}
-
-watch(
-	() => props.blob,
-	() => {
-		if (!props.blob?.data) return
-
-		hex.value = Buffer.from(props.blob.data, "base64")
-			.toString("hex")
-			.match(/../g)
-			.reduce((acc, current, idx) => {
-				const chunkIdx = Math.floor(idx / 16)
-				acc[chunkIdx] = acc[chunkIdx] || []
-				acc[chunkIdx].push(current)
-				return acc
-			}, [])
-
-		bytes.value = hex.value.flat()
-	},
-	{
-		immediate: true,
-	},
-)
-
-const hexToUint8Array = (hex) => {
-	const arr = []
-	for (let i = 0; i < hex.length; i += 2) {
-		arr.push(parseInt(hex.substr(i, 2), 16))
-	}
-	return new Uint8Array(arr)
 }
 </script>
 
 <template>
-	<Flex wide direction="column" gap="16">
-		<Flex direction="column" gap="16" :class="$style.wrapper">
-			<Flex @click="cards.hex = !cards.hex" align="center" justify="between" :class="$style.header">
-				<Text size="13" weight="600" color="primary">Hex Viewer</Text>
-				<Icon name="chevron" size="14" color="tertiary" :style="{ transform: `rotate(${cards.hex ? '180deg' : '0'})` }" />
-			</Flex>
+	<Flex direction="column" gap="16" :class="$style.wrapper">
+		<Flex @click="cards.hex = !cards.hex" align="center" justify="between" :class="$style.header">
+			<Text size="13" weight="600" color="primary">Hex Viewer</Text>
+			<Icon name="chevron" size="14" color="tertiary" :style="{ transform: `rotate(${cards.hex ? '180deg' : '0'})` }" />
+		</Flex>
 
-			<Flex v-if="cards.hex && hex" justify="between" :class="$style.content">
+		<Flex v-if="cards.hex" ref="viewerEl" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" justify="between">
+			<Flex gap="6">
+				<Flex direction="column" :class="$style.row_labels">
+					<Text v-for="i in 40" size="12" weight="600" color="support" mono :class="$style.row_label">
+						{{ (i * (scrollOffset + 1)).toString(16).padStart(6, "0") }}
+					</Text>
+				</Flex>
+
 				<Flex direction="column">
 					<Flex align="center" :class="$style.labels">
 						<Text v-for="(column, columnIdx) in 16" size="12" weight="600" color="support" mono :class="[$style.label]">
@@ -150,7 +130,7 @@ const hexToUint8Array = (hex) => {
 						</Text>
 					</Flex>
 
-					<div ref="bytesEl" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" :class="$style.bytes">
+					<div :class="$style.bytes">
 						<Text
 							v-for="i in 640"
 							@pointerdown="() => onPointerDown(i, bytes[i - 1 + scrollOffset * 16])"
@@ -167,7 +147,10 @@ const hexToUint8Array = (hex) => {
 						</Text>
 					</div>
 				</Flex>
+			</Flex>
 
+			<Flex direction="column">
+				<Text size="12" weight="600" color="support" mono style="line-height: 22px">ASCII</Text>
 				<div :class="$style.ascii_preview">
 					<Text v-for="i in 640" size="11" weight="600" color="tertiary" :class="[$style.char, isSelected(i) && $style.selected]">
 						<template v-if="bytes[i - 1 + scrollOffset * 16] !== '00'">
@@ -177,73 +160,13 @@ const hexToUint8Array = (hex) => {
 					</Text>
 				</div>
 			</Flex>
-		</Flex>
 
-		<Flex direction="column" gap="16" :class="$style.wrapper">
-			<Flex @click="cards.inspector = !cards.inspector" align="center" justify="between" :class="$style.header">
-				<Text size="13" weight="600" color="primary">Data Inspector</Text>
-				<Icon name="chevron" size="14" color="tertiary" :style="{ transform: `rotate(${cards.inspector ? '180deg' : '0'})` }" />
-			</Flex>
-
-			<Flex v-if="cards.inspector" :class="$style.content">
-				<table>
-					<tbody>
-						<tr>
-							<td>
-								<Text size="13" weight="600" color="tertiary">Name</Text>
-							</td>
-							<td>
-								<Text size="13" weight="600" color="tertiary">Value</Text>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<Text size="13" weight="600" color="secondary" mono>Binary</Text>
-							</td>
-							<td>
-								<Text v-if="range.start" size="13" weight="600" color="primary" mono>{{
-									bytes[range.start].toString(2).padStart(8, "0")
-								}}</Text>
-								<Text v-else size="13" weight="600" color="tertiary" mono>No bytes selected</Text>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<Text size="13" weight="600" color="secondary" mono>uint8</Text>
-							</td>
-							<td>
-								<Text v-if="range.start" size="13" weight="600" color="primary" mono>
-									{{ hexToUint8Array(bytes[range.start]) }}
-								</Text>
-								<Text v-else size="13" weight="600" color="tertiary" mono>No bytes selected</Text>
-							</td>
-						</tr>
-						<tr>
-							<td :class="$style.no_border">
-								<Text size="13" weight="600" color="secondary" mono>ASCII Character</Text>
-							</td>
-							<td :class="$style.no_border">
-								<Text v-if="range.start < range.end" size="13" weight="600" color="primary" mono :class="$style.one_line">
-									{{
-										bytes
-											.slice(range.start - 1, range.end)
-											.map((byte) => String.fromCharCode(parseInt(byte, 16)))
-											.join("")
-									}}
-								</Text>
-								<Text v-if="range.start > range.end" size="13" weight="600" color="primary" mono :class="$style.one_line">
-									{{
-										bytes
-											.slice(range.end - 1, range.start)
-											.map((byte) => String.fromCharCode(parseInt(byte, 16)))
-											.join("")
-									}}
-								</Text>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</Flex>
+			<div :class="$style.scrollbar">
+				<div
+					:style="{ height: `${(40 * 100) / hex.length}%`, top: `${(scrollOffset * 100) / hex.length}%` }"
+					:class="$style.thumb"
+				/>
+			</div>
 		</Flex>
 	</Flex>
 </template>
@@ -268,62 +191,6 @@ const hexToUint8Array = (hex) => {
 
 	&:hover {
 		background: var(--op-5);
-	}
-}
-
-.content {
-	& table {
-		max-width: 100%;
-		width: 100%;
-
-		border-radius: 6px;
-		box-shadow: inset 0 0 0 2px var(--op-5);
-
-		& tbody {
-			& tr {
-				& td {
-					max-width: 400px;
-					overflow: hidden;
-					text-overflow: ellipsis;
-					color: var(--txt-tertiary);
-
-					border-bottom: 2px solid var(--op-5);
-
-					padding: 6px 8px;
-
-					&:last-of-type {
-						border-left: 2px solid var(--op-5);
-					}
-
-					&.no_border {
-						border-bottom: none;
-					}
-				}
-			}
-		}
-	}
-}
-
-.ascii_preview {
-	display: flex;
-	flex-wrap: wrap;
-
-	max-width: 176px;
-
-	margin-top: 22px;
-
-	& span {
-		width: 11px;
-		max-width: 11px;
-		max-height: 20px;
-
-		line-height: 20px;
-		text-align: center;
-
-		&.selected {
-			color: var(--txt-primary);
-			background: var(--op-5);
-		}
 	}
 }
 
@@ -375,26 +242,55 @@ const hexToUint8Array = (hex) => {
 	}
 }
 
-.idxRow {
-	min-width: 70px;
+.row_labels {
+	margin-top: 22px;
 }
 
-.value {
+.row_label {
+	line-height: 20px;
+	text-transform: uppercase;
+}
+
+.ascii_preview {
+	display: flex;
+	flex-wrap: wrap;
+
+	max-width: 176px;
+
+	& span {
+		width: 11px;
+		max-width: 11px;
+		max-height: 20px;
+
+		line-height: 20px;
+		text-align: center;
+
+		&.selected {
+			color: var(--txt-primary);
+			background: var(--op-5);
+		}
+	}
+}
+
+.scrollbar {
+	position: relative;
+
+	width: 4px;
+	height: 100%;
+	overflow: hidden;
+
+	border-radius: 50px;
+	background: var(--op-5);
+}
+
+.thumb {
+	position: absolute;
+
+	width: 4px;
+	height: 10px;
+
+	border-radius: 50px;
+	background: var(--op-20);
 	cursor: pointer;
-
-	transition: all 0.2s ease;
-
-	&:hover {
-		color: var(--txt-primary);
-		background: var(--op-10);
-	}
-
-	&:nth-child(9) {
-		margin-right: 10px;
-	}
-}
-
-.one_line {
-	white-space: nowrap;
 }
 </style>
