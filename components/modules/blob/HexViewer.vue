@@ -49,7 +49,10 @@ const onScroll = (e) => {
 
 	if (scrollOffset.value + 40 + 1 > props.hex.length && e.deltaY > 0) return
 	if (props.bytes.length < 40) return
-	if (e.deltaY < 0 && scrollOffset.value === 0) return
+	if (e.deltaY < 0 && scrollOffset.value <= 0) {
+		if (scrollOffset.value < 0) scrollOffset.value = 0
+		return
+	}
 	scrollOffset.value += e.deltaY > 0 ? 1 : -1
 }
 
@@ -119,7 +122,7 @@ const isSelected = (idx) => {
 			<Flex gap="6">
 				<Flex direction="column" :class="$style.row_labels">
 					<Text v-for="i in 40" size="12" weight="600" color="support" mono :class="$style.row_label">
-						{{ (i * (scrollOffset + 1)).toString(16).padStart(6, "0") }}
+						{{ (i + scrollOffset).toString(16).padStart(6, "0") }}
 					</Text>
 				</Flex>
 
