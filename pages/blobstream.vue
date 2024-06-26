@@ -23,29 +23,29 @@ useHead({
 	link: [
 		{
 			rel: "canonical",
-			href: "https://celenium.io/addresses",
+			href: "https://celenium.io/blobstream",
 		},
 	],
 	meta: [
 		{
 			name: "description",
-			content: "Blobstream in the Celestia Blockchain. Hash, balance, first height, last height are shown.",
+			content: "Blobstream in the Celestia Blockchain. Commitments, transactions, L1 info.",
 		},
 		{
 			property: "og:title",
-			content: "Addresses - Celestia Explorer",
+			content: "Blobstream - Celestia Explorer",
 		},
 		{
 			property: "og:description",
-			content: "Blobstream in the Celestia Blockchain. Hash, balance, first height, last height are shown.",
+			content: "Blobstream in the Celestia Blockchain. Commitments, transactions, L1 info.",
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io/addresses`,
+			content: `https://celenium.io/blobstream`,
 		},
 		{
 			property: "og:image",
-			content: "/img/seo/addresses.png",
+			content: "/img/seo/blobstream.png",
 		},
 		{
 			name: "twitter:title",
@@ -53,7 +53,7 @@ useHead({
 		},
 		{
 			name: "twitter:description",
-			content: "Blobstream in the Celestia Blockchain. Hash, balance, first height, last height are shown.",
+			content: "Blobstream in the Celestia Blockchain. Commitments, transactions, L1 info.",
 		},
 		{
 			name: "twitter:card",
@@ -61,7 +61,7 @@ useHead({
 		},
 		{
 			name: "twitter:image",
-			content: "https://celenium.io/img/seo/addresses.png",
+			content: "https://celenium.io/img/seo/blobstream.png",
 		},
 	],
 })
