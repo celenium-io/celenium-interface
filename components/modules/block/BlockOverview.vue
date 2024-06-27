@@ -262,6 +262,10 @@ watch(
 	},
 )
 
+const handleViewODSBlock = () => {
+	modalsStore.open("ods")
+}
+
 const handleViewRawBlock = () => {
 	cacheStore.current._target = "block"
 	modalsStore.open("rawData")
@@ -301,6 +305,11 @@ const handleViewRawTransactions = () => {
 			</Flex>
 
 			<Flex align="center" gap="12">
+				<Button v-if="block.stats.tx_count" @click="handleViewODSBlock" type="secondary" size="mini">
+					<Icon name="ods" size="12" color="primary" />
+					ODS
+				</Button>
+
 				<BookmarkButton
 					type="block"
 					:id="block.height"

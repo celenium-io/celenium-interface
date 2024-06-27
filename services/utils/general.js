@@ -21,6 +21,12 @@ export const getNamespaceID = (target) => {
 	return s
 }
 
+export const getNamespaceIDFromBase64 = (target) => {
+	let s = base64ToHex(target)
+
+	return s.substring(2)
+}
+
 export const getShortNamespaceID = (id) => {
 	let s = getNamespaceID(id)
 
@@ -115,4 +121,19 @@ export function reverseMapping(obj) {
 		reversedObj[value] = key
 	})
 	return reversedObj
+}
+
+export function base64ToHex(base64) {
+	const raw = atob(base64)
+	let hex = ''
+
+	for (let i = 0; i < raw.length; i++) {
+		let hexByte = raw.charCodeAt(i).toString(16)
+		if (hexByte.length === 1) {
+			hexByte = '0' + hexByte
+		}
+		hex += hexByte
+	}
+
+	return hex
 }

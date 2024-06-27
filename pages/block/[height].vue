@@ -97,7 +97,7 @@ const displayName = computed(() => {
 			:items="[
 				{ link: '/', name: 'Explore' },
 				{ link: '/blocks', name: 'Blocks' },
-				{ link: route.fullPath, name: `${displayName}` },
+				{ link: route.fullPath, name: `${comma(displayName)}` },
 			]"
 			:class="$style.breadcrumbs"
 		/>
