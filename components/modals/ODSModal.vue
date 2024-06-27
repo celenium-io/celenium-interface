@@ -7,10 +7,11 @@ import { fetchBlockODS } from "@/services/api/block"
 
 /** UI */
 import Modal from "@/components/ui/Modal.vue"
+import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
 import amp from "@/services/amp"
-import { base64ToHex, capitalizeAndReplaceUnderscore, comma, getNamespaceIDFromBase64 } from "@/services/utils";
+import { capitalizeAndReplaceUnderscore, comma, getNamespaceIDFromBase64, shortHex } from "@/services/utils";
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
@@ -46,6 +47,7 @@ const cellSize = computed(() => {
 	}
 })
 const svgWidth = computed(() => blockODS.value?.width ? cellSize.value * blockODS.value?.width : 0)
+const modalWidth = computed(() => svgWidth.value ? svgWidth.value + 250 : 350)
 
 function generateCells(item, width) {
     const cells = []
@@ -103,7 +105,7 @@ function getColor(item) {
 }
 
 const data = computed(() => {
-	if (blockODS.value) {
+	if (blockODS.value.items) {
 		blockODS.value.items.forEach(item => {
 			item.cells = generateCells(item, blockODS.value.width)
 			item.color = getColor(item)
@@ -181,7 +183,7 @@ function dimOthers(index) {
 	const elements = document.querySelectorAll('.ods_group')
 	elements.forEach(el => {
 		if (el.getAttribute('data-index') !== index.toString()) {
-			el.style.filter = "brightness(0.7)"
+			el.style.filter = "brightness(0.5)"
 		}
 	})
 }
@@ -206,7 +208,7 @@ function getNamespaceName(item) {
 
 			return $getDisplayName('namespaces', getNamespaceIDFromBase64(item.namespace))
 		default:
-			return item.namespace
+			return shortHex(item.namespace)
 	}
 }
 
@@ -214,6 +216,8 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
+			amp.log("showODSModal")
+			blockODS.value = {}
 			nextTick(async () => {
 				isLoading.value = true
 				blockODS.value = await fetchBlockODS(cacheStore.current.block.height)
@@ -225,25 +229,23 @@ watch(
 </script>
 
 <template>
-	<Modal :show="show" @onClose="emit('onClose')" :width="svgWidth + 400" disable-trap>
-		<Flex direction="column" gap="24" class="ods_wrap">
-			<Text size="14" weight="600" color="primary">Original Data Square</Text>
+	<Modal :show="show" @onClose="emit('onClose')" :width="modalWidth" disable-trap>
+		<Flex direction="column" gap="24">
+			<Flex align="center" gap="6" :class="$style.legend_header">
+				<Icon name="ods" size="14" color="secondary" />
+				<Text size="14" weight="600" color="primary">Original Data Square</Text>
+				<Text size="14" weight="600" color="primary">{{ comma(cacheStore.current.block.height) }}</Text>
+				<CopyButton :text="cacheStore.current.block.height" size="12" />
+			</Flex>
 
-			<Flex align="start" justify="beetwen" gap="12">
-				<Flex ref="svgEl" :class="$style.svg"/>
+			<Flex v-if="isLoading" align="center" justify="center" gap="8" wide :style="{ paddingTop: '16px' }">
+				<Spinner size="14" />
 
+				<Text size="13" weight="500" color="secondary"> Loading ODS </Text>
+			</Flex>
+
+			<Flex align="start" justify="between" wide>
 				<Flex align="start" direction="column" gap="12">
-					<Flex align="center" justify="start" wide>
-						<Flex align="center" gap="6" :class="$style.legend_header">
-							<Icon name="block" size="14" color="secondary" />
-							<Text size="12" weight="600" color="primary"> Height </Text>
-							<Text size="12" weight="600" color="primary">{{ comma(cacheStore.current.block.height) }}</Text>
-							<CopyButton :text="cacheStore.current.block.height" size="10" />
-						</Flex>
-					</Flex>
-
-					<div :class="$style.horizontal_divider" />
-
 					<Flex v-for="(item, index) in data?.items"
 						@click="handleGroupClick(item)"
 						@mouseover="highlight(index)"
@@ -262,16 +264,14 @@ watch(
 						</Flex>
 					</Flex>
 				</Flex>
+
+				<Flex ref="svgEl" />
 			</Flex>
 		</Flex>
 	</Modal>
 </template>
 
 <style module>
-.svg {
-	padding-top: 28px;
-}
-
 .legend_header {
 	width: 100%;
 }

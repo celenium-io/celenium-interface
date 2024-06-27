@@ -305,7 +305,7 @@ const handleViewRawTransactions = () => {
 			</Flex>
 
 			<Flex align="center" gap="12">
-				<Button v-if="block.stats.tx_count" @click="handleViewODSBlock" type="secondary" size="mini">
+				<Button v-if="block.stats.tx_count" @click="handleViewODSBlock" type="secondary" size="mini" :class="$style.ods_btn">
 					<Icon name="ods" size="12" color="primary" />
 					ODS
 				</Button>
@@ -417,7 +417,7 @@ const handleViewRawTransactions = () => {
 							<Text size="12" weight="600" color="secondary"> {{ block.stats.tx_count }} </Text>
 						</Flex>
 						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary"> Total Fees </Text>
+							<Text size="12" weight="600" color="tertiary"> Transactions Fee </Text>
 							<AmountInCurrency
 								:amount="{ value: block.stats.fee, decimal: 6 }"
 								:styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }"
@@ -426,6 +426,10 @@ const handleViewRawTransactions = () => {
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Bytes in block </Text>
 							<Text size="12" weight="600" color="secondary"> {{ formatBytes(block.stats.bytes_in_block) }}</Text>
+						</Flex>
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary"> Square size </Text>
+							<Text size="12" weight="600" color="secondary"> {{ block.stats.square_size }}</Text>
 						</Flex>
 					</Flex>
 				</Flex>
@@ -924,6 +928,12 @@ const handleViewRawTransactions = () => {
 
 .pagination {
 	padding: 8px 16px 16px 16px;
+}
+
+@media (max-width: 1000px) {
+	.ods_btn {
+		display: none;
+	}
 }
 
 @media (max-width: 800px) {
