@@ -857,7 +857,7 @@ const handleViewRawTransactions = () => {
 			text-align: left;
 			padding: 0;
 			padding-right: 16px;
-			padding-top: 4px;
+			padding-top: 8px;
 			padding-bottom: 8px;
 
 			&:first-child {
@@ -905,7 +905,7 @@ const handleViewRawTransactions = () => {
 .filters {
 	border-bottom: 1px dashed var(--op-8);
 
-	padding: 12px 8px 12px 8px;
+	padding: 4px 8px 6px 8px;
 }
 
 .empty {
