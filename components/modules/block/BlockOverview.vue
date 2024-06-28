@@ -305,7 +305,7 @@ const handleViewRawTransactions = () => {
 			</Flex>
 
 			<Flex align="center" gap="12">
-				<Button v-if="block.stats.tx_count" @click="handleViewODSBlock" type="secondary" size="mini" :class="$style.ods_btn">
+				<Button @click="handleViewODSBlock" type="secondary" size="mini" :class="$style.ods_btn">
 					<Icon name="ods" size="12" color="primary" />
 					ODS
 				</Button>
