@@ -28,6 +28,7 @@ const svgEl = ref()
 const blockODS = ref()
 const cellSize = computed(() => {
 	switch (blockODS.value.width) {
+		case 1:
 		case 2:
 			return 40
 		case 4:
