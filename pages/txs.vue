@@ -3,12 +3,13 @@
 import { DateTime } from "luxon"
 
 /** UI */
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 import Button from "@/components/ui/Button.vue"
-import Tooltip from "@/components/ui/Tooltip.vue"
+import Checkbox from "@/components/ui/Checkbox.vue"
+import DatePicker from "@/components/DatePicker.vue"
 import Input from "@/components/ui/Input.vue"
 import Popover from "@/components/ui/Popover.vue"
-import Checkbox from "@/components/ui/Checkbox.vue"
-import AmountInCurrency from "@/components/AmountInCurrency.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
@@ -463,6 +464,8 @@ const handleNext = () => {
 							</Flex>
 						</template>
 					</Popover>
+
+					<DatePicker />
 				</Flex>
 
 				<Popover :open="isConfigurePopoverOpen" @on-close="isConfigurePopoverOpen = false" width="150" side="right">
