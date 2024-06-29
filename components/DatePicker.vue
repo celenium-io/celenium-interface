@@ -131,11 +131,11 @@ const handleMonthChange = (v) => {
 
 			<Text color="secondary">Date Range</Text>
 
-			<template v-if="startDate.ts">
+			<template v-if="from">
 				<div :class="$style.vertical_divider" />
 
 				<Text size="12" weight="600" color="primary">
-					{{ endDate.ts ? `${startDate.toFormat('LLL dd')} - ${endDate.toFormat('LLL dd')}` : startDate.toFormat('LLL dd') }}
+					{{ (endDate.ts && startDate.toFormat('LLL dd') !== endDate?.toFormat('LLL dd')) ? `${startDate.toFormat('LLL dd')} - ${endDate.toFormat('LLL dd')}` : startDate.toFormat('LLL dd') }}
 				</Text>
 
 				<Icon @click.stop="handleClear" name="close-circle" size="12" color="secondary" />

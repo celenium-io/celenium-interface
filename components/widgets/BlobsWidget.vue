@@ -11,6 +11,8 @@ import { formatBytes } from "@/services/utils"
 /** API */
 import { fetchSeries } from "@/services/api/stats"
 
+const router = useRouter()
+
 const days = ref([])
 const weeks = ref([])
 
@@ -80,6 +82,12 @@ const calculateOpacity = (val) => {
 
 	return opacity
 }
+
+const selectDay = (d) => {
+	let from = parseInt(DateTime.fromISO(d.time).startOf('day').ts / 1_000)
+	let to = parseInt(DateTime.fromISO(d.time).endOf('day').ts / 1_000)
+	router.push(`/txs?message_type=MsgPayForBlobs&from=${from}&to=${to}`)
+}
 </script>
 
 <template>
@@ -102,6 +110,7 @@ const calculateOpacity = (val) => {
 			<Flex v-for="week in weeks" direction="column" justify="between">
 				<Tooltip v-for="day in week" :disabled="!day">
 					<Flex
+						@click="selectDay(day)"
 						:class="[$style.day, day?.value > 0 && $style.shadow]"
 						:style="{
 							background: parseInt(day?.value) > 0 ? `rgb(10, 219, 111)` : 'var(--op-10)',
