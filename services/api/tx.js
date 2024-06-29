@@ -1,16 +1,18 @@
 /** Services */
 import { useServerURL } from "@/services/config"
 
-export const fetchTransactions = async ({ limit, offset, sort, sort_by, msg_type, status }) => {
+export const fetchTransactions = async ({ msg_type, status, from, to, limit, offset, sort_by, sort }) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx`)
 
-		if (limit) url.searchParams.append("limit", limit)
-		if (offset) url.searchParams.append("offset", offset)
 		if (msg_type) url.searchParams.append("msg_type", msg_type)
 		if (status) url.searchParams.append("status", status)
-		if (sort) url.searchParams.append("sort", sort)
+		if (from) url.searchParams.append("from", from)
+		if (to) url.searchParams.append("to", to)
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
 		if (sort_by) url.searchParams.append("sort_by", sort_by)
+		if (sort) url.searchParams.append("sort", sort)
 
 		const data = await useFetch(url.href)
 		return data

@@ -4,20 +4,24 @@ import { DateTime, Info } from "luxon"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
-import Input from "@/components/ui/Input.vue"
 import Popover from "@/components/ui/Popover.vue"
 
 const props = defineProps({
-	color: {
+	from: {
 		type: String,
-		default: "primary"
+		default: '',
 	},
+	to: {
+		type: String,
+		default: '',
+	}
 })
 
+const emit = defineEmits(["onUpdate"])
 const month = ref(DateTime.now().month)
 const year = ref(DateTime.now().year)
-const startDate = ref({})
-const endDate = ref({})
+const startDate = ref(props.from ? DateTime.fromSeconds(parseInt(props.from)) : {})
+const endDate = ref(props.to ? DateTime.fromSeconds(parseInt(props.to)) : {})
 const weekdays = ref(Info.weekdays('narrow', { locale: 'en-US' }))
 const days = computed(() => {
 	let rawDays = []
@@ -84,26 +88,24 @@ const isInSelectedPeriod = (d) => {
 const isOpen = ref(false)
 const handleOpen = () => {
 	isOpen.value = true
-
-	// if (Object.keys(filters.message_type).find((f) => filters.message_type[f])) {
-	// 	savedFiltersBeforeChanges.value = { ...filters.message_type }
-	// }
 }
 const handleClose = () => {
 	isOpen.value = false
-
-	// searchTerm.value = ""
-
-	// if (savedFiltersBeforeChanges.value) {
-	// 	filters.message_type = savedFiltersBeforeChanges.value
-	// 	savedFiltersBeforeChanges.value = null
-	// } else {
-	// 	resetFilters("message_type")
-	// }
 }
 
 const handleApply = () => {
+	emit('onUpdate', { from: parseInt(startDate.value.ts / 1_000), to: parseInt((endDate.value.ts ? endDate.value.ts : startDate.value.endOf('day').ts) / 1_000) })
 
+	isOpen.value = false
+}
+
+const handleClear = () => {
+	startDate.value = {}
+	endDate.value = {}
+
+	emit('onUpdate', { clear: true })
+
+	isOpen.value = false
 }
 
 const handleMonthChange = (v) => {
@@ -128,6 +130,16 @@ const handleMonthChange = (v) => {
 			<Icon name="plus-circle" size="12" color="tertiary" />
 
 			<Text color="secondary">Date Range</Text>
+
+			<template v-if="startDate.ts">
+				<div :class="$style.vertical_divider" />
+
+				<Text size="12" weight="600" color="primary">
+					{{ endDate.ts ? `${startDate.toFormat('LLL dd')} - ${endDate.toFormat('LLL dd')}` : startDate.toFormat('LLL dd') }}
+				</Text>
+
+				<Icon @click.stop="handleClear" name="close-circle" size="12" color="secondary" />
+			</template>
 		</Button>
 
 		<template #content>
@@ -193,6 +205,12 @@ const handleMonthChange = (v) => {
 </template>
 
 <style module>
+.vertical_divider {
+	min-width: 2px;
+	height: 12px;
+	background: var(--op-10);
+}
+
 .table {
 	transition: all 0.2s ease;
 
