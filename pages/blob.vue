@@ -50,6 +50,8 @@ useHead({
 const route = useRoute()
 const router = useRouter()
 
+const innerWidth = ref(0)
+
 const currTab = ref("viewer")
 
 const cards = ref({
@@ -87,7 +89,16 @@ cacheStore.current.blob = {
 	hash,
 	height,
 }
-console.log(cacheStore.current.blob)
+
+onMounted(() => {
+	if (!supportedContentTypeForPreview.includes(blob.content_type)) cards.value.preview = false
+
+	innerWidth.value = window.innerWidth
+	if (innerWidth.value <= 1020) {
+		currTab.value = "metadata"
+		cards.value.raw = false
+	}
+})
 
 const init = async (fromCache = false) => {
 	const { hash, height, commitment } = fromCache ? cacheStore.current.blob : route.query
@@ -196,209 +207,233 @@ const handleCopy = (text) => {
 			</Flex>
 		</Flex>
 
-		<Flex v-if="currTab === 'viewer'" gap="16">
-			<Flex direction="column" gap="16" :class="$style.left">
-				<ClientOnly>
-					<HexViewer v-if="blob" :blob="blob" :bytes="bytes" :hex="hex" :range="range" @onSelect="handleBytesSelect" />
-				</ClientOnly>
-			</Flex>
-
-			<Flex direction="column" gap="16" :class="$style.right">
-				<DataInspector :bytes="bytes" :range="range" />
-
-				<Tooltip>
-					<Flex align="center" gap="6" style="padding: 0 16px">
-						<Icon name="info" size="12" color="support" />
-						<Text size="12" weight="500" color="support">This page supports several keybinds</Text>
+		<ClientOnly>
+			<Flex v-if="currTab === 'viewer'" gap="16">
+				<template v-if="innerWidth >= 1020">
+					<Flex direction="column" gap="16" :class="$style.left">
+						<ClientOnly>
+							<HexViewer v-if="blob" :blob="blob" :bytes="bytes" :hex="hex" :range="range" @onSelect="handleBytesSelect" />
+						</ClientOnly>
 					</Flex>
 
-					<template #content>
-						<Flex direction="column" gap="8" align="center">
-							<Flex align="center" gap="6"> <Text color="tertiary">Clear selection - </Text> <Text mono>Esc</Text> </Flex>
-							<Flex align="center" gap="6"> <Text color="tertiary">Jump to start - </Text> <Text mono>PageUp</Text> </Flex>
-						</Flex>
-					</template>
-				</Tooltip>
-			</Flex>
-		</Flex>
+					<Flex direction="column" gap="16" :class="$style.right">
+						<DataInspector :bytes="bytes" :range="range" />
 
-		<Flex v-else-if="currTab === 'metadata'" gap="16">
-			<Flex direction="column" gap="16" :class="$style.left">
-				<Flex direction="column" gap="16" :class="$style.card">
-					<Flex @click="cards.raw = !cards.raw" align="center" justify="between" :class="$style.header">
-						<Flex align="center" gap="8">
-							<Text size="13" weight="600" color="primary"> Raw Content </Text>
-							<Text @click.stop="handleCopy(blob.data)" size="13" weight="600" color="blue"> Copy </Text>
-						</Flex>
+						<Tooltip>
+							<Flex align="center" gap="6" style="padding: 0 16px">
+								<Icon name="info" size="12" color="support" />
+								<Text size="12" weight="500" color="support">This page supports several keybinds</Text>
+							</Flex>
 
-						<Icon name="chevron" size="14" color="tertiary" :style="{ transform: `rotate(${cards.raw ? '180deg' : '0'})` }" />
-					</Flex>
-
-					<Text v-if="cards.raw" size="13" color="secondary" height="140" class="selectable" :class="$style.raw_content">
-						{{ blob.data }}
-					</Text>
-				</Flex>
-			</Flex>
-
-			<Flex direction="column" gap="16" :class="$style.right">
-				<Flex v-if="metadata.commitment" direction="column" gap="16" :class="$style.card">
-					<Flex @click="cards.metadata = !cards.metadata" align="center" justify="between" :class="$style.header">
-						<Text size="13" weight="600" color="primary">Blob Metadata</Text>
-						<Icon
-							name="chevron"
-							size="14"
-							color="tertiary"
-							:style="{ transform: `rotate(${cards.metadata ? '180deg' : '0'})` }"
-						/>
-					</Flex>
-
-					<Flex v-if="cards.metadata" direction="column" gap="24" :class="$style.data">
-						<Flex direction="column" gap="16">
-							<NuxtLink :to="`/namespace/${metadata.namespace.namespace_id}`" target="_blank">
-								<Flex justify="between" :class="$style.namespace">
-									<Flex direction="column" gap="8">
-										<Text size="12" weight="600" color="secondary">Namespace</Text>
-										<Text size="13" weight="600" color="primary">{{ space(metadata.namespace.name) }}</Text>
-
-										<Text size="12" weight="500" color="tertiary">
-											{{ formatBytes(metadata.namespace.size) }}&nbsp;&nbsp;•&nbsp;&nbsp;{{
-												comma(metadata.namespace.pfb_count)
-											}}
-											PFBs
-										</Text>
+							<template #content>
+								<Flex direction="column" gap="8" align="center">
+									<Flex align="center" gap="6">
+										<Text color="tertiary">Clear selection - </Text> <Text mono>Esc</Text>
 									</Flex>
-
-									<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
+									<Flex align="center" gap="6">
+										<Text color="tertiary">Jump to start - </Text> <Text mono>PageUp</Text>
+									</Flex>
 								</Flex>
-							</NuxtLink>
+							</template>
+						</Tooltip>
+					</Flex>
+				</template>
+				<template v-else>
+					<Text size="13" weight="500" color="tertiary"
+						>Hex viewer is not available on your screen, use a desktop or tablet.</Text
+					>
+				</template>
+			</Flex>
 
-							<Flex align="center" justify="between">
-								<Text size="12" weight="600" color="tertiary"> Content Type </Text>
-								<Text size="12" weight="600" color="primary">
-									{{ metadata.content_type }}
-								</Text>
+			<Flex v-else-if="currTab === 'metadata' && blob" gap="16" :class="$style.metadata">
+				<Flex direction="column" gap="16" :class="$style.left">
+					<Flex direction="column" gap="16" :class="$style.card">
+						<Flex @click="cards.raw = !cards.raw" align="center" justify="between" :class="$style.header">
+							<Flex align="center" gap="8">
+								<Text size="13" weight="600" color="primary"> Raw Content </Text>
+								<Text @click.stop="handleCopy(blob.data)" size="13" weight="600" color="blue"> Copy </Text>
 							</Flex>
 
-							<Flex align="center" justify="between">
-								<Text size="12" weight="600" color="tertiary"> Blob Size </Text>
-								<Text size="12" weight="600" color="primary">
-									{{ formatBytes(metadata.size) }}
-								</Text>
-							</Flex>
-
-							<Flex align="center" justify="between">
-								<Text size="12" weight="600" color="tertiary"> Time </Text>
-								<Text size="12" weight="600" color="primary">
-									{{ DateTime.fromISO(metadata.time).setLocale("en").toRelative() }}
-								</Text>
-							</Flex>
+							<Icon
+								name="chevron"
+								size="14"
+								color="tertiary"
+								:style="{ transform: `rotate(${cards.raw ? '180deg' : '0'})` }"
+							/>
 						</Flex>
 
-						<div :class="$style.divider" />
+						<Text v-if="cards.raw" size="13" color="secondary" height="140" class="selectable" :class="$style.raw_content">
+							{{ blob.data }}
+						</Text>
+					</Flex>
+				</Flex>
 
-						<Flex align="center" gap="12" justify="between">
-							<Flex direction="column" gap="8" wide>
-								<Text size="12" weight="600" color="secondary"> Transaction </Text>
+				<Flex direction="column" gap="16" :class="$style.right">
+					<Flex v-if="metadata.commitment" direction="column" gap="16" :class="$style.card">
+						<Flex @click="cards.metadata = !cards.metadata" align="center" justify="between" :class="$style.header">
+							<Text size="13" weight="600" color="primary">Blob Metadata</Text>
+							<Icon
+								name="chevron"
+								size="14"
+								color="tertiary"
+								:style="{ transform: `rotate(${cards.metadata ? '180deg' : '0'})` }"
+							/>
+						</Flex>
 
-								<NuxtLink :to="`/tx/${metadata.tx.hash}`" target="_blank">
-									<Flex align="center" justify="between" :class="$style.tx">
-										<Flex align="center" gap="8">
-											<Icon name="check-circle" size="14" color="green" />
+						<Flex v-if="cards.metadata" direction="column" gap="24" :class="$style.data">
+							<Flex direction="column" gap="16">
+								<NuxtLink :to="`/namespace/${metadata.namespace.namespace_id}`" target="_blank">
+									<Flex justify="between" :class="$style.namespace">
+										<Flex direction="column" gap="8">
+											<Text size="12" weight="600" color="secondary">Namespace</Text>
+											<Text size="13" weight="600" color="primary">{{ space(metadata.namespace.name) }}</Text>
 
-											<Text size="13" weight="600" color="primary" mono>
-												{{ metadata.tx.hash.slice(0, 4).toUpperCase() }}
-											</Text>
-
-											<Flex align="center" gap="3">
-												<div v-for="dot in 3" class="dot" />
-											</Flex>
-
-											<Text size="13" weight="600" color="primary" mono>
-												{{
-													metadata.tx.hash
-														.slice(metadata.tx.hash.length - 4, metadata.tx.hash.length)
-														.toUpperCase()
+											<Text size="12" weight="500" color="tertiary">
+												{{ formatBytes(metadata.namespace.size) }}&nbsp;&nbsp;•&nbsp;&nbsp;{{
+													comma(metadata.namespace.pfb_count)
 												}}
+												PFBs
 											</Text>
 										</Flex>
 
-										<Icon name="arrow-narrow-up-right" size="12 " color="tertiary" />
+										<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
 									</Flex>
 								</NuxtLink>
-							</Flex>
 
-							<Flex direction="column" gap="8" wide>
-								<Text size="12" weight="600" color="secondary"> Block </Text>
-
-								<NuxtLink :to="`/block/${metadata.height}`" target="_blank">
-									<Flex align="center" justify="between" :class="$style.tx">
-										<Flex align="center" gap="8">
-											<Icon name="block" size="14" color="secondary" />
-
-											<Text size="13" weight="600" color="primary" mono>
-												{{ comma(metadata.height) }}
-											</Text>
-										</Flex>
-
-										<Icon name="arrow-narrow-up-right" size="12 " color="tertiary" />
-									</Flex>
-								</NuxtLink>
-							</Flex>
-						</Flex>
-
-						<Flex direction="column" gap="16">
-							<Flex direction="column" gap="8">
-								<Text size="12" weight="600" color="tertiary"> Commitment </Text>
-								<Text size="12" weight="600" color="secondary" selectable style="text-overflow: ellipsis; overflow: hidden">
-									{{ blob.commitment }}
-								</Text>
-							</Flex>
-
-							<NuxtLink :to="`/address/${metadata.signer}`" target="_blank">
-								<Flex direction="column" gap="8">
-									<Text size="12" weight="600" color="tertiary"> Signer </Text>
-									<Text size="12" weight="600" color="secondary" style="text-overflow: ellipsis; overflow: hidden">
-										{{ metadata.signer }}
+								<Flex align="center" justify="between">
+									<Text size="12" weight="600" color="tertiary"> Content Type </Text>
+									<Text size="12" weight="600" color="primary">
+										{{ metadata.content_type }}
 									</Text>
 								</Flex>
-							</NuxtLink>
+
+								<Flex align="center" justify="between">
+									<Text size="12" weight="600" color="tertiary"> Blob Size </Text>
+									<Text size="12" weight="600" color="primary">
+										{{ formatBytes(metadata.size) }}
+									</Text>
+								</Flex>
+
+								<Flex align="center" justify="between">
+									<Text size="12" weight="600" color="tertiary"> Time </Text>
+									<Text size="12" weight="600" color="primary">
+										{{ DateTime.fromISO(metadata.time).setLocale("en").toRelative() }}
+									</Text>
+								</Flex>
+							</Flex>
+
+							<div :class="$style.divider" />
+
+							<Flex align="center" gap="12" justify="between">
+								<Flex direction="column" gap="8" wide>
+									<Text size="12" weight="600" color="secondary"> Transaction </Text>
+
+									<NuxtLink :to="`/tx/${metadata.tx.hash}`" target="_blank">
+										<Flex align="center" justify="between" :class="$style.tx">
+											<Flex align="center" gap="8">
+												<Icon name="check-circle" size="14" color="green" />
+
+												<Text size="13" weight="600" color="primary" mono>
+													{{ metadata.tx.hash.slice(0, 4).toUpperCase() }}
+												</Text>
+
+												<Flex align="center" gap="3">
+													<div v-for="dot in 3" class="dot" />
+												</Flex>
+
+												<Text size="13" weight="600" color="primary" mono>
+													{{
+														metadata.tx.hash
+															.slice(metadata.tx.hash.length - 4, metadata.tx.hash.length)
+															.toUpperCase()
+													}}
+												</Text>
+											</Flex>
+
+											<Icon name="arrow-narrow-up-right" size="12 " color="tertiary" />
+										</Flex>
+									</NuxtLink>
+								</Flex>
+
+								<Flex direction="column" gap="8" wide>
+									<Text size="12" weight="600" color="secondary"> Block </Text>
+
+									<NuxtLink :to="`/block/${metadata.height}`" target="_blank">
+										<Flex align="center" justify="between" :class="$style.tx">
+											<Flex align="center" gap="8">
+												<Icon name="block" size="14" color="secondary" />
+
+												<Text size="13" weight="600" color="primary" mono>
+													{{ comma(metadata.height) }}
+												</Text>
+											</Flex>
+
+											<Icon name="arrow-narrow-up-right" size="12 " color="tertiary" />
+										</Flex>
+									</NuxtLink>
+								</Flex>
+							</Flex>
+
+							<Flex direction="column" gap="16">
+								<Flex direction="column" gap="8">
+									<Text size="12" weight="600" color="tertiary"> Commitment </Text>
+									<Text
+										size="12"
+										weight="600"
+										color="secondary"
+										selectable
+										style="text-overflow: ellipsis; overflow: hidden"
+									>
+										{{ blob.commitment }}
+									</Text>
+								</Flex>
+
+								<NuxtLink :to="`/address/${metadata.signer}`" target="_blank">
+									<Flex direction="column" gap="8">
+										<Text size="12" weight="600" color="tertiary"> Signer </Text>
+										<Text size="12" weight="600" color="secondary" style="text-overflow: ellipsis; overflow: hidden">
+											{{ metadata.signer }}
+										</Text>
+									</Flex>
+								</NuxtLink>
+							</Flex>
+
+							<Button @click="handleDownload" type="secondary" size="small" wide>
+								<Icon name="download" size="14" color="secondary" />
+								<Text>Download</Text>
+							</Button>
+						</Flex>
+					</Flex>
+
+					<Flex direction="column" gap="16" :class="$style.card">
+						<Flex @click="cards.preview = !cards.preview" align="center" justify="between" :class="$style.header">
+							<Text size="13" weight="600" color="primary">
+								Preview <Text color="tertiary"> for {{ blob.content_type }}</Text>
+							</Text>
+							<Icon
+								name="chevron"
+								size="14"
+								color="tertiary"
+								:style="{ transform: `rotate(${cards.preview ? '180deg' : '0'})` }"
+							/>
 						</Flex>
 
-						<Button @click="handleDownload" type="secondary" size="small" wide>
-							<Icon name="download" size="14" color="secondary" />
-							<Text>Download</Text>
-						</Button>
-					</Flex>
-				</Flex>
+						<ClientOnly>
+							<Preview v-if="cards.preview && blob.data" :blob="blob" />
+						</ClientOnly>
 
-				<Flex direction="column" gap="16" :class="$style.card">
-					<Flex @click="cards.preview = !cards.preview" align="center" justify="between" :class="$style.header">
-						<Text size="13" weight="600" color="primary">
-							Preview <Text color="tertiary"> for {{ blob.content_type }}</Text>
-						</Text>
-						<Icon
-							name="chevron"
-							size="14"
-							color="tertiary"
-							:style="{ transform: `rotate(${cards.preview ? '180deg' : '0'})` }"
-						/>
-					</Flex>
-
-					<ClientOnly>
-						<Preview v-if="cards.preview && blob.data" :blob="blob" />
-					</ClientOnly>
-
-					<Flex v-if="supportedContentTypeForPreview.includes(blob.content_type)" align="center" gap="6">
-						<Icon name="check" size="12" color="tertiary" />
-						<Text size="12" weight="500" color="support">This content type is supported for preview</Text>
-					</Flex>
-					<Flex v-else align="center" gap="6">
-						<Icon name="close" size="12" color="tertiary" />
-						<Text size="12" weight="500" color="support">This content type is not supported for preview</Text>
+						<Flex v-if="supportedContentTypeForPreview.includes(blob.content_type)" align="center" gap="6">
+							<Icon name="check" size="12" color="tertiary" />
+							<Text size="12" weight="500" color="support">This content type is supported for preview</Text>
+						</Flex>
+						<Flex v-else align="center" gap="6">
+							<Icon name="close" size="12" color="tertiary" />
+							<Text size="12" weight="500" color="support">This content type is not supported for preview</Text>
+						</Flex>
 					</Flex>
 				</Flex>
 			</Flex>
-		</Flex>
+		</ClientOnly>
 	</Flex>
 </template>
 
@@ -512,6 +547,24 @@ const handleCopy = (text) => {
 	&.active {
 		background: var(--op-10);
 		box-shadow: inset 0 0 0 2px var(--op-5);
+	}
+}
+
+@media (max-width: 900px) {
+	.metadata {
+		flex-direction: column;
+	}
+
+	.card {
+		width: 100%;
+	}
+
+	.left {
+		max-width: initial;
+	}
+
+	.right {
+		max-width: initial;
 	}
 }
 </style>
