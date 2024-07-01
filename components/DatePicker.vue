@@ -14,12 +14,19 @@ const props = defineProps({
 	to: {
 		type: String,
 		default: '',
+	},
+	minDate: {
+		type: String,
+		default: '',
 	}
 })
 
 const emit = defineEmits(["onUpdate"])
-const month = ref(DateTime.now().month)
-const year = ref(DateTime.now().year)
+
+const currentDate = ref(DateTime.now())
+const limitMinDate = ref(props.minDate ? DateTime.fromISO(props.minDate) : '')
+const month = ref(currentDate.value.month)
+const year = ref(currentDate.value.year)
 const startDate = ref(props.from ? DateTime.fromSeconds(parseInt(props.from)) : {})
 const endDate = ref(props.to ? DateTime.fromSeconds(parseInt(props.to)) : {})
 const weekdays = ref(Info.weekdays('narrow', { locale: 'en-US' }))
@@ -56,6 +63,36 @@ const days = computed(() => {
 	return resDays
 })
 
+const selectedRange = ref('')
+const updateSelectedRange = (from, to) => {
+	if (from?.ts) {
+		if (to?.ts) {
+			if (from.year === to.year) {
+				selectedRange.value = from.toFormat('dd LLL') !== to.toFormat('dd LLL') ? `${from.toFormat('dd LLL')} - ${to.toFormat('dd LLL')}` : from.toFormat('dd LLL')
+			} else {
+				selectedRange.value = `${from.toFormat('dd LLL yyyy')} - ${to.toFormat('dd LLL yyyy')}`
+			}
+		} else {
+			selectedRange.value = from.toFormat('dd LLL')
+		}
+	} else {
+		selectedRange.value = ''
+	}
+}
+updateSelectedRange(startDate.value, endDate.value)
+
+const isNextMonthAvailable = computed(() => !(month.value === currentDate.value.month && year.value === currentDate.value.year))
+const isPrevMonthAvailable = computed(() => limitMinDate.value ? limitMinDate.value.ts < days.value[0][0].ts : true)
+const isDayAvailable = (d) => {
+	if (d.startOf('day').ts > currentDate.value.startOf('day').ts) {
+		return false
+	} else if (limitMinDate.value) {
+		return d.startOf('day').ts >= limitMinDate.value.startOf('day').ts
+	} else {
+		return true
+	}
+}
+
 const handleSelectDate = (d) => {
 	if (!startDate.value.ts) {
 		startDate.value = d
@@ -91,21 +128,30 @@ const handleOpen = () => {
 }
 const handleClose = () => {
 	isOpen.value = false
+
+	if (!startDate.value.ts) {
+		month.value = currentDate.value.month
+		year.value = currentDate.value.year		
+	}
 }
 
 const handleApply = () => {
-	emit('onUpdate', { from: parseInt(startDate.value.ts / 1_000), to: parseInt((endDate.value.ts ? endDate.value.ts : startDate.value.endOf('day').ts) / 1_000) })
-
 	isOpen.value = false
+
+	if (!endDate.value.ts) {
+		endDate.value = startDate.value.endOf('day')
+	}
+
+	emit('onUpdate', { from: parseInt(startDate.value.ts / 1_000), to: parseInt(endDate.value.ts / 1_000) })
 }
 
 const handleClear = () => {
+	isOpen.value = false
+
 	startDate.value = {}
 	endDate.value = {}
 
 	emit('onUpdate', { clear: true })
-
-	isOpen.value = false
 }
 
 const handleMonthChange = (v) => {
@@ -122,6 +168,13 @@ const handleMonthChange = (v) => {
 			month.value += v
 	}
 }
+
+watch(
+	() => props.from,
+	() => {
+		updateSelectedRange(DateTime.fromSeconds(parseInt(props.from)), DateTime.fromSeconds(parseInt(props.to)))
+	},
+)
 </script>
 
 <template>
@@ -131,11 +184,11 @@ const handleMonthChange = (v) => {
 
 			<Text color="secondary">Date Range</Text>
 
-			<template v-if="from">
+			<template v-if="selectedRange">
 				<div :class="$style.vertical_divider" />
 
 				<Text size="12" weight="600" color="primary">
-					{{ (endDate.ts && startDate.toFormat('LLL dd') !== endDate?.toFormat('LLL dd')) ? `${startDate.toFormat('LLL dd')} - ${endDate.toFormat('LLL dd')}` : startDate.toFormat('LLL dd') }}
+					{{ selectedRange }}
 				</Text>
 
 				<Icon @click.stop="handleClear" name="close-circle" size="12" color="secondary" />
@@ -150,6 +203,7 @@ const handleMonthChange = (v) => {
 						name="chevron"
 						size="14"
 						color="tertiary"
+						:class="!isPrevMonthAvailable && $style.disabled"
 						:style="{ transform: 'rotate(90deg)' }"
 					/>
 
@@ -160,6 +214,7 @@ const handleMonthChange = (v) => {
 						name="chevron"
 						size="14"
 						color="tertiary"
+						:class="!isNextMonthAvailable && $style.disabled"
 						:style="{ transform: 'rotate(-90deg)' }"
 					/>
 				</Flex>
@@ -176,13 +231,13 @@ const handleMonthChange = (v) => {
 
 						<tbody>
 							<tr v-for="w in days">
-								<td v-for="d in w">
+								<td v-for="d in w" :class="!isDayAvailable(d) && $style.disabled">
 									<Flex align="center" justify="center"
 										@click="handleSelectDate(d)"
 										:class="[
 											$style.day,
 											(d.ts === startDate.ts || d.ts === endDate.ts) && $style.edgeDate,
-											isInSelectedPeriod(d) && $style.inSelectedPeriod
+											isInSelectedPeriod(d) && $style.inSelectedPeriod											
 										]"
 									>
 										<Text size="12" color="primary"
@@ -264,7 +319,6 @@ const handleMonthChange = (v) => {
 
 .edgeDate {
 	background-color: rgba(51, 168, 83, 70%);
-	/* background-color: var(--neutral-green); */
 }
 
 .inSelectedPeriod {
@@ -275,7 +329,9 @@ const handleMonthChange = (v) => {
 	color: var(--txt-primary);
 }
 
-.endDate {
-	background-color: rgba(51, 168, 83, 70%);
+.disabled {
+	opacity: 0.3;
+	pointer-events: none;
+	cursor: default;
 }
 </style>

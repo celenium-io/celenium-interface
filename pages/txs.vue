@@ -17,10 +17,10 @@ import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 /** Services */
 import { comma, space, splitAddress, tia } from "@/services/utils"
 import { MsgTypes } from "@/services/constants/messages"
+import { getStartChainDate } from "@/services/config"
 
 /** API */
 import { fetchTransactions } from "@/services/api/tx"
-import { reset } from "@amplitude/analytics-browser"
 
 useHead({
 	title: "Transactions - Celestia Explorer",
@@ -496,7 +496,7 @@ const handleNext = () => {
 						</template>
 					</Popover>
 
-					<DatePicker @on-update="handleUpdateDateFilter" :from="filters.from" :to="filters.to" />
+					<DatePicker @on-update="handleUpdateDateFilter" :from="filters.from" :to="filters.to" :minDate="getStartChainDate()" />
 				</Flex>
 
 				<Popover :open="isConfigurePopoverOpen" @on-close="isConfigurePopoverOpen = false" width="150" side="right">
