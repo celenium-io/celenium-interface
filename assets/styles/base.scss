@@ -280,8 +280,8 @@ body {
 }
 
 .dot {
-	width: 3px;
-	height: 3px;
+	min-width: 3px;
+	min-height: 3px;
 
 	border-radius: 50px;
 	background: var(--txt-tertiary);

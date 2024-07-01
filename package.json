@@ -27,7 +27,7 @@
 		"@keplr-wallet/cosmos": "^0.12.70",
 		"@openzeppelin/merkle-tree": "^1.0.6",
 		"@pinia/nuxt": "0.4.11",
-		"@vueuse/core": "^10.7.0",
+		"@vueuse/core": "^10.9.0",
 		"buffer": "^6.0.3",
 		"codemirror": "^6.0.1",
 		"crypto-js": "^4.2.0",

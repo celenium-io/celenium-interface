@@ -17,7 +17,7 @@
 
 <style module>
 .wrapper {
-	min-height: calc(100vh - 116px);
+	min-height: calc(100vh - 120px);
 }
 
 .container {

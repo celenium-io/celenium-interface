@@ -19,6 +19,7 @@ export const useModalsStore = defineStore("modals", () => {
 		ods: false,
 		rawData: false,
 		pfb: false,
+		changeBlob: false,
 		qr: false,
 		send: false,
 	})
