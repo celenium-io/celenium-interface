@@ -82,6 +82,12 @@ useHead({
 		},
 	],
 })
+
+const displayName = computed(() => {
+	const { $getDisplayName } = useNuxtApp()
+
+  	return $getDisplayName('block', block.value?.height)
+})
 </script>
 
 <template>
@@ -91,7 +97,7 @@ useHead({
 			:items="[
 				{ link: '/', name: 'Explore' },
 				{ link: '/blocks', name: 'Blocks' },
-				{ link: route.fullPath, name: `Block ${comma(block.height)}` },
+				{ link: route.fullPath, name: `${comma(displayName)}` },
 			]"
 			:class="$style.breadcrumbs"
 		/>

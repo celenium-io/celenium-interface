@@ -79,6 +79,8 @@ export const fetchNamespaceBlobs = async ({ id, version, limit, offset }) => {
 	try {
 		const url = new URL(`${useServerURL()}/namespace/${id}/${version}/blobs`)
 
+		url.searchParams.append("sort_by", 'time')
+
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 

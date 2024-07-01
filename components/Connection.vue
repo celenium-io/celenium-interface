@@ -149,16 +149,16 @@ const handleDisconnect = () => {
 	</Tooltip>
 
 	<Tooltip v-else-if="!isWalletAvailable" position="end">
-		<Button type="white" size="small" disabled> Connect </Button>
+		<Button type="white" size="mini" disabled> Connect </Button>
 
-		<template #content> Insall Keplr Wallet before connection </template>
+		<template #content> Install Keplr Wallet before connection </template>
 	</Tooltip>
 
-	<Button v-else-if="!appStore.address" @click="handleConnect" type="white" size="small"> Connect </Button>
+	<Button v-else-if="!appStore.address" @click="handleConnect" type="white" size="mini"> Connect </Button>
 
 	<Dropdown v-else>
-		<Button type="secondary" size="small">
-			<Icon name="address" size="14" color="primary" />
+		<Button type="secondary" size="mini">
+			<Icon name="address" size="13" color="primary" />
 			{{ appStore.balance }} TIA
 		</Button>
 

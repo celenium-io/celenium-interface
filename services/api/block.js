@@ -94,6 +94,8 @@ export const fetchBlockBlobs = async ({ height, limit, offset, sort }) => {
 	try {
 		const url = new URL(`${useServerURL()}/block/${height}/blobs`)
 
+		url.searchParams.append("sort_by", 'time')
+		
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 		if (sort) url.searchParams.append("sort", sort)
@@ -120,6 +122,17 @@ export const fetchBlockEvents = async ({ height, limit, offset }) => {
 
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchBlockODS = async (height) => {
+	try {
+		const url = new URL(`${useServerURL()}/block/${height}/ods`)
 
 		const data = await $fetch(url.href)
 		return data

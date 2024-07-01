@@ -80,6 +80,13 @@ useHead({
 onBeforeRouteLeave(() => {
 	cacheStore.current.namespace = null
 })
+
+const displayName = computed(() => {
+	const { $getDisplayName } = useNuxtApp()
+
+  	return $getDisplayName('namespace', namespace.value.namespace_id)
+})
+
 </script>
 
 <template>
@@ -90,7 +97,7 @@ onBeforeRouteLeave(() => {
 				:items="[
 					{ link: '/', name: 'Explore' },
 					{ link: '/namespaces', name: 'Namespaces' },
-					{ link: route.fullPath, name: `${getNamespaceID(namespace.namespace_id)}` },
+					{ link: route.fullPath, name: `${displayName}` },
 				]"
 			/>
 

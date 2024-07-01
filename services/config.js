@@ -37,7 +37,7 @@ export const useServerURL = () => {
 			return Server.API.dev
 
 		default:
-			return Server.API.arabica
+			return Server.API.dev
 	}
 }
 
@@ -61,7 +61,7 @@ export const useSocketURL = () => {
 			return Server.WSS.dev
 
 		default:
-			return Server.WSS.arabica
+			return Server.WSS.dev
 	}
 }
 
@@ -80,5 +80,29 @@ export const useBlobstreamURL = () => {
 
 		default:
 			return Server.BLOBSTREAM.mainnet
+	}
+}
+
+export const getStartChainDate = () => {
+	const requestURL = useRequestURL()
+
+	switch (requestURL.hostname) {
+		case "celenium.io":
+			return "2023-10-31T14:00:00Z"
+
+		case "mocha-4.celenium.io":
+			return "2023-09-06T03:15:51.510579Z"
+
+		case "mocha.celenium.io":
+			return "2023-09-06T03:15:51.510579Z"
+
+		case "arabica.celenium.io":
+			return "2024-01-02T12:18:46.936662Z"
+
+		case "dev.celenium.io":
+			return "2024-01-02T12:18:46.936662Z"
+
+		default:
+			return "2023-09-06T03:15:51.510579Z"
 	}
 }

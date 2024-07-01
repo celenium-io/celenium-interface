@@ -128,7 +128,13 @@ const handleNavigate = (url) => {
 						</Flex>
 
 						<template #content>
-							<Text color="primary"><template v-if="!head.synced">Not</template> Synced </Text>
+							<Flex align="center" direction="column" gap="4">
+								<Flex align="center" justify="start" wide>
+									<Text size="12" color="primary"> {{ head.synced ? 'Synced' : 'Not Synced' }} </Text>
+								</Flex>
+
+								<Text size="12" color="tertiary"> {{ head.chain_id }} </Text>
+							</Flex>
 						</template>
 					</Tooltip>
 
@@ -152,6 +158,20 @@ const handleNavigate = (url) => {
 								<Kbd>{{ isMac ? "Cmd" : "Ctrl" }}</Kbd>
 								<Kbd>K</Kbd>
 							</Flex>
+						</Flex>
+					</template>
+				</Tooltip>
+
+				<Tooltip position="end" delay="250">
+					<NuxtLink to="/bookmarks">
+						<Button type="secondary" size="mini">
+							<Icon name="bookmark" size="16" color="secondary" />
+						</Button>
+					</NuxtLink>
+
+					<template #content>
+						<Flex align="center" gap="8">
+							Open My Bookmarks
 						</Flex>
 					</template>
 				</Tooltip>
