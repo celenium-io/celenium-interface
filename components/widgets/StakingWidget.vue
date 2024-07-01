@@ -258,7 +258,6 @@ onMounted(() => {
 	height: 4px;
 
 	border-radius: 2px;
-	cursor: pointer;
 
 	margin-right: 4px;
 	margin-bottom: 4px;
