@@ -129,3 +129,14 @@ export const fetchBlockEvents = async ({ height, limit, offset }) => {
 		console.error(error)
 	}
 }
+
+export const fetchBlockODS = async (height) => {
+	try {
+		const url = new URL(`${useServerURL()}/block/${height}/ods`)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
