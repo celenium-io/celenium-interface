@@ -53,7 +53,7 @@ const onScroll = (e) => {
 		if (scrollOffset.value < 0) scrollOffset.value = 0
 		return
 	}
-	scrollOffset.value += e.deltaY > 0 ? 1 : -1
+	scrollOffset.value += e.deltaY > 0 ? 2 : -2
 }
 
 const onMouseEnter = (e) => {
@@ -109,6 +109,11 @@ const isSelected = (idx) => {
 		return relativeIdx >= props.range.end && relativeIdx <= props.range.start
 	}
 }
+
+const decoder = new TextDecoder("utf-8")
+const test = (byte) => {
+	return decoder.decode(new Uint8Array([`0x${byte}`]))
+}
 </script>
 
 <template>
@@ -155,7 +160,7 @@ const isSelected = (idx) => {
 			<Flex direction="column">
 				<Text size="12" weight="600" color="support" mono style="line-height: 22px">ASCII</Text>
 				<div :class="$style.ascii_preview">
-					<Text v-for="i in 640" size="11" weight="600" color="tertiary" :class="[$style.char, isSelected(i) && $style.selected]">
+					<Text v-for="i in 640" size="14" weight="600" color="tertiary" :class="[$style.char, isSelected(i) && $style.selected]">
 						<template v-if="bytes[i - 1 + scrollOffset * 16] !== '00'">
 							{{ String.fromCharCode(parseInt(bytes[i - 1 + scrollOffset * 16], 16)) }}
 						</template>
@@ -179,6 +184,8 @@ const isSelected = (idx) => {
 	border-radius: 8px;
 	background: var(--card-background);
 	overflow: hidden;
+
+	user-select: none;
 
 	padding: 16px;
 }
@@ -295,5 +302,9 @@ const isSelected = (idx) => {
 	border-radius: 50px;
 	background: var(--op-20);
 	cursor: pointer;
+}
+
+.char {
+	font-family: "Source Code Pro";
 }
 </style>

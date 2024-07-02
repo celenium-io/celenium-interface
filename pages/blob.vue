@@ -111,6 +111,7 @@ const init = async (fromCache = false) => {
 		hash: hash.replaceAll(" ", "+"),
 		height: parseInt(height),
 		commitment: commitment.replaceAll(" ", "+"),
+		metadata: true,
 	})
 	metadata.value = rawMetadata.value
 
@@ -162,7 +163,8 @@ const handleDownload = () => {
 
 	const a = window.document.createElement("a")
 	a.href = window.URL.createObjectURL(new Blob([byteArray], { type: "application/octet-stream" }))
-	a.download = `${blob.value.metadata.namespace.namespace_id}_${blob.value.commitment.slice(
+	console.log(blob.value)
+	a.download = `${metadata.value.namespace.namespace_id}_${blob.value.commitment.slice(
 		blob.value.commitment.length - 8,
 		blob.value.commitment.length,
 	)}.bin`
@@ -202,7 +204,7 @@ const handleCopy = (text) => {
 			<Flex align="center" gap="8">
 				<Button @click="modalsStore.open('changeBlob')" size="mini" type="secondary">
 					<Icon name="blob" size="12" color="tertiary" />
-					Change blob
+					Select blob
 				</Button>
 			</Flex>
 		</Flex>
