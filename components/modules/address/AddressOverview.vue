@@ -8,13 +8,14 @@ import Input from "@/components/ui/Input.vue"
 import Popover from "@/components/ui/Popover.vue"
 
 /** Components */
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 import TransactionsTable from "./tables/TransactionsTable.vue"
 import MessagesTable from "@/components/modules/namespace/tables/MessagesTable.vue"
 import BlobsTable from "@/components/modules/namespace/tables/BlobsTable.vue"
 import DelegationsTable from "./tables/DelegationsTable.vue"
 import RedelegationsTable from "./tables/RedelegationsTable.vue"
 import UndelegationsTable from "./tables/UndelegationsTable.vue"
-import AmountInCurrency from "@/components/AmountInCurrency.vue"
+import VestingsTable from "./tables/VestingsTable.vue";
 
 /** Services */
 import { comma, splitAddress } from "@/services/utils"
@@ -28,6 +29,7 @@ import {
 	fetchAddressDelegations,
 	fetchAddressRedelegations,
 	fetchAddressUndelegations,
+	fetchAddressVestings,
 } from "@/services/api/address"
 
 /** Store */
@@ -69,6 +71,12 @@ const tabs = ref([
 		alias: "blobs",
 		displayName: "Blobs",
 		icon: "blob",
+		show: true,
+	},
+	{
+		alias: "vestings",
+		displayName: "Vestings",
+		icon: "vesting",
 		show: true,
 	},
 	{
@@ -420,11 +428,31 @@ const getUndelegations = async () => {
 	isRefetching.value = false
 }
 
+/** Vesting */
+const vestings = ref([])
+const getVestings = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchAddressVestings({
+		hash: props.address.hash,
+		limit: 10,
+		offset: (page.value - 1) * 10,
+	})
+
+	if (data.value?.length) {
+		vestings.value = data.value
+	}
+	handleNextCondition.value = data.value.length < 10
+
+	isRefetching.value = false
+}
+
 if (activeTab.value === "transactions") await getTransactions()
 if (activeTab.value === "messages") await getMessages()
 if (activeTab.value === "blobs") await getBlobs()
 if (activeTab.value === "delegations") await getDelegations()
 if (activeTab.value === "redelegations") await getRedelegations()
+if (activeTab.value === "vestings") await getVestings()
 
 /** Refetch transactions */
 watch(
@@ -462,6 +490,10 @@ watch(
 			case "undelegations":
 				getUndelegations()
 				break
+
+			case "vestings":
+				getVestings()
+				break
 		}
 	},
 )
@@ -492,6 +524,10 @@ watch(
 
 			case "undelegations":
 				getUndelegations()
+				break
+			
+			case "vestings":
+				getVestings()
 				break
 		}
 	},
@@ -868,6 +904,18 @@ const handleOpenQRModal = () => {
 								<Text size="13" weight="600" color="secondary" align="center"> No Undelegations </Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
 									This address doesn't have any {{ page === 1 ? "" : "more" }} undelegations
+								</Text>
+							</Flex>
+						</template>
+
+						<!-- Vestings Table -->
+						<template v-if="activeTab === 'vestings'">
+							<VestingsTable v-if="vestings.length" :vestings="vestings" />
+
+							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+								<Text size="13" weight="600" color="secondary" align="center"> No Vestings </Text>
+								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+									This address doesn't have any {{ page === 1 ? "" : "more" }} vestings
 								</Text>
 							</Flex>
 						</template>

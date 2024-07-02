@@ -1,8 +1,6 @@
 <script setup>
 /** UI */
 import Modal from "@/components/ui/Modal.vue"
-import Toggle from "@/components/ui/Toggle.vue"
-import Tooltip from "@/components/ui/Tooltip.vue"
 import Input from "@/components/ui/Input.vue"
 import Button from "@/components/ui/Button.vue"
 

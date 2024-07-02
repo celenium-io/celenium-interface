@@ -1,7 +1,4 @@
 <script setup>
-/** Vendor */
-import { generate } from "lean-qr"
-
 /** API */
 import { fetchBlockODS } from "@/services/api/block"
 
@@ -157,16 +154,6 @@ const drawSVG = () => {
 function highlight(index) {
 	const elements = document.querySelectorAll(`.ods_group[data-index="${index}"]`)
 	elements.forEach(el => {
-		// if (el.tagName === "g") {
-			// el.style["boxShadow"] = "inset 0 0 0 5px var(--op-5)"
-			// el.setAttribute("stroke", "black")
-			// el.setAttribute("stroke-width", 2)
-
-			// el.style["stroke"] = "black"
-			// el.style["stroke-width"] = "2"
-			// el.style.transform = "scale(1.05)"
-		// }
-		// el.style["boxShadow"] = "inset 0 0 0 5px var(--op-5)"
 		el.style.filter = "brightness(1.2)"
 	})
 	dimOthers(index)

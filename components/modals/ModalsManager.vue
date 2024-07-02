@@ -12,10 +12,9 @@ import ChangeBlobModal from "./ChangeBlobModal.vue"
 import QRCodeModal from "./QRCodeModal.vue"
 import RawDataModal from "./RawDataModal.vue"
 import SendModal from "./SendModal.vue"
+import VestingDetailsModal from "./VestingDetailsModal.vue";
 
-/**
- * Store
- */
+/** Store */
 import { useModalsStore } from "@/store/modals"
 const modalsStore = useModalsStore()
 </script>
@@ -34,4 +33,5 @@ const modalsStore = useModalsStore()
 	<QRCodeModal :show="modalsStore.modals.qr" @onClose="modalsStore.close('qr')" />
 	<RawDataModal :show="modalsStore.modals.rawData" @onClose="modalsStore.close('rawData')" />
 	<SendModal :show="modalsStore.modals.send" @onClose="modalsStore.close('send')" />
+	<VestingDetailsModal :show="modalsStore.modals.vestingDetails" @onClose="modalsStore.close('vestingDetails')" />
 </template>
