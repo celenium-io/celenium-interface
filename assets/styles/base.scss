@@ -280,8 +280,8 @@ body {
 }
 
 .dot {
-	width: 3px;
-	height: 3px;
+	min-width: 3px;
+	min-height: 3px;
 
 	border-radius: 50px;
 	background: var(--txt-tertiary);
@@ -352,3 +352,31 @@ body {
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+
+// .ods_wrap {
+
+// }
+
+// .ods_wrap:hover .ods_group[data-index]:not(:hover) {
+// 	filter: brightness(0.7);
+// }
+
+.ods_group {
+	transition: all 0.3s ease;
+}
+
+// .ods_group:hover {
+// 	filter: brightness(1.2); /* Яркость */
+// }
+
+// .ods_group[data-index]:hover,
+// .ods_group[data-index]:hover ~ .ods_group[data-index],
+// .ods_group[data-index]:hover ~ svg .ods_group[data-index],
+// .ods_group[data-index]:hover ~ .ods_group:not([data-index]):not(:hover) {
+// 	filter: brightness(0.7);
+// }
+
+// .ods_group:hover ~ .ods_group,
+// .ods_group:hover:not(:hover) {
+// 	filter: brightness(0.7);
+// }

@@ -9,17 +9,19 @@ export const useModalsStore = defineStore("modals", () => {
 
 	const lastModal = ref()
 	const modals = reactive({
+		awaiting: false,
 		blob: false,
 		commitment: false,
 		confirmation: false,
-		rawData: false,
 		constants: false,
-		qr: false,
-		import: false,
 		edit_alias: false,
-		send: false,
+		import: false,
+		ods: false,
+		rawData: false,
 		pfb: false,
-		awaiting: false,
+		changeBlob: false,
+		qr: false,
+		send: false,
 	})
 
 	const open = (target) => {

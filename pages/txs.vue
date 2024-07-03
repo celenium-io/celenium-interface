@@ -3,12 +3,13 @@
 import { DateTime } from "luxon"
 
 /** UI */
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 import Button from "@/components/ui/Button.vue"
-import Tooltip from "@/components/ui/Tooltip.vue"
+import Checkbox from "@/components/ui/Checkbox.vue"
+import DatePicker from "@/components/DatePicker.vue"
 import Input from "@/components/ui/Input.vue"
 import Popover from "@/components/ui/Popover.vue"
-import Checkbox from "@/components/ui/Checkbox.vue"
-import AmountInCurrency from "@/components/AmountInCurrency.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
@@ -16,6 +17,7 @@ import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 /** Services */
 import { comma, space, splitAddress, tia } from "@/services/utils"
 import { MsgTypes } from "@/services/constants/messages"
+import { getStartChainDate } from "@/services/config"
 
 /** API */
 import { fetchTransactions } from "@/services/api/tx"
@@ -78,6 +80,8 @@ const filters = reactive({
 		failed: false,
 	},
 	message_type: MsgTypes.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	from: '',
+	to: '',
 })
 const savedFiltersBeforeChanges = ref(null)
 
@@ -89,6 +93,9 @@ const handleClearAllFilters = () => {
 	Object.keys(filters.message_type).forEach((f) => {
 		filters.message_type[f] = false
 	})
+
+	filters.from = ''
+	filters.to = ''
 
 	router.replace({
 		query: null,
@@ -103,7 +110,9 @@ const searchTerm = ref("")
 Object.keys(route.query).forEach((key) => {
 	if (key === "page") return
 
-	if (route.query[key].split(",").length) {
+	if (key === "from" || key === "to") {
+		filters[key] = route.query[key]
+	} else if (route.query[key].split(",").length) {
 		route.query[key].split(",").forEach((item) => {
 			filters[key][item] = true
 		})
@@ -125,6 +134,8 @@ const updateRouteQuery = () => {
 				Object.keys(filters.message_type)
 					.filter((f) => filters.message_type[f])
 					.join(","),
+			...(filters.from ? { from: filters.from} : {}),
+			...(filters.to ? { to: filters.to} : {}),
 		},
 	})
 }
@@ -189,10 +200,30 @@ const handleApplyMessageTypeFilters = () => {
 	updateRouteQuery()
 }
 
+const handleUpdateDateFilter = (event) => {
+	if (event.from && event.to) {
+		filters.from = event.from
+		filters.to = event.to
+
+		page.value = 1
+
+		getTransactions()
+
+		updateRouteQuery()
+	} else if (event.clear) {
+		resetFilters('from')
+		resetFilters('to', true)
+	}
+}
+
 const resetFilters = (target, refetch) => {
-	Object.keys(filters[target]).forEach((f) => {
-		filters[target][f] = false
-	})
+	if (target === "from" || target === "to") {
+		filters[target] = ''
+	} else {
+		Object.keys(filters[target]).forEach((f) => {
+			filters[target][f] = false
+		})
+	}
 
 	if (refetch) {
 		page.value = 1
@@ -262,6 +293,8 @@ const getTransactions = async () => {
 			Object.keys(filters.message_type)
 				.filter((f) => filters.message_type[f])
 				.join(","),
+		from: filters.from,
+		to: filters.to,
 	})
 	transactions.value = data.value
 
@@ -282,7 +315,6 @@ watch(
 	() => page.value,
 	async () => {
 		getTransactions()
-
 		router.replace({ query: { page: page.value } })
 	},
 )
@@ -463,6 +495,8 @@ const handleNext = () => {
 							</Flex>
 						</template>
 					</Popover>
+
+					<DatePicker @on-update="handleUpdateDateFilter" :from="filters.from" :to="filters.to" :minDate="getStartChainDate()" />
 				</Flex>
 
 				<Popover :open="isConfigurePopoverOpen" @on-close="isConfigurePopoverOpen = false" width="150" side="right">

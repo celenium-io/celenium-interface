@@ -281,8 +281,8 @@ const handlePreviewContent = () => {
 							<CopyButton :text="getNamespaceID(cacheStore.selectedBlob.namespace_id)" />
 
 							<Text size="13" weight="600" color="primary" :class="$style.value">
-								{{ $getDisplayName('namespaces', cacheStore.selectedBlob.namespace_id) }}
-								
+								{{ $getDisplayName("namespaces", cacheStore.selectedBlob.namespace_id) }}
+
 								<Text
 									v-if="getNamespaceID(cacheStore.selectedBlob.namespace_id) !== cacheStore.selectedBlob.namespace_name"
 									color="secondary"
@@ -314,7 +314,7 @@ const handlePreviewContent = () => {
 							<NuxtLink :to="`/address/${cacheStore.selectedBlob.signer}`" target="_blank">
 								<Flex align="center" gap="6">
 									<Text size="13" weight="600" color="primary" :class="$style.value">
-										{{ $getDisplayName('addresses', cacheStore.selectedBlob.signer) }}
+										{{ $getDisplayName("addresses", cacheStore.selectedBlob.signer) }}
 									</Text>
 
 									<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
@@ -344,30 +344,44 @@ const handlePreviewContent = () => {
 			</Flex>
 
 			<Flex align="center" gap="8" :class="$style.buttons">
-				<Button @click="handleDownload" type="secondary" size="small" :disabled="isLoading">
-					<Icon name="download" size="14" color="secondary" />
+				<Flex gap="8" :class="$style.col">
+					<Button
+						:link="`/blob?commitment=${cacheStore.selectedBlob.commitment}&hash=${cacheStore.selectedBlob.hash}&height=${cacheStore.selectedBlob.height}`"
+						target="_blank"
+						type="secondary"
+						size="small"
+					>
+						Open Blob Page
+						<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
+					</Button>
 
-					<Text>Download</Text>
-				</Button>
+					<Button @click="handleDownload" type="secondary" size="small" :disabled="isLoading">
+						<Icon name="download" size="14" color="secondary" />
 
-				<Button
-					@click="isDecode = !isDecode"
-					type="secondary"
-					size="small"
-					:disabled="showPreviewImage || showPreviewText || isLoading"
-				>
-					{{ isDecode ? "Encode" : "Decode" }} Base64
-				</Button>
-				<Button
-					@click="handlePreviewContent"
-					type="secondary"
-					size="small"
-					:disabled="
-						!['image/png', 'image/jpeg', 'video/mp4', 'text/plain; charset=utf-8'].includes(blob.content_type) || isLoading
-					"
-				>
-					{{ showPreviewImage || showPreviewText ? "Hide" : "Preview" }} Content
-				</Button>
+						<Text>Download</Text>
+					</Button>
+				</Flex>
+
+				<Flex gap="8" :class="$style.col">
+					<Button
+						@click="isDecode = !isDecode"
+						type="secondary"
+						size="small"
+						:disabled="showPreviewImage || showPreviewText || isLoading"
+					>
+						{{ isDecode ? "Encode" : "Decode" }} Base64
+					</Button>
+					<Button
+						@click="handlePreviewContent"
+						type="secondary"
+						size="small"
+						:disabled="
+							!['image/png', 'image/jpeg', 'video/mp4', 'text/plain; charset=utf-8'].includes(blob.content_type) || isLoading
+						"
+					>
+						{{ showPreviewImage || showPreviewText ? "Hide" : "Preview" }} Content
+					</Button>
+				</Flex>
 			</Flex>
 		</Flex>
 	</Modal>
@@ -487,12 +501,21 @@ const handlePreviewContent = () => {
 	.badge {
 		width: 100%;
 	}
-}
 
-@media (max-width: 400px) {
 	.buttons {
 		flex-direction: column;
 		align-items: flex-start;
+	}
+
+	.col {
+		width: 100%;
+	}
+
+	.col {
+		& a,
+		button {
+			width: 100%;
+		}
 	}
 }
 </style>

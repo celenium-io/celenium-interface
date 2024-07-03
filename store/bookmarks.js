@@ -35,7 +35,7 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 		let store = getStoreByType(type)
 
 		if (!store) return id
-
+				
 		for (let i = 0; i < store.length; i++) {
 			let el = store[i]
 			if (el.id === id) {
