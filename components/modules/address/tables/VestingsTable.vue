@@ -222,6 +222,7 @@ const vestingTypeDescription = (v) => {
 
 	& tr td {
 		padding: 0;
+		height: 40px;
 
 		white-space: nowrap;
 
@@ -235,13 +236,6 @@ const vestingTypeDescription = (v) => {
 			padding-right: 8px;
 		}
 
-		& > a {
-			display: flex;
-
-			min-height: 40px;
-
-			padding-right: 24px;
-		}
 	}
 }
 
