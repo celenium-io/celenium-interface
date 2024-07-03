@@ -109,6 +109,17 @@ const handleViewRawGrants = (g) => {
 							</Tooltip>
 						</Flex>
 					</td>
+					<td v-if="g.revoked" @click="handleViewRawGrants(g)">
+						<Flex justify="center" direction="column" gap="6">
+							<Tooltip position="start" delay="500">
+								<Icon name="close" size="14" color="red" />
+
+								<template #content>
+									{{ `Revoked at block ${comma(g.revoke_height)}` }}
+								</template>
+							</Tooltip>
+						</Flex>
+					</td>
 				</tr>
 			</tbody>
 		</table>
