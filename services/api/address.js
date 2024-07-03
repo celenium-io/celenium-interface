@@ -130,11 +130,11 @@ export const fetchAddressUndelegations = async ({ hash, limit, offset }) => {
 	}
 }
 
-export const fetchAddressVestings = async ({ hash, limit, offset }) => {
+export const fetchAddressVestings = async ({ hash, showEnded, limit, offset }) => {
 	try {
 		const url = new URL(`${useServerURL()}/address/${hash}/vestings`)
 
-		url.searchParams.append("show_ended", "true")
+		url.searchParams.append("show_ended", showEnded)
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 

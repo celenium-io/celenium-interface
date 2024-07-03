@@ -84,7 +84,7 @@ watch(
 			
 			<Flex align="center" justify="between" wide>
 				<Flex align="center" direction="column" gap="12" :class="$style.value">
-					<Flex align="center" justify="start" gap="4" wide>
+					<Flex align="center" gap="4">
 						<Text size="12" weight="500" color="tertiary">Vesting Type:</Text>
 						<Text size="13" weight="600" color="primary"> {{ capitilize(vesting?.type) }} </Text>
 					</Flex>
@@ -96,14 +96,14 @@ watch(
 				</Flex>
 
 				<Flex align="center" direction="column" gap="12" :class="$style.value">
-					<Flex align="center" justify="start" gap="4" wide>
+					<Flex align="center" gap="4">
 						<Text size="12" weight="500" color="tertiary">Start Date:</Text>
 						<Text size="12" weight="600" color="primary">
 							{{ DateTime.fromISO(vesting.start_time).toFormat("yyyy LLL d, t") }}
 						</Text>
 					</Flex>
 
-					<Flex align="center" justify="start" gap="4">
+					<Flex align="center" justify="start" gap="4" wide>
 						<Text size="12" weight="500" color="tertiary">End Date:</Text>
 						<Text size="12" weight="600" color="primary">
 							{{ DateTime.fromISO(vesting.end_time).toFormat("yyyy LLL d, t") }}
@@ -118,7 +118,7 @@ watch(
 				<table :class="$style.table">
 					<thead>
 						<tr>
-							<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
+							<th><Text size="12" weight="600" color="tertiary">Release Date</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Amount</Text></th>
 						</tr>
 					</thead>
@@ -126,16 +126,14 @@ watch(
 					<tbody>
 						<tr v-for="vp in vestingPeriods">
 							<td>
-								<Flex justify="center" direction="column" gap="6">
-									<Tooltip position="start" delay="500">
+								<Flex align="center" justify="start" gap="4">
 										<Text size="12" weight="600" color="primary">
-											{{ DateTime.fromISO(vp.time).toRelative({ locale: "en", style: "long" }) }}
+											{{ DateTime.fromISO(vp.time).setLocale("en").toFormat("yyyy LLL d, t") }}
 										</Text>
 
-										<template #content>
-											{{ DateTime.fromISO(vp.time).setLocale("en").toFormat("yyyy LLL d, t") }}
-										</template>
-									</Tooltip>
+										<Text size="11" weight="500" color="tertiary">
+											({{ DateTime.fromISO(vp.time).toRelative({ locale: "en", style: "short" }) }})
+										</Text>
 								</Flex>
 							</td>
 							<td>
@@ -227,12 +225,10 @@ watch(
 	& tr th {
 		text-align: left;
 		padding: 0;
-		/* padding-right: 16px; */
-		/* padding-top: 12px; */
 		padding-bottom: 8px;
 
 		&:first-child {
-			padding-left: 16px;
+			padding-left: 8px;
 		}
 
 		& span {
@@ -250,7 +246,7 @@ watch(
 		min-height: 40px;
 
 		&:first-child {
-			padding-left: 16px;
+			padding-left: 8px;
 		}
 
 		&:last-child {

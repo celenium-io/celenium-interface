@@ -39,7 +39,7 @@ const vestingTime = (v, tooltip) => {
 					return `${startTime.toFormat('dd LLL yyyy')} - ${endTime.toFormat('dd LLL yyyy')}`
 				}
 			case 'permanent':
-				return DateTime.now().year === startTime.year ? startTime.toFormat('dd LLL') : startTime.toFormat('dd LLL yyyy')
+				return '— —'
 			default:
 				return DateTime.now().year === endTime.year ? endTime.toFormat('dd LLL') : endTime.toFormat('dd LLL yyyy')
 		}
@@ -49,7 +49,7 @@ const vestingTime = (v, tooltip) => {
 			case 'continuous':
 				return `${startTime.toFormat("yyyy LLL d, t")} - ${endTime.toFormat("yyyy LLL d, t")}`
 			case 'permanent':
-				return `Vesting from ${startTime.toFormat("yyyy LLL d, t")}`
+				return 'Permanent vesting has no start or end date'
 			default:
 				return `Vesting till ${endTime.toFormat("yyyy LLL d, t")}`
 		}
@@ -59,6 +59,21 @@ const vestingTime = (v, tooltip) => {
 const handleViewVestingDetails = (v) => {
 	cacheStore.current.vesting = v
 	modalsStore.open("vestingDetails")
+}
+
+const vestingTypeDescription = (v) => {
+	switch (v.type) {
+		case 'periodic':
+			return 'Periodic vesting, where coins begin to vest at start time and vest periodically according to number of periods and the vesting amount per period. The number of periods, length per period, and amount per period are configurable.'
+		case 'continuous':
+			return 'Continuous vesting, where coins begin to vest at start time and vest linearly with respect to time until end time is reached.'
+		case 'permanent':
+			return 'Permanent locked vesting, where coins are locked forever. Coins in this account can still be used for delegating and for governance votes even while locked.'
+		case 'delayed':
+			return 'Delayed vesting, where all coins are vested once end time is reached.'
+		default:
+			return 'Unknown vesting type'
+	}
 }
 
 </script>
@@ -103,11 +118,21 @@ const handleViewVestingDetails = (v) => {
 						</Flex>
 					</td>
 					<td>
-						<Flex align="center">
-							<Text size="12" weight="600" color="primary">
-								{{ capitilize(v.type) }}
-							</Text>
-						</Flex>
+						<Tooltip position="start" delay="500">
+							<Flex align="center" gap="6">
+								<Text size="12" weight="600" color="primary">
+									{{ capitilize(v.type) }}
+								</Text>
+
+								<Icon name="info" size="12" color="secondary" />
+							</Flex>
+
+							<template #content>
+								<Flex align="center" justify="start" style="max-width: 300px; text-align: start">
+									{{ vestingTypeDescription(v) }}
+								</Flex>
+							</template>
+						</Tooltip>
 					</td>
 					<td>
 						<Flex justify="center" direction="column" gap="6">

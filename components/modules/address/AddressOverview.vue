@@ -6,6 +6,7 @@ import Checkbox from "@/components/ui/Checkbox.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Input from "@/components/ui/Input.vue"
 import Popover from "@/components/ui/Popover.vue"
+import Toggle from "@/components/ui/Toggle.vue"
 
 /** Components */
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
@@ -430,18 +431,19 @@ const getUndelegations = async () => {
 
 /** Vesting */
 const vestings = ref([])
+const showEnded = ref(false)
 const getVestings = async () => {
 	isRefetching.value = true
 
 	const { data } = await fetchAddressVestings({
 		hash: props.address.hash,
+		showEnded: showEnded.value,
 		limit: 10,
 		offset: (page.value - 1) * 10,
 	})
 
-	if (data.value?.length) {
-		vestings.value = data.value
-	}
+	vestings.value = data.value
+
 	handleNextCondition.value = data.value.length < 10
 
 	isRefetching.value = false
@@ -529,6 +531,17 @@ watch(
 			case "vestings":
 				getVestings()
 				break
+		}
+	},
+)
+
+watch(
+	() => showEnded.value,
+	() => {
+		if (page.value === 1) {
+			getVestings()
+		} else {
+			page.value = 1
 		}
 	},
 )
@@ -915,28 +928,36 @@ const handleOpenQRModal = () => {
 							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No Vestings </Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-									This address doesn't have any {{ page === 1 ? "" : "more" }} vestings
+									This address doesn't have any {{ page === 1 ? "" : "more" }} {{ !showEnded ? "active" : "" }} vestings
 								</Text>
 							</Flex>
 						</template>
 					</Flex>
 
 					<!-- Pagination -->
-					<Flex align="center" gap="6" :class="$style.pagination">
-						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
-							<Icon name="arrow-left-stop" size="12" color="primary" />
-						</Button>
-						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
-							<Icon name="arrow-left" size="12" color="primary" />
-						</Button>
+					<Flex align="center" justify="between">
+						<Flex align="center" gap="6" :class="$style.pagination">
+							<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
+								<Icon name="arrow-left-stop" size="12" color="primary" />
+							</Button>
+							<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
+								<Icon name="arrow-left" size="12" color="primary" />
+							</Button>
 
-						<Button type="secondary" size="mini" disabled>
-							<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
-						</Button>
+							<Button type="secondary" size="mini" disabled>
+								<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
+							</Button>
 
-						<Button @click="handleNext" type="secondary" size="mini" :disabled="handleNextCondition">
-							<Icon name="arrow-right" size="12" color="primary" />
-						</Button>
+							<Button @click="handleNext" type="secondary" size="mini" :disabled="handleNextCondition">
+								<Icon name="arrow-right" size="12" color="primary" />
+							</Button>
+						</Flex>
+
+						<Flex v-if="activeTab === 'vestings'" align="center">
+							<Text size="12" color="secondary"> {{ showEnded ? "Hide ended" : "Show ended" }} </Text>
+
+							<Toggle v-model="showEnded" :class="$style.toggle"/>
+						</Flex>
 					</Flex>
 				</Flex>
 			</Flex>
@@ -1068,6 +1089,10 @@ const handleOpenQRModal = () => {
 
 .pagination {
 	padding: 16px;
+}
+
+.toggle {
+	margin: 16px;
 }
 
 .qrcode {
