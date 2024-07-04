@@ -12,6 +12,7 @@ import ChangeBlobModal from "./ChangeBlobModal.vue"
 import QRCodeModal from "./QRCodeModal.vue"
 import RawDataModal from "./RawDataModal.vue"
 import SendModal from "./SendModal.vue"
+import StakingModal from "./StakingModal.vue";
 
 /**
  * Store
@@ -34,4 +35,5 @@ const modalsStore = useModalsStore()
 	<QRCodeModal :show="modalsStore.modals.qr" @onClose="modalsStore.close('qr')" />
 	<RawDataModal :show="modalsStore.modals.rawData" @onClose="modalsStore.close('rawData')" />
 	<SendModal :show="modalsStore.modals.send" @onClose="modalsStore.close('send')" />
+	<StakingModal :show="modalsStore.modals.staking" @onClose="modalsStore.close('staking')" />
 </template>
