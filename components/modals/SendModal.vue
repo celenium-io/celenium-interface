@@ -192,15 +192,6 @@ const runGasLimitEstimation = async () => {
 const warningBannerText = ref("")
 
 const isAwaiting = ref(false)
-const isReadyToContinue = computed(() => {
-	return (
-		!addressError.value.length &&
-		parseFloat(amount.value) > 0 &&
-		address.value?.length &&
-		((selectedGasLimit.value === "Estimated" && estimatedGasLimit.value) ||
-			(selectedGasLimit.value === "Custom" && customGasLimit.value))
-	)
-})
 
 watch(
 	() => props.show,
@@ -274,6 +265,47 @@ const handleConnect = async () => {
 		}
 	}
 }
+
+const continueButton = computed(() => {
+	if (addressError.value.length) {
+		return {
+			title: 'Destination address is invalid',
+			disable: true,
+		}
+	}
+
+	if (!address.value?.length) {
+		return {
+			title: 'Enter the destionation address',
+			disable: true,
+		}
+	}
+
+	if (parseFloat(amount.value) === 0) {
+		return {
+			title: 'Enter the amount',
+			disable: true,
+		}
+	}
+
+	if (!((selectedGasLimit.value === "Estimated" && estimatedGasLimit.value) || (selectedGasLimit.value === "Custom" && customGasLimit.value))) {
+		return {
+			title: 'Define the gas limit',
+			disable: true,
+		}
+	}
+	
+	if (isAwaiting.value) {
+		return {
+			title: 'Awating...',
+			disable: true,
+		}
+	}
+	return {
+		title: 'Send',
+		disable: false,
+	}	
+})
 
 const handleContinue = async () => {
 	const key = await window.keplr?.getKey(appStore.network.chainId)
@@ -547,8 +579,8 @@ const handleContinue = async () => {
 			</Flex>
 
 			<Button v-if="!appStore.address" @click="handleConnect" type="white" size="small" wide>Connect</Button>
-			<Button v-else @click="handleContinue" type="secondary" size="small" wide :disabled="!isReadyToContinue || isAwaiting">
-				{{ isAwaiting ? "Awaiting..." : "Continue" }}
+			<Button v-else @click="handleContinue" type="secondary" size="small" wide :disabled="continueButton.disable">
+				{{ continueButton.title }}
 			</Button>
 		</Flex>
 	</Modal>
