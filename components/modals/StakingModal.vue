@@ -146,7 +146,7 @@ watch(
 			if (!data.value.length) {
 				isAddressNotFound.value = true
 				return
-			} 
+			}
 
 			runGasLimitEstimation()
 		} else {
