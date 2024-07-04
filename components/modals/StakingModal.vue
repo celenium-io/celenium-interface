@@ -159,8 +159,10 @@ watch(
 
 watch(
 	() => appStore.address,
-	async () => {
-		await runGasLimitEstimation()
+	() => {
+		if (props.show) {
+			runGasLimitEstimation()
+		}
 	}
 )
 
