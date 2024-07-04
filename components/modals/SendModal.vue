@@ -129,7 +129,7 @@ watch(
 
 		isAddressNotFound.value = false
 
-		if ((!address.value.startsWith("celestia") && address.value.length > 8) || address.value.length > 47) {
+		if (!address.value.startsWith("celestia") || address.value.length !== 47) {
 			addressError.value = "Validation error"
 			return
 		}
