@@ -69,7 +69,14 @@ const bytes = computed(() => {
 	return hex.value.flat()
 })
 
-const range = reactive({ start: null, end: null })
+/** Selected byte (1) */
+const cursor = ref(0)
+const handleSelectCursor = (target) => {
+	if (target < 0 || target > bytes.value.length) return
+	cursor.value = target
+}
+/** Range of selected bytes */
+const range = reactive({ start: 0, end: 0 })
 const handleBytesSelect = (selection) => {
 	const [start, end] = selection
 
@@ -111,6 +118,7 @@ const init = async (fromCache = false) => {
 		hash: hash.replaceAll(" ", "+"),
 		height: parseInt(height),
 		commitment: commitment.replaceAll(" ", "+"),
+		metadata: true,
 	})
 	metadata.value = rawMetadata.value
 
@@ -162,7 +170,8 @@ const handleDownload = () => {
 
 	const a = window.document.createElement("a")
 	a.href = window.URL.createObjectURL(new Blob([byteArray], { type: "application/octet-stream" }))
-	a.download = `${blob.value.metadata.namespace.namespace_id}_${blob.value.commitment.slice(
+	console.log(blob.value)
+	a.download = `${metadata.value.namespace.namespace_id}_${blob.value.commitment.slice(
 		blob.value.commitment.length - 8,
 		blob.value.commitment.length,
 	)}.bin`
@@ -201,8 +210,11 @@ const handleCopy = (text) => {
 
 			<Flex align="center" gap="8">
 				<Button @click="modalsStore.open('changeBlob')" size="mini" type="secondary">
-					<Icon name="blob" size="12" color="tertiary" />
-					Change blob
+					<Icon name="blob" size="12" color="secondary" />
+					Select blob
+				</Button>
+				<Button @click="modalsStore.open('hexSettings')" size="mini" type="secondary">
+					<Icon name="settings" size="12" color="secondary" />
 				</Button>
 			</Flex>
 		</Flex>
@@ -212,12 +224,21 @@ const handleCopy = (text) => {
 				<template v-if="innerWidth >= 1020">
 					<Flex direction="column" gap="16" :class="$style.left">
 						<ClientOnly>
-							<HexViewer v-if="blob" :blob="blob" :bytes="bytes" :hex="hex" :range="range" @onSelect="handleBytesSelect" />
+							<HexViewer
+								v-if="blob"
+								:blob="blob"
+								:bytes="bytes"
+								:hex="hex"
+								:cursor="cursor"
+								:range="range"
+								@onSelect="handleBytesSelect"
+								@onCursorSelect="handleSelectCursor"
+							/>
 						</ClientOnly>
 					</Flex>
 
 					<Flex direction="column" gap="16" :class="$style.right">
-						<DataInspector :bytes="bytes" :range="range" />
+						<DataInspector :bytes="bytes" :range="range" :cursor="cursor" />
 
 						<Tooltip>
 							<Flex align="center" gap="6" style="padding: 0 16px">
@@ -232,6 +253,15 @@ const handleCopy = (text) => {
 									</Flex>
 									<Flex align="center" gap="6">
 										<Text color="tertiary">Jump to start - </Text> <Text mono>PageUp</Text>
+									</Flex>
+									<Flex align="center" gap="6">
+										<Text color="tertiary">Jump to end - </Text> <Text mono>PageDown</Text>
+									</Flex>
+									<Flex align="center" gap="6">
+										<Text color="tertiary">Move cursor - </Text> <Text mono>Arrow Keys</Text>
+									</Flex>
+									<Flex align="center" gap="6">
+										<Text color="tertiary">Move viewport - </Text> <Text mono>Cmd+ArrowUp/Down</Text>
 									</Flex>
 								</Flex>
 							</template>

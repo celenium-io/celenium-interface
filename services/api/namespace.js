@@ -79,7 +79,7 @@ export const fetchNamespaceBlobs = async ({ id, version, limit, offset }) => {
 	try {
 		const url = new URL(`${useServerURL()}/namespace/${id}/${version}/blobs`)
 
-		url.searchParams.append("sort_by", 'time')
+		url.searchParams.append("sort_by", "time")
 
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
@@ -104,7 +104,7 @@ export const fetchNamespaceRollups = async ({ id, version, limit }) => {
 	}
 }
 
-export const fetchBlobByMetadata = async ({ hash, height, commitment }) => {
+export const fetchBlobByMetadata = async ({ hash, height, commitment, metadata = false }) => {
 	try {
 		const url = new URL(`${useServerURL()}/blob`)
 
@@ -114,6 +114,7 @@ export const fetchBlobByMetadata = async ({ hash, height, commitment }) => {
 				hash,
 				height,
 				commitment,
+				metadata,
 			},
 		})
 		return data

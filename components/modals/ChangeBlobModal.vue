@@ -44,7 +44,7 @@ const handleChange = () => {
 <template>
 	<Modal :show="show" @onClose="emit('onClose')" width="600" disable-trap>
 		<Flex direction="column" gap="24">
-			<Text size="14" weight="600" color="primary">Change blob</Text>
+			<Text size="14" weight="600" color="primary">Select blob</Text>
 
 			<Flex direction="column" gap="20">
 				<Input v-model="commitment" label="Commitment" placeholder="" />
@@ -52,7 +52,7 @@ const handleChange = () => {
 				<Input v-model="height" label="Height" placeholder="" />
 			</Flex>
 
-			<Button @click="handleChange" type="secondary" size="small" wide> Change </Button>
+			<Button @click="handleChange" type="secondary" size="small" wide> Select </Button>
 		</Flex>
 	</Modal>
 </template>

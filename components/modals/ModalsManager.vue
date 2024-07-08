@@ -6,13 +6,14 @@ import ConfirmationModal from "./ConfirmationModal.vue"
 import ConstantsModal from "./ConstantsModal.vue"
 import EditBookmarkAliasModal from "./EditBookmarkAliasModal.vue"
 import ImportBookmarksModal from "./ImportBookmarksModal.vue"
-import ODSModal from "./ODSModal.vue";
+import ODSModal from "./ODSModal.vue"
 import PayForBlobModal from "./PayForBlobModal.vue"
 import ChangeBlobModal from "./ChangeBlobModal.vue"
 import QRCodeModal from "./QRCodeModal.vue"
 import RawDataModal from "./RawDataModal.vue"
 import SendModal from "./SendModal.vue"
 import VestingDetailsModal from "./VestingDetailsModal.vue";
+import HexSettingsModal from "./HexSettingsModal.vue"
 
 /** Store */
 import { useModalsStore } from "@/store/modals"
@@ -34,4 +35,5 @@ const modalsStore = useModalsStore()
 	<RawDataModal :show="modalsStore.modals.rawData" @onClose="modalsStore.close('rawData')" />
 	<SendModal :show="modalsStore.modals.send" @onClose="modalsStore.close('send')" />
 	<VestingDetailsModal :show="modalsStore.modals.vestingDetails" @onClose="modalsStore.close('vestingDetails')" />
+	<HexSettingsModal :show="modalsStore.modals.hexSettings" @onClose="modalsStore.close('hexSettings')" />
 </template>
