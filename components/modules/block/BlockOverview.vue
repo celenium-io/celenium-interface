@@ -287,7 +287,7 @@ const handleViewRawTransactions = () => {
 				</Flex>
 
 				<Flex align="center" gap="8">
-					<Button @click="router.push(`/block/${block.height - 1}`)" type="secondary" size="mini" :disabled="block.height === 1">
+					<Button @click="router.push(`/block/${block.height - 1}`)" type="secondary" size="mini" :disabled="block.height === 0">
 						<Icon name="arrow-redo-right" size="16" color="secondary" :style="{ transform: 'scaleX(-1)' }" />
 						Prev
 					</Button>
@@ -305,7 +305,7 @@ const handleViewRawTransactions = () => {
 			</Flex>
 
 			<Flex align="center" gap="12">
-				<Button @click="handleViewODSBlock" type="secondary" size="mini" :class="$style.ods_btn">
+				<Button @click="handleViewODSBlock" type="secondary" size="mini" :class="$style.ods_btn" :disabled="block.height === 0">
 					<Icon name="ods" size="12" color="primary" />
 					ODS
 				</Button>
@@ -377,7 +377,7 @@ const handleViewRawTransactions = () => {
 				</Flex>
 
 				<Flex direction="column" gap="24" :class="$style.main">
-					<Flex direction="column" gap="12">
+					<Flex v-if="block.proposer" direction="column" gap="12">
 						<Text size="12" weight="600" color="tertiary">Proposer</Text>
 
 						<Flex direction="column" gap="8">
