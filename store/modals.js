@@ -23,6 +23,7 @@ export const useModalsStore = defineStore("modals", () => {
 		qr: false,
 		send: false,
 		staking: false,
+		vestingDetails: false,
 		hexSettings: false,
 	})
 

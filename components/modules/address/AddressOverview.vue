@@ -6,8 +6,10 @@ import Checkbox from "@/components/ui/Checkbox.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Input from "@/components/ui/Input.vue"
 import Popover from "@/components/ui/Popover.vue"
+import Toggle from "@/components/ui/Toggle.vue"
 
 /** Components */
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 import TransactionsTable from "./tables/TransactionsTable.vue"
 import MessagesTable from "@/components/modules/namespace/tables/MessagesTable.vue"
 import BlobsTable from "@/components/modules/namespace/tables/BlobsTable.vue"
@@ -16,7 +18,7 @@ import RedelegationsTable from "./tables/RedelegationsTable.vue"
 import UndelegationsTable from "./tables/UndelegationsTable.vue"
 import GrantsTable from "./tables/GrantsTable.vue"
 import GrantersTable from "./tables/GrantersTable.vue";
-import AmountInCurrency from "@/components/AmountInCurrency.vue"
+import VestingsTable from "./tables/VestingsTable.vue";
 
 /** Services */
 import { comma, splitAddress } from "@/services/utils"
@@ -32,6 +34,7 @@ import {
 	fetchAddressUndelegations,
 	fetchAddressGrants,
 	fetchAddressGranters,
+	fetchAddressVestings,
 } from "@/services/api/address"
 
 /** Store */
@@ -73,6 +76,12 @@ const tabs = ref([
 		alias: "blobs",
 		displayName: "Blobs",
 		icon: "blob",
+		show: true,
+	},
+	{
+		alias: "vestings",
+		displayName: "Vestings",
+		icon: "vesting",
 		show: true,
 	},
 	{
@@ -474,6 +483,26 @@ const getGranters = async () => {
 	isRefetching.value = false
 }
 
+/** Vesting */
+const vestings = ref([])
+const showEnded = ref(false)
+const getVestings = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchAddressVestings({
+		hash: props.address.hash,
+		showEnded: showEnded.value,
+		limit: 10,
+		offset: (page.value - 1) * 10,
+	})
+
+	vestings.value = data.value
+
+	handleNextCondition.value = data.value.length < 10
+
+	isRefetching.value = false
+}
+
 if (activeTab.value === "transactions") await getTransactions()
 if (activeTab.value === "messages") await getMessages()
 if (activeTab.value === "blobs") await getBlobs()
@@ -481,6 +510,7 @@ if (activeTab.value === "delegations") await getDelegations()
 if (activeTab.value === "redelegations") await getRedelegations()
 if (activeTab.value === "grants") await getGrants()
 if (activeTab.value === "granters") await getGranters()
+if (activeTab.value === "vestings") await getVestings()
 
 /** Refetch transactions */
 watch(
@@ -526,6 +556,10 @@ watch(
 			case "granters":
 				getGranters()
 				break
+
+			case "vestings":
+				getVestings()
+				break
 		}
 	},
 )
@@ -565,6 +599,21 @@ watch(
 			case "granters":
 				getGranters()
 				break
+			
+			case "vestings":
+				getVestings()
+				break
+		}
+	},
+)
+
+watch(
+	() => showEnded.value,
+	() => {
+		if (page.value === 1) {
+			getVestings()
+		} else {
+			page.value = 1
 		}
 	},
 )
@@ -967,24 +1016,44 @@ const handleOpenQRModal = () => {
 								</Text>
 							</Flex>
 						</template>
+
+						<!-- Vestings Table -->
+						<template v-if="activeTab === 'vestings'">
+							<VestingsTable v-if="vestings.length" :vestings="vestings" />
+
+							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+								<Text size="13" weight="600" color="secondary" align="center"> No Vestings </Text>
+								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+									This address doesn't have any {{ page === 1 ? "" : "more" }} {{ !showEnded ? "active" : "" }} vestings
+								</Text>
+							</Flex>
+						</template>
 					</Flex>
 
 					<!-- Pagination -->
-					<Flex align="center" gap="6" :class="$style.pagination">
-						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
-							<Icon name="arrow-left-stop" size="12" color="primary" />
-						</Button>
-						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
-							<Icon name="arrow-left" size="12" color="primary" />
-						</Button>
+					<Flex align="center" justify="between">
+						<Flex align="center" gap="6" :class="$style.pagination">
+							<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
+								<Icon name="arrow-left-stop" size="12" color="primary" />
+							</Button>
+							<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
+								<Icon name="arrow-left" size="12" color="primary" />
+							</Button>
 
-						<Button type="secondary" size="mini" disabled>
-							<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
-						</Button>
+							<Button type="secondary" size="mini" disabled>
+								<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
+							</Button>
 
-						<Button @click="handleNext" type="secondary" size="mini" :disabled="handleNextCondition">
-							<Icon name="arrow-right" size="12" color="primary" />
-						</Button>
+							<Button @click="handleNext" type="secondary" size="mini" :disabled="handleNextCondition">
+								<Icon name="arrow-right" size="12" color="primary" />
+							</Button>
+						</Flex>
+
+						<Flex v-if="activeTab === 'vestings'" align="center">
+							<Text size="12" color="secondary"> {{ showEnded ? "Hide completed" : "Show completed" }} </Text>
+
+							<Toggle v-model="showEnded" :class="$style.toggle"/>
+						</Flex>
 					</Flex>
 				</Flex>
 			</Flex>
@@ -1116,6 +1185,10 @@ const handleOpenQRModal = () => {
 
 .pagination {
 	padding: 16px;
+}
+
+.toggle {
+	margin: 16px;
 }
 
 .qrcode {
