@@ -130,6 +130,34 @@ export const fetchAddressUndelegations = async ({ hash, limit, offset }) => {
 	}
 }
 
+export const fetchAddressGrants = async ({ hash, limit, offset }) => {
+	try {
+		const url = new URL(`${useServerURL()}/address/${hash}/grants`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+
+		const data = await useFetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchAddressGranters = async ({ hash, limit, offset }) => {
+	try {
+		const url = new URL(`${useServerURL()}/address/${hash}/granters`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+
+		const data = await useFetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchAddressVestings = async ({ hash, showEnded, limit, offset }) => {
 	try {
 		const url = new URL(`${useServerURL()}/address/${hash}/vestings`)

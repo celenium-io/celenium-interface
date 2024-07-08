@@ -30,19 +30,21 @@ const { hostname } = useRequestURL()
 
 switch (hostname) {
 	case "celenium.io":
-	case "dev.celenium.io":
+	// case "dev.celenium.io":
 		appStore.network = mainnet
-		break
-
-	case "arabica.celenium.io":
-	case "localhost":
-		appStore.network = arabica
 		break
 
 	case "mocha.celenium.io":
 	case "mocha-4.celenium.io":
 		appStore.network = mocha
 		break
+
+	// case "arabica.celenium.io":
+	// case "localhost":
+	default:
+		appStore.network = arabica
+		break
+
 }
 
 const getBalance = async () => {

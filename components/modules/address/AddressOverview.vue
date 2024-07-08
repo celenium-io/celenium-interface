@@ -16,6 +16,8 @@ import BlobsTable from "@/components/modules/namespace/tables/BlobsTable.vue"
 import DelegationsTable from "./tables/DelegationsTable.vue"
 import RedelegationsTable from "./tables/RedelegationsTable.vue"
 import UndelegationsTable from "./tables/UndelegationsTable.vue"
+import GrantsTable from "./tables/GrantsTable.vue"
+import GrantersTable from "./tables/GrantersTable.vue";
 import VestingsTable from "./tables/VestingsTable.vue";
 
 /** Services */
@@ -30,6 +32,8 @@ import {
 	fetchAddressDelegations,
 	fetchAddressRedelegations,
 	fetchAddressUndelegations,
+	fetchAddressGrants,
+	fetchAddressGranters,
 	fetchAddressVestings,
 } from "@/services/api/address"
 
@@ -97,6 +101,18 @@ const tabs = ref([
 		displayName: "Undelegations",
 		icon: "unlock",
 		show: props.address.balance.unbonding > 0,
+	},
+	{
+		alias: "grants",
+		displayName: "Grants",
+		icon: "stars",
+		show: true,
+	},
+	{
+		alias: "granters",
+		displayName: "Granters",
+		icon: "granters",
+		show: true,
 	},
 ])
 
@@ -429,6 +445,44 @@ const getUndelegations = async () => {
 	isRefetching.value = false
 }
 
+/** Grants and Granters */
+const grants = ref([])
+const granters = ref([])
+
+const getGrants = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchAddressGrants({
+		hash: props.address.hash,
+		limit: 10,
+		offset: (page.value - 1) * 10,
+	})
+
+	if (data.value?.length) {
+		grants.value = data.value
+	}
+	handleNextCondition.value = data.value.length < 10
+
+	isRefetching.value = false
+}
+
+const getGranters = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchAddressGranters({
+		hash: props.address.hash,
+		limit: 10,
+		offset: (page.value - 1) * 10,
+	})
+
+	if (data.value?.length) {
+		granters.value = data.value
+	}
+	handleNextCondition.value = data.value.length < 10
+
+	isRefetching.value = false
+}
+
 /** Vesting */
 const vestings = ref([])
 const showEnded = ref(false)
@@ -454,6 +508,8 @@ if (activeTab.value === "messages") await getMessages()
 if (activeTab.value === "blobs") await getBlobs()
 if (activeTab.value === "delegations") await getDelegations()
 if (activeTab.value === "redelegations") await getRedelegations()
+if (activeTab.value === "grants") await getGrants()
+if (activeTab.value === "granters") await getGranters()
 if (activeTab.value === "vestings") await getVestings()
 
 /** Refetch transactions */
@@ -492,6 +548,14 @@ watch(
 			case "undelegations":
 				getUndelegations()
 				break
+			
+			case "grants":
+				getGrants()
+				break
+			
+			case "granters":
+				getGranters()
+				break
 
 			case "vestings":
 				getVestings()
@@ -526,6 +590,14 @@ watch(
 
 			case "undelegations":
 				getUndelegations()
+				break
+			
+			case "grants":
+				getGrants()
+				break
+			
+			case "granters":
+				getGranters()
 				break
 			
 			case "vestings":
@@ -917,6 +989,30 @@ const handleOpenQRModal = () => {
 								<Text size="13" weight="600" color="secondary" align="center"> No Undelegations </Text>
 								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
 									This address doesn't have any {{ page === 1 ? "" : "more" }} undelegations
+								</Text>
+							</Flex>
+						</template>
+
+						<!-- Grants Table -->
+						<template v-if="activeTab === 'grants'">
+							<GrantsTable v-if="grants.length" :grants="grants" />
+
+							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+								<Text size="13" weight="600" color="secondary" align="center"> No Grants </Text>
+								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+									This address doesn't have any {{ page === 1 ? "" : "more" }} grants
+								</Text>
+							</Flex>
+						</template>
+
+						<!-- Granters Table -->
+						<template v-if="activeTab === 'granters'">
+							<GrantersTable v-if="granters.length" :granters="granters" />
+
+							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+								<Text size="13" weight="600" color="secondary" align="center"> No Granters </Text>
+								<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+									This address doesn't have any {{ page === 1 ? "" : "more" }} granters
 								</Text>
 							</Flex>
 						</template>
