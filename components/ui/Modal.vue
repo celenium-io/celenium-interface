@@ -20,7 +20,7 @@ const props = defineProps({
 		type: Boolean,
 	},
 	width: {
-		type: String,
+		type: [String, Number],
 	},
 	closable: {
 		type: Boolean,
