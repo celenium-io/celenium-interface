@@ -15,10 +15,15 @@ import { fetchLatestBlocks } from "@/services/api/block"
 /** Store */
 import { useAppStore } from "@/store/app"
 import { useBookmarksStore } from "@/store/bookmarks"
+import { useSettingsStore } from "@/store/settings"
 const appStore = useAppStore()
 const bookmarksStore = useBookmarksStore()
+const settingsStore = useSettingsStore()
 bookmarksStore.$subscribe((mutation, state) => {
 	localStorage.setItem("bookmarks", JSON.stringify(state.bookmarks))
+})
+settingsStore.$subscribe((mutation, state) => {
+	localStorage.setItem("settings", JSON.stringify(state))
 })
 
 onMounted(async () => {

@@ -1,4 +1,11 @@
 <script setup>
+/** Vendor */
+import iconv from "iconv-lite"
+
+/** Store */
+import { useSettingsStore } from "@/store/settings"
+const settingsStore = useSettingsStore()
+
 const props = defineProps({
 	blob: {
 		type: Object,
@@ -9,22 +16,19 @@ const props = defineProps({
 	hex: {
 		type: Array,
 	},
+	cursor: {
+		type: Number,
+	},
 	range: {
 		type: Object,
 	},
 })
-const emit = defineEmits(["onSelect"])
-
-const cards = ref({
-	hex: true,
-	inspector: true,
-})
+const emit = defineEmits(["onSelect", "onCursorSelect"])
 
 const viewerEl = ref()
 const scrollOffset = ref(0)
 
 const isSelecting = ref(false)
-const selectedBytes = ref([])
 
 const onKeydown = (e) => {
 	if (e.code === "Escape") {
@@ -33,6 +37,34 @@ const onKeydown = (e) => {
 
 	if (e.code === "PageUp") {
 		scrollOffset.value = 0
+		emit("onCursorSelect", 0)
+	}
+
+	if (e.code === "PageDown") {
+		scrollOffset.value = props.hex.length - 40
+		emit("onCursorSelect", props.bytes.length)
+	}
+
+	if (e.code === "ArrowUp" && !e.metaKey) {
+		emit("onCursorSelect", props.cursor - 16)
+	} else if (e.code === "ArrowUp" && e.metaKey) {
+		if (scrollOffset.value === 0) return
+		scrollOffset.value -= 1
+	}
+
+	if (e.code === "ArrowDown" && !e.metaKey) {
+		emit("onCursorSelect", props.cursor + 16)
+	} else if (e.code === "ArrowDown" && e.metaKey) {
+		if (scrollOffset.value + 41 > props.hex.length) return
+		scrollOffset.value += 1
+	}
+
+	if (e.code === "ArrowLeft") {
+		emit("onCursorSelect", props.cursor - 1)
+	}
+
+	if (e.code === "ArrowRight") {
+		emit("onCursorSelect", props.cursor + 1)
 	}
 }
 
@@ -47,6 +79,7 @@ onBeforeUnmount(() => {
 const onScroll = (e) => {
 	e.preventDefault()
 
+	if (e.deltaY === 0) return
 	if (scrollOffset.value + 40 + 1 > props.hex.length && e.deltaY > 0) return
 	if (props.bytes.length < 40) return
 	if (e.deltaY < 0 && scrollOffset.value <= 0) {
@@ -67,42 +100,40 @@ const onMouseLeave = (e) => {
 }
 
 /** Multi-select */
+const startOfSelection = ref()
+const isMultiSelecting = ref(false)
 const onPointerDown = (idx, byte) => {
 	isSelecting.value = true
 
 	const relativeIdx = idx + scrollOffset.value * 16
-	emit("onSelect", [relativeIdx, undefined])
-
-	const alreadySelectedByte = selectedBytes.value.find((b) => b.idx === relativeIdx && b.value === byte)
-	if (alreadySelectedByte) {
-		const alreadySelectedByteIdx = selectedBytes.value.indexOf(alreadySelectedByte)
-		selectedBytes.value.splice(alreadySelectedByteIdx, 1)
-	} else {
-		selectedBytes.value.push({ idx: relativeIdx, value: byte })
-	}
+	startOfSelection.value = relativeIdx
 }
 const onPointerUp = (idx, byte) => {
 	isSelecting.value = false
 
 	const relativeIdx = idx + scrollOffset.value * 16
-	emit("onSelect", [undefined, relativeIdx])
+
+	if (isMultiSelecting.value) {
+		isMultiSelecting.value = false
+		emit("onSelect", [startOfSelection.value, relativeIdx])
+	} else {
+		emit("onCursorSelect", relativeIdx)
+	}
 }
-const onByteSelect = (idx, byte) => {
-	if (!isSelecting.value) return
+const onByteSelect = (idx) => {
+	if (!isSelecting.value) {
+		hoveredByteIdx.value = idx
+		return
+	}
+
+	isMultiSelecting.value = true
 
 	const relativeIdx = idx + scrollOffset.value * 16
-	emit("onSelect", [undefined, relativeIdx])
-
-	const alreadySelectedByte = selectedBytes.value.find((b) => b.idx === relativeIdx && b.value === byte)
-	if (alreadySelectedByte) {
-		const alreadySelectedByteIdx = selectedBytes.value.indexOf(alreadySelectedByte)
-		selectedBytes.value.splice(alreadySelectedByteIdx, 1)
-	} else {
-		selectedBytes.value.push({ idx: relativeIdx, value: byte })
-	}
+	emit("onSelect", [startOfSelection.value, relativeIdx])
 }
 const isSelected = (idx) => {
 	const relativeIdx = idx + scrollOffset.value * 16
+	if (props.range.start === null && props.range.end === null) return
 	if (props.range.start <= props.range.end) {
 		return relativeIdx >= props.range.start && relativeIdx <= props.range.end
 	} else {
@@ -110,24 +141,29 @@ const isSelected = (idx) => {
 	}
 }
 
-const decoder = new TextDecoder("utf-8")
-const test = (byte) => {
-	return decoder.decode(new Uint8Array([`0x${byte}`]))
+/** Hover byte */
+const hoveredByteIdx = ref(null)
+const onPointerLeave = () => {
+	hoveredByteIdx.value = null
+}
+
+const decode = (byte) => {
+	const charCode = parseInt(`0x${byte}`, 16)
+	if (charCode >= 0 && charCode <= 31) {
+		return "."
+	} else {
+		return iconv.decode(new Uint8Array([charCode]), settingsStore.hex.characterSet)
+	}
 }
 </script>
 
 <template>
 	<Flex direction="column" gap="16" :class="$style.wrapper">
-		<Flex @click="cards.hex = !cards.hex" align="center" justify="between" :class="$style.header">
-			<Text size="13" weight="600" color="primary">Hex Viewer</Text>
-			<Icon name="chevron" size="14" color="tertiary" :style="{ transform: `rotate(${cards.hex ? '180deg' : '0'})` }" />
-		</Flex>
-
-		<Flex v-if="cards.hex" ref="viewerEl" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" justify="between">
+		<Flex ref="viewerEl" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" @pointerleave="onPointerLeave" justify="between">
 			<Flex gap="6">
 				<Flex direction="column" :class="$style.row_labels">
-					<Text v-for="i in 40" size="12" weight="600" color="support" mono :class="$style.row_label">
-						{{ (i + scrollOffset).toString(16).padStart(6, "0") }}
+					<Text v-for="(i, idx) in 40" size="12" weight="600" color="support" mono :class="$style.row_label">
+						{{ (idx + scrollOffset).toString(16).padStart(6, "0") }}
 					</Text>
 				</Flex>
 
@@ -140,18 +176,22 @@ const test = (byte) => {
 
 					<div :class="$style.bytes">
 						<Text
-							v-for="i in 640"
-							@pointerdown="() => onPointerDown(i, bytes[i - 1 + scrollOffset * 16])"
-							@pointerup="() => onPointerUp(i, bytes[i - 1 + scrollOffset * 16])"
-							@mouseenter="() => onByteSelect(i, bytes[i - 1 + scrollOffset * 16])"
-							size="12"
+							v-for="(i, idx) in 640"
+							@pointerdown="() => onPointerDown(idx, bytes[idx + scrollOffset * 16])"
+							@pointerup="() => onPointerUp(idx, bytes[idx + scrollOffset * 16])"
+							@mouseenter="() => onByteSelect(idx, bytes[idx + scrollOffset * 16])"
+							size="14"
 							weight="600"
 							height="160"
 							color="secondary"
 							mono
-							:class="isSelected(i) && $style.selected"
+							:class="[
+								isSelected(idx) && $style.selected,
+								idx + scrollOffset * 16 === cursor && $style.cursor,
+								hoveredByteIdx === idx && $style.hover,
+							]"
 						>
-							{{ bytes[i - 1 + scrollOffset * 16] }}
+							{{ bytes[idx + scrollOffset * 16] }}
 						</Text>
 					</div>
 				</Flex>
@@ -160,11 +200,15 @@ const test = (byte) => {
 			<Flex direction="column">
 				<Text size="12" weight="600" color="support" mono style="line-height: 22px">ASCII</Text>
 				<div :class="$style.ascii_preview">
-					<Text v-for="i in 640" size="14" weight="600" color="tertiary" :class="[$style.char, isSelected(i) && $style.selected]">
-						<template v-if="bytes[i - 1 + scrollOffset * 16] !== '00'">
-							{{ String.fromCharCode(parseInt(bytes[i - 1 + scrollOffset * 16], 16)) }}
-						</template>
-						<template v-else> . </template>
+					<Text
+						v-for="(i, idx) in 640"
+						size="14"
+						weight="600"
+						color="tertiary"
+						@pointerenter="() => onByteSelect(idx)"
+						:class="[$style.char, isSelected(idx) && $style.selected, hoveredByteIdx === idx && $style.hover]"
+					>
+						{{ decode(bytes[idx + scrollOffset * 16]) }}
 					</Text>
 				</div>
 			</Flex>
@@ -190,20 +234,6 @@ const test = (byte) => {
 	padding: 16px;
 }
 
-.header {
-	cursor: pointer;
-	border-radius: 6px;
-
-	padding: 8px;
-	margin: -8px;
-
-	transition: all 0.2s ease;
-
-	&:hover {
-		background: var(--op-5);
-	}
-}
-
 .bytes {
 	display: flex;
 	flex-wrap: wrap;
@@ -212,6 +242,8 @@ const test = (byte) => {
 
 	& span {
 		min-width: 24px;
+
+		font-family: "Source Code Pro";
 
 		line-height: 20px;
 		text-align: center;
@@ -226,6 +258,18 @@ const test = (byte) => {
 			background: var(--op-10);
 		}
 
+		&.cursor {
+			background: var(--op-15);
+
+			animation: blink 2s infinite;
+			animation-timing-function: unset;
+		}
+
+		&.hover {
+			box-shadow: inset 0 0 0 1px var(--op-5);
+			background: var(--op-10);
+		}
+
 		&:nth-child(2n) {
 			color: var(--txt-tertiary);
 		}
@@ -233,6 +277,20 @@ const test = (byte) => {
 		&:nth-child(16n - 8) {
 			margin-right: 6px;
 		}
+	}
+}
+
+@keyframes blink {
+	0% {
+		box-shadow: inset 0 -4px 0 -2px var(--hexedit-marker-cursor-blink-background, transparent);
+	}
+
+	50% {
+		box-shadow: inset 0 -4px 0 -2px var(--hexedit-marker-cursor-blink-background, #fff);
+	}
+
+	100% {
+		box-shadow: inset 0 -4px 0 -2px var(--hexedit-marker-cursor-blink-background, transparent);
 	}
 }
 
@@ -306,5 +364,10 @@ const test = (byte) => {
 
 .char {
 	font-family: "Source Code Pro";
+
+	&.hover {
+		box-shadow: inset 0 0 0 1px var(--op-5);
+		background: var(--op-10);
+	}
 }
 </style>
