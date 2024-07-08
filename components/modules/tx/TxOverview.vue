@@ -39,6 +39,20 @@ const preselectedTab = route.query.tab && ["messages", "events"].includes(route.
 const activeTab = ref(preselectedTab)
 const messages = ref([])
 
+const gasBarColor = computed(() => {
+	let percent = props.tx.gas_used * 100 / props.tx.gas_wanted
+
+	if (percent > 100) {
+		return "var(--red)"
+	} else if (percent < 30) {
+		return "var(--orange)"
+	} else if (percent < 60) {
+		return "var(--yellow)"
+	} else {
+		return "var(--green)"
+	}
+})
+
 watch(
 	() => activeTab.value,
 	() =>
@@ -173,8 +187,10 @@ const handleViewRawTransaction = () => {
 							<div
 								:style="{
 									width: `${(tx.gas_used * 100) / tx.gas_wanted > 100 ? 100 : (tx.gas_used * 100) / tx.gas_wanted}%`,
+									background: gasBarColor,
+									boxShadow: `0 0 6px ${gasBarColor}`
 								}"
-								:class="[$style.gas_used, (tx.gas_used * 100) / tx.gas_wanted > 100 && $style.error]"
+								:class="$style.gas_used"
 							/>
 						</div>
 
@@ -305,13 +321,6 @@ const handleViewRawTransaction = () => {
 		height: 6px;
 
 		border-radius: 50px;
-		background: var(--green);
-		box-shadow: 0 0 6px rgba(10, 222, 112, 80%);
-
-		&.error {
-			background: var(--red);
-			box-shadow: 0 0 6px var(--red);
-		}
 	}
 }
 

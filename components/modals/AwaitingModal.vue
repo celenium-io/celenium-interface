@@ -36,6 +36,42 @@ const awaitTx = ref(false)
 const isFound = ref(false)
 const tx = ref()
 
+const details = computed(() => {
+	let detailsRes = []
+	switch (cacheStore.tx.type) {
+		case 'send':
+			detailsRes.processing = 'Sending...'
+			detailsRes.success = 'Successfuly sent'
+			detailsRes.destination = 'Destination Wallet'
+			detailsRes.icon = 'address'
+
+			return detailsRes
+	
+		case 'pfb':
+			detailsRes.processing = 'Submiting Blob...'
+			detailsRes.success = 'Successfuly submited'
+			detailsRes.destination = 'Namespace'
+			detailsRes.icon = 'namespace'
+
+			return detailsRes
+
+		case 'staking':
+			detailsRes.processing = 'Sending...'
+			detailsRes.success = 'Successfuly delegated'
+			detailsRes.destination = 'Validator'
+			detailsRes.icon = 'validator'
+
+			return detailsRes
+
+		default:
+			detailsRes.processing = 'Processing...'
+			detailsRes.success = 'Successfuly executed tx'
+			detailsRes.destination = 'Destination address'
+
+			return detailsRes
+	}
+})
+
 watch(
 	() => props.show,
 	() => {
@@ -76,7 +112,7 @@ const handleClose = () => {
 				<Flex v-if="!isFound" align="center" gap="6">
 					<Spinner size="12" />
 					<Text size="14" weight="600" color="primary">
-						{{ cacheStore.tx.type === "send" ? "Sending..." : "Submiting Blob..." }}
+						{{ details.processing }}
 					</Text>
 				</Flex>
 				<Flex v-else align="center" gap="6">
@@ -87,7 +123,7 @@ const handleClose = () => {
 					/>
 
 					<Text v-if="tx.status === 'success'" size="14" weight="600" color="primary">
-						{{ cacheStore.tx.type === "send" ? "Successfuly sent" : "Successfuly submited" }}
+						{{ details.success }}
 					</Text>
 					<Text v-else size="14" weight="600" color="primary"> Failed </Text>
 				</Flex>
@@ -140,11 +176,11 @@ const handleClose = () => {
 					</Flex>
 
 					<Flex align="center" gap="12" wide :class="[$style.wallet]">
-						<Icon :name="cacheStore.tx.type === 'send' ? 'address' : 'namespace'" size="16" color="secondary" />
+						<Icon :name="details.icon" size="16" color="secondary" />
 
 						<Flex direction="column" gap="6" :class="$style.metadata">
 							<Text size="14" weight="600" color="primary">
-								{{ cacheStore.tx.type === "send" ? "Destination Wallet" : "Namespace" }}
+								{{ details.destination }}
 							</Text>
 
 							<Text size="12" weight="500" color="tertiary" :selectable="true"> {{ cacheStore.tx.to }} </Text>
@@ -171,7 +207,7 @@ const handleClose = () => {
 				</Flex>
 
 				<Flex direction="column" gap="16" wide>
-					<Flex v-if="cacheStore.tx.type === 'send'" align="center" justify="between">
+					<Flex v-if="['send', 'staking'].includes(cacheStore.tx.type)" align="center" justify="between">
 						<Text size="13" weight="500" color="tertiary"> Amount: </Text>
 
 						<Text size="13" weight="600" color="secondary">
@@ -222,6 +258,19 @@ const handleClose = () => {
 						<Flex align="center" gap="6">
 							<Text size="13" weight="600" color="secondary">
 								{{ cacheStore.tx.to }}
+							</Text>
+							<CopyButton size="10" :text="cacheStore.tx.to" />
+						</Flex>
+					</Flex>
+
+					<Flex v-if="cacheStore.tx.type === 'staking'" align="center" justify="between">
+						<Text size="13" weight="500" color="tertiary"> Validator: </Text>
+
+						<Flex align="center" gap="6">
+							<Text size="13" weight="600" color="secondary">
+								celestiavaloper
+								<Text color="tertiary">...</Text>
+								{{ cacheStore.tx.to.slice(-4) }}
 							</Text>
 							<CopyButton size="10" :text="cacheStore.tx.to" />
 						</Flex>

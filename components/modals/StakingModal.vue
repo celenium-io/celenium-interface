@@ -16,8 +16,8 @@ import { fetchAddressByHash } from "@/services/api/address"
 import amp from "@/services/amp"
 import { suggestChain, getAccounts } from "@/services/keplr"
 import { normalizeAmount, purgeNumber, comma } from "@/services/utils/amounts"
-import { SIMULATE_ADDRESS_FROM, SIMULATE_ADDRESS_TO, simulateMsgs, sendMsgs } from "@/services/keplr"
-import { MsgSend } from "@/services/proto/gen/msg_send"
+import { SIMULATE_ADDRESS_FROM, SIMULATE_VALIDATOR, simulateMsgs, sendMsgs } from "@/services/keplr"
+import { MsgDelegate } from "@/services/proto/gen/staking";
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -129,7 +129,7 @@ watch(
 
 		isAddressNotFound.value = false
 
-		if (!address.value.startsWith("celestia") || address.value.length !== 47) {
+		if (!address.value.startsWith("celestiavaloper") || address.value.length !== 54) {
 			addressError.value = "Validation error"
 			return
 		}
@@ -139,12 +139,16 @@ watch(
 			return
 		}
 
-		if (address.value.startsWith("celestia") && address.value.length === 47) {
+		if (address.value.startsWith("celestiavaloper") && address.value.length === 54) {
 			addressSuccess.value = true
-			runGasLimitEstimation()
 
 			const { data } = await search(address.value)
-			if (!data.value.length) isAddressNotFound.value = true
+			if (!data.value.length) {
+				isAddressNotFound.value = true
+				return
+			}
+
+			runGasLimitEstimation()
 		} else {
 			addressSuccess.value = false
 		}
@@ -169,16 +173,17 @@ const calcGasFee = (target) => {
 
 const runGasLimitEstimation = async () => {
 	const protoMsgs = {
-		typeUrl: "/cosmos.bank.v1beta1.MsgSend",
-		value: MsgSend.encode({
-			fromAddress: appStore.address ? appStore.address : SIMULATE_ADDRESS_FROM,
-			toAddress: address.value ? address.value : SIMULATE_ADDRESS_TO,
-			amount: [
-				{
+		typeUrl: "/cosmos.staking.v1beta1.MsgDelegate",
+		value: MsgDelegate.encode({
+			delegatorAddress: appStore.address ? appStore.address : SIMULATE_ADDRESS_FROM,
+			validatorAddress: address.value ? address.value : SIMULATE_VALIDATOR,
+			amount: {
 					denom: "utia",
-					amount: DecUtils.getTenExponentN(6).mul(new Dec(1)).truncate().toString(),
-				},
-			],
+					amount: DecUtils.getTenExponentN(6)
+						.mul(new Dec(1))
+						.truncate()
+						.toString(),
+			},
 		}).finish(),
 	}
 
@@ -199,18 +204,18 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
-			amp.log("showSendModal")
+			amp.log("showStakingModal")
 
 			if (!appStore.address?.length) {
-				warningBannerText.value = "Keplr wallet connection is required to send TIA."
+				warningBannerText.value = "Keplr wallet connection is required to delegate."
 			} else if (hostname !== "celenium.io") {
 				warningBannerText.value = `You are currently on ${hostname}. The transaction will be performed on the test network.`
 			} else {
 				warningBannerText.value = ``
 			}
 
-			if (cacheStore.current.address) {
-				address.value = cacheStore.current.address.hash
+			if (cacheStore.current.validator) {
+				address.value = cacheStore.current.validator.address
 			}
 
 			nextTick(() => {
@@ -271,14 +276,14 @@ const handleConnect = async () => {
 const continueButton = computed(() => {
 	if (addressError.value.length) {
 		return {
-			title: 'Destination address is invalid',
+			title: 'Validator address is invalid',
 			disable: true,
 		}
 	}
 
 	if (!address.value?.length) {
 		return {
-			title: 'Enter the destionation address',
+			title: 'Enter the validator address',
 			disable: true,
 		}
 	}
@@ -304,7 +309,7 @@ const continueButton = computed(() => {
 		}
 	}
 	return {
-		title: 'Send',
+		title: 'Delegate',
 		disable: false,
 	}	
 })
@@ -314,19 +319,17 @@ const handleContinue = async () => {
 
 	const proto = [
 		{
-			typeUrl: "/cosmos.bank.v1beta1.MsgSend",
-			value: MsgSend.encode({
-				fromAddress: appStore.address,
-				toAddress: address.value,
-				amount: [
-					{
-						denom: "utia",
-						amount: DecUtils.getTenExponentN(6)
-							.mul(new Dec(parseFloat(amount.value)))
-							.truncate()
-							.toString(),
-					},
-				],
+			typeUrl: "/cosmos.staking.v1beta1.MsgDelegate",
+			value: MsgDelegate.encode({
+				delegatorAddress: appStore.address,
+				validatorAddress: address.value,
+				amount: {
+					denom: "utia",
+					amount: DecUtils.getTenExponentN(6)
+						.mul(new Dec(parseFloat(amount.value)))
+						.truncate()
+						.toString(),
+				},
 			}).finish(),
 		},
 	]
@@ -345,7 +348,7 @@ const handleContinue = async () => {
 		const txHash = await sendMsgs(appStore.network, key.bech32Address, proto, stdFee)
 		isAwaiting.value = false
 
-		amp.log("successfulSend")
+		amp.log("successfulDelegate")
 
 		cacheStore.tx.hash = txHash
 		cacheStore.tx.from = appStore.address
@@ -353,13 +356,13 @@ const handleContinue = async () => {
 		cacheStore.tx.amount = amount.value
 		cacheStore.tx.network = appStore.network
 		cacheStore.tx.ts = new Date().getTime()
-		cacheStore.tx.type = "send"
+		cacheStore.tx.type = "staking"
 
 		modalsStore.open("awaiting")
 	} catch (e) {
 		isAwaiting.value = false
 
-		amp.log("failedSend")
+		amp.log("failedDelegate")
 
 		if (e.message.startsWith("Request rejected")) {
 			notificationsStore.create({
@@ -402,7 +405,7 @@ const handleContinue = async () => {
 <template>
 	<Modal :show="show" @onClose="emit('onClose')" width="500" disable-trap>
 		<Flex direction="column" gap="24">
-			<Text size="14" weight="600" color="primary">Send</Text>
+			<Text size="14" weight="600" color="primary">Delegate</Text>
 
 			<Flex direction="column" gap="24">
 				<Flex align="center" gap="12" :class="$style.wallet">
@@ -419,7 +422,7 @@ const handleContinue = async () => {
 						<Text v-if="appStore.address" size="12" weight="500" color="tertiary" :selectable="true">
 							{{ appStore.address }}
 						</Text>
-						<Text v-else size="12" weight="500" color="yellow" :selectable="true"> Connect with your wallet to send TIA </Text>
+						<Text v-else size="12" weight="500" color="yellow" :selectable="true"> Connect with your wallet to delegate</Text>
 					</Flex>
 
 					<div :class="[$style.auth_line, appStore.address && $style.anim]" />
@@ -459,7 +462,7 @@ const handleContinue = async () => {
 				</Flex>
 
 				<Flex direction="column" gap="8">
-					<Input v-model="address" label="Address" placeholder="Destination" ref="inputEl">
+					<Input v-model="address" label="Validator" placeholder="Validator address" ref="inputEl">
 						<template #rightText>
 							<Flex v-if="addressError.length" align="center" gap="4">
 								<Icon name="danger" size="12" color="yellow" />
@@ -471,9 +474,9 @@ const handleContinue = async () => {
 					</Input>
 
 					<Flex v-if="isAddressNotFound" align="center" gap="4">
-						<Icon name="danger" size="12" color="yellow" />
+						<Icon name="danger" size="12" color="red" />
 						<Text size="12" weight="500" color="tertiary">
-							This address is not found, but you can still send the transaction
+							This address is not found, you can't delegate
 						</Text>
 					</Flex>
 				</Flex>
