@@ -230,31 +230,6 @@ const getStyles = () => {
 	background: var(--op-5);
 }
 
-.wrapper.inline {
-	height: initial;
-
-	gap: 6px;
-	background: transparent;
-
-	padding: 0;
-}
-.wrapper.inline svg,
-span {
-	transition: all 0.2s ease;
-}
-.wrapper.inline:hover {
-	box-shadow: 0 0 0 0 transparent;
-}
-.wrapper.inline:hover svg {
-	fill: var(--txt-secondary);
-}
-.wrapper.inline:hover span {
-	color: var(--txt-primary);
-}
-.wrapper.inline:active {
-	transform: translateY(1px);
-}
-
 .wrapper.text {
 	height: initial;
 
