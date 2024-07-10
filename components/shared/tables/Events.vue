@@ -130,7 +130,7 @@ watch(
 <template>
 	<Flex direction="column" justify="between" :class="$style.data">
 		<Flex direction="column" :class="[$style.inner, $style.events]">
-			<Flex v-for="(event, idx) in events" @click="handleViewRawEvent(event)" align="center" gap="12" :class="$style.event">
+			<Flex v-if="events.length" v-for="(event, idx) in events" @click="handleViewRawEvent(event)" align="center" gap="12" :class="$style.event">
 				<Flex
 					direction="column"
 					align="center"
@@ -798,6 +798,13 @@ watch(
 					</Text>
 				</Flex>
 			</Flex>
+
+			<Flex v-else direction="column" align="center" justify="center" gap="8" :class="$style.empty">
+				<Text size="13" weight="600" color="secondary" align="center"> No events </Text>
+				<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+					This block does not contain any events
+				</Text>
+			</Flex>
 		</Flex>
 		<!-- Pagination -->
 		<Flex v-if="events.length && pages > 1" align="center" gap="6" :class="$style.pagination">
@@ -907,6 +914,11 @@ watch(
 .memo {
 	text-overflow: ellipsis;
 	overflow: hidden;
+}
+
+.empty {
+	flex: 1;
+	padding: 16px 0;
 }
 
 @media (max-width: 800px) {

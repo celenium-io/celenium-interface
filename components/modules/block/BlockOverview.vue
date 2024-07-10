@@ -569,7 +569,7 @@ const handleViewRawTransactions = () => {
 					</Flex>
 
 					<Flex v-if="transactions.length" :class="$style.table_scroller">
-						<table>
+						<table v-if="block.height">
 							<thead>
 								<tr>
 									<th><Text size="12" weight="600" color="tertiary">Hash</Text></th>
@@ -676,6 +676,76 @@ const handleViewRawTransactions = () => {
 												:styles="{ amount: { size: '13' }, currency: { size: '13' } }"
 											/>
 										</NuxtLink>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+
+						<table v-else>
+							<thead>
+								<tr>
+									<th><Text size="12" weight="600" color="tertiary">Hash</Text></th>
+									<th><Text size="12" weight="600" color="tertiary">Messages</Text></th>
+									<th><Text size="12" weight="600" color="tertiary">Gas</Text></th>
+									<th><Text size="12" weight="600" color="tertiary">Fee</Text></th>
+								</tr>
+							</thead>
+
+							<tbody>
+								<tr v-for="tx in transactions">
+									<td style="width: 1px">
+										<Flex align="center" gap="8" :class="$style.genesis_td">
+											<Icon
+												:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
+												size="13"
+												:color="tx.status === 'success' ? 'green' : 'red'"
+											/>
+
+											<Text size="13" weight="600" color="primary" mono>Genesis tx</Text>
+										</Flex>
+									</td>
+									<td>
+										<Flex align="center" :class="$style.genesis_td">
+											<Tooltip position="start" textAlign="left">
+												<MessageTypeBadge :types="tx.message_types" />
+
+												<template #content>
+													<Flex direction="column" gap="8">
+														<Text v-for="type in tx.message_types" color="primary">
+															{{ type.replace("Msg", "") }}
+														</Text>
+													</Flex>
+												</template>
+											</Tooltip>
+										</Flex>
+									</td>
+									<td style="width: 1px">
+										<Tooltip :class="$style.genesis_td">
+											<Flex align="center" gap="8">
+												<GasBar :percent="(tx.gas_used * 100) / tx.gas_wanted" />
+
+												<Text v-if="tx.gas_wanted > 0" size="13" weight="600" color="primary">
+													{{ ((tx.gas_used * 100) / tx.gas_wanted).toFixed(2) }}%
+												</Text>
+											</Flex>
+
+											<template #content>
+												<Flex align="center" gap="4">
+													<Text size="13" weight="600" color="primary">{{ comma(tx.gas_used) }}</Text>
+													<Text size="13" weight="600" color="tertiary">/</Text>
+													<Text size="13" weight="600" color="secondary">{{
+														comma(tx.gas_wanted)
+													}}</Text></Flex
+												>
+											</template>
+										</Tooltip>
+									</td>
+									<td>
+										<AmountInCurrency
+											:class="$style.genesis_td"
+											:amount="{ value: tx.fee, decimal: 6 }"
+											:styles="{ amount: { size: '13' }, currency: { size: '13' } }"
+										/>
 									</td>
 								</tr>
 							</tbody>
@@ -900,6 +970,14 @@ const handleViewRawTransactions = () => {
 			}
 		}
 	}
+}
+
+.genesis_td {
+	display: flex;
+
+	min-height: 40px;
+
+	padding-right: 24px;
 }
 
 .table.disabled {
