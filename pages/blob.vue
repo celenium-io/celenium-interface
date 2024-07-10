@@ -170,7 +170,6 @@ const handleDownload = () => {
 
 	const a = window.document.createElement("a")
 	a.href = window.URL.createObjectURL(new Blob([byteArray], { type: "application/octet-stream" }))
-	console.log(blob.value)
 	a.download = `${metadata.value.namespace.namespace_id}_${blob.value.commitment.slice(
 		blob.value.commitment.length - 8,
 		blob.value.commitment.length,
@@ -426,6 +425,21 @@ const handleCopy = (text) => {
 										</Text>
 									</Flex>
 								</NuxtLink>
+
+								<NuxtLink v-if="metadata.rollup" :to="`/rollup/${metadata.rollup.slug}`" target="_blank">
+									<Flex direction="column" gap="8">
+										<Text size="12" weight="600" color="tertiary"> Rollup </Text>
+
+										<Flex align="center" gap="8">
+											<Flex align="center" justify="center" :class="$style.avatar_container">
+												<img :src="metadata.rollup.logo" :class="$style.avatar_image" />
+											</Flex>
+											<Text size="12" weight="600" color="secondary" style="text-overflow: ellipsis; overflow: hidden">
+												{{ metadata.rollup.name }}
+											</Text>
+										</Flex>
+									</Flex>
+								</NuxtLink>
 							</Flex>
 
 							<Button @click="handleDownload" type="secondary" size="small" wide>
@@ -578,6 +592,20 @@ const handleCopy = (text) => {
 		background: var(--op-10);
 		box-shadow: inset 0 0 0 2px var(--op-5);
 	}
+}
+
+.avatar_container {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	overflow: hidden;
+	border-radius: 50%;
+}
+
+.avatar_image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 @media (max-width: 900px) {
