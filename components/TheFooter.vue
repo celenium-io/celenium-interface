@@ -171,6 +171,9 @@ const handleChangeTheme = (target) => {
 					<NuxtLink to="/gas" :class="$style.link">
 						<Text size="12" weight="500" color="tertiary"> Gas Tracker </Text>
 					</NuxtLink>
+					<NuxtLink to="https://hubble.celenium.io" :class="$style.link">
+						<Text size="12" weight="500" color="tertiary"> Hubble </Text>
+					</NuxtLink>
 					<NuxtLink to="https://docs.celenium.io" :class="$style.link" target="_blank">
 						<Text size="12" weight="500" color="tertiary"> Docs </Text>
 					</NuxtLink>
@@ -227,7 +230,7 @@ const handleChangeTheme = (target) => {
 	}
 }
 
-@media (max-width: 600px) {
+@media (max-width: 1000px) {
 	.container {
 		flex-direction: column;
 		gap: 12px;
