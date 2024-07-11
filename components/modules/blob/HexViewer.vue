@@ -31,6 +31,8 @@ const scrollOffset = ref(0)
 const isSelecting = ref(false)
 
 const onKeydown = (e) => {
+	e.preventDefault()
+
 	if (e.code === "Escape") {
 		emit("onSelect", [null, null])
 	}
