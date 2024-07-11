@@ -1,3 +1,9 @@
+<script setup>
+useHead({
+	title: "Brussels CTF",
+})
+</script>
+
 <template>
 	<Flex direction="column" gap="24" :class="$style.wrapper">
 		<Text size="13" height="160" color="secondary" mono>
