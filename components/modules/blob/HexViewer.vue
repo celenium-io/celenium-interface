@@ -31,18 +31,18 @@ const scrollOffset = ref(0)
 const isSelecting = ref(false)
 
 const onKeydown = (e) => {
-	e.preventDefault()
-
 	if (e.code === "Escape") {
 		emit("onSelect", [null, null])
 	}
 
 	if (e.code === "PageUp") {
+		e.preventDefault()
 		scrollOffset.value = 0
 		emit("onCursorSelect", 0)
 	}
 
 	if (e.code === "PageDown") {
+		e.preventDefault()
 		scrollOffset.value = props.hex.length - 40
 		emit("onCursorSelect", props.bytes.length)
 	}
