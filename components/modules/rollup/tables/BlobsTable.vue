@@ -19,6 +19,10 @@ const props = defineProps({
 		type: Array,
 		required: true,
 	},
+	rollup: {
+		type: Object,
+		required: false,
+	}
 })
 
 const handleViewBlob = (blob) => {
@@ -27,6 +31,7 @@ const handleViewBlob = (blob) => {
 		hash: blob.namespace.hash,
 		namespace_id: blob.namespace.namespace_id,
 		namespace_name: blob.namespace.name,
+		rollup: props.rollup,
 	}
 
 	modalsStore.open("blob")

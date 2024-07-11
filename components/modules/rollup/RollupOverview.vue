@@ -399,7 +399,7 @@ const handleCSVDownload = async (period) => {
 				<Flex direction="column" justify="center" gap="8" :class="[$style.table, isRefetching && $style.disabled]">
 					<!-- Blobs Table -->
 					<template v-if="activeTab === 'Blobs'">
-						<BlobsTable v-if="blobs.length" :blobs="blobs" />
+						<BlobsTable v-if="blobs.length" :blobs="blobs" :rollup="rollup" />
 
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 							<Text size="13" weight="600" color="secondary" align="center"> No blobs </Text>

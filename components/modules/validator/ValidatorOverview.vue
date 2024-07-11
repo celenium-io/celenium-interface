@@ -17,7 +17,9 @@ import { fetchValidatorBlocks, fetchValidatorDelegators, fetchValidatorJails, fe
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals"
 const cacheStore = useCacheStore()
+const modalsStore = useModalsStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -233,6 +235,11 @@ watch(
 		}
 	},
 )
+
+const handleDelegate = () => {
+	modalsStore.open("staking")
+}
+
 </script>
 
 <template>
@@ -242,7 +249,14 @@ watch(
 				<Icon name="validator" size="14" color="primary" />
 				<Text size="13" weight="600" color="primary">Validator</Text>
 			</Flex>
-		</Flex>
+
+			<Flex align="center" gap="12">
+				<Button @click="handleDelegate" type="secondary" size="mini">
+					<Icon name="coins_up" size="12" color="primary" />
+					Delegate
+				</Button>
+			</Flex>
+		</Flex>		
 
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">

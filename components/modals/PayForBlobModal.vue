@@ -97,7 +97,7 @@ watch(
 const handleUpload = (e, target) => {
 	const file = target === "drop" ? e.dataTransfer.files[0] : uploadInputRef.value.files[0]
 
-	if (file.size > 25_000) {
+	if (file.size > 80_000) {
 		notificationsStore.create({
 			notification: {
 				type: "error",

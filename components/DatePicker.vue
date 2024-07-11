@@ -203,7 +203,8 @@ watch(
 						name="chevron"
 						size="14"
 						color="tertiary"
-						:class="[$style.clickable, !isPrevMonthAvailable && $style.disabled]"
+						class="clickable"
+						:class="!isPrevMonthAvailable && $style.disabled"
 						:style="{ transform: 'rotate(90deg)' }"
 					/>
 
@@ -214,7 +215,8 @@ watch(
 						name="chevron"
 						size="14"
 						color="tertiary"
-						:class="[$style.clickable, !isNextMonthAvailable && $style.disabled]"
+						class="clickable"
+						:class="!isNextMonthAvailable && $style.disabled"
 						:style="{ transform: 'rotate(-90deg)' }"
 					/>
 				</Flex>

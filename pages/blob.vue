@@ -69,7 +69,14 @@ const bytes = computed(() => {
 	return hex.value.flat()
 })
 
-const range = reactive({ start: null, end: null })
+/** Selected byte (1) */
+const cursor = ref(0)
+const handleSelectCursor = (target) => {
+	if (target < 0 || target > bytes.value.length) return
+	cursor.value = target
+}
+/** Range of selected bytes */
+const range = reactive({ start: 0, end: 0 })
 const handleBytesSelect = (selection) => {
 	const [start, end] = selection
 
@@ -163,7 +170,6 @@ const handleDownload = () => {
 
 	const a = window.document.createElement("a")
 	a.href = window.URL.createObjectURL(new Blob([byteArray], { type: "application/octet-stream" }))
-	console.log(blob.value)
 	a.download = `${metadata.value.namespace.namespace_id}_${blob.value.commitment.slice(
 		blob.value.commitment.length - 8,
 		blob.value.commitment.length,
@@ -203,8 +209,11 @@ const handleCopy = (text) => {
 
 			<Flex align="center" gap="8">
 				<Button @click="modalsStore.open('changeBlob')" size="mini" type="secondary">
-					<Icon name="blob" size="12" color="tertiary" />
+					<Icon name="blob" size="12" color="secondary" />
 					Select blob
+				</Button>
+				<Button @click="modalsStore.open('hexSettings')" size="mini" type="secondary">
+					<Icon name="settings" size="12" color="secondary" />
 				</Button>
 			</Flex>
 		</Flex>
@@ -214,12 +223,21 @@ const handleCopy = (text) => {
 				<template v-if="innerWidth >= 1020">
 					<Flex direction="column" gap="16" :class="$style.left">
 						<ClientOnly>
-							<HexViewer v-if="blob" :blob="blob" :bytes="bytes" :hex="hex" :range="range" @onSelect="handleBytesSelect" />
+							<HexViewer
+								v-if="blob"
+								:blob="blob"
+								:bytes="bytes"
+								:hex="hex"
+								:cursor="cursor"
+								:range="range"
+								@onSelect="handleBytesSelect"
+								@onCursorSelect="handleSelectCursor"
+							/>
 						</ClientOnly>
 					</Flex>
 
 					<Flex direction="column" gap="16" :class="$style.right">
-						<DataInspector :bytes="bytes" :range="range" />
+						<DataInspector :bytes="bytes" :range="range" :cursor="cursor" />
 
 						<Tooltip>
 							<Flex align="center" gap="6" style="padding: 0 16px">
@@ -234,6 +252,15 @@ const handleCopy = (text) => {
 									</Flex>
 									<Flex align="center" gap="6">
 										<Text color="tertiary">Jump to start - </Text> <Text mono>PageUp</Text>
+									</Flex>
+									<Flex align="center" gap="6">
+										<Text color="tertiary">Jump to end - </Text> <Text mono>PageDown</Text>
+									</Flex>
+									<Flex align="center" gap="6">
+										<Text color="tertiary">Move cursor - </Text> <Text mono>Arrow Keys</Text>
+									</Flex>
+									<Flex align="center" gap="6">
+										<Text color="tertiary">Move viewport - </Text> <Text mono>Cmd+ArrowUp/Down</Text>
 									</Flex>
 								</Flex>
 							</template>
@@ -398,6 +425,21 @@ const handleCopy = (text) => {
 										</Text>
 									</Flex>
 								</NuxtLink>
+
+								<NuxtLink v-if="metadata.rollup" :to="`/rollup/${metadata.rollup.slug}`" target="_blank">
+									<Flex direction="column" gap="8">
+										<Text size="12" weight="600" color="tertiary"> Rollup </Text>
+
+										<Flex align="center" gap="8">
+											<Flex align="center" justify="center" :class="$style.avatar_container">
+												<img :src="metadata.rollup.logo" :class="$style.avatar_image" />
+											</Flex>
+											<Text size="12" weight="600" color="secondary" style="text-overflow: ellipsis; overflow: hidden">
+												{{ metadata.rollup.name }}
+											</Text>
+										</Flex>
+									</Flex>
+								</NuxtLink>
 							</Flex>
 
 							<Button @click="handleDownload" type="secondary" size="small" wide>
@@ -550,6 +592,20 @@ const handleCopy = (text) => {
 		background: var(--op-10);
 		box-shadow: inset 0 0 0 2px var(--op-5);
 	}
+}
+
+.avatar_container {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	overflow: hidden;
+	border-radius: 50%;
+}
+
+.avatar_image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 @media (max-width: 900px) {

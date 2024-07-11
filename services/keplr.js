@@ -6,6 +6,10 @@ import { AuthInfo, Fee, TxBody, TxRaw, SignerInfo } from "./proto/gen/tx"
 import { SignMode } from "./proto/gen/signing"
 import { PubKey } from "./proto/gen/keys"
 
+export const SIMULATE_ADDRESS_FROM = "celestia15hgtsr3sezr6tl6jsf0afdh3qlgpgq48czxqpw"
+export const SIMULATE_ADDRESS_TO = "celestia1uvm9gzwqukm97s7vsq3x6wlcm7hjfvv6u50a4t"
+export const SIMULATE_VALIDATOR = "celestiavaloper12zs7e3n8pjd8y8ex0cyv67ethv30mekg9rcra9"
+
 export const suggestChain = (network) => {
 	return new Promise(async (resolve, reject) => {
 		try {

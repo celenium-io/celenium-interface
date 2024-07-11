@@ -31,6 +31,7 @@ const handleViewBlob = (blob) => {
 		hash: blob.namespace ? blob.namespace.hash : props.namespace.hash,
 		namespace_id: blob.namespace ? blob.namespace.namespace_id : props.namespace.namespace_id,
 		namespace_name: blob.namespace ? blob.namespace.name : props.namespace.name,
+		rollup: blob.rollup,
 	}
 
 	modalsStore.open("blob")
@@ -68,9 +69,15 @@ const handleViewBlob = (blob) => {
 						</Flex>
 					</td>
 					<td>
-						<Text size="13" weight="600" color="primary">
-							{{ DateTime.fromISO(blob.time).setLocale("en").toFormat("ff") }}
-						</Text>
+						<Flex direction="column" justify="center" gap="4">
+							<Text size="12" weight="600" color="primary">
+								{{ DateTime.fromISO(blob.time).toRelative({ locale: "en", style: "short" }) }}
+							</Text>
+							
+							<Text size="12" weight="500" color="tertiary">
+								{{ DateTime.fromISO(blob.time).setLocale("en").toFormat("LLL d, t") }}
+							</Text>
+						</Flex>
 					</td>
 					<td>
 						<Tooltip position="start" delay="500">
@@ -99,6 +106,19 @@ const handleViewBlob = (blob) => {
 						<Text size="13" weight="600" color="primary">
 							{{ formatBytes(blob.size) }}
 						</Text>
+					</td>
+					<td v-if="blob.rollup?.logo" style="width: 1px">
+						<NuxtLink :to="`/rollup/${blob.rollup.slug}`" @click.stop>
+							<Tooltip position="start" delay="500">
+								<Flex align="center" justify="center" :class="$style.avatar_container">
+									<img :src="blob.rollup.logo" :class="$style.avatar_image" />
+								</Flex>
+
+								<template #content>
+									{{ blob.rollup.name }}
+								</template>
+							</Tooltip>
+						</NuxtLink>
 					</td>
 				</tr>
 			</tbody>
@@ -157,8 +177,8 @@ const handleViewBlob = (blob) => {
 
 	& tr td {
 		padding: 0;
-		padding-top: 10px;
-		padding-bottom: 10px;
+		padding-top: 8px;
+		padding-bottom: 8px;
 		padding-right: 24px;
 
 		white-space: nowrap;
@@ -175,5 +195,19 @@ const handleViewBlob = (blob) => {
 			padding-right: 24px;
 		}
 	}
+}
+
+.avatar_container {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	overflow: hidden;
+	border-radius: 50%;
+}
+
+.avatar_image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 </style>
