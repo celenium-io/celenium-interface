@@ -10,7 +10,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { comma, formatBytes, numToPercent } from "@/services/utils"
+import { formatBytes, comma, shareOfTotalString } from "@/services/utils"
 
 /** API */
 import { fetchRollups, fetchRollupsCount } from "@/services/api/rollup"
@@ -69,6 +69,14 @@ const router = useRouter()
 const isRefetching = ref(false)
 const rollups = ref([])
 const count = ref(0)
+
+const totalSize = computed(() => rollups.value.reduce((acc, rollup) => {
+	return acc + rollup.size
+}, 0))
+
+const totalFee = computed(() => rollups.value.reduce((acc, rollup) => {
+	return acc + (+rollup.fee)
+}, 0))
 
 const utiaPerMB = (rollup) => {
 	let totalRollupMB = rollup.size / (1024 * 1024)
@@ -293,14 +301,14 @@ const handleNext = () => {
 												<Flex direction="column" gap="4">
 													<Text size="13" weight="600" color="primary">{{ formatBytes(r.size) }}</Text>
 
-													<Text size="12" weight="600" color="tertiary">{{ numToPercent(r.size_pct, 2) }}</Text>
+													<Text size="12" weight="600" color="tertiary">{{ shareOfTotalString(r.size, totalSize) }}%</Text>
 												</Flex>
 
 												<template #content>
 													<Flex align="end" gap="8">
 														<Text size="12" weight="600" color="tertiary">Share of total size</Text>
 
-														<Text size="12" weight="600" color="primary">{{ numToPercent(r.size_pct, 2) }}</Text>
+														<Text size="12" weight="600" color="primary">{{ shareOfTotalString(r.size, totalSize) }}%</Text>
 													</Flex>
 												</template>
 											</Tooltip>
@@ -309,22 +317,8 @@ const handleNext = () => {
 								</td>
 								<td>
 									<NuxtLink :to="`/rollup/${r.slug}`">
-										<Flex align="start" justify="center" direction="column" gap="4">
-											<Tooltip position="start" delay="400">
-												<Flex direction="column" gap="4">
-													<Text size="13" weight="600" color="primary">{{ comma(r.blobs_count) }}</Text>
-
-													<Text size="12" weight="600" color="tertiary">{{ numToPercent(r.blobs_count_pct, 2) }}</Text>
-												</Flex>
-
-												<template #content>
-													<Flex align="end" gap="8">
-														<Text size="12" weight="600" color="tertiary">Share of total blobs count</Text>
-
-														<Text size="12" weight="600" color="primary">{{ numToPercent(r.blobs_count_pct, 2) }}</Text>
-													</Flex>
-												</template>
-											</Tooltip>
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary">{{ comma(r.blobs_count) }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
@@ -334,13 +328,13 @@ const handleNext = () => {
 											<AmountInCurrency :amount="{ value: r.fee }" />
 
 											<Tooltip position="start" delay="400">
-												<Text size="12" weight="600" color="tertiary">{{ numToPercent(r.fee_pct, 2) }}</Text>
+												<Text size="12" weight="600" color="tertiary">{{ shareOfTotalString(r.fee, totalFee) }}%</Text>
 
 												<template #content>
 													<Flex align="end" gap="8">
 														<Text size="12" weight="600" color="tertiary">Share of total fee</Text>
 
-														<Text size="12" weight="600" color="primary">{{ numToPercent(r.fee_pct, 2) }}</Text>
+														<Text size="12" weight="600" color="primary">{{ shareOfTotalString(r.fee, totalFee) }}%</Text>
 													</Flex>
 												</template>
 											</Tooltip>
