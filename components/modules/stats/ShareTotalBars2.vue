@@ -15,7 +15,7 @@ const buildChart = (chart) => {
     const marginRight = 0;
     const marginBottom = 10;
     const marginLeft = 10;
-    const barWidth = Math.round((width - marginLeft - marginRight) / (transformedData.value.length) - 10)
+    const barWidth = Math.round((width - marginLeft - marginRight) / (transformedData.value.length) - 1)
 
     const svg = d3.create("svg")
         .attr("viewBox", [0, 0, width, height])
@@ -56,8 +56,7 @@ const buildChart = (chart) => {
     
     const color = d3.scaleSequential()
         .domain([-0.5 * keys.value.length, 1.5 * keys.value.length])
-    //     .interpolator(d3.interpolateRgb("white", "red"));
-        .interpolator(d3.interpolateRgb("#65efcc", "#0E3F34"));
+        .interpolator(d3.interpolateRgb("#0E3F34", "#65efcc"));
 
     // Добавляем ось x
     // svg.append("g")
