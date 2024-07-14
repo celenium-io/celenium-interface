@@ -64,7 +64,7 @@ const getSeries = async () => {
 const buildChart = (chart, data, color) => {
 	const width = chart.getBoundingClientRect().width
 	const height = chart.getBoundingClientRect().height
-	const marginTop = 0
+	const marginTop = 6
 	const marginRight = 12
 	const marginBottom = 24
 	const marginLeft = 12
@@ -81,6 +81,7 @@ const buildChart = (chart, data, color) => {
 		.line()
 		.x((d) => x(d.date))
 		.y((d) => y(d.value))
+		.curve(d3.curveCatmullRom)
 
 	/** SVG Container */
 	const svg = d3
@@ -113,7 +114,7 @@ const buildChart = (chart, data, color) => {
 		.attr("d", `M${0},${height - marginBottom - 6} L${width},${height - marginBottom - 6}`)
 	
 	/** Chart Lines */
-	svg.append("path")
+	const path = svg.append("path")
 		.attr("fill", "none")
 		.attr("stroke", color)
 		.attr("stroke-width", 2)
@@ -131,6 +132,15 @@ const buildChart = (chart, data, color) => {
 
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
+
+	const totalLength = path.node().getTotalLength();
+
+	path.attr("stroke-dasharray", `${totalLength} ${totalLength}`)
+            .attr("stroke-dashoffset", totalLength)
+            .transition()
+            .duration(1_000)
+            .ease(d3.easeLinear)
+            .attr("stroke-dashoffset", 0);
 }
 
 const drawChart = async () => {
@@ -155,24 +165,6 @@ watch(
 
 <template>
 	<Flex direction="column" justify="between" gap="16" wide :class="$style.wrapper">
-		<!-- <Flex justify="between">
-			<Flex direction="column" gap="8">
-				<Text size="16" weight="600" color="primary">Daily Transactions</Text>
-				<Text size="14" weight="500" color="tertiary">Compared to the previous day</Text>
-			</Flex>
-
-			<Flex v-if="!showTooltip" direction="column" gap="6" align="end">
-				<Text size="16" weight="600" color="secondary">{{ todayTxs }}</Text>
-				<Text size="13" weight="500" color="tertiary"> Today</Text>
-			</Flex>
-			<Flex v-else direction="column" gap="6" align="end">
-				<Text size="16" weight="600" color="secondary">
-					{{ tooltipText }}
-				</Text>
-				<Text size="13" weight="500" color="tertiary"> {{ tooltipDate }} </Text>
-			</Flex>
-		</Flex> -->
-
 		<Flex align="center" direction="column" gap="12" :class="$style.header">
 			<Flex align="center" gap="10" justify="start" wide>
 				<Text size="14" weight="600" color="secondary"> {{ series.title }} </Text>

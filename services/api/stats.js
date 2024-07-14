@@ -109,3 +109,12 @@ export const fetchRollupSeries = async ({ id, name, timeframe, from, to }) => {
 		console.error(error)
 	}
 }
+
+export const fetchSquareSize = async () => {
+	try {
+		const data = await $fetch(`${useServerURL()}/stats/square_size`)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}

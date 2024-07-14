@@ -31,7 +31,7 @@ const value = computed(() => {
 		case 'bytes':
 			return formatBytes(props.highlight.value)
 		case 'utia':
-			return abbreviate(tia(props.highlight.value))	
+			return `${abbreviate(tia(props.highlight.value))} TIA`
 		default:
 			return abbreviate(props.highlight.value)
 	}
@@ -73,8 +73,6 @@ const value = computed(() => {
 .card {
 	min-height: 80px;
 	width: 240px;
-
-	cursor: pointer;
 
 	background: var(--card-background);
 	border-radius: 12px;
