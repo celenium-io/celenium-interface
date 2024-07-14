@@ -283,7 +283,7 @@ const getFeeSeries = async () => {
 	}
 }
 
-const buildNamespaceCharts = async () => {
+const buildRollupCharts = async () => {
 	await getSizeSeries()
 	buildChart(
 		sizeSeriesChartEl.value.wrapper,
@@ -312,18 +312,18 @@ const buildNamespaceCharts = async () => {
 watch(
 	() => selectedPeriodIdx.value,
 	() => {
-		buildNamespaceCharts()
+		buildRollupCharts()
 	},
 )
 
 const debouncedRedraw = useDebounceFn((e) => {
-	buildNamespaceCharts()
+	buildRollupCharts()
 }, 500)
 
 onMounted(async () => {
 	window.addEventListener("resize", debouncedRedraw)
 
-	buildNamespaceCharts()
+	buildRollupCharts()
 })
 
 onBeforeUnmount(() => {

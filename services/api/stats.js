@@ -1,6 +1,15 @@
 /** Services */
 import { useServerURL } from "@/services/config"
 
+export const fetch24hDiffs = async () => {
+	try {
+		const data = await $fetch(`${useServerURL()}/stats/changes_24h`)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchSeries = async ({ table, period, column, from, to }) => {
 	try {
 		const url = new URL(`${useServerURL()}/stats/series/${table}/${period}`)

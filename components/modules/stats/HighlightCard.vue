@@ -7,29 +7,35 @@
 // import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { capitilize, comma, shortHex } from "@/services/utils"
+import { abbreviate, capitilize, comma, formatBytes, shortHex, tia } from "@/services/utils"
 
 /** API */
 import { fetchNetworks, fetchCommitments, fetchCommitmentsByNetwork } from "@/services/api/blobstream";
 
+/** Stats Components */
+import DiffChip from "@/components/modules/stats/DiffChip.vue"
+
 const props = defineProps({
-	series: {
+	highlight: {
 		type: Object,
-		required: false,
-	},
-	period: {
-		type: Object,
-		required: false,
-	},
-	active: {
-		type: Boolean,
-		default: false,
+		required: true,
 	},
 })
 
 const isLoading = ref(false)
 
-
+const value = computed(() => {
+	if (props.highlight.name === 'blocks') return comma(props.highlight.value)
+	
+	switch (props.highlight.units) {
+		case 'bytes':
+			return formatBytes(props.highlight.value)
+		case 'utia':
+			return abbreviate(tia(props.highlight.value))	
+		default:
+			return abbreviate(props.highlight.value)
+	}
+})
 
 </script>
 
@@ -41,15 +47,19 @@ const isLoading = ref(false)
 
                 <Flex align="center" direction="column" gap="12">
                     <Flex align="center" justify="start" wide>
-                        <Text size="13" weight="600" height="110" color="tertiary"> Blocks </Text>
+                        <Text size="13" weight="600" height="110" color="tertiary"> {{ highlight.title }} </Text>
                     </Flex>
 
-                    <Text size="20" weight="600" color="primary"> 1,836,234 </Text>
+					<Flex align="center" justify="start" wide>
+                    	<Text size="20" weight="600" color="primary"> {{ value }} </Text>
+					</Flex>
                 </Flex>
             </Flex>
 
             <Flex align="start">
-                <Icon name="block" size="20" color="tertiary" />
+                <Icon v-if="highlight.name === 'blocks'" name="block" size="20" color="tertiary" />
+
+				<DiffChip v-else :value="highlight.diff.toFixed(1)" />
             </Flex>
         </Flex>
     </Flex>

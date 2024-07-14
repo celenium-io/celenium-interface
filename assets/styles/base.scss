@@ -34,6 +34,7 @@ $grayscale: (
 	--brand: #924dff;
 	--blue: #076acd;
 	--red: #eb5757;
+	--dark-red: #592121;
 	--orange: #ff5a17;
 	--light-orange: #ff8351;
 	--yellow: #ffd400;
@@ -41,6 +42,7 @@ $grayscale: (
 	--neutral-green: #33a853;
 	--purple: #5856de;
 	--mint: #18D2A5;
+	--dark-mint: #0E3F34;
 
 	/* Grayscale */
 	@each $gray, $value in $grayscale {
@@ -99,6 +101,7 @@ $grayscale: (
 	--brand: #924dff;
 	--blue: #0b84fe;
 	--red: #eb5757;
+	--dark-red: #592121;
 	--orange: #ff5a17;
 	--light-orange: #ff8351;
 	--yellow: #ffd400;
@@ -106,6 +109,7 @@ $grayscale: (
 	--neutral-green: #33a853;
 	--purple: #5856de;
 	--mint: #18D2A5;
+	--dark-mint: #0E3F34;
 
 	/* Grayscale */
 	@each $gray, $value in $grayscale {
@@ -156,6 +160,7 @@ $grayscale: (
 	--brand: #924dff;
 	--blue: #0b84fe;
 	--red: #eb5757;
+	--dark-red: #592121;
 	--orange: #ff5a17;
 	--light-orange: #ff8351;
 	--yellow: #e5c10b;
@@ -163,6 +168,7 @@ $grayscale: (
 	--neutral-green: #33a853;
 	--purple: #5856de;
 	--mint: #18D2A5;
+	--dark-mint: #0E3F34;
 
 	/* Grayscale */
 	@each $gray, $value in $grayscale {

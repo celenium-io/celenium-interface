@@ -32,7 +32,6 @@ const props = defineProps({
 })
 
 const isLoading = ref(false)
-// console.log('appStore', appStore);
 
 const blocks = computed(() => appStore.latestBlocks.slice(0, 80).sort((a, b) => a.height - b.height))
 
