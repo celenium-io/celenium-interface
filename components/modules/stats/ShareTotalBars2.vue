@@ -112,25 +112,48 @@ const getSquareSizes = async () => {
 	const data = await fetchSquareSize()
 
     keys.value = Object.keys(data);
-    keys.value.forEach(key => {
-        data["1"].forEach((d, i) => {
-            if (d.time !== data[key][i].time) {
-                data[key].splice(i, 0, { time: d.time, value: "0" })
-            }
-        })
-    })
 
-    data["1"].forEach((d, i) => {
+    let maxLength = 0;
+    let maxKey = null;
+
+    for (const key in data) {
+        if (data[key].length > maxLength) {
+            maxLength = data[key].length;
+            maxKey = key;
+        }
+    }
+
+    const templateArray = data[maxKey];
+    const templateTimes = templateArray.map(item => item.time);
+    const filledData = {};
+    for (const key in data) {
+        filledData[key] = templateTimes.map(time => {
+            const found = data[key].find(item => item.time === time);
+            return found ? found : { time: time, value: "0" };
+        });
+    }
+    // keys.value.forEach(key => {
+    //     console.log(key);
+    //     data["1"].forEach((d, i) => {
+    //         console.log(data[key][i]);
+    //         if (d.time !== data[key][i].time) {
+    //             console.log(d.time, data[key][i].time);
+    //             data[key].splice(i, 0, { time: d.time, value: "0" })
+    //         }
+    //     })
+    // })
+
+    filledData[maxKey].forEach((d, i) => {
         let entry = { time: d.time };
         keys.value.forEach(key => {
-            entry[key] = +data[key][i].value;
+            entry[key] = +filledData[key][i].value;
         });
         transformedData.value.push(entry);
     });
 
     transformedData.value.reverse()
     // console.log('keys.value', keys.value);
-    console.log('transformedData.value', transformedData.value);
+    // console.log('transformedData.value', transformedData.value);
 
     // xz.value = []
     // xz.value = data[32].reverse().map(item => DateTime.fromISO(item.time).toJSDate())
