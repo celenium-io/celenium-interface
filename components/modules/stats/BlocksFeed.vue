@@ -44,37 +44,13 @@ const timeline = computed(() => {
 
 	return time
 })
-// console.log('time.value', time.value);
 
-// const lastBlock = computed(() => blocks?.value.slice(-1)[0])
-// const lastBlockSize = computed(() => lastBlock.value?.stats.bytes_in_block)
-// const lastBlockTxs = computed(() => lastBlock.value?.stats.tx_count)
 const maxSize = computed(() => Math.max(...blocks.value?.map((b) => b.stats.bytes_in_block)))
-// console.log('maxSize.value', maxSize.value);
 const avgBlockTime = ref(12)
-
-// const getAvgBlockTime = async () => {
-// 	const data = await fetchSeries({
-// 		name: "block_time",
-// 		timeframe: "hour",
-// 		from: parseInt(DateTime.now().minus({ hours: 3 }).ts / 1_000),
-// 	})
-
-// 	if (data) {
-// 		avgBlockTime.value = 0
-// 		data.forEach((item) => {
-// 			avgBlockTime.value += parseFloat(item.value)
-// 		})
-
-// 		avgBlockTime.value = (avgBlockTime.value / data.length / 1_000).toFixed(1)
-// 	}
-// }
 
 const calculateHeight = (size) => {
 	return Math.max((size / maxSize.value) * 100, 1)
 }
-
-// await getAvgBlockTime()
 
 const chartBlocksEl = ref(null)
 const chartWidth = ref()
@@ -104,6 +80,7 @@ onMounted(() => {
 							width: `${barWidth}px`,
 							height: `${calculateHeight(b.stats.bytes_in_block)}%`,
 							marginLeft: index !== 0 ? `${marginBar}px` : '0px',
+							animationDelay: `${index * 15}ms`,
 						}"
 					/>
 				</Flex>
@@ -172,7 +149,9 @@ onMounted(() => {
 	background: var(--txt-tertiary);
 	border-radius: 1px;
 
-	transition: all 0.2s ease;
+	opacity: 0;
+	transform: translateY(5px);
+	animation: appear 0.5s ease forwards;
 }
 
 .bar_blob {
@@ -206,30 +185,11 @@ onMounted(() => {
 	pointer-events: none;
 }
 
-.message_type {
-	max-width: 100px;
-	text-overflow: ellipsis;
-	overflow: hidden;
-}
-
-.badge {
-	border-radius: 5px;
-	background: var(--op-5);
-	box-shadow: inset 0 0 0 1px var(--op-10);
-
-	padding: 4px 6px;
-}
-
-.card_active {
-	box-shadow: inset 0 0 0 1px var(--green);
-}
-
-.unclickable {
-	pointer-events: none;
-}
-
-.empty {
-	padding: 16px 0;
+@keyframes appear {
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 /* @media (max-width: 500px) {
