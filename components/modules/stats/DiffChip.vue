@@ -5,10 +5,15 @@ const props = defineProps({
         type: Number,
         required: true,
     },
+    invert: {
+        type: Boolean,
+        default: false,
+    },
 })
 
 const styles = computed(() => {
-    if (props.value > 0) {
+    let conditionValue = props.invert ? props.value * (-1) : props.value
+    if (conditionValue > 0) {
         return {
             chip: {
                 backgroundColor: 'var(--dark-mint)'
@@ -20,7 +25,7 @@ const styles = computed(() => {
                 color: 'var(--mint)'
             }
         }
-    } else if (props.value < 0) {
+    } else if (conditionValue < 0) {
         return {
             chip: {
                 backgroundColor: 'var(--dark-red)'

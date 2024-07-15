@@ -25,6 +25,20 @@ export const fetchSeries = async ({ table, period, column, from, to }) => {
 	}
 }
 
+export const fetchSeriesCumulative = async ({ name, period, from, to }) => {
+	try {
+		const url = new URL(`${useServerURL()}/stats/series/${name}/${period}/cumulative`)
+
+		if (from) url.searchParams.append("from", from)
+		if (to) url.searchParams.append("to", to)
+		
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchSummary = async ({ table, func, column, from, to }) => {
 	try {
 		const url = new URL(`${useServerURL()}/stats/summary/${table}/${func}`)

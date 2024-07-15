@@ -17,7 +17,7 @@ export const STATS_SERIES = [
 			{
 				name: 'gas_price',
 				title: 'Gas Price',
-				untis: 'utia',
+				units: 'utia',
 				tooltip: 'Events',
 				aggregate: 'avg',
 			},
@@ -55,6 +55,29 @@ export const STATS_SERIES = [
 			{
 				name: 'gas',
 				title: 'Gas Efficiency',
+			},
+		],
+	},
+	{
+		group: 'Blocks',
+		series: [
+			{
+				name: 'block_time',
+				title: 'Block Time',
+				tooltip: 'Block time',
+				units: 'seconds',
+				aggregate: 'avg',
+			},
+			{
+				name: 'bytes_in_block',
+				title: 'Bytes In Block',
+				units: 'bytes',
+				tooltip: 'Bytes',
+				aggregate: 'cumulative',
+			},
+			{
+				name: 'square_size',
+				title: 'Square Size Distribution',
 			},
 		],
 	},

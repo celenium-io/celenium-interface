@@ -10,7 +10,7 @@ import DiffChip from "@/components/modules/stats/DiffChip.vue"
 import { abbreviate, comma, formatBytes } from "@/services/utils"
 
 /** API */
-import { fetchSeries } from "@/services/api/stats"
+import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
 
 const props = defineProps({
 	series: {
@@ -36,26 +36,75 @@ const chartEl = ref()
 const chartElPrev = ref()
 
 const getSeries = async () => {
-	const data = (await fetchSeries({
-		table: props.series.name,
-		period: props.period.timeframe,
-		from: parseInt(
-			DateTime.now().minus({
-				days: props.period.timeframe === "day" ? props.period.value * 2 : 0,
-				hours: props.period.timeframe === "hour" ? props.period.value * 2 : 0,
-			}).ts / 1_000)
-	})).reverse()
+	let data = []
+
+	if (props.series.aggregate === 'cumulative') {
+		data = await fetchSeriesCumulative({
+			name: props.series.name,
+			period: 'day',
+			from: parseInt(
+				DateTime.now().minus({
+					days: 48,
+				}).ts / 1_000)
+		})
+		// data = (await fetchSeriesCumulative({
+		// 	name: props.series.name,
+		// 	period: props.period.timeframe,
+		// 	from: parseInt(
+		// 		DateTime.now().minus({
+		// 			days: props.period.timeframe === "day" ? props.period.value * 2 : 0,
+		// 			hours: props.period.timeframe === "hour" ? props.period.value * 2 : 0,
+		// 		}).ts / 1_000)
+		// })).reverse()
+	} else {
+		data = (await fetchSeries({
+			table: props.series.name,
+			period: props.period.timeframe,
+			from: parseInt(
+				DateTime.now().minus({
+					days: props.period.timeframe === "day" ? props.period.value * 2 : 0,
+					hours: props.period.timeframe === "hour" ? props.period.value * 2 : 0,
+				}).ts / 1_000)
+		})).reverse()
+	}
 	
 	prevData.value = data.slice(0, props.period.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
 	currentData.value = data.slice(props.period.value, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
 
-	currentTotal.value = currentData.value.reduce((sum, el) => {
-		return sum + el.value;
-	}, 0);
+	if (props.series.name === 'block_time') {
+		prevData.value = prevData.value
+			.map(el => {
+				return {
+					...el,
+					value: (el.value / 1_000).toFixed(2)
+				}
+			})
+		currentData.value = currentData.value
+			.map(el => {
+				return {
+					...el,
+					value: (el.value / 1_000).toFixed(2)
+				}
+			})
+	}
 
-	prevTotal.value = prevData.value.reduce((sum, el) => {
-		return sum + el.value;
-	}, 0);
+	if (props.series.aggregate !== 'cumulative') {
+		currentTotal.value = currentData.value.reduce((sum, el) => {
+			return sum + +el.value;
+		}, 0);
+
+		prevTotal.value = prevData.value.reduce((sum, el) => {
+			return sum + +el.value;
+		}, 0);
+	} else {
+		currentTotal.value = currentData.value.slice(-1)[0].value
+		prevTotal.value = prevData.value.slice(-1)[0].value
+	}
+
+	if (props.series.aggregate === 'avg') {
+		prevTotal.value = prevTotal.value / prevData.value.length
+		currentTotal.value = currentTotal.value / currentData.value.length
+	}
 }
 
 const buildChart = (chart, data, color) => {
@@ -67,13 +116,14 @@ const buildChart = (chart, data, color) => {
 	const marginLeft = 12
 
 	const MAX_VALUE = Math.max(Math.max(...prevData.value.map((s) => s.value)), Math.max(...currentData.value.map((s) => s.value)))
+	const MIN_VALUE = Math.min(Math.min(...prevData.value.map((s) => s.value)), Math.min(...currentData.value.map((s) => s.value)))
 
 	/** Scale */
 	const x = d3.scaleUtc(
 		d3.extent(data, (d) => d.date),
 		[marginLeft, width - marginRight],
 	)
-	const y = d3.scaleLinear([0, MAX_VALUE], [height - marginBottom - 6, marginTop])
+	const y = d3.scaleLinear([MIN_VALUE, MAX_VALUE], [height - marginBottom - 6, marginTop])
 	const line = d3
 		.line()
 		.x((d) => x(d.date))
@@ -165,10 +215,18 @@ watch(
 		<Flex align="center" direction="column" gap="12" :class="$style.header">
 			<Flex align="center" gap="10" justify="start" wide>
 				<Text size="14" weight="600" color="secondary"> {{ series.title }} </Text>
-				<DiffChip :value="diff" />
+				<DiffChip :value="diff" :invert="series.name === 'block_time'" />
 			</Flex>
 			
-			<Flex align="center" gap="10" justify="start" wide>
+			<Flex v-if="series.units === 'seconds'" align="end" gap="10" justify="start" wide>
+				<Text size="16" weight="600" color="primary"> {{ `~${Math.round(currentTotal)}s` }} </Text>
+				<Text size="14" weight="600" color="tertiary"> {{ `~${Math.round(prevTotal)}s` }} </Text>
+			</Flex>
+			<Flex v-else-if="series.units === 'utia'" align="end" gap="10" justify="start" wide>
+				<Text size="16" weight="600" color="primary"> {{ `${currentTotal.toFixed(4)} UTIA` }} </Text>
+				<Text size="14" weight="600" color="tertiary"> {{ `${prevTotal.toFixed(4)} UTIA` }} </Text>
+			</Flex>
+			<Flex v-else align="end" gap="10" justify="start" wide>
 				<Text size="16" weight="600" color="primary"> {{ series.units === 'bytes' ? formatBytes(currentTotal) : comma(currentTotal) }} </Text>
 				<Text size="14" weight="600" color="tertiary"> {{ `${series.units === 'bytes' ? formatBytes(prevTotal) : abbreviate(prevTotal)} previous period` }} </Text>
 			</Flex>
