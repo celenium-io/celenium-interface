@@ -23,9 +23,6 @@ const props = defineProps({
 	},
 })
 
-// console.log('props.series', props.series);
-// console.log('props.period', props.period);
-
 const currentData = ref([])
 const prevData = ref([])
 const currentTotal = ref(0)

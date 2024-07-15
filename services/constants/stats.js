@@ -15,10 +15,11 @@ export const STATS_SERIES = [
 				aggregate: 'sum',
 			},
 			{
-				name: 'events_count',
-				title: 'Events',
+				name: 'gas_price',
+				title: 'Gas Price',
+				untis: 'utia',
 				tooltip: 'Events',
-				aggregate: 'sum',
+				aggregate: 'avg',
 			},
 			{
 				name: 'bytes_in_block',
@@ -41,6 +42,21 @@ export const STATS_SERIES = [
 				aggregate: 'sum',
 			},
 		],
+		insights: [
+			{
+				name: 'messages_count_24h',
+				title: 'Transactions',
+			},
+			{
+				name: 'rollup_stats_24h',
+				title: 'Rollups Blobs',
+				color: 'white',
+			},
+			{
+				name: 'gas',
+				title: 'Gas Efficiency',
+			},
+		],
 	},
 ]
 
@@ -61,6 +77,17 @@ export function getSeriesByGroupAndType(group, type) {
 	})
 
 	return series
+}
+
+export function getInsightsByGroup(group) {
+	let insights = []
+	STATS_SERIES.forEach(el => {
+		if (el.group === group) {
+			insights = [...el.insights]
+		}
+	})
+
+	return insights
 }
 
 export const STATS_PERIODS = [
