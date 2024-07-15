@@ -42,8 +42,7 @@ $grayscale: (
 	--neutral-green: #33a853;
 	--purple: #5856de;
 	--mint: #18D2A5;
-	// --mint: #65efcc;
-	--dark-mint: #0E3F34;
+	--dark-mint: #1e473d;
 
 	/* Grayscale */
 	@each $gray, $value in $grayscale {
@@ -110,7 +109,7 @@ $grayscale: (
 	--neutral-green: #33a853;
 	--purple: #5856de;
 	--mint: #18D2A5;
-	--dark-mint: #0E3F34;
+	--dark-mint: #1e473d;
 
 	/* Grayscale */
 	@each $gray, $value in $grayscale {
@@ -169,7 +168,7 @@ $grayscale: (
 	--neutral-green: #33a853;
 	--purple: #5856de;
 	--mint: #18D2A5;
-	--dark-mint: #0E3F34;
+	--dark-mint: #1e473d;
 
 	/* Grayscale */
 	@each $gray, $value in $grayscale {

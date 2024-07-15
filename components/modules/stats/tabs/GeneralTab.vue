@@ -10,9 +10,10 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import BlocksFeed from "@/components/modules/stats/BlocksFeed.vue"
 import ChartCardPreview from "@/components/modules/stats/ChartCardPreview.vue"
 import HighlightCard from "@/components/modules/stats/HighlightCard.vue"
+import InsightCard from "@/components/modules/stats/InsightCard.vue"
 
 /** Constants */
-import { getSeriesByGroupAndType, STATS_PERIODS } from "@/services/constants/stats.js"
+import { getInsightsByGroup, getSeriesByGroupAndType, STATS_PERIODS } from "@/services/constants/stats.js"
 
 /** Services */
 import { comma, tia } from "@/services/utils"
@@ -61,11 +62,12 @@ const periods = ref(STATS_PERIODS)
 const selectedPeriod = ref(periods.value[1])
 
 const series = computed(() => getSeriesByGroupAndType('General'))
+const insights = computed(() => getInsightsByGroup('General'))
 
 const get24hDiffs = async () => {
     isLoading.value = true
 
-	const data = await fetch24hDiffs()
+	const data = await fetch24hDiffs({ name: 'changes_24h' })
 	diffs24h.value = data
 
     isLoading.value = false
@@ -75,12 +77,28 @@ await get24hDiffs()
 </script>
 
 <template>
-	<Flex direction="column" gap="12" wide :class="$style.wrapper">
-		<Flex justify="between" wide>
-			<HighlightCard v-for="h in highlights" :highlight="h" />
+	<Flex direction="column" gap="24" wide :class="$style.wrapper">
+		<Flex align="center" direction="column" gap="10">
+			<Flex justify="between" wide>
+				<HighlightCard v-for="h in highlights" :highlight="h" />
+			</Flex>
+
+			<BlocksFeed />
 		</Flex>
 
-		<BlocksFeed />
+		<Flex align="center" direction="column" gap="12">
+			<Flex align="center" justify="between" wide :class="$style.section">
+				<Text size="16" weight="600" color="primary" justify="start">Daily Insights</Text>
+			</Flex>
+
+			
+			<Flex align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
+				<InsightCard v-for="i in insights"
+					:series="i"
+					style="width: 320px; height: 280px"
+				/>
+			</Flex>
+		</Flex>
 
 		<Flex align="center" direction="column" gap="12">
 			<Flex align="center" justify="between" wide :class="$style.section">

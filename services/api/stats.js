@@ -1,9 +1,9 @@
 /** Services */
 import { useServerURL } from "@/services/config"
 
-export const fetch24hDiffs = async () => {
+export const fetch24hDiffs = async ({ name }) => {
 	try {
-		const data = await $fetch(`${useServerURL()}/stats/changes_24h`)
+		const data = await $fetch(`${useServerURL()}/stats/${name}`)
 		return data
 	} catch (error) {
 		console.error(error)
@@ -17,6 +17,7 @@ export const fetchSeries = async ({ table, period, column, from, to }) => {
 		if (column) url.searchParams.append("column", column)
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
+		
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
@@ -24,10 +25,14 @@ export const fetchSeries = async ({ table, period, column, from, to }) => {
 	}
 }
 
-export const fetchSummary = async ({ table, func }) => {
+export const fetchSummary = async ({ table, func, column, from, to }) => {
 	try {
 		const url = new URL(`${useServerURL()}/stats/summary/${table}/${func}`)
 
+		if (column) url.searchParams.append("column", column)
+		if (from) url.searchParams.append("from", from)
+		if (to) url.searchParams.append("to", to)
+		
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {

@@ -1,7 +1,7 @@
 <script setup>
 /** Stats Components */
 import BlocksFeed from "@/components/modules/stats/BlocksFeed.vue"
-import ShareTotalBars2 from "@/components/modules/stats/ShareTotalBars2.vue"
+import ShareTotalBars from "~/components/modules/stats/ShareTotalBars.vue"
 
 </script>
 
@@ -9,7 +9,9 @@ import ShareTotalBars2 from "@/components/modules/stats/ShareTotalBars2.vue"
     <Flex align="center" direction="column" gap="12" wide :class="$style.wrapper">
         <BlocksFeed />
 
-        <ShareTotalBars2 />
+        <ShareTotalBars />
+
+        <!-- block time (avg) | bytes in block (cumulative) | square size current day like insights -->
     </Flex>
 </template>
 
