@@ -212,7 +212,7 @@ watch(
 
 <template>
 	<Flex direction="column" justify="between" gap="16" wide :class="$style.wrapper">
-		<Flex align="center" direction="column" gap="12" :class="$style.header">
+		<Flex align="center" direction="column" gap="16" :class="$style.header">
 			<Flex align="center" gap="10" justify="start" wide>
 				<Text size="14" weight="600" color="secondary"> {{ series.title }} </Text>
 				<DiffChip :value="diff" :invert="series.name === 'block_time'" />
@@ -220,7 +220,7 @@ watch(
 			
 			<Flex v-if="series.units === 'seconds'" align="end" gap="10" justify="start" wide>
 				<Text size="16" weight="600" color="primary"> {{ `~${Math.round(currentTotal)}s` }} </Text>
-				<Text size="14" weight="600" color="tertiary"> {{ `~${Math.round(prevTotal)}s` }} </Text>
+				<Text size="14" weight="600" color="tertiary"> {{ `~${Math.round(prevTotal)}s previous ${period.title.replace('Last ', '')}` }} </Text>
 			</Flex>
 			<Flex v-else-if="series.units === 'utia'" align="end" gap="10" justify="start" wide>
 				<Text size="16" weight="600" color="primary"> {{ `${currentTotal.toFixed(4)} UTIA` }} </Text>
@@ -228,7 +228,7 @@ watch(
 			</Flex>
 			<Flex v-else align="end" gap="10" justify="start" wide>
 				<Text size="16" weight="600" color="primary"> {{ series.units === 'bytes' ? formatBytes(currentTotal) : comma(currentTotal) }} </Text>
-				<Text size="14" weight="600" color="tertiary"> {{ `${series.units === 'bytes' ? formatBytes(prevTotal) : abbreviate(prevTotal)} previous period` }} </Text>
+				<Text size="14" weight="600" color="tertiary"> {{ `${series.units === 'bytes' ? formatBytes(prevTotal) : abbreviate(prevTotal)} previous ${period.title.replace('Last ', '')}` }} </Text>
 			</Flex>
 		</Flex>
 

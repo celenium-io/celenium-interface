@@ -129,9 +129,13 @@ export const fetchRollupSeries = async ({ id, name, timeframe, from, to }) => {
 	}
 }
 
-export const fetchSquareSize = async () => {
+export const fetchSquareSize = async (from) => {
 	try {
-		const data = await $fetch(`${useServerURL()}/stats/square_size`)
+		const url = new URL(`${useServerURL()}/stats/square_size`)
+
+		if (from) url.searchParams.append("from", from)
+			
+		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
 		console.error(error)
