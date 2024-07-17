@@ -27,6 +27,8 @@ const total = ref(0)
 const isLoading = ref(false)
 
 const getSeries = async () => {
+	isLoading.value = true
+	
 	let data = []
 	if (props.series.name === 'gas') {
 		const gasUsed = await fetchSummary({
@@ -125,6 +127,8 @@ const getSeries = async () => {
 			item.color = colors[props.series.color ? props.series.color : 'mint'][index]
 		})		
 	}
+
+	isLoading.value = false
 }
 
 const barWrapperEl = ref(null)
@@ -170,18 +174,20 @@ onMounted(async () => {
 		<Flex ref="barWrapperEl" :style="`width: ${barWidth}px`" :class="$style.bar_wrapper">
 			<div
 				v-if="series.name !== 'gas'"
-				v-for="item in resData"
-				:class="$style.bar"
+				v-for="(item, index) in resData"
+				:class="[$style.bar, $style.fadein]"
 				:style="{
+					animationDelay: `${index * 0.15}s`,
 					width: `${item.share}%`,
 					background: item.color,
 				}"
 			/>
 			<div
 				v-else
-				v-for="item in resData.slice(0, 2)"
-				:class="$style.bar"
+				v-for="(item, index) in resData.slice(0, 2)"
+				:class="[$style.bar, $style.fadein]"
 				:style="{
+					animationDelay: `${index * 0.15}s`,
 					width: `${item.share}%`,
 					background: item.color,
 				}"
@@ -189,7 +195,7 @@ onMounted(async () => {
 		</Flex>
 
 		<Flex v-if="series.name !== 'gas'" align="center" direction="column" gap="12" wide>
-			<Flex v-for="(item, index) in resData" justify="between" gap="4" wide>
+			<Flex v-for="(item, index) in resData" justify="between" gap="4" wide :style="{ animationDelay: `${index * 0.15}s` }" :class="$style.fadein">
 				<Flex align="center" justify="start" gap="6">
 					<Icon v-if="series.name === 'rollup_stats_24h' && index === 0"
 						name="crown"
@@ -219,7 +225,7 @@ onMounted(async () => {
 		</Flex>
 
 		<Flex v-else align="center" direction="column" gap="12" wide>
-			<Flex v-for="item in resData" justify="between" gap="4" wide>
+			<Flex v-for="item in resData" justify="between" gap="4" wide :style="{ animationDelay: `${index * 0.15}s` }" :class="$style.fadein">
 				<Flex align="center" justify="start" gap="6">
 					<div
 						:class="$style.legend"
@@ -274,6 +280,22 @@ onMounted(async () => {
 
 .header {
 
+}
+
+.fadein {
+    opacity: 0;
+    animation-name: fadeIn;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 @media (max-width: 1000px) {

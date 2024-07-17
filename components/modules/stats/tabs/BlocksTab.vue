@@ -37,13 +37,13 @@ const selectedPeriod = ref(periods.value[0])
             </Flex>
 		</Flex>
 
-		<Flex align="center" direction="column" gap="12" wide>
+		<!-- <Flex align="center" direction="column" gap="12" wide>
 			<Flex align="center" justify="between" wide :class="$style.section">
 				<Text size="16" weight="600" color="primary" justify="start">Square Size Distribution</Text>
 			</Flex>
 
             <SquareSizeChart />
-		</Flex>
+		</Flex> -->
 
         <!-- block time (avg) | bytes in block (cumulative) | square size current day like insights -->
     </Flex>

@@ -98,9 +98,10 @@ onMounted(async () => {
 		</Flex>
 
 		<Flex ref="squareSizeEl" align="center" :class="$style.square_size_wrapper">
-			<div v-for="s in squareSizeGraph"
-				:class="$style.square_size"
+			<div v-for="(s, index) in squareSizeGraph"
+				:class="[$style.square_size, $style.fadein]"
 				:style="{
+					animationDelay: `${index * 5}ms`,
 					width: `${squareWidth}px`,
 					height: `${squareWidth}px`,
 					background: s.color,
@@ -111,7 +112,7 @@ onMounted(async () => {
 		</Flex>
 
 		<Flex align="center" direction="column" gap="8">
-			<Flex v-for="s in squareSize" align="center" justify="between" wide>
+			<Flex v-for="s in squareSize" align="center" justify="between" wide :class="$style.fadein">
 				<Flex align="center" gap="6" style="flex: 4">
 					<div
 						:class="$style.legend"
@@ -223,6 +224,22 @@ onMounted(async () => {
 	/* border-top: 2px solid var(--op-5);
 
 	padding-top: 8px; */
+}
+
+.fadein {
+    opacity: 0;
+    animation-name: fadeIn;
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 @media (max-width: 1000px) {
