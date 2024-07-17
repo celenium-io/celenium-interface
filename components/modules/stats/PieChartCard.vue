@@ -94,18 +94,22 @@ const buildChart = (chart, data) => {
         .outerRadius(radius - 10)
         .innerRadius(props.dounut ? radius * 0.6 : 0)
 
-    const labelArc = d3.arc()
-        .outerRadius(radius - 40)
-        .innerRadius(radius - 40);
-
     const g = svg.selectAll(".arc")
         .data(pie(data))
         .enter().append("g")
-        .attr("class", "arc");
+        .attr("class", "arc")
 
+        // .attr("d", arc)
     g.append("path")
-        .attr("d", arc)
-        .style("fill", (d, i) => color(i));
+        .style("fill", (d, i) => color(i))
+        .transition()
+            .duration(1000)
+            .attrTween("d", function(d) {
+                const i = d3.interpolate({ startAngle: 0, endAngle: 0 }, d);
+                return function(t) {
+                    return arc(i(t));
+                };
+            });
 
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
