@@ -81,7 +81,25 @@ export const STATS_SERIES = [
 			},
 		],
 	},
-]
+	{
+		group: 'Rollups',
+		series: [
+			{
+				name: 'size',
+				title: 'size',
+				units: 'bytes',
+			},
+			{
+				name: 'blobs_count',
+				title: 'blobs count',
+			},
+			{
+				name: 'fee',
+				title: 'fee paid',
+				units: 'utia',
+			},
+		],
+	},]
 
 export function getSeriesByGroupAndType(group, type) {
 	let series = []

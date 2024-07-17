@@ -6,6 +6,17 @@ import { DateTime } from "luxon"
 /** API */
 import { fetchRollups } from "@/services/api/rollup.js"
 
+const props = defineProps({
+	series: {
+		type: Object,
+		required: true,
+	},
+	// period: {
+	// 	type: Object,
+	// 	required: true,
+	// },
+})
+
 const chartEl = ref()
 
 const isLoading = ref(false)
@@ -16,12 +27,17 @@ const getRollups = async () => {
 
 	const data = await fetchRollups({})
 
+    rollups.value = prepareRollupsData(data)
+
+    isLoading.value = false
+}
+
+const prepareRollupsData = (data) => {
     data.forEach(r => {
         r.fee = +(r.fee / 1_000_000).toFixed(2)
     })
-    rollups.value = data
 
-    isLoading.value = false
+    return data
 }
 
 const buildChart = (chart, data) => {
@@ -134,7 +150,11 @@ const buildChart = (chart, data) => {
 }
 
 onMounted(async () => {
-    await getRollups()
+    if (!props.series?.data) {
+        await getRollups()
+    } else {
+        rollups.value = prepareRollupsData(props.series.data)
+    }
 
 	buildChart(
         chartEl.value.wrapper,
@@ -145,13 +165,7 @@ onMounted(async () => {
 
 <template>
     <Flex align="center" direction="column" gap="16" wide :class="$style.wrapper">
-		<Flex align="center" direction="column" gap="12" wide>
-			<Flex align="center" justify="between" wide :class="$style.section">
-				<Text size="16" weight="600" color="primary" justify="start">Rollups Distribution</Text>
-			</Flex>
-            
-            <Flex ref="chartEl" :class="$style.chart" />
-		</Flex>
+        <Flex ref="chartEl" :class="$style.chart" />
     </Flex>
 </template>
 
