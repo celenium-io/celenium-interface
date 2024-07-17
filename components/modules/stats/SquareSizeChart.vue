@@ -5,6 +5,7 @@ import { DateTime } from "luxon"
 
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
+
 /** API */
 import { fetchSquareSize } from "@/services/api/stats"
 
@@ -297,14 +298,14 @@ onMounted(async () => {
             </div>
         </Transition>
 
-        <Flex ref="chartEl" wide :class="$style.chart" />
+        <Flex ref="chartEl" :class="$style.chart" />
     </Flex>
 </template>
 
 <style module>
 .chart {
-    width: 1000px;
-    height: 500px;
+    width: 992px;
+    height: 400px;
 }
 
 .tooltip_wrapper {

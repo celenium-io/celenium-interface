@@ -94,13 +94,13 @@ const pages = computed(() => Math.ceil(count.value / 20))
 const getRollups = async () => {
 	isRefetching.value = true
 
-	const { data } = await fetchRollups({
+	const data = await fetchRollups({
 		limit: 20,
 		offset: (page.value - 1) * 20,
 		sort: sort.dir,
 		sort_by: sort.by,
 	})
-	rollups.value = data.value
+	rollups.value = data
 
 	isRefetching.value = false
 }

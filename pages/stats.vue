@@ -1,7 +1,8 @@
 <script setup>
 /** Stats Tabs */
-import GeneralTab from "@/components/modules/stats/tabs/GeneralTab.vue"
 import BlocksTab from "@/components/modules/stats/tabs/BlocksTab.vue"
+import GeneralTab from "@/components/modules/stats/tabs/GeneralTab.vue"
+import RollupsTab from "@/components/modules/stats/tabs/RollupsTab.vue"
 
 useHead({
 	title: "Statistics - Celestia Explorer",
@@ -101,6 +102,7 @@ watch(
 
 		<GeneralTab v-if="activeTab === 'General'" />
 		<BlocksTab v-if="activeTab === 'Blocks'" />
+		<RollupsTab v-if="activeTab === 'Rollups'" />
 	</Flex>
 </template>
 
