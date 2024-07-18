@@ -1,5 +1,6 @@
 <script setup>
 /** Vendor */
+import * as d3 from "d3"
 import { DateTime } from "luxon"
 
 /** Stats Components */
@@ -139,6 +140,24 @@ const colors = {
 	white: ["var(--txt-primary)", "var(--txt-secondary)", "var(--txt-tertiary)", "var(--op-10)", "var(--op-5)"],
 }
 
+const handleHoverEnter = (index) => {
+	const elements = document.querySelectorAll(`[class*='insight-item-${props.series.name}']`)
+	elements.forEach(el => {
+		if (+el.id === index) {
+			el.style.filter = "brightness(100%)"
+		} else {
+			el.style.filter = "brightness(40%)"
+		}
+	})
+}
+
+const handleHoverLeave = () => {
+	const elements = document.querySelectorAll(`[class*='insight-item-${props.series.name}']`)
+	elements.forEach(el => {
+		el.style.filter = "brightness(100%)"
+	})
+}
+
 onMounted(async () => {
 	barWrapperWidth.value = barWrapperEl.value.wrapper.offsetWidth
 
@@ -159,7 +178,6 @@ onMounted(async () => {
 		<Flex align="center" direction="column" gap="16" :class="$style.header">
 			<Flex align="center" gap="10" justify="start" wide>
 				<Text size="14" weight="600" color="secondary"> {{ series.title }} </Text>
-				<!-- <DiffChip :value="diff" /> -->
 			</Flex>
 			
 			<Flex v-if="series.name !== 'gas'" align="end" gap="10" justify="start" wide>
@@ -171,22 +189,40 @@ onMounted(async () => {
 			</Flex>
 		</Flex>
 
-		<Flex ref="barWrapperEl" :style="`width: ${barWidth}px`" :class="$style.bar_wrapper">
+		<Flex @pointerleave="handleHoverLeave()" ref="barWrapperEl" :style="`width: ${barWidth}px`" :class="$style.bar_wrapper">
 			<div
+				@pointerenter="handleHoverEnter(index)"
 				v-if="series.name !== 'gas'"
 				v-for="(item, index) in resData"
-				:class="[$style.bar, $style.fadein]"
+				:id="index"
+				:class="[
+					`insight-item-${series.name}`,
+					{
+						[$style.bar]: true,
+						[$style.fadein]: true,
+					}
+				]"
 				:style="{
+					transition: 'all 0.5s ease',
 					animationDelay: `${index * 0.15}s`,
 					width: `${item.share}%`,
 					background: item.color,
 				}"
 			/>
 			<div
+				@pointerenter="handleHoverEnter(index)"
 				v-else
 				v-for="(item, index) in resData.slice(0, 2)"
-				:class="[$style.bar, $style.fadein]"
+				:id="index"
+				:class="[
+					`insight-item-${series.name}`,
+					{
+						[$style.bar]: true,
+						[$style.fadein]: true,
+					}
+				]"
 				:style="{
+					transition: 'all 0.5s ease',
 					animationDelay: `${index * 0.15}s`,
 					width: `${item.share}%`,
 					background: item.color,
@@ -194,8 +230,21 @@ onMounted(async () => {
 			/>
 		</Flex>
 
-		<Flex v-if="series.name !== 'gas'" align="center" direction="column" gap="12" wide>
-			<Flex v-for="(item, index) in resData" justify="between" gap="4" wide :style="{ animationDelay: `${index * 0.15}s` }" :class="$style.fadein">
+		<Flex v-if="series.name !== 'gas'" @pointerleave="handleHoverLeave()" align="center" direction="column" gap="12" wide>
+			<Flex 
+				@pointerenter="handleHoverEnter(index)"
+				v-for="(item, index) in resData"
+				justify="between"
+				gap="4" wide
+				:id="index"
+				:class="[
+					`insight-item-${series.name}`,
+					{
+						[$style.fadein]: true,
+					}
+				]"
+				:style="{ transition: 'all 0.5s ease', animationDelay: `${index * 0.15}s` }"
+			>
 				<Flex align="center" justify="start" gap="6">
 					<Icon v-if="series.name === 'rollup_stats_24h' && index === 0"
 						name="crown"
@@ -224,8 +273,21 @@ onMounted(async () => {
 			</Flex>
 		</Flex>
 
-		<Flex v-else align="center" direction="column" gap="12" wide>
-			<Flex v-for="item in resData" justify="between" gap="4" wide :style="{ animationDelay: `${index * 0.15}s` }" :class="$style.fadein">
+		<Flex v-else @pointerleave="handleHoverLeave()" align="center" direction="column" gap="12" wide>
+			<Flex
+				@pointerenter="handleHoverEnter(index)"
+				v-for="(item, index) in resData"
+				justify="between"
+				gap="4" wide
+				:id="index"
+				:class="[
+					`insight-item-${series.name}`,
+					{
+						[$style.fadein]: true,
+					}
+				]"
+				:style="{ transition: 'all 0.5s ease', animationDelay: `${index * 0.15}s` }"
+			>
 				<Flex align="center" justify="start" gap="6">
 					<div
 						:class="$style.legend"
