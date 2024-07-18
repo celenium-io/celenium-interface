@@ -122,13 +122,25 @@ watch(
 }
 
 .tabs_wrapper {
-	border-bottom: solid 3px var(--op-5);
+	position: relative;
+}
+
+.tabs_wrapper::after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 2px;
+	background-color: var(--op-5);
 }
 
 .tab {
 	padding-bottom: 16px;
 	
 	cursor: pointer;
+
+	/* transition: all 0.1s ease; */
 }
 
 .tab_active {

@@ -73,6 +73,25 @@ const getSquareSizes = async () => {
 const squareSizeEl = ref(null)
 const squareSizeWidth = ref(0)
 const squareWidth = computed(() => Math.floor((squareSizeWidth.value - 19) / 20))
+
+const handleHoverEnter = (index) => {
+	const elements = document.querySelectorAll(`[class*='suqare-group-']`)
+	elements.forEach(el => {
+		if (el.id === index) {
+			el.style.filter = "brightness(120%)"
+		} else {
+			el.style.filter = "brightness(40%)"
+		}
+	})
+}
+
+const handleHoverLeave = () => {
+	const elements = document.querySelectorAll(`[class*='suqare-group-']`)
+	elements.forEach(el => {
+		el.style.filter = "brightness(100%)"
+	})
+}
+
 onMounted(async () => {
 	squareSizeWidth.value = squareSizeEl.value?.wrapper?.offsetWidth
 
@@ -97,10 +116,20 @@ onMounted(async () => {
 			</Flex>
 		</Flex>
 
-		<Flex ref="squareSizeEl" align="center" :class="$style.square_size_wrapper">
-			<div v-for="(s, index) in squareSizeGraph"
-				:class="[$style.square_size, $style.fadein]"
+		<Flex @pointerleave="handleHoverLeave()" ref="squareSizeEl" align="center" :class="$style.square_size_wrapper">
+			<div
+				v-for="(s, index) in squareSizeGraph"
+				@pointerenter="handleHoverEnter(s.size)"
+				:id="s.size"
+				:class="[
+					`suqare-group-${s.size}`,
+					{
+						[$style.square_size]: true,
+						[$style.fadein]: true,
+					}
+				]"
 				:style="{
+					transition: 'all 0.4s ease',
 					animationDelay: `${index * 5}ms`,
 					width: `${squareWidth}px`,
 					height: `${squareWidth}px`,
@@ -111,8 +140,21 @@ onMounted(async () => {
 			/>
 		</Flex>
 
-		<Flex align="center" direction="column" gap="8">
-			<Flex v-for="s in squareSize" align="center" justify="between" wide :class="$style.fadein">
+		<Flex @pointerleave="handleHoverLeave()" align="center" direction="column" gap="8">
+			<Flex
+				v-for="s in squareSize"
+				@pointerenter="handleHoverEnter(s.size)"
+				:id="s.size"
+				align="center"
+				justify="between" wide
+				:class="[
+					`suqare-group-${s.size}`,
+					{
+						[$style.fadein]: true,
+					}
+				]"
+				:style="{ transition: 'all 0.4s ease' }"
+			>
 				<Flex align="center" gap="6" style="flex: 4">
 					<div
 						:class="$style.legend"
@@ -124,30 +166,10 @@ onMounted(async () => {
 					<Text size="12" weight="600" color="primary"> {{ `${s.size} x ${s.size}` }} </Text>
 				</Flex>
 
-				<!-- <Flex align="center" gap="6" style="flex: 2"> -->
-					<Text size="12" weight="600" color="tertiary" style="text-align: right; flex: 1"> {{ `${s.share}%` }} </Text>
-					<Text size="12" weight="600" color="primary" style="text-align: right; flex: 1"> {{ comma(s.value) }} </Text>
-				<!-- </Flex> -->
+				<Text size="12" weight="600" color="tertiary" style="text-align: right; flex: 1"> {{ `${s.share}%` }} </Text>
+				<Text size="12" weight="600" color="primary" style="text-align: right; flex: 1"> {{ comma(s.value) }} </Text>
 			</Flex>
 		</Flex>
-
-		<!-- <Flex :class="$style.chart_wrapper">
-			<Flex ref="chartElPrev" wide :class="$style.chart" />
-			<Flex ref="chartEl" wide :class="$style.chart" />
-
-			<Flex align="center" justify="between" :class="$style.axis">
-				<Text size="11" weight="600" color="tertiary">
-					{{ DateTime.now().minus({
-							days: period.timeframe === "day" ? period.value : 0,
-							hours: period.timeframe === "hour" ? period.value : 0,
-						}).toFormat("LLL dd")
-					}}
-				</Text>
-
-				<Text size="11" weight="600" color="tertiary">
-					Today
-				</Text>
-			</Flex> -->
 	</Flex>
 </template>
 

@@ -168,11 +168,11 @@ onMounted(() => {
                         const [x, y] = arc.centroid(d);
                         const dist = 0.1
                         return `translate(${x * dist}, ${y * dist})`
-                    });
+                    })
 
                 d3.selectAll(`.legend-item-${props.series.name}`).classed("dimmed", true)
                 item.classList.remove("dimmed")
-            });
+            })
 
             item.addEventListener('pointerleave', () => {
                 const arc = d3.select(`.arc-${props.series.name}-${index} path`)
@@ -184,8 +184,8 @@ onMounted(() => {
                     .attr("transform", "translate(0, 0)")
                 
                 d3.selectAll(`.legend-item-${props.series.name}`).classed("dimmed", false)
-            });
-        });
+            })
+        })
     })
 })
 </script>
@@ -266,7 +266,7 @@ onMounted(() => {
 }
 
 .legend_item {
-    transition: all 0.5s ease;
+    transition: all 0.6s ease;
 }
 
 .legend {
