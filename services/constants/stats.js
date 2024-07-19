@@ -5,6 +5,7 @@ export const STATS_SERIES = [
 			{
 				name: 'tx_count',
 				title: 'Transactions',
+				page: 'transactions',
 				tooltip: 'Txs',
 				aggregate: 'sum',
 			},
@@ -115,6 +116,19 @@ export function getSeriesByGroupAndType(group, type) {
 				series = [...el.series]
 			}
 		}
+	})
+
+	return series
+}
+
+export function getSeriesByPage(page) {
+	let series = {}
+	STATS_SERIES.forEach(el => {
+		el.series.forEach(s => {
+			if (s.page === page) {
+				series = s
+			}
+		})
 	})
 
 	return series

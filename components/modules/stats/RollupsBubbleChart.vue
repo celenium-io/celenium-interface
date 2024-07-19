@@ -79,7 +79,7 @@ const buildChart = (chart, data) => {
         .domain([0, maxFee + maxFee * 0.3])
         .range([ height - 30, 0]);
 
-    // Add axises:
+    // Add axes:
     svg.append("g")
         .attr("transform", "translate(0," + (height - 20) + ")")
         .attr("color", "var(--op-10)")
