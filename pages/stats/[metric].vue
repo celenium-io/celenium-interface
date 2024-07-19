@@ -5,7 +5,6 @@ import { DateTime } from "luxon"
 /** Stats Components/Constants */
 import { getSeriesByPage, STATS_PERIODS } from "@/services/constants/stats.js"
 import LineChart from "@/components/modules/stats/LineChart.vue"
-import LineChartCopy from "@/components/modules/stats/LineChart copy.vue"
 
 /** Services */
 import { abbreviate, capitilize, comma, formatBytes } from "@/services/utils"
@@ -145,9 +144,7 @@ await getData()
 			<!-- <RollupOverview v-if="rollup" :rollup="rollup" /> -->
 		</Flex>
 
-        <!-- <LineChart :series="series" /> -->
-        <LineChartCopy :series="series" />
-		<!-- <RollupCharts v-if="rollup" :id="rollup.id" /> -->
+        <LineChart :series="series" />
 	</Flex>
 </template>
 

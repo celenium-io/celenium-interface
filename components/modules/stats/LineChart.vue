@@ -20,40 +20,41 @@ const props = defineProps({
 })
 
 // TO DO: Fetch data if series.currentData is null
-const currentData = computed(() => props.series.currentData)
-const prevData = computed(() => props.series.prevData)
+const currentData = computed(() => { return {data: props.series.currentData}})
+const prevData = computed(() => { 
+	let data = []
+	props.series.prevData?.forEach((d, index) => {
+		data.push({
+			date: currentData.value.data[index].date,
+			realDate: d.date,
+			value: d.value,
+		})
+	})
+	return { data: data }
+})
 
 const chartEl = ref()
-const chartElPrev = ref()
-const tooltipEl = ref()
-const badgeEl = ref()
 
-const showTooltip = ref(false)
-const tooltipXOffset = ref(0)
-const tooltipYOffset = ref(0)
-const tooltipYDataOffset = ref(0)
-const tooltipDynamicXPosition = ref(0)
-const tooltipText = ref("")
+const tooltip = ref({
+	data: [],
+	show: false,
+})
 
-const badgeText = ref("")
-const badgeOffset = ref(0)
-
-const buildChart = (chart, data, color, prev, onEnter, onLeave) => {
+const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	const width = chart.getBoundingClientRect().width
 	const height = chart.getBoundingClientRect().height
 	const marginTop = 6
 	const marginRight = 12
 	const marginBottom = 24
 	const marginLeft = 12
+	const marginAxisX = 20
 
-	const MIN_VALUE = d3.min([...currentData.value.map(s => s.value), ...prevData.value.map(s => s.value)])
-	const MAX_VALUE = d3.max([...currentData.value.map(s => s.value), ...prevData.value.map(s => s.value)])
-	// const MIN_VALUE = d3.min([...prevData.value.map(s => s.value)])
-	// const MAX_VALUE = d3.max([...prevData.value.map(s => s.value)])
+	const MIN_VALUE = d3.min([...cData.data.map(s => s.value), ...pData.data.map(s => s.value)])
+	const MAX_VALUE = d3.max([...cData.data.map(s => s.value), ...pData.data.map(s => s.value)])
 
 	/** Scale */
 	const x = d3.scaleUtc(
-		d3.extent(data, (d) => d.date),
+		d3.extent(cData.data, (d) => d.date),
 		[marginLeft, width],
 	)
 	const y = d3.scaleLinear([MIN_VALUE, MAX_VALUE], [height - marginBottom, marginTop])
@@ -62,47 +63,6 @@ const buildChart = (chart, data, color, prev, onEnter, onLeave) => {
 		.x((d) => x(d.date))
 		.y((d) => y(d.value))
 		.curve(d3.curveCatmullRom)
-
-	/** Tooltip */
-	const bisect = d3.bisector((d) => d.date).center
-	const onPointermoved = (event) => {
-		onEnter()
-
-		const idx = bisect(data, x.invert(d3.pointer(event)[0]))
-		// console.log('idx', idx);
-		// console.log('data[idx].value', data[idx].value);
-
-		tooltipXOffset.value = x(data[idx].date)
-		tooltipYDataOffset.value = y(data[idx].value)
-		tooltipYOffset.value = event.layerY
-		tooltipText.value = data[idx].value
-
-		if (tooltipEl.value) {
-			// if (idx > parseInt(selectedPeriod.value.value / 2)) {
-			// 	tooltipDynamicXPosition.value = tooltipXOffset.value - tooltipEl.value.wrapper.getBoundingClientRect().width - 16
-			// } else {
-				tooltipDynamicXPosition.value = tooltipXOffset.value + 16
-			// }
-		}
-
-		badgeText.value = DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
-			// selectedPeriod.value.timeframe === "day"
-			// 	? DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
-			// 	: DateTime.fromJSDate(data[idx].date).set({ minutes: 0 }).toFormat("hh:mm a")
-		// console.log('badgeText.value', badgeText.value);
-		// if (!badgeEl.value) return
-		// if (idx < 2) {
-		// 	badgeOffset.value = 0
-		// } else if (idx > selectedPeriod.value.value - 3) {
-		// 	badgeOffset.value = badgeEl.value.getBoundingClientRect().width
-		// } else {
-		// 	badgeOffset.value = badgeEl.value.getBoundingClientRect().width / 2
-		// }
-	}
-	const onPointerleft = () => {
-		onLeave()
-		badgeText.value = ""
-	}
 
 	/** SVG Container */
 	const svg = d3
@@ -113,84 +73,166 @@ const buildChart = (chart, data, color, prev, onEnter, onLeave) => {
 		.attr("preserveAspectRatio", "none")
 		.attr("style", "max-width: 100%;")
 		.style("-webkit-tap-highlight-color", "transparent")
-		// .on("pointerenter pointermove", onPointermoved)
-		// .on("pointerleave", onPointerleft)
-		// .on("touchstart", (event) => event.preventDefault())
+		.on("pointerenter pointermove", onPointerMoved)
+		.on("pointerleave", onPointerleft)
+		.on("touchstart", (event) => event.preventDefault())
 
     /** Add axes */
-	if (!prev) {
-		svg.append("g")
-			.attr("transform", "translate(0," + (height - 20) + ")")
-			.attr("color", "var(--op-10)")
-			.call(d3.axisBottom(x).ticks(4))
-		
-		svg.append("g")
-			.attr("transform", `translate(0,0)`)
-			.attr("color", "var(--op-10)")
-			.call(d3.axisRight(y)
-				.ticks(4)
-				.tickSize(width)
-				.tickFormat(d3.format(".2s")))
-			.call(g => g.select(".domain")
-				.remove())
-			.call(g => g.selectAll(".tick line")
-				.attr("stroke-opacity", 0.7)
-				.attr("stroke-dasharray", "10, 10"))
-			.call(g => g.selectAll(".tick text")
-				.attr("x", 4)
-				.attr("dy", -4))
-			// .call(g => g.selectAll(".tick:first-child").remove())
+	svg.append("g")
+		.attr("transform", "translate(0," + (height - marginAxisX) + ")")
+		.attr("color", "var(--op-10)")
+		.call(d3.axisBottom(x).ticks(4))
+	
+	svg.append("g")
+		.attr("transform", `translate(0,0)`)
+		.attr("color", "var(--op-10)")
+		.call(d3.axisRight(y)
+			.ticks(4)
+			.tickSize(width)
+			.tickFormat(d3.format(".2s")))
+		.call(g => g.select(".domain")
+			.remove())
+		.call(g => g.selectAll(".tick line")
+			.attr("stroke-opacity", 0.7)
+			.attr("stroke-dasharray", "10, 10"))
+		.call(g => g.selectAll(".tick text")
+			.attr("x", 4)
+			.attr("dy", -4))
+
+	// This allows to find the closest X index of the mouse:
+	const bisect = d3.bisector(function(d) { return d.date; }).left;
+
+	const cFocus = svg
+		.append('g')
+		.append('circle')
+			.style("fill", cData.color)
+			.attr('r', 4)
+			.style("opacity", 0)
+			.style("transition", "all 0.2s ease" )
+
+	const pFocus = svg
+		.append('g')
+		.append('circle')
+			.style("fill", pData.color)
+			.attr('r', 4)
+			.style("opacity", 0)
+			.style("transition", "all 0.2s ease" )
+
+	const focusLine = svg
+		.append('g')
+		.append('line')
+			.style("stroke-width", 2)
+			.style("stroke", "var(--op-10)")
+			.style("fill", "none")
+			.style("opacity", 0)
+
+	function formatDate(date) {
+		return DateTime.fromJSDate(date).toFormat("LLL dd, yyyy")
 	}
+
+	function formatValue(value) {
+		switch (props.series.units) {
+			case 'bytes':
+				return formatBytes(value)
+			case 'uita':
+				return Math.round(value / 1_000_000, 2)
+			default:
+				return comma(value)
+		}
+	}
+
+	function onPointerMoved(event) {
+		onEnter()
+		cFocus.style("opacity", 1)
+		pFocus.style("opacity", 1)
+		focusLine.style("opacity", 1)
+
+		// Recover coordinate we need
+		let idx = bisect(cData.data, x.invert(d3.pointer(event)[0]), 1)
+		let selectedCData = cData.data[idx]
+		let selectedPData = pData.data[idx]
+		cFocus
+			.attr("cx", x(selectedCData.date))
+			.attr("cy", y(selectedCData.value))
+		pFocus
+			.attr("cx", x(selectedPData.date))
+			.attr("cy", y(selectedPData.value))
+		focusLine
+			.attr("x1", x(selectedPData.date))
+			.attr("y1", 0)
+			.attr("x2", x(selectedPData.date))
+			.attr("y2", height - marginAxisX)
 		
+		tooltip.value.x = x(selectedCData.date)
+		tooltip.value.y = y(selectedCData.value)
+		tooltip.value.data[0] = {
+			date: formatDate(selectedCData.date),
+			value: formatValue(selectedCData.value),
+			color: cData.color,
+		}
+		tooltip.value.data[1] = {
+			date: formatDate(selectedPData.realDate),
+			value: formatValue(selectedPData.value),
+			color: pData.color,
+		}
+	}
+
+	function onPointerleft() {
+		onLeave()
+		cFocus.style("opacity", 0)
+		pFocus.style("opacity", 0)
+		focusLine.style("opacity", 0)
+	}
+
 	/** Chart Lines */
-	const path = svg.append("path")
+	const cPath = svg.append("path")
 		.attr("fill", "none")
-		.attr("stroke", color)
+		.attr("stroke", cData.color)
 		.attr("stroke-width", 2)
 		.attr("stroke-linecap", "round")
 		.attr("stroke-linejoin", "round")
-		.attr("d", line(data.filter((item) => item.value !== null)))
+		.attr("d", line(cData.data.filter((item) => item.value !== null)))
 
-	// svg.append("path")
-	// 	.attr("fill", "none")
-	// 	.attr("stroke", "transparent")
-	// 	.attr("stroke-width", 2)
-	// 	.attr("stroke-linecap", "round")
-	// 	.attr("stroke-linejoin", "round")
-	// 	.attr("d", line(data.filter((item) => item.value === null).map((item) => ({ ...item, value: 0 }))))
+	const pPath = svg.append("path")
+		.attr("fill", "none")
+		.attr("stroke", pData.color)
+		.attr("stroke-width", 2)
+		.attr("stroke-linecap", "round")
+		.attr("stroke-linejoin", "round")
+		.attr("d", line(pData.data.filter((item) => item.value !== null)))
 
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
 
-	const totalLength = path.node().getTotalLength();
+	const totalLength = cPath.node().getTotalLength();
 
-	path.attr("stroke-dasharray", `${totalLength} ${totalLength}`)
+	cPath.attr("stroke-dasharray", `${totalLength} ${totalLength}`)
 		.attr("stroke-dashoffset", totalLength)
 		.transition()
 		.duration(1_000)
 		.ease(d3.easeLinear)
 		.attr("stroke-dashoffset", 0);
+
+	pPath.attr("stroke-dasharray", `${totalLength} ${totalLength}`)
+		.attr("stroke-dashoffset", totalLength)
+		.transition()
+		.duration(1_000)
+		.ease(d3.easeLinear)
+		.attr("stroke-dashoffset", 0)
+
 }
 
 const drawChart = () => {
+	currentData.value.color = "var(--mint)"
+	prevData.value.color = "var(--txt-tertiary)"
+
 	buildChart(
 		chartEl.value.wrapper,
 		currentData.value,
-		"var(--mint)",
-		false,
-		() => (showTooltip.value = true),
-		() => (showTooltip.value = false),
+		prevData.value,
+		() => (tooltip.value.show = true),
+		() => (tooltip.value.show = false),
 	)
-	if (prevData.value) {
-		buildChart(
-			chartElPrev.value.wrapper,
-			prevData.value,
-			"var(--txt-tertiary)",
-			true,
-			() => (showTooltip.value = true),
-			() => (showTooltip.value = false),
-		)
-	}
 }
 
 onMounted(async () => {
@@ -209,7 +251,47 @@ watch(
 <template>
 	<Flex direction="column" justify="between" gap="16" wide :class="$style.wrapper">
 		<Flex :class="$style.chart_wrapper">
-			<Flex ref="chartElPrev" wide :class="$style.chart" />
+			<Transition name="fastfade">
+				<div v-if="tooltip.show" :class="$style.tooltip_wrapper">
+					<Flex
+						align="center"
+						direction="column"
+						:style="{ transform: `translate(${tooltip.x + 15}px, ${tooltip.y - 40}px)` }"
+						gap="12"
+						:class="$style.tooltip"
+					>
+						<Flex
+							v-for="(d, index) in tooltip.data"
+							align="center"
+							direction="column"
+							wide
+							gap="12"
+						>
+							<Flex align="center" justify="between" wide gap="12">
+								<Flex align="center" direction="column" gap="10">
+									<Flex align="center" justify="start" wide>
+										<Text size="12" weight="600" color="primary"> {{ d.value }} </Text>
+									</Flex>
+									
+									<Flex align="center" justify="start" wide>
+										<Text size="12" weight="500" color="tertiary"> {{ d.date }} </Text>
+									</Flex>
+								</Flex>
+
+								<div
+									:class="$style.legend"
+									:style="{
+										background: d.color
+									}"
+								/>
+							</Flex>
+
+							<div v-if="index !== tooltip.data.length - 1" :class="$style.horizontal_divider" />
+						</Flex>
+					</Flex>
+				</div>
+			</Transition>
+
 			<Flex ref="chartEl" wide :class="$style.chart" />
 		</Flex>
 	</Flex>
@@ -219,7 +301,6 @@ watch(
 .wrapper {
 	height: 800px;
 
-	/* background: var(--card-background); */
 	border-radius: 12px;
 
 	padding: 16px;
@@ -246,15 +327,39 @@ watch(
 	}
 }
 
-.axis {
+.tooltip_wrapper {
 	position: absolute;
-	bottom: 0;
+	top: 0;
 	left: 0;
 	right: 0;
+	bottom: 0;
 
-	/* border-top: 2px solid var(--op-5);
+	& .tooltip {
+		min-width: 200px;
+		pointer-events: none;
+		position: absolute;
+		z-index: 10;
 
-	padding-top: 8px; */
+		background: var(--card-background);
+		border-radius: 6px;
+		box-shadow: inset 0 0 0 1px var(--op-5), 0 14px 34px rgba(0, 0, 0, 15%), 0 4px 14px rgba(0, 0, 0, 5%);
+
+		padding: 10px;
+
+		transition: all 0.2s ease;
+	}
+
+	& .legend {
+		height: 34px;
+		width: 3px;
+		border-radius: 8px;
+	}
+
+	& .horizontal_divider {
+		width: 100%;
+		height: 1px;
+		background: var(--op-5);
+	}
 }
 
 @media (max-width: 1000px) {
