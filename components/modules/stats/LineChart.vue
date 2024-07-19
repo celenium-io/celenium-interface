@@ -240,7 +240,7 @@ onMounted(async () => {
 })
 
 watch(
-	() => props.series,
+	() => currentData.value,
 	() => {
 		drawChart()
 	},

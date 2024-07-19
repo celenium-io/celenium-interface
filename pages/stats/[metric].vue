@@ -14,6 +14,10 @@ import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
+import Popover from "@/components/ui/Popover.vue"
+import Toggle from "@/components/ui/Toggle.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
@@ -91,7 +95,19 @@ if (!series.value.page) {
 
 const periods = ref(STATS_PERIODS)
 const selectedPeriod = ref(periods.value[2])
+const chartView = ref('line')
 const loadPrevData = ref(true)
+const loadToday = ref(true)
+
+const handleChangeChartView = () => {
+	if (chartView.value === 'line') {
+		console.log('Was line');
+		chartView.value = 'bar'
+	} else {
+		console.log('Was bar');
+		chartView.value = 'line'
+	}
+}
 
 const isLoading = ref(false)
 const getData = async () => {
@@ -121,6 +137,22 @@ const getData = async () => {
 }
 
 await getData()
+
+const isOpen = ref(false)
+const handleOpen = () => {
+	isOpen.value = true
+}
+const handleClose = () => {
+	isOpen.value = false
+}
+
+watch(
+	() => selectedPeriod.value,
+	async () => {
+		await getData()
+	},
+)
+
 </script>
 
 <template>
@@ -140,6 +172,75 @@ await getData()
 					<Icon name="rollup-plus" size="12" color="secondary" /> Rollup Registration
 				</Button> -->
 			</Flex>
+
+			<Flex align="center" justify="between" wide :class="$style.header">
+				<Text size="16" weight="600" color="primary" justify="start">Transactions Chart</Text>
+
+				<Flex align="center" gap="8">
+					<Dropdown>
+						<Button size="mini" type="secondary">
+							{{ selectedPeriod.title }}
+							<Icon name="chevron" size="12" color="secondary" />
+						</Button>
+
+						<template #popup>
+							<DropdownItem v-for="(period, idx) in periods" @click="selectedPeriod = period">
+								<Flex align="center" gap="8">
+									<Icon :name="period.title === selectedPeriod.title ? 'check' : ''" size="12" color="secondary" />
+									{{ period.title }}
+								</Flex>
+							</DropdownItem>
+						</template>
+					</Dropdown>
+					
+					<Popover :open="isOpen" @on-close="handleClose" width="200" side="right">
+						<Button @click="handleOpen" type="secondary" size="mini">
+							<Icon name="settings" size="12" color="tertiary" />
+						</Button>
+
+						<template #content>
+							<Flex direction="column" gap="12">
+								<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
+									<Text size="12" color="secondary">Line chart</Text>
+
+									<Flex
+										@click="handleChangeChartView"
+										align="center"
+										gap="12"
+										:class="$style.chart_selector"
+										:style="{
+											background: `linear-gradient(to ${chartView === 'line' ? 'right' : 'left'}, var(--op-5) 50%, transparent 50%)`,
+										}"
+									>
+										<Icon
+											name="line-chart"
+											size="14"
+											:style="{ fill: `${chartView === 'line' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
+										/>
+
+										<Icon
+											name="bar-chart"
+											size="14"
+											:style="{ fill: `${chartView === 'bar' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
+										/>
+									</Flex>
+								</Flex>
+
+								<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
+									<Text size="12" :color="loadPrevData ? 'secondary' : 'tertiary'">Previous period</Text>
+									<Toggle v-model="loadPrevData" color="var(--mint)" />
+								</Flex>
+
+								<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
+									<Text size="12" :color="loadToday ? 'secondary' : 'tertiary'">Show today</Text>
+									<Toggle v-model="loadToday" color="var(--mint)" />
+								</Flex>
+								<!-- <Button @click="handleApply" type="secondary" size="mini" wide>Apply</Button> -->
+							</Flex>
+						</template>
+					</Popover>
+				</Flex>
+			</Flex>
 			
 			<!-- <RollupOverview v-if="rollup" :rollup="rollup" /> -->
 		</Flex>
@@ -153,6 +254,18 @@ await getData()
 	max-width: calc(var(--base-width) + 48px);
 
 	padding: 26px 24px 60px 24px;
+}
+
+.setting_item {
+	min-height: 24px;
+}
+
+.chart_selector {
+	padding: 4px 6px 4px 6px;
+	box-shadow: inset 0 0 0 1px var(--op-10);
+	border-radius: 5px;
+	cursor: pointer;
+	transition: all 1s ease-in-out;
 }
 
 @media (max-width: 500px) {
