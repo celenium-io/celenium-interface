@@ -55,7 +55,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	/** Scales */
 	const x = d3.scaleUtc(
 		d3.extent(cData.data, (d) => d.date),
-		[marginLeft, width],
+		[marginLeft, width - marginRight],
 	)
 	const y = d3.scaleLinear([MIN_VALUE, MAX_VALUE], [height - marginBottom, marginTop])
 	const line = d3

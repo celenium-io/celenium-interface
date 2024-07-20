@@ -7,7 +7,7 @@ import { DateTime } from "luxon"
 import DiffChip from "@/components/modules/stats/DiffChip.vue"
 
 /** Services */
-import { abbreviate, comma, formatBytes } from "@/services/utils"
+import { abbreviate, comma, formatBytes, tia } from "@/services/utils"
 
 /** API */
 import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
@@ -229,8 +229,8 @@ watch(
 				<Text size="14" weight="600" color="tertiary"> {{ `~${Math.round(prevTotal)}s previous ${period.title.replace('Last ', '')}` }} </Text>
 			</Flex>
 			<Flex v-else-if="series.units === 'utia'" align="end" gap="10" justify="start" wide>
-				<Text size="16" weight="600" color="primary"> {{ `${currentTotal.toFixed(4)} UTIA` }} </Text>
-				<Text size="14" weight="600" color="tertiary"> {{ `${prevTotal.toFixed(4)} UTIA` }} </Text>
+				<Text size="16" weight="600" color="primary"> {{ series.name === 'gas_price' ? `${currentTotal.toFixed(4)} UTIA` : `${tia(currentTotal, 2)} TIA` }} </Text>
+				<Text size="14" weight="600" color="tertiary"> {{ series.name === 'gas_price' ? `${prevTotal.toFixed(4)} UTIA` : `${tia(prevTotal, 2)} TIA` }} </Text>
 			</Flex>
 			<Flex v-else align="end" gap="10" justify="start" wide>
 				<Text size="16" weight="600" color="primary"> {{ series.units === 'bytes' ? formatBytes(currentTotal) : comma(currentTotal) }} </Text>
