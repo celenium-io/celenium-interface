@@ -5,12 +5,15 @@ export const STATS_SERIES = [
 			{
 				name: 'tx_count',
 				title: 'Transactions',
+				page: 'transactions',
 				tooltip: 'Txs',
 				aggregate: 'sum',
 			},
 			{
 				name: 'fee',
 				title: 'Fee',
+				page: 'fee',
+				units: 'utia',
 				tooltip: 'Fee',
 				aggregate: 'sum',
 			},
@@ -24,6 +27,7 @@ export const STATS_SERIES = [
 			{
 				name: 'bytes_in_block',
 				title: 'Bytes In Block',
+				page: 'bytes_in_block',
 				units: 'bytes',
 				tooltip: 'Bytes',
 				aggregate: 'sum',
@@ -31,12 +35,14 @@ export const STATS_SERIES = [
 			{
 				name: 'blobs_count',
 				title: 'Blobs Count',
+				page: 'blobs_count',
 				tooltip: 'Blobs',
 				aggregate: 'sum',
 			},
 			{
 				name: 'blobs_size',
 				title: 'Blobs Size',
+				page: 'blobs_size',
 				units: 'bytes',
 				tooltip: 'Size',
 				aggregate: 'sum',
@@ -115,6 +121,19 @@ export function getSeriesByGroupAndType(group, type) {
 				series = [...el.series]
 			}
 		}
+	})
+
+	return series
+}
+
+export function getSeriesByPage(page) {
+	let series = {}
+	STATS_SERIES.forEach(el => {
+		el.series.forEach(s => {
+			if (s.page === page) {
+				series = s
+			}
+		})
 	})
 
 	return series
