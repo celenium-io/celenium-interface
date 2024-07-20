@@ -7,7 +7,7 @@ import { DateTime } from "luxon"
 import DiffChip from "@/components/modules/stats/DiffChip.vue"
 
 /** Services */
-import { abbreviate, comma, formatBytes } from "@/services/utils"
+import { abbreviate, comma, formatBytes, tia } from "@/services/utils"
 
 /** API */
 import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
@@ -49,10 +49,10 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	const marginLeft = 12
 	const marginAxisX = 20
 
-	const MIN_VALUE = d3.min([...cData.data.map(s => s.value), ...pData.data.map(s => s.value)])
-	const MAX_VALUE = d3.max([...cData.data.map(s => s.value), ...pData.data.map(s => s.value)])
+	const MIN_VALUE = d3.min([...cData.data.map(s => s.value), ...pData.data?.map(s => s.value)])
+	const MAX_VALUE = d3.max([...cData.data.map(s => s.value), ...pData.data?.map(s => s.value)])
 
-	/** Scale */
+	/** Scales */
 	const x = d3.scaleUtc(
 		d3.extent(cData.data, (d) => d.date),
 		[marginLeft, width],
@@ -100,7 +100,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 			.attr("dy", -4))
 
 	// This allows to find the closest X index of the mouse:
-	const bisect = d3.bisector(function(d) { return d.date; }).left;
+	const bisect = d3.bisector(function(d) { return d.date; }).center
 
 	const cFocus = svg
 		.append('g')
@@ -127,6 +127,10 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 			.style("opacity", 0)
 
 	function formatDate(date) {
+		if (props.series.timeframe === 'hour') {
+			return DateTime.fromJSDate(date).toFormat("LLL dd, HH:mm")
+		}
+
 		return DateTime.fromJSDate(date).toFormat("LLL dd, yyyy")
 	}
 
@@ -134,8 +138,8 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		switch (props.series.units) {
 			case 'bytes':
 				return formatBytes(value)
-			case 'uita':
-				return Math.round(value / 1_000_000, 2)
+			case 'utia':
+				return `${tia(value, 2)} TIA`
 			default:
 				return comma(value)
 		}
@@ -144,23 +148,18 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	function onPointerMoved(event) {
 		onEnter()
 		cFocus.style("opacity", 1)
-		pFocus.style("opacity", 1)
 		focusLine.style("opacity", 1)
 
 		// Recover coordinate we need
-		let idx = bisect(cData.data, x.invert(d3.pointer(event)[0]), 1)
+		let idx = bisect(cData.data, x.invert(d3.pointer(event)[0]))
 		let selectedCData = cData.data[idx]
-		let selectedPData = pData.data[idx]
 		cFocus
 			.attr("cx", x(selectedCData.date))
 			.attr("cy", y(selectedCData.value))
-		pFocus
-			.attr("cx", x(selectedPData.date))
-			.attr("cy", y(selectedPData.value))
 		focusLine
-			.attr("x1", x(selectedPData.date))
+			.attr("x1", x(selectedCData.date))
 			.attr("y1", 0)
-			.attr("x2", x(selectedPData.date))
+			.attr("x2", x(selectedCData.date))
 			.attr("y2", height - marginAxisX)
 		
 		tooltip.value.x = x(selectedCData.date)
@@ -170,11 +169,22 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 			value: formatValue(selectedCData.value),
 			color: cData.color,
 		}
-		tooltip.value.data[1] = {
-			date: formatDate(selectedPData.realDate),
-			value: formatValue(selectedPData.value),
-			color: pData.color,
+		tooltip.value.data.splice(1, 1)
+		if (pData.data.length) {
+			let selectedPData = pData.data[idx]
+
+			pFocus
+				.attr("cx", x(selectedPData.date))
+				.attr("cy", y(selectedPData.value))
+				.style("opacity", 1)
+			
+			tooltip.value.data[1] = {
+				date: formatDate(selectedPData.realDate),
+				value: formatValue(selectedPData.value),
+				color: pData.color,
+			}
 		}
+
 	}
 
 	function onPointerleft() {
@@ -199,22 +209,23 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		.attr("stroke-width", 2)
 		.attr("stroke-linecap", "round")
 		.attr("stroke-linejoin", "round")
-		.attr("d", line(pData.data.filter((item) => item.value !== null)))
+		.attr("d", line(pData.data?.filter((item) => item.value !== null)))
 
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
 
-	const totalLength = cPath.node().getTotalLength();
+	const cTotalLength = cPath.node().getTotalLength();
+	const pTotalLength = pPath.node().getTotalLength();
 
-	cPath.attr("stroke-dasharray", `${totalLength} ${totalLength}`)
-		.attr("stroke-dashoffset", totalLength)
+	cPath.attr("stroke-dasharray", `${cTotalLength} ${cTotalLength}`)
+		.attr("stroke-dashoffset", cTotalLength)
 		.transition()
 		.duration(1_000)
 		.ease(d3.easeLinear)
 		.attr("stroke-dashoffset", 0);
 
-	pPath.attr("stroke-dasharray", `${totalLength} ${totalLength}`)
-		.attr("stroke-dashoffset", totalLength)
+	pPath.attr("stroke-dasharray", `${pTotalLength} ${pTotalLength}`)
+		.attr("stroke-dashoffset", pTotalLength)
 		.transition()
 		.duration(1_000)
 		.ease(d3.easeLinear)
@@ -240,7 +251,7 @@ onMounted(async () => {
 })
 
 watch(
-	() => currentData.value,
+	() => [currentData.value, prevData.value],
 	() => {
 		drawChart()
 	},

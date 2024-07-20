@@ -213,9 +213,15 @@ watch(
 <template>
 	<Flex direction="column" justify="between" gap="16" wide :class="$style.wrapper">
 		<Flex align="center" direction="column" gap="16" :class="$style.header">
-			<Flex align="center" gap="10" justify="start" wide>
-				<Text size="14" weight="600" color="secondary"> {{ series.title }} </Text>
-				<DiffChip :value="diff" :invert="series.name === 'block_time'" />
+			<Flex align="center" justify="between" wide>
+				<Flex align="center" gap="10" justify="start" wide>
+					<Text size="14" weight="600" color="secondary"> {{ series.title }} </Text>
+					<DiffChip :value="diff" :invert="series.name === 'block_time'" />
+				</Flex>
+
+				<NuxtLink v-if="series.page" :to="`/stats/${series.page}`">
+					<Text size="12" color="tertiary">View</Text>
+				</NuxtLink>
 			</Flex>
 			
 			<Flex v-if="series.units === 'seconds'" align="end" gap="10" justify="start" wide>

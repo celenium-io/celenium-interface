@@ -7,7 +7,7 @@ import { getSeriesByPage, STATS_PERIODS } from "@/services/constants/stats.js"
 import LineChart from "@/components/modules/stats/LineChart.vue"
 
 /** Services */
-import { abbreviate, capitilize, comma, formatBytes } from "@/services/utils"
+import { abbreviate, capitilize, capitalizeAndReplaceUnderscore, comma, formatBytes } from "@/services/utils"
 
 /** API */
 import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
@@ -27,20 +27,10 @@ const route = useRoute()
 const router = useRouter()
 
 const series = ref(getSeriesByPage(route.params.metric))
-// const ss = getSeriesByPage('transactions')
-// console.log(ss);
-// console.log('route.params.metric', route.params.metric);
-// console.log('getSeriesByPage(route.params.metric)', getSeriesByPage('transactions'));
-// console.log('series.value', series.value);
-// const { data: rawRollup } = await fetchRollupBySlug(route.params.slug)
 
 if (!series.value.page) {
 	router.push("/stats")
 }
-// else {
-	// rollup.value = rawRollup.value
-	// cacheStore.current.rollup = rollup.value
-// }
 
 // defineOgImage({
 // 	title: "Rollup",
@@ -95,16 +85,18 @@ if (!series.value.page) {
 
 const periods = ref(STATS_PERIODS)
 const selectedPeriod = ref(periods.value[2])
+
+const currentData = ref([])
+const prevData = ref([])
+
 const chartView = ref('line')
 const loadPrevData = ref(true)
-const loadToday = ref(true)
+const loadLastValue = ref(true)
 
 const handleChangeChartView = () => {
 	if (chartView.value === 'line') {
-		console.log('Was line');
 		chartView.value = 'bar'
 	} else {
-		console.log('Was bar');
 		chartView.value = 'line'
 	}
 }
@@ -126,12 +118,17 @@ const getData = async () => {
 
     if (data.length) {
         if (loadPrevData.value) {
-            series.value.prevData = data.slice(0, selectedPeriod.value.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
-            series.value.currentData = data.slice(selectedPeriod.value.value, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+            prevData.value = data.slice(0, selectedPeriod.value.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+            currentData.value = data.slice(selectedPeriod.value.value, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
         } else {
-            series.value.currentData = data.slice(0, selectedPeriod.value.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+			prevData.value = []
+            currentData.value = data.slice(0, selectedPeriod.value.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
         }
     }
+
+	series.value.currentData = loadLastValue.value ? currentData.value : [...currentData.value.slice(0, -1)]
+	series.value.prevData = loadLastValue.value ? prevData.value : (prevData.value.length ? [...prevData.value.slice(0, -1)] : prevData.value)
+	series.value.timeframe = selectedPeriod.value.timeframe
 
     isLoading.value = false
 }
@@ -153,6 +150,36 @@ watch(
 	},
 )
 
+watch(
+	() => loadLastValue.value,
+	() => {
+		if (loadLastValue.value) {
+			series.value.currentData = currentData.value
+			series.value.prevData = prevData.value
+		} else {
+			series.value.currentData = [...currentData.value.slice(0, -1)]
+			if (loadPrevData.value && prevData.value.length) {
+				series.value.prevData = [...prevData.value.slice(0, -1)]
+			}
+		}
+	}
+)
+
+watch(
+	() => loadPrevData.value,
+	async () => {
+		if (loadPrevData.value) {
+			if (prevData.value.length) {
+				series.value.prevData = prevData.value
+			} else {
+				await getData()
+			}
+		} else {
+			series.value.prevData = []
+		}
+	},
+)
+
 </script>
 
 <template>
@@ -164,17 +191,13 @@ watch(
 					:items="[
 						{ link: '/', name: 'Explore' },
 						{ link: '/stats', name: 'Statistics' },
-						{ link: route.fullPath, name: capitilize(series.page) },
+						{ link: route.fullPath, name: capitalizeAndReplaceUnderscore(series.page) },
 					]"
 				/>
-
-				<!-- <Button link="https://forms.gle/nimJyQJG4Lb4BTcG7" target="_blank" type="secondary" size="mini">
-					<Icon name="rollup-plus" size="12" color="secondary" /> Rollup Registration
-				</Button> -->
 			</Flex>
 
 			<Flex align="center" justify="between" wide :class="$style.header">
-				<Text size="16" weight="600" color="primary" justify="start">Transactions Chart</Text>
+				<Text size="16" weight="600" color="primary" justify="start"> {{ `${capitalizeAndReplaceUnderscore(series.page)} Chart` }} </Text>
 
 				<Flex align="center" gap="8">
 					<Dropdown>
@@ -228,21 +251,18 @@ watch(
 
 								<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
 									<Text size="12" :color="loadPrevData ? 'secondary' : 'tertiary'">Previous period</Text>
-									<Toggle v-model="loadPrevData" color="var(--mint)" />
+									<Toggle v-model="loadPrevData" color="var(--neutral-mint)" />
 								</Flex>
 
 								<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
-									<Text size="12" :color="loadToday ? 'secondary' : 'tertiary'">Show today</Text>
-									<Toggle v-model="loadToday" color="var(--mint)" />
+									<Text size="12" :color="loadLastValue ? 'secondary' : 'tertiary'">Show last value</Text>
+									<Toggle v-model="loadLastValue" color="var(--neutral-mint)" />
 								</Flex>
-								<!-- <Button @click="handleApply" type="secondary" size="mini" wide>Apply</Button> -->
 							</Flex>
 						</template>
 					</Popover>
 				</Flex>
 			</Flex>
-			
-			<!-- <RollupOverview v-if="rollup" :rollup="rollup" /> -->
 		</Flex>
 
         <LineChart :series="series" />

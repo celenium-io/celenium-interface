@@ -12,6 +12,8 @@ export const STATS_SERIES = [
 			{
 				name: 'fee',
 				title: 'Fee',
+				page: 'fee',
+				units: 'utia',
 				tooltip: 'Fee',
 				aggregate: 'sum',
 			},
@@ -25,6 +27,7 @@ export const STATS_SERIES = [
 			{
 				name: 'bytes_in_block',
 				title: 'Bytes In Block',
+				page: 'bytes_in_block',
 				units: 'bytes',
 				tooltip: 'Bytes',
 				aggregate: 'sum',
@@ -32,12 +35,14 @@ export const STATS_SERIES = [
 			{
 				name: 'blobs_count',
 				title: 'Blobs Count',
+				page: 'blobs_count',
 				tooltip: 'Blobs',
 				aggregate: 'sum',
 			},
 			{
 				name: 'blobs_size',
 				title: 'Blobs Size',
+				page: 'blobs_size',
 				units: 'bytes',
 				tooltip: 'Size',
 				aggregate: 'sum',
