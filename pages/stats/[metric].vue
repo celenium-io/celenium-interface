@@ -155,10 +155,10 @@ watch(
 	() => {
 		if (loadLastValue.value) {
 			series.value.currentData = currentData.value
-			series.value.prevData = prevData.value
+			series.value.prevData = loadPrevData.value ? prevData.value : []
 		} else {
 			series.value.currentData = [...currentData.value.slice(0, -1)]
-			if (loadPrevData.value && prevData.value.length) {
+			if (prevData.value.length && loadPrevData.value) {
 				series.value.prevData = [...prevData.value.slice(0, -1)]
 			}
 		}
