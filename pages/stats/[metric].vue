@@ -170,7 +170,8 @@ watch(
 	async () => {
 		if (loadPrevData.value) {
 			if (prevData.value.length) {
-				series.value.prevData = prevData.value
+				series.value.currentData = loadLastValue.value ? currentData.value : [...currentData.value.slice(0, -1)]
+				series.value.prevData = loadLastValue.value ? prevData.value : [...prevData.value.slice(0, -1)]
 			} else {
 				await getData()
 			}
