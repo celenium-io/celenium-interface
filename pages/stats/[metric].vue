@@ -4,6 +4,7 @@ import { DateTime } from "luxon"
 
 /** Stats Components/Constants */
 import { getSeriesByPage, STATS_PERIODS } from "@/services/constants/stats.js"
+import BarChart from "@/components/modules/stats/BarChart.vue"
 import LineChart from "@/components/modules/stats/LineChart.vue"
 
 /** Services */
@@ -266,7 +267,8 @@ watch(
 			</Flex>
 		</Flex>
 
-        <LineChart :series="series" />
+        <LineChart v-if="chartView === 'line'" :series="series" />
+		<BarChart v-if="chartView === 'bar'" :series="series" />
 	</Flex>
 </template>
 

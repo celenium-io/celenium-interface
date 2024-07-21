@@ -34,7 +34,6 @@ const prevData = computed(() => {
 })
 
 const chartEl = ref()
-
 const tooltip = ref({
 	data: [],
 	show: false,
@@ -55,7 +54,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	/** Scales */
 	const x = d3.scaleUtc(
 		d3.extent(cData.data, (d) => d.date),
-		[marginLeft, width - marginRight],
+		[marginLeft, width - marginRight - marginLeft],
 	)
 	const y = d3.scaleLinear([MIN_VALUE, MAX_VALUE], [height - marginBottom, marginTop])
 	const line = d3
@@ -81,7 +80,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	svg.append("g")
 		.attr("transform", "translate(0," + (height - marginAxisX) + ")")
 		.attr("color", "var(--op-10)")
-		.call(d3.axisBottom(x).ticks(4))
+		.call(d3.axisBottom(x).ticks(6).tickFormat(d3.timeFormat(props.series.timeframe === 'hour' ? "%H:%M" : "%B %d")))
 	
 	svg.append("g")
 		.attr("transform", `translate(0,0)`)
@@ -246,16 +245,16 @@ const drawChart = () => {
 	)
 }
 
-onMounted(async () => {
-	drawChart()
-})
-
 watch(
 	() => [currentData.value, prevData.value],
 	() => {
 		drawChart()
 	},
 )
+
+onMounted(async () => {
+	drawChart()
+})
 
 </script>
 
