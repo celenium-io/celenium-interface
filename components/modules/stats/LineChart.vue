@@ -79,12 +79,12 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
     /** Add axes */
 	svg.append("g")
 		.attr("transform", "translate(0," + (height - marginAxisX) + ")")
-		.attr("color", "var(--op-10)")
+		.attr("color", "var(--op-20)")
 		.call(d3.axisBottom(x).ticks(6).tickFormat(d3.timeFormat(props.series.timeframe === 'hour' ? "%H:%M" : "%B %d")))
 	
 	svg.append("g")
 		.attr("transform", `translate(0,0)`)
-		.attr("color", "var(--op-10)")
+		.attr("color", "var(--op-20)")
 		.call(d3.axisRight(y)
 			.ticks(4)
 			.tickSize(width)
@@ -121,7 +121,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		.append('g')
 		.append('line')
 			.style("stroke-width", 2)
-			.style("stroke", "var(--op-10)")
+			.style("stroke", "var(--op-15)")
 			.style("fill", "none")
 			.style("opacity", 0)
 

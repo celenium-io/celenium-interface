@@ -79,11 +79,13 @@ await get24hDiffs()
 <template>
 	<Flex direction="column" gap="24" wide :class="$style.wrapper">
 		<Flex align="center" direction="column" gap="10">
-			<Flex justify="between" wide>
+			<Flex justify="between" wide :class="$style.highlights_wrapper">
 				<HighlightCard v-for="h in highlights" :highlight="h" />
 			</Flex>
 
-			<BlocksFeed />
+			<Flex align="center" justify="start" wide>
+				<BlocksFeed />
+			</Flex>
 		</Flex>
 
 		<Flex align="center" direction="column" gap="12">
@@ -95,7 +97,7 @@ await get24hDiffs()
 			<Flex align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
 				<InsightCard v-for="i in insights"
 					:series="i"
-					style="width: 320px; height: 280px"
+					:class="$style.chart_card"
 				/>
 			</Flex>
 		</Flex>
@@ -125,7 +127,7 @@ await get24hDiffs()
 				<ChartCardPreview v-for="s in series"
 					:series="s"
 					:period="selectedPeriod"
-					style="width: 320px; height: 280px"
+					:class="$style.chart_card"
 				/>
 			</Flex>
 		</Flex>
@@ -139,12 +141,36 @@ await get24hDiffs()
 	/* padding: 40px 24px 60px 24px; */
 }
 
+.highlights_wrapper{
+	flex-wrap: wrap;
+}
+
 .section {
 	margin-top: 20px;
 }
 
 .charts_wrapper {
 	flex-wrap: wrap;
+}
+
+.chart_card {
+	width: 320px;
+	height: 280px;
+}
+
+@media (max-width: 1050px) {
+	.chart_card {
+		width: 400px;
+		height: 280px;
+	}
+}
+
+@media (max-width: 900px) {
+	.chart_card {
+		flex: 1;
+		min-width: 400px;
+		height: 280px;
+	}
 }
 
 @media (max-width: 500px) {

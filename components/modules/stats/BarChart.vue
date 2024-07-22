@@ -62,6 +62,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	if (pData.data.length) {
 		data = data.concat(pData.data.map(d => ({
 			date: new Date(d.date),
+			realDate: new Date(d.realDate),
 			value: d.value,
 			color: pData.color,
 			group: 'prev',
@@ -86,7 +87,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	/** Add axes */
 	svg.append("g")
 	.attr("transform", `translate( ${barWidth / 2 - 3}, ${height - marginAxisX} )`)
-	.attr("color", "var(--op-10)")
+	.attr("color", "var(--op-20)")
 	.call(d3.axisBottom(x0).ticks(6).tickFormat(d3.timeFormat(props.series.timeframe === 'hour' ? "%H:%M" : "%B %d")))
 	.selectAll(".tick line")
 		.filter(function(d) { return d === 0; })
@@ -94,7 +95,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	
 	svg.append("g")
 		.attr("transform", `translate(0,0)`)
-		.attr("color", "var(--op-10)")
+		.attr("color", "var(--op-20)")
 		.call(d3.axisRight(y)
 			.ticks(4)
 			.tickSize(width)
@@ -114,34 +115,30 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 			.selectAll('g')
 			.data(data)
 			.enter().append('g')
-			.attr('transform', d => `translate(${x0(new Date(d.date))},0)`)
+			.attr('transform', d => `translate(${x0(new Date(d.date))}, 0)`)
 			.selectAll('rect')
 			.data(d => [d])
 			.enter().append('rect')
 			.attr('x', d => x1(d.group))
-			.attr('y', d => y(0) - marginAxisX)
-			.attr('width', 0)
+			.attr('y', d => y(d.value) - marginAxisX)
+			.attr('width', barWidth / 2 - 7)
 			.attr('height', 0)
 			.attr('fill', d => d.color)
 			.transition()
 			.duration(1_000)
 			.attr('height', d => height - y(d.value))
-			.attr('y', d => y(d.value) - marginAxisX)
-			.attr('width', barWidth / 2 - 7)
 	} else {
 		svg.append('g')
 			.selectAll("g")
 			.data(data)
 			.enter().append("rect")
 			.attr("x", d => x0(new Date(d.date)))
-			.attr('y', d => y(0) - marginAxisX)
-			.attr("width", 0)
+			.attr('y', d => y(d.value) - marginAxisX)
+			.attr("width", barWidth)
 			.attr('height', 0)
 			.attr('fill', d => d.color)
 			.transition()
 			.duration(1_000)
-			.attr('y', d => y(d.value) - marginAxisX)
-			.attr("width", barWidth)
 			.attr('height', d => height - y(d.value))
 	}
 

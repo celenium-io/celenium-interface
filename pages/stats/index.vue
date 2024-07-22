@@ -55,7 +55,8 @@ useHead({
 const route = useRoute()
 const router = useRouter()
 
-const tabs = ref(['General', 'Blocks', 'Rollups', 'Finance'])
+// const tabs = ref(['General', 'Blocks', 'Rollups', 'Finance'])
+const tabs = ref(['General', 'Blocks', 'Rollups'])
 const activeTab = ref(route.query.tab && tabs.value.includes(route.query.tab) ? route.query.tab : tabs.value[0])
 
 const updateRouteQuery = () => {

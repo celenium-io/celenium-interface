@@ -9,9 +9,6 @@ import { getSeriesByGroupAndType } from "@/services/constants/stats.js"
 /** API */
 import { fetchRollups } from "@/services/api/rollup.js"
 
-// main chart
-// distribution based on rollup leaderboard
-
 const isLoading = ref(false)
 const series = computed(() => getSeriesByGroupAndType('Rollups'))
 const rollups = ref([])
@@ -53,7 +50,7 @@ onBeforeMount(async () => {
                     :series="s"
                     :data="rollups"
                     dounut
-                    style="width: 480px; height: 200px"
+					:class="$style.chart_card"
                 />
             </Flex>
 		</Flex>
@@ -61,15 +58,26 @@ onBeforeMount(async () => {
 </template>
 
 <style module>
-.charts_wrapper {
-	flex-wrap: wrap;
-}
-
 .wrapper {
 	max-width: calc(var(--base-width) + 48px);
 }
 
 .section {
 	margin-top: 20px;
+}
+
+.charts_wrapper {
+	flex-wrap: wrap;
+}
+
+.chart_card {
+	width: 480px;
+	height: 200px;
+}
+
+@media (max-width: 900px) {
+	/* .chart_card {
+		flex: 1;
+	} */
 }
 </style>
