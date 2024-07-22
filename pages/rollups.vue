@@ -170,7 +170,7 @@ const handleNext = () => {
 			/>
 
 			<Button link="https://forms.gle/nimJyQJG4Lb4BTcG7" target="_blank" type="secondary" size="mini">
-				<Icon name="rollup-plus" size="12" color="secondary" /> Rollup Registration
+				<Icon name="rollup-plus" size="12" color="secondary" /> Register rollup
 			</Button>
 		</Flex>
 
