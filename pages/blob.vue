@@ -194,7 +194,7 @@ const handleCopy = (text) => {
 </script>
 
 <template>
-	<Flex direction="column" gap="16" :class="$style.wrapper">
+	<Flex wide direction="column" gap="16" :class="$style.wrapper">
 		<Flex align="center" justify="between">
 			<Flex align="center" gap="8">
 				<Flex @click="currTab = 'viewer'" align="center" gap="6" :class="[$style.tab, currTab === 'viewer' && $style.active]">
@@ -434,7 +434,12 @@ const handleCopy = (text) => {
 											<Flex align="center" justify="center" :class="$style.avatar_container">
 												<img :src="metadata.rollup.logo" :class="$style.avatar_image" />
 											</Flex>
-											<Text size="12" weight="600" color="secondary" style="text-overflow: ellipsis; overflow: hidden">
+											<Text
+												size="12"
+												weight="600"
+												color="secondary"
+												style="text-overflow: ellipsis; overflow: hidden"
+											>
 												{{ metadata.rollup.name }}
 											</Text>
 										</Flex>
@@ -483,10 +488,7 @@ const handleCopy = (text) => {
 
 <style module>
 .wrapper {
-	width: 100%;
-	max-width: calc(var(--base-width) + 48px);
-
-	padding: 40px 24px 60px 24px;
+	padding: 20px 24px 60px 24px;
 }
 
 .left {

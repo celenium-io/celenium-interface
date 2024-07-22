@@ -244,8 +244,14 @@ const handleLast = async () => {
 													<template v-if="ns.hash">
 														<Flex direction="column" gap="4">
 															<Flex align="center" gap="8">
-																<Text size="12" weight="600" color="primary" mono class="table_column_alias">
-																	{{ $getDisplayName('namespaces', ns.namespace_id) }}
+																<Text
+																	size="12"
+																	weight="600"
+																	color="primary"
+																	mono
+																	class="table_column_alias"
+																>
+																	{{ $getDisplayName("namespaces", ns.namespace_id) }}
 																</Text>
 
 																<CopyButton :text="getNamespaceID(ns.namespace_id)" />
@@ -330,9 +336,7 @@ const handleLast = async () => {
 
 <style module>
 .wrapper {
-	max-width: calc(var(--base-width) + 48px);
-
-	padding: 26px 24px 60px 24px;
+	padding: 20px 24px 60px 24px;
 }
 
 .breadcrumbs {
