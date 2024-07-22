@@ -31,7 +31,7 @@ $grayscale: (
 	--txt-white: rgba(255, 255, 255, 95%);
 
 	/* General */
-	--brand: #924dff;
+	--brand: #18d2a5;
 	--blue: #076acd;
 	--red: #eb5757;
 	--orange: #ff5a17;
@@ -275,6 +275,12 @@ body {
 
 .clickable {
 	cursor: pointer;
+}
+
+.divider_h {
+	width: 100%;
+	height: 2px;
+	background: var(--op-5);
 }
 
 .divider_v {

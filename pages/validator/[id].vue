@@ -3,7 +3,7 @@
 import ValidatorOverview from "@/components/modules/validator/ValidatorOverview.vue"
 
 /** API */
-import { fetchValidatorByID } from "@/services/api/validator";
+import { fetchValidatorByID } from "@/services/api/validator"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
@@ -98,9 +98,7 @@ useHead({
 
 <style module>
 .wrapper {
-	max-width: calc(var(--base-width) + 48px);
-
-	padding: 40px 24px 60px 24px;
+	padding: 20px 24px 60px 24px;
 }
 
 @media (max-width: 500px) {

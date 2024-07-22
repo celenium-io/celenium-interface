@@ -171,7 +171,7 @@ const getStyles = () => {
 }
 
 .wrapper.primary {
-	background: var(--blue);
+	background: var(--brand);
 	fill: var(--txt-primary);
 }
 .wrapper.primary:hover {

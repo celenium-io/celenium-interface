@@ -83,7 +83,7 @@ onBeforeRouteLeave(() => {
 const displayName = computed(() => {
 	const { $getDisplayName } = useNuxtApp()
 
-  	return $getDisplayName('address', address.value.hash)
+	return $getDisplayName("address", address.value.hash)
 })
 </script>
 
@@ -105,9 +105,7 @@ const displayName = computed(() => {
 
 <style module>
 .wrapper {
-	max-width: calc(var(--base-width) + 48px);
-
-	padding: 60px 24px;
+	padding: 20px 24px 60px 24px;
 }
 
 .breadcrumbs {

@@ -130,7 +130,7 @@ const handleNavigate = (url) => {
 						<template #content>
 							<Flex align="center" direction="column" gap="4">
 								<Flex align="center" justify="start" wide>
-									<Text size="12" color="primary"> {{ head.synced ? 'Synced' : 'Not Synced' }} </Text>
+									<Text size="12" color="primary"> {{ head.synced ? "Synced" : "Not Synced" }} </Text>
 								</Flex>
 
 								<Text size="12" color="tertiary"> {{ head.chain_id }} </Text>
@@ -170,9 +170,7 @@ const handleNavigate = (url) => {
 					</NuxtLink>
 
 					<template #content>
-						<Flex align="center" gap="8">
-							Open My Bookmarks
-						</Flex>
+						<Flex align="center" gap="8"> Open My Bookmarks </Flex>
 					</template>
 				</Tooltip>
 
