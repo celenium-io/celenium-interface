@@ -82,12 +82,12 @@ const buildChart = (chart, data) => {
     // Add axes:
     svg.append("g")
         .attr("transform", "translate(0," + (height - 20) + ")")
-        .attr("color", "var(--op-10)")
+        .attr("color", "var(--op-20)")
         .call(d3.axisBottom(x).ticks(4).tickFormat(d3.format(".2s")))
     
     svg.append("g")
         .attr("transform", `translate(${marginLeft},0)`)
-        .attr("color", "var(--op-10)")
+        .attr("color", "var(--op-20)")
         .call(d3.axisRight(y)
             .ticks(4)
             .tickSize(width - marginLeft - marginRight)
@@ -104,7 +104,7 @@ const buildChart = (chart, data) => {
 
     // Add axis labels:
     svg.append("text")
-        .attr("fill", "var(--op-10)")
+        .attr("fill", "var(--op-20)")
         .attr("font-size", "14px")
         .attr("text-anchor", "end")
         .attr("x", 130)
@@ -112,7 +112,7 @@ const buildChart = (chart, data) => {
         .text("Blobs count");
 
     svg.append("text")
-        .attr("fill", "var(--op-10)")
+        .attr("fill", "var(--op-20)")
         .attr("font-size", "14px")
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")

@@ -27,12 +27,12 @@ const selectedPeriod = ref(periods.value[0])
                 <ChartCardPreview v-for="s in series.filter(s => s.name !== 'square_size')"
                     :series="s"
                     :period="selectedPeriod"
-                    style="width: 320px; height: 280px"
+                    :class="$style.chart_card"
                 />
 
                 <SquareSizeCard
                     :period="selectedPeriod"
-                    style="width: 320px; height: 280px"
+                    :class="$style.chart_card"
                 />
             </Flex>
 		</Flex>
@@ -50,15 +50,35 @@ const selectedPeriod = ref(periods.value[0])
 </template>
 
 <style module>
-.charts_wrapper {
-	flex-wrap: wrap;
-}
-
 .wrapper {
 	max-width: calc(var(--base-width) + 48px);
 }
 
 .section {
 	margin-top: 20px;
+}
+
+.charts_wrapper {
+	flex-wrap: wrap;
+}
+
+.chart_card {
+	width: 320px;
+	height: 280px;
+}
+
+@media (max-width: 1050px) {
+	.chart_card {
+		width: 400px;
+		height: 280px;
+	}
+}
+
+@media (max-width: 900px) {
+	.chart_card {
+		flex: 1;
+		min-width: 400px;
+		height: 280px;
+	}
 }
 </style>

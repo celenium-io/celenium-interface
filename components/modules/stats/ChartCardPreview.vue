@@ -110,7 +110,7 @@ const getSeries = async () => {
 const buildChart = (chart, data, color) => {
 	const width = chart.getBoundingClientRect().width
 	const height = chart.getBoundingClientRect().height
-	const marginTop = 6
+	const marginTop = 8
 	const marginRight = 12
 	const marginBottom = 24
 	const marginLeft = 12
