@@ -237,4 +237,18 @@ const handleSelect = () => {
 		background: var(--op-5);
 	}
 }
+
+@media (max-width: 800px) {
+	.wrapper {
+		position: initial;
+	}
+
+	.popup {
+		max-width: initial;
+
+		top: 160px;
+		left: 12px;
+		right: 12px;
+	}
+}
 </style>

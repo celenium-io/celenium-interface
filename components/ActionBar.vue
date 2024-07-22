@@ -48,4 +48,10 @@ const appStore = useAppStore()
 		display: flex;
 	}
 }
+
+@media (max-width: 500px) {
+	.wrapper {
+		padding: 12px;
+	}
+}
 </style>
