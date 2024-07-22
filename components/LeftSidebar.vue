@@ -335,4 +335,10 @@ const handleNavigate = (url) => {
 		display: flex;
 	}
 }
+
+@media (max-width: 500px) {
+	.wrapper {
+		max-width: 100%;
+	}
+}
 </style>
