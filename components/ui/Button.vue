@@ -175,7 +175,7 @@ const getStyles = () => {
 	fill: var(--txt-primary);
 }
 .wrapper.primary:hover {
-	background: var(--btn-primary-bg-hover);
+	background: var(--brand);
 	box-shadow: 0 0 0 0 transparent;
 }
 
