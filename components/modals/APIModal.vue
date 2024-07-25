@@ -281,7 +281,14 @@ const selectedBilling = ref("annually")
 						</Flex>
 					</Flex>
 
-					<Button type="secondary" size="small" wide style="margin-bottom: 24px">
+					<Button
+						link="https://api-plans.celenium.io"
+						target="_blank"
+						type="secondary"
+						size="small"
+						wide
+						style="margin-bottom: 24px"
+					>
 						Learn more about {{ plans[selectedPlan].name }}
 					</Button>
 				</Flex>
