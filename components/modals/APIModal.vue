@@ -102,8 +102,8 @@ const selectedBilling = ref("annually")
 		<Flex direction="column" gap="16">
 			<Text size="14" weight="600" color="primary">Celenium API</Text>
 
-			<Flex gap="32">
-				<Flex direction="column" justify="between" :class="$style.left">
+			<Flex gap="32" :class="$style.content">
+				<Flex direction="column" justify="between" gap="20" :class="$style.left">
 					<Flex direction="column" gap="20">
 						<Flex direction="column" gap="8">
 							<Text size="13" weight="600" color="secondary">Plans</Text>
@@ -202,80 +202,88 @@ const selectedBilling = ref("annually")
 					</Flex>
 				</Flex>
 
-				<Flex wide direction="column" gap="32" :class="$style.right">
-					<Flex direction="column" gap="16">
-						<Flex direction="column" gap="8">
-							<Text size="14" weight="600" color="primary">{{ plans[selectedPlan].name }} Overview</Text>
-							<Text size="13" weight="500" color="tertiary"
-								>${{ plans[selectedPlan].price[selectedBilling] }} per month, billing {{ selectedBilling }}
-							</Text>
-						</Flex>
-
-						<div class="divider_h" />
-					</Flex>
-
-					<Flex direction="column" gap="16">
-						<Flex wide align="center" gap="8" justify="between">
-							<Flex align="center" gap="8">
-								<Icon name="zap-circle" size="14" color="brand" />
-								<Text size="14" weight="600" color="primary">{{ comma(plans[selectedPlan].requests.rpd) }} </Text>
+				<Flex wide direction="column" gap="32" justify="between" :class="$style.right">
+					<Flex direction="column" gap="32">
+						<Flex direction="column" gap="16">
+							<Flex direction="column" gap="8">
+								<Text size="14" weight="600" color="primary">{{ plans[selectedPlan].name }} Overview</Text>
+								<Text size="13" weight="500" color="tertiary"
+									>${{ plans[selectedPlan].price[selectedBilling] }} per month, billing {{ selectedBilling }}
+								</Text>
 							</Flex>
 
-							<Text size="13" weight="600" color="tertiary">Requests per Day</Text>
+							<div class="divider_h" />
 						</Flex>
-						<Flex wide align="center" gap="8" justify="between">
-							<Flex align="center" gap="8">
-								<Icon name="zap-circle" size="14" color="brand" />
-								<Text size="14" weight="600" color="primary">{{ comma(plans[selectedPlan].requests.rps) }}</Text>
+
+						<Flex direction="column" gap="16">
+							<Flex wide align="center" gap="8" justify="between">
+								<Flex align="center" gap="8">
+									<Icon name="zap-circle" size="14" color="brand" />
+									<Text size="14" weight="600" color="primary">{{ comma(plans[selectedPlan].requests.rpd) }} </Text>
+								</Flex>
+
+								<Text size="13" weight="600" color="tertiary">Requests per Day</Text>
 							</Flex>
+							<Flex wide align="center" gap="8" justify="between">
+								<Flex align="center" gap="8">
+									<Icon name="zap-circle" size="14" color="brand" />
+									<Text size="14" weight="600" color="primary">{{ comma(plans[selectedPlan].requests.rps) }}</Text>
+								</Flex>
 
-							<Text size="13" weight="600" color="tertiary">Requests per Second</Text>
+								<Text size="13" weight="600" color="tertiary">Requests per Second</Text>
+							</Flex>
+						</Flex>
+
+						<Flex direction="column" gap="16">
+							<Flex align="center" gap="8">
+								<Icon
+									:name="plans[selectedPlan].access.blobs ? 'check-circle' : 'close-circle'"
+									size="14"
+									:color="plans[selectedPlan].access.blobs ? 'brand' : 'tertiary'"
+								/>
+								<Text size="13" weight="600" :color="plans[selectedPlan].access.blobs ? 'primary' : 'tertiary'">
+									Blobs Access
+								</Text>
+							</Flex>
+							<Flex align="center" gap="8">
+								<Icon
+									:name="plans[selectedPlan].access.stats ? 'check-circle' : 'close-circle'"
+									size="14"
+									:color="plans[selectedPlan].access.stats ? 'brand' : 'tertiary'"
+								/>
+								<Text size="13" weight="600" :color="plans[selectedPlan].access.stats ? 'primary' : 'tertiary'">
+									Statistics Access
+								</Text>
+							</Flex>
+							<Flex align="center" gap="8">
+								<Icon
+									:name="plans[selectedPlan].access.rollups ? 'check-circle' : 'close-circle'"
+									size="14"
+									:color="plans[selectedPlan].access.rollups ? 'brand' : 'tertiary'"
+								/>
+								<Text size="13" weight="600" :color="plans[selectedPlan].access.rollups ? 'primary' : 'tertiary'">
+									Rollups Data
+								</Text>
+							</Flex>
+						</Flex>
+
+						<Flex direction="column" gap="16">
+							<Flex v-if="plans[selectedPlan].other.queryOp !== 'None'" align="center" gap="8">
+								<Icon name="check-circle" size="14" color="secondary" />
+								<Text size="13" weight="600" color="primary"
+									>{{ plans[selectedPlan].other.queryOp }} Query Optimization</Text
+								>
+							</Flex>
+							<Flex align="center" gap="8">
+								<Icon name="check-circle" size="14" color="secondary" />
+								<Text size="13" weight="600" color="primary">{{ plans[selectedPlan].other.support }} Support</Text>
+							</Flex>
 						</Flex>
 					</Flex>
 
-					<Flex direction="column" gap="16">
-						<Flex align="center" gap="8">
-							<Icon
-								:name="plans[selectedPlan].access.blobs ? 'check-circle' : 'close-circle'"
-								size="14"
-								:color="plans[selectedPlan].access.blobs ? 'brand' : 'tertiary'"
-							/>
-							<Text size="13" weight="600" :color="plans[selectedPlan].access.blobs ? 'primary' : 'tertiary'">
-								Blobs Access
-							</Text>
-						</Flex>
-						<Flex align="center" gap="8">
-							<Icon
-								:name="plans[selectedPlan].access.stats ? 'check-circle' : 'close-circle'"
-								size="14"
-								:color="plans[selectedPlan].access.stats ? 'brand' : 'tertiary'"
-							/>
-							<Text size="13" weight="600" :color="plans[selectedPlan].access.stats ? 'primary' : 'tertiary'">
-								Statistics Access
-							</Text>
-						</Flex>
-						<Flex align="center" gap="8">
-							<Icon
-								:name="plans[selectedPlan].access.rollups ? 'check-circle' : 'close-circle'"
-								size="14"
-								:color="plans[selectedPlan].access.rollups ? 'brand' : 'tertiary'"
-							/>
-							<Text size="13" weight="600" :color="plans[selectedPlan].access.rollups ? 'primary' : 'tertiary'">
-								Rollups Data
-							</Text>
-						</Flex>
-					</Flex>
-
-					<Flex direction="column" gap="16">
-						<Flex v-if="plans[selectedPlan].other.queryOp !== 'None'" align="center" gap="8">
-							<Icon name="check-circle" size="14" color="secondary" />
-							<Text size="13" weight="600" color="primary">{{ plans[selectedPlan].other.queryOp }} Query Optimization</Text>
-						</Flex>
-						<Flex align="center" gap="8">
-							<Icon name="check-circle" size="14" color="secondary" />
-							<Text size="13" weight="600" color="primary">{{ plans[selectedPlan].other.support }} Support</Text>
-						</Flex>
-					</Flex>
+					<Button type="secondary" size="small" wide style="margin-bottom: 24px">
+						Learn more about {{ plans[selectedPlan].name }}
+					</Button>
 				</Flex>
 			</Flex>
 		</Flex>
@@ -347,5 +355,17 @@ const selectedBilling = ref("annually")
 .check_icon {
 	width: 12px;
 	height: 12px;
+}
+
+@media (max-width: 800px) {
+	.content {
+		flex-direction: column;
+		gap: 24px;
+	}
+
+	.left {
+		width: 100%;
+		height: initial;
+	}
 }
 </style>

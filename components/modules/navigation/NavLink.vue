@@ -3,6 +3,7 @@ import NavLink from "./NavLink.vue"
 
 const route = useRoute()
 
+const emit = defineEmits(["onClose"])
 const props = defineProps({
 	link: Object,
 })
@@ -10,6 +11,7 @@ const props = defineProps({
 const isExpanded = ref(false)
 
 const handleClick = () => {
+	emit("onClose")
 	if (props.link.callback) props.link.callback()
 }
 </script>
@@ -23,7 +25,7 @@ const handleClick = () => {
 				<Icon v-if="link.external" name="arrow-narrow-up-right" size="14" color="tertiary" />
 			</Flex>
 
-			<Flex @click.prevent="isExpanded = !isExpanded" :class="$style.chevron_icon">
+			<Flex @click.prevent.stop="isExpanded = !isExpanded" :class="$style.chevron_icon">
 				<Icon
 					v-if="link.children"
 					name="chevron"

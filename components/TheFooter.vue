@@ -199,8 +199,13 @@ const handleChangeTheme = (target) => {
 	<Flex justify="center" :class="$style.bottom">
 		<Flex wide align="center" gap="20" justify="between" :class="$style.bottom_container">
 			<Flex align="center" gap="20">
-				<Text size="12" weight="500" color="tertiary">Terms of use</Text>
-				<Text size="12" weight="500" color="tertiary">Privacy policy</Text>
+				<a href="https://www.pklabs.me/terms" target="_blank" style="line-height: 12px">
+					<Text size="12" weight="500" color="tertiary">Terms of use</Text>
+				</a>
+
+				<a href="https://www.pklabs.me/privacy" target="_blank" style="line-height: 12px">
+					<Text size="12" weight="500" color="tertiary">Privacy policy</Text>
+				</a>
 			</Flex>
 
 			<a href="https://www.pklabs.me/" target="_blank" style="line-height: 12px">

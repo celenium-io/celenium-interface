@@ -53,5 +53,9 @@ const appStore = useAppStore()
 	.wrapper {
 		padding: 12px;
 	}
+
+	.connection_btn {
+		display: none;
+	}
 }
 </style>

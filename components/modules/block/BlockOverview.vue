@@ -289,7 +289,7 @@ const handleViewRawTransactions = () => {
 				<Flex align="center" gap="8">
 					<Button @click="router.push(`/block/${block.height - 1}`)" type="secondary" size="mini" :disabled="block.height === 0">
 						<Icon name="arrow-redo-right" size="16" color="secondary" :style="{ transform: 'scaleX(-1)' }" />
-						Prev
+						<Text :class="$style.block_nav__txt">Prev</Text>
 					</Button>
 
 					<Button
@@ -298,7 +298,7 @@ const handleViewRawTransactions = () => {
 						size="mini"
 						:disabled="block.height === lastBlock?.height"
 					>
-						Next
+						<Text :class="$style.block_nav__txt">Next</Text>
 						<Icon name="arrow-redo-right" size="16" color="secondary" />
 					</Button>
 				</Flex>
@@ -310,10 +310,7 @@ const handleViewRawTransactions = () => {
 					ODS
 				</Button>
 
-				<BookmarkButton
-					type="block"
-					:id="block.height"
-				/>
+				<BookmarkButton type="block" :id="block.height" />
 
 				<div class="divider_v" />
 
@@ -733,9 +730,7 @@ const handleViewRawTransactions = () => {
 												<Flex align="center" gap="4">
 													<Text size="13" weight="600" color="primary">{{ comma(tx.gas_used) }}</Text>
 													<Text size="13" weight="600" color="tertiary">/</Text>
-													<Text size="13" weight="600" color="secondary">{{
-														comma(tx.gas_wanted)
-													}}</Text></Flex
+													<Text size="13" weight="600" color="secondary">{{ comma(tx.gas_wanted) }}</Text></Flex
 												>
 											</template>
 										</Tooltip>
@@ -1040,6 +1035,10 @@ const handleViewRawTransactions = () => {
 	}
 
 	.hint {
+		display: none;
+	}
+
+	.block_nav__txt {
 		display: none;
 	}
 }

@@ -506,6 +506,18 @@ getCommitments()
 	padding: 16px 0;
 }
 
+@media (max-width: 900px) {
+	.card_wrapper {
+		flex-direction: column;
+	}
+
+	.card_network {
+		width: 100%;
+
+		align-items: flex-start;
+	}
+}
+
 @media (max-width: 500px) {
 	.wrapper {
 		padding: 32px 12px;

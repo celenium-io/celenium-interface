@@ -1,11 +1,13 @@
 <script setup>
 /** UI */
 import Button from "@/components/ui/Button.vue"
-import Tooltip from "@/components/ui/Tooltip.vue"
 import { Dropdown, DropdownItem, DropdownTitle, DropdownDivider } from "@/components/ui/Dropdown"
 
 /** Components */
 import NavLink from "@/components/modules/navigation/NavLink.vue"
+
+/** Utils */
+import { getNetworkName } from "@/services/utils/general"
 
 /** Store */
 import { useAppStore } from "~/store/app"
@@ -152,7 +154,7 @@ const handleNavigate = (url) => {
 			</Flex>
 
 			<Flex direction="column" gap="2">
-				<NavLink v-for="link in mainLinks" :link="link" />
+				<NavLink v-for="link in mainLinks" :link="link" @onClose="appStore.showSidebar = false" />
 			</Flex>
 
 			<Flex direction="column" gap="2">
@@ -167,7 +169,7 @@ const handleNavigate = (url) => {
 				</Flex>
 
 				<Flex v-if="!isModularLinksCollapsed" direction="column" gap="2">
-					<NavLink v-for="link in modularLinks" :link="link" />
+					<NavLink v-for="link in modularLinks" :link="link" @onClose="appStore.showSidebar = false" />
 				</Flex>
 			</Flex>
 
@@ -183,7 +185,7 @@ const handleNavigate = (url) => {
 				</Flex>
 
 				<Flex v-if="!isToolsLinkCollapsed" direction="column" gap="2">
-					<NavLink v-for="link in toolsLinks" :link="link" />
+					<NavLink v-for="link in toolsLinks" :link="link" @onClose="appStore.showSidebar = false" />
 				</Flex>
 			</Flex>
 
@@ -194,7 +196,7 @@ const handleNavigate = (url) => {
 				</Flex>
 
 				<Flex direction="column" gap="2">
-					<NavLink v-for="link in newLinks" :link="link" />
+					<NavLink v-for="link in newLinks" :link="link" @onClose="appStore.showSidebar = false" />
 				</Flex>
 			</Flex>
 		</Flex>
@@ -213,7 +215,9 @@ const handleNavigate = (url) => {
 				<Flex align="center" gap="8" justify="between" :class="$style.network_selector">
 					<Flex align="center" gap="8">
 						<Icon name="globe" size="14" :color="head.synced ? 'brand' : 'red'" />
-						<Text size="13" weight="600" color="secondary">Mainnet</Text>
+						<Text size="13" weight="600" color="secondary">
+							{{ getNetworkName() }}
+						</Text>
 					</Flex>
 
 					<Icon name="chevron" size="14" color="secondary" />
@@ -253,7 +257,7 @@ const handleNavigate = (url) => {
 	padding: 20px 0 20px 20px;
 
 	&.show {
-		position: absolute;
+		position: fixed;
 		top: 0;
 		bottom: 0;
 		left: 0;
