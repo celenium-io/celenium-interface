@@ -160,6 +160,13 @@ const activeTab = ref(
 )
 const dropdownItems = computed(() => tabs.value.filter((tab) => tab !== activeTab.value))
 
+watch(
+	() => route.query,
+	() => {
+		if (route.query.status) activeTab.value = route.query.status
+	},
+)
+
 await getValidatorsStats()
 await getValidators()
 

@@ -60,8 +60,10 @@ const handleClick = () => {
 	}
 
 	&.active {
+		background: var(--op-5);
+
 		& span {
-			color: var(--brand);
+			color: var(--txt-primary);
 		}
 
 		& .link_icon:first-of-type {
