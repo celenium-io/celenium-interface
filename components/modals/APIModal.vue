@@ -193,7 +193,7 @@ const selectedBilling = ref("annually")
 						</Flex>
 
 						<Flex direction="column" align="center" gap="8">
-							<Button type="primary" size="small" wide>
+							<Button type="primary" size="small" disabled wide>
 								<Text color="black">Start with {{ plans[selectedPlan].name }}</Text>
 							</Button>
 
