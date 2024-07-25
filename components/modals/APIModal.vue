@@ -208,7 +208,8 @@ const selectedBilling = ref("annually")
 							<Flex direction="column" gap="8">
 								<Text size="14" weight="600" color="primary">{{ plans[selectedPlan].name }} Overview</Text>
 								<Text size="13" weight="500" color="tertiary"
-									>${{ plans[selectedPlan].price[selectedBilling] }} per month, billing {{ selectedBilling }}
+									>${{ plans[selectedPlan].price[selectedBilling] ? plans[selectedPlan].price[selectedBilling] : 0 }} per
+									month, billing {{ selectedBilling }}
 								</Text>
 							</Flex>
 
