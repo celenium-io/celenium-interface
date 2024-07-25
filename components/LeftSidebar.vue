@@ -225,9 +225,12 @@ const handleNavigate = (url) => {
 
 				<template #popup>
 					<DropdownTitle>
-						<Flex align="center" gap="6">
+						<Flex gap="8">
 							<Icon name="check" size="12" color="brand" />
-							<Text color="secondary">Head {{ head.synced ? "" : "not" }} Synced </Text>
+							<Flex direction="column" gap="6">
+								<Text color="secondary">Head {{ head.synced ? "" : "not" }} Synced </Text>
+								<Text color="tertiary">{{ head.chain_id }}</Text>
+							</Flex>
 						</Flex>
 					</DropdownTitle>
 					<DropdownDivider />
