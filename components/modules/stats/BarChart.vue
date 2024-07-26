@@ -3,6 +3,9 @@
 import * as d3 from "d3"
 import { DateTime } from "luxon"
 
+/** Services */
+import { abbreviate, comma, formatBytes, tia } from "@/services/utils"
+
 const props = defineProps({
 	series: {
 		type: Object,
@@ -53,19 +56,21 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		[0, barWidth],
 	)
 
-	let data = cData.data.map(d => ({
+	let data = cData.data.map((d, i) => ({
 		date: new Date(d.date),
 		value: d.value,
 		color: cData.color,
 		group: 'current',
+		index: i,
 	}))
 	if (pData.data.length) {
-		data = data.concat(pData.data.map(d => ({
+		data = data.concat(pData.data.map((d, i) => ({
 			date: new Date(d.date),
 			realDate: new Date(d.realDate),
 			value: d.value,
 			color: pData.color,
 			group: 'prev',
+			index: i,
 		})))
 	}
 
@@ -80,9 +85,9 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		.attr("preserveAspectRatio", "none")
 		.attr("style", "max-width: 100%;")
 		.style("-webkit-tap-highlight-color", "transparent")
-		// .on("pointerenter pointermove", onPointerMoved)
-		// .on("pointerleave", onPointerleft)
-		// .on("touchstart", (event) => event.preventDefault())
+		.on("pointerenter pointermove", onPointerMoved)
+		.on("pointerleave", onPointerleft)
+		.on("touchstart", (event) => event.preventDefault())
 
 	/** Add axes */
 	svg.append("g")
@@ -108,7 +113,73 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		.call(g => g.selectAll(".tick text")
 			.attr("x", 4)
 			.attr("dy", -4))
-	
+
+	// This allows to find the closest X index of the mouse:
+	const bisect = d3.bisector(function(d) { return d.date }).center
+
+	function formatDate(date) {
+		if (props.series.timeframe === 'hour') {
+			return DateTime.fromJSDate(date).toFormat("LLL dd, HH:mm")
+		}
+
+		return DateTime.fromJSDate(date).toFormat("LLL dd, yyyy")
+	}
+
+	function formatValue(value) {
+		switch (props.series.units) {
+			case 'bytes':
+				return formatBytes(value)
+			case 'utia':
+				return `${tia(value, 2)} TIA`
+			default:
+				return comma(value)
+		}
+	}
+
+	function onPointerMoved(event) {
+		onEnter()
+		// Recover coordinate we need
+		let idx = bisect(cData.data, x0.invert(d3.pointer(event)[0] - barWidth / 2))
+		const elements = document.querySelectorAll('[data-index]')
+		elements.forEach(el => {
+			if (+el.getAttribute('data-index') === idx) {
+				el.style.filter = "brightness(1.2)"
+			} else {
+				el.style.filter = "brightness(0.6)"
+			}
+			
+		})
+
+		let selectedCData = cData.data[idx]
+		
+		tooltip.value.x = x0(selectedCData.date)
+		tooltip.value.y = y(selectedCData.value)
+		tooltip.value.data[0] = {
+			date: formatDate(selectedCData.date),
+			value: formatValue(selectedCData.value),
+			color: cData.color,
+		}
+		tooltip.value.data.splice(1, 1)
+		if (pData.data.length) {
+			let selectedPData = pData.data[idx]
+
+			tooltip.value.data[1] = {
+				date: formatDate(selectedPData.realDate),
+				value: formatValue(selectedPData.value),
+				color: pData.color,
+			}
+		}
+	}
+
+	function onPointerleft() {
+		onLeave()
+
+		const elements = document.querySelectorAll('[data-index]')
+		elements.forEach(el => {
+			el.style.filter = ""
+		})
+	}
+
 	/** Draw bars */
 	if (pData.data.length) {
 		svg.append('g')
@@ -119,6 +190,8 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 			.selectAll('rect')
 			.data(d => [d])
 			.enter().append('rect')
+			.attr("class", "bar")
+			.attr('data-index', d => d.index)
 			.attr('x', d => x1(d.group))
 			.attr('y', d => y(d.value) - marginAxisX)
 			.attr('width', barWidth / 2 - 7)
@@ -132,6 +205,8 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 			.selectAll("g")
 			.data(data)
 			.enter().append("rect")
+			.attr("class", "bar")
+			.attr('data-index', d => d.index)
 			.attr("x", d => x0(new Date(d.date)))
 			.attr('y', d => y(d.value) - marginAxisX)
 			.attr("width", barWidth)
@@ -174,6 +249,47 @@ onMounted(async () => {
 <template>
     <Flex direction="column" justify="between" gap="16" wide :class="$style.wrapper">
         <Flex :class="$style.chart_wrapper">
+			<Transition name="fastfade">
+				<div v-if="tooltip.show" :class="$style.tooltip_wrapper">
+					<Flex
+						align="center"
+						direction="column"
+						:style="{ transform: `translate(${tooltip.x + 15}px, ${tooltip.y - 40}px)` }"
+						gap="12"
+						:class="$style.tooltip"
+					>
+						<Flex
+							v-for="(d, index) in tooltip.data"
+							align="center"
+							direction="column"
+							wide
+							gap="12"
+						>
+							<Flex align="center" justify="between" wide gap="12">
+								<Flex align="center" direction="column" gap="10">
+									<Flex align="center" justify="start" wide>
+										<Text size="12" weight="600" color="primary"> {{ d.value }} </Text>
+									</Flex>
+									
+									<Flex align="center" justify="start" wide>
+										<Text size="12" weight="500" color="tertiary"> {{ d.date }} </Text>
+									</Flex>
+								</Flex>
+
+								<div
+									:class="$style.legend"
+									:style="{
+										background: d.color
+									}"
+								/>
+							</Flex>
+
+							<div v-if="index !== tooltip.data.length - 1" :class="$style.horizontal_divider" />
+						</Flex>
+					</Flex>
+				</div>
+			</Transition>
+
             <Flex ref="chartEl" wide :class="$style.chart" />
         </Flex>
     </Flex>
@@ -192,6 +308,41 @@ onMounted(async () => {
 	position: relative;
 
 	height: 800px;
+}
+
+.tooltip_wrapper {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+
+	& .tooltip {
+		min-width: 200px;
+		pointer-events: none;
+		position: absolute;
+		z-index: 10;
+
+		background: var(--card-background);
+		border-radius: 6px;
+		box-shadow: inset 0 0 0 1px var(--op-5), 0 14px 34px rgba(0, 0, 0, 15%), 0 4px 14px rgba(0, 0, 0, 5%);
+
+		padding: 10px;
+
+		transition: all 0.2s ease;
+	}
+
+	& .legend {
+		height: 34px;
+		width: 3px;
+		border-radius: 8px;
+	}
+
+	& .horizontal_divider {
+		width: 100%;
+		height: 1px;
+		background: var(--op-5);
+	}
 }
 
 .chart {

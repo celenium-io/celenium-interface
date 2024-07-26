@@ -377,3 +377,7 @@ body {
 	filter: brightness(40%);
 	transition: all 0.3s ease;
 }
+
+.bar {
+	transition: filter 0.3s;
+}
