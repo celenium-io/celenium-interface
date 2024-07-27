@@ -3,6 +3,9 @@
 import PieChartCard from "@/components/modules/stats/PieChartCard.vue"
 import RollupsBubbleChart from "@/components/modules/stats/RollupsBubbleChart.vue"
 
+/** UI */
+import Button from "@/components/ui/Button.vue"
+
 /** Constants */
 import { getSeriesByGroupAndType } from "@/services/constants/stats.js"
 
@@ -33,6 +36,11 @@ onBeforeMount(async () => {
 		<Flex align="center" direction="column" gap="12" wide>
 			<Flex align="center" justify="between" wide :class="$style.section">
 				<Text size="16" weight="600" color="primary" justify="start">Overview</Text>
+
+				<Button link="/rollups" type="secondary" size="mini">
+					<Icon name="rollup-leaderboard" size="12" color="secondary" />
+					Rollups Leaderboard
+				</Button>
 			</Flex>
             
             <RollupsBubbleChart v-if="!isLoading" :series="series" />
