@@ -225,9 +225,17 @@ const onKeydown = (e) => {
 	}
 }
 
-@media (max-width: 600px) {
+@media (max-width: 800px) {
+	.wrapper {
+		top: 16px;
+		bottom: 16px;
+	}
+
 	.modal {
 		width: 100% !important;
+		max-height: 100%;
+
+		overflow-y: auto;
 
 		margin: 16px;
 	}

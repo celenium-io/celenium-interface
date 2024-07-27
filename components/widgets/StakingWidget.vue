@@ -133,14 +133,16 @@ onMounted(() => {
 			<Flex v-else direction="column" gap="20">
 				<Skeleton :w="barWidth" h="5" />
 
-				<Flex justify="between">
-					<Skeleton w="70" h="12" />
-					<Skeleton w="70" h="12" />
-				</Flex>
+				<Flex direction="column" gap="12">
+					<Flex justify="between">
+						<Skeleton w="70" h="12" />
+						<Skeleton w="70" h="12" />
+					</Flex>
 
-				<Flex justify="between">
-					<Skeleton w="70" h="12" />
-					<Skeleton w="70" h="12" />
+					<Flex justify="between">
+						<Skeleton w="70" h="12" />
+						<Skeleton w="70" h="12" />
+					</Flex>
 				</Flex>
 			</Flex>
 		</Flex>

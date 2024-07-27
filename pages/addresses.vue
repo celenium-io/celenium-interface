@@ -192,7 +192,10 @@ const handleLast = async () => {
 								</td>
 								<td>
 									<NuxtLink :to="`/address/${address.hash}`">
-										<AmountInCurrency :amount="{ value: calculateTotalBalance(address) }" :styles=" {amount: { size: '13' }, currency: { size: '13' } }" />
+										<AmountInCurrency
+											:amount="{ value: calculateTotalBalance(address) }"
+											:styles="{ amount: { size: '13' }, currency: { size: '13' } }"
+										/>
 									</NuxtLink>
 								</td>
 								<td>
@@ -224,9 +227,7 @@ const handleLast = async () => {
 
 <style module>
 .wrapper {
-	max-width: calc(var(--base-width) + 48px);
-
-	padding: 40px 24px 60px 24px;
+	padding: 20px 24px 60px 24px;
 }
 
 .breadcrumbs {
