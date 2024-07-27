@@ -109,11 +109,18 @@ onMounted(async () => {
 
 <template>
 	<Flex direction="column" justify="between" gap="16" wide :class="$style.wrapper">
-		<Flex align="center" direction="column" gap="16" :class="$style.header">
+		<Flex align="center" justify="between" gap="16" :class="$style.header">
 			<Flex align="center" gap="10" justify="start" wide>
 				<Text size="14" weight="600" color="secondary"> Square Size Distribution </Text>
 				<Text size="14" weight="600" color="tertiary"> (last day) </Text>
 			</Flex>
+
+			<NuxtLink :to="`/stats/square_size`">
+				<Flex align="center">
+					<Icon name="expand" size="16" color="tertiary" :class="$style.link" />
+					<!-- <Text size="12" color="tertiary" :class="$style.link">View Details</Text> -->
+				</Flex>
+			</NuxtLink>
 		</Flex>
 
 		<Flex @pointerleave="handleHoverLeave()" ref="squareSizeEl" align="center" :class="$style.square_size_wrapper">
@@ -253,6 +260,10 @@ onMounted(async () => {
     animation-name: fadeIn;
     animation-duration: 2s;
     animation-fill-mode: forwards;
+}
+
+.link:hover {
+	fill: var(--txt-secondary)
 }
 
 @keyframes fadeIn {

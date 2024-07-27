@@ -26,7 +26,8 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: "Validators in the Celestia Blockchain. Validators name, description, rates, blocks, uptime, social links, contacts are shown.",
+			content:
+				"Validators in the Celestia Blockchain. Validators name, description, rates, blocks, uptime, social links, contacts are shown.",
 		},
 		{
 			property: "og:title",
@@ -34,7 +35,8 @@ useHead({
 		},
 		{
 			property: "og:description",
-			content: "Validators in the Celestia Blockchain. Validators name, description, rates, blocks, uptime, social links, contacts are shown.",
+			content:
+				"Validators in the Celestia Blockchain. Validators name, description, rates, blocks, uptime, social links, contacts are shown.",
 		},
 		{
 			property: "og:url",
@@ -50,7 +52,8 @@ useHead({
 		},
 		{
 			name: "twitter:description",
-			content: "Validators in the Celestia Blockchain. Validators name, description, rates, blocks, uptime, social links, contacts are shown.",
+			content:
+				"Validators in the Celestia Blockchain. Validators name, description, rates, blocks, uptime, social links, contacts are shown.",
 		},
 		{
 			name: "twitter:card",
@@ -73,7 +76,7 @@ const totalVotingPower = computed(() => appStore.lastHead?.total_voting_power)
 
 const getValidatorsStats = async () => {
 	isLoading.value = true
-	
+
 	const { data } = await fetchValidatorsCount()
 	validatorsStats.value = data.value
 
@@ -98,7 +101,7 @@ const getInactiveValidators = async () => {
 	const { data } = await fetchValidators({
 		jailed: false,
 		limit: 20,
-		offset: validatorsStats.value.active + ((page.value - 1) * 20),
+		offset: validatorsStats.value.active + (page.value - 1) * 20,
 	})
 	validators.value = data.value
 
@@ -120,18 +123,18 @@ const getJailedValidators = async () => {
 
 const getValidators = async () => {
 	switch (activeTab.value) {
-			case "active":
-				getActiveValidators()
-				break;
-			case "inactive":
-				getInactiveValidators()
-				break;
-			case "jailed":
-				getJailedValidators()
-				break;
-			default:
-				break;
-		}
+		case "active":
+			getActiveValidators()
+			break
+		case "inactive":
+			getInactiveValidators()
+			break
+		case "jailed":
+			getJailedValidators()
+			break
+		default:
+			break
+	}
 }
 
 /** Pagination */
@@ -152,8 +155,17 @@ const handlePrev = () => {
 
 /** Tabs */
 const tabs = ref(["active", "inactive", "jailed"])
-const activeTab = ref(route.query.status && tabs.value.filter(tab => tab === route.query.status).length > 0 ? route.query.status.toLowerCase() : "active")
-const dropdownItems = computed(() => tabs.value.filter(tab => tab !== activeTab.value))
+const activeTab = ref(
+	route.query.status && tabs.value.filter((tab) => tab === route.query.status).length > 0 ? route.query.status.toLowerCase() : "active",
+)
+const dropdownItems = computed(() => tabs.value.filter((tab) => tab !== activeTab.value))
+
+watch(
+	() => route.query,
+	() => {
+		if (route.query.status) activeTab.value = route.query.status
+	},
+)
 
 await getValidatorsStats()
 await getValidators()
@@ -172,7 +184,7 @@ watch(
 	() => activeTab.value,
 	async () => {
 		page.value = 1
-		
+
 		getValidators()
 
 		router.replace({ query: { status: activeTab.value, page: page.value } })
@@ -200,7 +212,7 @@ watch(
 
 				<Flex align="center" gap="6">
 					<Dropdown>
-						<template #trigger="{isOpen}">
+						<template #trigger="{ isOpen }">
 							<Button type="secondary" size="mini">
 								{{ capitilize(activeTab) }}
 								<Icon
@@ -244,7 +256,7 @@ watch(
 			</Flex>
 
 			<Flex direction="column" gap="16" wide :class="[$style.table, isLoading && $style.disabled]">
-				<div v-if="validators.length"  :class="$style.table_scroller">
+				<div v-if="validators.length" :class="$style.table_scroller">
 					<table>
 						<thead>
 							<tr>
@@ -278,23 +290,33 @@ watch(
 												<template #content>
 													<Flex v-if="activeTab === 'active'" align="center" justify="between" gap="8">
 														<Text size="12" weight="600" color="tertiary">Staking Share</Text>
-														<Text size="12" weight="600" color="primary">{{ shareOfTotalString(v.voting_power, totalVotingPower) }}%</Text>
+														<Text size="12" weight="600" color="primary"
+															>{{ shareOfTotalString(v.voting_power, totalVotingPower) }}%</Text
+														>
 													</Flex>
 												</template>
 											</Tooltip>
 
-											<Text v-if="activeTab === 'active'" size="12" weight="600" color="tertiary">{{ shareOfTotalString(v.voting_power, totalVotingPower) }}%</Text>
+											<Text v-if="activeTab === 'active'" size="12" weight="600" color="tertiary"
+												>{{ shareOfTotalString(v.voting_power, totalVotingPower) }}%</Text
+											>
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td>
 									<NuxtLink :to="`/validator/${v.id}`">
-										<AmountInCurrency :amount="{ value: v.rewards }" :styles=" {amount: { size: '13' }, currency: { size: '13' } }" />
+										<AmountInCurrency
+											:amount="{ value: v.rewards }"
+											:styles="{ amount: { size: '13' }, currency: { size: '13' } }"
+										/>
 									</NuxtLink>
 								</td>
 								<td>
 									<NuxtLink :to="`/validator/${v.id}`">
-										<AmountInCurrency :amount="{ value: v.commissions }" :styles=" {amount: { size: '13' }, currency: { size: '13' } }" />
+										<AmountInCurrency
+											:amount="{ value: v.commissions }"
+											:styles="{ amount: { size: '13' }, currency: { size: '13' } }"
+										/>
 									</NuxtLink>
 								</td>
 								<td>
@@ -328,7 +350,6 @@ watch(
 						<Text size="12" weight="400" color="tertiary"> Try to select another status </Text>
 					</Flex>
 				</Flex>
-
 			</Flex>
 		</Flex>
 	</Flex>
@@ -336,9 +357,7 @@ watch(
 
 <style module>
 .wrapper {
-	max-width: calc(var(--base-width) + 48px);
-
-	padding: 40px 24px 60px 24px;
+	padding: 20px 24px 60px 24px;
 }
 
 .breadcrumbs {

@@ -29,6 +29,10 @@ const props = defineProps({
 	forceOpen: Boolean,
 	disabled: Boolean,
 
+	wide: {
+		type: Boolean,
+		default: false,
+	},
 	width: {
 		type: String,
 		default: null,
@@ -208,7 +212,7 @@ const onKeydown = (event) => {
 
 <template>
 	<div :class="$style.wrapper">
-		<div ref="trigger" id="trigger" @click="toggleDropdown" :class="$style.trigger">
+		<div ref="trigger" id="trigger" @click="toggleDropdown" :class="[$style.trigger, wide && $style.wide]">
 			<slot />
 			<slot name="trigger" :isOpen="isOpen" />
 		</div>
@@ -243,7 +247,11 @@ const onKeydown = (event) => {
 }
 
 .trigger {
-	width: fit-content;
+	width: 100%;
+
+	&.wide {
+		width: 100%;
+	}
 }
 
 .canvas {
