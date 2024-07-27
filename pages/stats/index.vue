@@ -78,6 +78,14 @@ watch(
 	}
 )
 
+watch(
+	() => route.query,
+	() => {
+		if (route.query.tab) activeTab.value = route.query.tab
+	},
+)
+
+
 </script>
 
 <template>
