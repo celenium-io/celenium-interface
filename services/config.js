@@ -37,7 +37,7 @@ export const useServerURL = () => {
 			return Server.API.dev
 
 		default:
-			return Server.API.mainnet
+			return Server.API.mocha
 	}
 }
 
@@ -61,7 +61,7 @@ export const useSocketURL = () => {
 			return Server.WSS.dev
 
 		default:
-			return Server.WSS.mainnet
+			return Server.WSS.mocha
 	}
 }
 
