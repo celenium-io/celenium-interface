@@ -3,6 +3,9 @@
 import * as d3 from "d3"
 import { DateTime } from "luxon"
 
+/** Services */
+import { formatBytes } from "@/services/utils"
+
 /** API */
 import { fetchRollups } from "@/services/api/rollup.js"
 
@@ -53,6 +56,7 @@ const buildChart = (chart, data) => {
     const minFee = d3.min(data, d => d.fee)
     const maxSize = d3.max(data, d => d.size)
     const minSize = d3.min(data, d => d.size)
+    const midSize = maxSize / 2
 
 	/** SVG Container */
 	const svg = d3
@@ -121,6 +125,51 @@ const buildChart = (chart, data) => {
         .attr("y", 27)
         .text("Fee paid (TIA)")
 
+    // Size legend
+    let size = d3.scaleSqrt()
+        .domain([ 0, maxSize ])
+        .range([ 1, 45 ])
+
+    // Add legend: circles
+    let legendValues = [minSize * 1.5, midSize * 0.9, maxSize * 1]
+    let xCircle = width - 50
+    let xLabel = width - 150
+    let yCircle = 100
+    svg
+        .selectAll("legend")
+        .data(legendValues)
+        .enter()
+        .append("circle")
+            .attr("cx", xCircle)
+            .attr("cy", function(d){ return yCircle - size(d) } )
+            .attr("r", function(d){ return size(d) })
+            .style("fill", "none")
+            .attr("stroke", "var(--op-20)")
+
+    svg
+        .selectAll("legend")
+        .data(legendValues)
+        .enter()
+        .append("line")
+            .attr("x1", function(d){ return xCircle - size(d) } )
+            .attr("x2", xLabel)
+            .attr("y1", function(d){ return yCircle - size(d) } )
+            .attr("y2", function(d){ return yCircle - size(d) } )
+            .attr("stroke", "var(--op-20)")
+            .style("stroke-dasharray", ("2, 2"))
+
+    svg
+        .selectAll("legend")
+        .data(legendValues)
+        .enter()
+        .append("text")
+            .attr('x', xLabel)
+            .attr('y', function(d){ return yCircle - size(d) - 5 } )
+            .text( function(d){ return formatBytes(d) } )
+            .style("font-size", 10)
+            .style("fill", "var(--op-20)")
+            .attr('alignment-baseline', 'middle')
+    
     const defs = svg.append("defs")
     data.forEach((d, i) => {
         defs.append("clipPath")
@@ -205,4 +254,14 @@ onMounted(async () => {
 		left: 0;
 	}
 }
+
+@media (max-width: 1050px) {
+    .chart {
+        width: 100%;
+        height: 400px;
+
+        margin-top: 24px;
+    }
+}
+
 </style>

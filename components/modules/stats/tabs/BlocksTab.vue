@@ -32,7 +32,7 @@ const selectedPeriod = ref(periods.value[0])
 
                 <SquareSizeCard
                     :period="selectedPeriod"
-                    :class="$style.chart_card"
+                    :class="$style.square_size_chart_card"
                 />
             </Flex>
 		</Flex>
@@ -67,10 +67,20 @@ const selectedPeriod = ref(periods.value[0])
 	height: 280px;
 }
 
+.square_size_chart_card {
+	width: 320px;
+	height: 280px;
+}
+
 @media (max-width: 1050px) {
 	.chart_card {
 		width: 400px;
 		height: 280px;
+	}
+
+	.square_size_chart_card {
+		width: 400px;
+		height: 320px;
 	}
 }
 
@@ -79,6 +89,12 @@ const selectedPeriod = ref(periods.value[0])
 		flex: 1;
 		min-width: 400px;
 		height: 280px;
+	}
+
+	.square_size_chart_card {
+		flex: 1;
+		min-width: 400px;
+		height: 380px;
 	}
 }
 </style>
