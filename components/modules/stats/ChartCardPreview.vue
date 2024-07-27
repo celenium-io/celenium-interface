@@ -183,11 +183,11 @@ const buildChart = (chart, data, color) => {
 	const totalLength = path.node().getTotalLength();
 
 	path.attr("stroke-dasharray", `${totalLength} ${totalLength}`)
-            .attr("stroke-dashoffset", totalLength)
-            .transition()
-            .duration(1_000)
-            .ease(d3.easeLinear)
-            .attr("stroke-dashoffset", 0);
+		.attr("stroke-dashoffset", totalLength)
+		.transition()
+		.duration(1_000)
+		.ease(d3.easeLinear)
+		.attr("stroke-dashoffset", 0);
 }
 
 const drawChart = async () => {
@@ -214,13 +214,16 @@ watch(
 	<Flex direction="column" justify="between" gap="16" wide :class="$style.wrapper">
 		<Flex align="center" direction="column" gap="16" :class="$style.header">
 			<Flex align="center" justify="between" wide>
-				<Flex align="center" gap="10" justify="start" wide>
+				<Flex align="center" gap="10" justify="start">
 					<Text size="14" weight="600" color="secondary"> {{ series.title }} </Text>
 					<DiffChip :value="diff" :invert="series.name === 'block_time'" />
 				</Flex>
 
 				<NuxtLink v-if="series.page" :to="`/stats/${series.page}`">
-					<Text size="12" color="tertiary">View</Text>
+					<Flex align="center">
+						<Icon name="expand" size="16" color="tertiary" :class="$style.link" />
+						<!-- <Text size="12" color="tertiary" :class="$style.link">View Details</Text> -->
+					</Flex>
 				</NuxtLink>
 			</Flex>
 			
@@ -267,6 +270,10 @@ watch(
 	border-radius: 12px;
 
 	padding: 16px;
+}
+
+.link:hover {
+	fill: var(--txt-secondary)
 }
 
 .header {

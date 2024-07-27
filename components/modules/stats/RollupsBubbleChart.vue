@@ -101,6 +101,7 @@ const buildChart = (chart, data) => {
             .attr("x", 4)
             .attr("dy", -4))
         .call(g => g.selectAll(".tick:first-child").remove())
+        .call(g => g.selectAll(".tick:last-child").remove())
 
     // Add axis labels:
     svg.append("text")

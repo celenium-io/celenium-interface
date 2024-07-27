@@ -4,7 +4,7 @@ import * as d3 from "d3"
 import { DateTime } from "luxon"
 
 /** Services */
-import { abbreviate, comma, formatBytes, tia } from "@/services/utils"
+import { abbreviate, comma, formatBytes, tia, truncateDecimalPart } from "@/services/utils"
 
 const props = defineProps({
 	series: {
@@ -52,7 +52,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	)
 
 	const x1 = d3.scaleBand(
-		['current', 'prev'],
+		['prev', 'current'],
 		[0, barWidth],
 	)
 
@@ -76,6 +76,39 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 
 	const y = d3.scaleLinear([MIN_VALUE, MAX_VALUE], [height - marginBottom, marginTop])
 	
+	function formatDate(date) {
+		if (props.series.timeframe === 'hour') {
+			return DateTime.fromJSDate(date).toFormat("LLL dd, HH:mm")
+		}
+
+		return DateTime.fromJSDate(date).toFormat("LLL dd, yyyy")
+	}
+
+	function formatValue(value) {
+		switch (props.series.units) {
+			case 'bytes':
+				return formatBytes(value)
+			case 'utia':
+				if (props.series.name === 'gas_price') {
+					return `${truncateDecimalPart(value, 4)} UTIA`
+				}
+
+				return `${tia(value, 2)} TIA`
+			case 'seconds':
+				return `${truncateDecimalPart(value / 1_000, 1)}s`
+			default:
+				return comma(value)
+		}
+	}
+
+	function formatScaleValue(value) {
+		if (props.series.units) {
+			return formatValue(value)
+		}
+
+		return abbreviate(value)
+	}
+
 	/** SVG Container */
 	const svg = d3
 		.create("svg")
@@ -86,7 +119,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		.attr("style", "max-width: 100%;")
 		.style("-webkit-tap-highlight-color", "transparent")
 		.on("pointerenter pointermove", onPointerMoved)
-		.on("pointerleave", onPointerleft)
+		.on("pointerleave", onPointerLeft)
 		.on("touchstart", (event) => event.preventDefault())
 
 	/** Add axes */
@@ -104,7 +137,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		.call(d3.axisRight(y)
 			.ticks(4)
 			.tickSize(width)
-			.tickFormat(d3.format(".2s")))
+			.tickFormat(formatScaleValue))
 		.call(g => g.select(".domain")
 			.remove())
 		.call(g => g.selectAll(".tick line")
@@ -116,25 +149,6 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 
 	// This allows to find the closest X index of the mouse:
 	const bisect = d3.bisector(function(d) { return d.date }).center
-
-	function formatDate(date) {
-		if (props.series.timeframe === 'hour') {
-			return DateTime.fromJSDate(date).toFormat("LLL dd, HH:mm")
-		}
-
-		return DateTime.fromJSDate(date).toFormat("LLL dd, yyyy")
-	}
-
-	function formatValue(value) {
-		switch (props.series.units) {
-			case 'bytes':
-				return formatBytes(value)
-			case 'utia':
-				return `${tia(value, 2)} TIA`
-			default:
-				return comma(value)
-		}
-	}
 
 	function onPointerMoved(event) {
 		onEnter()
@@ -171,7 +185,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		}
 	}
 
-	function onPointerleft() {
+	function onPointerLeft() {
 		onLeave()
 
 		const elements = document.querySelectorAll('[data-index]')
@@ -254,7 +268,7 @@ onMounted(async () => {
 					<Flex
 						align="center"
 						direction="column"
-						:style="{ transform: `translate(${tooltip.x + 15}px, ${tooltip.y - 40}px)` }"
+						:style="{ transform: `translate(${tooltip.x + 30}px, ${tooltip.y - 60}px)` }"
 						gap="12"
 						:class="$style.tooltip"
 					>

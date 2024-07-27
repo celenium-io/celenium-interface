@@ -6,6 +6,7 @@ import { DateTime } from "luxon"
 import { getSeriesByPage, STATS_PERIODS } from "@/services/constants/stats.js"
 import BarChart from "@/components/modules/stats/BarChart.vue"
 import LineChart from "@/components/modules/stats/LineChart.vue"
+import SquareSizeChart from "@/components/modules/stats/SquareSizeChart.vue"
 
 /** Services */
 import { abbreviate, capitilize, capitalizeAndReplaceUnderscore, comma, formatBytes } from "@/services/utils"
@@ -107,15 +108,27 @@ const getData = async () => {
     isLoading.value = true
 
     let data = []
-    data = (await fetchSeries({
-        table: series.value.name,
-        period: selectedPeriod.value.timeframe,
-        from: parseInt(
-            DateTime.now().minus({
-                days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
-                hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
-            }).ts / 1_000)
-    })).reverse()
+	if (series.value.aggregate !== 'cumulative') {
+		data = (await fetchSeries({
+			table: series.value.name,
+			period: selectedPeriod.value.timeframe,
+			from: parseInt(
+				DateTime.now().minus({
+					days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
+					hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
+				}).ts / 1_000)
+		})).reverse()
+	} else {
+		data = await fetchSeriesCumulative({
+			name: series.value.name,
+			period: selectedPeriod.value.timeframe,
+			from: parseInt(
+				DateTime.now().minus({
+					days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
+					hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
+				}).ts / 1_000)
+		})
+	}
 
     if (data.length) {
         if (loadPrevData.value) {
@@ -134,7 +147,9 @@ const getData = async () => {
     isLoading.value = false
 }
 
-await getData()
+if (series.value.name !== 'square_size') {
+	await getData()
+}
 
 const isOpen = ref(false)
 const handleOpen = () => {
@@ -201,7 +216,7 @@ watch(
 			<Flex align="center" justify="between" wide :class="$style.header">
 				<Text size="16" weight="600" color="primary" justify="start"> {{ `${capitalizeAndReplaceUnderscore(series.page)} Chart` }} </Text>
 
-				<Flex align="center" gap="8">
+				<Flex align="center" gap="8" :class="series.name === 'square_size' && $style.disabled">
 					<Dropdown>
 						<Button size="mini" type="secondary">
 							{{ selectedPeriod.title }}
@@ -267,8 +282,9 @@ watch(
 			</Flex>
 		</Flex>
 
-        <LineChart v-if="chartView === 'line'" :series="series" />
-		<BarChart v-if="chartView === 'bar'" :series="series" />
+		<SquareSizeChart v-if="series.name === 'square_size'" />
+        <LineChart v-else-if="chartView === 'line'" :series="series" />
+		<BarChart v-else-if="chartView === 'bar'" :series="series" />
 	</Flex>
 </template>
 
@@ -276,7 +292,7 @@ watch(
 .wrapper {
 	max-width: calc(var(--base-width) + 48px);
 
-	padding: 26px 24px 60px 24px;
+	padding: 40px 24px 60px 24px;
 }
 
 .setting_item {
@@ -289,6 +305,12 @@ watch(
 	border-radius: 5px;
 	cursor: pointer;
 	transition: all 1s ease-in-out;
+}
+
+.disabled {
+	opacity: 0.3;
+	pointer-events: none;
+	cursor: default;
 }
 
 @media (max-width: 500px) {

@@ -7,7 +7,7 @@ import { DateTime } from "luxon"
 import DiffChip from "@/components/modules/stats/DiffChip.vue"
 
 /** Services */
-import { abbreviate, comma, formatBytes, tia } from "@/services/utils"
+import { abbreviate, comma, formatBytes, tia, truncateDecimalPart } from "@/services/utils"
 
 /** API */
 import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
@@ -63,6 +63,39 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		.y((d) => y(d.value))
 		.curve(d3.curveCatmullRom)
 
+	function formatDate(date) {
+		if (props.series.timeframe === 'hour') {
+			return DateTime.fromJSDate(date).toFormat("LLL dd, HH:mm")
+		}
+
+		return DateTime.fromJSDate(date).toFormat("LLL dd, yyyy")
+	}
+
+	function formatValue(value) {
+		switch (props.series.units) {
+			case 'bytes':
+				return formatBytes(value)
+			case 'utia':
+				if (props.series.name === 'gas_price') {
+					return `${truncateDecimalPart(value, 4)} UTIA`
+				}
+
+				return `${tia(value, 2)} TIA`
+			case 'seconds':
+				return `${truncateDecimalPart(value / 1_000, 1)}s`
+			default:
+				return comma(value)
+		}
+	}
+
+	function formatScaleValue(value) {
+		if (props.series.units) {
+			return formatValue(value)
+		}
+
+		return abbreviate(value)
+	}
+
 	/** SVG Container */
 	const svg = d3
 		.create("svg")
@@ -88,7 +121,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		.call(d3.axisRight(y)
 			.ticks(4)
 			.tickSize(width)
-			.tickFormat(d3.format(".2s")))
+			.tickFormat(formatScaleValue))
 		.call(g => g.select(".domain")
 			.remove())
 		.call(g => g.selectAll(".tick line")
@@ -124,25 +157,6 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 			.style("stroke", "var(--op-15)")
 			.style("fill", "none")
 			.style("opacity", 0)
-
-	function formatDate(date) {
-		if (props.series.timeframe === 'hour') {
-			return DateTime.fromJSDate(date).toFormat("LLL dd, HH:mm")
-		}
-
-		return DateTime.fromJSDate(date).toFormat("LLL dd, yyyy")
-	}
-
-	function formatValue(value) {
-		switch (props.series.units) {
-			case 'bytes':
-				return formatBytes(value)
-			case 'utia':
-				return `${tia(value, 2)} TIA`
-			default:
-				return comma(value)
-		}
-	}
 
 	function onPointerMoved(event) {
 		onEnter()
