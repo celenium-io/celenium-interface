@@ -25,6 +25,7 @@ export const useModalsStore = defineStore("modals", () => {
 		staking: false,
 		vestingDetails: false,
 		hexSettings: false,
+		api: false,
 	})
 
 	const open = (target) => {

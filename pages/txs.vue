@@ -80,8 +80,8 @@ const filters = reactive({
 		failed: false,
 	},
 	message_type: MsgTypes.reduce((a, b) => ({ ...a, [b]: false }), {}),
-	from: '',
-	to: '',
+	from: "",
+	to: "",
 })
 const savedFiltersBeforeChanges = ref(null)
 
@@ -94,8 +94,8 @@ const handleClearAllFilters = () => {
 		filters.message_type[f] = false
 	})
 
-	filters.from = ''
-	filters.to = ''
+	filters.from = ""
+	filters.to = ""
 
 	router.replace({
 		query: null,
@@ -134,8 +134,8 @@ const updateRouteQuery = () => {
 				Object.keys(filters.message_type)
 					.filter((f) => filters.message_type[f])
 					.join(","),
-			...(filters.from ? { from: filters.from} : {}),
-			...(filters.to ? { to: filters.to} : {}),
+			...(filters.from ? { from: filters.from } : {}),
+			...(filters.to ? { to: filters.to } : {}),
 		},
 	})
 }
@@ -211,14 +211,14 @@ const handleUpdateDateFilter = (event) => {
 
 		updateRouteQuery()
 	} else if (event.clear) {
-		resetFilters('from')
-		resetFilters('to', true)
+		resetFilters("from")
+		resetFilters("to", true)
 	}
 }
 
 const resetFilters = (target, refetch) => {
 	if (target === "from" || target === "to") {
-		filters[target] = ''
+		filters[target] = ""
 	} else {
 		Object.keys(filters[target]).forEach((f) => {
 			filters[target][f] = false
@@ -342,7 +342,7 @@ const handleSort = (by) => {
 	}
 
 	sort.by = by
-	
+
 	if (page.value !== 1) {
 		page.value = 1
 	}
@@ -362,7 +362,7 @@ const handleNext = () => {
 </script>
 
 <template>
-	<Flex direction="column" wide :class="$style.wrapper">
+	<Flex wide direction="column" :class="$style.wrapper">
 		<Breadcrumbs
 			:items="[
 				{ link: '/', name: 'Explore' },
@@ -670,7 +670,7 @@ const handleNext = () => {
 									<NuxtLink :to="`/tx/${tx.hash}`">
 										<Flex align="center">
 											<Text size="12" weight="600" color="primary" mono class="table_column_alias">
-												{{ $getDisplayName('addresses', tx.signers[0]) }}
+												{{ $getDisplayName("addresses", tx.signers[0]) }}
 											</Text>
 										</Flex>
 									</NuxtLink>
@@ -715,7 +715,10 @@ const handleNext = () => {
 								<td v-if="config.columns.fee" style="width: 1px">
 									<NuxtLink :to="`/tx/${tx.hash}`">
 										<Flex align="center">
-											<AmountInCurrency :amount="{ value: tx.fee, decimal: 6 }" :styles="{ amount: { size: '13' } }" />
+											<AmountInCurrency
+												:amount="{ value: tx.fee, decimal: 6 }"
+												:styles="{ amount: { size: '13' } }"
+											/>
 										</Flex>
 									</NuxtLink>
 								</td>
@@ -750,9 +753,7 @@ const handleNext = () => {
 
 <style module>
 .wrapper {
-	max-width: calc(var(--base-width) + 48px);
-
-	padding: 40px 24px 60px 24px;
+	padding: 20px 24px 24px 24px;
 }
 
 .breadcrumbs {

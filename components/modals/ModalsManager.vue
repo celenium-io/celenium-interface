@@ -12,9 +12,10 @@ import ChangeBlobModal from "./ChangeBlobModal.vue"
 import QRCodeModal from "./QRCodeModal.vue"
 import RawDataModal from "./RawDataModal.vue"
 import SendModal from "./SendModal.vue"
-import StakingModal from "./StakingModal.vue";
-import VestingDetailsModal from "./VestingDetailsModal.vue";
+import StakingModal from "./StakingModal.vue"
+import VestingDetailsModal from "./VestingDetailsModal.vue"
 import HexSettingsModal from "./HexSettingsModal.vue"
+import APIModal from "./APIModal.vue"
 
 /** Store */
 import { useModalsStore } from "@/store/modals"
@@ -38,4 +39,5 @@ const modalsStore = useModalsStore()
 	<VestingDetailsModal :show="modalsStore.modals.vestingDetails" @onClose="modalsStore.close('vestingDetails')" />
 	<StakingModal :show="modalsStore.modals.staking" @onClose="modalsStore.close('staking')" />
 	<HexSettingsModal :show="modalsStore.modals.hexSettings" @onClose="modalsStore.close('hexSettings')" />
+	<APIModal :show="modalsStore.modals.api" @onClose="modalsStore.close('api')" />
 </template>

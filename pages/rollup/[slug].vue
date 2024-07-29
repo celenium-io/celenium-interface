@@ -81,7 +81,7 @@ useHead({
 <template>
 	<Flex direction="column" gap="32" wide :class="$style.wrapper">
 		<Flex direction="column" gap="16">
-			<Flex align="end" justify="between" :class="$style.breadcrumbs">
+			<Flex justify="between" :class="$style.breadcrumbs">
 				<Breadcrumbs
 					v-if="rollup"
 					:items="[
@@ -92,10 +92,10 @@ useHead({
 				/>
 
 				<Button link="https://forms.gle/nimJyQJG4Lb4BTcG7" target="_blank" type="secondary" size="mini">
-					<Icon name="rollup-plus" size="12" color="secondary" /> Rollup Registration
+					<Icon name="rollup-plus" size="12" color="secondary" /> Register rollup
 				</Button>
 			</Flex>
-			
+
 			<RollupOverview v-if="rollup" :rollup="rollup" />
 		</Flex>
 
@@ -105,9 +105,7 @@ useHead({
 
 <style module>
 .wrapper {
-	max-width: calc(var(--base-width) + 48px);
-
-	padding: 26px 24px 60px 24px;
+	padding: 20px 24px 60px 24px;
 }
 
 @media (max-width: 500px) {

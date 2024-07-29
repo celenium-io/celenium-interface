@@ -147,9 +147,7 @@ const handleSelectFilter = (target) => {
 				]"
 			/>
 
-			<Button link="/namespaces" type="secondary" size="mini">
-				<Icon name="table" size="12" color="secondary" /> Table View
-			</Button>
+			<Button link="/namespaces" type="secondary" size="mini"> <Icon name="table" size="12" color="secondary" /> Table View </Button>
 		</Flex>
 
 		<Flex direction="column" gap="12">
@@ -171,8 +169,9 @@ const handleSelectFilter = (target) => {
 <style module>
 .wrapper {
 	max-width: calc(var(--base-width) + 48px);
+	min-width: calc(var(--base-width) + 48px);
 
-	padding: 26px 24px 60px 24px;
+	padding: 20px 24px 60px 24px;
 }
 
 .breadcrumbs {

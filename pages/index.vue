@@ -95,19 +95,17 @@ onBeforeMount(async () => {
 
 <style module>
 .wrapper {
-	max-width: calc(var(--base-width) + 48px);
-
 	padding: 0 24px;
-	margin-bottom: 120px;
+	margin-bottom: 24px;
 }
 
 .widgets {
-	margin-top: 40px;
+	margin-top: 20px;
 }
 
 .main {
 	max-width: 100%;
-	
+
 	margin-top: 40px;
 }
 

@@ -86,7 +86,7 @@ useHead({
 const displayName = computed(() => {
 	const { $getDisplayName } = useNuxtApp()
 
-  	return $getDisplayName('block', block.value?.height)
+	return $getDisplayName("block", block.value?.height)
 })
 </script>
 
@@ -112,8 +112,6 @@ const displayName = computed(() => {
 
 <style module>
 .wrapper {
-	max-width: calc(var(--base-width) + 48px);
-
 	padding: 40px 24px 60px 24px;
 }
 
