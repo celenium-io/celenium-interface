@@ -4,7 +4,7 @@ import * as d3 from "d3"
 import { DateTime } from "luxon"
 
 /** Services */
-import { formatBytes } from "@/services/utils"
+import { abbreviate, formatBytes } from "@/services/utils"
 
 /** API */
 import { fetchRollups } from "@/services/api/rollup.js"
@@ -14,13 +14,13 @@ const props = defineProps({
 		type: Object,
 		required: true,
 	},
-	// period: {
-	// 	type: Object,
-	// 	required: true,
-	// },
 })
 
 const chartEl = ref()
+const tooltip = ref({
+	data: [],
+	show: false,
+})
 
 const isLoading = ref(false)
 const rollups = ref()
@@ -28,7 +28,9 @@ const rollups = ref()
 const getRollups = async () => {
 	isLoading.value = true
 
-	const data = await fetchRollups({})
+	const data = await fetchRollups({
+        limit: 30,
+    })
 
     rollups.value = prepareRollupsData(data)
 
@@ -130,7 +132,6 @@ const buildChart = (chart, data) => {
         .domain([ 0, maxSize ])
         .range([ 1, 45 ])
 
-    // Add legend: circles
     let legendValues = [minSize * 1.5, midSize * 0.9, maxSize * 1]
     let xCircle = width - 50
     let xLabel = width - 150
@@ -158,18 +159,34 @@ const buildChart = (chart, data) => {
             .attr("stroke", "var(--op-20)")
             .style("stroke-dasharray", ("2, 2"))
 
-    svg
-        .selectAll("legend")
+    svg.selectAll("legend")
         .data(legendValues)
         .enter()
         .append("text")
             .attr('x', xLabel)
             .attr('y', function(d){ return yCircle - size(d) - 5 } )
-            .text( function(d){ return formatBytes(d) } )
+            .text( function(d){ return formatBytes(d, 0) } )
             .style("font-size", 10)
             .style("fill", "var(--op-20)")
             .attr('alignment-baseline', 'middle')
     
+    // Tooltip
+    function onPointerEnter(event, rollup) {
+        if (!tooltip.value.data.length) {
+            tooltip.value.x = x(rollup.blobs_count)
+            tooltip.value.y = y(rollup.fee)
+            tooltip.value.r = z(rollup.size)
+            tooltip.value.data.push(rollup)
+            tooltip.value.show = true
+        }
+    }
+
+    function onPointerLeave() {
+        tooltip.value.data = []
+        tooltip.value.show = false
+    }
+
+    // Draw chart
     const defs = svg.append("defs")
     data.forEach((d, i) => {
         defs.append("clipPath")
@@ -181,7 +198,22 @@ const buildChart = (chart, data) => {
             .transition()
             .duration(1_500)
             .attr("r", z(d.size))
-        });
+        })
+    
+    const circles = svg.append('g')
+        .selectAll("circle")
+        .data(data)
+        .enter()
+        .append("circle")
+            .attr("cx", d => x(d.blobs_count))
+            .attr("cy", d => y(d.fee))
+            .attr("r", 0)
+            .attr("stroke", "var(--op-20)")
+            .attr("stroke-width", 1)
+            .attr("fill", "none")
+            .transition()
+            .duration(1_500)
+            .attr("r", d => z(d.size))
 
     svg.append('g')
         .selectAll("image")
@@ -189,11 +221,30 @@ const buildChart = (chart, data) => {
         .enter()
         .append("image")
             .attr("xlink:href", d => d.logo)
+            .attr("id", d => d.id)
             .attr("width", d => z(d.size) * 2)
             .attr("height", d => z(d.size) * 2)
             .attr("x", d => x(d.blobs_count) - z(d.size))
             .attr("y", d => y(d.fee) - z(d.size))
-            .attr("clip-path", (d, i) => `url(#clip-${i})`);
+            .attr("clip-path", (d, i) => `url(#clip-${i})`)
+            .attr("style", "stroke: red; stroke-width: 5px;")
+            .on("pointerenter", (d, rollup) => onPointerEnter(d, rollup))
+            .on("pointerleave", onPointerLeave)
+
+    // const circles = svg.append('g')
+    //     .selectAll("circle")
+    //     .data(data)
+    //     .enter()
+    //     .append("circle")
+    //         .attr("cx", d => x(d.blobs_count))
+    //         .attr("cy", d => y(d.fee))
+    //         .attr("r", 0)
+    //         .attr("stroke", "var(--op-20)")
+    //         .attr("stroke-width", 1)
+    //         .attr("fill", "none")
+    //         .transition()
+    //         .duration(1_500)
+    //         .attr("r", d => z(d.size))
 
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
@@ -215,21 +266,52 @@ onMounted(async () => {
 
 <template>
     <Flex align="center" direction="column" gap="16" wide :class="$style.wrapper">
+        <Transition name="fastfade">
+            <div v-if="tooltip.show" :class="$style.tooltip_wrapper">
+                <Flex
+                    align="center"
+                    direction="column"
+                    :style="{ transform: `translate(${tooltip.x + 24 + (0.5 * tooltip.r)}px, ${tooltip.y + 150 - tooltip.r}px)` }"
+                    gap="12"
+                    :class="$style.tooltip"
+                >
+                    <Flex
+                        v-for="(d, index) in tooltip.data"
+                        align="center"
+                        direction="column"
+                        wide
+                        gap="12"
+                    >
+                        <Flex align="center" justify="start" wide>
+                            <Text size="12" weight="600" color="primary"> {{ d.name }} </Text>
+                        </Flex>
+
+                        <Flex align="center" justify="between" wide gap="12">
+                            <Text size="12" color="tertiary"> Size </Text>
+                            <Text size="12" color="secondary"> {{ formatBytes(d.size) }} </Text>
+                        </Flex>
+
+                        <Flex align="center" justify="between" wide gap="12">
+                            <Text size="12" color="tertiary"> Blobs </Text>
+                            <Text size="12" color="secondary"> {{ abbreviate(d.blobs_count) }} </Text>
+                        </Flex>
+
+                        <Flex align="center" justify="between" wide gap="12">
+                            <Text size="12" color="tertiary"> Fee Paid </Text>
+                            <Text size="12" color="secondary"> {{ `${abbreviate(d.fee)} TIA` }} </Text>
+                        </Flex>
+                    </Flex>
+                </Flex>
+            </div>
+        </Transition>
+        
         <Flex ref="chartEl" :class="$style.chart" />
     </Flex>
 </template>
 
 <style module>
-.charts_wrapper {
-	flex-wrap: wrap;
-}
-
 .wrapper {
 	max-width: calc(var(--base-width) + 48px);
-}
-
-.section {
-	margin-top: 20px;
 }
 
 .chart {
@@ -239,19 +321,39 @@ onMounted(async () => {
     margin-top: 24px;
 }
 
-.axis {
+.tooltip_wrapper {
 	position: absolute;
 	top: 0;
+	left: 0;
 	right: 0;
+	bottom: 0;
+    pointer-events: none;
 
-	&.x {
-		bottom: 6px;
-		left: 40px;
+	& .tooltip {
+		min-width: 150px;
+		pointer-events: none;
+		position: absolute;
+		z-index: 10;
+
+		background: var(--card-background);
+		border-radius: 6px;
+		box-shadow: inset 0 0 0 1px var(--op-5), 0 14px 34px rgba(0, 0, 0, 15%), 0 4px 14px rgba(0, 0, 0, 5%);
+
+		padding: 10px;
+
+		transition: all 0.2s ease;
 	}
 
-	&.y {
-		bottom: 34px;
-		left: 0;
+	& .legend {
+		height: 34px;
+		width: 3px;
+		border-radius: 8px;
+	}
+
+	& .horizontal_divider {
+		width: 100%;
+		height: 1px;
+		background: var(--op-5);
 	}
 }
 

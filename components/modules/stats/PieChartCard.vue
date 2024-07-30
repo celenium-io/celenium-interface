@@ -36,7 +36,7 @@ const prepareRollupsData = () => {
         resData.value.push(
             {
                 name: el.name,
-                value: props.series.units === 'utia' ? Math.round(el[key] / 1_000_000, 0) : el[key],
+                value: props.series.units === 'utia' ? Math.round(el[key], 2) : el[key],
                 share: Math.round(el[`${key}_pct`] * 100, 2),
             }
         )
@@ -122,7 +122,7 @@ const buildChart = (chart, data) => {
             .attr("d", arcOver)
             .attr("transform", d => {
                 const [x, y] = arc.centroid(d)
-                const dist = 0.1
+                const dist = 0.05
                 return `translate(${x * dist}, ${y * dist})`
             })
         
@@ -166,7 +166,7 @@ onMounted(() => {
                         .innerRadius(innerRadius.value))
                     .attr("transform", d => {
                         const [x, y] = arc.centroid(d);
-                        const dist = 0.1
+                        const dist = 0.05
                         return `translate(${x * dist}, ${y * dist})`
                     })
 
@@ -232,7 +232,9 @@ onMounted(() => {
                     </Flex>
 
                     <Flex align="center" gap="6">
-                        <Text size="12" weight="500" color="tertiary"> {{ series.units === 'bytes' ? formatBytes(el.value) : abbreviate(el.value) }} </Text>
+                        <Text size="12" weight="500" color="tertiary">
+                            {{ series.units === 'bytes' ? formatBytes(el.value) : series.units === 'utia' ? abbreviate(el.value) + ' TIA' : abbreviate(el.value) }}
+                        </Text>
 
                         <Text size="12" weight="500" color="secondary"> {{ `${el.share > 99 && resData.length > 1 ? 99 : el.share < 1 ? '<1' : el.share.toFixed(0)}%` }} </Text>
                     </Flex>
