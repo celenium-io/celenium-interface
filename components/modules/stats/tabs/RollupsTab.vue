@@ -14,14 +14,15 @@ import { fetchRollups } from "@/services/api/rollup.js"
 
 const isLoading = ref(false)
 const series = computed(() => getSeriesByGroupAndType('Rollups'))
-const rollups = ref([])
 
 const getRollups = async () => {
 	isLoading.value = true
 
-	const data = await fetchRollups({})
+	const data = await fetchRollups({
+		limit: 30,
+	})
 
-    rollups.value = data
+	series.value.data = data
 
     isLoading.value = false
 }
@@ -56,7 +57,7 @@ onBeforeMount(async () => {
                     v-if="!isLoading"
                     v-for="s in series"
                     :series="s"
-                    :data="rollups"
+                    :data="series.data"
                     dounut
 					:class="$style.chart_card"
                 />

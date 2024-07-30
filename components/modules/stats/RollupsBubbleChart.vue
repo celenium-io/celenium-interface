@@ -14,10 +14,6 @@ const props = defineProps({
 		type: Object,
 		required: true,
 	},
-	// period: {
-	// 	type: Object,
-	// 	required: true,
-	// },
 })
 
 const chartEl = ref()
@@ -28,7 +24,9 @@ const rollups = ref()
 const getRollups = async () => {
 	isLoading.value = true
 
-	const data = await fetchRollups({})
+	const data = await fetchRollups({
+        limit: 30,
+    })
 
     rollups.value = prepareRollupsData(data)
 
@@ -158,8 +156,7 @@ const buildChart = (chart, data) => {
             .attr("stroke", "var(--op-20)")
             .style("stroke-dasharray", ("2, 2"))
 
-    svg
-        .selectAll("legend")
+    svg.selectAll("legend")
         .data(legendValues)
         .enter()
         .append("text")
@@ -181,7 +178,7 @@ const buildChart = (chart, data) => {
             .transition()
             .duration(1_500)
             .attr("r", z(d.size))
-        });
+        })
 
     svg.append('g')
         .selectAll("image")
@@ -193,7 +190,23 @@ const buildChart = (chart, data) => {
             .attr("height", d => z(d.size) * 2)
             .attr("x", d => x(d.blobs_count) - z(d.size))
             .attr("y", d => y(d.fee) - z(d.size))
-            .attr("clip-path", (d, i) => `url(#clip-${i})`);
+            .attr("clip-path", (d, i) => `url(#clip-${i})`)
+            .attr("style", "stroke: red; stroke-width: 5px;")
+    
+    const circles = svg.append('g')
+        .selectAll("circle")
+        .data(data)
+        .enter()
+        .append("circle")
+            .attr("cx", d => x(d.blobs_count))
+            .attr("cy", d => y(d.fee))
+            .attr("r", 0)
+            .attr("stroke", "var(--op-20)")
+            .attr("stroke-width", 1)
+            .attr("fill", "none")
+            .transition()
+            .duration(1_500)
+            .attr("r", d => z(d.size))
 
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
