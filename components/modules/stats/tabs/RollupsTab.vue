@@ -18,9 +18,7 @@ const series = computed(() => getSeriesByGroupAndType('Rollups'))
 const getRollups = async () => {
 	isLoading.value = true
 
-	const data = await fetchRollups({
-		limit: 30,
-	})
+	const data = await fetchRollups({})
 
 	series.value.data = data
 
@@ -36,7 +34,10 @@ onBeforeMount(async () => {
     <Flex align="center" direction="column" gap="12" wide :class="$style.wrapper">
 		<Flex align="center" direction="column" gap="12" wide>
 			<Flex align="center" justify="between" wide :class="$style.section">
-				<Text size="16" weight="600" color="primary" justify="start">Overview</Text>
+				<Flex align="center" gap="4">
+					<Text size="16" weight="600" color="primary" justify="start">Overview</Text>
+					<Text size="14" weight="600" color="tertiary">(top 10 rollups)</Text>
+				</Flex>
 
 				<Button link="/rollups" type="secondary" size="mini">
 					<Icon name="rollup-leaderboard" size="12" color="secondary" />
@@ -80,8 +81,8 @@ onBeforeMount(async () => {
 }
 
 .chart_card {
-	width: 480px;
-	height: 200px;
+	max-width: 480px;
+	max-height: 200px;
 }
 
 @media (max-width: 900px) {

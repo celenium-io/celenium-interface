@@ -36,8 +36,7 @@ const prepareRollupsData = () => {
         resData.value.push(
             {
                 name: el.name,
-                // value: props.series.units === 'utia' ? Math.round(el[key] / 1_000_000, 0) : el[key],
-                value: el[key],
+                value: props.series.units === 'utia' ? Math.round(el[key], 2) : el[key],
                 share: Math.round(el[`${key}_pct`] * 100, 2),
             }
         )
@@ -123,7 +122,7 @@ const buildChart = (chart, data) => {
             .attr("d", arcOver)
             .attr("transform", d => {
                 const [x, y] = arc.centroid(d)
-                const dist = 0.1
+                const dist = 0.05
                 return `translate(${x * dist}, ${y * dist})`
             })
         
@@ -167,7 +166,7 @@ onMounted(() => {
                         .innerRadius(innerRadius.value))
                     .attr("transform", d => {
                         const [x, y] = arc.centroid(d);
-                        const dist = 0.1
+                        const dist = 0.05
                         return `translate(${x * dist}, ${y * dist})`
                     })
 
