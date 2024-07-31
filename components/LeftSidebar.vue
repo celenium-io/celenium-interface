@@ -104,6 +104,23 @@ const toolsLinks = reactive([
 		path: "/gas",
 	},
 	{
+		icon: "calculator",
+		name: "Calculators",
+		children: [
+			{
+				name: "Cost Savings",
+				path: "/calculators/savings",
+			},
+			{
+				name: "Gas Fee",
+				callback: () => {
+					appStore.showCmd = true
+					appStore.cmdAction = "Run Fee Calculator" /** refactor to map */
+				},
+			},
+		],
+	},
+	{
 		icon: "zap",
 		name: "Constants",
 		callback: () => {

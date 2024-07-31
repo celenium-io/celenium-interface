@@ -193,7 +193,14 @@ const selectedBilling = ref("annually")
 						</Flex>
 
 						<Flex direction="column" align="center" gap="8">
-							<Button type="primary" size="small" disabled wide>
+							<Button
+								link="https://api-docs.celenium.io/"
+								target="_blank"
+								type="primary"
+								size="small"
+								:disabled="plans[selectedPlan].name !== 'Basic'"
+								wide
+							>
 								<Text color="black">Start with {{ plans[selectedPlan].name }}</Text>
 							</Button>
 
