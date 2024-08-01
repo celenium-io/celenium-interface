@@ -212,7 +212,8 @@ watch(
 								<th><Text size="12" weight="600" color="tertiary">Proposer</Text></th>
 								<th><Text size="12" weight="600" color="tertiary">Txs</Text></th>
 								<th><Text size="12" weight="600" color="tertiary">Blobs</Text></th>
-								<th><Text size="12" weight="600" color="tertiary">Total Fees</Text></th>
+								<th><Text size="12" weight="600" color="tertiary">Size</Text></th>
+								<th><Text size="12" weight="600" color="tertiary">Fees</Text></th>
 							</tr>
 						</thead>
 
@@ -295,8 +296,15 @@ watch(
 									</Flex>
 								</td>
 								<td>
+									<Flex align="center">
+										<Text size="13" weight="600" color="primary">
+											{{ formatBytes(block.stats.bytes_in_block, 0) }}
+										</Text>
+									</Flex>
+								</td>
+								<td>
 									<Flex align="center" gap="4">
-										<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 6 }" :styles="{ amount: { size: '13' } }" />
+										<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 2 }" :styles="{ amount: { size: '13' } }" />
 									</Flex>
 								</td>
 							</tr>
@@ -496,6 +504,10 @@ watch(
 							<Text size="12" weight="600" color="secondary"> {{ preview.block.stats.events_count }} </Text>
 						</Flex>
 						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary"> Block Size </Text>
+							<Text size="12" weight="600" color="secondary"> {{ formatBytes(preview.block.stats.bytes_in_block) }} </Text>
+						</Flex>
+						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Blobs </Text>
 							<Text size="12" weight="600" color="secondary"> {{ formatBytes(preview.block.stats.blobs_size) }} </Text>
 						</Flex>
@@ -566,6 +578,7 @@ watch(
 .table {
 	border-radius: 4px 4px 4px 8px;
 	background: var(--card-background);
+	max-width: 604px;
 
 	& table {
 		width: 100%;
@@ -657,6 +670,8 @@ watch(
 	}
 
 	.main {
+		max-height: 690px;
+		overflow-y: auto;
 		flex: 1;
 
 		border-bottom: 1px solid var(--op-5);
