@@ -330,10 +330,6 @@ onMounted(async () => {
 	padding: 16px;
 }
 
-.header {
-
-}
-
 .chart_wrapper {
 	position: relative;
 

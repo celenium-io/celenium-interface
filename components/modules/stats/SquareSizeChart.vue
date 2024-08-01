@@ -59,6 +59,8 @@ const buildChart = (chart, onEnter, onLeave) => {
                 )
             }
         })
+
+        tooltip.value.data.reverse()
     }
 
 	const onPointerLeft = () => {

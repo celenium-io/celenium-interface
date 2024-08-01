@@ -111,6 +111,7 @@ export const STATS_SERIES = [
 		],
 	},]
 
+// TO DO: Replace forEach with for
 export function getSeriesByGroupAndType(group, type) {
 	let series = []
 	STATS_SERIES.forEach(el => {
@@ -130,12 +131,18 @@ export function getSeriesByGroupAndType(group, type) {
 	return series
 }
 
-export function getSeriesByPage(page) {
+export function getSeriesByPage(page, aggregate) {
 	let series = {}
 	STATS_SERIES.forEach(el => {
 		el.series.forEach(s => {
 			if (s.page === page) {
-				series = s
+				if (aggregate) {
+					if (s.aggregate === aggregate) {
+						series = s
+					}
+				} else {
+					series = s
+				}
 			}
 		})
 	})

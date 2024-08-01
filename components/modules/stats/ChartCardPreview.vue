@@ -219,10 +219,9 @@ watch(
 					<DiffChip :value="diff" :invert="series.name === 'block_time'" />
 				</Flex>
 
-				<NuxtLink v-if="series.page" :to="`/stats/${series.page}`">
+				<NuxtLink v-if="series.page" :to="`/stats/${series.page}${series.aggregate ? '?aggregate=' + series.aggregate : ''}`">
 					<Flex align="center">
 						<Icon name="expand" size="16" color="tertiary" :class="$style.link" />
-						<!-- <Text size="12" color="tertiary" :class="$style.link">View Details</Text> -->
 					</Flex>
 				</NuxtLink>
 			</Flex>

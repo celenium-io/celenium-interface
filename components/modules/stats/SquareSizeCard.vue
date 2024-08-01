@@ -109,7 +109,7 @@ onMounted(async () => {
 
 <template>
 	<Flex direction="column" justify="between" gap="16" wide :class="$style.wrapper">
-		<Flex align="center" justify="between" gap="16" :class="$style.header">
+		<Flex align="center" justify="between" gap="16">
 			<Flex align="center" gap="10" justify="start" wide>
 				<Text size="14" weight="600" color="secondary"> Square Size Distribution </Text>
 				<Text size="14" weight="600" color="tertiary"> (last day) </Text>
@@ -189,10 +189,6 @@ onMounted(async () => {
 	border-radius: 12px;
 
 	padding: 16px;
-}
-
-.header {
-
 }
 
 .square_size_wrapper {
