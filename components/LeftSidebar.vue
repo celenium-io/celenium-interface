@@ -67,6 +67,10 @@ const modularLinks = reactive([
 		path: "/rollups",
 		children: [
 			{
+				name: "Cost Savings",
+				path: "/calculators/savings",
+			},
+			{
 				name: "Register rollup",
 				path: "https://forms.gle/nimJyQJG4Lb4BTcG7",
 				external: true,
@@ -102,23 +106,6 @@ const toolsLinks = reactive([
 		icon: "gas",
 		name: "Gas Tracker",
 		path: "/gas",
-	},
-	{
-		icon: "calculator",
-		name: "Calculators",
-		children: [
-			{
-				name: "Cost Savings",
-				path: "/calculators/savings",
-			},
-			{
-				name: "Gas Fee",
-				callback: () => {
-					appStore.showCmd = true
-					appStore.cmdAction = "Run Fee Calculator" /** refactor to map */
-				},
-			},
-		],
 	},
 	{
 		icon: "zap",

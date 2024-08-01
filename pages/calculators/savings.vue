@@ -1,6 +1,6 @@
 <script setup>
 /** Services */
-import { comma, abbreviate, purgeNumber } from "@/services/utils"
+import { formatBytes, comma, abbreviate, purgeNumber } from "@/services/utils"
 
 /** UI */
 import Tooltip from "@/components/ui/Tooltip"
@@ -23,6 +23,7 @@ const rollupStacks = ref([
 		name: "Polygon",
 		price: 10,
 		img: "polygon.png",
+		disabled: true,
 	},
 	{
 		name: "Orbit",
@@ -60,8 +61,10 @@ const percentDiff = (a, b) => {
 	const val = Math.abs((a - b) / ((a + b) / 2)) * 100
 	return { val, pos: a > b }
 }
-const normalizeAmount = (target) => {
+const normalizeAmount = (target, limit) => {
 	if (target === ".") return "0."
+
+	if (target.split(".")[1]?.length > 4) return `${target.split(".")[0]}.${target.split(".")[1].slice(0, 4)}`
 
 	let dotCounter = 0
 	target.split("").forEach((char) => {
@@ -69,7 +72,7 @@ const normalizeAmount = (target) => {
 	})
 	if (dotCounter > 1) return target.slice(0, target.length - 1)
 
-	if (parseFloat(purgeNumber(target)) >= 1_000_000_000) return "1000000000"
+	if (parseFloat(purgeNumber(target)) >= limit) return limit.toString()
 	if (target[target.length - 1] === ".") return target
 	if (!target.length) return ""
 	if (target.length === 1 && !/^(0|[1-9]\d*)(\.\d+)?$/.test(target)) return ""
@@ -84,7 +87,7 @@ const handleEnableTxsEditMode = async () => {
 	txsInputEl.value.focus()
 }
 const handleTxsInput = (e) => {
-	const normalizedAmount = normalizeAmount(txs.value)
+	const normalizedAmount = normalizeAmount(txs.value, 1_000_000_000)
 	if (typeof normalizedAmount === "string") {
 		txs.value = normalizedAmount
 		return
@@ -98,6 +101,98 @@ const handleTxsBlur = () => {
 	if (txs.value < 1_000_000) {
 		txs.value = 1_000_000
 	}
+}
+
+const tiaPrice = ref(currentPrice.value.close)
+watch(
+	() => currentPrice.value,
+	() => {
+		if (currentPrice.value?.close) tiaPrice.value = currentPrice.value.close
+	},
+)
+const tiaInputEl = ref()
+const handleEnableTiaPriceEditMode = async () => {
+	editMode.value = "tia"
+
+	await nextTick()
+	tiaInputEl.value.focus()
+}
+const handleTiaPriceInput = (e) => {
+	const normalizedAmount = normalizeAmount(tiaPrice.value, 1000)
+	if (typeof normalizedAmount === "string") {
+		tiaPrice.value = normalizedAmount
+		return
+	}
+
+	tiaPrice.value = purgeNumber(tiaPrice.value)
+}
+const handleTiaPriceBlur = () => {
+	editMode.value = null
+	if (tiaPrice.value < 1) {
+		tiaPrice.value = 1
+	}
+}
+
+const pricePerGas = ref(0.002)
+const pricePerGasInputEl = ref()
+const handleEnablePricePerGasEditMode = async () => {
+	editMode.value = "pricePerGas"
+
+	await nextTick()
+	pricePerGasInputEl.value.focus()
+}
+const handlePricePerGasInput = (e) => {
+	const normalizedAmount = normalizeAmount(pricePerGas.value, 0.4)
+	if (typeof normalizedAmount === "string") {
+		pricePerGas.value = normalizedAmount
+		return
+	}
+
+	pricePerGas.value = purgeNumber(pricePerGas.value)
+}
+const handlePricePerGasBlur = () => {
+	editMode.value = null
+	if (pricePerGas.value < 0.0001) {
+		pricePerGas.value = 0.0001
+	}
+}
+
+const batchSize = ref(102400)
+const batchSizeInputEl = ref()
+const handleEnableBatchSizeEditMode = async () => {
+	editMode.value = "batchSize"
+
+	await nextTick()
+	batchSizeInputEl.value.focus()
+}
+const handleBatchSizeInput = (e) => {
+	const normalizedAmount = normalizeAmount(batchSize.value, 256_000)
+	if (typeof normalizedAmount === "string") {
+		batchSize.value = normalizedAmount
+		return
+	}
+
+	batchSize.value = purgeNumber(batchSize.value)
+}
+const handleBatchSizeBlur = () => {
+	editMode.value = null
+	if (batchSize.value < 10_240) {
+		batchSize.value = 10_240
+	}
+}
+
+const isModified = computed(() => {
+	return (
+		parseFloat(tiaPrice.value) !== parseFloat(currentPrice.value.close) ||
+		parseFloat(pricePerGas.value) !== 0.002 ||
+		parseFloat(batchSize.value) !== 102_400
+	)
+})
+const handleReset = () => {
+	tiaPrice.value = currentPrice.value.close
+	pricePerGas.value = 0.002
+	batchSize.value = 102_400
+	useEIP.value = true
 }
 
 const showComparisonBlock = useCookie("showComparisonBlock", { default: () => true })
@@ -141,14 +236,12 @@ const temp = computed(() => {
 const additionalSettlementCost = computed(() => {
 	return ((((expectedCallDataSize.value * 1_024 * 1_024) / 120_000) * 41) / 1_024 / 1_024) * temp.value
 })
-const pricePerGas = ref(0.002) /** UTIA */
 const averageGas = ref(945_640)
-const averageBatchSizePerBlock = ref(100) /** Kb */
 const tiaPerMb = computed(() => {
-	return ((averageGas.value * pricePerGas.value) / 1_000_000 / averageBatchSizePerBlock.value) * 1_024
+	return ((averageGas.value * pricePerGas.value) / 1_000_000 / batchSize.value) * 1_024
 })
 const expectedCostCelestia = computed(() => {
-	return expectedCallDataSize.value * tiaPerMb.value * parseFloat(currentPrice.value.close) + additionalSettlementCost.value
+	return expectedCallDataSize.value * tiaPerMb.value * parseFloat(tiaPrice.value) + additionalSettlementCost.value
 })
 const savingsUsingCelestia = computed(() => {
 	if (!expectedCostL2.value) return 0
@@ -246,21 +339,25 @@ useHead({
 						align="center"
 						gap="10"
 						justify="between"
-						:class="$style.item"
+						:class="[$style.item, stack.disabled && $style.disabled]"
 					>
 						<Flex align="center" gap="12">
 							<img :src="`/img/calc/${stack.img}`" />
 
 							<Flex direction="column" gap="6">
 								<Text size="13" weight="600" color="primary"> {{ stack.name }} </Text>
-								<Text size="12" weight="500" color="tertiary"> ${{ comma(getAvgCallDataCostByStack(stack.name)) }} </Text>
+
+								<Text v-if="!stack.disabled" size="12" weight="500" color="tertiary">
+									${{ comma(getAvgCallDataCostByStack(stack.name)) }}
+								</Text>
+								<Text v-else size="12" weight="500" color="tertiary">Unavailable</Text>
 							</Flex>
 						</Flex>
 
 						<Transition name="fastfade" mode="out-in">
 							<Icon v-if="selectedRollupStack === idx" name="check-circle" size="16" color="brand" />
 							<Text
-								v-else-if="rollupStacks[idx].price"
+								v-else-if="rollupStacks[idx].price && !stack.disabled"
 								size="10"
 								weight="700"
 								color="brand"
@@ -379,7 +476,13 @@ useHead({
 
 					<Flex direction="column" gap="24">
 						<Flex direction="column" gap="12">
-							<Text size="32" weight="600" :color="payLessPercentCelestia ? 'brand' : 'secondary'" tabular mono>
+							<Text
+								size="32"
+								weight="600"
+								:color="payLessPercentCelestia > 50 ? (payLessPercentCelestia ? 'brand' : 'secondary') : 'secondary'"
+								tabular
+								mono
+							>
 								~{{ payLessPercentCelestia.toFixed(2) }}%
 							</Text>
 							<Text size="14" weight="600" color="tertiary"> You'll pay % less </Text>
@@ -407,14 +510,60 @@ useHead({
 
 		<Flex wide direction="column" gap="24" :class="$style.right">
 			<Flex direction="column" gap="8">
-				<Flex direction="column" gap="20" :class="$style.card">
-					<Text size="13" weight="600" color="primary">Pricing</Text>
+				<Tooltip side="top" position="start" wide>
+					<Flex wide align="center" justify="between">
+						<Flex align="center" gap="6">
+							<Text size="13" weight="600" color="primary">Constants</Text>
+							<Icon name="info" size="12" color="support" />
+						</Flex>
 
+						<Text v-if="isModified" @click="handleReset" color="brand" size="12" weight="600" style="cursor: pointer"
+							>Reset</Text
+						>
+					</Flex>
+
+					<template #content>
+						<Flex align="start" direction="column" gap="8">
+							<Text> Variables used to calculate the savings of Celestia's usage. </Text>
+							<Flex align="center" gap="16">
+								<Flex align="center" gap="6">
+									<div :class="$style.dot" style="background: var(--brand)" />
+									<Text weight="600" color="secondary"> Editable variables </Text>
+								</Flex>
+								<Flex align="center" gap="6">
+									<div :class="$style.dot" style="background: var(--txt-secondary)" />
+									<Text weight="600" color="secondary"> Static </Text>
+								</Flex>
+							</Flex>
+						</Flex>
+					</template>
+				</Tooltip>
+
+				<Flex direction="column" gap="20" :class="$style.card">
 					<Flex>
 						<Flex direction="column" gap="16" style="flex: 1">
 							<Flex direction="column" gap="8">
 								<Text size="12" weight="600" color="secondary"> TIA Price </Text>
-								<Text size="14" weight="600" color="brand" mono> ${{ currentPrice.close }} </Text>
+
+								<template v-if="editMode !== 'tia'">
+									<Text @click="handleEnableTiaPriceEditMode" size="14" weight="600" color="brand">
+										${{ tiaPrice }}
+									</Text>
+								</template>
+								<template v-else>
+									<Flex align="center" gap="6">
+										<Icon name="edit" size="12" color="tertiary" />
+										<input
+											ref="tiaInputEl"
+											v-model="tiaPrice"
+											@input="handleTiaPriceInput"
+											@blur="handleTiaPriceBlur"
+											:class="$style.constant_input"
+											:style="{ width: `${tiaPrice.toString().split('').length}ch` }"
+										/>
+										<Icon @click="editMode = null" name="check-circle" size="12" color="brand" />
+									</Flex>
+								</template>
 							</Flex>
 
 							<Flex direction="column" gap="8">
@@ -426,7 +575,26 @@ useHead({
 						<Flex direction="column" gap="16" style="flex: 1">
 							<Flex direction="column" gap="8">
 								<Text size="12" weight="600" color="secondary"> Price per gas </Text>
-								<Text size="14" weight="600" color="brand" mono> {{ pricePerGas }} UTIA </Text>
+
+								<template v-if="editMode !== 'pricePerGas'">
+									<Text @click="handleEnablePricePerGasEditMode" size="14" weight="600" color="brand">
+										{{ pricePerGas }} UTIA
+									</Text>
+								</template>
+								<template v-else>
+									<Flex align="center" gap="6">
+										<Icon name="edit" size="12" color="tertiary" />
+										<input
+											ref="pricePerGasInputEl"
+											v-model="pricePerGas"
+											@input="handlePricePerGasInput"
+											@blur="handlePricePerGasBlur"
+											:class="$style.constant_input"
+											:style="{ width: `${pricePerGas.toString().split('').length}ch` }"
+										/>
+										<Icon @click="editMode = null" name="check-circle" size="12" color="brand" />
+									</Flex>
+								</template>
 							</Flex>
 						</Flex>
 					</Flex>
@@ -437,7 +605,26 @@ useHead({
 						<Flex direction="column" gap="16" style="flex: 1">
 							<Flex direction="column" gap="8">
 								<Text size="12" weight="600" color="secondary"> Avg batch size </Text>
-								<Text size="14" weight="600" color="brand" mono> 100Kb / block </Text>
+
+								<template v-if="editMode !== 'batchSize'">
+									<Text @click="handleEnableBatchSizeEditMode" size="14" weight="600" color="brand">
+										{{ formatBytes(batchSize) }} / block
+									</Text>
+								</template>
+								<template v-else>
+									<Flex align="center" gap="6">
+										<Icon name="edit" size="12" color="tertiary" />
+										<input
+											ref="batchSizeInputEl"
+											v-model="batchSize"
+											@input="handleBatchSizeInput"
+											@blur="handleBatchSizeBlur"
+											:class="$style.constant_input"
+											:style="{ width: `${batchSize.toString().split('').length}ch` }"
+										/>
+										<Icon @click="editMode = null" name="check-circle" size="12" color="brand" />
+									</Flex>
+								</template>
 							</Flex>
 						</Flex>
 						<Flex direction="column" gap="16" style="flex: 1">
@@ -453,20 +640,9 @@ useHead({
 					<Icon :name="useEIP ? 'check-circle' : 'close-circle'" size="12" :color="useEIP ? 'brand' : 'secondary'" />
 					<Text size="13" weight="600" color="primary"> Use EIP-4844 </Text>
 				</Flex>
-
-				<Flex align="center" gap="16" style="padding: 0 16px">
-					<Flex align="center" gap="6">
-						<div :class="$style.dot" style="background: var(--brand)" />
-						<Text size="11" weight="600" color="secondary"> Editable variables </Text>
-					</Flex>
-					<Flex align="center" gap="6">
-						<div :class="$style.dot" style="background: var(--txt-secondary)" />
-						<Text size="11" weight="600" color="secondary"> Static </Text>
-					</Flex>
-				</Flex>
 			</Flex>
 
-			<Flex direction="column" gap="20" :class="$style.card">
+			<!-- <Flex direction="column" gap="20" :class="$style.card">
 				<Flex @click="showComparisonBlock = !showComparisonBlock" align="center" gap="8" :class="$style.head">
 					<Text size="13" weight="600" color="primary">Transaction stack comparison</Text>
 					<Icon
@@ -509,24 +685,24 @@ useHead({
 						</Flex>
 					</Flex>
 				</Flex>
-			</Flex>
+			</Flex> -->
 
-			<Flex v-if="!hideCeleniumAPIBlock" direction="column" gap="8" :class="$style.ad">
-				<!-- <Icon @click="handleHide" name="close-circle" size="16" color="tertiary" :class="$style.close_icon" /> -->
+			<NuxtLink to="https://api-plans.celenium.io" target="_blank">
+				<Flex v-if="!hideCeleniumAPIBlock" direction="column" gap="12" :class="$style.ad">
+					<Flex direction="column" gap="8">
+						<Flex align="center" gap="6">
+							<Icon name="slash" size="14" color="brand" />
+							<Text size="13" weight="600" color="primary">Build with Celenium API</Text>
+						</Flex>
 
-				<Flex align="center" gap="6">
-					<Icon name="slash" size="14" color="brand" />
-					<Text size="13" weight="600" color="primary">Build with Celenium API</Text>
-				</Flex>
+						<Text size="13" weight="600" color="tertiary" height="140">
+							Unlock the power of Celestia: Scalable, Secure and Modular Blockchain.
+						</Text>
+					</Flex>
 
-				<Text size="13" weight="600" color="tertiary" height="140">
-					Unlock the power of Celestia: Scalable, Secure and Modular Blockchain.
-				</Text>
-
-				<NuxtLink to="https://api-plans.celenium.io" target="_blank">
 					<Text size="13" weight="600" color="brand">Get started -></Text>
-				</NuxtLink>
-			</Flex>
+				</Flex>
+			</NuxtLink>
 		</Flex>
 	</Flex>
 </template>
@@ -596,6 +772,11 @@ useHead({
 
 	&:hover {
 		box-shadow: 0 0 0 2px var(--op-10);
+	}
+
+	&.disabled {
+		pointer-events: none;
+		opacity: 0.4;
 	}
 }
 
@@ -673,6 +854,12 @@ useHead({
 
 	padding: 16px;
 
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: var(--op-3);
+	}
+
 	& .close_icon {
 		position: absolute;
 		top: 16px;
@@ -696,6 +883,17 @@ useHead({
 	color: var(--txt-primary);
 
 	height: 13px;
+}
+
+.constant_input {
+	max-width: 100%;
+	all: unset;
+
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--txt-primary);
+
+	height: 14px;
 }
 
 .results {
