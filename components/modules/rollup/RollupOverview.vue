@@ -15,7 +15,7 @@ import BlobsTable from "./tables/BlobsTable.vue"
 import NamespacesTable from "./tables/NamespacesTable.vue"
 
 /** Services */
-import { comma, formatBytes } from "@/services/utils"
+import { comma, formatBytes, truncateDecimalPart } from "@/services/utils"
 
 /** API */
 import { fetchRollupBlobs, fetchRollupExportData, fetchRollupNamespaces } from "@/services/api/rollup"
@@ -355,20 +355,65 @@ const handleCSVDownload = async (period) => {
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Size</Text>
-							<Text size="12" weight="600" color="secondary"> {{ formatBytes(rollup.size) }} </Text>
+
+							<Tooltip position="start" delay="400">
+								<Flex align="center" gap="4">
+									<Text size="12" weight="600" color="secondary"> {{ formatBytes(rollup.size) }} </Text>
+
+									<Text size="12" weight="600" color="tertiary">{{ `(${truncateDecimalPart(rollup.size_pct * 100, 2)}%)` }}</Text>
+								</Flex>
+
+								<template #content>
+									<Flex align="end" gap="8">
+										<Text size="12" weight="600" color="tertiary">Share of total size</Text>
+
+										<Text size="12" weight="600" color="primary">{{ `(${truncateDecimalPart(rollup.size_pct * 100, 2)}%)` }}</Text>
+									</Flex>
+								</template>
+							</Tooltip>
 						</Flex>
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Blobs</Text>
-							<Text size="12" weight="600" color="secondary"> {{ comma(rollup.blobs_count) }} </Text>
+
+							<Tooltip position="start" delay="400">
+								<Flex align="center" gap="4">
+									<Text size="12" weight="600" color="secondary"> {{ comma(rollup.blobs_count) }} </Text>
+
+									<Text size="12" weight="600" color="tertiary">{{ `(${truncateDecimalPart(rollup.blobs_count_pct * 100, 2)}%)` }}</Text>
+								</Flex>
+
+								<template #content>
+									<Flex align="end" gap="8">
+										<Text size="12" weight="600" color="tertiary">Share of total blobs count</Text>
+
+										<Text size="12" weight="600" color="primary">{{ `(${truncateDecimalPart(rollup.blobs_count_pct * 100, 2)}%)` }}</Text>
+									</Flex>
+								</template>
+							</Tooltip>
 						</Flex>
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Blob Fees Paid</Text>
-							<AmountInCurrency
-								:amount="{ value: rollup.fee }"
-								:styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }"
-							/>
+
+							<Tooltip position="start" delay="400">
+								<Flex align="center" gap="4">
+									<AmountInCurrency
+										:amount="{ value: rollup.fee }"
+										:styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }"
+									/>
+
+									<Text size="12" weight="600" color="tertiary">{{ `(${truncateDecimalPart(rollup.fee_pct * 100, 2)}%)` }}</Text>
+								</Flex>
+
+								<template #content>
+									<Flex align="end" gap="8">
+										<Text size="12" weight="600" color="tertiary">Share of total fee paid</Text>
+
+										<Text size="12" weight="600" color="primary">{{ `(${truncateDecimalPart(rollup.fee_pct * 100, 2)}%)` }}</Text>
+									</Flex>
+								</template>
+							</Tooltip>
 						</Flex>
 
 						<Flex align="start" justify="between">
