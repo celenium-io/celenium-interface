@@ -192,7 +192,7 @@ onMounted(() => {
 
 <template>
 	<Flex direction="column" justify="start" gap="8" wide :class="$style.wrapper">
-        <Flex align="center" justify="start" wide :class="$style.header">
+        <Flex align="center" justify="start" wide>
             <Text size="14" weight="600" color="secondary"> {{ `By ${series.title}` }} </Text>
         </Flex>
 
@@ -257,10 +257,6 @@ onMounted(() => {
 	border-radius: 12px;
 
 	padding: 16px;
-}
-
-.header {
-
 }
 
 .legend_wrapper {
