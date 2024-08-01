@@ -28,7 +28,7 @@ const cacheStore = useCacheStore()
 const route = useRoute()
 const router = useRouter()
 
-const series = ref(getSeriesByPage(route.params.metric))
+const series = ref(getSeriesByPage(route.params.metric, route.query.aggregate))
 
 if (!series.value.page) {
 	router.push("/stats")
