@@ -186,14 +186,6 @@ const handleViewBlob = (blob) => {
 		&:first-child {
 			padding-left: 16px;
 		}
-
-		& > a {
-			display: flex;
-
-			min-height: 40px;
-
-			padding-right: 24px;
-		}
 	}
 }
 

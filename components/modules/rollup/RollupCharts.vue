@@ -15,8 +15,8 @@ import { abbreviate, formatBytes, tia } from "@/services/utils"
 import { fetchRollupSeries } from "@/services/api/stats"
 
 const props = defineProps({
-	id: {
-		type: String,
+	rollup: {
+		type: Object,
 		required: true,
 	},
 })
@@ -190,7 +190,7 @@ const getSizeSeries = async () => {
 	sizeSeries.value = []
 
 	const sizeSeriesRawData = await fetchRollupSeries({
-		id: props.id,
+		id: props.rollup.id,
 		name: "size",
 		timeframe: selectedPeriod.value.timeframe,
 		from: parseInt(
@@ -223,7 +223,7 @@ const getPfbSeries = async () => {
 	pfbSeries.value = []
 
 	const blobsSeriesRawData = await fetchRollupSeries({
-		id: props.id,
+		id: props.rollup.id,
 		name: "blobs_count",
 		timeframe: selectedPeriod.value.timeframe,
 		from: parseInt(
@@ -255,7 +255,7 @@ const getFeeSeries = async () => {
 	feeSeries.value = []
 
 	const feeSeriesRawData = await fetchRollupSeries({
-		id: props.id,
+		id: props.rollup.id,
 		name: "fee",
 		timeframe: selectedPeriod.value.timeframe,
 		from: parseInt(
@@ -628,7 +628,6 @@ onBeforeUnmount(() => {
 						<Flex ref="feeSeriesChartEl" :class="$style.chart" />
 					</Flex>
 				</Flex>
-				
 			</Flex>
 		</Flex>
 	</Flex>
