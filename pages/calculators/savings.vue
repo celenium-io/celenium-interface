@@ -328,7 +328,7 @@ useHead({
 						<Icon name="info" size="12" color="support" />
 					</Flex>
 
-					<template #content> TODO: Tooltip for Rollup Stack </template>
+					<template #content> Rollup underlying technology (SDK). </template>
 				</Tooltip>
 
 				<Flex wide align="center" gap="8" :class="$style.items">
@@ -379,11 +379,11 @@ useHead({
 			<Flex direction="column" gap="10">
 				<Tooltip side="top" position="start">
 					<Flex align="center" gap="6">
-						<Text size="13" weight="600" color="primary"> Transaction Stack </Text>
+						<Text size="13" weight="600" color="primary"> Transaction Type </Text>
 						<Icon name="info" size="12" color="support" />
 					</Flex>
 
-					<template #content> TODO: Tooltip for Tx Stack </template>
+					<template #content> Type of transaction used to calculate the total size of posted data. </template>
 				</Tooltip>
 
 				<Flex wide align="center" gap="8" :class="$style.items">
@@ -415,7 +415,16 @@ useHead({
 			<!-- Txs count -->
 			<Flex direction="column" gap="16">
 				<Flex align="center" justify="between">
-					<Text size="13" weight="600" color="primary"> Expected transactions </Text>
+					<Tooltip side="top" position="start">
+						<Flex align="center" gap="6">
+							<Text size="13" weight="600" color="primary"> Expected transactions </Text>
+							<Icon name="info" size="12" color="support" />
+						</Flex>
+
+						<template #content> Total number of posted transactions. </template>
+					</Tooltip>
+
+					<!-- <Text size="13" weight="600" color="primary"> Expected transactions </Text> -->
 
 					<template v-if="editMode !== 'txs'">
 						<Text @click="handleEnableTxsEditMode" size="13" weight="600" color="primary"> {{ comma(txs) }} </Text>
@@ -509,7 +518,7 @@ useHead({
 		</Flex>
 
 		<Flex wide direction="column" gap="24" :class="$style.right">
-			<Flex direction="column" gap="8">
+			<Flex direction="column" gap="10">
 				<Tooltip side="top" position="start" wide>
 					<Flex wide align="center" justify="between">
 						<Flex align="center" gap="6">

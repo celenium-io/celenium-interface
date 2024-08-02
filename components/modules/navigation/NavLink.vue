@@ -8,7 +8,7 @@ const props = defineProps({
 	link: Object,
 })
 
-const isExpanded = ref(props.link.children?.some((l) => l.path === route.path) ? true : false)
+const isExpanded = ref(props.link.children?.some((l) => l.path === route.path) ? true : (props.link.name === 'Rollups' ? true : false))
 
 const handleClick = () => {
 	emit("onClose")
