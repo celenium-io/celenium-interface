@@ -29,6 +29,8 @@ export const useAppStore = defineStore("app", () => {
 	const isPaused = ref(false)
 
 	const showCmd = ref(false)
+	const cmdAction = ref()
+
 	const showSidebar = ref(false)
 
 	const theme = ref("")
@@ -53,6 +55,7 @@ export const useAppStore = defineStore("app", () => {
 		isPaused,
 		isLatestBlocksLoaded,
 		showCmd,
+		cmdAction,
 		showSidebar,
 		theme,
 		confirmation,

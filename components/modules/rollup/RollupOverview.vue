@@ -15,7 +15,7 @@ import BlobsTable from "./tables/BlobsTable.vue"
 import NamespacesTable from "./tables/NamespacesTable.vue"
 
 /** Services */
-import { comma, formatBytes } from "@/services/utils"
+import { comma, formatBytes, truncateDecimalPart } from "@/services/utils"
 
 /** API */
 import { fetchRollupBlobs, fetchRollupExportData, fetchRollupNamespaces } from "@/services/api/rollup"
@@ -52,6 +52,13 @@ const activeTab = ref(preselectedTab)
 const isRefetching = ref(false)
 const namespaces = ref([])
 const blobs = ref([])
+const relatedLinks = computed(() => {
+	if (props.rollup.links?.length) {
+		return props.rollup.links[0].split(',')
+	} else {
+		return []
+	}
+})
 
 const page = ref(1)
 const pages = computed(() => (activeTab.value === "Blobs" ? Math.ceil(props.rollup.blobs_count / 10) : 1))
@@ -278,6 +285,19 @@ const handleCSVDownload = async (period) => {
 							</Text>
 						</Flex>
 					</Flex>
+					<Flex v-if="relatedLinks.length" direction="column" gap="6">
+						<Text size="12" weight="600" color="secondary">Related Links</Text>
+
+						<Flex align="center" direction="column" gap="2">
+							<Flex v-for="link in relatedLinks" align="center" justify="start" wide>
+								<a :href="link" target="_blank">
+									<Text size="12" height="140" weight="600" color="tertiary" mono selectable :class="$style.link">
+										{{ link }}
+									</Text>
+								</a>
+							</Flex>
+						</Flex>
+					</Flex>
 					<Flex align="center" justify="start" gap="12">
 						<Tooltip v-if="rollup.website" position="start" delay="500">
 							<a :href="rollup.website" target="_blank">
@@ -321,11 +341,11 @@ const handleCSVDownload = async (period) => {
 
 						<Tooltip v-if="rollup.explorer" position="start" delay="500">
 							<a :href="rollup.explorer" target="_blank">
-								<Icon name="blockscout" size="14" color="secondary" :class="$style.btn" />
+								<Icon name="search" size="14" color="secondary" :class="$style.btn" />
 							</a>
 
 							<template #content>
-								{{ rollup.explorer }}
+								{{ `Explorer: ${rollup.explorer}` }}
 							</template>
 						</Tooltip>
 					</Flex>
@@ -335,20 +355,65 @@ const handleCSVDownload = async (period) => {
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Size</Text>
-							<Text size="12" weight="600" color="secondary"> {{ formatBytes(rollup.size) }} </Text>
+
+							<Tooltip position="start" delay="400">
+								<Flex align="center" gap="4">
+									<Text size="12" weight="600" color="secondary"> {{ formatBytes(rollup.size) }} </Text>
+
+									<Text size="12" weight="600" color="tertiary">{{ `(${truncateDecimalPart(rollup.size_pct * 100, 2)}%)` }}</Text>
+								</Flex>
+
+								<template #content>
+									<Flex align="end" gap="8">
+										<Text size="12" weight="600" color="tertiary">Share of total size</Text>
+
+										<Text size="12" weight="600" color="primary">{{ `(${truncateDecimalPart(rollup.size_pct * 100, 2)}%)` }}</Text>
+									</Flex>
+								</template>
+							</Tooltip>
 						</Flex>
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Blobs</Text>
-							<Text size="12" weight="600" color="secondary"> {{ comma(rollup.blobs_count) }} </Text>
+
+							<Tooltip position="start" delay="400">
+								<Flex align="center" gap="4">
+									<Text size="12" weight="600" color="secondary"> {{ comma(rollup.blobs_count) }} </Text>
+
+									<Text size="12" weight="600" color="tertiary">{{ `(${truncateDecimalPart(rollup.blobs_count_pct * 100, 2)}%)` }}</Text>
+								</Flex>
+
+								<template #content>
+									<Flex align="end" gap="8">
+										<Text size="12" weight="600" color="tertiary">Share of total blobs count</Text>
+
+										<Text size="12" weight="600" color="primary">{{ `(${truncateDecimalPart(rollup.blobs_count_pct * 100, 2)}%)` }}</Text>
+									</Flex>
+								</template>
+							</Tooltip>
 						</Flex>
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Blob Fees Paid</Text>
-							<AmountInCurrency
-								:amount="{ value: rollup.fee }"
-								:styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }"
-							/>
+
+							<Tooltip position="start" delay="400">
+								<Flex align="center" gap="4">
+									<AmountInCurrency
+										:amount="{ value: rollup.fee }"
+										:styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }"
+									/>
+
+									<Text size="12" weight="600" color="tertiary">{{ `(${truncateDecimalPart(rollup.fee_pct * 100, 2)}%)` }}</Text>
+								</Flex>
+
+								<template #content>
+									<Flex align="end" gap="8">
+										<Text size="12" weight="600" color="tertiary">Share of total fee paid</Text>
+
+										<Text size="12" weight="600" color="primary">{{ `(${truncateDecimalPart(rollup.fee_pct * 100, 2)}%)` }}</Text>
+									</Flex>
+								</template>
+							</Tooltip>
 						</Flex>
 
 						<Flex align="start" justify="between">
@@ -505,6 +570,16 @@ const handleCSVDownload = async (period) => {
 		max-width: 352px;
 		text-overflow: ellipsis;
 		overflow: hidden;
+	}
+
+	.link {
+		max-width: 352px;
+		text-overflow: ellipsis;
+		overflow: hidden;
+	}
+
+	.link:hover {
+		color: var(--txt-secondary);
 	}
 }
 

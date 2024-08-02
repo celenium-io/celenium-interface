@@ -285,6 +285,15 @@ const rawNavigationActions = [
 	{
 		type: "callback",
 		icon: "arrow-narrow-right",
+		title: "Go to Cost Savings Calculator",
+		runText: "Open Cost Savings",
+		callback: () => {
+			router.push("/calculators/savings")
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Documentation",
 		runText: "Open Documentation",
 		callback: () => {
@@ -925,9 +934,9 @@ const debouncedSearch = useDebounceFn(async (e) => {
 	const bookmarks = bookmarksStore.searchBookmarks(searchTerm.value)
 	const { data } = await search(searchTerm.value.trim())
 
-	data.value = [...bookmarks, ...data.value]
-
 	if (!data.value?.length) return
+
+	data.value = [...bookmarks, ...data.value]
 
 	amp.log("showAutocomplete", { count: data.value.length, firstType: data.value[0].type })
 
@@ -965,7 +974,8 @@ const debouncedSearch = useDebounceFn(async (e) => {
 				break
 
 			case "validator":
-				title = data.value[i].result.alias || data.value[i].result.moniker ? data.value[i].result.moniker : data.value[i].result.address
+				title =
+					data.value[i].result.alias || data.value[i].result.moniker ? data.value[i].result.moniker : data.value[i].result.address
 				routerLink = `/validator/${data.value[i].result.id}`
 				break
 
@@ -1066,11 +1076,18 @@ watch(
 				})
 				trap.activate()
 
+				if (appStore.cmdAction) {
+					const action = rawQuickCommandsActions.find((a) => a.title === appStore.cmdAction)
+					handleExecute({ id: 1, ...action })
+				}
+
 				removeOutside = useOutside(popupEl.value.wrapper, () => {
 					handleOutside()
 				})
 			})
 		} else {
+			appStore.cmdAction = null
+
 			document.removeEventListener("keydown", onKeydown)
 
 			if (trap && trap.active) trap.deactivate()

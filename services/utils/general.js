@@ -125,12 +125,12 @@ export function reverseMapping(obj) {
 
 export function base64ToHex(base64) {
 	const raw = atob(base64)
-	let hex = ''
+	let hex = ""
 
 	for (let i = 0; i < raw.length; i++) {
 		let hexByte = raw.charCodeAt(i).toString(16)
 		if (hexByte.length === 1) {
-			hexByte = '0' + hexByte
+			hexByte = "0" + hexByte
 		}
 		hex += hexByte
 	}

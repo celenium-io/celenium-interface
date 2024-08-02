@@ -99,7 +99,7 @@ useHead({
 			<RollupOverview v-if="rollup" :rollup="rollup" />
 		</Flex>
 
-		<RollupCharts v-if="rollup" :id="rollup.id" />
+		<RollupCharts v-if="rollup" :rollup="rollup" />
 	</Flex>
 </template>
 

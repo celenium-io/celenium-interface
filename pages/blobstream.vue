@@ -506,7 +506,7 @@ getCommitments()
 	padding: 16px 0;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 800px) {
 	.card_wrapper {
 		flex-direction: column;
 	}

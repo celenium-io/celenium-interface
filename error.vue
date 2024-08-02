@@ -44,21 +44,24 @@ const getGithubIssueLink = computed(() => {
 	<CommandMenu :show="appStore.showCmd" />
 
 	<NuxtLayout>
-		<Flex v-if="error" direction="column" gap="24" wide :class="$style.wrapper">
-			<Flex direction="column" gap="8">
-				<Text size="16" color="support" mono> /** </Text>
-				<Text size="16" color="support" mono> * Error Code </Text>
-				<Text size="16" color="tertiary" mono> * {{ error?.statusCode }} </Text>
-				<Text size="16" color="support" mono> */ </Text>
-			</Flex>
+		<Flex v-if="error" direction="column" align="center" gap="24" wide :class="$style.wrapper">
+			<Icon name="search" size="24" color="tertiary" />
 
-			<Flex direction="column" gap="8">
+			<Flex direction="column" align="center" gap="12">
 				<Text v-if="error?.statusCode == 404" size="16" weight="500" color="secondary">
 					{{ error?.statusMessage }}
 				</Text>
 				<Text v-else size="16" weight="500" color="secondary"> Unknown Error </Text>
 
-				<Text v-if="error?.statusCode == 404" size="13" weight="500" height="140" color="tertiary" style="max-width: 340px">
+				<Text
+					v-if="error?.statusCode == 404"
+					size="13"
+					weight="500"
+					height="160"
+					color="tertiary"
+					align="center"
+					style="max-width: 340px"
+				>
 					It looks like this is an error and such a page does not exist. If there used to be a page at this address and it has
 					disappeared - please inform us.
 				</Text>
