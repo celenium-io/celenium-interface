@@ -113,7 +113,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	svg.append("g")
 		.attr("transform", "translate(0," + (height - marginAxisX) + ")")
 		.attr("color", "var(--op-20)")
-		.call(d3.axisBottom(x).ticks(6).tickFormat(d3.timeFormat(props.series.timeframe === 'hour' ? "%H:%M" : "%B %d")))
+		.call(d3.axisBottom(x).ticks(6).tickFormat(d3.timeFormat(props.series.timeframe === 'hour' ? "%H:%M" : "%b %d")))
 	
 	svg.append("g")
 		.attr("transform", `translate(0,0)`)

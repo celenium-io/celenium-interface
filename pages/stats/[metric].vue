@@ -9,7 +9,7 @@ import LineChart from "@/components/modules/stats/LineChart.vue"
 import SquareSizeChart from "@/components/modules/stats/SquareSizeChart.vue"
 
 /** Services */
-import { abbreviate, capitilize, capitalizeAndReplaceUnderscore, comma, formatBytes } from "@/services/utils"
+import { capitalizeAndReplaceUnderscore } from "@/services/utils"
 
 /** API */
 import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
@@ -19,11 +19,6 @@ import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Popover from "@/components/ui/Popover.vue"
 import Toggle from "@/components/ui/Toggle.vue"
-import Tooltip from "@/components/ui/Tooltip.vue"
-
-/** Store */
-import { useCacheStore } from "@/store/cache"
-const cacheStore = useCacheStore()
 
 const route = useRoute()
 const router = useRouter()

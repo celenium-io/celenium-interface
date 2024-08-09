@@ -18,7 +18,9 @@ const series = computed(() => getSeriesByGroupAndType('Rollups'))
 const getRollups = async () => {
 	isLoading.value = true
 
-	const data = await fetchRollups({})
+	const data = await fetchRollups({
+		limit: 100,
+	})
 
 	series.value.data = data
 
@@ -36,7 +38,7 @@ onBeforeMount(async () => {
 			<Flex align="center" justify="between" wide :class="$style.section">
 				<Flex align="center" gap="4">
 					<Text size="16" weight="600" color="primary" justify="start">Overview</Text>
-					<Text size="14" weight="600" color="tertiary">(top 10 rollups)</Text>
+					<!-- <Text size="14" weight="600" color="tertiary">(top 10 rollups)</Text> -->
 				</Flex>
 
 				<Button link="/rollups" type="secondary" size="mini">

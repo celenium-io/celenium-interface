@@ -40,7 +40,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	const marginBottom = 24
 	const marginLeft = 36
 	const marginAxisX = 20
-	const barWidth = Math.round((width - marginLeft - marginRight) / (cData.data.length) - (pData.data.length ? 2 : 5))
+	const barWidth = Math.round(Math.max((width - marginLeft - marginRight) / (cData.data.length) - (pData.data.length ? 2 : 5)), 4)
 
 	const MIN_VALUE = d3.min([...cData.data.map(s => s.value), ...pData.data?.map(s => s.value)])
 	const MAX_VALUE = d3.max([...cData.data.map(s => s.value), ...pData.data?.map(s => s.value)])
@@ -126,7 +126,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	svg.append("g")
 	.attr("transform", `translate( ${barWidth / 2 - 3}, ${height - marginAxisX} )`)
 	.attr("color", "var(--op-20)")
-	.call(d3.axisBottom(x0).ticks(6).tickFormat(d3.timeFormat(props.series.timeframe === 'hour' ? "%H:%M" : "%B %d")))
+	.call(d3.axisBottom(x0).ticks(6).tickFormat(d3.timeFormat(props.series.timeframe === 'hour' ? "%H:%M" : "%b %d")))
 	.selectAll(".tick line")
 		.filter(function(d) { return d === 0; })
 		.remove();
@@ -208,7 +208,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 			.attr('data-index', d => d.index)
 			.attr('x', d => x1(d.group))
 			.attr('y', d => y(d.value) - marginAxisX)
-			.attr('width', barWidth / 2 - 7)
+			.attr('width', barWidth / 4)
 			.attr('height', 0)
 			.attr('fill', d => d.color)
 			.transition()
