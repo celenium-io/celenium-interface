@@ -20,7 +20,7 @@ const rollup = ref()
 const { data: rawRollup } = await fetchRollupBySlug(route.params.slug)
 
 if (!rawRollup.value) {
-	router.push("/")
+	router.push("/rollups")
 } else {
 	rollup.value = rawRollup.value
 	cacheStore.current.rollup = rollup.value
