@@ -34,12 +34,16 @@ $grayscale: (
 	--brand: #18d2a5;
 	--blue: #076acd;
 	--red: #eb5757;
+	--dark-red: #592121;
 	--orange: #ff5a17;
 	--light-orange: #ff8351;
 	--yellow: #ffd400;
 	--green: #0ade71;
 	--neutral-green: #33a853;
 	--purple: #5856de;
+	--mint: #18D2A5;
+	--neutral-mint: #109373;
+	--dark-mint: #1e473d;
 
 	/* Grayscale */
 	@each $gray, $value in $grayscale {
@@ -99,12 +103,16 @@ $grayscale: (
 	--brand: #33a853;
 	--blue: #0b84fe;
 	--red: #eb5757;
+	--dark-red: #592121;
 	--orange: #ff5a17;
 	--light-orange: #ff8351;
 	--yellow: #ffd400;
 	--green: #0ade71;
 	--neutral-green: #33a853;
 	--purple: #5856de;
+	--mint: #18D2A5;
+	--neutral-mint: #109373;
+	--dark-mint: #1e473d;
 
 	/* Grayscale */
 	@each $gray, $value in $grayscale {
@@ -156,12 +164,16 @@ $grayscale: (
 	--brand: #0ade71;
 	--blue: #0b84fe;
 	--red: #eb5757;
+	--dark-red: #592121;
 	--orange: #ff5a17;
 	--light-orange: #ff8351;
 	--yellow: #e5c10b;
 	--green: #26c071;
 	--neutral-green: #33a853;
 	--purple: #5856de;
+	--mint: #18D2A5;
+	--neutral-mint: #109373;
+	--dark-mint: #1e473d;
 
 	/* Grayscale */
 	@each $gray, $value in $grayscale {
@@ -367,4 +379,17 @@ body {
 
 .ods_group {
 	transition: all 0.3s ease;
+}
+
+.transition_all {
+	transition: all 0.3s ease;
+}
+
+.dimmed {
+	filter: brightness(40%);
+	transition: all 0.3s ease;
+}
+
+.bar {
+	transition: filter 0.3s;
 }
