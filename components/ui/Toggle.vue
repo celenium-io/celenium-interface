@@ -3,6 +3,7 @@ const props = defineProps({
 	modelValue: { type: Boolean, default: false },
 	disabled: { type: Boolean, default: false },
 	protected: { type: Boolean, default: false },
+	color: { type: Boolean, default: "var(--neutral-green)" },
 })
 const emit = defineEmits(["update:modelValue"])
 
@@ -14,7 +15,7 @@ const toggle = () => {
 </script>
 
 <template>
-	<div @click="toggle" :class="[$style.wrapper, modelValue && $style.active]" tabindex="1">
+	<div @click="toggle" :class="[$style.wrapper, modelValue && $style.active]" :style="{ background: modelValue ? props.color : '' }" tabindex="1">
 		<div v-if="!disabled" :class="[$style.slider, modelValue && $style.active]" />
 
 		<div v-else :class="$style.lock">
@@ -38,7 +39,7 @@ const toggle = () => {
 }
 
 .wrapper:focus {
-	box-shadow: rgba(10, 222, 113, 30%) 0px 0px 0px 3px;
+	/* box-shadow: rgba(10, 222, 113, 30%) 0px 0px 0px 3px; */
 	outline: none;
 }
 

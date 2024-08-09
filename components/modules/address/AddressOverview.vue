@@ -1052,7 +1052,7 @@ const handleOpenQRModal = () => {
 						<Flex v-if="activeTab === 'vestings'" align="center">
 							<Text size="12" color="secondary"> {{ showEnded ? "Hide completed" : "Show completed" }} </Text>
 
-							<Toggle v-model="showEnded" :class="$style.toggle"/>
+							<Toggle v-model="showEnded" :class="$style.toggle" />
 						</Flex>
 					</Flex>
 				</Flex>
