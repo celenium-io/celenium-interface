@@ -120,7 +120,7 @@ const getSeries = async () => {
 			resData.value.push({
 				name: "Other",
 				value: totalOther,
-				share: 100 - sumShares,
+				share: 100 - Math.ceil(sumShares),
 			})
 		}
 
