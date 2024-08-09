@@ -1,4 +1,5 @@
 <script setup>
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 const props = defineProps({
     value: {
@@ -56,14 +57,22 @@ const styles = computed(() => {
 
 <template>
     <Flex v-if="!isNaN(value)" align="center" gap="4" :class="$style.chip" :style="styles.chip">
-        <Flex align="center" gap="4" :class="$style.content">
-            <Icon v-if="value > 0" name="arrow-narrow-up-right" size="14" :style="styles.icon" />
-            <Icon v-else-if="value < 0" name="arrow-narrow-up-right" rotate="90" size="14" :style="styles.icon" />
+        <Tooltip position="start" side="top" delay="500">
+            <Flex align="center" gap="4" :class="$style.content">
+                <Icon v-if="value > 0" name="arrow-narrow-up-right" size="14" :style="styles.icon" />
+                <Icon v-else-if="value < 0" name="arrow-narrow-up-right" rotate="90" size="14" :style="styles.icon" />
 
-            <Text size="12" weight="600" noWrap :style="styles.text">
-                {{ Math.abs(value) }}%
-            </Text>
-        </Flex>
+                <Text size="12" weight="600" noWrap :style="styles.text">
+                    {{ Math.abs(value) }}%
+                </Text>
+            </Flex>
+
+            <template #content>
+                <Text color="secondary" size="12">
+                    Difference between current and previous equal period
+                </Text>
+            </template>
+        </Tooltip>
     </Flex>
     <Skeleton v-else w="60" h="14" />
 </template>

@@ -72,24 +72,33 @@ const buildChart = (chart, data) => {
 
     const z = d3.scaleLinear()
         .domain([minSize, maxSize])
-        .range([ 20, 80 ]);
+        .range([ 15, 70 ]);
     
-    const maxRadius = z(maxSize)
-    const minRadius = z(minSize)
-
-    const x = d3.scaleLinear()
-        .domain([0, maxBlobsCount + maxBlobsCount * 0.1])
-        .range([ marginLeft, width ]);
+    // const x = d3.scaleLinear()
+    //     .domain([0, maxBlobsCount + maxBlobsCount * 0.1])
+    //     .range([ marginLeft, width ]);
         
-    const y = d3.scaleLinear()
-        .domain([0, maxFee + maxFee * 0.3])
-        .range([ height - 30, 0]);
+    const x = d3.scaleLog()
+        .domain([1_000, maxBlobsCount + maxBlobsCount * 0.1])
+        .range([ marginLeft, width ])
+        .base(10)
+        .nice()
+    
+    // const y = d3.scaleLinear()
+    //     .domain([0, maxFee + maxFee * 0.3])
+    //     .range([ height - 30, 0]);
 
+    const y = d3.scaleLog()
+        .domain([1, maxFee + maxFee * 0.3])
+        .range([ height - 30, 0])
+        .base(10)
+        .nice()
+    
     // Add axes:
     svg.append("g")
         .attr("transform", "translate(0," + (height - 20) + ")")
         .attr("color", "var(--op-20)")
-        .call(d3.axisBottom(x).ticks(4).tickFormat(d3.format(".2s")))
+        .call(d3.axisBottom(x).ticks(2).tickFormat(d3.format(".2s")))
     
     svg.append("g")
         .attr("transform", `translate(${marginLeft},0)`)
@@ -129,10 +138,10 @@ const buildChart = (chart, data) => {
 
     // Size legend
     let size = d3.scaleSqrt()
-        .domain([ 0, maxSize ])
-        .range([ 1, 45 ])
-
-    let legendValues = [minSize * 1.5, midSize * 0.9, maxSize * 1]
+        .domain([minSize, maxSize / 2]) //[ minSize, maxSize ])
+        .range([ 10, 35 ])
+    
+    let legendValues = [500 * 1_024 * 1_024, midSize * 0.5, maxSize / 2]
     let xCircle = width - 50
     let xLabel = width - 150
     let yCircle = 100
@@ -154,8 +163,8 @@ const buildChart = (chart, data) => {
         .append("line")
             .attr("x1", function(d){ return xCircle - size(d) } )
             .attr("x2", xLabel)
-            .attr("y1", function(d){ return yCircle - size(d) } )
-            .attr("y2", function(d){ return yCircle - size(d) } )
+            .attr("y1", function(d, i){ return yCircle - size(d) + (i === 0 ? 5 : i === 2 ? -7 : 0) } )
+            .attr("y2", function(d, i){ return yCircle - size(d) + (i === 0 ? 5 : i === 2 ? -7 : 0) } )
             .attr("stroke", "var(--op-20)")
             .style("stroke-dasharray", ("2, 2"))
 
@@ -164,14 +173,17 @@ const buildChart = (chart, data) => {
         .enter()
         .append("text")
             .attr('x', xLabel)
-            .attr('y', function(d){ return yCircle - size(d) - 5 } )
-            .text( function(d){ return formatBytes(d, 0) } )
+            .attr('y', function(d, i){ return yCircle - size(d) - 5 + (i === 0 ? 5 : i === 2 ? -7 : 0) } )
+            .text( function(d, i){ return i === 0 ? '<' + formatBytes(d, 0) : formatBytes(d, 0) } )
             .style("font-size", 10)
             .style("fill", "var(--op-20)")
             .attr('alignment-baseline', 'middle')
     
     // Tooltip
     function onPointerEnter(event, rollup) {
+        const element = document.getElementById(event.target.id)
+        element.style.filter = "brightness(100%)"
+
         if (!tooltip.value.data.length) {
             tooltip.value.x = x(rollup.blobs_count)
             tooltip.value.y = y(rollup.fee)
@@ -182,6 +194,9 @@ const buildChart = (chart, data) => {
     }
 
     function onPointerLeave() {
+        const element = document.getElementById(event.target.id)
+        element.style.filter = "brightness(60%)"
+
         tooltip.value.data = []
         tooltip.value.show = false
     }
@@ -227,24 +242,10 @@ const buildChart = (chart, data) => {
             .attr("x", d => x(d.blobs_count) - z(d.size))
             .attr("y", d => y(d.fee) - z(d.size))
             .attr("clip-path", (d, i) => `url(#clip-${i})`)
-            .attr("style", "stroke: red; stroke-width: 5px;")
+            .style("filter", "brightness(60%)")
+            .attr("class", "transition_all")
             .on("pointerenter", (d, rollup) => onPointerEnter(d, rollup))
             .on("pointerleave", onPointerLeave)
-
-    // const circles = svg.append('g')
-    //     .selectAll("circle")
-    //     .data(data)
-    //     .enter()
-    //     .append("circle")
-    //         .attr("cx", d => x(d.blobs_count))
-    //         .attr("cy", d => y(d.fee))
-    //         .attr("r", 0)
-    //         .attr("stroke", "var(--op-20)")
-    //         .attr("stroke-width", 1)
-    //         .attr("fill", "none")
-    //         .transition()
-    //         .duration(1_500)
-    //         .attr("r", d => z(d.size))
 
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
