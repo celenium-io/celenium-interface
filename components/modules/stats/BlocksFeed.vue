@@ -42,6 +42,11 @@ const timeline = computed(() => {
 	})
 	time = new Set(time)
 
+	while (chartWidth.value / time.size < 35) {
+		let arr = Array.from(time)
+		arr.splice(Math.round(arr.length / 2), 1)
+		time = new Set(arr)
+	}
 	return time
 })
 

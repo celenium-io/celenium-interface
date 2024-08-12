@@ -27,8 +27,8 @@ export const STATS_SERIES = [
 			},
 			{
 				name: 'bytes_in_block',
-				title: 'Bytes In Block',
-				page: 'bytes_in_block',
+				title: 'Bytes In Blocks',
+				page: 'bytes_in_blocks',
 				units: 'bytes',
 				tooltip: 'Bytes',
 				aggregate: 'sum',
@@ -78,8 +78,8 @@ export const STATS_SERIES = [
 			},
 			{
 				name: 'bytes_in_block',
-				title: 'Bytes In Block',
-				page: 'bytes_in_block',
+				title: 'Bytes In Blocks',
+				page: 'bytes_in_blocks',
 				units: 'bytes',
 				tooltip: 'Bytes',
 				aggregate: 'cumulative',
