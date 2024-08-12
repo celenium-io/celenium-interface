@@ -89,6 +89,20 @@ export const fetchPriceSeries = async ({ from }) => {
 	}
 }
 
+export const fetchAddressSeries = async ({ hash, name, timeframe, from, to }) => {
+	try {
+		const url = new URL(`${useServerURL()}/address/${hash}/stats/${name}/${timeframe}`)
+
+		if (from) url.searchParams.append("from", from)
+		if (to) url.searchParams.append("to", to)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchNamespaceUsage = async ({ top }) => {
 	try {
 		const url = new URL(`${useServerURL()}/stats/namespace/usage`)
