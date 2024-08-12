@@ -80,7 +80,7 @@ const buildChart = (chart, data) => {
         
     const x = d3.scaleLog()
         .domain([1_000, maxBlobsCount + maxBlobsCount * 0.1])
-        .range([ marginLeft, width ])
+        .range([marginLeft, width])
         .base(10)
         .nice()
     
@@ -90,7 +90,7 @@ const buildChart = (chart, data) => {
 
     const y = d3.scaleLog()
         .domain([1, maxFee + maxFee * 0.3])
-        .range([ height - 30, 0])
+        .range([height + 5, 0])
         .base(10)
         .nice()
     
@@ -138,7 +138,7 @@ const buildChart = (chart, data) => {
 
     // Size legend
     let size = d3.scaleSqrt()
-        .domain([minSize, maxSize / 2]) //[ minSize, maxSize ])
+        .domain([minSize, maxSize / 2])
         .range([ 10, 35 ])
     
     let legendValues = [500 * 1_024 * 1_024, midSize * 0.5, maxSize / 2]
@@ -201,6 +201,14 @@ const buildChart = (chart, data) => {
         tooltip.value.show = false
     }
 
+    const calculateY = (d) => {
+        let cy = y(d.fee)                
+        if (cy > height - 30) {
+            return height - 30 - 1
+        }
+
+        return cy
+    }
     // Draw chart
     const defs = svg.append("defs")
     data.forEach((d, i) => {
@@ -208,7 +216,7 @@ const buildChart = (chart, data) => {
             .attr("id", `clip-${i}`)
         .append("circle")
             .attr("cx", x(d.blobs_count))
-            .attr("cy", y(d.fee))
+            .attr("cy", calculateY(d))
             .attr("r", 0)
             .transition()
             .duration(1_500)
@@ -221,7 +229,14 @@ const buildChart = (chart, data) => {
         .enter()
         .append("circle")
             .attr("cx", d => x(d.blobs_count))
-            .attr("cy", d => y(d.fee))
+            .attr("cy", d => {
+                let cy = y(d.fee)                
+                if (cy > height - 30) {
+                    return height - 30 - 1
+                }
+
+                return cy
+            })
             .attr("r", 0)
             .attr("stroke", "var(--op-20)")
             .attr("stroke-width", 1)
@@ -240,7 +255,17 @@ const buildChart = (chart, data) => {
             .attr("width", d => z(d.size) * 2)
             .attr("height", d => z(d.size) * 2)
             .attr("x", d => x(d.blobs_count) - z(d.size))
-            .attr("y", d => y(d.fee) - z(d.size))
+            .attr("y", d => {
+                let cy = y(d.fee)
+                if (cy > height - 30) {
+                    console.log('cy', cy);
+                    console.log('height', height);
+
+                    return height - 30 - z(d.size) - 1
+                }
+
+                return cy - z(d.size)
+            })
             .attr("clip-path", (d, i) => `url(#clip-${i})`)
             .style("filter", "brightness(60%)")
             .attr("class", "transition_all")
