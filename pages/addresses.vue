@@ -325,6 +325,16 @@ const handleLast = async () => {
 			&:first-child {
 				padding-left: 16px;
 			}
+
+			&.sortable {
+				cursor: pointer;
+			}
+
+			&.sortable:hover {
+				& span {
+					color: var(--txt-secondary);
+				}
+			}
 		}
 
 		& tr td {
