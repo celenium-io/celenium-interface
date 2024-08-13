@@ -21,7 +21,7 @@ const props = defineProps({
 	},
 })
 
-const selectedPeriodIdx = ref(0)
+const selectedPeriodIdx = ref(1)
 const periods = ref([
 	{
 		title: "Last 24 hours",
@@ -188,7 +188,7 @@ const getTxSeries = async () => {
 
 	const txSeriesRawData = await fetchAddressSeries({
 		hash: props.hash,
-		name: "count",
+		name: "tx_count",
 		timeframe: selectedPeriod.value.timeframe,
 		from: parseInt(
 			DateTime.now().minus({
