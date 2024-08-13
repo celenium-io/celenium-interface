@@ -94,10 +94,6 @@ const getAddresses = async () => {
 	isRefetching.value = false
 }
 
-const calculateTotalBalance = (address) => {
-	return parseInt(address.balance.spendable) + parseInt(address.balance.delegated) + parseInt(address.balance.unbonding)
-}
-
 getAddresses()
 
 /** Refetch addresses */
@@ -192,9 +188,21 @@ const handleLast = async () => {
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
 								<th @click="handleSort('spendable')" :class="$style.sortable">
 									<Flex align="center" gap="6">
-										<Text size="12" weight="600" color="tertiary" noWrap>Balance</Text>
+										<Text size="12" weight="600" color="tertiary" noWrap>Spendable Balance</Text>
 										<Icon
 											v-if="sort.by === 'spendable'"
+											name="chevron"
+											size="12"
+											color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+										/>
+									</Flex>
+								</th>
+								<th @click="handleSort('delegated')" :class="$style.sortable">
+									<Flex align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap>Delegated Balance</Text>
+										<Icon
+											v-if="sort.by === 'delegated'"
 											name="chevron"
 											size="12"
 											color="secondary"
@@ -227,7 +235,15 @@ const handleLast = async () => {
 								<td>
 									<NuxtLink :to="`/address/${address.hash}`">
 										<AmountInCurrency
-											:amount="{ value: calculateTotalBalance(address) }"
+											:amount="{ value: parseInt(address.balance.spendable) }"
+											:styles="{ amount: { size: '13' }, currency: { size: '13' } }"
+										/>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/address/${address.hash}`">
+										<AmountInCurrency
+											:amount="{ value: parseInt(address.balance.delegated) }"
 											:styles="{ amount: { size: '13' }, currency: { size: '13' } }"
 										/>
 									</NuxtLink>
