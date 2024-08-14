@@ -210,8 +210,30 @@ const handleLast = async () => {
 										/>
 									</Flex>
 								</th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>First Height</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Last Height</Text></th>
+								<th @click="handleSort('first_height')" :class="$style.sortable">
+									<Flex align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap>First Height</Text>
+										<Icon
+											v-if="sort.by === 'first_height'"
+											name="chevron"
+											size="12"
+											color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+										/>
+									</Flex>
+								</th>
+								<th @click="handleSort('last_height')" :class="$style.sortable">
+									<Flex align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap>Last Height</Text>
+										<Icon
+											v-if="sort.by === 'last_height'"
+											name="chevron"
+											size="12"
+											color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+										/>
+									</Flex>
+								</th>
 							</tr>
 						</thead>
 
