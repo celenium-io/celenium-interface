@@ -47,18 +47,22 @@ const getSquareSizes = async () => {
 	squareSize.value.forEach((item, index) => {
 		item.color = color(index)
 
-		let share = Math.floor((item.value / total.value * 100))
+		let share = Math.round((item.value / total.value * 100))
 		totalSquares += Math.max(share, 1)
 		item.share = share
 		item.squares = Math.max(share, 1)
 	})
 
-	if (totalSquares > 100) {
+	if (totalSquares !== 100) {
 		let maxSquaresIndex = squareSize.value.reduce((maxIndex, current, index, array) => {
 			return (current.squares > array[maxIndex].squares) ? index : maxIndex
 		}, 0)
 		
-		squareSize.value[maxSquaresIndex].squares = squareSize.value[maxSquaresIndex].squares - (totalSquares - 100)
+		if (totalSquares > 100) {
+			squareSize.value[maxSquaresIndex].squares = squareSize.value[maxSquaresIndex].squares - (totalSquares - 100)
+		} else {
+			squareSize.value[maxSquaresIndex].squares = squareSize.value[maxSquaresIndex].squares + (100 - totalSquares)
+		}
 	}
 	
 	squareSize.value.forEach(item => {
@@ -166,7 +170,7 @@ onMounted(async () => {
 					<Text size="12" weight="600" color="primary"> {{ `${s.size} x ${s.size}` }} </Text>
 				</Flex>
 
-				<Text size="12" weight="600" color="tertiary" style="text-align: right; flex: 1"> {{ `${s.share === 0 ? '<1' : s.share}%` }} </Text>
+				<Text size="12" weight="600" color="tertiary" style="text-align: right; flex: 1"> {{ `${s.share <= 1 ? '<1' : s.share}%` }} </Text>
 				<Text size="12" weight="600" color="primary" style="text-align: right; flex: 1"> {{ comma(s.value) }} </Text>
 			</Flex>
 		</Flex>
