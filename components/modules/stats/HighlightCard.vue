@@ -1,16 +1,6 @@
 <script setup>
-/** Vendor */
-// import { DateTime } from "luxon"
-
-/** UI */
-// import Button from "@/components/ui/Button.vue"
-// import Tooltip from "@/components/ui/Tooltip.vue"
-
 /** Services */
-import { abbreviate, capitilize, comma, formatBytes, shortHex, tia } from "@/services/utils"
-
-/** API */
-import { fetchNetworks, fetchCommitments, fetchCommitmentsByNetwork } from "@/services/api/blobstream";
+import { abbreviate, comma, formatBytes, tia } from "@/services/utils"
 
 /** Stats Components */
 import DiffChip from "@/components/modules/stats/DiffChip.vue"
@@ -72,7 +62,7 @@ const value = computed(() => {
 
 .card {
 	min-height: 80px;
-	width: 240px;
+	min-width: 240px;
 
 	background: var(--card-background);
 	border-radius: 12px;
@@ -80,20 +70,12 @@ const value = computed(() => {
 	padding: 16px 16px 16px 0px;
 
 	box-shadow: inset 0 0 0 1px var(--op-3);
-
-	/* &:hover {
-		opacity: 0.8;
-	}
-
-	&:active {
-		scale: 0.95;
-	} */
 }
+
 .left_border {
     height: 40px;
     width: 4px;
 	border-radius: 8px;
-    /* background: var(--txt-tertiary); */
 	background: var(--op-10);
 }
 
@@ -128,17 +110,15 @@ const value = computed(() => {
 	padding: 16px 0;
 }
 
-/* @media (max-width: 500px) {
-	.wrapper {
-		padding: 32px 12px;
+@media (max-width: 530px) {
+	.card_wrapper {
+		margin: 8px 0px 8px 0px;
+		min-width: 100%;
 	}
 
-	.header {
-		gap: 16px;
-
-		height: initial;
-
-		padding: 16px;
+	.card {
+		height: 100px;
+		min-width: 100%;
 	}
-} */
+}
 </style>

@@ -1,9 +1,7 @@
 <script setup>
 /** UI */
-import AmountInCurrency from "@/components/AmountInCurrency.vue"
 import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
-import Tooltip from "@/components/ui/Tooltip.vue"
 
 
 /** Stats Components */
@@ -14,9 +12,6 @@ import InsightCard from "@/components/modules/stats/InsightCard.vue"
 
 /** Constants */
 import { getInsightsByGroup, getSeriesByGroupAndType, STATS_PERIODS } from "@/services/constants/stats.js"
-
-/** Services */
-import { comma, tia } from "@/services/utils"
 
 /** API */
 import { fetch24hDiffs } from "@/services/api/stats.js"
@@ -80,7 +75,10 @@ await get24hDiffs()
 	<Flex direction="column" gap="24" wide :class="$style.wrapper">
 		<Flex align="center" direction="column" gap="10">
 			<Flex justify="between" wide :class="$style.highlights_wrapper">
-				<HighlightCard v-for="h in highlights" :highlight="h" />
+				<HighlightCard
+					v-for="h in highlights"
+					:highlight="h"
+				/>
 			</Flex>
 
 			<Flex align="center" justify="start" wide>
@@ -137,16 +135,14 @@ await get24hDiffs()
 <style module>
 .wrapper {
 	max-width: calc(var(--base-width) + 48px);
-
-	/* padding: 40px 24px 60px 24px; */
-}
-
-.highlights_wrapper{
-	flex-wrap: wrap;
 }
 
 .section {
 	margin-top: 20px;
+}
+
+.highlights_wrapper {
+	flex-wrap: wrap;
 }
 
 .charts_wrapper {
@@ -176,6 +172,18 @@ await get24hDiffs()
 @media (max-width: 500px) {
 	.wrapper {
 		padding: 32px 12px;
+	}
+}
+
+@media (max-width: 420px) {
+	.wrapper {
+		padding: 32px 0px;
+	}
+
+	.chart_card {
+		flex: 1;
+		min-width: 340px;
+		height: 280px;
 	}
 }
 </style>

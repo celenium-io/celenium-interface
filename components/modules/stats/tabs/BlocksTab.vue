@@ -36,16 +36,6 @@ const selectedPeriod = ref(periods.value[0])
                 />
             </Flex>
 		</Flex>
-
-		<!-- <Flex align="center" direction="column" gap="12" wide>
-			<Flex align="center" justify="between" wide :class="$style.section">
-				<Text size="16" weight="600" color="primary" justify="start">Square Size Distribution</Text>
-			</Flex>
-
-            <SquareSizeChart />
-		</Flex> -->
-
-        <!-- block time (avg) | bytes in block (cumulative) | square size current day like insights -->
     </Flex>
 </template>
 
@@ -94,6 +84,24 @@ const selectedPeriod = ref(periods.value[0])
 	.square_size_chart_card {
 		flex: 1;
 		min-width: 400px;
+		height: 380px;
+	}
+}
+
+@media (max-width: 420px) {
+	.wrapper {
+		padding: 32px 0px;
+	}
+
+	.chart_card {
+		flex: 1;
+		min-width: 340px;
+		height: 380px;
+	}
+
+	.square_size_chart_card {
+		flex: 1;
+		min-width: 340px;
 		height: 380px;
 	}
 }

@@ -13,10 +13,6 @@ import { abbreviate, comma, formatBytes } from "@/services/utils"
 import { fetchSquareSize } from "@/services/api/stats"
 
 const props = defineProps({
-	// series: {
-	// 	type: Object,
-	// 	required: true,
-	// },
 	period: {
 		type: Object,
 		required: true,
@@ -52,7 +48,7 @@ const getSquareSizes = async () => {
 		item.color = color(index)
 
 		if (index !== squareSize.value.length - 1) {
-			let share = Math.max(Math.round((item.value / total.value * 100)), 1)
+			let share = Math.min(Math.round((item.value / total.value * 100)), 1)
 			totalShare += share
 			item.share = share
 		} else {
@@ -97,14 +93,6 @@ onMounted(async () => {
 
 	await getSquareSizes()
 })
-
-// watch(
-// 	() => props.period,
-// 	async () => {
-// 		await drawChart()
-// 	},
-// )
-
 </script>
 
 <template>
@@ -173,7 +161,7 @@ onMounted(async () => {
 					<Text size="12" weight="600" color="primary"> {{ `${s.size} x ${s.size}` }} </Text>
 				</Flex>
 
-				<Text size="12" weight="600" color="tertiary" style="text-align: right; flex: 1"> {{ `${s.share}%` }} </Text>
+				<Text size="12" weight="600" color="tertiary" style="text-align: right; flex: 1"> {{ `${s.share === 0 ? '<1' : s.share}%` }} </Text>
 				<Text size="12" weight="600" color="primary" style="text-align: right; flex: 1"> {{ comma(s.value) }} </Text>
 			</Flex>
 		</Flex>
