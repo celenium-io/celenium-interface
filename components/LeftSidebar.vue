@@ -57,6 +57,25 @@ const mainLinks = reactive([
 			},
 		],
 	},
+	{
+		icon: "bar-chart",
+		name: "Statistics",
+		path: "/stats",
+		children: [
+			{
+				name: "General",
+				path: "/stats?tab=General",
+			},
+			{
+				name: "Blocks",
+				path: "/stats?tab=Blocks",
+			},
+			{
+				name: "Rollups",
+				path: "/stats?tab=Rollups",
+			},
+		],
+	},
 ])
 
 const isModularLinksCollapsed = ref(false)

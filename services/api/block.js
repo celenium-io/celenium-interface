@@ -29,13 +29,13 @@ export const fetchBlocksCount = async () => {
 	}
 }
 
-export const fetchLatestBlocks = async () => {
+export const fetchLatestBlocks = async ({ limit }) => {
 	try {
 		const url = new URL(`${useServerURL()}/block`)
 
 		url.searchParams.append("stats", true)
 		url.searchParams.append("sort", "desc")
-		url.searchParams.append("limit", 15)
+		url.searchParams.append("limit", limit ? limit : 15)
 
 		const data = await $fetch(url.href)
 		return data

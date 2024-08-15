@@ -1,6 +1,15 @@
 /** Services */
 import { useServerURL } from "@/services/config"
 
+export const fetch24hDiffs = async ({ name }) => {
+	try {
+		const data = await $fetch(`${useServerURL()}/stats/${name}`)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchSeries = async ({ table, period, column, from, to }) => {
 	try {
 		const url = new URL(`${useServerURL()}/stats/series/${table}/${period}`)
@@ -8,6 +17,7 @@ export const fetchSeries = async ({ table, period, column, from, to }) => {
 		if (column) url.searchParams.append("column", column)
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
+		
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
@@ -15,10 +25,28 @@ export const fetchSeries = async ({ table, period, column, from, to }) => {
 	}
 }
 
-export const fetchSummary = async ({ table, func }) => {
+export const fetchSeriesCumulative = async ({ name, period, from, to }) => {
+	try {
+		const url = new URL(`${useServerURL()}/stats/series/${name}/${period}/cumulative`)
+
+		if (from) url.searchParams.append("from", from)
+		if (to) url.searchParams.append("to", to)
+		
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchSummary = async ({ table, func, column, from, to }) => {
 	try {
 		const url = new URL(`${useServerURL()}/stats/summary/${table}/${func}`)
 
+		if (column) url.searchParams.append("column", column)
+		if (from) url.searchParams.append("from", from)
+		if (to) url.searchParams.append("to", to)
+		
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
@@ -61,6 +89,20 @@ export const fetchPriceSeries = async ({ from }) => {
 	}
 }
 
+export const fetchAddressSeries = async ({ hash, name, timeframe, from, to }) => {
+	try {
+		const url = new URL(`${useServerURL()}/address/${hash}/stats/${name}/${timeframe}`)
+
+		if (from) url.searchParams.append("from", from)
+		if (to) url.searchParams.append("to", to)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchNamespaceUsage = async ({ top }) => {
 	try {
 		const url = new URL(`${useServerURL()}/stats/namespace/usage`)
@@ -94,6 +136,19 @@ export const fetchRollupSeries = async ({ id, name, timeframe, from, to }) => {
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
 
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchSquareSize = async (from) => {
+	try {
+		const url = new URL(`${useServerURL()}/stats/square_size`)
+
+		if (from) url.searchParams.append("from", from)
+			
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {

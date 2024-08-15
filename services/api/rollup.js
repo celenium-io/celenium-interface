@@ -10,7 +10,7 @@ export const fetchRollups = async ({ limit, offset, sort, sort_by }) => {
 		if (sort) url.searchParams.append("sort", sort)
 		if (sort_by) url.searchParams.append("sort_by", sort_by)
 
-		const data = await useFetch(url.href)
+		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
 		console.error(error)

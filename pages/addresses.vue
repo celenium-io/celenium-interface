@@ -75,21 +75,23 @@ await getAddressesCount()
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
 const pages = computed(() => Math.ceil(count.value / 20))
 
+const sort = reactive({
+	by: "spendable",
+	dir: "desc",
+})
+
 const getAddresses = async () => {
 	isRefetching.value = true
 
 	const { data } = await fetchAddresses({
 		limit: 20,
 		offset: (page.value - 1) * 20,
-		sort: "desc",
+		sort: sort.dir,
+		sort_by: sort.by,
 	})
 	addresses.value = data.value
 
 	isRefetching.value = false
-}
-
-const calculateTotalBalance = (address) => {
-	return parseInt(address.balance.spendable) + parseInt(address.balance.delegated) + parseInt(address.balance.unbonding)
 }
 
 getAddresses()
@@ -103,6 +105,23 @@ watch(
 		router.replace({ query: { page: page.value } })
 	},
 )
+
+const handleSort = (by) => {
+	switch (sort.dir) {
+		case "desc":
+			if (sort.by == by) sort.dir = "asc"
+			break
+
+		case "asc":
+			sort.dir = "desc"
+
+			break
+	}
+
+	sort.by = by
+
+	getAddresses()
+}
 
 const handlePrev = () => {
 	if (page.value === 1) return
@@ -167,9 +186,54 @@ const handleLast = async () => {
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Balance</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>First Height</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Last Height</Text></th>
+								<th @click="handleSort('spendable')" :class="$style.sortable">
+									<Flex align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap>Spendable Balance</Text>
+										<Icon
+											v-if="sort.by === 'spendable'"
+											name="chevron"
+											size="12"
+											color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+										/>
+									</Flex>
+								</th>
+								<th @click="handleSort('delegated')" :class="$style.sortable">
+									<Flex align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap>Delegated Balance</Text>
+										<Icon
+											v-if="sort.by === 'delegated'"
+											name="chevron"
+											size="12"
+											color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+										/>
+									</Flex>
+								</th>
+								<th @click="handleSort('first_height')" :class="$style.sortable">
+									<Flex align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap>First Height</Text>
+										<Icon
+											v-if="sort.by === 'first_height'"
+											name="chevron"
+											size="12"
+											color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+										/>
+									</Flex>
+								</th>
+								<th @click="handleSort('last_height')" :class="$style.sortable">
+									<Flex align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap>Last Height</Text>
+										<Icon
+											v-if="sort.by === 'last_height'"
+											name="chevron"
+											size="12"
+											color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+										/>
+									</Flex>
+								</th>
 							</tr>
 						</thead>
 
@@ -193,7 +257,15 @@ const handleLast = async () => {
 								<td>
 									<NuxtLink :to="`/address/${address.hash}`">
 										<AmountInCurrency
-											:amount="{ value: calculateTotalBalance(address) }"
+											:amount="{ value: parseInt(address.balance.spendable) }"
+											:styles="{ amount: { size: '13' }, currency: { size: '13' } }"
+										/>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/address/${address.hash}`">
+										<AmountInCurrency
+											:amount="{ value: parseInt(address.balance.delegated) }"
 											:styles="{ amount: { size: '13' }, currency: { size: '13' } }"
 										/>
 									</NuxtLink>
@@ -290,6 +362,16 @@ const handleLast = async () => {
 
 			&:first-child {
 				padding-left: 16px;
+			}
+
+			&.sortable {
+				cursor: pointer;
+			}
+
+			&.sortable:hover {
+				& span {
+					color: var(--txt-secondary);
+				}
 			}
 		}
 
