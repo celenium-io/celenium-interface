@@ -1,6 +1,7 @@
 <script setup>
 /** Components: Modules */
 import AddressOverview from "@/components/modules/address/AddressOverview.vue"
+import AddressCharts from "@/components/modules/address/AddressCharts.vue"
 
 /** API */
 import { fetchAddressByHash } from "@/services/api/address"
@@ -88,28 +89,28 @@ const displayName = computed(() => {
 </script>
 
 <template>
-	<Flex direction="column" wide :class="$style.wrapper">
-		<Breadcrumbs
-			v-if="address"
-			:items="[
-				{ link: '/', name: 'Explore' },
-				{ link: '/addresses', name: 'Addresses' },
-				{ link: route.fullPath, name: `${displayName}` },
-			]"
-			:class="$style.breadcrumbs"
-		/>
+	<Flex direction="column" gap="32" wide :class="$style.wrapper">
+		<Flex direction="column" gap="16">
+			<Breadcrumbs
+				v-if="address"
+				:items="[
+					{ link: '/', name: 'Explore' },
+					{ link: '/addresses', name: 'Addresses' },
+					{ link: route.fullPath, name: `${displayName}` },
+				]"
+				:class="$style.breadcrumbs"
+			/>
 
-		<AddressOverview v-if="address" :address="address" />
+			<AddressOverview v-if="address" :address="address" />
+		</Flex>
+
+		<AddressCharts v-if="address" :hash="address.hash" />
 	</Flex>
 </template>
 
 <style module>
 .wrapper {
 	padding: 20px 24px 60px 24px;
-}
-
-.breadcrumbs {
-	margin-bottom: 16px;
 }
 
 @media (max-width: 500px) {

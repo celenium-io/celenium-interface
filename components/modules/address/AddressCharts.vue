@@ -12,16 +12,16 @@ import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import { abbreviate, formatBytes, tia } from "@/services/utils"
 
 /** API */
-import { fetchRollupSeries } from "@/services/api/stats"
+import { fetchAddressSeries } from "@/services/api/stats"
 
 const props = defineProps({
-	rollup: {
-		type: Object,
+	hash: {
+		type: String,
 		required: true,
 	},
 })
 
-const selectedPeriodIdx = ref(0)
+const selectedPeriodIdx = ref(1)
 const periods = ref([
 	{
 		title: "Last 24 hours",
@@ -43,18 +43,15 @@ const selectedPeriod = computed(() => periods.value[selectedPeriodIdx.value])
 
 /** Charts */
 const chartWrapperEl = ref()
-const sizeSeriesChartEl = ref()
-const pfbSeriesChartEl = ref()
+const txSeriesChartEl = ref()
 const feeSeriesChartEl = ref()
 
 /** Data */
-const sizeSeries = ref([])
-const pfbSeries = ref([])
+const txSeries = ref([])
 const feeSeries = ref([])
 
 /** Tooltip */
-const showSeriesTooltip = ref(false)
-const showPfbTooltip = ref(false)
+const showTxTooltip = ref(false)
 const showFeeTooltip = ref(false)
 const tooltipEl = ref()
 const tooltipXOffset = ref(0)
@@ -186,12 +183,12 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 	chartEl.append(svg.node())
 }
 
-const getSizeSeries = async () => {
-	sizeSeries.value = []
+const getTxSeries = async () => {
+	txSeries.value = []
 
-	const sizeSeriesRawData = await fetchRollupSeries({
-		id: props.rollup.id,
-		name: "size",
+	const txSeriesRawData = await fetchAddressSeries({
+		hash: props.hash,
+		name: "tx_count",
 		timeframe: selectedPeriod.value.timeframe,
 		from: parseInt(
 			DateTime.now().minus({
@@ -201,9 +198,9 @@ const getSizeSeries = async () => {
 		),
 	})
 
-	const sizeSeriesMap = {}
-	sizeSeriesRawData.forEach((item) => {
-		sizeSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] =
+	const txSeriesMap = {}
+	txSeriesRawData.forEach((item) => {
+		txSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] =
 			item.value
 	})
 
@@ -212,41 +209,9 @@ const getSizeSeries = async () => {
 			days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
 			hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - i : 0,
 		})
-		sizeSeries.value.push({
+		txSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseInt(sizeSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
-		})
-	}
-}
-
-const getPfbSeries = async () => {
-	pfbSeries.value = []
-
-	const blobsSeriesRawData = await fetchRollupSeries({
-		id: props.rollup.id,
-		name: "blobs_count",
-		timeframe: selectedPeriod.value.timeframe,
-		from: parseInt(
-			DateTime.now().minus({
-				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
-				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
-			}).ts / 1_000,
-		),
-	})
-
-	const blobsSeriesMap = {}
-	blobsSeriesRawData.forEach((item) => {
-		blobsSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
-	})
-
-	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
-		const dt = DateTime.now().minus({
-			days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
-			hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - i : 0,
-		})
-		pfbSeries.value.push({
-			date: dt.toJSDate(),
-			value: parseInt(blobsSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+			value: parseInt(txSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
 }
@@ -254,8 +219,8 @@ const getPfbSeries = async () => {
 const getFeeSeries = async () => {
 	feeSeries.value = []
 
-	const feeSeriesRawData = await fetchRollupSeries({
-		id: props.rollup.id,
+	const feeSeriesRawData = await fetchAddressSeries({
+		hash: props.hash,
 		name: "fee",
 		timeframe: selectedPeriod.value.timeframe,
 		from: parseInt(
@@ -283,21 +248,13 @@ const getFeeSeries = async () => {
 	}
 }
 
-const buildRollupCharts = async () => {
-	await getSizeSeries()
+const buildCharts = async () => {
+	await getTxSeries()
 	buildChart(
-		sizeSeriesChartEl.value.wrapper,
-		sizeSeries.value,
-		() => (showSeriesTooltip.value = true),
-		() => (showSeriesTooltip.value = false),
-	)
-
-	await getPfbSeries()
-	buildChart(
-		pfbSeriesChartEl.value.wrapper,
-		pfbSeries.value,
-		() => (showPfbTooltip.value = true),
-		() => (showPfbTooltip.value = false),
+		txSeriesChartEl.value.wrapper,
+		txSeries.value,
+		() => (showTxTooltip.value = true),
+		() => (showTxTooltip.value = false),
 	)
 
 	await getFeeSeries()
@@ -312,18 +269,18 @@ const buildRollupCharts = async () => {
 watch(
 	() => selectedPeriodIdx.value,
 	() => {
-		buildRollupCharts()
+		buildCharts()
 	},
 )
 
 const debouncedRedraw = useDebounceFn((e) => {
-	buildRollupCharts()
+	buildCharts()
 }, 500)
 
 onMounted(async () => {
 	window.addEventListener("resize", debouncedRedraw)
 
-	buildRollupCharts()
+	buildCharts()
 })
 
 onBeforeUnmount(() => {
@@ -359,40 +316,40 @@ onBeforeUnmount(() => {
 		<Flex direction="column">
 			<Flex justify="between" gap="32" :class="[$style.data, $style.top]">
 				<Flex direction="column" gap="20" wide>
-					<Text size="13" weight="600" color="primary">DA Usage</Text>
+					<Text size="13" weight="600" color="primary">Txs</Text>
 
 					<Flex ref="chartWrapperEl" direction="column" :class="$style.chart_wrapper">
 						<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">
 							<Text
-								v-if="sizeSeries.length"
+								v-if="txSeries.length"
 								size="12"
 								weight="600"
 								color="tertiary"
-								:style="{ opacity: Math.max(...sizeSeries.map((d) => d.value)) ? 1 : 0 }"
+								:style="{ opacity: Math.max(...txSeries.map((d) => d.value)) ? 1 : 0 }"
 							>
-								{{ formatBytes(Math.max(...sizeSeries.map((d) => d.value)), 0) }}
+								{{ abbreviate(Math.max(...txSeries.map((d) => d.value)), 0) }}
 							</Text>
-							<Skeleton v-else-if="!sizeSeries.length" w="32" h="12" />
+							<Skeleton v-else-if="!txSeries.length" w="32" h="12" />
 
 							<Text
-								v-if="sizeSeries.length"
+								v-if="txSeries.length"
 								size="12"
 								weight="600"
 								color="tertiary"
 								:style="{
 									opacity:
-										Math.round(Math.max(...sizeSeries.map((d) => d.value)) / 2) !==
-										Math.max(...sizeSeries.map((d) => d.value))
+										Math.round(Math.max(...txSeries.map((d) => d.value)) / 2) !==
+										Math.max(...txSeries.map((d) => d.value))
 											? 1
 											: 0,
 								}"
 							>
-								{{ formatBytes(Math.round(Math.max(...sizeSeries.map((d) => d.value)) / 2), 0) }}
+								{{ abbreviate(Math.round(Math.max(...txSeries.map((d) => d.value)) / 2), 0) }}
 							</Text>
-							<Skeleton v-else-if="!sizeSeries.length" w="24" h="12" />
+							<Skeleton v-else-if="!txSeries.length" w="24" h="12" />
 
-							<Text v-if="sizeSeries.length" size="12" weight="600" color="tertiary"> 0 </Text>
-							<Skeleton v-else-if="!sizeSeries.length" w="16" h="12" />
+							<Text v-if="txSeries.length" size="12" weight="600" color="tertiary"> 0 </Text>
+							<Skeleton v-else-if="!txSeries.length" w="16" h="12" />
 						</Flex>
 
 						<Flex :class="[$style.axis, $style.x]">
@@ -413,7 +370,7 @@ onBeforeUnmount(() => {
 						</Flex>
 
 						<Transition name="fastfade">
-							<div v-if="showSeriesTooltip" :class="$style.tooltip_wrapper">
+							<div v-if="showTxTooltip" :class="$style.tooltip_wrapper">
 								<div
 									:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
 									:class="$style.dot"
@@ -436,107 +393,17 @@ onBeforeUnmount(() => {
 									:class="$style.tooltip"
 								>
 									<Flex align="center" gap="16">
-										<Text size="12" weight="600" color="secondary">Usage</Text>
-										<Text size="12" weight="600" color="primary"> {{ formatBytes(tooltipText) }} </Text>
+										<Text size="12" weight="600" color="secondary">Txs</Text>
+										<Text size="12" weight="600" color="primary"> {{ tooltipText }} </Text>
 									</Flex>
 								</Flex>
 							</div>
 						</Transition>
 
-						<Flex ref="sizeSeriesChartEl" :class="$style.chart" />
+						<Flex ref="txSeriesChartEl" :class="$style.chart" />
 					</Flex>
 				</Flex>
 
-				<Flex direction="column" gap="20" wide>
-					<Text size="13" weight="600" color="primary">Blobs Count</Text>
-
-					<Flex direction="column" :class="$style.chart_wrapper">
-						<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">
-							<Text
-								v-if="pfbSeries.length"
-								size="12"
-								weight="600"
-								color="tertiary"
-								:style="{ opacity: Math.max(...pfbSeries.map((d) => d.value)) ? 1 : 0 }"
-							>
-								{{ abbreviate(Math.max(...pfbSeries.map((d) => d.value)), 0) }}
-							</Text>
-							<Skeleton v-else-if="!pfbSeries.length" w="32" h="12" />
-
-							<Text
-								v-if="pfbSeries.length"
-								size="12"
-								weight="600"
-								color="tertiary"
-								:style="{
-									opacity:
-										Math.round(Math.max(...pfbSeries.map((d) => d.value)) / 2) != Math.max(...pfbSeries.map((d) => d.value))
-											? 1
-											: 0,
-								}"
-							>
-								{{ abbreviate(Math.round(Math.max(...pfbSeries.map((d) => d.value)) / 2), 0) }}
-							</Text>
-							<Skeleton v-else-if="!pfbSeries.length" w="24" h="12" />
-
-							<Text v-if="pfbSeries.length" size="12" weight="600" color="tertiary"> 0 </Text>
-							<Skeleton v-else-if="!pfbSeries.length" w="16" h="12" />
-						</Flex>
-
-						<Flex :class="[$style.axis, $style.x]">
-							<Flex align="end" justify="between" wide>
-								<Text v-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">
-									{{
-										DateTime.now()
-											.minus({ days: selectedPeriod.value - 1 })
-											.toFormat("LLL dd")
-									}}
-								</Text>
-								<Text v-else size="12" weight="600" color="tertiary">
-									{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
-								</Text>
-
-								<Text size="12" weight="600" color="tertiary">{{ selectedPeriod.timeframe === "day" ? "Today" : "Now" }}</Text>
-							</Flex>
-						</Flex>
-
-						<Transition name="fastfade">
-							<div v-if="showPfbTooltip" :class="$style.tooltip_wrapper">
-								<div
-									:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
-									:class="$style.dot"
-								/>
-								<div :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
-								<div
-									ref="badgeEl"
-									:style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"
-									:class="$style.badge"
-								>
-									<Text size="12" weight="600" color="secondary">
-										{{ badgeText }}
-									</Text>
-								</div>
-								<Flex
-									ref="tooltipEl"
-									:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYDataOffset - 40}px)` }"
-									direction="column"
-									gap="8"
-									:class="$style.tooltip"
-								>
-									<Flex align="center" gap="16">
-										<Text size="12" weight="600" color="secondary">Count</Text>
-										<Text size="12" weight="600" color="primary"> {{ abbreviate(tooltipText) }} </Text>
-									</Flex>
-								</Flex>
-							</div>
-						</Transition>
-
-						<Flex ref="pfbSeriesChartEl" :class="$style.chart" />
-					</Flex>
-				</Flex>
-			</Flex>
-
-			<Flex justify="between" gap="32" :class="[$style.data, $style.bottom]">
 				<Flex direction="column" gap="20" wide>
 					<Text size="13" weight="600" color="primary">Fee Spent</Text>
 
