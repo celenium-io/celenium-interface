@@ -43,21 +43,26 @@ const getSquareSizes = async () => {
 	const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#65efcc", "#142f28"]))
         .domain([0, squareSize.value.length])
 
-	let totalShare = 0
+	let totalSquares = 0
 	squareSize.value.forEach((item, index) => {
 		item.color = color(index)
 
-		if (index !== squareSize.value.length - 1) {
-			let share = Math.min(Math.round((item.value / total.value * 100)), 1)
-			totalShare += share
-			item.share = share
-		} else {
-			item.share = 100 - totalShare
-		}
+		let share = Math.floor((item.value / total.value * 100))
+		totalSquares += Math.max(share, 1)
+		item.share = share
+		item.squares = Math.max(share, 1)
 	})
 
+	if (totalSquares > 100) {
+		let maxSquaresIndex = squareSize.value.reduce((maxIndex, current, index, array) => {
+			return (current.squares > array[maxIndex].squares) ? index : maxIndex
+		}, 0)
+		
+		squareSize.value[maxSquaresIndex].squares = squareSize.value[maxSquaresIndex].squares - (totalSquares - 100)
+	}
+	
 	squareSize.value.forEach(item => {
-		for (let i = 0; i < item.share; i++) {
+		for (let i = 0; i < item.squares; i++) {
 			squareSizeGraph.value.push({
 				size: item.size,
 				color: item.color,
