@@ -18,6 +18,11 @@ const plans = reactive([
 			monthly: null,
 			annually: null,
 		},
+		stripe: {
+			monthly: null,
+			annually: null,
+		},
+
 		requests: {
 			rps: 3,
 			rpd: 100_000,
@@ -38,6 +43,11 @@ const plans = reactive([
 			monthly: 149,
 			annually: 119,
 		},
+		stripe: {
+			monthly: "cN2dTe5ygb0V9DG6oo",
+			annually: "7sI8yU5ygd934jm001",
+		},
+
 		requests: {
 			rps: 10,
 			rpd: 500_000,
@@ -58,6 +68,11 @@ const plans = reactive([
 			monthly: 149,
 			annually: 119,
 		},
+		stripe: {
+			monthly: "fZe7uQ1i0glfdTW5km",
+			annually: "eVaaH2f8Qb0VbLOcMP",
+		},
+
 		requests: {
 			rps: 10,
 			rpd: 500_000,
@@ -78,6 +93,11 @@ const plans = reactive([
 			monthly: 299,
 			annually: 239,
 		},
+		stripe: {
+			monthly: "00g2aw4ucfhbbLObIM",
+			annually: "eVa02o1i05GBaHK9AF",
+		},
+
 		requests: {
 			rps: 30,
 			rpd: 1_500_000,
@@ -95,6 +115,13 @@ const plans = reactive([
 ])
 const selectedPlan = ref(0)
 const selectedBilling = ref("annually")
+
+const getPaymentLink = () => {
+	const key = plans[selectedPlan.value].stripe[selectedBilling.value]
+
+	if (!key) return
+	return `https://buy.stripe.com/${key}`
+}
 </script>
 
 <template>
@@ -194,14 +221,20 @@ const selectedBilling = ref("annually")
 
 						<Flex direction="column" align="center" gap="8">
 							<Button
-								link="https://api-docs.celenium.io/"
+								:link="getPaymentLink() || 'https://api-docs.celenium.io'"
 								target="_blank"
 								type="primary"
 								size="small"
-								:disabled="plans[selectedPlan].name !== 'Basic'"
+								:disabled="!getPaymentLink() && plans[selectedPlan].name !== 'Basic'"
 								wide
 							>
-								<Text color="black">Start with {{ plans[selectedPlan].name }}</Text>
+								<Text color="black">
+									{{
+										getPaymentLink() || plans[selectedPlan].name === "Basic"
+											? `Start with ${plans[selectedPlan].name}`
+											: "Not Available"
+									}}
+								</Text>
 							</Button>
 
 							<Text size="12" weight="500" color="tertiary">Secure payment via Stripe</Text>
