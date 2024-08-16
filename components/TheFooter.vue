@@ -212,7 +212,7 @@ const handleChangeTheme = (target) => {
 			</Flex>
 
 			<a href="https://www.pklabs.me/" target="_blank" style="line-height: 12px">
-				<Text size="12" weight="500" color="tertiary">Made by PK Lab</Text>
+				<Text size="12" weight="500" color="tertiary">Made by PK Labs</Text>
 			</a>
 		</Flex>
 	</Flex>
