@@ -221,7 +221,7 @@ const getPaymentLink = () => {
 
 						<Flex direction="column" align="center" gap="8">
 							<Button
-								:link="getPaymentLink()"
+								:link="getPaymentLink() || 'https://api-docs.celenium.io'"
 								target="_blank"
 								type="primary"
 								size="small"
