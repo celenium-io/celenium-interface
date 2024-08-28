@@ -1,0 +1,32 @@
+{
+  "name": "lumina-node-wasm",
+  "type": "module",
+  "collaborators": [
+    "Eiger <hello@eiger.co>"
+  ],
+  "description": "Browser compatibility layer for the Lumina node",
+  "version": "0.1.1",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eigerco/lumina"
+  },
+  "files": [
+    "lumina_node_wasm_bg.wasm",
+    "lumina_node_wasm.js",
+    "lumina_node_wasm.d.ts"
+  ],
+  "main": "lumina_node_wasm.js",
+  "homepage": "https://www.eiger.co",
+  "types": "lumina_node_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ],
+  "keywords": [
+    "blockchain",
+    "celestia",
+    "lumina",
+    "node",
+    "browser"
+  ]
+}

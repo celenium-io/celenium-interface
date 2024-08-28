@@ -16,6 +16,7 @@ import StakingModal from "./StakingModal.vue"
 import VestingDetailsModal from "./VestingDetailsModal.vue"
 import HexSettingsModal from "./HexSettingsModal.vue"
 import APIModal from "./APIModal.vue"
+import LightNodeModal from "./LightNodeModal.vue"
 
 /** Store */
 import { useModalsStore } from "@/store/modals"
@@ -40,4 +41,5 @@ const modalsStore = useModalsStore()
 	<StakingModal :show="modalsStore.modals.staking" @onClose="modalsStore.close('staking')" />
 	<HexSettingsModal :show="modalsStore.modals.hexSettings" @onClose="modalsStore.close('hexSettings')" />
 	<APIModal :show="modalsStore.modals.api" @onClose="modalsStore.close('api')" />
+	<LightNodeModal :show="modalsStore.modals.lightNode" @onClose="modalsStore.close('lightNode')" />
 </template>

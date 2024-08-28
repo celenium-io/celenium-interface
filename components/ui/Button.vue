@@ -38,7 +38,7 @@ const props = defineProps({
 const style = useCssModule()
 
 const getStyles = () => {
-	const hasCorrectSize = ["large", "medium", "small", "mini"].includes(props.size)
+	const hasCorrectSize = ["large", "medium", "small", "mini", "dynamic"].includes(props.size)
 
 	return [
 		style.wrapper,
@@ -111,6 +111,14 @@ const getStyles = () => {
 }
 
 /** SIZES */
+.wrapper.dynamic {
+	height: initial;
+
+	border-radius: 8px;
+
+	padding: 8px 0;
+}
+
 .wrapper.large {
 	height: 44px;
 	font-size: 14px;

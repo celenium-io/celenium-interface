@@ -55,7 +55,7 @@ onMounted(async () => {
 <template>
 	<CommandMenu :show="appStore.showCmd" />
 
-	<NuxtLoadingIndicator height="2" color="#0ade71" />
+	<NuxtLoadingIndicator :height="2" color="#0ade71" />
 	<NuxtLayout>
 		<NuxtPage />
 

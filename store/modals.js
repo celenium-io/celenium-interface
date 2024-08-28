@@ -26,6 +26,7 @@ export const useModalsStore = defineStore("modals", () => {
 		vestingDetails: false,
 		hexSettings: false,
 		api: false,
+		lightNode: false,
 	})
 
 	const open = (target) => {
