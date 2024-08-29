@@ -241,9 +241,7 @@ const handleStart = async () => {
 
 		node.value = await new NodeClient(MyWorker)
 
-		console.log(node.value)
 		const events = await node.value.events_channel()
-		console.log(events)
 		events.onmessage = onNodeEvent
 
 		await node.value.start(config.value)
