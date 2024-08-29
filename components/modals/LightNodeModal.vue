@@ -1,7 +1,9 @@
 <script setup>
+import MyWorker from "@/assets/workers/worker.js?worker&url"
+
 /** Vendor */
 import { DateTime } from "luxon"
-import init, { NodeClient, NodeConfig, Network } from "@/services/lumina-node-wasm"
+import init, { NodeClient, NodeConfig, Network } from "@/services/lumina-node-wasm/index.js"
 
 /** UI */
 import Modal from "@/components/ui/Modal.vue"
@@ -24,6 +26,13 @@ const nodeStore = useNodeStore()
 const emit = defineEmits(["onClose"])
 const props = defineProps({
 	show: Boolean,
+})
+
+onMounted(async () => {
+	await init()
+	initConfig()
+
+	nodeStore.status = StatusMap.Initialized
 })
 
 const status = computed(() => nodeStore.status)
@@ -116,13 +125,6 @@ const initConfig = () => {
 
 	bootnodesTerm.value = bootnodes.value.join("\n")
 }
-
-onMounted(async () => {
-	await init()
-	initConfig()
-
-	nodeStore.status = StatusMap.Initialized
-})
 
 watch(
 	() => showBootnodes.value,
@@ -237,10 +239,11 @@ const handleStart = async () => {
 			}
 		}
 
-		const workerUrl = new URL("@/assets/workers/worker.js", import.meta.url)
-		node.value = await new NodeClient(workerUrl.toJSON())
+		node.value = await new NodeClient(MyWorker)
 
+		console.log(node.value)
 		const events = await node.value.events_channel()
+		console.log(events)
 		events.onmessage = onNodeEvent
 
 		await node.value.start(config.value)
