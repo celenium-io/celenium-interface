@@ -534,12 +534,6 @@ const handleStart = async () => {
 </template>
 
 <style module>
-@property --x {
-	syntax: "<percentage>";
-	inherits: false;
-	initial-value: 0%;
-}
-
 .card {
 	position: relative;
 
@@ -555,58 +549,58 @@ const handleStart = async () => {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	left: 0;
+	left: -200px;
 	right: 0;
 
 	&.starting {
 		background: radial-gradient(
-				ellipse farthest-corner at var(--x) 0%,
+				ellipse farthest-corner at 50% 0%,
 				rgba(230, 197, 37, 25%) 0%,
 				rgba(230, 197, 37, 5%) 70%,
 				rgba(230, 197, 37, 0%) 100%
 			),
 			radial-gradient(ellipse at bottom, rgba(230, 197, 37, 10%), transparent);
-		animation: colorChange 4s infinite alternate;
+		animation: colorChange 6s infinite alternate;
 	}
 
 	&.started {
 		background: radial-gradient(
-				ellipse farthest-corner at var(--x) 0%,
+				ellipse farthest-corner at 50% 0%,
 				rgba(24, 210, 165, 25%) 0%,
 				rgba(24, 210, 165, 5%) 70%,
 				rgba(24, 210, 165, 0%) 100%
 			),
 			radial-gradient(ellipse at bottom, rgba(24, 210, 165, 10%), transparent);
-		animation: colorChange 4s infinite alternate;
+		animation: colorChange 6s infinite alternate;
 	}
 
 	&.failed {
 		background: radial-gradient(
-				ellipse farthest-corner at var(--x) 0%,
+				ellipse farthest-corner at 50% 0%,
 				rgba(235, 87, 87, 25%) 0%,
 				rgba(235, 87, 87, 5%) 70%,
 				rgba(235, 87, 87, 0%) 100%
 			),
 			radial-gradient(ellipse at bottom, rgba(235, 87, 87, 10%), transparent);
-		animation: colorChange 4s infinite alternate;
+		animation: colorChange 6s infinite alternate;
 	}
 }
 
 @keyframes colorChange {
 	0% {
-		--x: 0%;
-
 		opacity: 1;
+		left: -200px;
+		right: 0;
 	}
 	50% {
-		--x: 50%;
-
 		opacity: 0.5;
+		left: 0;
+		right: -200px;
 	}
 	100% {
-		--x: 100%;
-
 		opacity: 1;
+		left: -200px;
+		right: 0;
 	}
 }
 
