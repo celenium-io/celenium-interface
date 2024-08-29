@@ -67,7 +67,7 @@ switch (hostname) {
 		break
 
 	default:
-		selectedNetwork.value = Network.Mainnet
+		selectedNetwork.value = Network.Arabica
 		break
 }
 
