@@ -15,6 +15,7 @@ import Spinner from "@/components/ui/Spinner.vue"
 import { StatusMap, StatusLabelMap, NodeSpeedMap, NodeSpeedLabelMap } from "@/services/constants/node.js"
 
 /** Services */
+import amp from "@/services/amp"
 import { comma } from "@/services/utils"
 
 /** Stores */
@@ -90,6 +91,9 @@ const resizeTextarea = () => {
 }
 const handleTextareaKeyup = () => {
 	resizeTextarea()
+
+	config.value.bootnodes = bootnodesTerm.value.split("\n").filter((b) => b.length)
+	bootnodes.value = config.value.bootnodes
 }
 
 const startTime = ref()
@@ -105,6 +109,8 @@ const shares = ref({})
 
 const latestEventsTime = ref()
 const rawEvents = ref([])
+const isPausedReceivingEvents = ref(false)
+
 const speed = ref(NodeSpeedMap.Fast)
 const getEventsLogIconColor = () => {
 	switch (speed.value) {
@@ -184,6 +190,7 @@ const syncingPercentage = (ranges) => {
 
 const handleStart = async () => {
 	nodeStore.status = StatusMap.Starting
+	amp.log("sampling:start")
 
 	try {
 		const logVisual = (event) => {
@@ -205,6 +212,7 @@ const handleStart = async () => {
 			const storedRanges = normalizeStoredRanges(info.subjective_head, info.stored_headers)
 
 			backwardsSyncProgress.value = syncingPercentage(storedRanges)
+			nodeStore.percentage = backwardsSyncProgress.value
 		}
 
 		const onNodeEvent = async (event) => {
@@ -214,7 +222,13 @@ const handleStart = async () => {
 
 			const event_data = event.data.get("event")
 			if (event_data.type !== "share_sampling_result") {
-				rawEvents.value.unshift(event.data.get("message"))
+				if (!isPausedReceivingEvents.value) {
+					rawEvents.value.unshift(event.data.get("message"))
+					if (rawEvents.value.length > 100) {
+						rawEvents.value = rawEvents.value.slice(0, 20)
+					}
+				}
+
 				latestEventsTime.value = DateTime.now()
 			}
 
@@ -263,15 +277,26 @@ const handleStart = async () => {
 		}, 1_000)
 
 		nodeStore.status = StatusMap.Started
+		amp.log("sampling:started")
 
 		pid.value = await node.value.local_peer_id()
 	} catch (error) {
 		nodeStore.status = StatusMap.Failed
+		amp.log("sampling:failed")
 
 		console.error("Error initializing Node:", error)
 		console.dir(error)
 	}
 }
+
+watch(
+	() => props.show,
+	() => {
+		if (props.show) {
+			amp.log("sampling:open")
+		}
+	},
+)
 </script>
 
 <template>
@@ -303,7 +328,16 @@ const handleStart = async () => {
 							</Text>
 						</Flex>
 
-						<Icon name="info" size="14" color="tertiary" />
+						<Tooltip position="end">
+							<Icon name="info" size="14" color="tertiary" />
+
+							<template #content>
+								<Flex align="end" direction="column" gap="6">
+									<Text>Light node tooltip (WIP)</Text>
+									<Text color="tertiary"></Text>
+								</Flex>
+							</template>
+						</Tooltip>
 					</Flex>
 
 					<Flex direction="column" gap="8">
@@ -311,7 +345,7 @@ const handleStart = async () => {
 							<Text size="13" weight="600" color="primary">Backwards syncing headers</Text>
 
 							<Text v-if="backwardsSyncProgress" size="12" weight="600" color="secondary">
-								{{ `${backwardsSyncProgress.toFixed(2)}%` }}
+								{{ `${backwardsSyncProgress.toFixed(backwardsSyncProgress !== 100 ? 2 : 0)}%` }}
 							</Text>
 							<Spinner
 								v-else-if="!backwardsSyncProgress && [StatusMap.Starting, StatusMap.Started].includes(status)"
@@ -333,7 +367,7 @@ const handleStart = async () => {
 							>
 								<div
 									v-for="bar in 5"
-									:class="[$style.bar, ((bar + (group - 1) * 5) * 100) / 15 < backwardsSyncProgress && $style.active]"
+									:class="[$style.bar, ((bar + (group - 1) * 5) * 100) / 15 <= backwardsSyncProgress && $style.active]"
 								/>
 							</Flex>
 						</Flex>
@@ -398,23 +432,38 @@ const handleStart = async () => {
 							<Flex align="center" justify="between">
 								<Text size="12" weight="600" color="tertiary"> Peer ID </Text>
 
-								<Text v-if="pid" size="12" weight="600" color="secondary">{{ pid.slice(0, 4) }}...{{ pid.slice(-4) }}</Text>
-								<Text v-else size="12" weight="600" color="tertiary">Unknown</Text>
+								<Flex align="center" gap="8">
+									<template v-if="pid">
+										<Text size="12" weight="600" color="secondary">{{ pid.slice(0, 4) }}...{{ pid.slice(-4) }}</Text>
+										<CopyButton :text="pid" size="12" />
+									</template>
+									<Text v-else size="12" weight="600" color="tertiary">Unknown</Text>
+								</Flex>
 							</Flex>
 
 							<Flex align="center" justify="between">
 								<Text size="12" weight="600" color="tertiary"> Hash </Text>
 
-								<Text v-if="hash" size="12" weight="600" color="secondary">
-									{{ hash.slice(0, 4) }}...{{ hash.slice(-4) }}
-								</Text>
-								<Text v-else size="12" weight="600" color="tertiary"> Unknown </Text>
+								<Flex align="center" gap="8">
+									<template v-if="hash">
+										<Text size="12" weight="600" color="secondary">
+											{{ hash.slice(0, 4) }}...{{ hash.slice(-4) }}
+										</Text>
+										<CopyButton :text="hash" size="12" />
+									</template>
+									<Text v-else size="12" weight="600" color="tertiary"> Unknown </Text>
+								</Flex>
 							</Flex>
 						</Flex>
 					</Flex>
 
 					<Flex direction="column" gap="4" :class="$style.secondary_card">
-						<Flex @click="showLogs = !showLogs" align="center" justify="between" :class="$style.header">
+						<Flex
+							@click="showLogs = !showLogs"
+							align="center"
+							justify="between"
+							:class="[$style.header, status !== StatusMap.Started && $style.disabled]"
+						>
 							<Flex align="center" gap="6">
 								<Text size="12" weight="600" color="secondary">Events Logs</Text>
 								<Icon
@@ -434,9 +483,25 @@ const handleStart = async () => {
 						</Flex>
 
 						<Flex v-if="showLogs" direction="column" gap="12" :class="$style.raw_events">
-							<Text size="11" weight="500" color="secondary">
-								{{ status === StatusMap.Started ? `Latest 20 events, speed - ${NodeSpeedLabelMap[speed]}` : "No events" }}
-							</Text>
+							<Flex align="center" justify="between">
+								<Text size="12" weight="500" color="secondary">
+									{{
+										status === StatusMap.Started ? `Latest 20 events, speed - ${NodeSpeedLabelMap[speed]}` : "No events"
+									}}
+								</Text>
+
+								<Flex
+									@click="isPausedReceivingEvents = !isPausedReceivingEvents"
+									align="center"
+									gap="4"
+									style="cursor: pointer"
+								>
+									<Icon :name="isPausedReceivingEvents ? 'play-circle' : 'stop-circle'" size="12" color="primary" />
+									<Text size="12" weight="600" color="secondary">
+										{{ isPausedReceivingEvents ? "Receive Events" : "Pause Events" }}
+									</Text>
+								</Flex>
+							</Flex>
 
 							<Text v-for="event in rawEvents.slice(0, 20)" size="11" weight="500" color="tertiary" height="140">
 								{{ event }}
@@ -462,20 +527,29 @@ const handleStart = async () => {
 								ref="textareaEl"
 								v-model="bootnodesTerm"
 								@keyup="handleTextareaKeyup"
-								:class="$style.bootnodes_container"
+								:class="[$style.bootnodes_container, status === StatusMap.Started && $style.disabled]"
 							>
 							</textarea>
 
 							<Flex align="center" gap="4" wide>
 								<Icon name="info" size="12" color="tertiary" />
-								<Text size="12" weight="600" color="tertiary"> Each address on a new line </Text>
+								<Text size="12" weight="600" color="tertiary"> Each address on a new line. </Text>
+								<Text v-if="status === StatusMap.Started" size="12" weight="600" color="tertiary"> Editing disabled. </Text>
 							</Flex>
 						</Flex>
 					</Flex>
 
 					<Flex direction="column" gap="4" :class="$style.secondary_card">
-						<Flex @click="showSquare = !showSquare" align="center" justify="between" :class="$style.header">
-							<Text size="12" weight="600" color="secondary">Square Visualization</Text>
+						<Flex
+							@click="showSquare = !showSquare"
+							align="center"
+							justify="between"
+							:class="[$style.header, status !== StatusMap.Started && $style.disabled]"
+						>
+							<Text size="12" weight="600" color="secondary">
+								Square Visualization <Text color="tertiary">for {{ comma(frontHead) }}</Text>
+							</Text>
+
 							<Icon
 								name="chevron"
 								size="12"
@@ -499,16 +573,28 @@ const handleStart = async () => {
 				</Flex>
 
 				<Flex align="center" direction="column" gap="12">
-					<Button
-						@click="handleStart"
-						type="secondary"
-						size="small"
-						wide
-						:disabled="[StatusMap.Starting, StatusMap.Started].includes(status)"
-					>
-						<Icon v-if="status === StatusMap.Started" name="zap" size="12" color="brand" />
-						{{ status === StatusMap.Started ? `Light Node running for ${networks[selectedNetwork]}` : "Start Sampling" }}
-					</Button>
+					<Tooltip wide :disabled="status !== StatusMap.Started">
+						<Flex
+							@click="handleStart"
+							wide
+							align="center"
+							direction="column"
+							gap="6"
+							:class="[
+								$style.start_btn,
+								([StatusMap.Starting, StatusMap.Started].includes(status) || !bootnodes.length) && $style.disabled,
+							]"
+						>
+							<Text size="13" weight="600" color="black">
+								{{ status === StatusMap.Started ? "Running the Light Node" : "Start the Light Node" }}
+							</Text>
+							<Text size="12" weight="600" color="black"> {{ networks[selectedNetwork] }} Network </Text>
+						</Flex>
+
+						<template #content> To stop the light node - refresh the tab (F5) </template>
+					</Tooltip>
+
+					<Text size="11" weight="500" color="tertiary">Powered by Lumina.rs</Text>
 
 					<Flex v-if="showWarning" wide gap="8" :class="$style.warning">
 						<Icon name="info" size="16" color="yellow" />
@@ -614,6 +700,14 @@ const handleStart = async () => {
 	border-radius: 8px;
 
 	padding: 12px;
+
+	transition: all 0.3s ease;
+
+	&.disabled {
+		pointer-events: none;
+
+		opacity: 0.4;
+	}
 }
 
 .content {
@@ -691,6 +785,12 @@ const handleStart = async () => {
 	font-weight: 500;
 	color: var(--txt-secondary);
 	white-space: nowrap;
+
+	&.disabled {
+		pointer-events: none;
+
+		color: var(--txt-tertiary);
+	}
 }
 
 .warning {
@@ -717,6 +817,39 @@ const handleStart = async () => {
 
 	&.tertiary {
 		animation: eventsIconBlinkSilence 2s ease infinite;
+	}
+}
+
+.start_btn {
+	background: var(--btn-white-bg);
+	border-radius: 8px;
+	cursor: pointer;
+	user-select: none;
+
+	padding: 8px 0;
+
+	transition: all 0.2s ease;
+
+	& span:nth-child(2) {
+		opacity: 0.5;
+	}
+
+	&:hover {
+		background: var(--btn-white-bg-hover);
+	}
+
+	&.disabled {
+		opacity: 0.5;
+		pointer-events: none;
+		background: var(--op-10);
+
+		& span:nth-child(1) {
+			color: var(--txt-primary);
+		}
+
+		& span:nth-child(2) {
+			color: var(--txt-secondary);
+		}
 	}
 }
 

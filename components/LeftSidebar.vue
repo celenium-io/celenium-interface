@@ -151,13 +151,6 @@ const newLinks = reactive([
 			modalsStore.open("api")
 		},
 	},
-	{
-		icon: "block",
-		name: "Run Light Node",
-		callback: () => {
-			modalsStore.open("api")
-		},
-	},
 ])
 
 const handleNavigate = (url) => {
@@ -239,18 +232,19 @@ const handleNavigate = (url) => {
 				<Flex align="center" gap="8">
 					<Icon
 						v-if="nodeStore.status === StatusMap.Started"
-						name="zap"
-						size="12"
+						name="lumina"
+						size="14"
 						color="brand"
 						:class="$style.light_node_running_icon"
 					/>
-					<Icon v-else name="block" size="12" color="secondary" />
+					<Icon v-else name="lumina" size="14" color="secondary" />
 
 					<Text v-if="nodeStore.status === StatusMap.Started" size="13" weight="600" color="primary">Running</Text>
-					<Text size="13" weight="600" color="secondary">Light Node</Text>
+					<Text size="13" weight="600" color="secondary">Node</Text>
 				</Flex>
 
-				<Icon name="arrow-narrow-right" size="14" color="secondary" />
+				<Icon v-if="nodeStore.status !== StatusMap.Started" name="arrow-narrow-right" size="14" color="secondary" />
+				<Text v-else size="12" weight="600" color="tertiary">{{ nodeStore.percentage.toFixed(0) }}%</Text>
 			</Flex>
 
 			<!-- <Flex justify="end" :class="$style.ad">
@@ -265,7 +259,7 @@ const handleNavigate = (url) => {
 			<Dropdown position="end" fullWidth>
 				<Flex align="center" gap="8" justify="between" :class="$style.network_selector">
 					<Flex align="center" gap="8">
-						<Icon name="globe" size="12" :color="head.synced ? 'brand' : 'red'" />
+						<Icon name="globe" size="14" :color="head.synced ? 'brand' : 'red'" />
 						<Text size="13" weight="600" color="secondary">
 							{{ getNetworkName() }}
 						</Text>
