@@ -109,7 +109,8 @@ export const STATS_SERIES = [
 				units: 'utia',
 			},
 		],
-	},]
+	},
+]
 
 // TO DO: Replace forEach with for
 export function getSeriesByGroupAndType(group, type) {

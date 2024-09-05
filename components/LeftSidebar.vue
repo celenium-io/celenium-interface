@@ -4,6 +4,7 @@ import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem, DropdownTitle, DropdownDivider } from "@/components/ui/Dropdown"
 
 /** Components */
+import AdvBanner from "@/components/shared/AdvBanner.vue"
 import NavLink from "@/components/modules/navigation/NavLink.vue"
 
 /** Utils */
@@ -14,6 +15,10 @@ import { useAppStore } from "~/store/app"
 import { useModalsStore } from "~/store/modals"
 const appStore = useAppStore()
 const modalsStore = useModalsStore()
+
+const { isMobile } = useDevice()
+console.log('useDevice()', useDevice());
+console.log('isMobile', isMobile);
 
 const head = computed(() => appStore.lastHead)
 
@@ -222,6 +227,8 @@ const handleNavigate = (url) => {
 					<NavLink v-for="link in newLinks" :link="link" @onClose="appStore.showSidebar = false" />
 				</Flex>
 			</Flex>
+
+			<AdvBanner />
 		</Flex>
 
 		<Flex direction="column" gap="12" style="margin-right: 20px">
