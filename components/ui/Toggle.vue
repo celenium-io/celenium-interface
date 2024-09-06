@@ -3,7 +3,7 @@ const props = defineProps({
 	modelValue: { type: Boolean, default: false },
 	disabled: { type: Boolean, default: false },
 	protected: { type: Boolean, default: false },
-	color: { type: Boolean, default: "var(--neutral-green)" },
+	color: { type: String, default: "var(--brand)" },
 })
 const emit = defineEmits(["update:modelValue"])
 
@@ -15,7 +15,12 @@ const toggle = () => {
 </script>
 
 <template>
-	<div @click="toggle" :class="[$style.wrapper, modelValue && $style.active]" :style="{ background: modelValue ? props.color : '' }" tabindex="1">
+	<div
+		@click="toggle"
+		:class="[$style.wrapper, modelValue && $style.active]"
+		:style="{ background: modelValue ? props.color : '' }"
+		tabindex="1"
+	>
 		<div v-if="!disabled" :class="[$style.slider, modelValue && $style.active]" />
 
 		<div v-else :class="$style.lock">
@@ -68,7 +73,7 @@ const toggle = () => {
 }
 
 .lock svg {
-	fill: var(--text-secondary);
+	fill: var(--txt-primary);
 }
 
 .wrapper.active {

@@ -21,8 +21,17 @@ import { comma } from "@/services/utils"
 /** Stores */
 import { useAppStore } from "@/store/app.js"
 import { useNodeStore } from "@/store/node.js"
+import { useModalsStore } from "@/store/modals.js"
+import { useNotificationsStore } from "@/store/notifications"
 const appStore = useAppStore()
 const nodeStore = useNodeStore()
+const modalsStore = useModalsStore()
+const notificationsStore = useNotificationsStore()
+
+const showMobileWarning = useCookie("showMobileWarning", { default: () => true })
+const showOnboardingBanner = useCookie("showOnboardingBanner", { default: () => true })
+
+const { isMobile } = useDevice()
 
 const emit = defineEmits(["onClose"])
 const props = defineProps({
@@ -34,6 +43,72 @@ onMounted(async () => {
 	initConfig()
 
 	nodeStore.status = StatusMap.Initialized
+
+	nodeStore.settings.network = networks[selectedNetwork.value]
+
+	/** autostart */
+	if (nodeStore.settings.autostart) {
+		const delayedStart = setTimeout(() => {
+			handleStart()
+
+			amp.log("sampling:autostartTrigger", { network: networks[selectedNetwork.value], mobile: isMobile })
+
+			setTimeout(() => {
+				notificationsStore.create({
+					notification: {
+						type: "success",
+						icon: "lumina",
+						title: `Starting the light node`,
+						autoDestroy: true,
+						actions: [
+							{
+								icon: "arrow-narrow-up-right",
+								name: "View ",
+								callback: () => {
+									modalsStore.open("lightNode")
+								},
+							},
+						],
+					},
+				})
+			}, 1000)
+		}, 5000)
+
+		notificationsStore.create({
+			notification: {
+				type: "info",
+				icon: "lumina",
+				title: `Autostart of light node in 5 seconds`,
+				description: "Cancel start or disable autostart as required using the buttons below",
+				autoDestroy: true,
+				delay: 5500,
+				actions: [
+					{
+						icon: "",
+						name: "Cancel start",
+						callback: () => {
+							clearTimeout(delayedStart)
+
+							amp.log("sampling:cancelAutostart", { network: networks[selectedNetwork.value], mobile: isMobile })
+						},
+					},
+					{
+						icon: "",
+						name: "Disable autostart",
+						callback: () => {
+							clearTimeout(delayedStart)
+							nodeStore.settings.autostart = false
+
+							amp.log("sampling:disableAutostartFromNotification", {
+								network: networks[selectedNetwork.value],
+								mobile: isMobile,
+							})
+						},
+					},
+				],
+			},
+		})
+	}
 })
 
 const status = computed(() => nodeStore.status)
@@ -72,16 +147,36 @@ switch (hostname) {
 		break
 }
 
-const showDetails = ref(true)
+const handleOpenSettings = () => {
+	modalsStore.open("lightNodeSettings")
+}
+
+/**
+ * Cards (show/hide)
+ */
+const showDetails = ref(false)
 const showLogs = ref(false)
 const showBootnodes = ref(false)
 const showSquare = ref(false)
 
-const approxSyncingWindowSize = (30 * 24 * 60 * 60) / 12
-
+/**
+ * Bootnodes
+ */
 const bootnodes = ref([])
+const rawBootnodes = ref([])
 const config = ref()
 
+const isBootnodesChanged = ref(false)
+const handleRevertBootnodesChanges = () => {
+	isBootnodesChanged.value = false
+
+	bootnodes.value = rawBootnodes.value
+	bootnodesTerm.value = bootnodes.value.join("\n")
+
+	setTimeout(() => resizeTextarea(), 0)
+}
+
+const hasWrongBootnode = ref(false)
 const bootnodesTerm = ref()
 
 const textareaEl = ref()
@@ -89,15 +184,52 @@ const resizeTextarea = () => {
 	textareaEl.value.style.height = "auto"
 	textareaEl.value.style.height = 12 + textareaEl.value.scrollHeight + "px"
 }
-const handleTextareaKeyup = () => {
+const handleTextareaKeyup = (e) => {
+	e.stopPropagation()
+
 	resizeTextarea()
 
-	config.value.bootnodes = bootnodesTerm.value.split("\n").filter((b) => b.length)
+	const newBootnodes = bootnodesTerm.value.split("\n").filter((b) => b.length)
+	newBootnodes.forEach((b) => {
+		hasWrongBootnode.value = !b.startsWith("/") || b.split("/").filter((b) => b.length).length !== 4
+	})
+
+	config.value.bootnodes = newBootnodes
 	bootnodes.value = config.value.bootnodes
+
+	if (!isBootnodesChanged.value) isBootnodesChanged.value = true
 }
 
+/**
+ * Timing
+ */
 const startTime = ref()
 const spend = ref()
+
+/**
+ * blocks/min
+ */
+const blocksPerMinute = ref(0)
+const blocks = ref([])
+const removeOldBlocks = () => {
+	const cutoffTime = new Date().getTime() - 60_000
+	blocks.value = blocks.value.filter((ts) => ts > cutoffTime)
+}
+const addBlock = () => {
+	blocks.value.push(new Date().getTime())
+	removeOldBlocks()
+
+	calcBlocksPerMinute()
+}
+const calcBlocksPerMinute = () => {
+	removeOldBlocks()
+	blocksPerMinute.value = blocks.value.length
+}
+
+/**
+ * Node
+ */
+const approxSyncingWindowSize = (30 * 24 * 60 * 60) / 12
 
 const node = ref()
 const pid = ref()
@@ -127,6 +259,7 @@ const getEventsLogIconColor = () => {
 
 const initConfig = () => {
 	config.value = NodeConfig.default(selectedNetwork.value)
+	rawBootnodes.value = config.value.bootnodes
 	bootnodes.value = config.value.bootnodes
 
 	bootnodesTerm.value = bootnodes.value.join("\n")
@@ -161,6 +294,18 @@ watch(
 	},
 )
 
+/** update selected network from light node settings */
+watch(
+	() => nodeStore.settings.network,
+	() => {
+		const selectedNetworkIdx = networks.findIndex((n) => nodeStore.settings.network === n)
+		if (selectedNetworkIdx !== -1 && selectedNetwork.value !== selectedNetworkIdx) {
+			selectedNetwork.value = selectedNetworkIdx
+			initConfig()
+		}
+	},
+)
+
 /**
  * Backwards sync utils
  */
@@ -188,9 +333,12 @@ const syncingPercentage = (ranges) => {
  * Start / Cancel / Free
  */
 
+const handleStop = () => {
+	location.reload()
+}
 const handleStart = async () => {
 	nodeStore.status = StatusMap.Starting
-	amp.log("sampling:start")
+	amp.log("sampling:start", { network: networks[selectedNetwork.value], mobile: isMobile })
 
 	try {
 		const logVisual = (event) => {
@@ -202,7 +350,6 @@ const handleStart = async () => {
 		const onNewHead = async (height) => {
 			const header = await node.value.get_header_by_height(BigInt(height))
 
-			frontHead.value = height
 			hash.value = header.commit.block_id.hash
 			squareSize.value = header.dah.row_roots.length
 		}
@@ -234,11 +381,15 @@ const handleStart = async () => {
 
 			switch (event_data.type) {
 				case "sampling_started":
+					addBlock()
+
 					logVisual(event_data)
 					break
 
 				case "fetching_head_header_finished":
 				case "added_header_from_header_sub":
+					frontHead.value = event_data.height
+
 					await onNewHead(event_data.height)
 					await onAddedHeaders()
 					break
@@ -262,7 +413,7 @@ const handleStart = async () => {
 
 		startTime.value = DateTime.now()
 		setInterval(() => {
-			spend.value = startTime.value.toRelative({ locale: "en" }).replace("ago", "")
+			spend.value = startTime.value.toRelative({ locale: "en", style: "short" }).replace("ago", "")
 
 			const secondsFromLatestEvent = Math.abs(latestEventsTime.value.diffNow(["seconds"]).values.seconds)
 			if (secondsFromLatestEvent < 1) {
@@ -277,12 +428,14 @@ const handleStart = async () => {
 		}, 1_000)
 
 		nodeStore.status = StatusMap.Started
-		amp.log("sampling:started")
+		amp.log("sampling:started", { network: networks[selectedNetwork.value], mobile: isMobile })
+
+		showDetails.value = true
 
 		pid.value = await node.value.local_peer_id()
 	} catch (error) {
 		nodeStore.status = StatusMap.Failed
-		amp.log("sampling:failed")
+		amp.log("sampling:failed", { network: networks[selectedNetwork.value], mobile: isMobile })
 
 		console.error("Error initializing Node:", error)
 		console.dir(error)
@@ -293,7 +446,7 @@ watch(
 	() => props.show,
 	() => {
 		if (props.show) {
-			amp.log("sampling:open")
+			amp.log("sampling:open", { network: networks[selectedNetwork.value], mobile: isMobile })
 		}
 	},
 )
@@ -303,6 +456,27 @@ watch(
 	<Modal :show="show" @onClose="emit('onClose')" width="500" disable-trap>
 		<Flex direction="column" gap="16">
 			<Text size="14" weight="600" color="primary">Celestia Light Node</Text>
+
+			<Flex v-if="showOnboardingBanner" wide gap="8" :class="$style.warning">
+				<Icon name="stars" size="16" color="brand" />
+
+				<Flex direction="column" gap="6">
+					<Text size="12" weight="600" color="primary">Welcome to Light Node runner</Text>
+					<Text size="12" weight="500" color="tertiary" height="140">
+						You can run a light node directly in your browser from your computer or from your phone. Read more details in our
+						documentation.
+					</Text>
+
+					<Flex align="center" gap="12">
+						<NuxtLink to="https://docs.celenium.io/" target="_blank">
+							<Text size="12" weight="600" color="blue">Documentation</Text>
+						</NuxtLink>
+						<NuxtLink @click="showOnboardingBanner = false" :to="null" target="_blank" style="cursor: pointer">
+							<Text size="12" weight="600" color="blue">Hide</Text>
+						</NuxtLink>
+					</Flex>
+				</Flex>
+			</Flex>
 
 			<Flex direction="column" gap="24">
 				<Flex direction="column" gap="20" :class="$style.card">
@@ -326,18 +500,25 @@ watch(
 							<Text size="12" weight="600" color="secondary">
 								{{ StatusLabelMap[status] }}
 							</Text>
+							<Text v-if="startTime" size="12" weight="600" color="tertiary">
+								{{ spend }}
+							</Text>
 						</Flex>
 
-						<Tooltip position="end">
-							<Icon name="info" size="14" color="tertiary" />
+						<Flex align="center" gap="6">
+							<Tooltip position="end">
+								<Icon name="info" size="14" color="secondary" />
 
-							<template #content>
-								<Flex align="end" direction="column" gap="6">
-									<Text>Light node tooltip (WIP)</Text>
-									<Text color="tertiary"></Text>
-								</Flex>
-							</template>
-						</Tooltip>
+								<template #content>
+									<Flex align="end" direction="column" gap="6">
+										<Text>Light node tooltip (WIP)</Text>
+										<Text color="tertiary"></Text>
+									</Flex>
+								</template>
+							</Tooltip>
+
+							<Icon @click="handleOpenSettings" name="settings" size="14" color="secondary" style="cursor: pointer" />
+						</Flex>
 					</Flex>
 
 					<Flex direction="column" gap="8">
@@ -354,9 +535,10 @@ watch(
 							<Text v-else size="12" weight="600" color="tertiary">0%</Text>
 						</Flex>
 
-						<Flex align="center" justify="between">
+						<Flex align="center" justify="between" gap="4">
 							<Flex
 								v-for="group in 3"
+								wide
 								align="center"
 								gap="4"
 								:class="[
@@ -374,8 +556,8 @@ watch(
 					</Flex>
 
 					<Flex direction="column" gap="12">
-						<Flex align="center" gap="8">
-							<Flex align="center" gap="6" :class="$style.height_badge">
+						<Flex align="center" gap="8" :class="$style.badges">
+							<Flex align="center" gap="6" :class="[$style.height_badge, backwardsSyncProgress === 100 && $style.synced]">
 								<Icon name="zap-circle" size="14" color="black" />
 								<Text size="12" weight="600" color="black" mono>{{ frontHead ? comma(frontHead) : "TBD" }}</Text>
 								<Text size="12" weight="600" color="semiblack" mono>BLOCK HEIGHT</Text>
@@ -393,13 +575,27 @@ watch(
 							<Text size="11" weight="600" color="tertiary">
 								Network: <Text color="secondary">{{ networks[selectedNetwork] }}</Text>
 							</Text>
+
 							<Text size="11" weight="600" color="tertiary">
-								Spend:
-								<Text color="secondary">
-									{{ startTime ? spend : "TBD" }}
-								</Text>
+								Blocks/min: <Text color="secondary">{{ blocksPerMinute }}</Text>
 							</Text>
 						</Flex>
+					</Flex>
+				</Flex>
+
+				<Flex v-if="isMobile && showMobileWarning" wide gap="8" :class="$style.warning">
+					<Icon name="info" size="16" color="yellow" />
+
+					<Flex direction="column" gap="16">
+						<Flex direction="column" gap="6">
+							<Text size="12" weight="600" color="primary">Caution about running a node on a mobile</Text>
+							<Text size="12" weight="500" color="tertiary" height="140">
+								Running a light node on mobile devices can affect the performance of your device and cause your phone to
+								discharge quickly. Therefore, a node can be started with the charger connected.
+							</Text>
+						</Flex>
+
+						<Text @click="showMobileWarning = false" size="12" weight="600" color="blue">Hide this message</Text>
 					</Flex>
 				</Flex>
 
@@ -420,12 +616,13 @@ watch(
 								<Text size="12" weight="600" color="tertiary"> Sync Window </Text>
 
 								<Tooltip position="end">
-									<Text size="12" weight="600" color="secondary">
-										{{ comma(appStore.lastHead.last_height - approxSyncingWindowSize) }} -
-										{{ comma(appStore.lastHead.last_height) }}
+									<Text v-if="frontHead" size="12" weight="600" color="secondary">
+										{{ comma(frontHead - approxSyncingWindowSize) }} -
+										{{ comma(frontHead) }}
 									</Text>
+									<Text v-else size="12" weight="600" color="tertiary">Unknown</Text>
 
-									<template #content> ~{{ comma(approxSyncingWindowSize) }} blocks </template>
+									<template #content> ~{{ comma(approxSyncingWindowSize) }} blocks or ~30 days</template>
 								</Tooltip>
 							</Flex>
 
@@ -465,7 +662,7 @@ watch(
 							:class="[$style.header, status !== StatusMap.Started && $style.disabled]"
 						>
 							<Flex align="center" gap="6">
-								<Text size="12" weight="600" color="secondary">Events Logs</Text>
+								<Text size="12" weight="600" color="secondary">Events</Text>
 								<Icon
 									name="zap"
 									size="12"
@@ -485,9 +682,7 @@ watch(
 						<Flex v-if="showLogs" direction="column" gap="12" :class="$style.raw_events">
 							<Flex align="center" justify="between">
 								<Text size="12" weight="500" color="secondary">
-									{{
-										status === StatusMap.Started ? `Latest 20 events, speed - ${NodeSpeedLabelMap[speed]}` : "No events"
-									}}
+									{{ status === StatusMap.Started ? `Latest 20 events` : "No events" }}
 								</Text>
 
 								<Flex
@@ -527,14 +722,36 @@ watch(
 								ref="textareaEl"
 								v-model="bootnodesTerm"
 								@keyup="handleTextareaKeyup"
+								autocomplete="false"
+								spellcheck="false"
 								:class="[$style.bootnodes_container, status === StatusMap.Started && $style.disabled]"
 							>
 							</textarea>
 
-							<Flex align="center" gap="4" wide>
-								<Icon name="info" size="12" color="tertiary" />
-								<Text size="12" weight="600" color="tertiary"> Each address on a new line. </Text>
-								<Text v-if="status === StatusMap.Started" size="12" weight="600" color="tertiary"> Editing disabled. </Text>
+							<Flex align="center" justify="between" wide>
+								<Flex align="center" gap="4">
+									<Icon name="info" size="12" :color="hasWrongBootnode ? 'yellow' : 'tertiary'" />
+
+									<Text v-if="!hasWrongBootnode" size="12" weight="600" color="tertiary">
+										Each address on a new line.
+									</Text>
+									<Text v-else size="12" weight="600" color="yellow"> Specified bootnodes contains an error </Text>
+
+									<Text v-if="status === StatusMap.Started" size="12" weight="600" color="tertiary">
+										Editing disabled.
+									</Text>
+								</Flex>
+
+								<Flex
+									v-if="isBootnodesChanged"
+									@click="handleRevertBootnodesChanges"
+									align="center"
+									gap="4"
+									style="cursor: pointer"
+								>
+									<Icon name="revert" size="12" color="primary" />
+									<Text size="12" weight="600" color="secondary"> Revert to default</Text>
+								</Flex>
 							</Flex>
 						</Flex>
 					</Flex>
@@ -573,28 +790,41 @@ watch(
 				</Flex>
 
 				<Flex align="center" direction="column" gap="12">
-					<Tooltip wide :disabled="status !== StatusMap.Started">
-						<Flex
-							@click="handleStart"
-							wide
-							align="center"
-							direction="column"
-							gap="6"
-							:class="[
-								$style.start_btn,
-								([StatusMap.Starting, StatusMap.Started].includes(status) || !bootnodes.length) && $style.disabled,
-							]"
-						>
-							<Text size="13" weight="600" color="black">
-								{{ status === StatusMap.Started ? "Running the Light Node" : "Start the Light Node" }}
-							</Text>
-							<Text size="12" weight="600" color="black"> {{ networks[selectedNetwork] }} Network </Text>
-						</Flex>
+					<Button
+						@click="handleStart"
+						type="secondary"
+						size="small"
+						wide
+						:disabled="[StatusMap.Starting, StatusMap.Started].includes(status) || !bootnodes.length"
+					>
+						<Icon v-if="status === StatusMap.Started" name="zap-circle" size="12" color="brand" />
+						{{
+							status === StatusMap.Started
+								? `Running data availability sampling for ${networks[selectedNetwork]}`
+								: "Start Sampling"
+						}}
+					</Button>
 
-						<template #content> To stop the light node - refresh the tab (F5) </template>
+					<Tooltip v-if="status === StatusMap.Started" wide>
+						<Button @click="handleStop" type="tertiary" size="small" wide> Stop the light node </Button>
+
+						<template #content>
+							<Flex align="center" direction="column" gap="6">
+								<Text>To stop the running light node - use F5 (refresh the page).</Text>
+								<Text color="tertiary">Stopping a node via the interface is temporarily unsupported.</Text>
+							</Flex>
+						</template>
 					</Tooltip>
 
-					<Text size="11" weight="500" color="tertiary">Powered by Lumina.rs</Text>
+					<Flex align="center" direction="column" gap="4">
+						<Text size="11" weight="500" color="tertiary">
+							Read more about the light node on our
+							<a href="https://docs.celenium.io" target="_blank" style="color: var(--txt-secondary)">docs</a>.
+						</Text>
+						<Text size="11" weight="500" color="tertiary">
+							Powered by <a href="https://lumina.rs" target="_blank" style="color: var(--txt-secondary)">Lumina.rs</a>
+						</Text>
+					</Flex>
 
 					<Flex v-if="showWarning" wide gap="8" :class="$style.warning">
 						<Icon name="info" size="16" color="yellow" />
@@ -632,6 +862,8 @@ watch(
 }
 
 .bg {
+	pointer-events: none;
+
 	position: absolute;
 	top: 0;
 	bottom: 0;
@@ -728,6 +960,10 @@ watch(
 	border-radius: 50px;
 
 	padding: 4px 8px 4px 6px;
+
+	&.synced {
+		background: var(--brand);
+	}
 }
 
 .square_badge {
@@ -755,7 +991,7 @@ watch(
 }
 
 .bar {
-	width: 24px;
+	width: 100%;
 	height: 8px;
 
 	border-radius: 50px;
@@ -817,39 +1053,6 @@ watch(
 
 	&.tertiary {
 		animation: eventsIconBlinkSilence 2s ease infinite;
-	}
-}
-
-.start_btn {
-	background: var(--btn-white-bg);
-	border-radius: 8px;
-	cursor: pointer;
-	user-select: none;
-
-	padding: 8px 0;
-
-	transition: all 0.2s ease;
-
-	& span:nth-child(2) {
-		opacity: 0.5;
-	}
-
-	&:hover {
-		background: var(--btn-white-bg-hover);
-	}
-
-	&.disabled {
-		opacity: 0.5;
-		pointer-events: none;
-		background: var(--op-10);
-
-		& span:nth-child(1) {
-			color: var(--txt-primary);
-		}
-
-		& span:nth-child(2) {
-			color: var(--txt-secondary);
-		}
 	}
 }
 
@@ -929,6 +1132,13 @@ watch(
 	100% {
 		opacity: 1;
 		filter: drop-shadow(0 0 8px var(--op-15));
+	}
+}
+
+@media (max-width: 470px) {
+	.badges {
+		flex-direction: column;
+		align-items: flex-start;
 	}
 }
 </style>

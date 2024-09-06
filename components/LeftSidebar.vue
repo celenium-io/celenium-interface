@@ -314,6 +314,7 @@ const handleNavigate = (url) => {
 		display: flex;
 
 		background: var(--app-background);
+		overflow: auto;
 
 		z-index: 100;
 	}

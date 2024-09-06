@@ -13,6 +13,7 @@
 	},
 	"devDependencies": {
 		"@nuxt/devtools": "latest",
+		"@nuxtjs/device": "^3.2.2",
 		"cross-env": "^7.0.3",
 		"nuxt": "3.12.4",
 		"nuxt-og-image": "3.0.0-rc.52",
