@@ -12,11 +12,11 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 
 /** Constants */
-import { StatusMap, StatusLabelMap, NodeSpeedMap, NodeSpeedLabelMap } from "@/services/constants/node.js"
+import { StatusMap, StatusLabelMap, NodeSpeedMap } from "@/services/constants/node.js"
 
 /** Services */
 import amp from "@/services/amp"
-import { comma } from "@/services/utils"
+import { comma, isMobile } from "@/services/utils"
 
 /** Stores */
 import { useAppStore } from "@/store/app.js"
@@ -30,8 +30,6 @@ const notificationsStore = useNotificationsStore()
 
 const showMobileWarning = useCookie("showMobileWarning", { default: () => true })
 const showOnboardingBanner = useCookie("showOnboardingBanner", { default: () => true })
-
-const { isMobile } = useDevice()
 
 const emit = defineEmits(["onClose"])
 const props = defineProps({
@@ -51,7 +49,7 @@ onMounted(async () => {
 		const delayedStart = setTimeout(() => {
 			handleStart()
 
-			amp.log("sampling:autostartTrigger", { network: networks[selectedNetwork.value], mobile: isMobile })
+			amp.log("sampling:autostartTrigger", { network: networks[selectedNetwork.value], mobile: isMobile() })
 
 			setTimeout(() => {
 				notificationsStore.create({
@@ -89,7 +87,7 @@ onMounted(async () => {
 						callback: () => {
 							clearTimeout(delayedStart)
 
-							amp.log("sampling:cancelAutostart", { network: networks[selectedNetwork.value], mobile: isMobile })
+							amp.log("sampling:cancelAutostart", { network: networks[selectedNetwork.value], mobile: isMobile() })
 						},
 					},
 					{
@@ -101,7 +99,7 @@ onMounted(async () => {
 
 							amp.log("sampling:disableAutostartFromNotification", {
 								network: networks[selectedNetwork.value],
-								mobile: isMobile,
+								mobile: isMobile(),
 							})
 						},
 					},
@@ -338,7 +336,7 @@ const handleStop = () => {
 }
 const handleStart = async () => {
 	nodeStore.status = StatusMap.Starting
-	amp.log("sampling:start", { network: networks[selectedNetwork.value], mobile: isMobile })
+	amp.log("sampling:start", { network: networks[selectedNetwork.value], mobile: isMobile() })
 
 	try {
 		const logVisual = (event) => {
@@ -428,14 +426,14 @@ const handleStart = async () => {
 		}, 1_000)
 
 		nodeStore.status = StatusMap.Started
-		amp.log("sampling:started", { network: networks[selectedNetwork.value], mobile: isMobile })
+		amp.log("sampling:started", { network: networks[selectedNetwork.value], mobile: isMobile() })
 
 		showDetails.value = true
 
 		pid.value = await node.value.local_peer_id()
 	} catch (error) {
 		nodeStore.status = StatusMap.Failed
-		amp.log("sampling:failed", { network: networks[selectedNetwork.value], mobile: isMobile })
+		amp.log("sampling:failed", { network: networks[selectedNetwork.value], mobile: isMobile() })
 
 		console.error("Error initializing Node:", error)
 		console.dir(error)
@@ -446,7 +444,7 @@ watch(
 	() => props.show,
 	() => {
 		if (props.show) {
-			amp.log("sampling:open", { network: networks[selectedNetwork.value], mobile: isMobile })
+			amp.log("sampling:open", { network: networks[selectedNetwork.value], mobile: isMobile() })
 		}
 	},
 )
@@ -583,7 +581,7 @@ watch(
 					</Flex>
 				</Flex>
 
-				<Flex v-if="isMobile && showMobileWarning" wide gap="8" :class="$style.warning">
+				<Flex v-if="isMobile() && showMobileWarning" wide gap="8" :class="$style.warning">
 					<Icon name="info" size="16" color="yellow" />
 
 					<Flex direction="column" gap="16">
