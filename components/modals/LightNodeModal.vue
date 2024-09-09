@@ -154,49 +154,12 @@ const handleOpenSettings = () => {
  */
 const showDetails = ref(false)
 const showLogs = ref(false)
-const showBootnodes = ref(false)
 const showSquare = ref(false)
 
 /**
  * Bootnodes
  */
-const bootnodes = ref([])
-const rawBootnodes = ref([])
 const config = ref()
-
-const isBootnodesChanged = ref(false)
-const handleRevertBootnodesChanges = () => {
-	isBootnodesChanged.value = false
-
-	bootnodes.value = rawBootnodes.value
-	bootnodesTerm.value = bootnodes.value.join("\n")
-
-	setTimeout(() => resizeTextarea(), 0)
-}
-
-const hasWrongBootnode = ref(false)
-const bootnodesTerm = ref()
-
-const textareaEl = ref()
-const resizeTextarea = () => {
-	textareaEl.value.style.height = "auto"
-	textareaEl.value.style.height = 12 + textareaEl.value.scrollHeight + "px"
-}
-const handleTextareaKeyup = (e) => {
-	e.stopPropagation()
-
-	resizeTextarea()
-
-	const newBootnodes = bootnodesTerm.value.split("\n").filter((b) => b.length)
-	newBootnodes.forEach((b) => {
-		hasWrongBootnode.value = !b.startsWith("/") || b.split("/").filter((b) => b.length).length !== 4
-	})
-
-	config.value.bootnodes = newBootnodes
-	bootnodes.value = config.value.bootnodes
-
-	if (!isBootnodesChanged.value) isBootnodesChanged.value = true
-}
 
 /**
  * Timing
@@ -257,19 +220,14 @@ const getEventsLogIconColor = () => {
 
 const initConfig = () => {
 	config.value = NodeConfig.default(selectedNetwork.value)
-	rawBootnodes.value = config.value.bootnodes
-	bootnodes.value = config.value.bootnodes
-
-	bootnodesTerm.value = bootnodes.value.join("\n")
+	nodeStore.rawBootnodes = config.value.bootnodes
+	nodeStore.bootnodes = config.value.bootnodes
 }
 
 watch(
-	() => showBootnodes.value,
-	async () => {
-		if (!showBootnodes.value) return
-
-		await nextTick()
-		resizeTextarea()
+	() => nodeStore.bootnodes,
+	() => {
+		config.value.bootnodes = nodeStore.bootnodes
 	},
 )
 
@@ -503,20 +461,7 @@ watch(
 							</Text>
 						</Flex>
 
-						<Flex align="center" gap="6">
-							<Tooltip position="end">
-								<Icon name="info" size="14" color="secondary" />
-
-								<template #content>
-									<Flex align="end" direction="column" gap="6">
-										<Text>Light node tooltip (WIP)</Text>
-										<Text color="tertiary"></Text>
-									</Flex>
-								</template>
-							</Tooltip>
-
-							<Icon @click="handleOpenSettings" name="settings" size="14" color="secondary" style="cursor: pointer" />
-						</Flex>
+						<Icon @click="handleOpenSettings" name="settings" size="14" color="secondary" style="cursor: pointer" />
 					</Flex>
 
 					<Flex direction="column" gap="8">
@@ -588,7 +533,7 @@ watch(
 						<Flex direction="column" gap="6">
 							<Text size="12" weight="600" color="primary">Caution about running a node on a mobile</Text>
 							<Text size="12" weight="500" color="tertiary" height="140">
-								Running a light node on mobile devices can affect the performance of your device and cause your phone to
+								Running a light node on mobile devices may affect the performance of your device and cause your phone to
 								discharge quickly. Therefore, a node can be started with the charger connected.
 							</Text>
 						</Flex>
@@ -703,58 +648,6 @@ watch(
 					</Flex>
 
 					<Flex direction="column" gap="4" :class="$style.secondary_card">
-						<Flex @click="showBootnodes = !showBootnodes" align="center" justify="between" :class="$style.header">
-							<Text size="12" weight="600" color="secondary">
-								Bootnodes&nbsp; <Text color="tertiary">{{ bootnodes.length }}</Text>
-							</Text>
-							<Icon
-								name="chevron"
-								size="12"
-								color="secondary"
-								:style="{ transform: `rotate(${showBootnodes ? '180deg' : '0'})` }"
-							/>
-						</Flex>
-
-						<Flex v-if="showBootnodes" direction="column" gap="12" :class="$style.content">
-							<textarea
-								ref="textareaEl"
-								v-model="bootnodesTerm"
-								@keyup="handleTextareaKeyup"
-								autocomplete="false"
-								spellcheck="false"
-								:class="[$style.bootnodes_container, status === StatusMap.Started && $style.disabled]"
-							>
-							</textarea>
-
-							<Flex align="center" justify="between" wide>
-								<Flex align="center" gap="4">
-									<Icon name="info" size="12" :color="hasWrongBootnode ? 'yellow' : 'tertiary'" />
-
-									<Text v-if="!hasWrongBootnode" size="12" weight="600" color="tertiary">
-										Each address on a new line.
-									</Text>
-									<Text v-else size="12" weight="600" color="yellow"> Specified bootnodes contains an error </Text>
-
-									<Text v-if="status === StatusMap.Started" size="12" weight="600" color="tertiary">
-										Editing disabled.
-									</Text>
-								</Flex>
-
-								<Flex
-									v-if="isBootnodesChanged"
-									@click="handleRevertBootnodesChanges"
-									align="center"
-									gap="4"
-									style="cursor: pointer"
-								>
-									<Icon name="revert" size="12" color="primary" />
-									<Text size="12" weight="600" color="secondary"> Revert to default</Text>
-								</Flex>
-							</Flex>
-						</Flex>
-					</Flex>
-
-					<Flex direction="column" gap="4" :class="$style.secondary_card">
 						<Flex
 							@click="showSquare = !showSquare"
 							align="center"
@@ -762,7 +655,8 @@ watch(
 							:class="[$style.header, status !== StatusMap.Started && $style.disabled]"
 						>
 							<Text size="12" weight="600" color="secondary">
-								Square Visualization <Text color="tertiary">for {{ comma(frontHead) }}</Text>
+								Square Visualization
+								<Text v-if="status === StatusMap.Started" color="tertiary">for {{ comma(frontHead) }}</Text>
 							</Text>
 
 							<Icon
@@ -793,7 +687,7 @@ watch(
 						type="secondary"
 						size="small"
 						wide
-						:disabled="[StatusMap.Starting, StatusMap.Started].includes(status) || !bootnodes.length"
+						:disabled="[StatusMap.Starting, StatusMap.Started].includes(status) || !nodeStore.bootnodes.length"
 					>
 						<Icon v-if="status === StatusMap.Started" name="zap-circle" size="12" color="brand" />
 						{{
@@ -1001,29 +895,6 @@ watch(
 	&.active {
 		background: #18d2a5;
 		box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 20%), 0 1px 4px rgba(24, 210, 165, 45%);
-	}
-}
-
-.bootnode_label {
-	white-space: nowrap;
-
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.bootnodes_container {
-	all: unset;
-
-	font-size: 12px;
-	line-height: 100%;
-	font-weight: 500;
-	color: var(--txt-secondary);
-	white-space: nowrap;
-
-	&.disabled {
-		pointer-events: none;
-
-		color: var(--txt-tertiary);
 	}
 }
 
