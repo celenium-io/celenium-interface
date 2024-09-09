@@ -424,7 +424,7 @@ watch(
 					</Text>
 
 					<Flex align="center" gap="12">
-						<NuxtLink to="https://docs.celenium.io/" target="_blank">
+						<NuxtLink to="https://docs.celenium.io/features/light-node" target="_blank">
 							<Text size="12" weight="600" color="blue">Documentation</Text>
 						</NuxtLink>
 						<NuxtLink @click="showOnboardingBanner = false" :to="null" target="_blank" style="cursor: pointer">
