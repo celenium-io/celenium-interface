@@ -36,6 +36,7 @@ const props = defineProps({
 	show: Boolean,
 })
 
+let bc
 onMounted(async () => {
 	await init()
 	initConfig()
@@ -43,6 +44,20 @@ onMounted(async () => {
 	nodeStore.status = StatusMap.Initialized
 
 	nodeStore.settings.network = networks[selectedNetwork.value]
+
+	bc = new BroadcastChannel("node")
+	bc.postMessage("ping")
+	bc.onmessage = (e) => {
+		if (e.data === "ping" && status.value === StatusMap.Started) {
+			bc.postMessage("running")
+		}
+		if (e.data === "running") {
+			disableStart.value = true
+		}
+		if (e.data === "start" && status.value === StatusMap.Initialized) {
+			disableStart.value = true
+		}
+	}
 
 	/** autostart */
 	if (nodeStore.settings.autostart) {
@@ -109,6 +124,7 @@ onMounted(async () => {
 	}
 })
 
+const disableStart = ref(false)
 const status = computed(() => nodeStore.status)
 
 const networks = ["Mainnet", "Arabica", "Mocha"]
@@ -292,7 +308,12 @@ const syncingPercentage = (ranges) => {
 const handleStop = () => {
 	location.reload()
 }
+
 const handleStart = async () => {
+	if (disableStart.value) return
+
+	bc.postMessage("start")
+
 	nodeStore.status = StatusMap.Starting
 	amp.log("sampling:start", { network: networks[selectedNetwork.value], mobile: isMobile() })
 
@@ -544,7 +565,12 @@ watch(
 
 				<Flex direction="column" gap="12">
 					<Flex direction="column" gap="4" :class="$style.secondary_card">
-						<Flex @click="showDetails = !showDetails" align="center" justify="between" :class="$style.header">
+						<Flex
+							@click="showDetails = !showDetails"
+							align="center"
+							justify="between"
+							:class="[$style.header, status !== StatusMap.Started && $style.disabled]"
+						>
 							<Text size="12" weight="600" color="secondary">Details</Text>
 							<Icon
 								name="chevron"
@@ -687,14 +713,14 @@ watch(
 						type="secondary"
 						size="small"
 						wide
-						:disabled="[StatusMap.Starting, StatusMap.Started].includes(status) || !nodeStore.bootnodes.length"
+						:disabled="[StatusMap.Starting, StatusMap.Started].includes(status) || !nodeStore.bootnodes.length || disableStart"
 					>
 						<Icon v-if="status === StatusMap.Started" name="zap-circle" size="12" color="brand" />
-						{{
-							status === StatusMap.Started
-								? `Running data availability sampling for ${networks[selectedNetwork]}`
-								: "Start Sampling"
-						}}
+						<template v-if="disableStart"> Node is already running in other tab </template>
+						<template v-else-if="status === StatusMap.Started">
+							Running data availability sampling for {{ networks[selectedNetwork] }}
+						</template>
+						<template v-else> Start Sampling </template>
 					</Button>
 
 					<Tooltip v-if="status === StatusMap.Started" wide>
@@ -711,7 +737,9 @@ watch(
 					<Flex align="center" direction="column" gap="4">
 						<Text size="11" weight="500" color="tertiary">
 							Read more about the light node on our
-							<a href="https://docs.celenium.io" target="_blank" style="color: var(--txt-secondary)">docs</a>.
+							<a href="https://docs.celenium.io/features/light-node" target="_blank" style="color: var(--txt-secondary)"
+								>docs</a
+							>.
 						</Text>
 						<Text size="11" weight="500" color="tertiary">
 							Powered by <a href="https://lumina.rs" target="_blank" style="color: var(--txt-secondary)">Lumina.rs</a>

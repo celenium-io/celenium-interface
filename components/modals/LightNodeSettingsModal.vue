@@ -56,7 +56,7 @@ const resizeTextarea = () => {
 const handleTextareaKeyup = (e) => {
 	e.stopPropagation()
 	resizeTextarea()
-	if (!/^[a-z0-9]+$/i.test(e.key) || e.key.length !== 1) return
+	if (!/^[а-яa-z0-9]+$/i.test(e.key) || e.key.length !== 1) return
 
 	const newBootnodes = bootnodesTerm.value.split("\n").filter((b) => b.length)
 	newBootnodes.forEach((b) => {
@@ -99,15 +99,24 @@ const handleDeleteIndexDBStore = (name) => {
 	})
 }
 
+const updateBootnodes = async () => {
+	bootnodesTerm.value = nodeStore.bootnodes.join("\n")
+	await nextTick()
+	resizeTextarea()
+}
+
+watch(
+	() => nodeStore.settings.network,
+	() => {
+		if (props.show) updateBootnodes()
+	},
+)
+
 watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
-			bootnodesTerm.value = nodeStore.bootnodes.join("\n")
-
-			await nextTick()
-
-			resizeTextarea()
+			updateBootnodes()
 		}
 	},
 )
@@ -121,7 +130,7 @@ watch(
 			<Flex direction="column" gap="16">
 				<Flex justify="between">
 					<Flex direction="column" gap="6">
-						<Text size="13" weight="600" color="primary">Light node autostart</Text>
+						<Text size="13" weight="600" color="primary">Autostart</Text>
 						<Text size="12" weight="500" color="tertiary"> Automatically launch a node every time you visit the Celenium </Text>
 					</Flex>
 
