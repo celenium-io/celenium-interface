@@ -2,6 +2,10 @@
 /** Services */
 import { getAdvByName, getRandomAdv } from "@/services/constants/advertising"
 
+/** Store */
+import { useModalsStore } from "~/store/modals"
+const modalsStore = useModalsStore()
+
 const props = defineProps({
 	advName: {
 		type: String,
@@ -16,6 +20,14 @@ const props = defineProps({
 const adv = ref({})
 const isDisplayed = ref(true)
 
+const handleClick = () => {
+	if (adv.value.link) {
+		window.open(adv.value.link, '_blank')
+	} else if (adv.value.modal) {
+		modalsStore.open(adv.value.modal)
+	}
+}
+
 onMounted(() => {
 	if (props.advName) {
 		adv.value = getAdvByName(props.advName)
@@ -26,7 +38,7 @@ onMounted(() => {
 </script>
 
 <template>
-	<NuxtLink v-if="adv.link" :to="adv.link" target="_blank" :class="[orientation === 'horizontal' && $style.wrapper_horizontal, !isDisplayed && $style.not_display]">
+	<Flex v-if="adv.name" @click="handleClick()" :class="[$style.wrapper, orientation === 'horizontal' && $style.wrapper_horizontal, !isDisplayed && $style.not_display]">
 		<Flex v-if="orientation === 'vertical'" direction="column" gap="12" :class="$style.ad_vertical">
 			<Flex direction="column" gap="8">
 				<Flex align="center" gap="6">
@@ -37,7 +49,6 @@ onMounted(() => {
 				<Text size="13" weight="600" color="tertiary" height="140"> {{ adv.body }} </Text>
 			</Flex>
 
-			<!-- <Text size="13" weight="600" color="brand" :class="$style.footer"> {{ adv.footer }} </Text> -->
 			<Flex align="center" justify="between">
 				<Text size="13" weight="600" color="brand" :class="$style.footer"> {{ adv.footer }} </Text>
 				
@@ -67,10 +78,16 @@ onMounted(() => {
 				<Icon @click.prevent.stop="isDisplayed = false" name="close" size="16" color="secondary" :class="$style.close_icon" />
 			</Flex>
 		</Flex>
-	</NuxtLink>
+	</Flex>
 </template>
 
 <style module>
+.wrapper {
+	width: 100%;
+	
+	cursor: pointer;
+}
+
 .wrapper_horizontal {
 	width: 100%;
 	padding: 8px 24px 0px 24px;
@@ -147,6 +164,12 @@ onMounted(() => {
 			background: var(--op-10);
 			transform: scale(1.1);
 		}
+	}
+}
+
+@media (max-width: 500px) {
+	.wrapper_horizontal {
+		padding: 12px;
 	}
 }
 </style>

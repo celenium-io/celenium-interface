@@ -217,7 +217,7 @@ const handleNavigate = (url) => {
 				</Flex>
 			</Flex>
 
-			<Flex direction="column" gap="8">
+			<!-- <Flex direction="column" gap="8">
 				<Flex align="center" gap="8" style="padding: 0 8px">
 					<Icon name="stars" size="12" color="tertiary" />
 					<Text size="12" weight="500" color="tertiary">New things</Text>
@@ -226,9 +226,9 @@ const handleNavigate = (url) => {
 				<Flex direction="column" gap="2">
 					<NavLink v-for="link in newLinks" :link="link" @onClose="appStore.showSidebar = false" />
 				</Flex>
-			</Flex>
+			</Flex> -->
 
-			<AdvBanner />
+			<AdvBanner :style="{ width: '100%' }" />
 		</Flex>
 
 		<Flex direction="column" gap="16" style="margin-right: 20px">

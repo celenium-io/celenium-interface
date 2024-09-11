@@ -7,6 +7,9 @@ import Button from "@/components/ui/Button.vue"
 /** Components */
 import Search from "@/components/modules/navigation/Search.vue"
 
+/** Utils */
+import { isMobile } from "@/services/utils"
+
 /** Store */
 import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
@@ -15,7 +18,7 @@ const appStore = useAppStore()
 <template>
 	<Flex wide align="center" justify="between" gap="24" :class="$style.wrapper">
 		<Flex wide align="center" gap="12">
-			<Button @click="appStore.showSidebar = !appStore.showSidebar" type="secondary" size="medium" :class="$style.menu_btn">
+			<Button v-if="isMobile()" @click="appStore.showSidebar = !appStore.showSidebar" type="secondary" size="medium" :class="$style.menu_btn">
 				<Icon name="menu" size="16" color="primary" />
 			</Button>
 
