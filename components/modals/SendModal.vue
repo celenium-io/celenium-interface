@@ -322,7 +322,7 @@ const handleContinue = async () => {
 					{
 						denom: "utia",
 						amount: DecUtils.getTenExponentN(6)
-							.mul(new Dec(parseFloat(amount.value)))
+							.mul(new Dec(parseFloat(amount.value.replace(/\s/g, ''))))
 							.truncate()
 							.toString(),
 					},

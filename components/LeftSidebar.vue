@@ -4,11 +4,13 @@ import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem, DropdownTitle, DropdownDivider } from "@/components/ui/Dropdown"
 
 /** Components */
+import AdvBanner from "@/components/shared/AdvBanner.vue"
 import NavLink from "@/components/modules/navigation/NavLink.vue"
 
 /** Utils */
 import { getNetworkName } from "@/services/utils/general"
 import { StatusMap } from "@/services/constants/node"
+import { isMobile } from "@/services/utils"
 
 /** Store */
 import { useAppStore } from "~/store/app"
@@ -174,7 +176,7 @@ const handleNavigate = (url) => {
 					</Flex>
 				</NuxtLink>
 
-				<Button @click="appStore.showSidebar = !appStore.showSidebar" type="secondary" size="mini" :class="$style.close_btn">
+				<Button v-if="isMobile()" @click="appStore.showSidebar = !appStore.showSidebar" type="secondary" size="mini" :class="$style.close_btn">
 					<Icon name="close" size="14" color="primary" />
 				</Button>
 			</Flex>
@@ -215,7 +217,7 @@ const handleNavigate = (url) => {
 				</Flex>
 			</Flex>
 
-			<Flex direction="column" gap="8">
+			<!-- <Flex direction="column" gap="8">
 				<Flex align="center" gap="8" style="padding: 0 8px">
 					<Icon name="stars" size="12" color="tertiary" />
 					<Text size="12" weight="500" color="tertiary">New things</Text>
@@ -224,7 +226,9 @@ const handleNavigate = (url) => {
 				<Flex direction="column" gap="2">
 					<NavLink v-for="link in newLinks" :link="link" @onClose="appStore.showSidebar = false" />
 				</Flex>
-			</Flex>
+			</Flex> -->
+
+			<AdvBanner :style="{ width: '100%' }" />
 		</Flex>
 
 		<Flex direction="column" gap="16" style="margin-right: 20px">
@@ -246,15 +250,6 @@ const handleNavigate = (url) => {
 				<Icon v-if="nodeStore.status !== StatusMap.Started" name="arrow-narrow-right" size="14" color="secondary" />
 				<Text v-else size="12" weight="600" color="tertiary">{{ nodeStore.percentage.toFixed(0) }}%</Text>
 			</Flex>
-
-			<!-- <Flex justify="end" :class="$style.ad">
-				<Flex justify="end" direction="column" gap="8">
-					<Text size="12" weight="500" color="brand">Introducing Celenium API</Text>
-					<Text size="12" weight="500" height="140" color="secondary">
-						Unlock the power of Celestia: Scalable, Secure and Modular.
-					</Text>
-				</Flex>
-			</Flex> -->
 
 			<Dropdown position="end" fullWidth>
 				<Flex align="center" gap="8" justify="between" :class="$style.network_selector">
