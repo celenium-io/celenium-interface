@@ -13,9 +13,11 @@ import { fetchHead } from "@/services/api/main"
 import { fetchLatestBlocks } from "@/services/api/block"
 
 /** Store */
+import { useNodeStore } from "@/store/node"
 import { useAppStore } from "@/store/app"
 import { useBookmarksStore } from "@/store/bookmarks"
 import { useSettingsStore } from "@/store/settings"
+const nodeStore = useNodeStore()
 const appStore = useAppStore()
 const bookmarksStore = useBookmarksStore()
 const settingsStore = useSettingsStore()
@@ -29,6 +31,10 @@ settingsStore.$subscribe((mutation, state) => {
 onMounted(async () => {
 	if (localStorage.bookmarks) {
 		bookmarksStore.bookmarks = JSON.parse(localStorage.bookmarks)
+	}
+
+	if (localStorage.nodeSettings) {
+		nodeStore.settings = JSON.parse(localStorage.nodeSettings)
 	}
 
 	const runtimeConfig = useRuntimeConfig()
@@ -55,7 +61,7 @@ onMounted(async () => {
 <template>
 	<CommandMenu :show="appStore.showCmd" />
 
-	<NuxtLoadingIndicator height="2" color="#0ade71" />
+	<NuxtLoadingIndicator :height="2" color="#0ade71" />
 	<NuxtLayout>
 		<NuxtPage />
 
