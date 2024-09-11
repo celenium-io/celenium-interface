@@ -228,7 +228,7 @@ const handleNavigate = (url) => {
 				</Flex>
 			</Flex> -->
 
-			<AdvBanner :style="{ width: '100%' }" />
+			<AdvBanner />
 		</Flex>
 
 		<Flex direction="column" gap="16" style="margin-right: 20px">

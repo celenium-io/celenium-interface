@@ -64,16 +64,17 @@ onMounted(() => {
 			:class="$style.ad_horizontal"
 		>
 			<Flex align="center" gap="12">
-				<Flex align="center" gap="6">
+				<Flex align="center" gap="8">
 					<Icon v-if="adv.icon" :name="adv.icon" size="14" color="brand" />
-					<Text size="13" weight="600" color="primary"> {{ adv.header }} </Text>
+
+					<Text size="13" weight="600" color="primary" :class="$style.text"> {{ adv.header }} </Text>
 				</Flex>
 
-				<Text size="13" weight="600" color="tertiary" height="140"> {{ adv.body }} </Text>
+				<Text size="13" weight="600" color="tertiary" height="140" :class="$style.text"> {{ adv.body }} </Text>
 			</Flex>
 
 			<Flex align="center" gap="8">
-				<Text size="13" weight="600" color="brand"> {{ adv.footer }} </Text>
+				<Text size="13" weight="600" color="brand" :class="$style.text"> {{ adv.footer }} </Text>
 				
 				<Icon @click.prevent.stop="isDisplayed = false" name="close" size="16" color="secondary" :class="$style.close_icon" />
 			</Flex>
@@ -164,6 +165,10 @@ onMounted(() => {
 			background: var(--op-10);
 			transform: scale(1.1);
 		}
+	}
+
+	& .text {
+		line-height: 1.5;
 	}
 }
 
