@@ -38,7 +38,7 @@ const props = defineProps({
 const style = useCssModule()
 
 const getStyles = () => {
-	const hasCorrectSize = ["large", "medium", "small", "mini"].includes(props.size)
+	const hasCorrectSize = ["large", "medium", "small", "mini", "dynamic"].includes(props.size)
 
 	return [
 		style.wrapper,
@@ -73,6 +73,7 @@ const getStyles = () => {
 
 	cursor: pointer;
 	box-sizing: border-box;
+	user-select: none;
 
 	background-clip: padding-box !important;
 
@@ -111,6 +112,14 @@ const getStyles = () => {
 }
 
 /** SIZES */
+.wrapper.dynamic {
+	height: initial;
+
+	border-radius: 8px;
+
+	padding: 8px 0;
+}
+
 .wrapper.large {
 	height: 44px;
 	font-size: 14px;
@@ -204,9 +213,9 @@ const getStyles = () => {
 }
 
 .wrapper.secondary {
-	background: linear-gradient(var(--op-3), var(--op-5));
+	background: linear-gradient(var(--op-8), var(--op-5));
 	fill: var(--txt-secondary);
-	box-shadow: inset 0 0 0 1px var(--op-10), inset 0 0 8px var(--op-5);
+	box-shadow: inset 0 0 0 1px var(--op-5), inset 0 0 8px var(--op-5);
 }
 .wrapper.secondary:hover {
 	box-shadow: inset 0 0 0 1px var(--op-10), inset 0 0 8px var(--op-10);

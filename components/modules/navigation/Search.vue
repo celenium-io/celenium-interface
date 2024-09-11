@@ -30,7 +30,7 @@ onMounted(() => {
 		if (e.code === "Escape") {
 			show.value = false
 		}
-		if (e.code === "Slash" && !show.value) {
+		if (e.ctrlKey && e.code === "Slash" && !show.value) {
 			e.preventDefault()
 			show.value = true
 			inputRef.value.focus()
@@ -140,7 +140,10 @@ const handleSelect = () => {
 				:class="$style.input_bar"
 			</Flex>
 
-			<Text size="13" weight="600" color="secondary" :class="$style.slash">/ </Text>
+			<Flex align="center" gap="4">
+				<Text size="11" weight="700" color="tertiary" :class="$style.slash">Ctrl</Text>
+				<Text size="11" weight="700" color="tertiary" :class="$style.slash">/ </Text>
+			</Flex>
 		</Flex>
 
 		<Transition name="fastfade">
@@ -191,9 +194,9 @@ const handleSelect = () => {
 
 .slash {
 	background: var(--op-8);
-	border-radius: 5px;
+	border-radius: 4px;
 
-	padding: 4px 8px;
+	padding: 2px 4px;
 }
 
 .popup {

@@ -158,7 +158,10 @@ const onKeydown = (e) => {
 
 .modal {
 	position: relative;
-	overflow: hidden;
+	overflow-x: hidden;
+	overflow-y: auto;
+
+	max-height: calc(100vh - 40px);
 
 	border-radius: 12px;
 	background: var(--card-background);

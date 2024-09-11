@@ -13,6 +13,9 @@ export default defineNuxtConfig({
 	},
 
 	routeRules: {
+		"/node": {
+			ssr: false,
+		},
 		"/": {
 			sitemap: {
 				changefreq: "daily",
@@ -127,6 +130,9 @@ export default defineNuxtConfig({
 	},
 
 	vite: {
+		worker: {
+			format: "es",
+		},
 		define: {
 			global: "globalThis",
 		},
