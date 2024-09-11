@@ -4,25 +4,23 @@ const advertisements = [
 		link: 'https://api-plans.celenium.io',
 		icon: 'slash',
 		header: 'Try out Celenium API',
-		body: 'Unlock the power of Celestia: Scalable, Secure and Modular Blockchain.',
-		footer: 'Get started ->',
-		weight: 50,
+		body: 'The power of Celestia: Scalable, Secure and Modular Blockchain.',
+		footer: 'Get started',
+		weight: 0.5,
 	},
 	{
 		name: 'celenium_survey',
-		link: 'https://forms.gle/qHL1yicTDVxTdvp69',
-		icon: 'slash',
+		link: 'https://t.co/4nBFExP2VR',
+		icon: 'validator',
 		header: 'Celenium survey',
-		body: 'Please take 5 minutes and answer a few questions about Celenium.',
-		footer: 'Take the survey ->',
-		weight: 50,
+		body: 'Please take 5 minutes and answer a few questions.',
+		footer: 'Take the survey',
+		weight: 0.5,
 	},
 ]
 
-const totalWeight = 100
-
 export function getRandomAdv() {
-    const randomNum = Math.random() * totalWeight
+    const randomNum = Math.random()
 
     let cumWeight = 0
     for (let ad of advertisements) {

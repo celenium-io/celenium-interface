@@ -11,7 +11,7 @@ import BlobsTable from "./tables/BlobsTable.vue"
 import MessagesTable from "./tables/MessagesTable.vue"
 
 /** Services */
-import { comma, formatBytes, getNamespaceID, midHex, space } from "@/services/utils"
+import { comma, formatBytes, getNamespaceID, shortHex, midHex, space } from "@/services/utils"
 
 /** API */
 import { fetchNamespaceBlobs, fetchNamespaceMessagesById, fetchNamespaceRollups } from "@/services/api/namespace"
@@ -231,7 +231,7 @@ const handleViewRawMessages = () => {
 						<Text size="12" weight="600" color="secondary">Base64 ID</Text>
 
 						<Flex align="center" gap="10">
-							<Text size="13" weight="600" color="primary">{{ midHex(namespace.hash) }} </Text>
+							<Text size="13" weight="600" color="primary">{{ shortHex(namespace.hash) }} </Text>
 
 							<CopyButton :text="namespace.hash" />
 						</Flex>

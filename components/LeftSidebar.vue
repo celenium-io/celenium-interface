@@ -10,6 +10,7 @@ import NavLink from "@/components/modules/navigation/NavLink.vue"
 /** Utils */
 import { getNetworkName } from "@/services/utils/general"
 import { StatusMap } from "@/services/constants/node"
+import { isMobile } from "@/services/utils"
 
 /** Store */
 import { useAppStore } from "~/store/app"
@@ -18,10 +19,6 @@ import { useModalsStore } from "~/store/modals"
 const appStore = useAppStore()
 const nodeStore = useNodeStore()
 const modalsStore = useModalsStore()
-
-const { isMobile } = useDevice()
-console.log('useDevice()', useDevice());
-console.log('isMobile', isMobile);
 
 const head = computed(() => appStore.lastHead)
 
@@ -179,7 +176,7 @@ const handleNavigate = (url) => {
 					</Flex>
 				</NuxtLink>
 
-				<Button @click="appStore.showSidebar = !appStore.showSidebar" type="secondary" size="mini" :class="$style.close_btn">
+				<Button v-if="isMobile()" @click="appStore.showSidebar = !appStore.showSidebar" type="secondary" size="mini" :class="$style.close_btn">
 					<Icon name="close" size="14" color="primary" />
 				</Button>
 			</Flex>
@@ -253,15 +250,6 @@ const handleNavigate = (url) => {
 				<Icon v-if="nodeStore.status !== StatusMap.Started" name="arrow-narrow-right" size="14" color="secondary" />
 				<Text v-else size="12" weight="600" color="tertiary">{{ nodeStore.percentage.toFixed(0) }}%</Text>
 			</Flex>
-
-			<!-- <Flex justify="end" :class="$style.ad">
-				<Flex justify="end" direction="column" gap="8">
-					<Text size="12" weight="500" color="brand">Introducing Celenium API</Text>
-					<Text size="12" weight="500" height="140" color="secondary">
-						Unlock the power of Celestia: Scalable, Secure and Modular.
-					</Text>
-				</Flex>
-			</Flex> -->
 
 			<Dropdown position="end" fullWidth>
 				<Flex align="center" gap="8" justify="between" :class="$style.network_selector">

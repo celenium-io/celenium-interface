@@ -258,9 +258,6 @@ const buildChart = (chart, data) => {
             .attr("y", d => {
                 let cy = y(d.fee)
                 if (cy > height - 30) {
-                    console.log('cy', cy);
-                    console.log('height', height);
-
                     return height - 30 - z(d.size) - 1
                 }
 

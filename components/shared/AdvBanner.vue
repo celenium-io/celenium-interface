@@ -7,20 +7,27 @@ const props = defineProps({
 		type: String,
 		required: false,
 	},
+	orientation: {
+		type: String,
+		default: 'vertical',
+	},
 })
 
-const adv = computed(() => {
+const adv = ref({})
+const isDisplayed = ref(true)
+
+onMounted(() => {
 	if (props.advName) {
-		return getAdvByName(props.advName)
+		adv.value = getAdvByName(props.advName)
 	} else {
-		return getRandomAdv()
+		adv.value = getRandomAdv()
 	}
 })
 </script>
 
 <template>
-	<NuxtLink v-if="adv.link" :to="adv.link" target="_blank">
-		<Flex direction="column" gap="12" :class="$style.ad">
+	<NuxtLink v-if="adv.link" :to="adv.link" target="_blank" :class="[orientation === 'horizontal' && $style.wrapper_horizontal, !isDisplayed && $style.not_display]">
+		<Flex v-if="orientation === 'vertical'" direction="column" gap="12" :class="$style.ad_vertical">
 			<Flex direction="column" gap="8">
 				<Flex align="center" gap="6">
 					<Icon v-if="adv.icon" :name="adv.icon" size="14" color="brand" />
@@ -30,17 +37,50 @@ const adv = computed(() => {
 				<Text size="13" weight="600" color="tertiary" height="140"> {{ adv.body }} </Text>
 			</Flex>
 
-			<Text size="13" weight="600" color="brand"> {{ adv.footer }} </Text>
+			<!-- <Text size="13" weight="600" color="brand" :class="$style.footer"> {{ adv.footer }} </Text> -->
+			<Flex align="center" justify="between">
+				<Text size="13" weight="600" color="brand" :class="$style.footer"> {{ adv.footer }} </Text>
+				
+				<Icon @click.prevent.stop="isDisplayed = false" name="close" size="16" color="secondary" :class="$style.close_icon" />
+			</Flex>
+		</Flex>
+		<Flex
+			v-else-if="orientation === 'horizontal'"
+			align="center"
+			justify="between"
+			gap="12"
+			wide
+			:class="$style.ad_horizontal"
+		>
+			<Flex align="center" gap="12">
+				<Flex align="center" gap="6">
+					<Icon v-if="adv.icon" :name="adv.icon" size="14" color="brand" />
+					<Text size="13" weight="600" color="primary"> {{ adv.header }} </Text>
+				</Flex>
+
+				<Text size="13" weight="600" color="tertiary" height="140"> {{ adv.body }} </Text>
+			</Flex>
+
+			<Flex align="center" gap="8">
+				<Text size="13" weight="600" color="brand"> {{ adv.footer }} </Text>
+				
+				<Icon @click.prevent.stop="isDisplayed = false" name="close" size="16" color="secondary" :class="$style.close_icon" />
+			</Flex>
 		</Flex>
 	</NuxtLink>
 </template>
 
 <style module>
-.wrapper {
-	width: fit-content;
+.wrapper_horizontal {
+	width: 100%;
+	padding: 8px 24px 0px 24px;
 }
 
-.ad {
+.not_display {
+	display: none;
+}
+
+.ad_vertical {
 	position: relative;
 
 	border-radius: 12px;
@@ -52,19 +92,60 @@ const adv = computed(() => {
 
 	&:hover {
 		background: var(--op-3);
+
+		.close_icon {
+			display: block;
+		}
 	}
 
+	& .footer {
+		padding: 2px;
+	}
 	& .close_icon {
-		position: absolute;
-		top: 16px;
-		right: 16px;
+		display: none;
+		padding: 2px;
 
-		cursor: pointer;
+		border-radius: 12px;
 
 		transition: all 0.2s ease;
 
 		&:hover {
-			fill: var(--txt-secondary);
+			background: var(--op-10);
+			transform: scale(1.1);
+		}
+	}
+}
+
+.ad_horizontal {
+	position: relative;
+	width: 100%;
+
+	border-radius: 12px;
+	box-shadow: inset 0 0 0 2px var(--op-10);
+
+	padding: 8px 16px;
+
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: var(--op-3);
+
+		.close_icon {
+			display: block;
+		}
+	}
+
+	& .close_icon {
+		display: none;
+		padding: 2px;
+
+		border-radius: 12px;
+
+		transition: all 0.2s ease;
+
+		&:hover {
+			background: var(--op-10);
+			transform: scale(1.1);
 		}
 	}
 }
