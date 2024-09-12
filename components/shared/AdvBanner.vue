@@ -55,25 +55,23 @@ onMounted(() => {
 				<Icon @click.prevent.stop="isDisplayed = false" name="close" size="16" color="secondary" :class="$style.close_icon" />
 			</Flex>
 		</Flex>
+
 		<Flex
 			v-else-if="orientation === 'horizontal'"
 			align="center"
-			justify="between"
 			gap="12"
 			wide
 			:class="$style.ad_horizontal"
 		>
-			<Flex align="center" gap="12">
-				<Flex align="center" gap="8">
-					<Icon v-if="adv.icon" :name="adv.icon" size="14" color="brand" />
+			<Flex align="center" gap="8">
+				<Icon v-if="adv.icon" :name="adv.icon" size="14" color="brand" />
 
-					<Text size="13" weight="600" color="primary" :class="$style.text"> {{ adv.header }} </Text>
-				</Flex>
-
-				<Text size="13" weight="600" color="tertiary" height="140" :class="$style.text"> {{ adv.body }} </Text>
+				<Text size="13" weight="600" color="primary" :class="$style.text"> {{ adv.header }} </Text>
 			</Flex>
 
-			<Flex align="center" gap="8">
+			<Text size="13" weight="600" color="tertiary" height="140" :class="$style.text"> {{ adv.body }} </Text>
+
+			<Flex align="center" gap="8" :class="$style.footer">
 				<Text size="13" weight="600" color="brand" :class="$style.text"> {{ adv.footer }} </Text>
 				
 				<Icon @click.prevent.stop="isDisplayed = false" name="close" size="16" color="secondary" :class="$style.close_icon" />
@@ -170,11 +168,24 @@ onMounted(() => {
 	& .text {
 		line-height: 1.5;
 	}
+
+	& .footer {
+		margin-left: auto;
+	}
 }
 
 @media (max-width: 500px) {
 	.wrapper_horizontal {
 		padding: 12px;
+	}
+
+	.ad_horizontal {
+		flex-direction: column;
+		gap: 4px;
+
+		& .footer {
+			margin-left: 0%;
+		}
 	}
 }
 </style>
