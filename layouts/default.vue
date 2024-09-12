@@ -1,3 +1,9 @@
+<script setup>
+/** Components */
+import AdvBanner from "@/components/shared/AdvBanner.vue"
+
+</script>
+
 <template>
 	<Flex direction="column">
 		<Flex justify="center" :class="$style.wrapper">
@@ -5,6 +11,7 @@
 
 			<Flex direction="column" align="center" :class="$style.content">
 				<Feed />
+				<AdvBanner advName="celenium_survey" orientation="horizontal" />
 				<ActionBar />
 
 				<Flex direction="column" align="center" wide :class="$style.container">

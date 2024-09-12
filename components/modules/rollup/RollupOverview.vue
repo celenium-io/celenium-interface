@@ -77,6 +77,7 @@ const getBlobs = async () => {
 		id: props.rollup.id,
 		offset: (page.value - 1) * 10,
 		limit: 10,
+		sort_by: 'time',
 	})
 
 	if (data.value?.length) {

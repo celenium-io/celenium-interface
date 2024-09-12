@@ -4,15 +4,20 @@ import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem, DropdownTitle, DropdownDivider } from "@/components/ui/Dropdown"
 
 /** Components */
+import AdvBanner from "@/components/shared/AdvBanner.vue"
 import NavLink from "@/components/modules/navigation/NavLink.vue"
 
 /** Utils */
 import { getNetworkName } from "@/services/utils/general"
+import { StatusMap } from "@/services/constants/node"
+import { isMobile } from "@/services/utils"
 
 /** Store */
 import { useAppStore } from "~/store/app"
+import { useNodeStore } from "~/store/node"
 import { useModalsStore } from "~/store/modals"
 const appStore = useAppStore()
+const nodeStore = useNodeStore()
 const modalsStore = useModalsStore()
 
 const head = computed(() => appStore.lastHead)
@@ -171,7 +176,7 @@ const handleNavigate = (url) => {
 					</Flex>
 				</NuxtLink>
 
-				<Button @click="appStore.showSidebar = !appStore.showSidebar" type="secondary" size="mini" :class="$style.close_btn">
+				<Button v-if="isMobile()" @click="appStore.showSidebar = !appStore.showSidebar" type="secondary" size="mini" :class="$style.close_btn">
 					<Icon name="close" size="14" color="primary" />
 				</Button>
 			</Flex>
@@ -212,7 +217,7 @@ const handleNavigate = (url) => {
 				</Flex>
 			</Flex>
 
-			<Flex direction="column" gap="8">
+			<!-- <Flex direction="column" gap="8">
 				<Flex align="center" gap="8" style="padding: 0 8px">
 					<Icon name="stars" size="12" color="tertiary" />
 					<Text size="12" weight="500" color="tertiary">New things</Text>
@@ -221,18 +226,30 @@ const handleNavigate = (url) => {
 				<Flex direction="column" gap="2">
 					<NavLink v-for="link in newLinks" :link="link" @onClose="appStore.showSidebar = false" />
 				</Flex>
-			</Flex>
+			</Flex> -->
+
+			<AdvBanner />
 		</Flex>
 
-		<Flex direction="column" gap="12" style="margin-right: 20px">
-			<!-- <Flex justify="end" :class="$style.ad">
-					<Flex justify="end" direction="column" gap="8">
-						<Text size="12" weight="500" color="brand">Introducing Celenium API</Text>
-						<Text size="12" weight="500" height="140" color="secondary">
-							Unlock the power of Celestia: Scalable, Secure and Modular.
-						</Text>
-					</Flex>
-				</Flex> -->
+		<Flex direction="column" gap="16" style="margin-right: 20px">
+			<Flex @click="modalsStore.open('lightNode')" align="center" gap="8" justify="between" :class="$style.light_node_btn">
+				<Flex align="center" gap="8">
+					<Icon
+						v-if="nodeStore.status === StatusMap.Started"
+						name="lumina"
+						size="14"
+						color="brand"
+						:class="$style.light_node_running_icon"
+					/>
+					<Icon v-else name="lumina" size="14" color="secondary" />
+
+					<Text v-if="nodeStore.status === StatusMap.Started" size="13" weight="600" color="primary">Running</Text>
+					<Text size="13" weight="600" color="secondary">Node</Text>
+				</Flex>
+
+				<Icon v-if="nodeStore.status !== StatusMap.Started" name="arrow-narrow-right" size="14" color="secondary" />
+				<Text v-else size="12" weight="600" color="tertiary">{{ nodeStore.percentage.toFixed(0) }}%</Text>
+			</Flex>
 
 			<Dropdown position="end" fullWidth>
 				<Flex align="center" gap="8" justify="between" :class="$style.network_selector">
@@ -292,6 +309,7 @@ const handleNavigate = (url) => {
 		display: flex;
 
 		background: var(--app-background);
+		overflow: auto;
 
 		z-index: 100;
 	}
@@ -332,6 +350,22 @@ const handleNavigate = (url) => {
 	}
 }
 
+.light_node_btn {
+	height: 32px;
+
+	cursor: pointer;
+	border-radius: 6px;
+	background: var(--op-5);
+
+	padding: 0 8px;
+
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: var(--op-8);
+	}
+}
+
 .network_selector {
 	height: 32px;
 
@@ -358,6 +392,27 @@ const handleNavigate = (url) => {
 	padding: 12px;
 
 	margin-right: 20px;
+}
+
+.light_node_running_icon {
+	animation: lightNodeIcon 2s ease infinite;
+}
+
+@keyframes lightNodeIcon {
+	0% {
+		opacity: 1;
+		filter: drop-shadow(0 0 8px var(--brand));
+	}
+
+	50% {
+		opacity: 0.3;
+		filter: drop-shadow(0 0 2px var(--brand));
+	}
+
+	100% {
+		opacity: 1;
+		filter: drop-shadow(0 0 8px var(--brand));
+	}
 }
 
 @media (max-width: 1300px) {
