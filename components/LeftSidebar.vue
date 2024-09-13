@@ -176,7 +176,13 @@ const handleNavigate = (url) => {
 					</Flex>
 				</NuxtLink>
 
-				<Button v-if="isMobile()" @click="appStore.showSidebar = !appStore.showSidebar" type="secondary" size="mini" :class="$style.close_btn">
+				<Button
+					v-if="isMobile()"
+					@click="appStore.showSidebar = !appStore.showSidebar"
+					type="secondary"
+					size="mini"
+					:class="$style.close_btn"
+				>
 					<Icon name="close" size="14" color="primary" />
 				</Button>
 			</Flex>
@@ -288,6 +294,7 @@ const handleNavigate = (url) => {
 .wrapper {
 	position: sticky;
 	top: 0;
+	overflow-x: auto;
 
 	user-select: none;
 

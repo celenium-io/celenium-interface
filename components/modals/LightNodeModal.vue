@@ -555,7 +555,7 @@ watch(
 							<Text size="12" weight="600" color="primary">Caution about running a node on a mobile</Text>
 							<Text size="12" weight="500" color="tertiary" height="140">
 								Running a light node on mobile devices may affect the performance of your device and cause your phone to
-								discharge quickly. Therefore, a node can be started with the charger connected.
+								discharge quickly.
 							</Text>
 						</Flex>
 
