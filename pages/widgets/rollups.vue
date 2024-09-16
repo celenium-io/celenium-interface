@@ -8,7 +8,6 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Components */
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
-import PieChartShareOfTotal from "@/components/modules/stats/PieChartShareOfTotal.vue"
 
 /** Services */
 import { formatBytes, comma, truncateDecimalPart, abbreviate } from "@/services/utils"
