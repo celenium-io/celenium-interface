@@ -473,7 +473,7 @@ const handleContinue = async () => {
 }
 
 .divider {
-	width: fill-available;
+	width: -webkit-fill-available;
 	height: 2px;
 
 	background: var(--op-5);
