@@ -18,6 +18,7 @@ import HexSettingsModal from "./HexSettingsModal.vue"
 import APIModal from "./APIModal.vue"
 import LightNodeModal from "./LightNodeModal.vue"
 import LightNodeSettingsModal from "./LightNodeSettingsModal.vue"
+import ConnectModal from "./ConnectModal.vue"
 
 /** Store */
 import { useModalsStore } from "@/store/modals"
@@ -44,4 +45,5 @@ const modalsStore = useModalsStore()
 	<APIModal :show="modalsStore.modals.api" @onClose="modalsStore.close('api')" />
 	<LightNodeModal :show="modalsStore.modals.lightNode" @onClose="modalsStore.close('lightNode')" />
 	<LightNodeSettingsModal :show="modalsStore.modals.lightNodeSettings" @onClose="modalsStore.close('lightNodeSettings')" />
+	<ConnectModal :show="modalsStore.modals.connect" @onClose="modalsStore.close('connect')" />
 </template>
