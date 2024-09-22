@@ -92,7 +92,7 @@ const getRollupsCount = async () => {
 
 await getRollupsCount()
 
-const limit = ref(10)
+const limit = ref(20)
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
 const pages = computed(() => Math.ceil(count.value / 20))
 
@@ -221,7 +221,6 @@ const handleNext = () => {
 			v-if="rollups"
 			v-for="r in rollups"
 			align="start"
-			justify="center"
 			direction="column"
 			gap="24"
 			:class="[$style.row, expanded.slug === r.slug && $style.row_expanded]"
@@ -232,38 +231,42 @@ const handleNext = () => {
 						<img :src="r.logo" :class="$style.avatar_image" />
 					</Flex>
 
-					<Flex direction="column" gap="8">
+					<Flex direction="column" gap="12">
 						<Flex align="center" gap="6">
 							<Text size="13" weight="600" color="primary" mono>
 								{{ r.name }}
 							</Text>
 						</Flex>
 
-						<Flex v-if="expanded.slug !== r.slug" align="center" gap="8" :class="$style.rollup_subtitle">
-							<Text size="13" weight="500" color="tertiary">Size</Text>
-							<Text size="13" weight="600" color="primary">{{ formatBytes(r.size) }}</Text>
+						<Flex align="center" :class="$style.rollup_subtitle">
+							<!-- <Flex v-if="expanded.slug !== r.slug" align="center" gap="8" :class="$style.rollup_subtitle"> -->
+							<Flex align="center" gap="8" :class="[expanded.slug === r.slug && $style.hide, expanded.slug !== r.slug && $style.show]">
+								<Text size="13" weight="500" color="tertiary">Size</Text>
+								<Text size="13" weight="600" color="primary">{{ formatBytes(r.size) }}</Text>
 
-							<div :class="$style.dot" />
+								<div :class="$style.dot" />
 
-							<Text size="13" weight="500" color="tertiary">Blobs</Text>
-							<Text size="13" weight="600" color="primary">{{ abbreviate(r.blobs_count) }}</Text>
+								<Text size="13" weight="500" color="tertiary">Blobs</Text>
+								<Text size="13" weight="600" color="primary">{{ abbreviate(r.blobs_count) }}</Text>
 
-							<div :class="$style.dot" />
+								<div :class="$style.dot" />
 
-							<Text size="13" weight="500" color="tertiary">Fee</Text>
-							<Text size="13" weight="600" color="primary">{{ `${abbreviate(Math.round(r.fee / 1_000_000))} TIA` }}</Text>
-						</Flex>
+								<Text size="13" weight="500" color="tertiary">Fee</Text>
+								<Text size="13" weight="600" color="primary">{{ `${abbreviate(Math.round(r.fee / 1_000_000))} TIA` }}</Text>
+							</Flex>
 
-						<Flex v-else align="center" gap="12" :class="$style.rollup_subtitle">
-							<Icon v-if="r.website" @click.prevent.stop=handleOpenLink(r.website) name="globe" size="13" color="secondary" />
+							<!-- <Flex v-else align="center" gap="12" :class="$style.rollup_subtitle"> -->
+							<Flex align="center" gap="12" :class="[expanded.slug !== r.slug && $style.hide, expanded.slug === r.slug && $style.show]">
+								<Icon v-if="r.website" @click.prevent.stop=handleOpenLink(r.website) name="globe" size="13" color="secondary" />
 
-							<Icon v-if="r.twitter" @click.prevent.stop=handleOpenLink(r.twitter) name="twitter" size="13" color="secondary" />
+								<Icon v-if="r.twitter" @click.prevent.stop=handleOpenLink(r.twitter) name="twitter" size="13" color="secondary" />
 
-							<Icon v-if="r.github" @click.prevent.stop=handleOpenLink(r.github) name="github" size="13" color="secondary" />
+								<Icon v-if="r.github" @click.prevent.stop=handleOpenLink(r.github) name="github" size="13" color="secondary" />
 
-							<Icon v-if="r.l2_beat" @click.prevent.stop=handleOpenLink(r.l2_beat) name="l2beat" size="13" color="secondary" />
+								<Icon v-if="r.l2_beat" @click.prevent.stop=handleOpenLink(r.l2_beat) name="l2beat" size="13" color="secondary" />
 
-							<Icon v-if="r.explorer" @click.prevent.stop=handleOpenLink(r.explorer) name="search" size="13" color="secondary" />
+								<Icon v-if="r.explorer" @click.prevent.stop=handleOpenLink(r.explorer) name="search" size="13" color="secondary" />
+							</Flex>
 						</Flex>
 					</Flex>
 				</Flex>
@@ -273,19 +276,18 @@ const handleNext = () => {
 						name="chevron"
 						size="16"
 						color="secondary"
-						:style="{ transform: `rotate(${expanded.slug === r.slug ? '180' : '0'}deg)` }"
+						:style="{ transform: `rotate(${expanded.slug === r.slug ? '180' : '0'}deg)`, transition: 'all 0.5s ease' }"
 					/>
 				</Flex>
 			</Flex>
 
 			<Flex
-				v-if="expanded.slug === r.slug"
 				align="center"
-				justify="between"
-				wide
-				:class="$style.rollup_info"
+				direction="column"
+				gap="16"
+				:class="[$style.rollup_info, expanded.slug === r.slug && $style.show]"
 			>
-				<Flex direction="column" gap="16">
+				<!-- <Flex direction="column" gap="16"> -->
 					<Flex direction="column" gap="12">
 						<Flex align="center" justify="between">
 							<Flex align="center" gap="8">
@@ -369,7 +371,7 @@ const handleNext = () => {
 							></div>
 						</Flex>
 					</Flex>
-				</Flex>
+				<!-- </Flex> -->
 			</Flex>
 		</Flex>
 	</Flex>
@@ -387,32 +389,34 @@ const handleNext = () => {
 
 	cursor: pointer;
 
-	padding: 0 16px;
+	padding: 16px 16px;
 
-	transition: all 0.2s ease;
+	transition: all 0.5s ease;
 
 	/* &:hover {
 		background: var(--op-5);
 	} */
 
-	&:last-child {
+	/* &:last-child {
 		border-bottom-left-radius: 8px;
 		border-bottom-right-radius: 8px;
 		border-bottom: 1px solid var(--op-5);
-	}
+	} */
 
 	/* &:active {
 		background: var(--op-10);
 	} */
 
-	&.disabled {
+	/* & .disabled {
 		pointer-events: none;
 		opacity: 0.2;
-	}
+	} */
 }
 
 .row_expanded {
 	height: 240px;
+
+	transition: all 0.5s ease;
 }
 
 .dot {
@@ -443,17 +447,22 @@ const handleNext = () => {
 
 .rollup_subtitle {
 	max-width: 350px;
+	/* opacity: 0; */
 
 	text-wrap: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	/* transition: all 0.2s ease; */
+	transition: all 0.5s ease;
 }
 
 .rollup_info {
+	/* height: 0; */
 	padding-left: 52px;
+	opacity: 0;
 	/* margin-top: auto; */
 	/* flex: 1; */
+
+	transition: all 0.2s ease;
 }
 
 .validator_bar {
@@ -476,6 +485,25 @@ const handleNext = () => {
 
 .content {
     padding: 6px 10px;
+}
+
+.not_displayed {
+	/* display: none; */
+	opacity: 0;
+}
+
+.show {
+	opacity: 1;
+	/* height: 100%; */
+
+	transition: all 0.2s ease;
+}
+
+.hide {
+	width: 0;
+	opacity: 0;
+
+	transition: all 0.2s ease;
 }
 
 @media (max-width: 500px) {
