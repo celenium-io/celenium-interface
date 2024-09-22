@@ -180,11 +180,27 @@ const handleNext = () => {
 	page.value += 1
 }
 
+const wrapperEl = ref(null)
+const wrapperWidth = ref(0)
+const headerEl = ref(null)
+const headerWidth = ref(0)
+const barWidth = ref(0)
+onMounted(() => {
+	wrapperWidth.value = wrapperEl.value.wrapper.offsetWidth
+	console.log(wrapperWidth.value);
+	
+	headerWidth.value = headerEl.value.wrapper.offsetWidth
+	console.log(headerWidth.value);
+	barWidth.value = Math.round(headerWidth.value * 0.9)
+	console.log(barWidth.value);
+	
+})
+
 </script>
 
 <template>
-	<Flex direction="column" wide :class="$style.wrapper" gap="16">
-		<Flex align="center" justify="between" :class="$style.actions">
+	<Flex ref="wrapperEl" direction="column" wide :class="$style.wrapper" gap="16">
+		<Flex ref="headerEl" align="center" justify="between" :class="$style.actions">
 			<Flex align="center" gap="6">
 				<Flex align="center" gap="4" :class="$style.chip">
 					<Flex align="center" gap="4" :class="$style.content">
@@ -225,7 +241,7 @@ const handleNext = () => {
 									<Text size="12" color="primary">Size</Text>
 								</Flex>
 
-								<Icon v-if="sort.by === 'size'" :name="`sort-${sort.dir}`" size="16" color="tertiary" />
+								<Icon v-if="sort.by === 'size'" :name="`sort-${sort.dir}`" size="12" color="tertiary" />
 							</Flex>
 						</DropdownItem>
 
@@ -238,7 +254,7 @@ const handleNext = () => {
 									<Text size="12" color="primary">Blobs</Text>
 								</Flex>
 
-								<Icon v-if="sort.by === 'blobs_count'" :name="`sort-${sort.dir}`" size="16" color="tertiary" />
+								<Icon v-if="sort.by === 'blobs_count'" :name="`sort-${sort.dir}`" size="12" color="tertiary" />
 							</Flex>
 						</DropdownItem>
 
@@ -251,7 +267,7 @@ const handleNext = () => {
 									<Text size="12" color="primary">Fee</Text>
 								</Flex>
 
-								<Icon v-if="sort.by === 'fee'" :name="`sort-${sort.dir}`" size="16" color="tertiary" />
+								<Icon v-if="sort.by === 'fee'" :name="`sort-${sort.dir}`" size="12" color="tertiary" />
 							</Flex>
 						</DropdownItem>
 					</template>
@@ -281,7 +297,7 @@ const handleNext = () => {
 			gap="24"
 			:class="[$style.row, expanded.slug === r.slug && $style.row_expanded]"
 		>
-			<Flex @click="expand(r)" align="center" justify="between" wide>
+			<Flex ref="rowEl" @click="expand(r)" align="center" justify="between" wide>
 				<Flex align="center" gap="12">
 					<Flex align="center" justify="center" :class="$style.avatar_container">
 						<img :src="r.logo" :class="$style.avatar_image" />
@@ -295,7 +311,6 @@ const handleNext = () => {
 						</Flex>
 
 						<Flex align="center" :class="$style.rollup_subtitle">
-							<!-- <Flex v-if="expanded.slug !== r.slug" align="center" gap="8" :class="$style.rollup_subtitle"> -->
 							<Flex align="center" gap="8" :class="[expanded.slug === r.slug && $style.hide, expanded.slug !== r.slug && $style.show]">
 								<Text size="13" weight="500" color="tertiary">Size</Text>
 								<Text size="13" weight="600" color="primary">{{ formatBytes(r.size) }}</Text>
@@ -311,7 +326,6 @@ const handleNext = () => {
 								<Text size="13" weight="600" color="primary">{{ `${abbreviate(Math.round(r.fee / 1_000_000))} TIA` }}</Text>
 							</Flex>
 
-							<!-- <Flex v-else align="center" gap="12" :class="$style.rollup_subtitle"> -->
 							<Flex align="center" gap="12" :class="[expanded.slug !== r.slug && $style.hide, expanded.slug === r.slug && $style.show]">
 								<Icon v-if="r.website" @click.prevent.stop=handleOpenLink(r.website) name="globe" size="13" color="secondary" />
 
@@ -332,102 +346,105 @@ const handleNext = () => {
 						name="chevron"
 						size="16"
 						color="secondary"
-						:style="{ transform: `rotate(${expanded.slug === r.slug ? '180' : '0'}deg)`, transition: 'all 0.5s ease' }"
+						:style="{ transform: `rotate(${expanded.slug === r.slug ? '180' : '0'}deg)`, transition: 'all 0.3s ease' }"
 					/>
 				</Flex>
 			</Flex>
 
 			<Flex
+				v-show="expanded.slug === r.slug"
 				align="center"
 				direction="column"
 				gap="16"
 				:class="[$style.rollup_info, expanded.slug === r.slug && $style.show]"
 			>
-				<!-- <Flex direction="column" gap="16"> -->
-					<Flex direction="column" gap="12">
-						<Flex align="center" justify="between">
-							<Flex align="center" gap="8">
-								<Text size="13" weight="500" color="tertiary">Size</Text>
-								<Text size="13" weight="600" color="primary">{{ formatBytes(r.size) }}</Text>
-							</Flex>
-
-							<Text size="11" weight="500" color="tertiary">{{ `~${r.size_graph}% of total` }}</Text>
+			<!-- :class="[$style.rollup_info, expanded.slug === r.slug && $style.show]" -->
+				<Flex direction="column" gap="12">
+					<Flex align="center" justify="between">
+						<Flex align="center" gap="8">
+							<Text size="13" weight="500" color="tertiary">Size</Text>
+							<Text size="13" weight="600" color="primary">{{ formatBytes(r.size) }}</Text>
 						</Flex>
 
-						<Flex :style="`width: ${350}px`">
-							<div
-								:class="$style.validator_bar"
-								:style="{
-									width: `${r.size_graph}%`,
-									background: 'var(--mint)',
-								}"
-							></div>
-							<div
-								:class="$style.validator_bar"
-								:style="{
-									width: `${100 - r.size_graph}%`,
-									background: 'var(--op-20)',
-								}"
-							></div>
-						</Flex>
+						<Text size="11" weight="500" color="tertiary">{{ `~${r.size_graph}% of total` }}</Text>
 					</Flex>
 
-					<Flex direction="column" gap="12">
-						<Flex align="center" justify="between">
-							<Flex align="center" gap="8">
-								<Text size="13" weight="500" color="tertiary">Blobs</Text>
-								<Text size="13" weight="600" color="primary">{{ comma(r.blobs_count) }}</Text>
-							</Flex>
+					<Flex :style="`width: ${barWidth}px`">
+						<div
+							:class="$style.validator_bar"
+							:style="{
+								width: `${r.size_graph}%`,
+								background: 'var(--mint)',
+								marginRight: '4px',
+							}"
+						></div>
+						<div
+							:class="$style.validator_bar"
+							:style="{
+								width: `${100 - r.size_graph}%`,
+								background: 'var(--op-20)',
+							}"
+						></div>
+					</Flex>
+				</Flex>
 
-							<Text size="11" weight="500" color="tertiary">{{ `~${r.blobs_count_graph}% of total` }}</Text>
+				<Flex direction="column" gap="12">
+					<Flex align="center" justify="between">
+						<Flex align="center" gap="8">
+							<Text size="13" weight="500" color="tertiary">Blobs</Text>
+							<Text size="13" weight="600" color="primary">{{ comma(r.blobs_count) }}</Text>
 						</Flex>
 
-						<Flex :style="`width: ${350}px`">
-							<div
-								:class="$style.validator_bar"
-								:style="{
-									width: `${r.blobs_count_graph}%`,
-									background: 'var(--mint)',
-								}"
-							></div>
-							<div
-								:class="$style.validator_bar"
-								:style="{
-									width: `${100 - r.blobs_count_graph}%`,
-									background: 'var(--op-20)',
-								}"
-							></div>
-						</Flex>
+						<Text size="11" weight="500" color="tertiary">{{ `~${r.blobs_count_graph}% of total` }}</Text>
 					</Flex>
 
-					<Flex direction="column" gap="12">
-						<Flex align="center" justify="between">
-							<Flex align="center" gap="8">
-								<Text size="13" weight="500" color="tertiary">Fee Paid</Text>
-								<Text size="13" weight="600" color="primary">{{ `${comma(Math.round(r.fee / 1_000_000))} TIA` }}</Text>
-							</Flex>
-
-							<Text size="11" weight="500" color="tertiary">{{ `~${r.fee_graph}% of total` }}</Text>
-						</Flex>
-
-						<Flex :style="`width: ${350}px`">
-							<div
-								:class="$style.validator_bar"
-								:style="{
-									width: `${r.fee_graph}%`,
-									background: 'var(--mint)',
-								}"
-							></div>
-							<div
-								:class="$style.validator_bar"
-								:style="{
-									width: `${100 - r.fee_graph}%`,
-									background: 'var(--op-20)',
-								}"
-							></div>
-						</Flex>
+					<Flex :style="`width: ${barWidth}px`">
+						<div
+							:class="$style.validator_bar"
+							:style="{
+								width: `${r.blobs_count_graph}%`,
+								background: 'var(--mint)',
+								marginRight: '4px',
+							}"
+						></div>
+						<div
+							:class="$style.validator_bar"
+							:style="{
+								width: `${100 - r.blobs_count_graph}%`,
+								background: 'var(--op-20)',
+							}"
+						></div>
 					</Flex>
-				<!-- </Flex> -->
+				</Flex>
+
+				<Flex direction="column" gap="12">
+					<Flex align="center" justify="between">
+						<Flex align="center" gap="8">
+							<Text size="13" weight="500" color="tertiary">Fee Paid</Text>
+							<Text size="13" weight="600" color="primary">{{ `${comma(Math.round(r.fee / 1_000_000))} TIA` }}</Text>
+						</Flex>
+
+						<Text size="11" weight="500" color="tertiary">{{ `~${r.fee_graph}% of total` }}</Text>
+					</Flex>
+
+					<Flex :style="`width: ${barWidth}px`">
+						<div
+							:class="$style.validator_bar"
+							:style="{
+								width: `${r.fee_graph}%`,
+								background: 'var(--mint)',
+								marginRight: '4px',
+							}"
+						></div>
+						<div
+							:class="$style.validator_bar"
+							:style="{
+								width: `${100 - r.fee_graph}%`,
+								background: 'var(--op-20)',
+							}"
+						></div>
+					</Flex>
+				</Flex>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -514,7 +531,7 @@ const handleNext = () => {
 .rollup_info {
 	/* height: 0; */
 	padding-left: 52px;
-	opacity: 0;
+	/* opacity: 0; */
 	/* margin-top: auto; */
 	/* flex: 1; */
 
@@ -526,7 +543,7 @@ const handleNext = () => {
 
 	border-radius: 2px;
 
-	margin-right: 4px;
+	/* margin-right: 4px; */
 	margin-bottom: 4px;
 }
 
@@ -556,10 +573,20 @@ const handleNext = () => {
 }
 
 .hide {
-	/* width: 0; */
+	width: 0;
 	opacity: 0;
 
 	transition: all 0.2s ease;
+}
+
+.expand-enter-active,
+.expand-leave-active {
+  transition: max-height 0.3s ease;
+}
+
+.expand-enter,
+.expand-leave-to {
+  max-height: 0;
 }
 
 @media (max-width: 500px) {
