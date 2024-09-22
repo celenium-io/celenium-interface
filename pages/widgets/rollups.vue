@@ -4,6 +4,7 @@ import { DateTime } from "luxon"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
+import { Dropdown, DropdownDivider, DropdownItem, DropdownTitle } from "@/components/ui/Dropdown"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Components */
@@ -92,9 +93,9 @@ const getRollupsCount = async () => {
 
 await getRollupsCount()
 
-const limit = ref(20)
+const limit = ref(10)
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = computed(() => Math.ceil(count.value / 20))
+const pages = computed(() => Math.ceil(count.value / limit.value))
 
 const getRollups = async () => {
 	isRefetching.value = true
@@ -152,13 +153,15 @@ const handleSort = (by) => {
 
 		case "asc":
 			sort.dir = "desc"
-
 			break
 	}
 
 	sort.by = by
-
-	getRollups()
+	if (page.value !== 1) {
+		page.value = 1
+	} else {
+		getRollups()
+	}
 }
 
 const handleOpenLink = (link) => {
@@ -202,18 +205,71 @@ const handleNext = () => {
 				</Flex>
 			</Flex>
 
-			<Flex align="center" gap="6">
-				<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
-					<Icon name="arrow-left" size="12" color="primary" />
-				</Button>
+			<Flex align="center" gap="12">
+				<Dropdown>
+					<Button type="secondary" size="mini">
+						<Icon :name="`sort-${sort.dir}`" size="16" color="primary" />
+					</Button>
 
-				<Button type="secondary" size="mini" disabled>
-					<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
-				</Button>
+					<template #popup>
+						<DropdownTitle>Sort by</DropdownTitle>
 
-				<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
-					<Icon name="arrow-right" size="12" color="primary" />
-				</Button>
+						<DropdownDivider />
+
+						<DropdownItem @click="handleSort('size')">
+							<Flex align="center" justify="between" gap="16" wide>
+								<Flex align="center" gap="8">
+									<!-- <Icon v-if="sort.by === 'size'" name="check" size="12" color="brand" /> -->
+									<Icon name="check" size="12" color="brand" :class="[sort.by === 'size' && $style.show, sort.by !== 'size' && $style.hide]" />
+
+									<Text size="12" color="primary">Size</Text>
+								</Flex>
+
+								<Icon v-if="sort.by === 'size'" :name="`sort-${sort.dir}`" size="16" color="tertiary" />
+							</Flex>
+						</DropdownItem>
+
+						<DropdownItem @click="handleSort('blobs_count')">
+							<Flex align="center" justify="between" gap="16" wide>
+								<Flex align="center" gap="8">
+									<!-- <Icon v-if="sort.by === 'blobs_count'" name="check" size="12" color="brand" /> -->
+									<Icon name="check" size="12" color="brand" :class="[sort.by === 'blobs_count' && $style.show, sort.by !== 'blobs_count' && $style.hide]" />
+
+									<Text size="12" color="primary">Blobs</Text>
+								</Flex>
+
+								<Icon v-if="sort.by === 'blobs_count'" :name="`sort-${sort.dir}`" size="16" color="tertiary" />
+							</Flex>
+						</DropdownItem>
+
+						<DropdownItem @click="handleSort('fee')">
+							<Flex align="center" justify="between" gap="16" wide>
+								<Flex align="center" gap="8">
+									<!-- <Icon v-if="sort.by === 'fee'" name="check" size="12" color="brand" /> -->
+									<Icon name="check" size="12" color="brand" :class="[sort.by === 'fee' && $style.show, sort.by !== 'fee' && $style.hide]" />
+
+									<Text size="12" color="primary">Fee</Text>
+								</Flex>
+
+								<Icon v-if="sort.by === 'fee'" :name="`sort-${sort.dir}`" size="16" color="tertiary" />
+							</Flex>
+						</DropdownItem>
+					</template>
+				</Dropdown>
+
+				<Flex align="center" gap="6">
+					<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
+						<Icon name="arrow-left" size="12" color="primary" />
+					</Button>
+
+					<Button type="secondary" size="mini" disabled>
+						<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
+					</Button>
+
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
+						<Icon name="arrow-right" size="12" color="primary" />
+					</Button>
+				</Flex>
 			</Flex>
 		</Flex>
 
@@ -500,7 +556,7 @@ const handleNext = () => {
 }
 
 .hide {
-	width: 0;
+	/* width: 0; */
 	opacity: 0;
 
 	transition: all 0.2s ease;
