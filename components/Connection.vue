@@ -18,8 +18,6 @@ const notificationsStore = useNotificationsStore()
 
 const router = useRouter()
 
-const isFetchingAccounts = ref(false)
-
 const { hostname } = useRequestURL()
 
 switch (hostname) {
@@ -36,7 +34,7 @@ switch (hostname) {
 	// case "arabica.celenium.io":
 	// case "localhost":
 	default:
-		appStore.network = arabica
+		appStore.network = mainnet /** TEMP */
 		break
 }
 

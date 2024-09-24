@@ -14,7 +14,7 @@ export const Server = {
 	BLOBSTREAM: {
 		mainnet: "https://api-blobstream.celenium.io/v1",
 		testnet: "https://api-blobstream-testnet.celenium.io/v1",
-	}
+	},
 }
 
 export const useServerURL = () => {
@@ -37,7 +37,7 @@ export const useServerURL = () => {
 			return Server.API.dev
 
 		default:
-			return Server.API.dev
+			return Server.API.mainnet /** TEMP */
 	}
 }
 
