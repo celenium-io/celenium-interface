@@ -79,11 +79,11 @@ const handleConnect = async (target) => {
 				<Text size="16" weight="600" color="primary">Connect Wallet</Text>
 
 				<Flex align="center" gap="6">
-					<Flex align="center" gap="4" :class="$style.network_badge">
+					<Flex align="center" gap="4" :class="[$style.badge, $style.network]">
 						<Icon name="globe" size="12" color="black" />
 						<Text size="12" weight="600" color="black">{{ getNetworkName() }}</Text>
 					</Flex>
-					<Flex align="center" gap="6" :class="$style.address_badge">
+					<Flex align="center" gap="6" :class="[$style.badge, $style.address]">
 						<Text size="12" weight="600" color="primary">{{ address }}</Text>
 					</Flex>
 				</Flex>
@@ -186,17 +186,28 @@ const handleConnect = async (target) => {
 	margin-top: 8px;
 }
 
-.network_badge {
-	background: var(--brand);
+.badge {
+	max-width: 250px;
+
+	-webkit-line-clamp: 1;
+	white-space: nowrap;
+
 	border-radius: 6px;
 
 	padding: 6px;
-}
-.address_badge {
-	background: var(--op-5);
-	border-radius: 6px;
 
-	padding: 6px;
+	&.network {
+		background: var(--brand);
+	}
+
+	&.address {
+		background: var(--op-5);
+	}
+
+	& span {
+		text-overflow: ellipsis;
+		overflow: hidden;
+	}
 }
 
 .wallet {
