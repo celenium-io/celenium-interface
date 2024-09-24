@@ -57,6 +57,10 @@ const handleCopy = (target) => {
 	})
 }
 
+const handleChangeWallet = () => {
+	modalsStore.open("connect")
+}
+
 const handleDisconnect = () => {
 	disconnect()
 
@@ -100,6 +104,7 @@ const handleDisconnect = () => {
 				<Text>Copy address</Text>
 			</DropdownItem>
 			<DropdownDivider />
+			<DropdownItem @click="handleChangeWallet">Change wallet</DropdownItem>
 			<DropdownItem @click="handleDisconnect">Disconnect</DropdownItem>
 		</template>
 	</Dropdown>

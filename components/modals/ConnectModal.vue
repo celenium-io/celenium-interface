@@ -41,7 +41,7 @@ const handleConnect = async (target) => {
 	window.wallet = window[target]
 
 	try {
-		await connect(appStore.network)
+		await connect(JSON.parse(JSON.stringify(appStore.network)))
 
 		const accounts = await getAccounts(appStore.network)
 		if (accounts.length) {
@@ -89,8 +89,10 @@ const handleConnect = async (target) => {
 				</Flex>
 
 				<Text size="13" weight="500" height="160" color="tertiary" align="center" style="max-width: 250px">
-					By connecting your wallet, you agree to <Text color="secondary">Terms of Service</Text> and
-					<Text color="secondary">Privacy Policy</Text>.
+					By connecting your wallet, you agree to
+					<a href="https://www.pklabs.me/terms" target="_blank"><Text color="secondary">Terms of Service</Text></a> and
+					<a href="https://www.pklabs.me/privacy" target="_blank"><Text color="secondary">Privacy Policy</Text></a
+					>.
 				</Text>
 			</Flex>
 
@@ -138,8 +140,8 @@ const handleConnect = async (target) => {
 						<template #content>
 							{{
 								hasLeap
-									? "Keplr is found in your extensions and ready to connect."
-									: "Keplr is not found in your extensions, install it."
+									? "Leap is found in your extensions and ready to connect."
+									: "Leap is not found in your extensions, install it."
 							}}
 						</template>
 					</Tooltip>
