@@ -180,29 +180,31 @@ const handleNext = () => {
 	page.value += 1
 }
 
-const wrapperEl = ref(null)
-const wrapperWidth = ref(0)
 const headerEl = ref(null)
 const headerWidth = ref(0)
 const barWidth = ref(0)
-onMounted(() => {
-	wrapperWidth.value = wrapperEl.value.wrapper.offsetWidth
-	console.log(wrapperWidth.value);
-	
+
+const barWidthCalculation = () => {
 	headerWidth.value = headerEl.value.wrapper.offsetWidth
-	console.log(headerWidth.value);
-	barWidth.value = Math.round(headerWidth.value * 0.9)
-	console.log(barWidth.value);
-	
+	barWidth.value = Math.round(headerWidth.value - 100)
+}
+
+onMounted(() => {
+	barWidthCalculation()
+
+	window.addEventListener("resize", barWidthCalculation)
 })
 
+onBeforeUnmount(() => {
+	window.removeEventListener("resize", barWidthCalculation)
+})
 </script>
 
 <template>
-	<Flex ref="wrapperEl" direction="column" wide :class="$style.wrapper" gap="16">
+	<Flex direction="column" wide :class="$style.wrapper" gap="16">
 		<Flex ref="headerEl" align="center" justify="between" :class="$style.actions">
 			<Flex align="center" gap="6">
-				<Flex align="center" gap="4" :class="$style.chip">
+				<!-- <Flex align="center" gap="4" :class="$style.chip">
 					<Flex align="center" gap="4" :class="$style.content">
 						<Text size="12" weight="600" color="primary"> Size </Text>
 					</Flex>
@@ -218,7 +220,7 @@ onMounted(() => {
 					<Flex align="center" gap="4" :class="$style.content">
 						<Text size="12" weight="600" color="primary"> Fee </Text>
 					</Flex>
-				</Flex>
+				</Flex> -->
 			</Flex>
 
 			<Flex align="center" gap="12">
