@@ -157,6 +157,7 @@ const handleSort = (by) => {
 	}
 
 	sort.by = by
+	expanded.value = {}
 	if (page.value !== 1) {
 		page.value = 1
 	} else {
@@ -447,6 +448,15 @@ onBeforeUnmount(() => {
 						></div>
 					</Flex>
 				</Flex>
+
+				<Flex align="center" justify="end" wide>
+					<NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+						<Flex align="center" gap="4">
+							<Text size="11" color="tertiary">View Details</Text>
+							<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
+						</Flex>
+					</NuxtLink>
+				</Flex>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -455,6 +465,8 @@ onBeforeUnmount(() => {
 <style module>
 .wrapper {
 	padding: 20px 24px 60px 24px;
+
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 .row {
@@ -467,25 +479,6 @@ onBeforeUnmount(() => {
 	padding: 16px 16px;
 
 	transition: all 0.5s ease;
-
-	/* &:hover {
-		background: var(--op-5);
-	} */
-
-	/* &:last-child {
-		border-bottom-left-radius: 8px;
-		border-bottom-right-radius: 8px;
-		border-bottom: 1px solid var(--op-5);
-	} */
-
-	/* &:active {
-		background: var(--op-10);
-	} */
-
-	/* & .disabled {
-		pointer-events: none;
-		opacity: 0.2;
-	} */
 }
 
 .row_expanded {
@@ -516,13 +509,8 @@ onBeforeUnmount(() => {
 	object-fit: cover;
 }
 
-.social_link {
-	height: 13px;
-}
-
 .rollup_subtitle {
 	max-width: 350px;
-	/* opacity: 0; */
 
 	text-wrap: nowrap;
 	overflow: hidden;
@@ -531,11 +519,7 @@ onBeforeUnmount(() => {
 }
 
 .rollup_info {
-	/* height: 0; */
 	padding-left: 52px;
-	/* opacity: 0; */
-	/* margin-top: auto; */
-	/* flex: 1; */
 
 	transition: all 0.2s ease;
 }
@@ -545,7 +529,6 @@ onBeforeUnmount(() => {
 
 	border-radius: 2px;
 
-	/* margin-right: 4px; */
 	margin-bottom: 4px;
 }
 
@@ -562,14 +545,8 @@ onBeforeUnmount(() => {
     padding: 6px 10px;
 }
 
-.not_displayed {
-	/* display: none; */
-	opacity: 0;
-}
-
 .show {
 	opacity: 1;
-	/* height: 100%; */
 
 	transition: all 0.2s ease;
 }
@@ -581,14 +558,14 @@ onBeforeUnmount(() => {
 	transition: all 0.2s ease;
 }
 
-.expand-enter-active,
-.expand-leave-active {
-  transition: max-height 0.3s ease;
-}
+a {
+	& :active {
+		color: var(--txt-secondary);
 
-.expand-enter,
-.expand-leave-to {
-  max-height: 0;
+		& svg:first-of-type {
+			fill: var(--txt-secondary);
+		}		
+	}
 }
 
 @media (max-width: 500px) {
