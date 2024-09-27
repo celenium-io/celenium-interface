@@ -35,6 +35,8 @@ import AdvBanner from "@/components/shared/AdvBanner.vue"
 <style module>
 .wrapper {
 	min-height: calc(100vh);
+
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 .content {
