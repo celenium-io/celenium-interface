@@ -16,6 +16,7 @@
 		"@nuxt/devtools": "latest",
 		"@nuxtjs/sitemap": "^6.1.1",
 		"cross-env": "^7.0.3",
+		"lefthook": "^1.7.18",
 		"nuxt": "3.12.4",
 		"nuxt-og-image": "3.0.0-rc.52",
 		"sass": "1.66.1",
