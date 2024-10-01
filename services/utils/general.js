@@ -8,7 +8,7 @@ export const formatBytes = (bytes, decimals = 2) => {
 
 	const i = Math.floor(Math.log(bytes) / Math.log(1024))
 
-	return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(dm))} ${sizes[i]}`
+	return `${Number.parseFloat((bytes / 1024 ** i).toFixed(dm))} ${sizes[i]}`
 }
 
 export const getNamespaceID = (target) => {
@@ -22,19 +22,18 @@ export const getNamespaceID = (target) => {
 }
 
 export const getNamespaceIDFromBase64 = (target) => {
-	let s = base64ToHex(target)
-
+	const s = base64ToHex(target)
 	return s.substring(2)
 }
 
 export const getShortNamespaceID = (id) => {
-	let s = getNamespaceID(id)
+	const s = getNamespaceID(id)
 
 	if (s.length > 8) {
 		return `${s.slice(0, 4)} ••• ${s.slice(-4)}`
-	} else {
-		return space(s)
 	}
+
+	return space(s)
 }
 
 export const shortHash = (hash) => {
@@ -55,29 +54,31 @@ export const strToHex = (str) => {
 export const shortHex = (hex) => {
 	if (hex.length > 16) {
 		return `${hex.slice(0, 8)} ••• ${hex.slice(-8)}`
-	} else {
-		return hex
 	}
+
+	return hex
 }
 
 export const midHex = (hex) => {
 	if (hex.length > 32) {
 		return `${hex.slice(0, 16)} ••• ${hex.slice(-16)}`
-	} else {
-		return hex
 	}
+
+	return hex
 }
 
 export const splitAddress = (address, format = "string") => {
 	if (!address) return
 
 	if (address.startsWith("celestiavaloper")) {
-		return format === "array" ? [`celestiavaloper`, address.slice(-4)] : `celestiavaloper ••• ${address.slice(-4)}`
-	} else if (address.startsWith("celestiavalcons")) {
-		return format === "array" ? [`celestiavalcons`, address.slice(-4)] : `celestiavalcons ••• ${address.slice(-4)}`
-	} else {
-		return format === "array" ? ["celestia", address.slice(-4)] : `celestia ••• ${address.slice(-4)}`
+		return format === "array" ? ["celestiavaloper", address.slice(-4)] : `celestiavaloper ••• ${address.slice(-4)}`
 	}
+
+	if (address.startsWith("celestiavalcons")) {
+		return format === "array" ? ["celestiavalcons", address.slice(-4)] : `celestiavalcons ••• ${address.slice(-4)}`
+	}
+
+	return format === "array" ? ["celestia", address.slice(-4)] : `celestia ••• ${address.slice(-4)}`
 }
 
 const REGEX_MOBILE1 =
@@ -129,11 +130,12 @@ export const isMac = () => {
 }
 
 export const isPrefersDarkScheme = () => {
-	return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+	return window.matchMedia("(prefers-color-scheme: dark)")?.matches
 }
 
 export function reverseMapping(obj) {
 	const reversedObj = {}
+	// biome-ignore lint/complexity/noForEach: <explanation>
 	Object.entries(obj).forEach(([key, value]) => {
 		reversedObj[value] = key
 	})
@@ -147,7 +149,7 @@ export function base64ToHex(base64) {
 	for (let i = 0; i < raw.length; i++) {
 		let hexByte = raw.charCodeAt(i).toString(16)
 		if (hexByte.length === 1) {
-			hexByte = "0" + hexByte
+			hexByte = `0${hexByte}`
 		}
 		hex += hexByte
 	}

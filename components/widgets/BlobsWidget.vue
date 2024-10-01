@@ -24,13 +24,15 @@ onMounted(async () => {
 	const data = await fetchSeries({
 		table: "blobs_size",
 		period: "day",
-		from: parseInt(DateTime.now().minus({ days: 168 }).ts / 1_000),
+		from: Number.parseInt(DateTime.now().minus({ days: 168 }).ts / 1_000),
 	})
 
 	days.value = data
 	days.value.reverse()
 
-	totalSize.value = days.value.reduce((a, b) => (a += parseInt(b.value)), 0)
+	totalSize.value = days.value.reduce((a, b) => {
+		a += Number.parseInt(b.value)
+	}, 0)
 	minValue.value = Math.min(...days.value.map((d) => d.value).filter((value) => value > 0))
 	maxValue.value = Math.max(...days.value.map((d) => d.value))
 
@@ -62,13 +64,15 @@ onMounted(async () => {
 })
 
 const getOpacity = (val) => {
-	const pct = (parseInt(val) * 100) / maxValue.value
+	const pct = (Number.parseInt(val) * 100) / maxValue.value
 
 	if (pct < 30) {
 		return 0.3
-	} else if (pct < 60) {
+	}
+	if (pct < 60) {
 		return 0.5
-	} else if (pct < 100) {
+	}
+	if (pct < 100) {
 		return 1
 	}
 }
@@ -84,8 +88,8 @@ const calculateOpacity = (val) => {
 }
 
 const selectDay = (d) => {
-	let from = parseInt(DateTime.fromISO(d.time).startOf('day').ts / 1_000)
-	let to = parseInt(DateTime.fromISO(d.time).endOf('day').ts / 1_000)
+	const from = Number.parseInt(DateTime.fromISO(d.time).startOf("day").ts / 1_000)
+	const to = Number.parseInt(DateTime.fromISO(d.time).endOf("day").ts / 1_000)
 	router.push(`/txs?message_type=MsgPayForBlobs&from=${from}&to=${to}`)
 }
 </script>
@@ -113,7 +117,7 @@ const selectDay = (d) => {
 						@click="selectDay(day)"
 						:class="[$style.day, day?.value > 0 && $style.shadow]"
 						:style="{
-							background: parseInt(day?.value) > 0 ? `rgb(10, 219, 111)` : 'var(--op-10)',
+							background: Number.parseInt(day?.value) > 0 ? `rgb(10, 219, 111)` : 'var(--op-10)',
 							opacity: calculateOpacity(day?.value),
 						}"
 					/>

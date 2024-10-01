@@ -76,7 +76,7 @@ const handleInput = () => {
 	if (props.disabled) return
 
 	if (props.type === "number") {
-		emit("update:modelValue", isNaN(parseFloat(text.value)) ? text.value : parseFloat(text.value))
+		emit("update:modelValue", Number.isNaN(Number.parseFloat(text.value)) ? text.value : Number.parseFloat(text.value))
 	} else {
 		emit("update:modelValue", text.value)
 	}
@@ -84,7 +84,7 @@ const handleInput = () => {
 
 const handleKeydown = (e) => {
 	if (props.disabled && e.key !== "Tab") e.preventDefault()
-	if (props.type == "number") {
+	if (props.type === "number") {
 		if (e.key === "-") e.preventDefault()
 	}
 }

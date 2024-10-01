@@ -25,54 +25,55 @@ const total = ref(0)
 
 const getSquareSizes = async () => {
 	const data = await fetchSquareSize(
-		parseInt(DateTime.now().minus({
-			days: props.period.timeframe === "day" ? props.period.value : 0,
-			hours: props.period.timeframe === "hour" ? props.period.value + 1 : 0,
-		}).ts / 1_000)
+		Number.parseInt(
+			DateTime.now().minus({
+				days: props.period.timeframe === "day" ? props.period.value : 0,
+				hours: props.period.timeframe === "hour" ? props.period.value + 1 : 0,
+			}).ts / 1_000,
+		),
 	)
-	
-    Object.keys(data).forEach(key => {
+
+	for (const key of Object.keys(data)) {
 		squareSize.value.push({
 			size: key,
 			value: data[key][0].value,
 		})
 
 		total.value += +data[key][0].value
-	})
+	}
 
-	const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#65efcc", "#142f28"]))
-        .domain([0, squareSize.value.length])
+	const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#65efcc", "#142f28"])).domain([0, squareSize.value.length])
 
 	let totalSquares = 0
 	squareSize.value.forEach((item, index) => {
 		item.color = color(index)
 
-		let share = Math.round((item.value / total.value * 100))
+		const share = Math.round((item.value / total.value) * 100)
 		totalSquares += Math.max(share, 1)
 		item.share = share
 		item.squares = Math.max(share, 1)
 	})
 
 	if (totalSquares !== 100) {
-		let maxSquaresIndex = squareSize.value.reduce((maxIndex, current, index, array) => {
-			return (current.squares > array[maxIndex].squares) ? index : maxIndex
+		const maxSquaresIndex = squareSize.value.reduce((maxIndex, current, index, array) => {
+			return current.squares > array[maxIndex].squares ? index : maxIndex
 		}, 0)
-		
+
 		if (totalSquares > 100) {
 			squareSize.value[maxSquaresIndex].squares = squareSize.value[maxSquaresIndex].squares - (totalSquares - 100)
 		} else {
 			squareSize.value[maxSquaresIndex].squares = squareSize.value[maxSquaresIndex].squares + (100 - totalSquares)
 		}
 	}
-	
-	squareSize.value.forEach(item => {
+
+	for (const item of squareSize.value) {
 		for (let i = 0; i < item.squares; i++) {
 			squareSizeGraph.value.push({
 				size: item.size,
 				color: item.color,
 			})
 		}
-	})
+	}
 }
 
 const squareSizeEl = ref(null)
@@ -81,20 +82,20 @@ const squareWidth = computed(() => Math.floor((squareSizeWidth.value - 19) / 20)
 
 const handleHoverEnter = (index) => {
 	const elements = document.querySelectorAll(`[class*='suqare-group-']`)
-	elements.forEach(el => {
+	for (const el of elements) {
 		if (el.id === index) {
 			el.style.filter = "brightness(120%)"
 		} else {
 			el.style.filter = "brightness(40%)"
 		}
-	})
+	}
 }
 
 const handleHoverLeave = () => {
 	const elements = document.querySelectorAll(`[class*='suqare-group-']`)
-	elements.forEach(el => {
+	for (const el of elements) {
 		el.style.filter = "brightness(100%)"
-	})
+	}
 }
 
 onMounted(async () => {

@@ -15,7 +15,6 @@ import { useCacheStore } from "@/store/cache"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
 
-
 const router = useRouter()
 
 const props = defineProps({
@@ -26,33 +25,32 @@ const props = defineProps({
 })
 
 const vestingTime = (v, tooltip) => {
-	let startTime = DateTime.fromISO(v.start_time)
-	let endTime = DateTime.fromISO(v.end_time)
+	const startTime = DateTime.fromISO(v.start_time)
+	const endTime = DateTime.fromISO(v.end_time)
 
 	if (!tooltip) {
 		switch (v.type) {
-			case 'periodic':
-			case 'continuous':
+			case "periodic":
+			case "continuous":
 				if (startTime.year === endTime.year) {
-					return `${startTime.toFormat('dd LLL')} - ${endTime.toFormat('dd LLL')}`
-				} else {
-					return `${startTime.toFormat('dd LLL yyyy')} - ${endTime.toFormat('dd LLL yyyy')}`
+					return `${startTime.toFormat("dd LLL")} - ${endTime.toFormat("dd LLL")}`
 				}
-			case 'permanent':
-				return '— —'
+				return `${startTime.toFormat("dd LLL yyyy")} - ${endTime.toFormat("dd LLL yyyy")}`
+			case "permanent":
+				return "— —"
 			default:
-				return DateTime.now().year === endTime.year ? endTime.toFormat('dd LLL') : endTime.toFormat('dd LLL yyyy')
+				return DateTime.now().year === endTime.year ? endTime.toFormat("dd LLL") : endTime.toFormat("dd LLL yyyy")
 		}
-	} else {
-		switch (v.type) {
-			case 'periodic':
-			case 'continuous':
-				return `${startTime.toFormat("yyyy LLL d, t")} - ${endTime.toFormat("yyyy LLL d, t")}`
-			case 'permanent':
-				return 'Permanent vesting has no start or end date'
-			default:
-				return `Vesting till ${endTime.toFormat("yyyy LLL d, t")}`
-		}
+	}
+
+	switch (v.type) {
+		case "periodic":
+		case "continuous":
+			return `${startTime.toFormat("yyyy LLL d, t")} - ${endTime.toFormat("yyyy LLL d, t")}`
+		case "permanent":
+			return "Permanent vesting has no start or end date"
+		default:
+			return `Vesting till ${endTime.toFormat("yyyy LLL d, t")}`
 	}
 }
 
@@ -63,19 +61,18 @@ const handleViewVestingDetails = (v) => {
 
 const vestingTypeDescription = (v) => {
 	switch (v.type) {
-		case 'periodic':
-			return 'Periodic vesting, where coins begin to vest at start time and vest periodically according to number of periods and the vesting amount per period. The number of periods, length per period, and amount per period are configurable.'
-		case 'continuous':
-			return 'Continuous vesting, where coins begin to vest at start time and vest linearly with respect to time until end time is reached.'
-		case 'permanent':
-			return 'Permanent locked vesting, where coins are locked forever. Coins in this account can still be used for delegating and for governance votes even while locked.'
-		case 'delayed':
-			return 'Delayed vesting, where all coins are vested once end time is reached.'
+		case "periodic":
+			return "Periodic vesting, where coins begin to vest at start time and vest periodically according to number of periods and the vesting amount per period. The number of periods, length per period, and amount per period are configurable."
+		case "continuous":
+			return "Continuous vesting, where coins begin to vest at start time and vest linearly with respect to time until end time is reached."
+		case "permanent":
+			return "Permanent locked vesting, where coins are locked forever. Coins in this account can still be used for delegating and for governance votes even while locked."
+		case "delayed":
+			return "Delayed vesting, where all coins are vested once end time is reached."
 		default:
-			return 'Unknown vesting type'
+			return "Unknown vesting type"
 	}
 }
-
 </script>
 
 <template>

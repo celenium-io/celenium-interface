@@ -29,92 +29,91 @@ const isLoading = ref(false)
 
 const getSeries = async () => {
 	isLoading.value = true
-	
+
 	let data = []
-	if (props.series.name === 'gas') {
+	if (props.series.name === "gas") {
 		const gasUsed = await fetchSummary({
-			table: 'tx',
-			func: 'sum',
-			column: 'gas_used',
-			from: parseInt(DateTime.now().minus({ hours: 24 }).ts / 1_000),
+			table: "tx",
+			func: "sum",
+			column: "gas_used",
+			from: Number.parseInt(DateTime.now().minus({ hours: 24 }).ts / 1_000),
 		})
 
 		const gasWanted = await fetchSummary({
-			table: 'tx',
-			func: 'sum',
-			column: 'gas_wanted',
-			from: parseInt(DateTime.now().minus({ hours: 24 }).ts / 1_000),
+			table: "tx",
+			func: "sum",
+			column: "gas_wanted",
+			from: Number.parseInt(DateTime.now().minus({ hours: 24 }).ts / 1_000),
 		})
 
-		let efficiency = (gasUsed / gasWanted * 100).toFixed(0)
+		const efficiency = ((gasUsed / gasWanted) * 100).toFixed(0)
 		data = [
 			{
-				name: 'efficiency',
+				name: "efficiency",
 				value: `${efficiency}%`,
 				share: efficiency,
-				color: colors[props.series.color ? props.series.color : 'mint'][0]
+				color: colors[props.series.color ? props.series.color : "mint"][0],
 			},
 			{
-				name: 'limit',
+				name: "limit",
 				value: abbreviate(gasWanted),
 				share: 100 - efficiency,
-				color: colors[props.series.color ? props.series.color : 'mint'][4]
+				color: colors[props.series.color ? props.series.color : "mint"][4],
 			},
 			{
-				name: 'used',
+				name: "used",
 				value: abbreviate(gasUsed),
-				color: colors[props.series.color ? props.series.color : 'mint'][4]
+				color: colors[props.series.color ? props.series.color : "mint"][4],
 			},
 		]
 	} else {
-		data = await fetch24hDiffs({ name: props.series.name })	
+		data = await fetch24hDiffs({ name: props.series.name })
 	}
-	
+
 	switch (props.series.name) {
-		case 'rollup_stats_24h':
+		case "rollup_stats_24h":
 			resData.value = data
-				.filter(item => item.id !== undefined && item.id !== null)
-				.map(item => {
+				.filter((item) => item.id !== undefined && item.id !== null)
+				.map((item) => {
 					const { blobs_count, ...rest } = item
 					return {
 						...rest,
-						value: blobs_count
+						value: blobs_count,
 					}
 				})
 			break
-		case 'messages_count_24h':
-			resData.value = data
-				.map(item => {
-					return {
-						...item,
-						name: item.name.replace('Msg', '')
-					}
-				})
+		case "messages_count_24h":
+			resData.value = data.map((item) => {
+				return {
+					...item,
+					name: item.name.replace("Msg", ""),
+				}
+			})
 			break
 		default:
 			resData.value = data
 			break
 	}
 
-	if (props.series.name === 'gas') {
+	if (props.series.name === "gas") {
 		total.value = resData.value[0].value
 	} else {
 		total.value = resData.value.reduce((sum, el) => {
 			return sum + el.value
 		}, 0)
 
-		let startlength = resData.value.length
+		const startlength = resData.value.length
 		resData.value = resData.value.slice(0, Math.min(startlength, 4))
 
 		let totalOther = total.value
 		let sumShares = 0
-		resData.value.forEach(item => {
-			let share = shareOfTotal(item.value, total.value, 2)
+		for (const item of resData.value) {
+			const share = shareOfTotal(item.value, total.value, 2)
 			totalOther -= item.value
 			sumShares += share ? share : 0
 
 			item.share = share ? share : 0
-		})
+		}
 
 		if (startlength > 4) {
 			resData.value.push({
@@ -125,8 +124,8 @@ const getSeries = async () => {
 		}
 
 		resData.value.forEach((item, index) => {
-			item.color = colors[props.series.color ? props.series.color : 'mint'][index]
-		})		
+			item.color = colors[props.series.color ? props.series.color : "mint"][index]
+		})
 	}
 
 	isLoading.value = false
@@ -142,20 +141,20 @@ const colors = {
 
 const handleHoverEnter = (index) => {
 	const elements = document.querySelectorAll(`[class*='insight-item-${props.series.name}']`)
-	elements.forEach(el => {
+	for (const el of elements) {
 		if (+el.id === index) {
 			el.style.filter = "brightness(100%)"
 		} else {
 			el.style.filter = "brightness(40%)"
 		}
-	})
+	}
 }
 
 const handleHoverLeave = () => {
 	const elements = document.querySelectorAll(`[class*='insight-item-${props.series.name}']`)
-	elements.forEach(el => {
+	for (const el of elements) {
 		el.style.filter = "brightness(100%)"
-	})
+	}
 }
 
 onMounted(async () => {
@@ -170,7 +169,6 @@ onMounted(async () => {
 // 		await drawChart()
 // 	},
 // )
-
 </script>
 
 <template>

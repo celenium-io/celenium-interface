@@ -50,7 +50,7 @@ const defaultCurrencyStyle = {
 }
 
 const calculatedAmount = computed(() => {
-	let finalAmount = {
+	const finalAmount = {
 		amount: {
 			...defaultAmount,
 			...props.amount,
@@ -74,12 +74,12 @@ const calculatedAmount = computed(() => {
 				...defaultCurrencyStyle,
 				...props.styles.currency,
 			},
-		}
+		},
 	}
 
 	let tiaDisplay
 	let tiaExchange
-	if (finalAmount.amount.unit === 'utia') {
+	if (finalAmount.amount.unit === "utia") {
 		tiaExchange = finalAmount.amount.value / 1_000_000
 
 		if (finalAmount.amount.currency === "TIA") {
@@ -92,7 +92,7 @@ const calculatedAmount = computed(() => {
 		tiaExchange = finalAmount.amount.value
 	}
 
-	let amountConverted = tiaExchange * (currentPrice.value?.close ? currentPrice.value.close : 0)
+	const amountConverted = tiaExchange * (currentPrice.value?.close ? currentPrice.value.close : 0)
 
 	if (displayCurrency.value === "TIA") {
 		finalAmount.display.show = {
@@ -124,7 +124,7 @@ const calculatedAmount = computed(() => {
 			<Text
 				:size="calculatedAmount.styles.amount.size"
 				:weight="calculatedAmount.styles.amount.weight"
-				:color="parseFloat(amount.value) ? calculatedAmount.styles.amount.color : 'tertiary'"
+				:color="Number.parseFloat(amount.value) ? calculatedAmount.styles.amount.color : 'tertiary'"
 			>
 				{{ calculatedAmount.display.show.value }}
 			</Text>
@@ -142,7 +142,7 @@ const calculatedAmount = computed(() => {
 				<Text
 					:size="calculatedAmount.styles.amount.size"
 					:weight="calculatedAmount.styles.amount.weight"
-					:color="parseFloat(amount.value) ? calculatedAmount.styles.amount.color : 'tertiary'"
+					:color="Number.parseFloat(amount.value) ? calculatedAmount.styles.amount.color : 'tertiary'"
 				>
 					{{ calculatedAmount.display.tooltip.value }}
 				</Text>

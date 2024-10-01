@@ -35,7 +35,7 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io/namespaces`,
+			content: "https://celenium.io/namespaces",
 		},
 		{
 			property: "og:image",
@@ -79,7 +79,7 @@ const getNamespacesCount = async () => {
 
 await getNamespacesCount()
 
-const page = ref(route.query.page ? parseInt(route.query.page) : 1)
+const page = ref(route.query.page ? Number.parseInt(route.query.page) : 1)
 const pages = computed(() => Math.ceil(count.value / 20))
 
 const getNamespaces = async () => {
@@ -111,7 +111,7 @@ watch(
 const handleSort = (by) => {
 	switch (sort.dir) {
 		case "desc":
-			if (sort.by == by) sort.dir = "asc"
+			if (sort.by === by) sort.dir = "asc"
 			break
 
 		case "asc":

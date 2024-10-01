@@ -2,57 +2,57 @@
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 const props = defineProps({
-    value: {
-        type: Number,
-        required: true,
-    },
-    invert: {
-        type: Boolean,
-        default: false,
-    },
+	value: {
+		type: Number,
+		required: true,
+	},
+	invert: {
+		type: Boolean,
+		default: false,
+	},
 })
 
 const styles = computed(() => {
-    let conditionValue = props.invert ? props.value * (-1) : props.value
-    if (conditionValue > 0) {
-        return {
-            chip: {
-                backgroundColor: 'var(--dark-mint)'
-            },
-            icon: {
-                fill: 'var(--mint)'
-            },
-            text: {
-                color: 'var(--mint)'
-            }
-        }
-    } else if (conditionValue < 0) {
-        return {
-            chip: {
-                backgroundColor: 'var(--dark-red)'
-            },
-            icon: {
-                fill: 'var(--red)'
-            },
-            text: {
-                color: 'var(--red)'
-            }
-        }
-    } else {
-        return {
-            chip: {
-                backgroundColor: 'var(--outline-background)'
-            },
-            icon: {
-                fill: 'var(--txt-secondary)'
-            },
-            text: {
-                color: 'var(--txt-secondary)'
-            }
-        }
-    }
-})
+	const conditionValue = props.invert ? props.value * -1 : props.value
+	if (conditionValue > 0) {
+		return {
+			chip: {
+				backgroundColor: "var(--dark-mint)",
+			},
+			icon: {
+				fill: "var(--mint)",
+			},
+			text: {
+				color: "var(--mint)",
+			},
+		}
+	}
+	if (conditionValue < 0) {
+		return {
+			chip: {
+				backgroundColor: "var(--dark-red)",
+			},
+			icon: {
+				fill: "var(--red)",
+			},
+			text: {
+				color: "var(--red)",
+			},
+		}
+	}
 
+	return {
+		chip: {
+			backgroundColor: "var(--outline-background)",
+		},
+		icon: {
+			fill: "var(--txt-secondary)",
+		},
+		text: {
+			color: "var(--txt-secondary)",
+		},
+	}
+})
 </script>
 
 <template>

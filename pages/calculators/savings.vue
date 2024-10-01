@@ -67,12 +67,12 @@ const normalizeAmount = (target, limit) => {
 	if (target.split(".")[1]?.length > 4) return `${target.split(".")[0]}.${target.split(".")[1].slice(0, 4)}`
 
 	let dotCounter = 0
-	target.split("").forEach((char) => {
+	for (const char of target.split("")) {
 		if (char === ".") dotCounter++
-	})
+	}
 	if (dotCounter > 1) return target.slice(0, target.length - 1)
 
-	if (parseFloat(purgeNumber(target)) >= limit) return limit.toString()
+	if (Number.parseFloat(purgeNumber(target)) >= limit) return limit.toString()
 	if (target[target.length - 1] === ".") return target
 	if (!target.length) return ""
 	if (target.length === 1 && !/^(0|[1-9]\d*)(\.\d+)?$/.test(target)) return ""
@@ -183,9 +183,9 @@ const handleBatchSizeBlur = () => {
 
 const isModified = computed(() => {
 	return (
-		parseFloat(tiaPrice.value) !== parseFloat(currentPrice.value.close) ||
-		parseFloat(pricePerGas.value) !== 0.002 ||
-		parseFloat(batchSize.value) !== 102_400
+		Number.parseFloat(tiaPrice.value) !== Number.parseFloat(currentPrice.value.close) ||
+		Number.parseFloat(pricePerGas.value) !== 0.002 ||
+		Number.parseFloat(batchSize.value) !== 102_400
 	)
 })
 const handleReset = () => {
@@ -205,22 +205,22 @@ const avgCallDataCostPerMb = computed(() => {
 		if (rollupStacks.value[selectedRollupStack.value].name === "Optimism") return 26.69
 		if (rollupStacks.value[selectedRollupStack.value].name === "Orbit") return 39.09
 		return 0
-	} else {
-		if (rollupStacks.value[selectedRollupStack.value].name === "Optimism") return 1_532.81
-		if (rollupStacks.value[selectedRollupStack.value].name === "Orbit") return 1_984.89
-		return 0
 	}
+
+	if (rollupStacks.value[selectedRollupStack.value].name === "Optimism") return 1_532.81
+	if (rollupStacks.value[selectedRollupStack.value].name === "Orbit") return 1_984.89
+	return 0
 })
 const getAvgCallDataCostByStack = (stack) => {
 	if (useEIP.value) {
 		if (stack === "Optimism") return 26.69
 		if (stack === "Orbit") return 39.09
 		return 0
-	} else {
-		if (stack === "Optimism") return 1_532.81
-		if (stack === "Orbit") return 1_984.89
-		return 0
 	}
+
+	if (stack === "Optimism") return 1_532.81
+	if (stack === "Orbit") return 1_984.89
+	return 0
 }
 const expectedCallDataSize = computed(() => {
 	return (txs.value * txStack.value[selectedTxStack.value].val) / 1_024 / 1_024
@@ -241,7 +241,7 @@ const tiaPerMb = computed(() => {
 	return ((averageGas.value * pricePerGas.value) / 1_000_000 / batchSize.value) * 1_024
 })
 const expectedCostCelestia = computed(() => {
-	return expectedCallDataSize.value * tiaPerMb.value * parseFloat(tiaPrice.value) + additionalSettlementCost.value
+	return expectedCallDataSize.value * tiaPerMb.value * Number.parseFloat(tiaPrice.value) + additionalSettlementCost.value
 })
 const savingsUsingCelestia = computed(() => {
 	if (!expectedCostL2.value) return 0
@@ -259,7 +259,7 @@ const handleHide = () => {
 }
 
 useHead({
-	title: `Celestia Rollup Cost Saving Calculator - Celenium`,
+	title: "Celestia Rollup Cost Saving Calculator - Celenium",
 	link: [
 		{
 			rel: "canonical",
@@ -273,7 +273,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: `Celestia Rollup Cost Saving Calculator - Celenium`,
+			content: "Celestia Rollup Cost Saving Calculator - Celenium",
 		},
 		{
 			property: "og:description",
@@ -289,7 +289,7 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: `Celestia Rollup Cost Saving Calculator - Celenium`,
+			content: "Celestia Rollup Cost Saving Calculator - Celenium",
 		},
 		{
 			name: "twitter:description",

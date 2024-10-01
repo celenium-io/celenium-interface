@@ -17,7 +17,7 @@ import amp from "@/services/amp"
 import { suggestChain, getAccounts } from "@/services/keplr"
 import { normalizeAmount, purgeNumber, comma } from "@/services/utils/amounts"
 import { SIMULATE_ADDRESS_FROM, SIMULATE_VALIDATOR, simulateMsgs, sendMsgs } from "@/services/keplr"
-import { MsgDelegate } from "@/services/proto/gen/staking";
+import { MsgDelegate } from "@/services/proto/gen/staking"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -42,10 +42,10 @@ const inputEl = ref()
 
 const amount = ref()
 const amountInUSD = computed(() => {
-	if (!amount.value || !parseFloat(appStore.currentPrice.close)) return 0
+	if (!amount.value || !Number.parseFloat(appStore.currentPrice.close)) return 0
 
-	const rawAmount = parseFloat(amount.value?.replaceAll(" ", ""))
-	return rawAmount * parseFloat(appStore.currentPrice.close)
+	const rawAmount = Number.parseFloat(amount.value?.replaceAll(" ", ""))
+	return rawAmount * Number.parseFloat(appStore.currentPrice.close)
 })
 
 const address = ref()
@@ -163,7 +163,7 @@ watch(
 		if (props.show) {
 			runGasLimitEstimation()
 		}
-	}
+	},
 )
 
 const calcGasFee = (target) => {
@@ -178,11 +178,8 @@ const runGasLimitEstimation = async () => {
 			delegatorAddress: appStore.address ? appStore.address : SIMULATE_ADDRESS_FROM,
 			validatorAddress: address.value ? address.value : SIMULATE_VALIDATOR,
 			amount: {
-					denom: "utia",
-					amount: DecUtils.getTenExponentN(6)
-						.mul(new Dec(1))
-						.truncate()
-						.toString(),
+				denom: "utia",
+				amount: DecUtils.getTenExponentN(6).mul(new Dec(1)).truncate().toString(),
 			},
 		}).finish(),
 	}
@@ -193,7 +190,7 @@ const runGasLimitEstimation = async () => {
 		[protoMsgs],
 		[{ denom: "utia", amount: "1" }],
 	)
-	estimatedGasLimit.value = parseInt(gasUsed)
+	estimatedGasLimit.value = Number.parseInt(gasUsed)
 }
 
 const warningBannerText = ref("")
@@ -211,7 +208,7 @@ watch(
 			} else if (hostname !== "celenium.io") {
 				warningBannerText.value = `You are currently on ${hostname}. The transaction will be performed on the test network.`
 			} else {
-				warningBannerText.value = ``
+				warningBannerText.value = ""
 			}
 
 			if (cacheStore.current.validator) {
@@ -237,7 +234,7 @@ const getBalance = async () => {
 		const { data } = await fetchAddressByHash(key.bech32Address)
 
 		if (data.value?.balance) {
-			appStore.balance = parseFloat(data.value.balance.spendable / 1_000_000) || 0
+			appStore.balance = Number.parseFloat(data.value.balance.spendable / 1_000_000) || 0
 		}
 	}
 }
@@ -276,42 +273,47 @@ const handleConnect = async () => {
 const continueButton = computed(() => {
 	if (addressError.value.length) {
 		return {
-			title: 'Validator address is invalid',
+			title: "Validator address is invalid",
 			disable: true,
 		}
 	}
 
 	if (!address.value?.length) {
 		return {
-			title: 'Enter the validator address',
+			title: "Enter the validator address",
 			disable: true,
 		}
 	}
 
-	if (parseFloat(amount.value) === 0) {
+	if (Number.parseFloat(amount.value) === 0) {
 		return {
-			title: 'Enter the amount',
+			title: "Enter the amount",
 			disable: true,
 		}
 	}
 
-	if (!((selectedGasLimit.value === "Estimated" && estimatedGasLimit.value) || (selectedGasLimit.value === "Custom" && customGasLimit.value))) {
+	if (
+		!(
+			(selectedGasLimit.value === "Estimated" && estimatedGasLimit.value) ||
+			(selectedGasLimit.value === "Custom" && customGasLimit.value)
+		)
+	) {
 		return {
-			title: 'Define the gas limit',
+			title: "Define the gas limit",
 			disable: true,
 		}
 	}
-	
+
 	if (isAwaiting.value) {
 		return {
-			title: 'Awating...',
+			title: "Awating...",
 			disable: true,
 		}
 	}
 	return {
-		title: 'Delegate',
+		title: "Delegate",
 		disable: false,
-	}	
+	}
 })
 
 const handleContinue = async () => {
@@ -326,7 +328,7 @@ const handleContinue = async () => {
 				amount: {
 					denom: "utia",
 					amount: DecUtils.getTenExponentN(6)
-						.mul(new Dec(parseFloat(amount.value)))
+						.mul(new Dec(Number.parseFloat(amount.value)))
 						.truncate()
 						.toString(),
 				},
@@ -369,7 +371,7 @@ const handleContinue = async () => {
 				notification: {
 					type: "warning",
 					icon: "danger",
-					title: `The request in Kepler was denied`,
+					title: "The request in Kepler was denied",
 					autoDestroy: true,
 				},
 			})
@@ -381,8 +383,8 @@ const handleContinue = async () => {
 				notification: {
 					type: "warning",
 					icon: "danger",
-					title: `Not enough gas`,
-					description: `Try using estimated gas or manually enter custom value`,
+					title: "Not enough gas",
+					description: "Try using estimated gas or manually enter custom value",
 					autoDestroy: true,
 				},
 			})
@@ -393,7 +395,7 @@ const handleContinue = async () => {
 			notification: {
 				type: "warning",
 				icon: "danger",
-				title: `Something went wrong`,
+				title: "Something went wrong",
 				description: e.message,
 				autoDestroy: true,
 			},
@@ -415,7 +417,7 @@ const handleContinue = async () => {
 						<Text size="14" weight="600" color="primary">
 							{{ appStore.balance }} TIA
 							<Text size="13" weight="500" color="secondary">
-								${{ (appStore.balance * parseFloat(appStore.currentPrice.close)).toFixed(2) }}
+								${{ (appStore.balance * Number.parseFloat(appStore.currentPrice.close)).toFixed(2) }}
 							</Text>
 						</Text>
 
@@ -713,7 +715,7 @@ const handleContinue = async () => {
 }
 
 .divider {
-	width: fill-available;
+	width: stretch;
 	height: 2px;
 
 	background: var(--op-5);

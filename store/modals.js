@@ -40,16 +40,14 @@ export const useModalsStore = defineStore("modals", () => {
 			history.value = []
 		}
 
-		Object.keys(modals)
-			.filter((m) => m !== target)
-			.forEach((modal) => {
-				if (modals[modal]) {
-					if (!history.value.includes(modal)) {
-						history.value.push(modal)
-					}
-					modals[modal] = false
+		for (const modal of Object.keys(modals).filter((m) => m !== target)) {
+			if (modals[modal]) {
+				if (!history.value.includes(modal)) {
+					history.value.push(modal)
 				}
-			})
+				modals[modal] = false
+			}
+		}
 	}
 
 	const close = (target) => {
@@ -67,9 +65,9 @@ export const useModalsStore = defineStore("modals", () => {
 	const closeAll = () => {
 		history.value = []
 
-		Object.keys(modals).forEach((key) => {
+		for (const key of Object.keys(modals)) {
 			modals[key] = false
-		})
+		}
 	}
 
 	return { history, lastModal, modals, open, close, closeAll }

@@ -60,11 +60,11 @@ const getEvents = async () => {
 	isLoading.value = true
 
 	if (props.block) {
-		events.value = await fetchBlockEvents({ 
+		events.value = await fetchBlockEvents({
 			height: props.block.height,
 			limit: 10,
 			offset: (page.value - 1) * 10,
-		}) 
+		})
 	} else if (props.tx) {
 		events.value = await fetchTxEvents({
 			hash: props.tx.hash,
@@ -78,19 +78,19 @@ const getEvents = async () => {
 
 const handlingEventType = (type) => {
 	switch (type) {
-		case 'cosmos.authz.v1beta1.EventGrant':
-			return 'grant'
+		case "cosmos.authz.v1beta1.EventGrant":
+			return "grant"
 
-		case 'cosmos.authz.v1beta1.EventRevoke':
-			return 'revoke'
-	
+		case "cosmos.authz.v1beta1.EventRevoke":
+			return "revoke"
+
 		default:
 			return type
 	}
 }
 
 const handlingEventActionType = (type) => {
-	return type.split('.').slice(-1)[0].replace('\"','')
+	return type.split(".").slice(-1)[0].replace('"', "")
 }
 
 const handleViewRawEvent = (event) => {
@@ -100,11 +100,7 @@ const handleViewRawEvent = (event) => {
 }
 
 const page = ref(1)
-const pages = computed(() => (
-	props.block
-		? Math.ceil(props.block.stats.events_count / 10)
-		: Math.ceil(props.tx.events_count / 10))
-)
+const pages = computed(() => (props.block ? Math.ceil(props.block.stats.events_count / 10) : Math.ceil(props.tx.events_count / 10)))
 const handleNext = () => {
 	if (page.value === pages.value) return
 	page.value += 1
@@ -115,7 +111,7 @@ const handlePrev = () => {
 }
 
 onMounted(() => {
-	getEvents();
+	getEvents()
 })
 
 /** Refetch events */

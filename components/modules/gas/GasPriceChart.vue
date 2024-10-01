@@ -158,8 +158,8 @@ const getGasPriceSeries = async () => {
 
 	const sizeSeriesRawData = await fetchGasPriceSeries({
 		timeframe: props.selectedPeriod.timeframe,
-		to: parseInt(DateTime.now().plus({ minutes: 1 }).ts / 1_000),
-		from: parseInt(
+		to: Number.parseInt(DateTime.now().plus({ minutes: 1 }).ts / 1_000),
+		from: Number.parseInt(
 			DateTime.now()
 				.set({ minutes: 0, seconds: 0 })
 				.minus({
@@ -170,10 +170,10 @@ const getGasPriceSeries = async () => {
 	})
 
 	const gasPriceSeriesMap = {}
-	sizeSeriesRawData.forEach((item) => {
+	for (const item of sizeSeriesRawData) {
 		gasPriceSeriesMap[DateTime.fromISO(item.time).toFormat(props.selectedPeriod.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] =
 			item.value
-	})
+	}
 
 	for (let i = 1; i < props.selectedPeriod.value + 1; i++) {
 		const dt = DateTime.now()
@@ -184,7 +184,8 @@ const getGasPriceSeries = async () => {
 			})
 		gasPriceSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseFloat(gasPriceSeriesMap[dt.toFormat(props.selectedPeriod.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+			value:
+				Number.parseFloat(gasPriceSeriesMap[dt.toFormat(props.selectedPeriod.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
 }
@@ -194,8 +195,12 @@ const buildGasTrackingCharts = async () => {
 	buildChart(
 		gasPriceChartEl.value.wrapper,
 		gasPriceSeries.value,
-		() => (showTooltip.value = true),
-		() => (showTooltip.value = false),
+		() => {
+			showTooltip.value = true
+		},
+		() => {
+			showTooltip.value = false
+		},
 	)
 }
 

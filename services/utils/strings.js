@@ -4,14 +4,14 @@ export const space = (s) => {
 }
 
 export const capitilize = (s) => {
-    if (!s) return ""
-    
+	if (!s) return ""
+
 	return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
 export function capitalizeAndReplaceUnderscore(s) {
-    let words = s.split('_');
-    let capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
-    
-    return capitalizedWords.join(' ');
+	const words = s.split("_")
+	const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+
+	return capitalizedWords.join(" ")
 }

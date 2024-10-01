@@ -17,7 +17,7 @@ const bookmarksStore = useBookmarksStore()
 const notificationsStore = useNotificationsStore()
 
 useHead({
-	title: `My Bookmarks - Celenium`,
+	title: "My Bookmarks - Celenium",
 })
 
 const cache = reactive({
@@ -38,7 +38,7 @@ const handleRemove = (type, bookmark) => {
 			notification: {
 				type: "info",
 				icon: "check",
-				title: `Bookmark removed`,
+				title: "Bookmark removed",
 				autoDestroy: true,
 				actions: [
 					{
@@ -81,7 +81,7 @@ const handleClearBookmarks = () => {
 	if (!bookmarksStore.hasBookmarks) return
 
 	appStore.createConfirmation({
-		title: `Do you want to clear your bookmarks?`,
+		title: "Do you want to clear your bookmarks?",
 		description: "Your local storage for bookmarks will be cleared",
 
 		buttons: {
@@ -102,7 +102,7 @@ const handleClearBookmarks = () => {
 				notification: {
 					type: "info",
 					icon: "check",
-					title: `Your bookmarks successfully cleared`,
+					title: "Your bookmarks successfully cleared",
 					autoDestroy: true,
 				},
 			})

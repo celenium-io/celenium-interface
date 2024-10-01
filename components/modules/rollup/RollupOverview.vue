@@ -54,10 +54,9 @@ const namespaces = ref([])
 const blobs = ref([])
 const relatedLinks = computed(() => {
 	if (props.rollup.links?.length) {
-		return props.rollup.links[0].split(',')
-	} else {
-		return []
+		return props.rollup.links[0].split(",")
 	}
+	return []
 })
 
 const page = ref(1)
@@ -77,7 +76,7 @@ const getBlobs = async () => {
 		id: props.rollup.id,
 		offset: (page.value - 1) * 10,
 		limit: 10,
-		sort_by: 'time',
+		sort_by: "time",
 	})
 
 	if (data.value?.length) {
@@ -175,18 +174,18 @@ const handleCSVDownload = async (period) => {
 	let from
 	switch (period) {
 		case "day":
-			from = parseInt(DateTime.now().minus({ days: 1 }).toMillis() / 1_000)
+			from = Number.parseInt(DateTime.now().minus({ days: 1 }).toMillis() / 1_000)
 			break
 		case "week":
-			from = parseInt(DateTime.now().minus({ weeks: 1 }).toMillis() / 1_000)
+			from = Number.parseInt(DateTime.now().minus({ weeks: 1 }).toMillis() / 1_000)
 			break
 		case "month":
-			from = parseInt(DateTime.now().minus({ months: 1 }).toMillis() / 1_000)
+			from = Number.parseInt(DateTime.now().minus({ months: 1 }).toMillis() / 1_000)
 			break
 		default:
 			break
 	}
-	let to = parseInt(DateTime.now().toMillis() / 1_000)
+	const to = Number.parseInt(DateTime.now().toMillis() / 1_000)
 
 	const { data } = await fetchRollupExportData({
 		id: props.rollup.id,

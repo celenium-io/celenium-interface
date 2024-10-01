@@ -51,7 +51,7 @@ const isBootnodesChanged = ref(false)
 const textareaEl = ref()
 const resizeTextarea = () => {
 	textareaEl.value.style.height = "auto"
-	textareaEl.value.style.height = 12 + textareaEl.value.scrollHeight + "px"
+	textareaEl.value.style.height = `${12 + textareaEl.value.scrollHeight}px`
 }
 const handleTextareaKeyup = (e) => {
 	e.stopPropagation()
@@ -59,9 +59,9 @@ const handleTextareaKeyup = (e) => {
 	if (!/^[а-яa-z0-9]+$/i.test(e.key) || e.key.length !== 1) return
 
 	const newBootnodes = bootnodesTerm.value.split("\n").filter((b) => b.length)
-	newBootnodes.forEach((b) => {
+	for (const b of newBootnodes) {
 		hasWrongBootnode.value = !b.startsWith("/") || b.split("/").filter((b) => b.length).length !== 4
-	})
+	}
 
 	nodeStore.bootnodes = newBootnodes
 

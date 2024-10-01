@@ -9,40 +9,40 @@ import Popover from "@/components/ui/Popover.vue"
 const props = defineProps({
 	from: {
 		type: String,
-		default: '',
+		default: "",
 	},
 	to: {
 		type: String,
-		default: '',
+		default: "",
 	},
 	minDate: {
 		type: String,
-		default: '',
-	}
+		default: "",
+	},
 })
 
 const emit = defineEmits(["onUpdate"])
 
 const currentDate = ref(DateTime.now())
-const limitMinDate = ref(props.minDate ? DateTime.fromISO(props.minDate) : '')
+const limitMinDate = ref(props.minDate ? DateTime.fromISO(props.minDate) : "")
 const month = ref(currentDate.value.month)
 const year = ref(currentDate.value.year)
-const startDate = ref(props.from ? DateTime.fromSeconds(parseInt(props.from)) : {})
-const endDate = ref(props.to ? DateTime.fromSeconds(parseInt(props.to)) : {})
-const weekdays = ref(Info.weekdays('narrow', { locale: 'en-US' }))
+const startDate = ref(props.from ? DateTime.fromSeconds(Number.parseInt(props.from)) : {})
+const endDate = ref(props.to ? DateTime.fromSeconds(Number.parseInt(props.to)) : {})
+const weekdays = ref(Info.weekdays("narrow", { locale: "en-US" }))
 const days = computed(() => {
-	let rawDays = []
-	const firstDay = DateTime.local(year.value, month.value).setLocale('en-US')
-	const lastDay = firstDay.endOf('month')
+	const rawDays = []
+	const firstDay = DateTime.local(year.value, month.value).setLocale("en-US")
+	const lastDay = firstDay.endOf("month")
 
 	for (let day = firstDay; day <= lastDay; day = day.plus({ days: 1 })) {
-        rawDays.push(day)
-    }
+		rawDays.push(day)
+	}
 
 	if (firstDay.weekday !== 1) {
 		let prevDay = firstDay
 		while (prevDay.weekday !== 1) {
-			prevDay = prevDay.minus({ days: 1 }).startOf('day')
+			prevDay = prevDay.minus({ days: 1 }).startOf("day")
 			rawDays.unshift(prevDay)
 		}
 	}
@@ -50,12 +50,12 @@ const days = computed(() => {
 	if (lastDay.weekday !== 7) {
 		let nextDay = lastDay
 		while (nextDay.weekday !== 7) {
-			nextDay = nextDay.plus({ days: 1 }).startOf('day')
+			nextDay = nextDay.plus({ days: 1 }).startOf("day")
 			rawDays.push(nextDay)
 		}
 	}
 
-	let resDays = []
+	const resDays = []
 	while (rawDays.length) {
 		resDays.push(rawDays.splice(0, 7))
 	}
@@ -63,34 +63,39 @@ const days = computed(() => {
 	return resDays
 })
 
-const selectedRange = ref('')
+const selectedRange = ref("")
 const updateSelectedRange = (from, to) => {
 	if (from?.ts) {
 		if (to?.ts) {
 			if (from.year === to.year) {
-				selectedRange.value = from.toFormat('dd LLL') !== to.toFormat('dd LLL') ? `${from.toFormat('dd LLL')} - ${to.toFormat('dd LLL')}` : from.toFormat('dd LLL')
+				selectedRange.value =
+					from.toFormat("dd LLL") !== to.toFormat("dd LLL")
+						? `${from.toFormat("dd LLL")} - ${to.toFormat("dd LLL")}`
+						: from.toFormat("dd LLL")
 			} else {
-				selectedRange.value = `${from.toFormat('dd LLL yyyy')} - ${to.toFormat('dd LLL yyyy')}`
+				selectedRange.value = `${from.toFormat("dd LLL yyyy")} - ${to.toFormat("dd LLL yyyy")}`
 			}
 		} else {
-			selectedRange.value = from.toFormat('dd LLL')
+			selectedRange.value = from.toFormat("dd LLL")
 		}
 	} else {
-		selectedRange.value = ''
+		selectedRange.value = ""
 	}
 }
 updateSelectedRange(startDate.value, endDate.value)
 
 const isNextMonthAvailable = computed(() => !(month.value === currentDate.value.month && year.value === currentDate.value.year))
-const isPrevMonthAvailable = computed(() => limitMinDate.value ? limitMinDate.value.ts < days.value[0][0].ts : true)
+const isPrevMonthAvailable = computed(() => (limitMinDate.value ? limitMinDate.value.ts < days.value[0][0].ts : true))
 const isDayAvailable = (d) => {
-	if (d.startOf('day').ts > currentDate.value.startOf('day').ts) {
+	if (d.startOf("day").ts > currentDate.value.startOf("day").ts) {
 		return false
-	} else if (limitMinDate.value) {
-		return d.startOf('day').ts >= limitMinDate.value.startOf('day').ts
-	} else {
-		return true
 	}
+
+	if (limitMinDate.value) {
+		return d.startOf("day").ts >= limitMinDate.value.startOf("day").ts
+	}
+
+	return true
 }
 
 const handleSelectDate = (d) => {
@@ -131,7 +136,7 @@ const handleClose = () => {
 
 	if (!startDate.value.ts) {
 		month.value = currentDate.value.month
-		year.value = currentDate.value.year		
+		year.value = currentDate.value.year
 	}
 }
 
@@ -139,10 +144,10 @@ const handleApply = () => {
 	isOpen.value = false
 
 	if (!endDate.value.ts) {
-		endDate.value = startDate.value.endOf('day')
+		endDate.value = startDate.value.endOf("day")
 	}
 
-	emit('onUpdate', { from: parseInt(startDate.value.ts / 1_000), to: parseInt(endDate.value.ts / 1_000) })
+	emit("onUpdate", { from: Number.parseInt(startDate.value.ts / 1_000), to: Number.parseInt(endDate.value.ts / 1_000) })
 }
 
 const handleClear = () => {
@@ -151,18 +156,18 @@ const handleClear = () => {
 	startDate.value = {}
 	endDate.value = {}
 
-	emit('onUpdate', { clear: true })
+	emit("onUpdate", { clear: true })
 }
 
 const handleMonthChange = (v) => {
 	switch (month.value + v) {
 		case 0:
 			month.value = 12
-			year.value --
+			year.value--
 			break
 		case 13:
 			month.value = 1
-			year.value ++
+			year.value++
 			break
 		default:
 			month.value += v
@@ -172,7 +177,7 @@ const handleMonthChange = (v) => {
 watch(
 	() => props.from,
 	() => {
-		updateSelectedRange(DateTime.fromSeconds(parseInt(props.from)), DateTime.fromSeconds(parseInt(props.to)))
+		updateSelectedRange(DateTime.fromSeconds(Number.parseInt(props.from)), DateTime.fromSeconds(Number.parseInt(props.to)))
 	},
 )
 </script>

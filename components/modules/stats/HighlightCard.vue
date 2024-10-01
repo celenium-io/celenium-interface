@@ -15,18 +15,17 @@ const props = defineProps({
 const isLoading = ref(false)
 
 const value = computed(() => {
-	if (props.highlight.name === 'blocks') return comma(props.highlight.value)
-	
+	if (props.highlight.name === "blocks") return comma(props.highlight.value)
+
 	switch (props.highlight.units) {
-		case 'bytes':
+		case "bytes":
 			return formatBytes(props.highlight.value)
-		case 'utia':
+		case "utia":
 			return `${abbreviate(tia(props.highlight.value))} TIA`
 		default:
 			return abbreviate(props.highlight.value)
 	}
 })
-
 </script>
 
 <template>

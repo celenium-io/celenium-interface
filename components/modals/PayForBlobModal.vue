@@ -56,7 +56,7 @@ watch(
 		}
 
 		if (namespace.value.length) {
-			const numValue = BigInt("0x" + namespace.value)
+			const numValue = BigInt(`0x${namespace.value}`)
 			const maxValue = BigInt("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00")
 
 			if (numValue > 0xff && numValue < maxValue) {
@@ -122,7 +122,7 @@ const handleUpload = (e, target) => {
 	}
 
 	const reader = new FileReader()
-	reader.onloadend = function (e) {
+	reader.onloadend = (e) => {
 		const bytes = new Uint8Array(e.target.result)
 		blob.value = bytes
 		fileType.value = file.type
@@ -137,7 +137,7 @@ const getBalance = async () => {
 		const { data } = await fetchAddressByHash(key.bech32Address)
 
 		if (data.value?.balance) {
-			appStore.balance = parseFloat(data.value.balance.spendable / 1_000_000) || 0
+			appStore.balance = Number.parseFloat(data.value.balance.spendable / 1_000_000) || 0
 		}
 	}
 }
@@ -174,16 +174,16 @@ const handleConnect = async () => {
 }
 
 const handleContinue = async () => {
-	let [data, decodableBlob, length] = prepareBlob(
+	const [data, decodableBlob, length] = prepareBlob(
 		appStore.address,
 		namespace.value,
 		[...blob.value].map((x) => x.toString(16).padStart(2, "0")).join(""),
 	)
 
-	let estimatedGas = await fetchEstimatedGas(length)
-	let gasPrice = appStore.gas.slow
+	const estimatedGas = await fetchEstimatedGas(length)
+	const gasPrice = appStore.gas.slow
 
-	let fee = gasPrice * estimatedGas > 1 ? Math.trunc(gasPrice * estimatedGas) : 10000
+	const fee = gasPrice * estimatedGas > 1 ? Math.trunc(gasPrice * estimatedGas) : 10000
 
 	const proto = [
 		{
@@ -227,7 +227,7 @@ const handleContinue = async () => {
 				notification: {
 					type: "warning",
 					icon: "danger",
-					title: `The request in Kepler was denied`,
+					title: "The request in Kepler was denied",
 					autoDestroy: true,
 				},
 			})
@@ -239,8 +239,8 @@ const handleContinue = async () => {
 				notification: {
 					type: "warning",
 					icon: "danger",
-					title: `Not enough gas`,
-					description: `Try using estimated gas or manually enter custom value`,
+					title: "Not enough gas",
+					description: "Try using estimated gas or manually enter custom value",
 					autoDestroy: true,
 				},
 			})
@@ -251,7 +251,7 @@ const handleContinue = async () => {
 			notification: {
 				type: "warning",
 				icon: "danger",
-				title: `Something went wrong`,
+				title: "Something went wrong",
 				description: e.message,
 				autoDestroy: true,
 			},
@@ -273,7 +273,7 @@ const handleContinue = async () => {
 						<Text size="14" weight="600" color="primary">
 							{{ appStore.balance }} TIA
 							<Text size="13" weight="500" color="secondary">
-								${{ (appStore.balance * parseFloat(appStore.currentPrice.close)).toFixed(2) }}
+								${{ (appStore.balance * Number.parseFloat(appStore.currentPrice.close)).toFixed(2) }}
 							</Text>
 						</Text>
 
@@ -473,7 +473,7 @@ const handleContinue = async () => {
 }
 
 .divider {
-	width: fill-available;
+	width: stretch;
 	height: 2px;
 
 	background: var(--op-5);

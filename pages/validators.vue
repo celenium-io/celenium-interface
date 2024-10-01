@@ -40,7 +40,7 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io/validators`,
+			content: "https://celenium.io/validators",
 		},
 		{
 			property: "og:image",
@@ -138,7 +138,7 @@ const getValidators = async () => {
 }
 
 /** Pagination */
-const page = ref(route.query.page ? parseInt(route.query.page) : 1)
+const page = ref(route.query.page ? Number.parseInt(route.query.page) : 1)
 const pages = computed(() => Math.max(1, Math.ceil(validatorsStats.value[activeTab.value.toLowerCase()] / 20)))
 
 const handleNext = () => {

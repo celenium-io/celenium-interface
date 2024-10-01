@@ -33,9 +33,9 @@ watch(
 const handleSave = () => {
 	if (characterSet.value) settingsStore.hex.characterSet = characterSet.value
 
-	Object.keys(dataInspector).forEach((i) => {
+	for (const i of Object.keys(dataInspector)) {
 		settingsStore.hex.inspector[i] = dataInspector[i]
-	})
+	}
 
 	emit("onClose")
 }

@@ -38,7 +38,7 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io/blob`,
+			content: "https://celenium.io/blob",
 		},
 		{
 			name: "twitter:title",
@@ -116,7 +116,7 @@ const init = async (fromCache = false) => {
 
 	const { data: rawMetadata } = await fetchBlobMetadata({
 		hash: hash.replaceAll(" ", "+"),
-		height: parseInt(height),
+		height: Number.parseInt(height),
 		commitment: commitment.replaceAll(" ", "+"),
 		metadata: true,
 	})
@@ -124,25 +124,25 @@ const init = async (fromCache = false) => {
 
 	const { data: rawBlob } = await fetchBlobByMetadata({
 		hash: hash.replaceAll(" ", "+"),
-		height: parseInt(height),
+		height: Number.parseInt(height),
 		commitment: commitment.replaceAll(" ", "+"),
 	})
 
 	if (!rawBlob.value || !rawMetadata.value) {
 		router.push("/")
 		return
-	} else {
-		blob.value = rawBlob.value
-		hex.value = Buffer.from(blob.value.data, "base64")
-			.toString("hex")
-			.match(/../g)
-			.reduce((acc, current, idx) => {
-				const chunkIdx = Math.floor(idx / 16)
-				acc[chunkIdx] = acc[chunkIdx] || []
-				acc[chunkIdx].push(current)
-				return acc
-			}, [])
 	}
+
+	blob.value = rawBlob.value
+	hex.value = Buffer.from(blob.value.data, "base64")
+		.toString("hex")
+		.match(/../g)
+		.reduce((acc, current, idx) => {
+			const chunkIdx = Math.floor(idx / 16)
+			acc[chunkIdx] = acc[chunkIdx] || []
+			acc[chunkIdx].push(current)
+			return acc
+		}, [])
 }
 init()
 
@@ -165,7 +165,7 @@ const handleDownload = () => {
 	const byteArray = new Uint8Array(
 		strToHex(atob(blob.value.data))
 			.match(/.{2}/g)
-			.map((e) => parseInt(e, 16)),
+			.map((e) => Number.parseInt(e, 16)),
 	)
 
 	const a = window.document.createElement("a")

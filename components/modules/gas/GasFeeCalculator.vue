@@ -14,7 +14,7 @@ const isInputActive = ref(false)
 
 const gasLimit = ref(null)
 const handleGasLimitInput = () => {
-	if (parseFloat(gasLimit.value.replace(/[^0-9.]/g, "")) > 5_665_140_000) {
+	if (Number.parseFloat(gasLimit.value.replace(/[^0-9.]/g, "")) > 5_665_140_000) {
 		gasLimit.value = "5 665 140 000"
 		return
 	}
@@ -22,9 +22,9 @@ const handleGasLimitInput = () => {
 }
 
 const gasFee = computed(() => {
-	const fast = Math.ceil(appStore.gas.fast * parseFloat(gasLimit.value.replaceAll(" ", "")))
-	const median = Math.ceil(appStore.gas.median * parseFloat(gasLimit.value.replaceAll(" ", "")))
-	const slow = Math.ceil(appStore.gas.slow * parseFloat(gasLimit.value.replaceAll(" ", "")))
+	const fast = Math.ceil(appStore.gas.fast * Number.parseFloat(gasLimit.value.replaceAll(" ", "")))
+	const median = Math.ceil(appStore.gas.median * Number.parseFloat(gasLimit.value.replaceAll(" ", "")))
+	const slow = Math.ceil(appStore.gas.slow * Number.parseFloat(gasLimit.value.replaceAll(" ", "")))
 
 	return { fast, median, slow }
 })

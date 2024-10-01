@@ -89,9 +89,9 @@ const handleOutside = (e) => {
 	const path = e.path ? e.path : e.composedPath()
 	if (path.find((el) => el.id === "trigger")) {
 		return
-	} else {
-		close()
 	}
+
+	close()
 }
 
 watch(isOpen, () => {
@@ -100,10 +100,10 @@ watch(isOpen, () => {
 		removeOutside()
 
 		if (Object.prototype.hasOwnProperty.call(dropdownStyles.value, "top")) {
-			delete dropdownStyles.value.top
+			dropdownStyles.value.top = undefined
 		}
 		if (Object.prototype.hasOwnProperty.call(dropdownStyles.value, "bottom")) {
-			delete dropdownStyles.value.bottom
+			dropdownStyles.value.bottom = undefined
 		}
 
 		document.removeEventListener("keydown", onKeydown)
@@ -158,10 +158,10 @@ watch(isOpen, () => {
 			}
 
 			if (props.customPosition) {
-				delete dropdownStyles.value.top
-				delete dropdownStyles.value.bottom
-				delete dropdownStyles.value.left
-				delete dropdownStyles.value.right
+				dropdownStyles.value.top = undefined
+				dropdownStyles.value.bottom = undefined
+				dropdownStyles.value.left = undefined
+				dropdownStyles.value.right = undefined
 
 				dropdownStyles.value = { ...props.customPosition }
 			}

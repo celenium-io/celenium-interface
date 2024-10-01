@@ -39,8 +39,7 @@ const bookmarkText = computed(() => {
 
 const handleBookmark = () => {
 	if (!isBookmarked.value) {
-
-		let newBookmark = {
+		const newBookmark = {
 			id: props.id,
 			type: capitilize(props.type),
 			ts: new Date().getTime(),
@@ -70,7 +69,6 @@ const handleBookmark = () => {
 			cacheStore.current.bookmark = newBookmark
 			modalsStore.open("edit_alias")
 		}
-
 	} else {
 		let notification = {}
 
@@ -87,7 +85,7 @@ const handleBookmark = () => {
 			notification = {
 				type: "error",
 				icon: "close",
-				title: `Failed to remove the bookmark`,
+				title: "Failed to remove the bookmark",
 				autoDestroy: true,
 			}
 		}
@@ -99,9 +97,8 @@ const handleBookmark = () => {
 }
 
 onMounted(() => {
-	isBookmarked.value = bookmarksStore.getBookmark(props.type, props.id) ? true : false
+	isBookmarked.value = !!bookmarksStore.getBookmark(props.type, props.id)
 })
-
 </script>
 
 <template>

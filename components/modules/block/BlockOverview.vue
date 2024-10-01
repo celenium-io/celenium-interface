@@ -68,30 +68,31 @@ const filters = reactive({
 		success: false,
 		failed: false,
 	},
+	// biome-ignore lint/performance/noAccumulatingSpread: <explanation>
 	message_type: props.block.message_types.sort().reduce((a, b) => ({ ...a, [b]: false }), {}),
 })
 const hasActiveFilters = computed(() => {
 	let has = false
 
-	Object.keys(filters.status).forEach((s) => {
+	for (const s of Object.keys(filters.status)) {
 		if (filters.status[s]) has = true
-	})
-	Object.keys(filters.message_type).forEach((t) => {
+	}
+	for (const t of Object.keys(filters.message_type)) {
 		if (filters.message_type[t]) has = true
-	})
+	}
 
 	return has
 })
 const savedFiltersBeforeChanges = ref(null)
 
 const handleClearAllFilters = () => {
-	Object.keys(filters.status).forEach((f) => {
+	for (const f of Object.keys(filters.status)) {
 		filters.status[f] = false
-	})
+	}
 
-	Object.keys(filters.message_type).forEach((f) => {
+	for (const f of Object.keys(filters.message_type)) {
 		filters.message_type[f] = false
-	})
+	}
 
 	router.replace({
 		query: null,
@@ -103,17 +104,17 @@ const handleClearAllFilters = () => {
 const searchTerm = ref("")
 
 /** Parse route query */
-Object.keys(route.query).forEach((key) => {
-	if (key === "page" || key === "tab") return
+for (const key of Object.keys(route.query)) {
+	if (key === "page" || key === "tab") continue
 
 	if (route.query[key].split(",").length) {
-		route.query[key].split(",").forEach((item) => {
+		for (const item of route.query[key].split(",")) {
 			filters[key][item] = true
-		})
+		}
 	} else {
 		filters[key][route.query[key]] = true
 	}
-})
+}
 
 const updateRouteQuery = () => {
 	router.replace({
@@ -189,9 +190,9 @@ const handleApplyMessageTypeFilters = () => {
 }
 
 const resetFilters = (target, refetch) => {
-	Object.keys(filters[target]).forEach((f) => {
+	for (const f of Object.keys(filters[target])) {
 		filters[target][f] = false
-	})
+	}
 
 	if (refetch) {
 		updateRouteQuery()
@@ -205,7 +206,7 @@ const getTransactions = async () => {
 
 	const { data } = await fetchTransactionsByBlock({
 		height: props.block.height,
-		from: parseInt(DateTime.fromISO(props.block.time) / 1000),
+		from: Number.parseInt(DateTime.fromISO(props.block.time) / 1000),
 		limit: 10,
 		offset: (page.value - 1) * 10,
 		sort: "desc",

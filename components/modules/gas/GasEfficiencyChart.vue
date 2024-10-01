@@ -197,14 +197,14 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 const getGasEfficiencySeries = async () => {
 	const gasEfficiencySeriesRawData = await fetchGasEfficiencySeries({
 		timeframe: "hour",
-		from: parseInt(DateTime.now().minus({ hours: 26 }).ts / 1_000),
-		to: parseInt(DateTime.now().ts / 1_000),
+		from: Number.parseInt(DateTime.now().minus({ hours: 26 }).ts / 1_000),
+		to: Number.parseInt(DateTime.now().ts / 1_000),
 	})
 
 	const gasEfficiencySeriesMap = {}
-	gasEfficiencySeriesRawData.forEach((item) => {
+	for (const item of sRawData) {
 		gasEfficiencySeriesMap[DateTime.fromISO(item.time).toFormat("dd-HH")] = item.value
-	})
+	}
 
 	for (let i = 0; i < 24; i++) {
 		const dt = DateTime.now()
@@ -212,7 +212,7 @@ const getGasEfficiencySeries = async () => {
 			.set({ minutes: 0, seconds: 0 })
 		gasEfficiencySeries.value.push({
 			date: dt.toJSDate(),
-			value: parseFloat(gasEfficiencySeriesMap[dt.toFormat("dd-HH")]) || 0,
+			value: Number.parseFloat(gasEfficiencySeriesMap[dt.toFormat("dd-HH")]) || 0,
 		})
 	}
 }
@@ -220,14 +220,14 @@ const getGasEfficiencySeries = async () => {
 const getGasLimitSeries = async () => {
 	const gasLimitSeriesRawData = await fetchGasLimitSeries({
 		timeframe: "hour",
-		from: parseInt(DateTime.now().minus({ hours: 26 }).ts / 1_000),
-		to: parseInt(DateTime.now().ts / 1_000),
+		from: Number.parseInt(DateTime.now().minus({ hours: 26 }).ts / 1_000),
+		to: Number.parseInt(DateTime.now().ts / 1_000),
 	})
 
 	const gasLimitSeriesMap = {}
-	gasLimitSeriesRawData.forEach((item) => {
+	for (const item of gasLimitSeriesRawData) {
 		gasLimitSeriesMap[DateTime.fromISO(item.time).toFormat("dd-HH")] = item.value
-	})
+	}
 
 	for (let i = 0; i < 24; i++) {
 		const dt = DateTime.now()
@@ -235,7 +235,7 @@ const getGasLimitSeries = async () => {
 			.set({ minutes: 0, seconds: 0 })
 		gasLimitSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseFloat(gasLimitSeriesMap[dt.toFormat("dd-HH")]) || 0,
+			value: Number.parseFloat(gasLimitSeriesMap[dt.toFormat("dd-HH")]) || 0,
 		})
 	}
 }
@@ -243,14 +243,14 @@ const getGasLimitSeries = async () => {
 const getGasUsedSeries = async () => {
 	const gasUsedSeriesRawData = await fetchGasUsedSeries({
 		timeframe: "hour",
-		from: parseInt(DateTime.now().minus({ hours: 26 }).ts / 1_000),
-		to: parseInt(DateTime.now().ts / 1_000),
+		from: Number.parseInt(DateTime.now().minus({ hours: 26 }).ts / 1_000),
+		to: Number.parseInt(DateTime.now().ts / 1_000),
 	})
 
 	const gasUsedSeriesMap = {}
-	gasUsedSeriesRawData.forEach((item) => {
+	for (const item of gasUsedSeriesRawData) {
 		gasUsedSeriesMap[DateTime.fromISO(item.time).toFormat("dd-HH")] = item.value
-	})
+	}
 
 	for (let i = 0; i < 24; i++) {
 		const dt = DateTime.now()
@@ -258,7 +258,7 @@ const getGasUsedSeries = async () => {
 			.set({ minutes: 0, seconds: 0 })
 		gasUsedSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseFloat(gasUsedSeriesMap[dt.toFormat("dd-HH")]) || 0,
+			value: Number.parseFloat(gasUsedSeriesMap[dt.toFormat("dd-HH")]) || 0,
 		})
 	}
 }
@@ -272,8 +272,12 @@ const buildGasTrackingCharts = async () => {
 	buildChart(
 		gasEfficiencyChartEl.value.wrapper,
 		gasEfficiencySeries.value,
-		() => (showTooltip.value = true),
-		() => (showTooltip.value = false),
+		() => {
+			showTooltip.value = true
+		},
+		() => {
+			showTooltip.value = false
+		},
 	)
 }
 
@@ -281,8 +285,12 @@ const debouncedRedraw = useDebounceFn((e) => {
 	buildChart(
 		gasEfficiencyChartEl.value.wrapper,
 		gasEfficiencySeries.value,
-		() => (showTooltip.value = true),
-		() => (showTooltip.value = false),
+		() => {
+			showTooltip.value = true
+		},
+		() => {
+			showTooltip.value = false
+		},
 	)
 }, 500)
 
@@ -360,7 +368,7 @@ onBeforeUnmount(() => {
 					>
 						<Flex align="center" justify="between" gap="16">
 							<Text size="12" weight="600" color="secondary">Efficiency</Text>
-							<Text size="12" weight="600" color="primary"> {{ parseInt(tooltipEfficiencyText * 100) }}%</Text>
+							<Text size="12" weight="600" color="primary"> {{ Number.parseInt(tooltipEfficiencyText * 100) }}%</Text>
 						</Flex>
 
 						<Flex align="center" justify="between" gap="16">

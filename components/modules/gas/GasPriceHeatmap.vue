@@ -29,13 +29,13 @@ onMounted(async () => {
 
 	const data = await fetchGasPriceSeries({
 		timeframe: props.selectedPeriod.timeframe,
-		to: parseInt(DateTime.now().plus({ minutes: 1 }).ts / 1_000),
-		from: parseInt(DateTime.now().set({ minutes: 0, seconds: 0 }).minus({ days: 4 }).ts / 1_000),
+		to: Number.parseInt(DateTime.now().plus({ minutes: 1 }).ts / 1_000),
+		from: Number.parseInt(DateTime.now().set({ minutes: 0, seconds: 0 }).minus({ days: 4 }).ts / 1_000),
 	})
 	const data1 = await fetchGasPriceSeries({
 		timeframe: props.selectedPeriod.timeframe,
-		to: parseInt(DateTime.now().minus({ days: 4 }).ts / 1_000),
-		from: parseInt(DateTime.now().set({ minutes: 0, seconds: 0 }).minus({ days: 7 }).ts / 1_000),
+		to: Number.parseInt(DateTime.now().minus({ days: 4 }).ts / 1_000),
+		from: Number.parseInt(DateTime.now().set({ minutes: 0, seconds: 0 }).minus({ days: 7 }).ts / 1_000),
 	})
 
 	rawSeries = [...data, ...data1.slice(1, data1.length)]
@@ -47,11 +47,11 @@ onMounted(async () => {
 		seriesByDay.value[DateTime.now().minus({ days: idx }).toFormat("d")] = []
 	}
 
-	rawSeries.forEach((d) => {
+	for (const d of rawSeries) {
 		seriesByDay.value[DateTime.fromISO(d.time).toFormat("d")]?.push(d)
-	})
+	}
 
-	Object.keys(seriesByDay.value).forEach((d) => {
+	for (const d of Object.keys(seriesByDay.value)) {
 		seriesByDay.value[d].reverse()
 		if (seriesByDay.value[d].length !== 24) {
 			while (seriesByDay.value[d].length !== 24) {
@@ -61,7 +61,7 @@ onMounted(async () => {
 				})
 			}
 		}
-	})
+	}
 })
 </script>
 
@@ -99,7 +99,7 @@ onMounted(async () => {
 								<Flex direction="column" gap="8">
 									<Flex align="center" gap="12" justify="between" wide>
 										<Text color="secondary">Gas Price</Text>
-										<Text color="primary">{{ parseFloat(hour.value).toFixed(4) }} UTIA</Text>
+										<Text color="primary">{{ Number.parseFloat(hour.value).toFixed(4) }} UTIA</Text>
 									</Flex>
 									<Flex align="center" gap="12" justify="between" wide>
 										<Text color="secondary">Time</Text>

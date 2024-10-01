@@ -37,7 +37,7 @@ getNamespaces()
 const handleSort = (by) => {
 	switch (sort.dir) {
 		case "desc":
-			if (sort.by == by) sort.dir = "asc"
+			if (sort.by === by) sort.dir = "asc"
 			break
 
 		case "asc":

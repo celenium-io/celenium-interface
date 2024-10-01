@@ -40,17 +40,18 @@ const activeTab = ref(preselectedTab)
 const messages = ref([])
 
 const gasBarColor = computed(() => {
-	let percent = props.tx.gas_used * 100 / props.tx.gas_wanted
+	const percent = (props.tx.gas_used * 100) / props.tx.gas_wanted
 
 	if (percent > 100) {
 		return "var(--red)"
-	} else if (percent < 30) {
-		return "var(--orange)"
-	} else if (percent < 60) {
-		return "var(--yellow)"
-	} else {
-		return "var(--green)"
 	}
+	if (percent < 30) {
+		return "var(--orange)"
+	}
+	if (percent < 60) {
+		return "var(--yellow)"
+	}
+	return "var(--green)"
 })
 
 watch(

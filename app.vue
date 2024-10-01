@@ -52,7 +52,7 @@ onMounted(async () => {
 	const gasPrice = await fetchGasPrice()
 	appStore.gas = gasPrice
 
-	window.onbeforeunload = function () {
+	window.onbeforeunload = () => {
 		Socket.close()
 	}
 })

@@ -6,14 +6,14 @@ const props = defineProps({
 	},
 	color: {
 		type: String,
-		default: "primary"
+		default: "primary",
 	},
 })
 
 const alias = computed(() => {
 	const { $getDisplayName } = useNuxtApp()
 
-  	return $getDisplayName('addresses', props.hash)
+	return $getDisplayName("addresses", props.hash)
 })
 </script>
 

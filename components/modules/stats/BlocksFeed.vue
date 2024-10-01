@@ -10,7 +10,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { capitilize, comma, formatBytes, shortHex } from "@/services/utils"
 
 /** API */
-import { fetchNetworks, fetchCommitments, fetchCommitmentsByNetwork } from "@/services/api/blobstream";
+import { fetchNetworks, fetchCommitments, fetchCommitmentsByNetwork } from "@/services/api/blobstream"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -37,20 +37,20 @@ const blocks = computed(() => appStore.latestBlocks.slice(0, 80).sort((a, b) => 
 
 const timeline = computed(() => {
 	let time = []
-	blocks.value.forEach(b => {
-		time.push(DateTime.fromISO(b.time).toFormat('h:mm'))
-	})
+	for (const b of blocks.value) {
+		time.push(DateTime.fromISO(b.time).toFormat("h:mm"))
+	}
 	time = new Set(time)
 
 	while (chartWidth.value / time.size < 35) {
-		let arr = Array.from(time)
+		const arr = Array.from(time)
 		arr.splice(Math.round(arr.length / 2), 1)
 		time = new Set(arr)
 	}
 	return time
 })
 
-const maxSize = computed(() => Math.max(...blocks.value?.map((b) => b.stats.bytes_in_block)))
+const maxSize = computed(() => Math.max(...blocks.value.map((b) => b.stats.bytes_in_block)))
 const avgBlockTime = ref(12)
 
 const calculateHeight = (size) => {
@@ -60,7 +60,7 @@ const calculateHeight = (size) => {
 const chartBlocksEl = ref(null)
 const chartWidth = ref()
 
-const barWidth = computed(() => Math.max(Math.round((chartWidth.value / 80 - 4)), 4))
+const barWidth = computed(() => Math.max(Math.round(chartWidth.value / 80 - 4), 4))
 const marginBar = computed(() => (chartWidth.value - barWidth.value * 80) / 79)
 
 const debouncedRedraw = () => {
@@ -76,7 +76,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
 	window.removeEventListener("resize", debouncedRedraw)
 })
-
 </script>
 
 <template>

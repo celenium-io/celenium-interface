@@ -36,7 +36,7 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io/blocks`,
+			content: "https://celenium.io/blocks",
 		},
 		{
 			property: "og:image",
@@ -77,7 +77,7 @@ const getBlocksCount = async () => {
 
 await getBlocksCount()
 
-const page = ref(route.query.page ? parseInt(route.query.page) : 1)
+const page = ref(route.query.page ? Number.parseInt(route.query.page) : 1)
 const pages = computed(() => Math.ceil(count.value / 20))
 
 const { data } = await fetchBlocks({ limit: 20, offset: (page.value - 1) * 20 })

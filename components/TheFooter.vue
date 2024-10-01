@@ -25,7 +25,7 @@ switch (theme.value) {
 }
 
 onMounted(() => {
-	let root = document.querySelector("html")
+	const root = document.querySelector("html")
 
 	if (appStore.theme === "system") {
 		root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")

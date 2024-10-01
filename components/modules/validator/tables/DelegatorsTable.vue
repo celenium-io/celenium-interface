@@ -14,7 +14,7 @@ const props = defineProps({
 	validator: {
 		type: Object,
 		required: true,
-	}
+	},
 })
 </script>
 
@@ -58,7 +58,7 @@ const props = defineProps({
 					<td>
 						<NuxtLink :to="`/address/${d.delegator}`">
 							<Flex align="center" gap="4">
-								<Text size="13" weight="600" :color="parseFloat(d.amount) ? 'primary' : 'tertiary'">
+								<Text size="13" weight="600" :color="Number.parseFloat(d.amount) ? 'primary' : 'tertiary'">
 									{{ shareOfTotalString(d.amount, validator.stake) }}
 								</Text>
 

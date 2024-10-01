@@ -1,6 +1,6 @@
 <script setup>
 /** Vendor */
-import { DateTime } from "luxon";
+import { DateTime } from "luxon"
 
 /** API */
 import { fetchVestingPeriods } from "@/services/api/address"
@@ -9,10 +9,10 @@ import { fetchVestingPeriods } from "@/services/api/address"
 import Button from "@/components/ui/Button.vue"
 import Modal from "@/components/ui/Modal.vue"
 import Spinner from "@/components/ui/Spinner.vue"
-import Tooltip from "@/components/ui/Tooltip.vue";
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { capitilize, comma } from "@/services/utils";
+import { capitilize, comma } from "@/services/utils"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
@@ -55,7 +55,6 @@ const getVestingPeriods = async () => {
 	isLoading.value = false
 }
 
-
 watch(
 	() => props.show,
 	async () => {
@@ -73,7 +72,7 @@ watch(
 	() => page.value,
 	() => {
 		getVestingPeriods()
-	}
+	},
 )
 </script>
 

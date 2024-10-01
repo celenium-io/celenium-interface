@@ -67,7 +67,7 @@ const props = defineProps({
 					</td>
 					<td>
 						<Flex align="center" gap="4">
-							<Text size="13" weight="600" :color="parseFloat(j.burned) ? 'primary' : 'tertiary'">
+							<Text size="13" weight="600" :color="Number.parseFloat(j.burned) ? 'primary' : 'tertiary'">
 								{{ tia(j.burned) }}
 							</Text>
 							<Text size="13" weight="600" color="tertiary"> TIA </Text>

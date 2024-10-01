@@ -38,70 +38,76 @@ const chartElPrev = ref()
 const getSeries = async () => {
 	let data = []
 
-	if (props.series.aggregate === 'cumulative') {
+	if (props.series.aggregate === "cumulative") {
 		data = await fetchSeriesCumulative({
 			name: props.series.name,
-			period: 'day',
-			from: parseInt(
+			period: "day",
+			from: Number.parseInt(
 				DateTime.now().minus({
 					days: 48,
-				}).ts / 1_000)
+				}).ts / 1_000,
+			),
 		})
 		// data = (await fetchSeriesCumulative({
 		// 	name: props.series.name,
 		// 	period: props.period.timeframe,
-		// 	from: parseInt(
+		// 	from: Number.parseInt(
 		// 		DateTime.now().minus({
 		// 			days: props.period.timeframe === "day" ? props.period.value * 2 : 0,
 		// 			hours: props.period.timeframe === "hour" ? props.period.value * 2 : 0,
 		// 		}).ts / 1_000)
 		// })).reverse()
 	} else {
-		data = (await fetchSeries({
-			table: props.series.name,
-			period: props.period.timeframe,
-			from: parseInt(
-				DateTime.now().minus({
-					days: props.period.timeframe === "day" ? props.period.value * 2 : 0,
-					hours: props.period.timeframe === "hour" ? props.period.value * 2 : 0,
-				}).ts / 1_000)
-		})).reverse()
-	}
-	
-	prevData.value = data.slice(0, props.period.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
-	currentData.value = data.slice(props.period.value, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
-
-	if (props.series.name === 'block_time') {
-		prevData.value = prevData.value
-			.map(el => {
-				return {
-					...el,
-					value: (el.value / 1_000).toFixed(2)
-				}
+		data = (
+			await fetchSeries({
+				table: props.series.name,
+				period: props.period.timeframe,
+				from: Number.parseInt(
+					DateTime.now().minus({
+						days: props.period.timeframe === "day" ? props.period.value * 2 : 0,
+						hours: props.period.timeframe === "hour" ? props.period.value * 2 : 0,
+					}).ts / 1_000,
+				),
 			})
-		currentData.value = currentData.value
-			.map(el => {
-				return {
-					...el,
-					value: (el.value / 1_000).toFixed(2)
-				}
-			})
+		).reverse()
 	}
 
-	if (props.series.aggregate !== 'cumulative') {
+	prevData.value = data
+		.slice(0, props.period.value)
+		.map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: Number.parseFloat(s.value) }))
+	currentData.value = data
+		.slice(props.period.value, data.length)
+		.map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: Number.parseFloat(s.value) }))
+
+	if (props.series.name === "block_time") {
+		prevData.value = prevData.value.map((el) => {
+			return {
+				...el,
+				value: (el.value / 1_000).toFixed(2),
+			}
+		})
+		currentData.value = currentData.value.map((el) => {
+			return {
+				...el,
+				value: (el.value / 1_000).toFixed(2),
+			}
+		})
+	}
+
+	if (props.series.aggregate !== "cumulative") {
 		currentTotal.value = currentData.value.reduce((sum, el) => {
-			return sum + +el.value;
-		}, 0);
+			return sum + +el.value
+		}, 0)
 
 		prevTotal.value = prevData.value.reduce((sum, el) => {
-			return sum + +el.value;
-		}, 0);
+			return sum + +el.value
+		}, 0)
 	} else {
 		currentTotal.value = currentData.value.slice(-1)[0].value
 		prevTotal.value = prevData.value.slice(-1)[0].value
 	}
 
-	if (props.series.aggregate === 'avg') {
+	if (props.series.aggregate === "avg") {
 		prevTotal.value = prevTotal.value / prevData.value.length
 		currentTotal.value = currentTotal.value / currentData.value.length
 	}
@@ -139,15 +145,11 @@ const buildChart = (chart, data, color) => {
 		.attr("preserveAspectRatio", "none")
 		.attr("style", "max-width: 100%;")
 		.style("-webkit-tap-highlight-color", "transparent")
-		// .on("touchstart", (event) => event.preventDefault())
+	// .on("touchstart", (event) => event.preventDefault())
 
 	/** Default Horizontal Lines  */
-	svg.append("path")
-		.attr("fill", "none")
-		.attr("stroke", "var(--op-5)")
-		.attr("stroke-width", 1)
-		.attr("d", `M${0},${0} L${width},${0}`)
-	
+	svg.append("path").attr("fill", "none").attr("stroke", "var(--op-5)").attr("stroke-width", 1).attr("d", `M${0},${0} L${width},${0}`)
+
 	svg.append("path")
 		.attr("fill", "none")
 		.attr("stroke", "var(--op-5)")
@@ -159,9 +161,10 @@ const buildChart = (chart, data, color) => {
 		.attr("stroke", "var(--op-5)")
 		.attr("stroke-width", 1)
 		.attr("d", `M${0},${height - marginBottom - 6} L${width},${height - marginBottom - 6}`)
-	
+
 	/** Chart Lines */
-	const path = svg.append("path")
+	const path = svg
+		.append("path")
 		.attr("fill", "none")
 		.attr("stroke", color)
 		.attr("stroke-width", 2)
@@ -180,14 +183,14 @@ const buildChart = (chart, data, color) => {
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
 
-	const totalLength = path.node().getTotalLength();
+	const totalLength = path.node().getTotalLength()
 
 	path.attr("stroke-dasharray", `${totalLength} ${totalLength}`)
 		.attr("stroke-dashoffset", totalLength)
 		.transition()
 		.duration(1_000)
 		.ease(d3.easeLinear)
-		.attr("stroke-dashoffset", 0);
+		.attr("stroke-dashoffset", 0)
 }
 
 const drawChart = async () => {
@@ -207,7 +210,6 @@ watch(
 		await drawChart()
 	},
 )
-
 </script>
 
 <template>

@@ -98,7 +98,7 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 		tooltipText.value = data[idx].value
 
 		if (tooltipEl.value) {
-			if (idx > parseInt(selectedPeriod.value.value / 2)) {
+			if (idx > Number.parseInt(selectedPeriod.value.value / 2)) {
 				tooltipDynamicXPosition.value = tooltipXOffset.value - tooltipEl.value.wrapper.getBoundingClientRect().width - 16
 			} else {
 				tooltipDynamicXPosition.value = tooltipXOffset.value + 16
@@ -190,7 +190,7 @@ const getTxSeries = async () => {
 		hash: props.hash,
 		name: "tx_count",
 		timeframe: selectedPeriod.value.timeframe,
-		from: parseInt(
+		from: Number.parseInt(
 			DateTime.now().minus({
 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
 				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
@@ -199,10 +199,9 @@ const getTxSeries = async () => {
 	})
 
 	const txSeriesMap = {}
-	txSeriesRawData.forEach((item) => {
-		txSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] =
-			item.value
-	})
+	for (const item of txSeriesRawData) {
+		txSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
+	}
 
 	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
 		const dt = DateTime.now().minus({
@@ -211,7 +210,7 @@ const getTxSeries = async () => {
 		})
 		txSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseInt(txSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+			value: Number.parseInt(txSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
 }
@@ -223,7 +222,7 @@ const getFeeSeries = async () => {
 		hash: props.hash,
 		name: "fee",
 		timeframe: selectedPeriod.value.timeframe,
-		from: parseInt(
+		from: Number.parseInt(
 			DateTime.now().minus({
 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
 				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
@@ -232,9 +231,9 @@ const getFeeSeries = async () => {
 	})
 
 	const feeSeriesMap = {}
-	feeSeriesRawData.forEach((item) => {
+	for (const item of feeSeriesRawData) {
 		feeSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
-	})
+	}
 
 	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
 		const dt = DateTime.now().minus({
@@ -243,7 +242,7 @@ const getFeeSeries = async () => {
 		})
 		feeSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseInt(feeSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+			value: Number.parseInt(feeSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
 }
@@ -253,16 +252,24 @@ const buildCharts = async () => {
 	buildChart(
 		txSeriesChartEl.value.wrapper,
 		txSeries.value,
-		() => (showTxTooltip.value = true),
-		() => (showTxTooltip.value = false),
+		() => {
+			showTxTooltip.value = true
+		},
+		() => {
+			showTxTooltip.value = false
+		},
 	)
 
 	await getFeeSeries()
 	buildChart(
 		feeSeriesChartEl.value.wrapper,
 		feeSeries.value,
-		() => (showFeeTooltip.value = true),
-		() => (showFeeTooltip.value = false),
+		() => {
+			showFeeTooltip.value = true
+		},
+		() => {
+			showFeeTooltip.value = false
+		},
 	)
 }
 

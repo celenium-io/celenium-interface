@@ -139,7 +139,7 @@ onMounted(() => {
 })
 
 const validatorStatus = computed(() => {
-	let res = {
+	const res = {
 		name: "",
 		color: "",
 		description: "",
@@ -165,29 +165,29 @@ const validatorStatus = computed(() => {
 })
 
 const parsedContacts = computed(() => {
-	let res = []
+	const res = []
 	const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g
 	const emails = props.validator.contacts.match(emailRegex)
 
 	if (emails) {
-		emails.forEach((email) => {
+		for (const email of emails) {
 			res.push({
 				type: "email",
-				value: "mailto:" + email,
+				value: `mailto:${email}`,
 			})
-		})
+		}
 	}
 
 	const telegramRegex = /https?:\/\/t\.me\/([A-Za-z0-9_]+)/g
 	const telegrams = props.validator.contacts.match(telegramRegex)
 
 	if (telegrams) {
-		telegrams.forEach((telegram) => {
+		for (const telegram of telegrams) {
 			res.push({
 				type: "telegram",
 				value: telegram,
 			})
-		})
+		}
 	}
 
 	return res
@@ -239,7 +239,6 @@ watch(
 const handleDelegate = () => {
 	modalsStore.open("staking")
 }
-
 </script>
 
 <template>

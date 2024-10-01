@@ -1,7 +1,7 @@
 export const comma = (target, symbol = ",", fixed = 2) => {
 	if (!target) return 0
 
-	let num = parseFloat(target)
+	let num = Number.parseFloat(target)
 
 	if (num % 1 === 0) {
 		num = num.toFixed(0)
@@ -23,16 +23,14 @@ export const comma = (target, symbol = ",", fixed = 2) => {
 			.split(".")[0]
 			.toString()
 			.replace(/\B(?=(\d{3})+(?!\d))/g, symbol)}.${num.split(".")[1]}`
-		x
-	} else {
-		return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, symbol)
 	}
+
+	return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, symbol)
 }
 
 export const truncate = (num) => {
 	if (!num) return num
 
-	/** todo: refactor */
 	if (num.toString().includes("e")) return 0
 
 	const [left, right] = num.toString().split(".")
@@ -41,9 +39,9 @@ export const truncate = (num) => {
 
 	for (let i = 0; i < rightArr.length; i++) {
 		const digit = rightArr[i]
-		const nextDigit = rightArr[i + 1] && rightArr[i + 1] != 0 ? rightArr[i + 1] : ""
+		const nextDigit = rightArr[i + 1] && rightArr[i + 1] !== 0 ? rightArr[i + 1] : ""
 
-		if (digit == "0" || digit == ".") {
+		if (digit === "0" || digit === ".") {
 			result += digit
 		} else {
 			result += `${digit}${nextDigit}`
@@ -55,14 +53,14 @@ export const truncate = (num) => {
 }
 
 export const tia = (amount, decimal = 6) => {
-	if (!amount || !parseInt(amount)) return 0
+	if (!amount || !Number.parseInt(amount)) return 0
 
-	return truncateDecimalPart(parseInt(amount) / 1_000_000, decimal)
+	return truncateDecimalPart(Number.parseInt(amount) / 1_000_000, decimal)
 }
 
 export const utia = (amount) => {
-	if (!amount || !parseInt(amount)) return 0
-	return parseInt(amount)
+	if (!amount || !Number.parseInt(amount)) return 0
+	return Number.parseInt(amount)
 }
 
 export const truncateDecimalPart = (amount, decimal = 6) => {
@@ -70,11 +68,11 @@ export const truncateDecimalPart = (amount, decimal = 6) => {
 
 	const numberString = amount.toFixed(decimal).replace(/\.?0+$/, "")
 
-	return parseFloat(numberString)
+	return Number.parseFloat(numberString)
 }
 
 export const numToPercent = (num, decimal = 0) => {
-	return (num * 100).toFixed(decimal) + "%"
+	return `${(num * 100).toFixed(decimal)}%`
 }
 
 export const shareOfTotal = (amount, total, decimal = 2) => {
@@ -88,21 +86,21 @@ export const shareOfTotalString = (amount, total, decimal = 2) => {
 }
 
 export const amountToString = (amount, decimal = 2) => {
-	amount = parseFloat(amount)
+	const result = Number.parseFloat(amount)
 
-	if (!amount) return 0
+	if (!result) return 0
 
-	return amount < 0.01 && decimal < 3
+	return result < 0.01 && decimal < 3
 		? "<0.01"
-		: truncateDecimalPart(amount, decimal).toLocaleString("en-US", { maximumFractionDigits: decimal })
+		: truncateDecimalPart(result, decimal).toLocaleString("en-US", { maximumFractionDigits: decimal })
 }
 
 export const abbreviate = (n, h = 1) => {
 	if (n < 1e3) return n
-	if (n >= 1e3 && n < 1e6) return +(n / 1e3).toFixed(h) + "K"
-	if (n >= 1e6 && n < 1e9) return +(n / 1e6).toFixed(h) + "M"
-	if (n >= 1e9 && n < 1e12) return +(n / 1e9).toFixed(h) + "B"
-	if (n >= 1e12) return +(n / 1e12).toFixed(h) + "T"
+	if (n >= 1e3 && n < 1e6) return `${+(n / 1e3).toFixed(h)}K`
+	if (n >= 1e6 && n < 1e9) return `${+(n / 1e6).toFixed(h)}M`
+	if (n >= 1e9 && n < 1e12) return `${+(n / 1e9).toFixed(h)}B`
+	if (n >= 1e12) return `${+(n / 1e12).toFixed(h)}T`
 }
 
 export const purgeNumber = (target) => {
@@ -114,13 +112,13 @@ export const normalizeAmount = (target, max = 9_999_999_999_999, maxStr = "9 999
 	if (target === ".") return "0."
 
 	let dotCounter = 0
-	target.split("").forEach((char) => {
+	for (const char of target.split("")) {
 		if (char === ".") dotCounter++
-	})
+	}
 	if (dotCounter > 1) return target.slice(0, target.length - 1)
 
 	if (target[target.length - 1] === ".") return target
 	if (!target.length) return ""
 	if (target.length === 1 && !/^(0|[1-9]\d*)(\.\d+)?$/.test(target)) return ""
-	if (parseFloat(purgeNumber(target)) >= max) return maxStr
+	if (Number.parseFloat(purgeNumber(target)) >= max) return maxStr
 }

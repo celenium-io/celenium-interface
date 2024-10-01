@@ -27,7 +27,7 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io/addresses`,
+			content: "https://celenium.io/addresses",
 		},
 		{
 			property: "og:image",
@@ -56,7 +56,7 @@ const route = useRoute()
 const router = useRouter()
 
 // const tabs = ref(['General', 'Blocks', 'Rollups', 'Finance'])
-const tabs = ref(['General', 'Blocks', 'Rollups'])
+const tabs = ref(["General", "Blocks", "Rollups"])
 const activeTab = ref(route.query.tab && tabs.value.includes(route.query.tab) ? route.query.tab : tabs.value[0])
 
 const updateRouteQuery = () => {
@@ -75,7 +75,7 @@ watch(
 	() => activeTab.value,
 	() => {
 		updateRouteQuery()
-	}
+	},
 )
 
 watch(
@@ -84,8 +84,6 @@ watch(
 		if (route.query.tab) activeTab.value = route.query.tab
 	},
 )
-
-
 </script>
 
 <template>

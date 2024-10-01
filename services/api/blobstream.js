@@ -44,9 +44,9 @@ export const fetchCommitmentsByNetwork = async ({ network, limit, offset, sort }
 
 export const fetchContracts = async (address) => {
 	try {
-		const url = new URL(`${useBlobstreamURL()}/contracts`)
+		let url = new URL(`${useBlobstreamURL()}/contracts`)
 
-		if (address) url + `/${address}`
+		if (address) url += `/${address}`
 
 		const data = await useFetch(url.href)
 		return data

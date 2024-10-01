@@ -37,36 +37,36 @@ const isFound = ref(false)
 const tx = ref()
 
 const details = computed(() => {
-	let detailsRes = []
+	const detailsRes = []
 	switch (cacheStore.tx.type) {
-		case 'send':
-			detailsRes.processing = 'Sending...'
-			detailsRes.success = 'Successfuly sent'
-			detailsRes.destination = 'Destination Wallet'
-			detailsRes.icon = 'address'
-
-			return detailsRes
-	
-		case 'pfb':
-			detailsRes.processing = 'Submiting Blob...'
-			detailsRes.success = 'Successfuly submited'
-			detailsRes.destination = 'Namespace'
-			detailsRes.icon = 'namespace'
+		case "send":
+			detailsRes.processing = "Sending..."
+			detailsRes.success = "Successfuly sent"
+			detailsRes.destination = "Destination Wallet"
+			detailsRes.icon = "address"
 
 			return detailsRes
 
-		case 'staking':
-			detailsRes.processing = 'Sending...'
-			detailsRes.success = 'Successfuly delegated'
-			detailsRes.destination = 'Validator'
-			detailsRes.icon = 'validator'
+		case "pfb":
+			detailsRes.processing = "Submiting Blob..."
+			detailsRes.success = "Successfuly submited"
+			detailsRes.destination = "Namespace"
+			detailsRes.icon = "namespace"
+
+			return detailsRes
+
+		case "staking":
+			detailsRes.processing = "Sending..."
+			detailsRes.success = "Successfuly delegated"
+			detailsRes.destination = "Validator"
+			detailsRes.icon = "validator"
 
 			return detailsRes
 
 		default:
-			detailsRes.processing = 'Processing...'
-			detailsRes.success = 'Successfuly executed tx'
-			detailsRes.destination = 'Destination address'
+			detailsRes.processing = "Processing..."
+			detailsRes.success = "Successfuly executed tx"
+			detailsRes.destination = "Destination address"
 
 			return detailsRes
 	}
@@ -213,7 +213,7 @@ const handleClose = () => {
 						<Text size="13" weight="600" color="secondary">
 							{{ cacheStore.tx.amount }} TIA
 							<Text color="tertiary">
-								~${{ (cacheStore.tx.amount * parseFloat(appStore.currentPrice.close)).toFixed(2) }}
+								~${{ (cacheStore.tx.amount * Number.parseFloat(appStore.currentPrice.close)).toFixed(2) }}
 							</Text>
 						</Text>
 					</Flex>

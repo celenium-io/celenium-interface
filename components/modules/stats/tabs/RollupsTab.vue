@@ -13,7 +13,7 @@ import { getSeriesByGroupAndType } from "@/services/constants/stats.js"
 import { fetchRollups } from "@/services/api/rollup.js"
 
 const isLoading = ref(false)
-const series = computed(() => getSeriesByGroupAndType('Rollups'))
+const series = computed(() => getSeriesByGroupAndType("Rollups"))
 
 const getRollups = async () => {
 	isLoading.value = true
@@ -24,11 +24,11 @@ const getRollups = async () => {
 
 	series.value.data = data
 
-    isLoading.value = false
+	isLoading.value = false
 }
 
 onBeforeMount(async () => {
-    await getRollups()
+	await getRollups()
 })
 </script>
 

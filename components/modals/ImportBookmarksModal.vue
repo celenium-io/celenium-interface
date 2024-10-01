@@ -74,13 +74,13 @@ const handleDrop = (e) => {
 					},
 				})
 
-				let merged = {}
+				const merged = {}
 
-				Object.keys(bookmarksStore.bookmarks).forEach((b) => {
+				for (const b of Object.keys(bookmarksStore.bookmarks)) {
 					const updates = Object.fromEntries([...result[b], ...bookmarksStore.bookmarks[b]].map((o) => [o.id, o]))
 
 					merged[b] = Object.keys(updates).map((u) => updates[u])
-				})
+				}
 
 				localStorage.bookmarks = merged
 				bookmarksStore.bookmarks = merged

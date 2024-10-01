@@ -93,31 +93,29 @@ watch(
 
 const calcModalStyles = computed(() => {
 	const styles = {
-		width: props.width ? `${props.width}px` : `400px`,
+		width: props.width ? `${props.width}px` : "400px",
 	}
-
-	props.new && (styles.padding = "0")
 
 	return styles
 })
 
 const showShakeAnimation = ref(false)
 const handleClose = (e) => {
-	if (e && e.path?.find((el) => el.id === "dropdown")) {
+	if (e?.path?.find((el) => el.id === "dropdown")) {
 		return
-	} else {
-		/** prevent closing */
-		if (props.blockClosing) return
-		if (props.required) {
-			showShakeAnimation.value = true
-			setTimeout(() => {
-				showShakeAnimation.value = false
-			}, 700)
-			return
-		}
-
-		emit("onClose")
 	}
+
+	/** prevent closing */
+	if (props.blockClosing) return
+	if (props.required) {
+		showShakeAnimation.value = true
+		setTimeout(() => {
+			showShakeAnimation.value = false
+		}, 700)
+		return
+	}
+
+	emit("onClose")
 }
 
 const onKeydown = (e) => {

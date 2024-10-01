@@ -138,9 +138,8 @@ const isSelected = (idx) => {
 	if (props.range.start === null && props.range.end === null) return
 	if (props.range.start <= props.range.end) {
 		return relativeIdx >= props.range.start && relativeIdx <= props.range.end
-	} else {
-		return relativeIdx >= props.range.end && relativeIdx <= props.range.start
 	}
+	return relativeIdx >= props.range.end && relativeIdx <= props.range.start
 }
 
 /** Hover byte */
@@ -150,12 +149,11 @@ const onPointerLeave = () => {
 }
 
 const decode = (byte) => {
-	const charCode = parseInt(`0x${byte}`, 16)
+	const charCode = Number.parseInt(`0x${byte}`, 16)
 	if (charCode >= 0 && charCode <= 31) {
 		return "."
-	} else {
-		return iconv.decode(new Uint8Array([charCode]), settingsStore.hex.characterSet)
 	}
+	return iconv.decode(new Uint8Array([charCode]), settingsStore.hex.characterSet)
 }
 </script>
 

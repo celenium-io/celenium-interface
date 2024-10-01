@@ -30,7 +30,7 @@ const { hostname } = useRequestURL()
 
 switch (hostname) {
 	case "celenium.io":
-	// case "dev.celenium.io":
+		// case "dev.celenium.io":
 		appStore.network = mainnet
 		break
 
@@ -44,7 +44,6 @@ switch (hostname) {
 	default:
 		appStore.network = arabica
 		break
-
 }
 
 const getBalance = async () => {
@@ -54,7 +53,7 @@ const getBalance = async () => {
 		const { data } = await fetchAddressByHash(key.bech32Address)
 
 		if (data.value?.balance) {
-			appStore.balance = parseFloat(data.value.balance.spendable / 1_000_000) || 0
+			appStore.balance = Number.parseFloat(data.value.balance.spendable / 1_000_000) || 0
 		}
 	}
 }

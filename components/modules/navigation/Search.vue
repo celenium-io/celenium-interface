@@ -68,7 +68,7 @@ const handleInput = () => {
 }
 
 const getResultMetadata = (target) => {
-	let metadata = { type: null, title: null, routerLink: null }
+	const metadata = { type: null, title: null, routerLink: null }
 
 	switch (target.type.toLowerCase()) {
 		case "tx":

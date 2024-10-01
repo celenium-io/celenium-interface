@@ -1,0 +1,55 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.9.3/schema.json",
+	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
+	"files": {
+		"ignoreUnknown": false,
+		"ignore": [
+			".nuxt",
+			".output",
+			"node_modules/**",
+			"dist/**",
+			"services/utils/msgpayforblobs.js",
+			"services/utils/blobtx.js",
+			"services/utils/blob.js",
+			"services/lumina-node-wasm",
+			"services/proto/gen"
+		]
+	},
+	"formatter": {
+		"enabled": true,
+		"useEditorconfig": true,
+		"formatWithErrors": false,
+		"indentStyle": "tab",
+		"indentWidth": 4,
+		"lineEnding": "lf",
+		"lineWidth": 140,
+		"attributePosition": "auto",
+		"bracketSpacing": true
+	},
+	"organizeImports": { "enabled": false },
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"style": { "noParameterAssign": "off" },
+			"performance": {
+				"noDelete": "info"
+			},
+			"suspicious": { "noAsyncPromiseExecutor": "off", "noGlobalAssign": "off" },
+			"complexity": { "noExtraBooleanCast": "off" }
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"jsxQuoteStyle": "double",
+			"quoteProperties": "asNeeded",
+			"trailingCommas": "all",
+			"semicolons": "asNeeded",
+			"arrowParentheses": "always",
+			"bracketSameLine": false,
+			"quoteStyle": "double",
+			"attributePosition": "auto",
+			"bracketSpacing": true
+		}
+	}
+}

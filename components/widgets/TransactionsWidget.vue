@@ -29,17 +29,17 @@ const getHistogram = async (sectorOffset) => {
 	const data = await fetchSeries({
 		table: "tx_count",
 		period: "hour",
-		from: parseInt(DateTime.now().minus({ hours: 24 - sectorOffset }).ts / 1_000),
+		from: Number.parseInt(DateTime.now().minus({ hours: 24 - sectorOffset }).ts / 1_000),
 	})
 	histogram.value = data.reverse()
 }
 
 const buildHistogram = async () => {
-	sectors.value.forEach((s) => {
+	for (const s of sectors.value) {
 		while (s.length) {
 			s.pop()
 		}
-	})
+	}
 
 	const currentHour = DateTime.now().hour
 	const currentSector = hoursMap.find((m) => m.includes(currentHour))
@@ -65,12 +65,15 @@ const buildHistogram = async () => {
 		})
 	}
 
-	max.value = Math.max(...histogram.value.map((item) => parseInt(item.value)))
+	max.value = Math.max(...histogram.value.map((item) => Number.parseInt(item.value)))
 	roundedMax.value = Math.ceil(max.value / 5) * 5
 
-	setTimeout(() => {
-		buildHistogram()
-	}, (60 - DateTime.now().minute) * 60 * 1_000)
+	setTimeout(
+		() => {
+			buildHistogram()
+		},
+		(60 - DateTime.now().minute) * 60 * 1_000,
+	)
 }
 
 onMounted(async () => {
@@ -78,11 +81,13 @@ onMounted(async () => {
 })
 
 const txCounter = computed(() => {
-	return histogram.value.reduce((a, b) => (a += parseInt(b.value)), 0)
+	return histogram.value.reduce((a, b) => {
+		a += Number.parseInt(b.value)
+	}, 0)
 })
 
 const getPercentageRatio = (v) => {
-	return (parseInt(v) * 100) / roundedMax.value
+	return (Number.parseInt(v) * 100) / roundedMax.value
 }
 
 const getSectorName = (item) => {

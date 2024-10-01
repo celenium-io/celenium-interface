@@ -54,16 +54,16 @@ const classes = computed(() => {
 		flexClasses.push(`color--${props.color}`)
 	}
 	if (props.noWrap) {
-		flexClasses.push(`no-wrap`)
+		flexClasses.push("no-wrap")
 	}
 	if (props.mono) {
-		flexClasses.push(`mono`)
+		flexClasses.push("mono")
 	}
 	if (props.tabular) {
-		flexClasses.push(`tabular`)
+		flexClasses.push("tabular")
 	}
 	if (props.selectable) {
-		flexClasses.push(`selectable`)
+		flexClasses.push("selectable")
 	}
 
 	return flexClasses

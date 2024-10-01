@@ -190,7 +190,7 @@ export const createTheme = ({ styles }) => {
 				borderLeft: "3px solid #EB5757",
 			},
 			".cm-diagnosticAction": {
-				background: `var(--op-10)`,
+				background: "var(--op-10)",
 				borderRadius: "4px",
 				padding: "2px 4px",
 				fontSize: "12px",
@@ -199,7 +199,7 @@ export const createTheme = ({ styles }) => {
 				transition: "all .2s var(--bezier)",
 			},
 			".cm-diagnosticAction:hover": {
-				background: `var(--op-20)`,
+				background: "var(--op-20)",
 				color: "var(--txt-primary)",
 			},
 		},

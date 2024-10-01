@@ -29,7 +29,6 @@ watch(
 		}
 	},
 )
-
 </script>
 
 <template>
@@ -233,7 +232,7 @@ watch(
 }
 
 .divider {
-	width: fill-available;
+	width: stretch;
 	height: 2px;
 
 	background: var(--op-5);

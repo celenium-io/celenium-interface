@@ -8,10 +8,9 @@ import SquareSizeChart from "~/components/modules/stats/SquareSizeChart.vue"
 /** Constants */
 import { getSeriesByGroupAndType, STATS_PERIODS } from "@/services/constants/stats.js"
 
-const series = computed(() => getSeriesByGroupAndType('Blocks'))
+const series = computed(() => getSeriesByGroupAndType("Blocks"))
 const periods = ref(STATS_PERIODS)
 const selectedPeriod = ref(periods.value[0])
-
 </script>
 
 <template>

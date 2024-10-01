@@ -45,7 +45,7 @@ const handleSelectBlock = (b, isUser) => {
 const getTransactionsByBlock = async () => {
 	const { data } = await fetchTransactionsByBlock({
 		height: preview.block.height,
-		from: parseInt(DateTime.fromISO(preview.block.time) / 1000),
+		from: Number.parseInt(DateTime.fromISO(preview.block.time) / 1000),
 	})
 	preview.transactions = data.value
 }
@@ -94,7 +94,7 @@ if (Object.keys(lastHead.value).length !== 0 && !lastHead?.value.synced) {
 		notification: {
 			type: "warning",
 			icon: "pause",
-			title: `The blocks timeline on pause`,
+			title: "The blocks timeline on pause",
 			description: "Due to the unsynced head",
 			autoDestroy: false,
 		},
@@ -121,13 +121,13 @@ watch(
 		}
 
 		const data = await fetchBlockBlobs({ height: preview.block.height })
-		let namespaces = []
+		const namespaces = []
 
-		data.forEach(blob => {
+		for (const blob of data) {
 			namespaces.push(blob.namespace)
-		});
+		}
 
-		preview.namespaces = Array.from(new Map(namespaces.map(item => [item.id, item])).values());
+		preview.namespaces = Array.from(new Map(namespaces.map((item) => [item.id, item])).values())
 		preview.isLoadingNamespaces = false
 	},
 )

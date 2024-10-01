@@ -45,7 +45,7 @@ const periods = ref([
 const selectedPeriod = computed(() => periods.value[selectedPeriodIdx.value])
 
 useHead({
-	title: `Celestia Gas Tracker - Celenium`,
+	title: "Celestia Gas Tracker - Celenium",
 	link: [
 		{
 			rel: "canonical",
@@ -55,15 +55,15 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: `Gas Tracker for Celestia Blockchain. Gas price, efficiency, etc.`,
+			content: "Gas Tracker for Celestia Blockchain. Gas price, efficiency, etc.",
 		},
 		{
 			property: "og:title",
-			content: `Celestia Gas Tracker - Celenium`,
+			content: "Celestia Gas Tracker - Celenium",
 		},
 		{
 			property: "og:description",
-			content: `Gas Tracker for Celestia Blockchain. Gas price, efficiency, etc.`,
+			content: "Gas Tracker for Celestia Blockchain. Gas price, efficiency, etc.",
 		},
 		{
 			property: "og:url",
@@ -75,11 +75,11 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: `Celestia Gas Tracker - Celenium`,
+			content: "Celestia Gas Tracker - Celenium",
 		},
 		{
 			name: "twitter:description",
-			content: `Gas Tracker for Celestia Blockchain. Gas price, efficiency, etc.`,
+			content: "Gas Tracker for Celestia Blockchain. Gas price, efficiency, etc.",
 		},
 		{
 			name: "twitter:card",

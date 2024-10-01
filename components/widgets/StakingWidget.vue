@@ -61,11 +61,11 @@ const getValidatorsStats = async () => {
 }
 
 const fillValidatorsGraph = () => {
-	totalValidators.value = validatorsStats.value["total"]
-	activeValidators.value = validatorsStats.value["active"]
+	totalValidators.value = validatorsStats.value.total
+	activeValidators.value = validatorsStats.value.active
 
-	for (let item of validatorsGraph.value) {
-		let value = validatorsStats.value[item.title]
+	for (const item of validatorsGraph.value) {
+		const value = validatorsStats.value[item.title]
 
 		if (value) {
 			item.count = value

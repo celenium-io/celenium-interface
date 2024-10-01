@@ -101,7 +101,7 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 		tooltipText.value = data[idx].value
 
 		if (tooltipEl.value) {
-			if (idx > parseInt(selectedPeriod.value.value / 2)) {
+			if (idx > Number.parseInt(selectedPeriod.value.value / 2)) {
 				tooltipDynamicXPosition.value = tooltipXOffset.value - tooltipEl.value.wrapper.getBoundingClientRect().width - 16
 			} else {
 				tooltipDynamicXPosition.value = tooltipXOffset.value + 16
@@ -193,7 +193,7 @@ const getSizeSeries = async () => {
 		id: props.rollup.id,
 		name: "size",
 		timeframe: selectedPeriod.value.timeframe,
-		from: parseInt(
+		from: Number.parseInt(
 			DateTime.now().minus({
 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
 				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
@@ -202,10 +202,10 @@ const getSizeSeries = async () => {
 	})
 
 	const sizeSeriesMap = {}
-	sizeSeriesRawData.forEach((item) => {
+	for (const item of sizeSeriesRawData) {
 		sizeSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] =
 			item.value
-	})
+	}
 
 	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
 		const dt = DateTime.now().minus({
@@ -214,7 +214,7 @@ const getSizeSeries = async () => {
 		})
 		sizeSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseInt(sizeSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+			value: Number.parseInt(sizeSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
 }
@@ -226,7 +226,7 @@ const getPfbSeries = async () => {
 		id: props.rollup.id,
 		name: "blobs_count",
 		timeframe: selectedPeriod.value.timeframe,
-		from: parseInt(
+		from: Number.parseInt(
 			DateTime.now().minus({
 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
 				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
@@ -235,9 +235,10 @@ const getPfbSeries = async () => {
 	})
 
 	const blobsSeriesMap = {}
-	blobsSeriesRawData.forEach((item) => {
-		blobsSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
-	})
+	for (const item of blobsSeriesRawData) {
+		blobsSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] =
+			item.value
+	}
 
 	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
 		const dt = DateTime.now().minus({
@@ -246,7 +247,7 @@ const getPfbSeries = async () => {
 		})
 		pfbSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseInt(blobsSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+			value: Number.parseInt(blobsSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
 }
@@ -258,7 +259,7 @@ const getFeeSeries = async () => {
 		id: props.rollup.id,
 		name: "fee",
 		timeframe: selectedPeriod.value.timeframe,
-		from: parseInt(
+		from: Number.parseInt(
 			DateTime.now().minus({
 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
 				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
@@ -267,9 +268,9 @@ const getFeeSeries = async () => {
 	})
 
 	const feeSeriesMap = {}
-	feeSeriesRawData.forEach((item) => {
+	for (const item of feeSeriesRawData) {
 		feeSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
-	})
+	}
 
 	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
 		const dt = DateTime.now().minus({
@@ -278,7 +279,7 @@ const getFeeSeries = async () => {
 		})
 		feeSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseInt(feeSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+			value: Number.parseInt(feeSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
 }
@@ -288,24 +289,36 @@ const buildRollupCharts = async () => {
 	buildChart(
 		sizeSeriesChartEl.value.wrapper,
 		sizeSeries.value,
-		() => (showSeriesTooltip.value = true),
-		() => (showSeriesTooltip.value = false),
+		() => {
+			showSeriesTooltip.value = true
+		},
+		() => {
+			showSeriesTooltip.value = false
+		},
 	)
 
 	await getPfbSeries()
 	buildChart(
 		pfbSeriesChartEl.value.wrapper,
 		pfbSeries.value,
-		() => (showPfbTooltip.value = true),
-		() => (showPfbTooltip.value = false),
+		() => {
+			showPfbTooltip.value = true
+		},
+		() => {
+			showPfbTooltip.value = false
+		},
 	)
 
 	await getFeeSeries()
 	buildChart(
 		feeSeriesChartEl.value.wrapper,
 		feeSeries.value,
-		() => (showFeeTooltip.value = true),
-		() => (showFeeTooltip.value = false),
+		() => {
+			showFeeTooltip.value = true
+		},
+		() => {
+			showFeeTooltip.value = false
+		},
 	)
 }
 

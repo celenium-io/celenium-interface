@@ -1,8 +1,8 @@
 import { nodePolyfills } from "vite-plugin-node-polyfills"
-import path from "path"
+import path from "node:path"
 
 export default defineNuxtConfig({
-	modules: ["nuxt-simple-sitemap", "@pinia/nuxt", "nuxt-og-image"],
+	modules: ["@pinia/nuxt", "nuxt-og-image", "@nuxtjs/sitemap"],
 
 	site: {
 		url: "https://celenium.io",

@@ -41,7 +41,7 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io/blobstream`,
+			content: "https://celenium.io/blobstream",
 		},
 		{
 			property: "og:image",
@@ -73,7 +73,7 @@ const isRefetching = ref(false)
 const networks = ref([])
 const commitments = ref([])
 
-const page = ref(route.query.page ? parseInt(route.query.page) : 1)
+const page = ref(route.query.page ? Number.parseInt(route.query.page) : 1)
 const selectedNetwork = ref(route.query.network ? route.query.network : "")
 const handleNextCondition = ref(true)
 const limit = ref(20)
@@ -190,7 +190,7 @@ getCommitments()
 		<Breadcrumbs
 			:items="[
 				{ link: '/', name: 'Explore' },
-				{ link: '/blobstream', name: `Blobstream` },
+				{ link: '/blobstream', name: 'Blobstream' },
 			]"
 			:class="$style.breadcrumbs"
 		/>

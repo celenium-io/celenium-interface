@@ -33,7 +33,7 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io/addresses`,
+			content: "https://celenium.io/addresses",
 		},
 		{
 			property: "og:image",
@@ -72,7 +72,7 @@ const getAddressesCount = async () => {
 
 await getAddressesCount()
 
-const page = ref(route.query.page ? parseInt(route.query.page) : 1)
+const page = ref(route.query.page ? Number.parseInt(route.query.page) : 1)
 const pages = computed(() => Math.ceil(count.value / 20))
 
 const sort = reactive({
@@ -109,7 +109,7 @@ watch(
 const handleSort = (by) => {
 	switch (sort.dir) {
 		case "desc":
-			if (sort.by == by) sort.dir = "asc"
+			if (sort.by === by) sort.dir = "asc"
 			break
 
 		case "asc":
@@ -257,7 +257,7 @@ const handleLast = async () => {
 								<td>
 									<NuxtLink :to="`/address/${address.hash}`">
 										<AmountInCurrency
-											:amount="{ value: parseInt(address.balance.spendable) }"
+											:amount="{ value: Number.parseInt(address.balance.spendable) }"
 											:styles="{ amount: { size: '13' }, currency: { size: '13' } }"
 										/>
 									</NuxtLink>
@@ -265,7 +265,7 @@ const handleLast = async () => {
 								<td>
 									<NuxtLink :to="`/address/${address.hash}`">
 										<AmountInCurrency
-											:amount="{ value: parseInt(address.balance.delegated) }"
+											:amount="{ value: Number.parseInt(address.balance.delegated) }"
 											:styles="{ amount: { size: '13' }, currency: { size: '13' } }"
 										/>
 									</NuxtLink>

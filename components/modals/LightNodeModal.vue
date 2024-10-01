@@ -71,7 +71,7 @@ onMounted(async () => {
 					notification: {
 						type: "success",
 						icon: "lumina",
-						title: `Starting the light node`,
+						title: "Starting the light node",
 						autoDestroy: true,
 						actions: [
 							{
@@ -91,7 +91,7 @@ onMounted(async () => {
 			notification: {
 				type: "info",
 				icon: "lumina",
-				title: `Autostart of light node in 5 seconds`,
+				title: "Autostart of light node in 5 seconds",
 				description: "Cancel start or disable autostart as required using the buttons below",
 				autoDestroy: true,
 				delay: 5500,
@@ -319,9 +319,9 @@ const handleStart = async () => {
 
 	try {
 		const logVisual = (event) => {
-			event.shares.forEach((s) => {
+			for (const s of event.shares) {
 				shares.value[s] = true
-			})
+			}
 		}
 
 		const onNewHead = async (height) => {
@@ -371,13 +371,14 @@ const handleStart = async () => {
 					await onAddedHeaders()
 					break
 
-				case "fetching_headers_finished":
+				case "fetching_headers_finished": {
 					const to_height = event_data.to_height
 					if (appStore.lastHead.last_height && to_height > appStore.lastHead.last_height) {
 						await onNewHead(to_height)
 					}
 					await onAddedHeaders()
 					break
+				}
 			}
 		}
 

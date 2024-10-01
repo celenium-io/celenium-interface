@@ -45,7 +45,7 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io/transactions`,
+			content: "https://celenium.io/transactions",
 		},
 		{
 			property: "og:image",
@@ -79,6 +79,7 @@ const filters = reactive({
 		success: false,
 		failed: false,
 	},
+	// biome-ignore lint/performance/noAccumulatingSpread: <explanation>
 	message_type: MsgTypes.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	from: "",
 	to: "",
@@ -86,13 +87,13 @@ const filters = reactive({
 const savedFiltersBeforeChanges = ref(null)
 
 const handleClearAllFilters = () => {
-	Object.keys(filters.status).forEach((f) => {
+	for (const f of Object.keys(filters.status)) {
 		filters.status[f] = false
-	})
+	}
 
-	Object.keys(filters.message_type).forEach((f) => {
+	for (const f of Object.keys(filters.message_type)) {
 		filters.message_type[f] = false
-	})
+	}
 
 	filters.from = ""
 	filters.to = ""
@@ -107,19 +108,19 @@ const handleClearAllFilters = () => {
 const searchTerm = ref("")
 
 /** Parse route query */
-Object.keys(route.query).forEach((key) => {
-	if (key === "page") return
+for (const key of objecObject.keys(route.query)) {
+	if (key === "page") continue
 
 	if (key === "from" || key === "to") {
 		filters[key] = route.query[key]
 	} else if (route.query[key].split(",").length) {
-		route.query[key].split(",").forEach((item) => {
+		for (const item of route.query[key].split(",")) {
 			filters[key][item] = true
-		})
+		}
 	} else {
 		filters[key][route.query[key]] = true
 	}
-})
+}
 
 const updateRouteQuery = () => {
 	router.replace({
@@ -220,9 +221,9 @@ const resetFilters = (target, refetch) => {
 	if (target === "from" || target === "to") {
 		filters[target] = ""
 	} else {
-		Object.keys(filters[target]).forEach((f) => {
+		for (const f of Object.keys(filters[target])) {
 			filters[target][f] = false
-		})
+		}
 	}
 
 	if (refetch) {
@@ -270,7 +271,7 @@ const sort = reactive({
 	dir: "desc",
 })
 
-const page = ref(route.query.page ? parseInt(route.query.page) : 1)
+const page = ref(route.query.page ? Number.parseInt(route.query.page) : 1)
 const pages = computed(() => Math.ceil(count.value / 20))
 
 const findPFB = ref(false)
@@ -332,7 +333,7 @@ const handleSort = (by) => {
 
 	switch (sort.dir) {
 		case "desc":
-			if (sort.by == by) sort.dir = "asc"
+			if (sort.by === by) sort.dir = "asc"
 			break
 
 		case "asc":

@@ -31,16 +31,16 @@ const price = reactive({
 })
 
 onMounted(async () => {
-	const dataSeries = await fetchPriceSeries( {from: parseInt(DateTime.now().minus({ days: 3 }).ts / 1_000)})
+	const dataSeries = await fetchPriceSeries({ from: Number.parseInt(DateTime.now().minus({ days: 3 }).ts / 1_000) })
 	series.value = dataSeries
 	appStore.currentPrice = series.value[0]
-	price.value = parseFloat(series.value[0].close)
+	price.value = Number.parseFloat(series.value[0].close)
 
-	const prevDayClosePrice = parseFloat(series.value[1].close)
+	const prevDayClosePrice = Number.parseFloat(series.value[1].close)
 	price.diff = (Math.abs(prevDayClosePrice - price.value) / ((prevDayClosePrice + price.value) / 2)) * 100
-	let side = 'stay'
+	let side = "stay"
 	if (price.value - prevDayClosePrice !== 0) {
-		side = price.value - prevDayClosePrice > 0 ? 'rise' : 'fall'
+		side = price.value - prevDayClosePrice > 0 ? "rise" : "fall"
 	}
 	price.side = side
 })
@@ -111,7 +111,7 @@ onMounted(async () => {
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Fees:</Text>
 
 							<Text v-if="head" size="12" weight="600" noWrap :class="$style.value">
-								{{ abbreviate(parseInt(totalFees)) }} TIA
+								{{ abbreviate(Number.parseInt(totalFees)) }} TIA
 							</Text>
 							<Skeleton v-else w="55" h="12" />
 						</Flex>
@@ -151,7 +151,7 @@ onMounted(async () => {
 
 						<Flex v-if="series.length" align="center" gap="4">
 							<Text color="tertiary">{{ DateTime.fromISO(series[1].time).setLocale("en").toFormat("ff") }} -></Text>
-							<Text color="primary">${{ parseFloat(series[1].close).toFixed(2) }}</Text>
+							<Text color="primary">${{ Number.parseFloat(series[1].close).toFixed(2) }}</Text>
 						</Flex>
 
 						<Flex align="center" gap="4">

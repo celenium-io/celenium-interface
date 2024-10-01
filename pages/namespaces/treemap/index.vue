@@ -83,6 +83,7 @@ const drawTreemap = () => {
 	)
 
 	leaf.append("rect")
+		// biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
 		.attr("id", (d) => (d.leafUid = uid("leaf")).id)
 		.attr("fill", (d) => {
 			while (d.depth > 1) d = d.parent
@@ -95,6 +96,7 @@ const drawTreemap = () => {
 		.attr("class", cssModule.rect)
 
 	leaf.append("clipPath")
+		// biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
 		.attr("id", (d) => (d.clipUid = uid("clip")).id)
 		.append("use")
 		.attr("xlink:href", (d) => d.leafUid.href)

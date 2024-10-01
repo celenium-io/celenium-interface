@@ -8,17 +8,17 @@ export function prepareBlob(signer, ns, data) {
 	ns = ns.replace("0x", "").padStart(56, "0")
 	data = data.replace("0x", "")
 
-	let blob = {
+	const blob = {
 		namespace_id: hex2Bytes(ns),
 		version: 0,
 		share_version: 0,
 		data: hex2Bytes(data),
 	}
 
-	let pfb = newMsgPayForBlob(signer, blob)
-	let msg = pfb.serializeBinary()
+	const pfb = newMsgPayForBlob(signer, blob)
+	const msg = pfb.serializeBinary()
 
-	let decodableBlob = new window.proto.Blob()
+	const decodableBlob = new window.proto.Blob()
 	decodableBlob.setData(fromHexString(data))
 	decodableBlob.setNamespaceId(fromHexString(ns))
 	decodableBlob.setShareVersion(0)
@@ -48,13 +48,13 @@ function newMsgPayForBlob(signer, blob) {
 		return
 	}
 
-	let namespace = new Uint8Array(29)
+	const namespace = new Uint8Array(29)
 	namespace.set([blob.version])
 	namespace.set(blob.namespace_id, 1)
 
-	let commitment = createCommitments(blob)
+	const commitment = createCommitments(blob)
 
-	let pfb = new window.proto.MsgPayForBlobs()
+	const pfb = new window.proto.MsgPayForBlobs()
 	pfb.setSigner(signer)
 	pfb.addNamespaces(namespace)
 	pfb.addBlobSizes(blob.data.length)
@@ -64,15 +64,15 @@ function newMsgPayForBlob(signer, blob) {
 }
 
 export function hex2Bytes(hex) {
-	var arr = []
-	for (var i = 0; i < hex.length; i += 2) arr.push(parseInt(hex.substr(i, 2), 16))
+	const arr = []
+	for (let i = 0; i < hex.length; i += 2) arr.push(Number.parseInt(hex.substr(i, 2), 16))
 	return arr
 }
 
 function int32ToBytes(i) {
-	var arr = [0, 0, 0, 0]
+	const arr = [0, 0, 0, 0]
 	for (let index = arr.length - 1; index > -1; index--) {
-		var byte = i & 0xff
+		const byte = i & 0xff
 		arr[index] = byte
 		i = i >> 8
 	}
@@ -84,7 +84,7 @@ function reserved(nsId) {
 }
 
 function isPrimaryReserved(nsId) {
-	var reserved = true
+	let reserved = true
 	for (let i = 0; i < nsId.length - 1; i++) {
 		if (nsId[i] !== 0) {
 			reserved = false
@@ -95,7 +95,7 @@ function isPrimaryReserved(nsId) {
 }
 
 function isSecondaryReserved(nsId) {
-	var reserved = true
+	let reserved = true
 	for (let i = 0; i < nsId.length - 1; i++) {
 		if (nsId[i] !== 0xff) {
 			reserved = false
@@ -114,28 +114,28 @@ function supportedShareVersion(version) {
 }
 
 export function createCommitments(blob) {
-	let shares = createShares(blob)
-	let stw = subTreeWidth(shares.length, subTreeRootThreshold)
-	let treeSizes = merkleMountainRangeSizes(shares.length, stw)
+	const shares = createShares(blob)
+	const stw = subTreeWidth(shares.length, subTreeRootThreshold)
+	const treeSizes = merkleMountainRangeSizes(shares.length, stw)
 
-	let leafSets = []
+	const leafSets = []
 	let cursor = 0
 	for (let i = 0; i < treeSizes.length; i++) {
-		let s = shares.slice(cursor, cursor + treeSizes[i])
+		const s = shares.slice(cursor, cursor + treeSizes[i])
 		leafSets.push(sharesToBytes(s))
 		cursor += treeSizes[i]
 	}
 
-	let subTreeRoots = []
+	const subTreeRoots = []
 	for (let i = 0; i < leafSets.length; i++) {
 		const tree = new Tree(sha256.digest)
 		for (let j = 0; j < leafSets[i].length; j++) {
-			let leaf = [blob.version]
+			const leaf = [blob.version]
 			leaf.push(...blob.namespace_id)
 			leaf.push(...leafSets[i][j])
 			tree.push(leaf)
 		}
-		let root = tree.getRoot()
+		const root = tree.getRoot()
 		subTreeRoots.push(root)
 	}
 
@@ -143,13 +143,13 @@ export function createCommitments(blob) {
 }
 
 function infoByte(version, isFirstShare) {
-	let prefix = version << 1
+	const prefix = version << 1
 	return isFirstShare ? prefix + 1 : prefix
 }
 
 function createShares(blob) {
-	let shares = []
-	var [share, left] = createCompactShare(blob, blob.data, true)
+	const shares = []
+	let [share, left] = createCompactShare(blob, blob.data, true)
 	shares.push(share)
 
 	while (left !== undefined) {
@@ -161,13 +161,13 @@ function createShares(blob) {
 }
 
 function createCompactShare(blob, data, isFirstShare) {
-	let shareData = [blob.version]
+	const shareData = [blob.version]
 	shareData.push(...blob.namespace_id)
 	shareData.push(infoByte(blob.version, isFirstShare))
 	if (isFirstShare) {
 		shareData.push(...int32ToBytes(data.length))
 	}
-	let padding = shareSize - shareData.length
+	const padding = shareSize - shareData.length
 
 	if (padding >= data.length) {
 		shareData.push(...data)
@@ -183,11 +183,11 @@ function createCompactShare(blob, data, isFirstShare) {
 
 function subTreeWidth(sharesCount, threshold) {
 	let s = Math.floor(sharesCount / threshold)
-	if (sharesCount % threshold != 0) {
+	if (sharesCount % threshold !== 0) {
 		s++
 	}
 	s = roundUpPowerOfTwo(s)
-	let minSquareSize = roundUpPowerOfTwo(Math.ceil(Math.sqrt(s)))
+	const minSquareSize = roundUpPowerOfTwo(Math.ceil(Math.sqrt(s)))
 	return minSquareSize < s ? minSquareSize : s
 }
 
@@ -200,22 +200,23 @@ function roundUpPowerOfTwo(s) {
 }
 
 function roundDownPowerOfTwo(s) {
-	let pwr = roundUpPowerOfTwo(s)
+	const pwr = roundUpPowerOfTwo(s)
 	if (pwr === s) return pwr
 	return pwr / 2
 }
 
 function merkleMountainRangeSizes(totalSize, maxTreeSize) {
-	let treeSizes = []
+	let total = totalSize
+	const treeSizes = []
 
-	while (totalSize > 0) {
-		if (totalSize >= maxTreeSize) {
+	while (total > 0) {
+		if (total >= maxTreeSize) {
 			treeSizes.push(maxTreeSize)
-			totalSize -= maxTreeSize
+			total -= maxTreeSize
 		} else {
-			let size = roundDownPowerOfTwo(totalSize)
+			const size = roundDownPowerOfTwo(total)
 			treeSizes.push(size)
-			totalSize -= treeSizes
+			total -= treeSizes
 		}
 	}
 
@@ -223,7 +224,7 @@ function merkleMountainRangeSizes(totalSize, maxTreeSize) {
 }
 
 function sharesToBytes(shares) {
-	let bytes = []
+	const bytes = []
 	for (let i = 0; i < shares.length; i++) {
 		bytes.push(shares[i])
 	}
@@ -235,15 +236,15 @@ function hashFromByteSlices(slices) {
 		return new Uint8Array(0)
 	}
 	if (slices.length === 1) {
-		let arr = [0]
+		const arr = [0]
 		arr.push(...slices[0])
 		return hash(arr)
 	}
 
-	let sp = getSplitPoint(slices.length)
-	let left = hashFromByteSlices(slices.slice(0, sp))
-	let right = hashFromByteSlices(slices.slice(sp, slices.length))
-	let arr = [1]
+	const sp = getSplitPoint(slices.length)
+	const left = hashFromByteSlices(slices.slice(0, sp))
+	const right = hashFromByteSlices(slices.slice(sp, slices.length))
+	const arr = [1]
 	arr.push(...left)
 	arr.push(...right)
 	return hash(arr)
@@ -265,7 +266,7 @@ export function getSplitPoint(length) {
 	return k
 }
 
-export const fromHexString = (hexString) => Uint8Array.from(hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)))
+export const fromHexString = (hexString) => Uint8Array.from(hexString.match(/.{1,2}/g).map((byte) => Number.parseInt(byte, 16)))
 export const toHexString = (bytes) => bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, "0"), "")
 
 function hash(data) {

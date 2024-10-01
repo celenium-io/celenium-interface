@@ -41,7 +41,7 @@ export const getAccounts = (network) => {
 }
 
 const buildPayForBlob = (tx, blob) => {
-	let blobTx = new proto.BlobTx()
+	const blobTx = new proto.BlobTx()
 	blobTx.setTx(tx)
 	blobTx.setTypeId("BLOB")
 	blobTx.addBlobs(blob)
@@ -160,7 +160,7 @@ export const simulateMsgs = async (network, sender, proto, fee) => {
 			}),
 		})
 
-		const gasUsed = parseInt(simulatedResult.gas_info.gas_used)
+		const gasUsed = Number.parseInt(simulatedResult.gas_info.gas_used)
 		if (Number.isNaN(gasUsed)) {
 			throw new Error(`Invalid integer gas: ${simulatedResult.gas_info.gas_used}`)
 		}
@@ -247,7 +247,7 @@ export const broadcastTxSync = async (chainId, tx) => {
 	return window.keplr.sendTx(chainId, tx, "sync")
 }
 
-export const fromHexString = (hexString) => Uint8Array.from(hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)))
+export const fromHexString = (hexString) => Uint8Array.from(hexString.match(/.{1,2}/g).map((byte) => Number.parseInt(byte, 16)))
 function decodeSignature(s) {
 	return fromHexString(Base64.parse(s).toString(Hex))
 }

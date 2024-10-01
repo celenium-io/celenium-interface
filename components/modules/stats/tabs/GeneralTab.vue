@@ -3,7 +3,6 @@
 import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 
-
 /** Stats Components */
 import BlocksFeed from "@/components/modules/stats/BlocksFeed.vue"
 import ChartCardPreview from "@/components/modules/stats/ChartCardPreview.vue"
@@ -26,27 +25,27 @@ const diffs24h = ref({})
 const highlights = computed(() => {
 	return [
 		{
-			name: 'blocks',
-			title: 'Blocks',
+			name: "blocks",
+			title: "Blocks",
 			value: lastHead.value.last_height,
 		},
 		{
-			name: 'txs',
-			title: 'Transactions',
+			name: "txs",
+			title: "Transactions",
 			value: lastHead.value.total_tx,
 			diff: diffs24h.value.tx_count_24h,
 		},
 		{
-			name: 'blobs_size',
-			title: 'Blobs Size',
-			units: 'bytes',
+			name: "blobs_size",
+			title: "Blobs Size",
+			units: "bytes",
 			value: lastHead.value.total_blobs_size,
 			diff: diffs24h.value.blobs_size_24h,
 		},
 		{
-			name: 'fee',
-			title: 'Total Fees',
-			units: 'utia',
+			name: "fee",
+			title: "Total Fees",
+			units: "utia",
 			value: lastHead.value.total_fee,
 			diff: diffs24h.value.fee_24h,
 		},
@@ -56,16 +55,16 @@ const highlights = computed(() => {
 const periods = ref(STATS_PERIODS)
 const selectedPeriod = ref(periods.value[1])
 
-const series = computed(() => getSeriesByGroupAndType('General'))
-const insights = computed(() => getInsightsByGroup('General'))
+const series = computed(() => getSeriesByGroupAndType("General"))
+const insights = computed(() => getInsightsByGroup("General"))
 
 const get24hDiffs = async () => {
-    isLoading.value = true
+	isLoading.value = true
 
-	const data = await fetch24hDiffs({ name: 'changes_24h' })
+	const data = await fetch24hDiffs({ name: "changes_24h" })
 	diffs24h.value = data
 
-    isLoading.value = false
+	isLoading.value = false
 }
 
 await get24hDiffs()

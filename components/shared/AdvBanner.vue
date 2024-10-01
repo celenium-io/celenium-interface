@@ -13,7 +13,7 @@ const props = defineProps({
 	},
 	orientation: {
 		type: String,
-		default: 'vertical',
+		default: "vertical",
 	},
 })
 
@@ -22,7 +22,7 @@ const isDisplayed = ref(true)
 
 const handleClick = () => {
 	if (adv.value.link) {
-		window.open(adv.value.link, '_blank')
+		window.open(adv.value.link, "_blank")
 	} else if (adv.value.modal) {
 		modalsStore.open(adv.value.modal)
 	}

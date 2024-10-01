@@ -43,11 +43,11 @@ const contentPreviewText = ref("")
 const viewData = computed(() => {
 	if (contentPreviewText.value.length) {
 		return contentPreviewText.value
-	} else if (!isDecode.value) {
-		return rawData.value
-	} else {
-		return decodedData.value
 	}
+	if (!isDecode.value) {
+		return rawData.value
+	}
+	return decodedData.value
 })
 
 const handleLoadAnyway = () => {
@@ -108,7 +108,7 @@ const handleDownload = () => {
 	const byteArray = new Uint8Array(
 		strToHex(atob(blob.value.data))
 			.match(/.{2}/g)
-			.map((e) => parseInt(e, 16)),
+			.map((e) => Number.parseInt(e, 16)),
 	)
 
 	const a = window.document.createElement("a")
@@ -131,6 +131,7 @@ const handlePreviewContent = () => {
 				switch (blob.value.content_type) {
 					case "image/png":
 					case "image/jpeg":
+						// biome-ignore lint/correctness/noSwitchDeclarations: <explanation>
 						const image = new Image()
 						image.src = `data:image/png;base64,${blob.value.data}`
 						imagePreviewEl.value.appendChild(image)

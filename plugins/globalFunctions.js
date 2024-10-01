@@ -5,7 +5,6 @@ import { comma, getShortNamespaceID, shortHash, splitAddress } from "@/services/
 import { useBookmarksStore } from "@/store/bookmarks"
 
 export default defineNuxtPlugin((nuxtApp) => {
-
 	const getDisplayName = (type, id) => {
 		const bookmarksStore = useBookmarksStore()
 		const name = bookmarksStore.getBookmarkAlias(type, id)
@@ -13,20 +12,20 @@ export default defineNuxtPlugin((nuxtApp) => {
 		if (name !== id) {
 			return name
 		}
-	
+
 		switch (type) {
-			case 'addresses':
+			case "addresses":
 				return splitAddress(id)
-			case 'blocks':
+			case "blocks":
 				return comma(id)
-			case 'namespaces':
+			case "namespaces":
 				return getShortNamespaceID(id)
-			case 'txs':
+			case "txs":
 				return shortHash(id)
 			default:
 				return id
 		}
 	}
 
-	nuxtApp.provide('getDisplayName', getDisplayName)
+	nuxtApp.provide("getDisplayName", getDisplayName)
 })

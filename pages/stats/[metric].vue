@@ -29,120 +29,79 @@ if (!series.value.page) {
 	router.push("/stats")
 }
 
-// defineOgImage({
-// 	title: "Rollup",
-// 	rollup: rollup.value,
-// 	component: "RollupImage",
-// 	cacheKey: `${rollup.value?.name}`,
-// })
-
-// useHead({
-// 	title: `Rollup ${rollup.value?.name} - Celestia Explorer`,
-// 	link: [
-// 		{
-// 			rel: "canonical",
-// 			href: `https://celenium.io${route.path}`,
-// 		},
-// 	],
-// 	meta: [
-// 		{
-// 			name: "description",
-// 			content: `Rollup ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
-// 		},
-// 		{
-// 			property: "og:title",
-// 			content: `Rollup ${rollup.value?.name} - Celestia Explorer`,
-// 		},
-// 		{
-// 			property: "og:description",
-// 			content: `Rollup ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
-// 		},
-// 		{
-// 			property: "og:url",
-// 			content: `https://celenium.io${route.path}`,
-// 		},
-// 		{
-// 			property: "og:image",
-// 			content: `https://celenium.io${route.path}__og_image__/og.png`,
-// 		},
-// 		{
-// 			name: "twitter:title",
-// 			content: `Rollup ${rollup.value?.name} - Celestia Explorer`,
-// 		},
-// 		{
-// 			name: "twitter:description",
-// 			content: `Rollup ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
-// 		},
-// 		{
-// 			name: "twitter:card",
-// 			content: "summary_large_image",
-// 		},
-// 	],
-// })
-
 const periods = ref(STATS_PERIODS)
 const selectedPeriod = ref(periods.value[2])
 
 const currentData = ref([])
 const prevData = ref([])
 
-const chartView = ref('line')
+const chartView = ref("line")
 const loadPrevData = ref(true)
 const loadLastValue = ref(true)
 
 const handleChangeChartView = () => {
-	if (chartView.value === 'line') {
-		chartView.value = 'bar'
+	if (chartView.value === "line") {
+		chartView.value = "bar"
 	} else {
-		chartView.value = 'line'
+		chartView.value = "line"
 	}
 }
 
 const isLoading = ref(false)
 const getData = async () => {
-    isLoading.value = true
+	isLoading.value = true
 
-    let data = []
-	if (series.value.aggregate !== 'cumulative') {
-		data = (await fetchSeries({
-			table: series.value.name,
-			period: selectedPeriod.value.timeframe,
-			from: parseInt(
-				DateTime.now().minus({
-					days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
-					hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
-				}).ts / 1_000)
-		})).reverse()
+	let data = []
+	if (series.value.aggregate !== "cumulative") {
+		data = (
+			await fetchSeries({
+				table: series.value.name,
+				period: selectedPeriod.value.timeframe,
+				from: Number.parseInt(
+					DateTime.now().minus({
+						days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
+						hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
+					}).ts / 1_000,
+				),
+			})
+		).reverse()
 	} else {
 		data = await fetchSeriesCumulative({
 			name: series.value.name,
 			period: selectedPeriod.value.timeframe,
-			from: parseInt(
+			from: Number.parseInt(
 				DateTime.now().minus({
 					days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
 					hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
-				}).ts / 1_000)
+				}).ts / 1_000,
+			),
 		})
 	}
 
-    if (data.length) {
-        if (loadPrevData.value) {
-            prevData.value = data.slice(0, selectedPeriod.value.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
-            currentData.value = data.slice(selectedPeriod.value.value, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
-        } else {
+	if (data.length) {
+		if (loadPrevData.value) {
+			prevData.value = data
+				.slice(0, selectedPeriod.value.value)
+				.map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: Number.parseFloat(s.value) }))
+			currentData.value = data
+				.slice(selectedPeriod.value.value, data.length)
+				.map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: Number.parseFloat(s.value) }))
+		} else {
 			prevData.value = []
-            currentData.value = data.slice(0, selectedPeriod.value.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
-        }
-    }
+			currentData.value = data
+				.slice(0, selectedPeriod.value.value)
+				.map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: Number.parseFloat(s.value) }))
+		}
+	}
 
 	series.value.currentData = loadLastValue.value ? currentData.value : [...currentData.value.slice(0, -1)]
-	series.value.prevData = loadLastValue.value ? prevData.value : (prevData.value.length ? [...prevData.value.slice(0, -1)] : prevData.value)
+	series.value.prevData = loadLastValue.value ? prevData.value : prevData.value.length ? [...prevData.value.slice(0, -1)] : prevData.value
 	series.value.timeframe = selectedPeriod.value.timeframe
 
-    isLoading.value = false
+	isLoading.value = false
 }
 
-if (series.value.name !== 'square_size') {
+if (series.value.name !== "square_size") {
 	await getData()
 }
 
@@ -173,7 +132,7 @@ watch(
 				series.value.prevData = [...prevData.value.slice(0, -1)]
 			}
 		}
-	}
+	},
 )
 
 watch(
@@ -191,7 +150,6 @@ watch(
 		}
 	},
 )
-
 </script>
 
 <template>

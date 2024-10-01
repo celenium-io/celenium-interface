@@ -38,7 +38,7 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io/rollups`,
+			content: "https://celenium.io/rollups",
 		},
 		{
 			property: "og:image",
@@ -71,7 +71,7 @@ const rollups = ref([])
 const count = ref(0)
 
 const utiaPerMB = (rollup) => {
-	let totalRollupMB = rollup.size / (1024 * 1024)
+	const totalRollupMB = rollup.size / (1024 * 1024)
 
 	return rollup.fee / totalRollupMB
 }
@@ -88,7 +88,7 @@ const getRollupsCount = async () => {
 
 await getRollupsCount()
 
-const page = ref(route.query.page ? parseInt(route.query.page) : 1)
+const page = ref(route.query.page ? Number.parseInt(route.query.page) : 1)
 const pages = computed(() => Math.ceil(count.value / 20))
 
 const getRollups = async () => {
@@ -120,7 +120,7 @@ watch(
 const handleSort = (by) => {
 	switch (sort.dir) {
 		case "desc":
-			if (sort.by == by) sort.dir = "asc"
+			if (sort.by === by) sort.dir = "asc"
 			break
 
 		case "asc":

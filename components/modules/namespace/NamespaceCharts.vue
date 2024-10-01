@@ -98,7 +98,7 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 		tooltipText.value = data[idx].value
 
 		if (tooltipEl.value) {
-			if (idx > parseInt(selectedPeriod.value.value / 2)) {
+			if (idx > Number.parseInt(selectedPeriod.value.value / 2)) {
 				tooltipDynamicXPosition.value = tooltipXOffset.value - tooltipEl.value.wrapper.getBoundingClientRect().width - 16
 			} else {
 				tooltipDynamicXPosition.value = tooltipXOffset.value + 16
@@ -190,7 +190,7 @@ const getSizeSeries = async () => {
 		id: props.id,
 		name: "size",
 		timeframe: selectedPeriod.value.timeframe,
-		from: parseInt(
+		from: Number.parseInt(
 			DateTime.now().minus({
 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
 				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
@@ -199,10 +199,10 @@ const getSizeSeries = async () => {
 	})
 
 	const sizeSeriesMap = {}
-	sizeSeriesRawData.forEach((item) => {
+	for (const item of sizeSeriesRawData) {
 		sizeSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] =
 			item.value
-	})
+	}
 
 	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
 		const dt = DateTime.now().minus({
@@ -211,7 +211,7 @@ const getSizeSeries = async () => {
 		})
 		sizeSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseInt(sizeSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+			value: Number.parseInt(sizeSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
 }
@@ -223,7 +223,7 @@ const getPfbSeries = async () => {
 		id: props.id,
 		name: "pfb_count",
 		timeframe: selectedPeriod.value.timeframe,
-		from: parseInt(
+		from: Number.parseInt(
 			DateTime.now().minus({
 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
 				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
@@ -232,9 +232,9 @@ const getPfbSeries = async () => {
 	})
 
 	const pfbSeriesMap = {}
-	pfbSeriesRawData.forEach((item) => {
+	for (const item of pfbSeriesRawData) {
 		pfbSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
-	})
+	}
 
 	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
 		const dt = DateTime.now().minus({
@@ -243,7 +243,7 @@ const getPfbSeries = async () => {
 		})
 		pfbSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseInt(pfbSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+			value: Number.parseInt(pfbSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
 }
@@ -253,16 +253,24 @@ const buildNamespaceCharts = async () => {
 	buildChart(
 		sizeSeriesChartEl.value.wrapper,
 		sizeSeries.value,
-		() => (showSeriesTooltip.value = true),
-		() => (showSeriesTooltip.value = false),
+		() => {
+			showSeriesTooltip.value = true
+		},
+		() => {
+			showSeriesTooltip.value = false
+		},
 	)
 
 	await getPfbSeries()
 	buildChart(
 		pfbSeriesChartEl.value.wrapper,
 		pfbSeries.value,
-		() => (showPfbTooltip.value = true),
-		() => (showPfbTooltip.value = false),
+		() => {
+			showPfbTooltip.value = true
+		},
+		() => {
+			showPfbTooltip.value = false
+		},
 	)
 }
 

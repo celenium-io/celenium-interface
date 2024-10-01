@@ -1,7 +1,7 @@
 import init, { run_worker } from "@/services/lumina-node-wasm/index.js"
 
 async function worker_main() {
-	let queued = []
+	const queued = []
 	if (typeof SharedWorkerGlobalScope !== "undefined" && self instanceof SharedWorkerGlobalScope) {
 		onconnect = (event) => {
 			queued.push(event)

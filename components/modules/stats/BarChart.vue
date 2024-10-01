@@ -13,9 +13,11 @@ const props = defineProps({
 	},
 })
 
-const currentData = computed(() => { return {data: props.series.currentData}})
-const prevData = computed(() => { 
-	let data = []
+const currentData = computed(() => {
+	return { data: props.series.currentData }
+})
+const prevData = computed(() => {
+	const data = []
 	props.series.prevData?.forEach((d, index) => {
 		data.push({
 			date: currentData.value.data[index].date,
@@ -40,10 +42,10 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	const marginBottom = 24
 	const marginLeft = 36
 	const marginAxisX = 20
-	const barWidth = Math.round(Math.max((width - marginLeft - marginRight) / (cData.data.length) - (pData.data.length ? 2 : 5)), 4)
+	const barWidth = Math.round(Math.max((width - marginLeft - marginRight) / cData.data.length - (pData.data.length ? 2 : 5)), 4)
 
-	const MIN_VALUE = d3.min([...cData.data.map(s => s.value), ...pData.data?.map(s => s.value)])
-	const MAX_VALUE = d3.max([...cData.data.map(s => s.value), ...pData.data?.map(s => s.value)])
+	const MIN_VALUE = d3.min([...cData.data.map((s) => s.value), ...pData.data.map((s) => s.value)])
+	const MAX_VALUE = d3.max([...cData.data.map((s) => s.value), ...pData.data.map((s) => s.value)])
 
 	/** Scales */
 	const x0 = d3.scaleUtc(
@@ -51,33 +53,32 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		[marginLeft, width - marginRight - barWidth],
 	)
 
-	const x1 = d3.scaleBand(
-		['prev', 'current'],
-		[0, barWidth],
-	)
+	const x1 = d3.scaleBand(["prev", "current"], [0, barWidth])
 
 	let data = cData.data.map((d, i) => ({
 		date: new Date(d.date),
 		value: d.value,
 		color: cData.color,
-		group: 'current',
+		group: "current",
 		index: i,
 	}))
 	if (pData.data.length) {
-		data = data.concat(pData.data.map((d, i) => ({
-			date: new Date(d.date),
-			realDate: new Date(d.realDate),
-			value: d.value,
-			color: pData.color,
-			group: 'prev',
-			index: i,
-		})))
+		data = data.concat(
+			pData.data.map((d, i) => ({
+				date: new Date(d.date),
+				realDate: new Date(d.realDate),
+				value: d.value,
+				color: pData.color,
+				group: "prev",
+				index: i,
+			})),
+		)
 	}
 
 	const y = d3.scaleLinear([MIN_VALUE, MAX_VALUE], [height - marginBottom, marginTop])
-	
+
 	function formatDate(date) {
-		if (props.series.timeframe === 'hour') {
+		if (props.series.timeframe === "hour") {
 			return DateTime.fromJSDate(date).toFormat("LLL dd, HH:mm")
 		}
 
@@ -86,15 +87,15 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 
 	function formatValue(value) {
 		switch (props.series.units) {
-			case 'bytes':
+			case "bytes":
 				return formatBytes(value)
-			case 'utia':
-				if (props.series.name === 'gas_price') {
+			case "utia":
+				if (props.series.name === "gas_price") {
 					return `${truncateDecimalPart(value, 4)} UTIA`
 				}
 
 				return `${tia(value, 2)} TIA`
-			case 'seconds':
+			case "seconds":
 				return `${truncateDecimalPart(value / 1_000, 1)}s`
 			default:
 				return comma(value)
@@ -124,48 +125,48 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 
 	/** Add axes */
 	svg.append("g")
-	.attr("transform", `translate( ${barWidth / 2 - 3}, ${height - marginAxisX} )`)
-	.attr("color", "var(--op-20)")
-	.call(d3.axisBottom(x0).ticks(6).tickFormat(d3.timeFormat(props.series.timeframe === 'hour' ? "%H:%M" : "%b %d")))
-	.selectAll(".tick line")
-		.filter(function(d) { return d === 0; })
-		.remove();
-	
-	svg.append("g")
-		.attr("transform", `translate(0,0)`)
+		.attr("transform", `translate( ${barWidth / 2 - 3}, ${height - marginAxisX} )`)
 		.attr("color", "var(--op-20)")
-		.call(d3.axisRight(y)
-			.ticks(4)
-			.tickSize(width)
-			.tickFormat(formatScaleValue))
-		.call(g => g.select(".domain")
-			.remove())
-		.call(g => g.selectAll(".tick line")
-			.attr("stroke-opacity", 0.7)
-			.attr("stroke-dasharray", "10, 10"))
-		.call(g => g.selectAll(".tick text")
-			.attr("x", 4)
-			.attr("dy", -4))
+		.call(
+			d3
+				.axisBottom(x0)
+				.ticks(6)
+				.tickFormat(d3.timeFormat(props.series.timeframe === "hour" ? "%H:%M" : "%b %d")),
+		)
+		.selectAll(".tick line")
+		.filter((d) => {
+			return d === 0
+		})
+		.remove()
+
+	svg.append("g")
+		.attr("transform", "translate(0,0)")
+		.attr("color", "var(--op-20)")
+		.call(d3.axisRight(y).ticks(4).tickSize(width).tickFormat(formatScaleValue))
+		.call((g) => g.select(".domain").remove())
+		.call((g) => g.selectAll(".tick line").attr("stroke-opacity", 0.7).attr("stroke-dasharray", "10, 10"))
+		.call((g) => g.selectAll(".tick text").attr("x", 4).attr("dy", -4))
 
 	// This allows to find the closest X index of the mouse:
-	const bisect = d3.bisector(function(d) { return d.date }).center
+	const bisect = d3.bisector((d) => {
+		return d.date
+	}).center
 
 	function onPointerMoved(event) {
 		onEnter()
 		// Recover coordinate we need
-		let idx = bisect(cData.data, x0.invert(d3.pointer(event)[0] - barWidth / 2))
-		const elements = document.querySelectorAll('[data-index]')
-		elements.forEach(el => {
-			if (+el.getAttribute('data-index') === idx) {
+		const idx = bisect(cData.data, x0.invert(d3.pointer(event)[0] - barWidth / 2))
+		const elements = document.querySelectorAll("[data-index]")
+		for (const el of elements) {
+			if (+el.getAttribute("data-index") === idx) {
 				el.style.filter = "brightness(1.2)"
 			} else {
 				el.style.filter = "brightness(0.6)"
 			}
-			
-		})
+		}
 
-		let selectedCData = cData.data[idx]
-		
+		const selectedCData = cData.data[idx]
+
 		tooltip.value.x = x0(selectedCData.date)
 		tooltip.value.y = y(selectedCData.value)
 		tooltip.value.data[0] = {
@@ -175,7 +176,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		}
 		tooltip.value.data.splice(1, 1)
 		if (pData.data.length) {
-			let selectedPData = pData.data[idx]
+			const selectedPData = pData.data[idx]
 
 			tooltip.value.data[1] = {
 				date: formatDate(selectedPData.realDate),
@@ -188,47 +189,50 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	function onPointerLeft() {
 		onLeave()
 
-		const elements = document.querySelectorAll('[data-index]')
-		elements.forEach(el => {
+		const elements = document.querySelectorAll("[data-index]")
+		for (const el of elements) {
 			el.style.filter = ""
-		})
+		}
 	}
 
 	/** Draw bars */
 	if (pData.data.length) {
-		svg.append('g')
-			.selectAll('g')
-			.data(data)
-			.enter().append('g')
-			.attr('transform', d => `translate(${x0(new Date(d.date))}, 0)`)
-			.selectAll('rect')
-			.data(d => [d])
-			.enter().append('rect')
-			.attr("class", "bar")
-			.attr('data-index', d => d.index)
-			.attr('x', d => x1(d.group))
-			.attr('y', d => y(d.value) - marginAxisX)
-			.attr('width', barWidth / 4)
-			.attr('height', 0)
-			.attr('fill', d => d.color)
-			.transition()
-			.duration(1_000)
-			.attr('height', d => height - y(d.value))
-	} else {
-		svg.append('g')
+		svg.append("g")
 			.selectAll("g")
 			.data(data)
-			.enter().append("rect")
+			.enter()
+			.append("g")
+			.attr("transform", (d) => `translate(${x0(new Date(d.date))}, 0)`)
+			.selectAll("rect")
+			.data((d) => [d])
+			.enter()
+			.append("rect")
 			.attr("class", "bar")
-			.attr('data-index', d => d.index)
-			.attr("x", d => x0(new Date(d.date)))
-			.attr('y', d => y(d.value) - marginAxisX)
-			.attr("width", barWidth)
-			.attr('height', 0)
-			.attr('fill', d => d.color)
+			.attr("data-index", (d) => d.index)
+			.attr("x", (d) => x1(d.group))
+			.attr("y", (d) => y(d.value) - marginAxisX)
+			.attr("width", barWidth / 4)
+			.attr("height", 0)
+			.attr("fill", (d) => d.color)
 			.transition()
 			.duration(1_000)
-			.attr('height', d => height - y(d.value))
+			.attr("height", (d) => height - y(d.value))
+	} else {
+		svg.append("g")
+			.selectAll("g")
+			.data(data)
+			.enter()
+			.append("rect")
+			.attr("class", "bar")
+			.attr("data-index", (d) => d.index)
+			.attr("x", (d) => x0(new Date(d.date)))
+			.attr("y", (d) => y(d.value) - marginAxisX)
+			.attr("width", barWidth)
+			.attr("height", 0)
+			.attr("fill", (d) => d.color)
+			.transition()
+			.duration(1_000)
+			.attr("height", (d) => height - y(d.value))
 	}
 
 	if (chart.children[0]) chart.children[0].remove()
@@ -243,8 +247,12 @@ const drawChart = () => {
 		chartEl.value.wrapper,
 		currentData.value,
 		prevData.value,
-		() => (tooltip.value.show = true),
-		() => (tooltip.value.show = false),
+		() => {
+			tooltip.value.show = true
+		},
+		() => {
+			tooltip.value.show = false
+		},
 	)
 }
 

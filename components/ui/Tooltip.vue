@@ -33,7 +33,7 @@ const trigger = ref(null)
 const tip = ref(null)
 
 const styles = reactive({
-	transform: `translate3d(0, 0, 0)`,
+	transform: "translate3d(0, 0, 0)",
 })
 
 watch(
@@ -136,7 +136,7 @@ const handleMouseEnter = () => {
 	if (props.delay) {
 		delayedHover.value = setTimeout(() => {
 			isHovered.value = true
-		}, parseInt(props.delay))
+		}, Number.parseInt(props.delay))
 	} else {
 		isHovered.value = true
 	}

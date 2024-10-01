@@ -57,13 +57,13 @@ const asciiMap = {
 const hexToUint8Array = (hex) => {
 	const arr = []
 	for (let i = 0; i < hex.length; i += 2) {
-		arr.push(parseInt(hex.substr(i, 2), 16))
+		arr.push(Number.parseInt(hex.substr(i, 2), 16))
 	}
 	return new Uint8Array(arr)
 }
 
 const decode = (bytes) => {
-	return iconv.decode(new Uint8Array(bytes.map((b) => parseInt(`0x${b}`, 16))), "IBM437")
+	return iconv.decode(new Uint8Array(bytes.map((b) => Number.parseInt(`0x${b}`, 16))), "IBM437")
 }
 </script>
 
@@ -104,7 +104,7 @@ const decode = (bytes) => {
 				</Flex>
 
 				<Text v-if="range.start" size="13" weight="600" color="primary" mono>
-					{{ DateTime.fromISO(parseInt(bytes[range.start], 16)) }}
+					{{ DateTime.fromISO(Number.parseInt(bytes[range.start], 16)) }}
 				</Text>
 				<Text v-else size="13" weight="600" color="tertiary" mono>No bytes selected</Text>
 			</Flex>
@@ -118,11 +118,11 @@ const decode = (bytes) => {
 							range.start < range.end
 								? bytes
 										.slice(range.start, range.end)
-										.map((byte) => String.fromCharCode(parseInt(byte, 16)))
+										.map((byte) => String.fromCharCode(Number.parseInt(byte, 16)))
 										.join('')
 								: bytes
 										.slice(range.end, range.start)
-										.map((byte) => String.fromCharCode(parseInt(byte, 16)))
+										.map((byte) => String.fromCharCode(Number.parseInt(byte, 16)))
 										.join('')
 						"
 						size="12"
@@ -155,14 +155,14 @@ const decode = (bytes) => {
 				</Flex>
 
 				<Text
-					v-if="parseInt(bytes[cursor], 16) >= 0 && parseInt(bytes[cursor], 16) <= 31"
+					v-if="Number.parseInt(bytes[cursor], 16) >= 0 && Number.parseInt(bytes[cursor], 16) <= 31"
 					size="13"
 					weight="600"
 					height="140"
 					color="secondary"
 					mono
 				>
-					{{ asciiMap[parseInt(bytes[cursor], 16)] }}
+					{{ asciiMap[Number.parseInt(bytes[cursor], 16)] }}
 				</Text>
 				<Text v-else size="13" weight="600" height="140" color="primary" mono>
 					{{ decode([bytes[cursor]]) }}

@@ -32,7 +32,7 @@ const getIcon = () => {
 }
 
 const isSplitted = () => {
-	return typeof icons[props.name.charAt(0).toLowerCase() + props.name.slice(1)] == "object"
+	return typeof icons[props.name.charAt(0).toLowerCase() + props.name.slice(1)] === "object"
 }
 </script>
 

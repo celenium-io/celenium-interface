@@ -68,7 +68,7 @@ onMounted(async () => {
 const modules = computed(() => {
 	const result = []
 
-	Object.keys(rawModules.value).forEach((mod) => {
+	for (const mod of Object.keys(rawModules.value)) {
 		result.push({
 			name: mod,
 			constants: Object.keys(rawModules.value[mod]).map((c) => {
@@ -78,7 +78,7 @@ const modules = computed(() => {
 				}
 			}),
 		})
-	})
+	}
 
 	return result
 })

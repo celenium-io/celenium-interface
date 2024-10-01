@@ -430,7 +430,7 @@ const rawQuickCommandsActions = [
 			{
 				type: "input",
 				callback: (str) => {
-					if (parseFloat(str.replace(/[^0-9.]/g, "")) > 5_665_140_000) return "5665140000"
+					if (Number.parseFloat(str.replace(/[^0-9.]/g, "")) > 5_665_140_000) return "5665140000"
 					return str.replace(/[^0-9.]/g, "")
 				},
 			},
@@ -445,7 +445,7 @@ const rawQuickCommandsActions = [
 				notification: {
 					type: "info",
 					icon: "check",
-					title: `Gas fee calculation saved into clipboard`,
+					title: "Gas fee calculation saved into clipboard",
 					autoDestroy: true,
 				},
 			})
@@ -600,7 +600,7 @@ const rawDeveloperActions = [
 		runText: "Reload",
 		callback: () => {
 			appStore.createConfirmation({
-				title: `Do you want to fully reload the page?`,
+				title: "Do you want to fully reload the page?",
 				description: "The app will reload with a cache reset",
 
 				buttons: {
@@ -632,7 +632,7 @@ const rawDeveloperActions = [
 		runText: "Clear",
 		callback: () => {
 			appStore.createConfirmation({
-				title: `Do you want to clear local storage?`,
+				title: "Do you want to clear local storage?",
 				description: "Your local storage will be cleared (including bookmarks)",
 
 				buttons: {
@@ -652,7 +652,7 @@ const rawDeveloperActions = [
 						notification: {
 							type: "info",
 							icon: "check",
-							title: `Local storage successfully cleared`,
+							title: "Local storage successfully cleared",
 							autoDestroy: true,
 						},
 					})
@@ -673,7 +673,7 @@ const rawDeveloperActions = [
 		runText: "Clear",
 		callback: () => {
 			appStore.createConfirmation({
-				title: `Do you want to clear your bookmarks?`,
+				title: "Do you want to clear your bookmarks?",
 				description: "Your local storage for bookmarks will be cleared",
 
 				buttons: {
@@ -694,7 +694,7 @@ const rawDeveloperActions = [
 						notification: {
 							type: "info",
 							icon: "check",
-							title: `Your bookmarks successfully cleared`,
+							title: "Your bookmarks successfully cleared",
 							autoDestroy: true,
 						},
 					})
@@ -715,7 +715,7 @@ const rawDeveloperActions = [
 		runText: "Reset",
 		callback: () => {
 			appStore.createConfirmation({
-				title: `Do you want to hard reset?`,
+				title: "Do you want to hard reset?",
 				description: "Your local storage will be cleared and app will reload with a cache reset",
 
 				buttons: {
@@ -750,7 +750,7 @@ const rawDeveloperActions = [
 				notification: {
 					type: "info",
 					icon: "info",
-					title: `Search scoring is not available`,
+					title: "Search scoring is not available",
 					autoDestroy: true,
 				},
 			})
@@ -1027,11 +1027,11 @@ onMounted(() => {
 			if (!mode.value) {
 				appStore.showCmd = false
 				return
-			} else {
-				exitCommandMode()
-
-				return
 			}
+
+			exitCommandMode()
+
+			return
 		}
 
 		if (e.code === "KeyK" && ((isMac && e.metaKey) || (!isMac && e.ctrlKey))) {
@@ -1090,7 +1090,7 @@ watch(
 
 			document.removeEventListener("keydown", onKeydown)
 
-			if (trap && trap.active) trap.deactivate()
+			if (trap?.active) trap.deactivate()
 
 			if (removeOutside) removeOutside()
 
@@ -1104,21 +1104,21 @@ const getActionById = () => {
 	const actions = []
 	let target = null
 
-	groups.forEach((g) => {
-		g.value.actions.forEach((a) => {
+	for (const g of groups) {
+		for (const a of g.value.actions) {
 			actions.push(a)
 
 			if (a.actions) {
 				actions.push(...a.actions)
 			}
-		})
-	})
+		}
+	}
 
-	actions.forEach((a) => {
+	for (const a of actions) {
 		if (a.id === fakeFocus.value) {
 			target = a
 		}
-	})
+	}
 
 	return target
 }
@@ -1141,14 +1141,14 @@ const handleSearchTermInput = () => {
 
 	const inputRules = rules.value.filter((r) => r.type === "input")
 
-	inputRules.forEach((r) => {
+	for (const r of inputRules) {
 		searchTerm.value = r.callback(searchTerm.value)
-	})
+	}
 }
 
 const handleExecute = (action) => {
 	/** Set fake focus on click */
-	if (action && action.id && action.id !== fakeFocus.value) {
+	if (action?.id && action.id !== fakeFocus.value) {
 		fakeFocus.value = action.id
 	}
 
@@ -1291,11 +1291,11 @@ const onKeydown = (e) => {
 	}
 
 	if (["ArrowDown", "ArrowUp", "PageUp", "PageDown"].includes(e.key)) {
-		actionEl.value.forEach((a) => {
+		for (const a of actionEl.value) {
 			if (a.wrapper.wrapper.id === fakeFocus.value) {
 				a.wrapper.wrapper.scrollIntoView({ block: "nearest" })
 			}
-		})
+		}
 	}
 }
 

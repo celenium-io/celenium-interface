@@ -1,7 +1,6 @@
 <script setup>
 /** Components */
 import AdvBanner from "@/components/shared/AdvBanner.vue"
-
 </script>
 
 <template>

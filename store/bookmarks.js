@@ -18,7 +18,7 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 	const hasBookmarks = computed(() => {
 		let has = false
 
-		let keys = Object.keys(bookmarks.value)
+		const keys = Object.keys(bookmarks.value)
 		for (let i = 0; i < keys.length; i++) {
 			if (bookmarks.value[keys[i]].length) {
 				has = true
@@ -32,12 +32,12 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 	const getBookmarkAlias = (type, id) => {
 		if (!hasBookmarks) return id
 
-		let store = getStoreByType(type)
+		const store = getStoreByType(type)
 
 		if (!store) return id
-				
+
 		for (let i = 0; i < store.length; i++) {
-			let el = store[i]
+			const el = store[i]
 			if (el.id === id) {
 				return el.alias || el.id
 			}
@@ -48,13 +48,13 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 
 	const getBookmark = (type, id) => {
 		if (!hasBookmarks) return null
-		
-		let store = getStoreByType(type)
+
+		const store = getStoreByType(type)
 
 		if (!store) return null
-		
+
 		for (let i = 0; i < store.length; i++) {
-			let el = store[i]
+			const el = store[i]
 			if (el.id === id) {
 				return el
 			}
@@ -64,7 +64,7 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 	}
 
 	const addBookmark = (bookmark) => {
-		let store = getStoreByType(bookmark.type)
+		const store = getStoreByType(bookmark.type)
 
 		if (!store) return false
 
@@ -74,10 +74,10 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 	}
 
 	const removeBookmark = (type, id) => {
-		let store = getStoreByType(type)
+		const store = getStoreByType(type)
 		if (!store) return false
 
-		let idx = store.findIndex((el) => el.id === id)
+		const idx = store.findIndex((el) => el.id === id)
 
 		if (idx === -1) return false
 
@@ -88,18 +88,18 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 
 	const getStoreByType = (type) => {
 		switch (type.toLowerCase()) {
-			case 'address':
-			case 'addresses':
+			case "address":
+			case "addresses":
 				return bookmarks.value.addresses
-			case 'block':
-			case 'blocks':
+			case "block":
+			case "blocks":
 				return bookmarks.value.blocks
-			case 'namespace':
-			case 'namespaces':
+			case "namespace":
+			case "namespaces":
 				return bookmarks.value.namespaces
-			case 'tx':
-			case 'txs':
-			case 'transaction':
+			case "tx":
+			case "txs":
+			case "transaction":
 				return bookmarks.value.txs
 			default:
 				return null
@@ -108,12 +108,11 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 
 	const searchBookmarks = (searchString) => {
 		if (!hasBookmarks) return []
-		
-		let res = []
-		
-		Object.keys(bookmarks.value).forEach((b) => {
-			
-			bookmarks.value[b].forEach((el) => {
+
+		const res = []
+
+		for (const b of Object.keys(bookmarks.value)) {
+			for (const el of bookmarks.value[b]) {
 				if (el.alias?.toUpperCase().includes(searchString.toUpperCase())) {
 					res.push({
 						result: el,
@@ -121,19 +120,29 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
 						bookmark: true,
 					})
 				}
-			})
-		})
+			}
+		}
 
 		return res
 	}
 
 	const clearBookmarks = () => {
-		Object.keys(bookmarks.value).forEach((b) => {
+		for (const b of Object.keys(bookmarks.value)) {
 			bookmarks.value[b] = []
-		})
+		}
 	}
 
-	return { bookmarks, hasBookmarks, recentBookmarks, addBookmark, clearBookmarks, getBookmark, getBookmarkAlias, removeBookmark, searchBookmarks }
+	return {
+		bookmarks,
+		hasBookmarks,
+		recentBookmarks,
+		addBookmark,
+		clearBookmarks,
+		getBookmark,
+		getBookmarkAlias,
+		removeBookmark,
+		searchBookmarks,
+	}
 })
 
 if (import.meta.hot) {
