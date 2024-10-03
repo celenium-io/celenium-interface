@@ -1,6 +1,10 @@
 <script setup>
 /** Vendor */
+import { useDebounceFn } from "@vueuse/core"
 import { DateTime, Info } from "luxon"
+
+/** Stats Constants */
+import { STATS_PERIODS } from "@/services/constants/stats.js"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
@@ -63,7 +67,10 @@ const days = computed(() => {
 	return resDays
 })
 
+const periods = ref(STATS_PERIODS)
+const selectedPeriod = ref()
 const selectedRange = ref('')
+
 const updateSelectedRange = (from, to) => {
 	if (from?.ts) {
 		if (to?.ts) {
@@ -93,6 +100,21 @@ const isDayAvailable = (d) => {
 	}
 }
 
+const handleSelectPeriod = (period) => {
+	if (selectedPeriod.value === period) {
+		selectedPeriod.value = {}
+		startDate.value = {}
+		endDate.value = {}
+	} else {
+		selectedPeriod.value = period
+
+		startDate.value = DateTime.now().minus({
+			days: period.timeframe === "day" ? period.value - 1 : 0,
+		}).startOf('day')
+		endDate.value = DateTime.now().startOf('day')
+	}
+}
+
 const handleSelectDate = (d) => {
 	if (!startDate.value.ts) {
 		startDate.value = d
@@ -116,6 +138,8 @@ const handleSelectDate = (d) => {
 			endDate.value = {}
 		}
 	}
+
+	selectedPeriod.value = {}
 }
 
 const isInSelectedPeriod = (d) => {
@@ -138,11 +162,13 @@ const handleClose = () => {
 const handleApply = () => {
 	isOpen.value = false
 
-	if (!endDate.value.ts) {
-		endDate.value = startDate.value.endOf('day')
-	}
+	if (!startDate.value?.ts) {
+		emit('onUpdate', { clear: true })
+	} else {
+		endDate.value = endDate.value?.ts ? endDate.value?.endOf('day') : startDate.value?.endOf('day')
 
-	emit('onUpdate', { from: parseInt(startDate.value.ts / 1_000), to: parseInt(endDate.value.ts / 1_000) })
+		emit('onUpdate', { from: parseInt(startDate.value.ts / 1_000), to: parseInt(endDate.value.ts / 1_000) })
+	}
 }
 
 const handleClear = () => {
@@ -150,6 +176,7 @@ const handleClear = () => {
 
 	startDate.value = {}
 	endDate.value = {}
+	selectedPeriod.value = {}
 
 	emit('onUpdate', { clear: true })
 }
@@ -178,7 +205,7 @@ watch(
 </script>
 
 <template>
-	<Popover :open="isOpen" @on-close="handleClose" width="250">
+	<Popover :open="isOpen" @on-close="handleClose" width="380">
 		<Button @click="handleOpen" type="secondary" size="mini">
 			<Icon name="plus-circle" size="12" color="tertiary" />
 
@@ -196,76 +223,115 @@ watch(
 		</Button>
 
 		<template #content>
-			<Flex direction="column" gap="12">
-				<Flex align="center" justify="center" gap="6">
-					<Icon
-						@click="handleMonthChange(-1)"
-						name="chevron"
-						size="14"
-						color="tertiary"
-						class="clickable"
-						:class="!isPrevMonthAvailable && $style.disabled"
-						:style="{ transform: 'rotate(90deg)' }"
-					/>
+			<Flex ref="wrapperEl" align="start" justify="between" wide :class="$style.wrapper">
+				<Flex direction="column" gap="20" :style="{width: '32%'}">
+					<Flex align="center" justify="start" gap="6" :style="{height: '14px'}">
+						<Text size="12" color="secondary"> Periods </Text>
+					</Flex>
 
-					<Text size="12" color="secondary"> {{ `${DateTime.local(year, month).toFormat('LLLL')} ${year}` }} </Text>
+					<Flex direction="column" gap="12">
+						<Flex v-for="period in periods" @click="handleSelectPeriod(period)" align="center" justify="between" :class="$style.period">
+							<Text size="12" :color="period.title === selectedPeriod?.title ? 'secondary' : 'tertiary'"> {{ period.title }} </Text>
 
-					<Icon
-						@click="handleMonthChange(1)"
-						name="chevron"
-						size="14"
-						color="tertiary"
-						class="clickable"
-						:class="!isNextMonthAvailable && $style.disabled"
-						:style="{ transform: 'rotate(-90deg)' }"
-					/>
+							<Icon :name="period.title === selectedPeriod?.title ? 'check' : ''" size="12" color="brand" />
+						</Flex>
+					</Flex>
 				</Flex>
 
-				<Flex direction="column" gap="16" wide :class="$style.table">
-					<table>
-						<thead>
-							<tr>
-								<th v-for="wd in weekdays">
-									<Text size="10" color="secondary"> {{ wd }} </Text>
-								</th>
-							</tr>
-						</thead>
+				<Flex direction="column" gap="12" :class="$style.calendar" :style="{width: '65%'}">
+					<Flex align="center" justify="center" gap="6">
+						<Icon
+							@click="handleMonthChange(-1)"
+							name="chevron"
+							size="14"
+							color="tertiary"
+							class="clickable"
+							:class="!isPrevMonthAvailable && $style.disabled"
+							:style="{ transform: 'rotate(90deg)' }"
+						/>
 
-						<tbody>
-							<tr v-for="w in days">
-								<td v-for="d in w" :class="!isDayAvailable(d) && $style.disabled">
-									<Flex align="center" justify="center"
-										@click="handleSelectDate(d)"
-										:class="[
-											$style.day,
-											(d.ts === startDate.ts || d.ts === endDate.ts) && $style.edgeDate,
-											isInSelectedPeriod(d) && $style.inSelectedPeriod											
-										]"
-									>
-										<Text size="12" color="primary"
+						<Text size="12" color="secondary"> {{ `${DateTime.local(year, month).toFormat('LLLL')} ${year}` }} </Text>
+
+						<Icon
+							@click="handleMonthChange(1)"
+							name="chevron"
+							size="14"
+							color="tertiary"
+							class="clickable"
+							:class="!isNextMonthAvailable && $style.disabled"
+							:style="{ transform: 'rotate(-90deg)' }"
+						/>
+					</Flex>
+
+					<Flex direction="column" gap="16" wide :class="$style.table">
+						<table>
+							<thead>
+								<tr>
+									<th v-for="wd in weekdays">
+										<Text size="10" color="secondary"> {{ wd }} </Text>
+									</th>
+								</tr>
+							</thead>
+
+							<tbody>
+								<tr v-for="w in days">
+									<td v-for="d in w" :class="!isDayAvailable(d) && $style.disabled">
+										<Flex align="center" justify="center"
+											@click="handleSelectDate(d)"
 											:class="[
-												d.month !== month && $style.notInCurrentMonth,
-												(d.ts === startDate.ts || d.ts === endDate.ts || isInSelectedPeriod(d)) && $style.text_primary
+												$style.day,
+												(d.ts === startDate.ts || d.ts === endDate.ts) && $style.edgeDate,
+												isInSelectedPeriod(d) && $style.inSelectedPeriod											
 											]"
-										> {{ d.day }} </Text>
-									</Flex>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</Flex>
+										>
+											<Text size="12" color="primary"
+												:class="[
+													d.month !== month && $style.notInCurrentMonth,
+													(d.ts === startDate.ts || d.ts === endDate.ts || isInSelectedPeriod(d)) && $style.text_primary
+												]"
+											> {{ d.day }} </Text>
+										</Flex>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</Flex>
 
-				<Button @click="handleApply" type="secondary" size="mini" wide>Apply</Button>
+					<Button @click="handleApply" type="secondary" size="mini" wide>Apply</Button>
+				</Flex>
 			</Flex>
 		</template>
 	</Popover>
 </template>
 
 <style module>
+.wrapper {
+	height: 100%;
+}
+
 .vertical_divider {
 	min-width: 2px;
-	height: 12px;
+	height: 50%;
 	background: var(--op-10);
+}
+
+.calendar {
+	padding-left: 12px;
+
+	border-left-width: 1px;
+	border-left-style: solid;
+	border-image: linear-gradient(to bottom, transparent 0%, var(--op-10) 20%, var(--op-10) 80%, transparent 100%) 1;
+
+}
+
+.period {
+	cursor: pointer;
+}
+
+.period:hover {
+	& * {
+		color: var(--txt-secondary);
+	}
 }
 
 .clickable {
