@@ -29,6 +29,8 @@ if (!series.value.page) {
 	router.push("/stats")
 }
 
+const metricName = computed(() => capitalizeAndReplaceUnderscore(series.value?.page))
+
 // defineOgImage({
 // 	title: "Rollup",
 // 	rollup: rollup.value,
@@ -36,49 +38,49 @@ if (!series.value.page) {
 // 	cacheKey: `${rollup.value?.name}`,
 // })
 
-// useHead({
-// 	title: `Rollup ${rollup.value?.name} - Celestia Explorer`,
-// 	link: [
-// 		{
-// 			rel: "canonical",
-// 			href: `https://celenium.io${route.path}`,
-// 		},
-// 	],
-// 	meta: [
-// 		{
-// 			name: "description",
-// 			content: `Rollup ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
-// 		},
-// 		{
-// 			property: "og:title",
-// 			content: `Rollup ${rollup.value?.name} - Celestia Explorer`,
-// 		},
-// 		{
-// 			property: "og:description",
-// 			content: `Rollup ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
-// 		},
-// 		{
-// 			property: "og:url",
-// 			content: `https://celenium.io${route.path}`,
-// 		},
-// 		{
-// 			property: "og:image",
-// 			content: `https://celenium.io${route.path}__og_image__/og.png`,
-// 		},
-// 		{
-// 			name: "twitter:title",
-// 			content: `Rollup ${rollup.value?.name} - Celestia Explorer`,
-// 		},
-// 		{
-// 			name: "twitter:description",
-// 			content: `Rollup ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
-// 		},
-// 		{
-// 			name: "twitter:card",
-// 			content: "summary_large_image",
-// 		},
-// 	],
-// })
+useHead({
+	title: `Celestia ${metricName.value} Statistics - Celestia Explorer`,
+	link: [
+		{
+			rel: "canonical",
+			href: `https://celenium.io${route.path}`,
+		},
+	],
+	meta: [
+		{
+			name: "description",
+			content: `Explore Celestia ${metricName.value} statistics as well as statistics by rollups, blocks, transactions and more.`,
+		},
+		{
+			property: "og:title",
+			content: `Celestia ${metricName.value} Statistics - Celestia Explorer`,
+		},
+		{
+			property: "og:description",
+			content: `Explore Celestia ${metricName.value} statistics as well as statistics by rollups, blocks, transactions and more.`,
+		},
+		{
+			property: "og:url",
+			content: `https://celenium.io${route.path}`,
+		},
+		{
+			property: "og:image",
+			content: `https://celenium.io${route.path}__og_image__/og.png`,
+		},
+		{
+			name: "twitter:title",
+			content: `Celestia ${metricName.value} Statistics - Celestia Explorer`,
+		},
+		{
+			name: "twitter:description",
+			content: `Explore Celestia ${metricName.value} statistics as well as statistics by rollups, blocks, transactions and more.`,
+		},
+		{
+			name: "twitter:card",
+			content: "summary_large_image",
+		},
+	],
+})
 
 const periods = ref(STATS_PERIODS)
 const selectedPeriod = ref(periods.value[2])
@@ -203,13 +205,13 @@ watch(
 					:items="[
 						{ link: '/', name: 'Explore' },
 						{ link: '/stats', name: 'Statistics' },
-						{ link: route.fullPath, name: capitalizeAndReplaceUnderscore(series.page) },
+						{ link: route.fullPath, name: metricName },
 					]"
 				/>
 			</Flex>
 
 			<Flex align="center" justify="between" wide :class="$style.header">
-				<Text size="16" weight="600" color="primary" justify="start"> {{ `${capitalizeAndReplaceUnderscore(series.page)} Chart` }} </Text>
+				<Text size="16" weight="600" color="primary" justify="start"> {{ `${metricName} Chart` }} </Text>
 
 				<Flex align="center" gap="8" :class="series.name === 'square_size' && $style.disabled">
 					<Dropdown>
