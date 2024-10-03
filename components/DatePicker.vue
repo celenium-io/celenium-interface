@@ -316,7 +316,7 @@ watch(
 }
 
 .day:hover {
-	background-color: rgba(51, 168, 83, 70%);
+	background-color: rgba(24, 210, 165, 70%);
 }
 
 .notInCurrentMonth {
@@ -324,7 +324,7 @@ watch(
 }
 
 .edgeDate {
-	background-color: rgba(51, 168, 83, 70%);
+	background-color: rgba(24, 210, 165, 60%);
 }
 
 .inSelectedPeriod {
