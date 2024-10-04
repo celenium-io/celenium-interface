@@ -54,7 +54,7 @@ const popoverStyles = computed(() => {
 				paddingTop: '12px',
 				borderTopWidth: '1px',
 				borderTopStyle: 'solid',
-				borderImage: 'linear-gradient(to right, transparent 0%, var(--op-10) 10%, var(--op-10) 90%, transparent 100%) 1'
+				borderImage: 'linear-gradient(to right, transparent 0%, var(--op-10) 5%, var(--op-10) 95%, transparent 100%) 1'
 			}
 		}
 	}
@@ -65,7 +65,7 @@ const limitMinDate = ref(props.minDate ? DateTime.fromISO(props.minDate) : '')
 const month = ref(currentDate.value.month)
 const year = ref(currentDate.value.year)
 const startDate = ref(props.from ? DateTime.fromSeconds(parseInt(props.from)).startOf('day') : {})
-const endDate = ref(props.to ? DateTime.fromSeconds(parseInt(props.to)).startOf('day') : {})
+const endDate = ref(props.to ? DateTime.fromSeconds(parseInt(props.to)).endOf('day') : {})
 const weekdays = ref(Info.weekdays('narrow', { locale: 'en-US' }))
 const days = computed(() => {
 	let rawDays = []
@@ -144,7 +144,7 @@ const handleSelectPeriod = (period) => {
 		startDate.value = DateTime.now().minus({
 			days: period.timeframe === "day" ? period.value - 1 : 0,
 		}).startOf('day')
-		endDate.value = DateTime.now().startOf('day')
+		endDate.value = DateTime.now().endOf('day')
 	}
 }
 
@@ -154,10 +154,10 @@ const handleSelectDate = (d) => {
 	} else if (startDate.value.ts !== d.ts) {
 		if (!endDate.value.ts) {
 			if (startDate.value.ts > d.ts) {
-				endDate.value = startDate.value
+				endDate.value = startDate.value.endOf('day')
 				startDate.value = d
 			} else {
-				endDate.value = d
+				endDate.value = d.endOf('day')
 			}
 		} else {
 			startDate.value = d
@@ -167,7 +167,7 @@ const handleSelectDate = (d) => {
 		if (!endDate.value.ts) {
 			startDate.value = {}
 		} else {
-			startDate.value = endDate.value
+			startDate.value = endDate.value.startOf('day')
 			endDate.value = {}
 		}
 	}
@@ -176,7 +176,7 @@ const handleSelectDate = (d) => {
 }
 
 const isInSelectedPeriod = (d) => {
-	return startDate.value.ts < d.ts && d.ts < endDate.value.ts
+	return startDate.value.ts < d.ts && d.endOf('day').ts < endDate.value.ts
 }
 
 const isOpen = ref(false)
@@ -324,14 +324,14 @@ watch(
 											@click="handleSelectDate(d)"
 											:class="[
 												$style.day,
-												(d.ts === startDate.ts || d.ts === endDate.ts) && $style.edgeDate,
-												isInSelectedPeriod(d) && $style.inSelectedPeriod											
+												(d.ts === startDate.ts || d.endOf('day').ts === endDate.ts) && $style.edgeDate,
+												isInSelectedPeriod(d) && $style.inSelectedPeriod
 											]"
 										>
 											<Text size="12" color="primary"
 												:class="[
 													d.month !== month && $style.notInCurrentMonth,
-													(d.ts === startDate.ts || d.ts === endDate.ts || isInSelectedPeriod(d)) && $style.text_primary
+													(d.ts === startDate.ts || d.endOf('day').ts === endDate.ts || isInSelectedPeriod(d)) && $style.text_primary
 												]"
 											> {{ d.day }} </Text>
 										</Flex>
@@ -358,15 +358,6 @@ watch(
 	height: 50%;
 	background: var(--op-10);
 }
-
-/* .calendar {
-	padding-left: 12px;
-
-	border-left-width: 1px;
-	border-left-style: solid;
-	border-image: linear-gradient(to bottom, transparent 0%, var(--op-10) 20%, var(--op-10) 80%, transparent 100%) 1;
-
-} */
 
 .period {
 	cursor: pointer;

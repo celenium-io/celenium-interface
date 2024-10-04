@@ -10,6 +10,7 @@ import SquareSizeChart from "@/components/modules/stats/SquareSizeChart.vue"
 
 /** Services */
 import { capitalizeAndReplaceUnderscore } from "@/services/utils"
+import { getStartChainDate } from "@/services/config"
 
 /** API */
 import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
@@ -92,6 +93,20 @@ const chartView = ref('line')
 const loadPrevData = ref(true)
 const loadLastValue = ref(true)
 
+const filters = reactive({})
+
+const setDefaultFilters = () => {
+	filters.timeframe = selectedPeriod.value.timeframe
+	filters.periodValue = selectedPeriod.value.value
+	filters.from = parseInt(DateTime.now().startOf('day').minus({
+				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - 1 : 0, // ??
+				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
+			}).ts  / 1_000)
+	filters.to = parseInt(DateTime.now().endOf('day').ts  / 1_000)
+}
+
+setDefaultFilters()
+
 const handleChangeChartView = () => {
 	if (chartView.value === 'line') {
 		chartView.value = 'bar'
@@ -105,41 +120,71 @@ const getData = async () => {
     isLoading.value = true
 
     let data = []
+	// if (series.value.aggregate !== 'cumulative') {
+	// 	data = (await fetchSeries({
+	// 		table: series.value.name,
+	// 		period: selectedPeriod.value.timeframe,
+	// 		from: parseInt(
+	// 			DateTime.now().minus({
+	// 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
+	// 				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
+	// 			}).ts / 1_000)
+	// 	})).reverse()
+	// } else {
+	// 	data = await fetchSeriesCumulative({
+	// 		name: series.value.name,
+	// 		period: selectedPeriod.value.timeframe,
+	// 		from: parseInt(
+	// 			DateTime.now().minus({
+	// 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
+	// 				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
+	// 			}).ts / 1_000)
+	// 	})
+	// }
+
 	if (series.value.aggregate !== 'cumulative') {
 		data = (await fetchSeries({
 			table: series.value.name,
-			period: selectedPeriod.value.timeframe,
-			from: parseInt(
-				DateTime.now().minus({
-					days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
-					hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
-				}).ts / 1_000)
+			period: filters.timeframe,
+			from: loadPrevData.value ? parseInt(DateTime.fromSeconds(filters.from).minus({
+				hours: filters.timeframe === "hour" ? filters.periodValue : 0,
+				days: filters.timeframe === "day" ? filters.periodValue : 0,
+				weeks: filters.timeframe === "week" ? filters.periodValue : 0,
+			}).ts / 1_000) : filters.from,
+			to: filters.to
 		})).reverse()
 	} else {
 		data = await fetchSeriesCumulative({
 			name: series.value.name,
-			period: selectedPeriod.value.timeframe,
-			from: parseInt(
-				DateTime.now().minus({
-					days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
-					hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
-				}).ts / 1_000)
+			period: filters.timeframe,
+			from: filters.from,
+			to: filters.to
 		})
 	}
 
-    if (data.length) {
+    // if (data.length) {
+    //     if (loadPrevData.value) {
+    //         prevData.value = data.slice(0, selectedPeriod.value.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+    //         currentData.value = data.slice(selectedPeriod.value.value, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+    //     } else {
+	// 		prevData.value = []
+    //         currentData.value = data.slice(0, selectedPeriod.value.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+    //     }
+    // }
+
+	if (data.length) {
         if (loadPrevData.value) {
-            prevData.value = data.slice(0, selectedPeriod.value.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
-            currentData.value = data.slice(selectedPeriod.value.value, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+            prevData.value = data.slice(0, filters.periodValue).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+            currentData.value = data.slice(filters.periodValue, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
         } else {
 			prevData.value = []
-            currentData.value = data.slice(0, selectedPeriod.value.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+            currentData.value = data.slice(0, filters.periodValue).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
         }
     }
 
 	series.value.currentData = loadLastValue.value ? currentData.value : [...currentData.value.slice(0, -1)]
-	series.value.prevData = loadLastValue.value ? prevData.value : (prevData.value.length ? [...prevData.value.slice(0, -1)] : prevData.value)
-	series.value.timeframe = selectedPeriod.value.timeframe
+	series.value.prevData = (loadLastValue.value ? prevData.value : (prevData.value.length ? [...prevData.value.slice(0, -1)] : prevData.value)).slice(-series.value.currentData.length)
+	series.value.timeframe = filters.timeframe
 
     isLoading.value = false
 }
@@ -154,6 +199,29 @@ const handleOpen = () => {
 }
 const handleClose = () => {
 	isOpen.value = false
+}
+
+const handleUpdateDate = async (event) => {
+	if (event.from && event.to) {
+		let daysDiff = Math.round(DateTime.fromSeconds(event.to).diff(DateTime.fromSeconds(event.from), "days").days)
+		if (daysDiff < 7) {
+			filters.timeframe = "hour"
+			filters.periodValue = Math.round(DateTime.fromSeconds(event.to).diff(DateTime.fromSeconds(event.from), "hours").hours)
+		} else if (daysDiff < 50) {
+			filters.timeframe = "day"
+			filters.periodValue = daysDiff
+		} else {
+			filters.timeframe = "week"
+			filters.periodValue = Math.round(daysDiff / 7)
+		}
+		
+		filters.from = event.from
+		filters.to = event.to
+
+		await getData()
+	} else if (event.clear) {
+		setDefaultFilters()
+	}
 }
 
 watch(
@@ -214,7 +282,7 @@ watch(
 				<Text size="16" weight="600" color="primary" justify="start"> {{ `${metricName} Chart` }} </Text>
 
 				<Flex align="center" gap="8" :class="series.name === 'square_size' && $style.disabled">
-					<Dropdown>
+					<!-- <Dropdown>
 						<Button size="mini" type="secondary">
 							{{ selectedPeriod.title }}
 							<Icon name="chevron" size="12" color="secondary" />
@@ -228,7 +296,10 @@ watch(
 								</Flex>
 							</DropdownItem>
 						</template>
-					</Dropdown>
+					</Dropdown> -->
+
+					<!-- <DatePicker @on-update="handleUpdateDateFilter" :from="filters.from" :to="filters.to" :minDate="getStartChainDate()" /> -->
+					<DatePicker @on-update="handleUpdateDate" :from="filters.from" :to="filters.to" :minDate="getStartChainDate()" />
 					
 					<Popover :open="isOpen" @on-close="handleClose" width="200" side="right">
 						<Button @click="handleOpen" type="secondary" size="mini">
