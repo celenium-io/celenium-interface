@@ -10,6 +10,9 @@ import { STATS_PERIODS } from "@/services/constants/stats.js"
 import Button from "@/components/ui/Button.vue"
 import Popover from "@/components/ui/Popover.vue"
 
+/** Utils */
+import { isMobile } from "@/services/utils"
+
 const props = defineProps({
 	from: {
 		type: String,
@@ -27,12 +30,42 @@ const props = defineProps({
 
 const emit = defineEmits(["onUpdate"])
 
+const popoverStyles = computed(() => {
+	if (!isMobile()) {
+		return {
+			width: 380,
+			side: 'left',
+			direction: 'row',
+			calendar: {
+				width: '65%',
+				paddingLeft: '12px',
+				borderLeftWidth: '1px',
+				borderLeftStyle: 'solid',
+				borderImage: 'linear-gradient(to bottom, transparent 0%, var(--op-10) 20%, var(--op-10) 80%, transparent 100%) 1'
+			}
+		}
+	} else {
+		return {
+			width: 250,
+			side: 'right',
+			direction: 'column',
+			calendar: {
+				width: '100%',
+				paddingTop: '12px',
+				borderTopWidth: '1px',
+				borderTopStyle: 'solid',
+				borderImage: 'linear-gradient(to right, transparent 0%, var(--op-10) 10%, var(--op-10) 90%, transparent 100%) 1'
+			}
+		}
+	}
+})
+
 const currentDate = ref(DateTime.now())
 const limitMinDate = ref(props.minDate ? DateTime.fromISO(props.minDate) : '')
 const month = ref(currentDate.value.month)
 const year = ref(currentDate.value.year)
-const startDate = ref(props.from ? DateTime.fromSeconds(parseInt(props.from)) : {})
-const endDate = ref(props.to ? DateTime.fromSeconds(parseInt(props.to)) : {})
+const startDate = ref(props.from ? DateTime.fromSeconds(parseInt(props.from)).startOf('day') : {})
+const endDate = ref(props.to ? DateTime.fromSeconds(parseInt(props.to)).startOf('day') : {})
 const weekdays = ref(Info.weekdays('narrow', { locale: 'en-US' }))
 const days = computed(() => {
 	let rawDays = []
@@ -205,7 +238,7 @@ watch(
 </script>
 
 <template>
-	<Popover :open="isOpen" @on-close="handleClose" width="380">
+	<Popover :open="isOpen" @on-close="handleClose" :width="popoverStyles.width" :side="popoverStyles.side">
 		<Button @click="handleOpen" type="secondary" size="mini">
 			<Icon name="plus-circle" size="12" color="tertiary" />
 
@@ -223,8 +256,8 @@ watch(
 		</Button>
 
 		<template #content>
-			<Flex ref="wrapperEl" align="start" justify="between" wide :class="$style.wrapper">
-				<Flex direction="column" gap="20" :style="{width: '32%'}">
+			<Flex align="start" :direction="popoverStyles.direction" justify="between" gap="12" wide>
+				<Flex v-if="!isMobile()" direction="column" gap="20" :style="{width: '32%'}">
 					<Flex align="center" justify="start" gap="6" :style="{height: '14px'}">
 						<Text size="12" color="secondary"> Periods </Text>
 					</Flex>
@@ -238,7 +271,18 @@ watch(
 					</Flex>
 				</Flex>
 
-				<Flex direction="column" gap="12" :class="$style.calendar" :style="{width: '65%'}">
+				<Flex v-else justify="between" wide :style="{padding: '0 8px'}">
+					<Text size="12" color="secondary"> Periods </Text>
+
+					<Flex gap="12">
+						<Flex v-for="period in periods" @click="handleSelectPeriod(period)" align="center" justify="between" :class="$style.period">
+							<Text size="12" :color="period.title === selectedPeriod?.title ? 'secondary' : 'tertiary'"> {{ period.shortTitle }} </Text>
+						</Flex>
+					</Flex>
+				</Flex>
+
+
+				<Flex direction="column" gap="12" :style="popoverStyles.calendar">
 					<Flex align="center" justify="center" gap="6">
 						<Icon
 							@click="handleMonthChange(-1)"
@@ -315,14 +359,14 @@ watch(
 	background: var(--op-10);
 }
 
-.calendar {
+/* .calendar {
 	padding-left: 12px;
 
 	border-left-width: 1px;
 	border-left-style: solid;
 	border-image: linear-gradient(to bottom, transparent 0%, var(--op-10) 20%, var(--op-10) 80%, transparent 100%) 1;
 
-}
+} */
 
 .period {
 	cursor: pointer;
