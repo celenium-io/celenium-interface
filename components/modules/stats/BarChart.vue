@@ -117,6 +117,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		.attr("viewBox", [0, 0, width, height])
 		.attr("preserveAspectRatio", "none")
 		.attr("style", "max-width: 100%;")
+		.attr("id", "chart")
 		.style("-webkit-tap-highlight-color", "transparent")
 		.on("pointerenter pointermove", onPointerMoved)
 		.on("pointerleave", onPointerLeft)

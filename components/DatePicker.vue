@@ -14,12 +14,16 @@ import Popover from "@/components/ui/Popover.vue"
 import { isMobile } from "@/services/utils"
 
 const props = defineProps({
+	period: {
+		type: Object,
+		default: {},
+	},
 	from: {
-		type: String,
+		type: [String, Number],
 		default: '',
 	},
 	to: {
-		type: String,
+		type: [String, Number],
 		default: '',
 	},
 	minDate: {
@@ -33,7 +37,7 @@ const emit = defineEmits(["onUpdate"])
 const popoverStyles = computed(() => {
 	if (!isMobile()) {
 		return {
-			width: 380,
+			width: '380',
 			side: 'left',
 			direction: 'row',
 			calendar: {
@@ -46,7 +50,7 @@ const popoverStyles = computed(() => {
 		}
 	} else {
 		return {
-			width: 250,
+			width: '250',
 			side: 'right',
 			direction: 'column',
 			calendar: {
@@ -101,7 +105,7 @@ const days = computed(() => {
 })
 
 const periods = ref(STATS_PERIODS)
-const selectedPeriod = ref()
+const selectedPeriod = ref(props.period.value ? props.period : {})
 const selectedRange = ref('')
 
 const updateSelectedRange = (from, to) => {

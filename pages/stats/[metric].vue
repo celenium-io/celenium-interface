@@ -11,6 +11,7 @@ import SquareSizeChart from "@/components/modules/stats/SquareSizeChart.vue"
 /** Services */
 import { capitalizeAndReplaceUnderscore } from "@/services/utils"
 import { getStartChainDate } from "@/services/config"
+import { exportSVGToPNG, exportToCSV } from "@/services/utils/export"
 
 /** API */
 import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
@@ -20,6 +21,10 @@ import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Popover from "@/components/ui/Popover.vue"
 import Toggle from "@/components/ui/Toggle.vue"
+
+/** Store */
+import { useNotificationsStore } from "@/store/notifications"
+const notificationsStore = useNotificationsStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -203,15 +208,15 @@ const handleClose = () => {
 
 const handleUpdateDate = async (event) => {
 	if (event.from && event.to) {
-		let daysDiff = Math.round(DateTime.fromSeconds(event.to).diff(DateTime.fromSeconds(event.from), "days").days)
+		let daysDiff = Math.round(DateTime.fromSeconds(event.to).diff(DateTime.fromSeconds(event.from), 'days').days)
 		if (daysDiff < 7) {
-			filters.timeframe = "hour"
-			filters.periodValue = Math.round(DateTime.fromSeconds(event.to).diff(DateTime.fromSeconds(event.from), "hours").hours)
+			filters.timeframe = 'hour'
+			filters.periodValue = Math.round(DateTime.fromSeconds(event.to).diff(DateTime.fromSeconds(event.from), 'hours').hours)
 		} else if (daysDiff < 50) {
-			filters.timeframe = "day"
+			filters.timeframe = 'day'
 			filters.periodValue = daysDiff
 		} else {
-			filters.timeframe = "week"
+			filters.timeframe = 'week'
 			filters.periodValue = Math.round(daysDiff / 7)
 		}
 		
@@ -221,15 +226,51 @@ const handleUpdateDate = async (event) => {
 		await getData()
 	} else if (event.clear) {
 		setDefaultFilters()
+
+		await getData()
 	}
 }
 
-watch(
-	() => selectedPeriod.value,
-	async () => {
-		await getData()
-	},
-)
+const handleCSVDownload = async () => {
+	let data = [...series.value.currentData, ...series.value.prevData]
+	let csvHeaders = 'ts,value\n'
+	let csvRow = data.map(function (el) {
+		return `${DateTime.fromJSDate(el.date).ts},${el.value}`
+	}).join('\n')
+
+	await exportToCSV(csvHeaders + csvRow, `${series.value.name}-${filters.from}-${filters.to}`)
+	
+	notificationsStore.create({
+		notification: {
+			type: "success",
+			icon: "check",
+			title: "Data successfully downloaded",
+			autoDestroy: true,
+		},
+	})
+}
+
+const handlePNGDownload = async () => {
+	const svgElement = document.querySelector('#chart');
+
+	await exportSVGToPNG(svgElement, `${series.value.name}-${filters.from}-${filters.to}-${chartView}`)
+
+	notificationsStore.create({
+		notification: {
+			type: "success",
+			icon: "check",
+			title: "Image successfully downloaded",
+			autoDestroy: true,
+		},
+	})
+}
+
+// watch(
+// 	() => selectedPeriod.value,
+// 	async () => {
+// 		await getData()
+// 	},
+// )
 
 watch(
 	() => loadLastValue.value,
@@ -298,8 +339,13 @@ watch(
 						</template>
 					</Dropdown> -->
 
-					<!-- <DatePicker @on-update="handleUpdateDateFilter" :from="filters.from" :to="filters.to" :minDate="getStartChainDate()" /> -->
-					<DatePicker @on-update="handleUpdateDate" :from="filters.from" :to="filters.to" :minDate="getStartChainDate()" />
+					<DatePicker
+						@on-update="handleUpdateDate"
+						:period="selectedPeriod"
+						:from="filters.from"
+						:to="filters.to"
+						:minDate="getStartChainDate()"
+					/>
 					
 					<Popover :open="isOpen" @on-close="handleClose" width="200" side="right">
 						<Button @click="handleOpen" type="secondary" size="mini">
@@ -309,7 +355,7 @@ watch(
 						<template #content>
 							<Flex direction="column" gap="12">
 								<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
-									<Text size="12" color="secondary">Line chart</Text>
+									<Text size="12" color="secondary">Chart view</Text>
 
 									<Flex
 										@click="handleChangeChartView"
@@ -346,6 +392,22 @@ watch(
 							</Flex>
 						</template>
 					</Popover>
+
+					<Dropdown>
+						<Button type="secondary" size="mini">
+							<Icon name="download" size="12" color="tertiary" />
+						</Button>
+
+						<template #popup>
+							<DropdownItem @click="handleCSVDownload()">
+								<Text size="12" color="secondary">Export to CSV</Text>
+							</DropdownItem>
+							<DropdownItem @click="handlePNGDownload()">
+								<Text size="12" color="secondary">Export to PNG</Text>
+							</DropdownItem>
+						</template>
+					</Dropdown>
+
 				</Flex>
 			</Flex>
 		</Flex>

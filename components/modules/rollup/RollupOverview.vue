@@ -16,6 +16,7 @@ import NamespacesTable from "./tables/NamespacesTable.vue"
 
 /** Services */
 import { comma, formatBytes, truncateDecimalPart } from "@/services/utils"
+import { exportToCSV } from "@/services/utils/export"
 
 /** API */
 import { fetchRollupBlobs, fetchRollupExportData, fetchRollupNamespaces } from "@/services/api/rollup"
@@ -207,16 +208,7 @@ const handleCSVDownload = async (period) => {
 		return
 	}
 
-	const blob = new Blob([data.value], { type: "text/csv;charset=utf-8;" })
-	const link = document.createElement("a")
-
-	link.href = URL.createObjectURL(blob)
-	link.download = `${props.rollup.slug}-blobs-last-${period}.csv`
-
-	link.style.visibility = "hidden"
-	document.body.appendChild(link)
-	link.click()
-	document.body.removeChild(link)
+	await exportToCSV(data.value, `${props.rollup.slug}-blobs-last-${period}`)
 
 	notificationsStore.create({
 		notification: {
