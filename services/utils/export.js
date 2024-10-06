@@ -1,5 +1,5 @@
 export async function exportToCSV(data, fileName) {
-    const blob = new Blob([data], { type: "text/csv;charset=utf-8;" })
+	const blob = new Blob([data], { type: "text/csv;charset=utf-8;" })
 	const link = document.createElement("a")
 
     link.href = URL.createObjectURL(blob)
@@ -7,7 +7,10 @@ export async function exportToCSV(data, fileName) {
 
 	link.style.visibility = "hidden"
 	document.body.appendChild(link)
-	link.click()
+
+	setTimeout(() => {
+		link.click()
+	}, 100);
     
 	document.body.removeChild(link)
 }

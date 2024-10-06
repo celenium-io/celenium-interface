@@ -233,10 +233,8 @@ const handleUpdateDate = async (event) => {
 
 const handleCSVDownload = async () => {
 	let data = [...series.value.currentData, ...series.value.prevData]
-	let csvHeaders = 'ts,value\n'
-	let csvRow = data.map(function (el) {
-		return `${DateTime.fromJSDate(el.date).ts},${el.value}`
-	}).join('\n')
+	let csvHeaders = 'timestamp,value\n'
+	let csvRow = data.map(el => `${DateTime.fromJSDate(el.date).ts},${el.value}`).join('\n')
 
 	await exportToCSV(csvHeaders + csvRow, `${series.value.name}-${filters.from}-${filters.to}`)
 	
@@ -399,10 +397,10 @@ watch(
 						</Button>
 
 						<template #popup>
-							<DropdownItem @click="handleCSVDownload()">
+							<DropdownItem @click="handleCSVDownload">
 								<Text size="12" color="secondary">Export to CSV</Text>
 							</DropdownItem>
-							<DropdownItem @click="handlePNGDownload()">
+							<DropdownItem @click="handlePNGDownload">
 								<Text size="12" color="secondary">Export to PNG</Text>
 							</DropdownItem>
 						</template>
