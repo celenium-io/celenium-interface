@@ -1,6 +1,7 @@
 <script setup>
 /** Vendor */
 import { DateTime } from "luxon"
+import { saveSvgAsPng } from "save-svg-as-png"
 
 /** Stats Components/Constants */
 import { getSeriesByPage, STATS_PERIODS } from "@/services/constants/stats.js"
@@ -256,7 +257,8 @@ const handleCSVDownload = async () => {
 const handlePNGDownload = async () => {
 	const svgElement = document.querySelector('#chart')
 
-	await exportSVGToPNG(svgElement, `${series.value.name}-${filters.from}-${filters.to}-${chartView.value}`)
+	saveSvgAsPng(svgElement, `${series.value.name}-${filters.from}-${filters.to}-${chartView.value}`)
+	// await exportSVGToPNG(svgElement, `${series.value.name}-${filters.from}-${filters.to}-${chartView.value}`)
 
 	notificationsStore.create({
 		notification: {

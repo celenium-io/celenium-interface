@@ -43,6 +43,7 @@
 		"pinia": "2.1.6",
 		"protobufjs": "^7.2.6",
 		"qrcode": "^1.5.3",
+		"save-svg-as-png": "^1.4.17",
 		"uuid": "9.0.1",
 		"vite-plugin-node-polyfills": "^0.21.0"
 	}
