@@ -10,14 +10,12 @@ import Button from "@/components/ui/Button.vue"
 
 /** API */
 import { search } from "@/services/api/search"
-import { fetchAddressByHash } from "@/services/api/address"
 
 /** Services */
 import amp from "@/services/amp"
-import { suggestChain, getAccounts } from "@/services/keplr"
 import { normalizeAmount, purgeNumber, comma } from "@/services/utils/amounts"
-import { SIMULATE_ADDRESS_FROM, SIMULATE_VALIDATOR, simulateMsgs, sendMsgs } from "@/services/keplr"
-import { MsgDelegate } from "@/services/proto/gen/staking";
+import { SIMULATE_ADDRESS_FROM, SIMULATE_VALIDATOR, simulateMsgs, sendMsgs } from "~/services/wallet"
+import { MsgDelegate } from "@/services/proto/gen/staking"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -163,7 +161,7 @@ watch(
 		if (props.show) {
 			runGasLimitEstimation()
 		}
-	}
+	},
 )
 
 const calcGasFee = (target) => {
@@ -178,11 +176,8 @@ const runGasLimitEstimation = async () => {
 			delegatorAddress: appStore.address ? appStore.address : SIMULATE_ADDRESS_FROM,
 			validatorAddress: address.value ? address.value : SIMULATE_VALIDATOR,
 			amount: {
-					denom: "utia",
-					amount: DecUtils.getTenExponentN(6)
-						.mul(new Dec(1))
-						.truncate()
-						.toString(),
+				denom: "utia",
+				amount: DecUtils.getTenExponentN(6).mul(new Dec(1)).truncate().toString(),
 			},
 		}).finish(),
 	}
@@ -230,92 +225,58 @@ watch(
 	},
 )
 
-const getBalance = async () => {
-	const key = await window.keplr.getKey(appStore.network.chainId)
-
-	if (key) {
-		const { data } = await fetchAddressByHash(key.bech32Address)
-
-		if (data.value?.balance) {
-			appStore.balance = parseFloat(data.value.balance.spendable / 1_000_000) || 0
-		}
-	}
-}
-
 const handleConnect = async () => {
-	try {
-		await suggestChain(appStore.network)
-
-		const accounts = await getAccounts(appStore.network)
-		if (accounts.length) {
-			appStore.address = accounts[0].address
-		}
-
-		getBalance()
-
-		amp.log("connect")
-	} catch (error) {
-		amp.log("rejectConnect")
-
-		switch (error.message) {
-			case "Request rejected":
-				notificationsStore.create({
-					notification: {
-						type: "info",
-						icon: "close",
-						title: "Request rejected",
-						description: "You canceled the Keplr wallet request",
-						autoDestroy: true,
-					},
-				})
-				break
-		}
-	}
+	modalsStore.open("connect")
 }
 
 const continueButton = computed(() => {
 	if (addressError.value.length) {
 		return {
-			title: 'Validator address is invalid',
+			title: "Validator address is invalid",
 			disable: true,
 		}
 	}
 
 	if (!address.value?.length) {
 		return {
-			title: 'Enter the validator address',
+			title: "Enter the validator address",
 			disable: true,
 		}
 	}
 
 	if (parseFloat(amount.value) === 0) {
 		return {
-			title: 'Enter the amount',
+			title: "Enter the amount",
 			disable: true,
 		}
 	}
 
-	if (!((selectedGasLimit.value === "Estimated" && estimatedGasLimit.value) || (selectedGasLimit.value === "Custom" && customGasLimit.value))) {
+	if (
+		!(
+			(selectedGasLimit.value === "Estimated" && estimatedGasLimit.value) ||
+			(selectedGasLimit.value === "Custom" && customGasLimit.value)
+		)
+	) {
 		return {
-			title: 'Define the gas limit',
+			title: "Define the gas limit",
 			disable: true,
 		}
 	}
-	
+
 	if (isAwaiting.value) {
 		return {
-			title: 'Awating...',
+			title: "Awating...",
 			disable: true,
 		}
 	}
 	return {
-		title: 'Delegate',
+		title: "Delegate",
 		disable: false,
-	}	
+	}
 })
 
 const handleContinue = async () => {
-	const key = await window.keplr?.getKey(appStore.network.chainId)
+	const key = await window.wallet?.getKey(appStore.network.chainId)
 
 	const proto = [
 		{
@@ -475,9 +436,7 @@ const handleContinue = async () => {
 
 					<Flex v-if="isAddressNotFound" align="center" gap="4">
 						<Icon name="danger" size="12" color="red" />
-						<Text size="12" weight="500" color="tertiary">
-							This address is not found, you can't delegate
-						</Text>
+						<Text size="12" weight="500" color="tertiary"> This address is not found, you can't delegate </Text>
 					</Flex>
 				</Flex>
 
