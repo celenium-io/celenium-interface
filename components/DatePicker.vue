@@ -29,7 +29,11 @@ const props = defineProps({
 	minDate: {
 		type: String,
 		default: '',
-	}
+	},
+	showTitle: {
+		type: Boolean,
+		default: true,
+	},
 })
 
 const emit = defineEmits(["onUpdate"])
@@ -243,7 +247,7 @@ watch(
 
 <template>
 	<Popover :open="isOpen" @on-close="handleClose" :width="popoverStyles.width" :side="popoverStyles.side">
-		<Button @click="handleOpen" type="secondary" size="mini">
+		<Button v-if="showTitle" @click="handleOpen" type="secondary" size="mini">
 			<Icon name="plus-circle" size="12" color="tertiary" />
 
 			<Text color="secondary">Date Range</Text>
@@ -257,6 +261,13 @@ watch(
 
 				<Icon @click.stop="handleClear" name="close-circle" size="12" color="secondary" />
 			</template>
+		</Button>
+		<Button v-else @click="handleOpen" type="secondary" size="mini">
+			<Icon name="calendar-date" size="14" color="tertiary" />
+
+			<Text size="12" weight="600" color="primary">
+				{{ selectedRange }}
+			</Text>
 		</Button>
 
 		<template #content>

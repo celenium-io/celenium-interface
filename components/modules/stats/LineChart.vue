@@ -48,8 +48,8 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	const marginLeft = 12
 	const marginAxisX = 20
 
-	const MIN_VALUE = d3.min([...cData.data.map(s => s.value), ...pData.data?.map(s => s.value)])
-	const MAX_VALUE = d3.max([...cData.data.map(s => s.value), ...pData.data?.map(s => s.value)])
+	const MIN_VALUE = d3.min([...cData.data?.map(s => s.value), ...pData.data?.map(s => s.value)])
+	const MAX_VALUE = d3.max([...cData.data?.map(s => s.value), ...pData.data?.map(s => s.value)])
 
 	/** Scales */
 	const x = d3.scaleUtc(
@@ -176,8 +176,10 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 			.attr("x2", x(selectedCData.date))
 			.attr("y2", height - marginAxisX)
 		
-		tooltip.value.x = x(selectedCData.date)
-		tooltip.value.y = y(selectedCData.value)
+		let xPosition = x(selectedCData.date)
+		tooltip.value.x = xPosition > (width - 200) ? xPosition - 215 : xPosition + 15
+		tooltip.value.y = Math.min(y(selectedCData.value), height - 100)
+		
 		tooltip.value.data[0] = {
 			date: formatDate(selectedCData.date),
 			value: formatValue(selectedCData.value),
@@ -281,7 +283,7 @@ onMounted(async () => {
 					<Flex
 						align="center"
 						direction="column"
-						:style="{ transform: `translate(${tooltip.x + 15}px, ${tooltip.y - 40}px)` }"
+						:style="{ transform: `translate(${tooltip.x}px, ${tooltip.y - 40}px)` }"
 						gap="12"
 						:class="$style.tooltip"
 					>

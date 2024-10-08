@@ -33,7 +33,9 @@ export async function exportSVGToPNG(svgElement, fileName) {
 	// Create <style> element and add to SVG
 	const svgStyle = document.createElement('style')
 	svgStyle.textContent = styleSheets
-	svgElement.prepend(svgStyle)
+	// console.log('svgStyle.textContent', svgStyle.textContent);
+	
+	svgElement.prepend(svgStyle) //16:9
 
 	// Convert SVG to string
 	const serializer = new XMLSerializer()

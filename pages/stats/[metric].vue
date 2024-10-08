@@ -23,8 +23,13 @@ import Popover from "@/components/ui/Popover.vue"
 import Toggle from "@/components/ui/Toggle.vue"
 
 /** Store */
+/** Store */
+import { useModalsStore } from "@/store/modals"
 import { useNotificationsStore } from "@/store/notifications"
+import { useCacheStore } from "@/store/cache"
+const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
+const cacheStore = useCacheStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -249,9 +254,9 @@ const handleCSVDownload = async () => {
 }
 
 const handlePNGDownload = async () => {
-	const svgElement = document.querySelector('#chart');
+	const svgElement = document.querySelector('#chart')
 
-	await exportSVGToPNG(svgElement, `${series.value.name}-${filters.from}-${filters.to}-${chartView}`)
+	await exportSVGToPNG(svgElement, `${series.value.name}-${filters.from}-${filters.to}-${chartView.value}`)
 
 	notificationsStore.create({
 		notification: {
@@ -263,12 +268,12 @@ const handlePNGDownload = async () => {
 	})
 }
 
-// watch(
-// 	() => selectedPeriod.value,
-// 	async () => {
-// 		await getData()
-// 	},
-// )
+const handleOpenChartModal = () => {
+	cacheStore.chart.series = series.value
+	cacheStore.chart.view = chartView.value
+
+	modalsStore.open("chart")
+}
 
 watch(
 	() => loadLastValue.value,
@@ -343,6 +348,7 @@ watch(
 						:from="filters.from"
 						:to="filters.to"
 						:minDate="getStartChainDate()"
+						:showTitle="false"
 					/>
 					
 					<Popover :open="isOpen" @on-close="handleClose" width="200" side="right">
@@ -390,6 +396,10 @@ watch(
 							</Flex>
 						</template>
 					</Popover>
+
+					<Button @click="handleOpenChartModal" type="secondary" size="mini">
+						<Icon name="expand" size="12" color="tertiary" />
+					</Button>
 
 					<Dropdown>
 						<Button type="secondary" size="mini">

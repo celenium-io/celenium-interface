@@ -28,6 +28,7 @@ export const useModalsStore = defineStore("modals", () => {
 		api: false,
 		lightNode: false,
 		lightNodeSettings: false,
+		chart: false,
 	})
 
 	const open = (target) => {
