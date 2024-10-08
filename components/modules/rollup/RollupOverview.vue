@@ -55,7 +55,7 @@ const namespaces = ref([])
 const blobs = ref([])
 const relatedLinks = computed(() => {
 	if (props.rollup.links?.length) {
-		return props.rollup.links[0].split(',')
+		return props.rollup.links
 	} else {
 		return []
 	}
@@ -159,34 +159,21 @@ watch(
 
 const periods = ref([
 	{
+		title: "Last 1 hour",
+		value: 1,
+	},
+	{
+		title: "Last 12 hours",
+		value: 12,
+	},
+	{
 		title: "Last 24 hours",
-		timeRange: "day",
-	},
-	{
-		title: "Last 7 days",
-		timeRange: "week",
-	},
-	{
-		title: "Last 31 days",
-		timeRange: "month",
+		value: 24,
 	},
 ])
 
-const handleCSVDownload = async (period) => {
-	let from
-	switch (period) {
-		case "day":
-			from = parseInt(DateTime.now().minus({ days: 1 }).toMillis() / 1_000)
-			break
-		case "week":
-			from = parseInt(DateTime.now().minus({ weeks: 1 }).toMillis() / 1_000)
-			break
-		case "month":
-			from = parseInt(DateTime.now().minus({ months: 1 }).toMillis() / 1_000)
-			break
-		default:
-			break
-	}
+const handleCSVDownload = async (value) => {
+	let from = parseInt(DateTime.now().minus({ hours: value }).toMillis() / 1_000)
 	let to = parseInt(DateTime.now().toMillis() / 1_000)
 
 	const { data } = await fetchRollupExportData({
@@ -208,7 +195,7 @@ const handleCSVDownload = async (period) => {
 		return
 	}
 
-	await exportToCSV(data.value, `${props.rollup.slug}-blobs-last-${period}`)
+	await exportToCSV(data.value, `${props.rollup.slug}-blobs-last-${value}h`)
 
 	notificationsStore.create({
 		notification: {
@@ -244,7 +231,7 @@ const handleCSVDownload = async (period) => {
 				</Tooltip>
 
 				<template #popup>
-					<DropdownItem v-for="period in periods" @click="handleCSVDownload(period.timeRange)">
+					<DropdownItem v-for="period in periods" @click="handleCSVDownload(period.value)">
 						{{ period.title }}
 					</DropdownItem>
 				</template>
