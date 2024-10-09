@@ -1,4 +1,9 @@
+/** Services */
+import amp from "@/services/amp"
+
 export async function exportToCSV(data, fileName) {
+	amp.log("exportCSV", { file: fileName })
+
 	const blob = new Blob([data], { type: "text/csv;charset=utf-8;" })
 	const link = document.createElement("a")
 
@@ -16,6 +21,8 @@ export async function exportToCSV(data, fileName) {
 }
 
 export async function exportSVGToPNG(svgElement, fileName, width = 1920, height = 1080) {
+	amp.log("exportPNG", { file: fileName })
+
 	// Load SVG styles
 	const styleSheets = Array.from(document.styleSheets)
 		.filter(style => style.href === null)
@@ -31,26 +38,20 @@ export async function exportSVGToPNG(svgElement, fileName, width = 1920, height 
 			}
 		}).join('\n')
 
-	// Create <style> element and add to SVG
+	// Create clone and <style> element and add to SVG
 	const svgStyle = document.createElement('style')
 	svgStyle.textContent = styleSheets
 	
-	svgElement.prepend(svgStyle)
+	let svgClone = svgElement.cloneNode(true)
+	svgClone.prepend(svgStyle)
 	
 	// Set SVG size
-    const originalWidth = svgElement.getAttribute('width');
-    const originalHeight = svgElement.getAttribute('height');
-    svgElement.setAttribute('width', width);
-    svgElement.setAttribute('height', height);
+    svgClone.setAttribute('width', width);
+    svgClone.setAttribute('height', height);
 
 	// Convert SVG to string
 	const serializer = new XMLSerializer()
-	const svgString = serializer.serializeToString(svgElement)
-
-	// Remove styles
-	svgElement.removeChild(svgStyle)
-	svgElement.setAttribute('width', originalWidth);
-    svgElement.setAttribute('height', originalHeight);
+	const svgString = serializer.serializeToString(svgClone)
 
 	// Convert and export SVG
 	const img = new Image()
@@ -74,6 +75,8 @@ export async function exportSVGToPNG(svgElement, fileName, width = 1920, height 
 		document.body.removeChild(link)
 
 		URL.revokeObjectURL(url)
+
+		svgClone = null
 	}
 
 	img.src = url
