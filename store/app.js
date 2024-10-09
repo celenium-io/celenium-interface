@@ -19,8 +19,10 @@ export const useAppStore = defineStore("app", () => {
 		close: "0",
 	})
 
+	const wallet = ref("")
 	const address = ref("")
 	const balance = ref(0)
+	const isConnected = ref(false)
 
 	const latestBlocks = ref([])
 	const lastBlock = computed(() => latestBlocks.value[0])
@@ -47,8 +49,10 @@ export const useAppStore = defineStore("app", () => {
 		head,
 		gas,
 		currentPrice,
+		wallet,
 		address,
 		balance,
+		isConnected,
 		latestBlocks,
 		lastBlock,
 		lastHead,
