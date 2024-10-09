@@ -15,9 +15,10 @@ export async function exportToCSV(data, fileName) {
 	document.body.removeChild(link)
 }
 
-export async function exportSVGToPNG(svgElement, fileName) {
+export async function exportSVGToPNG(svgElement, fileName, width = 1920, height = 1080) {
 	// Load SVG styles
 	const styleSheets = Array.from(document.styleSheets)
+		.filter(style => style.href === null)
 		.map(sheet => {
 			try {
 				return Array.from(sheet.cssRules)
@@ -33,16 +34,23 @@ export async function exportSVGToPNG(svgElement, fileName) {
 	// Create <style> element and add to SVG
 	const svgStyle = document.createElement('style')
 	svgStyle.textContent = styleSheets
-	// console.log('svgStyle.textContent', svgStyle.textContent);
 	
-	svgElement.prepend(svgStyle) //16:9
+	svgElement.prepend(svgStyle)
+	
+	// Set SVG size
+    const originalWidth = svgElement.getAttribute('width');
+    const originalHeight = svgElement.getAttribute('height');
+    svgElement.setAttribute('width', width);
+    svgElement.setAttribute('height', height);
 
 	// Convert SVG to string
 	const serializer = new XMLSerializer()
 	const svgString = serializer.serializeToString(svgElement)
 
-	// Remove internal styles
+	// Remove styles
 	svgElement.removeChild(svgStyle)
+	svgElement.setAttribute('width', originalWidth);
+    svgElement.setAttribute('height', originalHeight);
 
 	// Convert and export SVG
 	const img = new Image()
@@ -51,10 +59,10 @@ export async function exportSVGToPNG(svgElement, fileName) {
 
 	img.onload = function() {
 		const canvas = document.createElement('canvas')
-		canvas.width = svgElement.clientWidth
-		canvas.height = svgElement.clientHeight
+		canvas.width = width
+		canvas.height = height
 		const ctx = canvas.getContext('2d')
-		ctx.drawImage(img, 0, 0)
+		ctx.drawImage(img, 0, 0, width, height)
 		const png = canvas.toDataURL('image/png')
 
 		// Create link for download

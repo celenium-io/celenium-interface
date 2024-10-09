@@ -254,7 +254,7 @@ const handleCSVDownload = async () => {
 }
 
 const handlePNGDownload = async () => {
-	const svgElement = document.querySelector('#chart')
+	const svgElement = document.getElementById('chart')
 
 	await exportSVGToPNG(svgElement, `${series.value.name}-${filters.from}-${filters.to}-${chartView.value}`)
 
