@@ -82,7 +82,7 @@ const selectedGasFee = ref(gasFeeItems.value[0].name)
 const handleAmountInput = (e) => {
 	if (!amount.value.length) amount.value = ""
 
-	const normalizedAmount = normalizeAmount(amount.value, 5, appStore.balance.toString())
+	const normalizedAmount = normalizeAmount(amount.value, appStore.balance, appStore.balance.toString())
 	if (typeof normalizedAmount === "string") {
 		amount.value = normalizedAmount
 		return
@@ -214,6 +214,7 @@ watch(
 
 			nextTick(() => {
 				inputEl.value.inputEl.focus()
+				amount.value = ""
 			})
 		} else {
 			amount.value = 0
