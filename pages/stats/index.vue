@@ -119,7 +119,7 @@ watch(
 .wrapper {
 	max-width: calc(var(--base-width) + 48px);
 
-	padding: 40px 24px 60px 24px;
+	padding: 20px 24px 60px 24px;
 }
 
 .breadcrumbs {

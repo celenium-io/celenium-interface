@@ -74,20 +74,12 @@ const buildChart = (chart, data) => {
         .domain([minSize, maxSize])
         .range([ 15, 70 ]);
     
-    // const x = d3.scaleLinear()
-    //     .domain([0, maxBlobsCount + maxBlobsCount * 0.1])
-    //     .range([ marginLeft, width ]);
-        
     const x = d3.scaleLog()
         .domain([1_000, maxBlobsCount + maxBlobsCount * 0.1])
         .range([marginLeft, width])
         .base(10)
         .nice()
     
-    // const y = d3.scaleLinear()
-    //     .domain([0, maxFee + maxFee * 0.3])
-    //     .range([ height - 30, 0]);
-
     const y = d3.scaleLog()
         .domain([1, maxFee + maxFee * 0.3])
         .range([height + 5, 0])
@@ -144,7 +136,7 @@ const buildChart = (chart, data) => {
     let legendValues = [500 * 1_024 * 1_024, midSize * 0.5, maxSize / 2]
     let xCircle = width - 50
     let xLabel = width - 150
-    let yCircle = 100
+    let yCircle = height - 30
     svg
         .selectAll("legend")
         .data(legendValues)
