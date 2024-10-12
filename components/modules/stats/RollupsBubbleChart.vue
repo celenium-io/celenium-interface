@@ -39,7 +39,9 @@ const getRollups = async () => {
 
 const prepareRollupsData = (data) => {
     data.forEach(r => {
-        r.fee = +(r.fee / 1_000_000).toFixed(2)
+        if (!r.feeUpdated) {
+            r.feeUpdated = +(r.fee / 1_000_000).toFixed(2)
+        }
     })
 
     return data
@@ -54,13 +56,13 @@ const buildChart = (chart, data) => {
 	const marginLeft = 32
 
     const maxBlobsCount = d3.max(data, d => d.blobs_count)
-    const maxFee = d3.max(data, d => d.fee)
-    const minFee = d3.min(data, d => d.fee)
+    const maxFee = d3.max(data, d => d.feeUpdated)
+    const minFee = d3.min(data, d => d.feeUpdated)
     const maxSize = d3.max(data, d => d.size)
     const minSize = d3.min(data, d => d.size)
     const midSize = maxSize / 2
 
-	/** SVG Container */
+    /** SVG Container */
 	const svg = d3
 		.create("svg")
 		.attr("width", width)
@@ -178,7 +180,7 @@ const buildChart = (chart, data) => {
 
         if (!tooltip.value.data.length) {
             tooltip.value.x = x(rollup.blobs_count)
-            tooltip.value.y = y(rollup.fee)
+            tooltip.value.y = y(rollup.feeUpdated)
             tooltip.value.r = z(rollup.size)
             tooltip.value.data.push(rollup)
             tooltip.value.show = true
@@ -194,7 +196,7 @@ const buildChart = (chart, data) => {
     }
 
     const calculateY = (d) => {
-        let cy = y(d.fee)                
+        let cy = y(d.feeUpdated)                
         if (cy > height - 30) {
             return height - 30 - 1
         }
@@ -222,7 +224,7 @@ const buildChart = (chart, data) => {
         .append("circle")
             .attr("cx", d => x(d.blobs_count))
             .attr("cy", d => {
-                let cy = y(d.fee)                
+                let cy = y(d.feeUpdated)                
                 if (cy > height - 30) {
                     return height - 30 - 1
                 }
@@ -248,7 +250,7 @@ const buildChart = (chart, data) => {
             .attr("height", d => z(d.size) * 2)
             .attr("x", d => x(d.blobs_count) - z(d.size))
             .attr("y", d => {
-                let cy = y(d.fee)
+                let cy = y(d.feeUpdated)
                 if (cy > height - 30) {
                     return height - 30 - z(d.size) - 1
                 }

@@ -93,3 +93,19 @@ export const fetchRollupExportData = async ({ id, from, to }) => {
 		console.error(error)
 	}
 }
+
+export const fetchRollupsDailyStats = async ({ limit, offset, sort, sort_by }) => {
+	try {
+		const url = new URL(`${useServerURL()}/rollup/day`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+		if (sort) url.searchParams.append("sort", sort)
+		if (sort_by) url.searchParams.append("sort_by", sort_by)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}

@@ -9,8 +9,11 @@ import Button from "@/components/ui/Button.vue"
 /** Constants */
 import { getSeriesByGroupAndType } from "@/services/constants/stats.js"
 
+/** Services */
+import { capitalizeAndReplaceUnderscore } from "@/services/utils";
+
 /** API */
-import { fetchRollups } from "@/services/api/rollup.js"
+import { fetchRollups, fetchRollupsDailyStats } from "@/services/api/rollup.js"
 
 const isLoading = ref(false)
 const series = computed(() => getSeriesByGroupAndType('Rollups'))
@@ -27,6 +30,9 @@ const getRollups = async () => {
     isLoading.value = false
 }
 
+const tabs = ref(['overview', 'daily_stats'])
+const selectedTab = ref(tabs.value[0])
+
 onBeforeMount(async () => {
     await getRollups()
 })
@@ -34,23 +40,28 @@ onBeforeMount(async () => {
 
 <template>
     <Flex align="center" direction="column" gap="12" wide :class="$style.wrapper">
-		<Flex align="center" direction="column" gap="12" wide>
-			<Flex align="center" justify="between" wide :class="$style.section">
-				<Flex align="center" gap="4">
-					<Text size="16" weight="600" color="primary" justify="start">Overview</Text>
-					<!-- <Text size="14" weight="600" color="tertiary">(top 10 rollups)</Text> -->
-				</Flex>
-
-				<Button link="/rollups" type="secondary" size="mini">
-					<Icon name="rollup-leaderboard" size="12" color="secondary" />
-					Rollups Leaderboard
-				</Button>
+		<Flex align="center" justify="between" wide :class="$style.section">
+			<Flex align="center" gap="12">
+				<Text
+					v-for="t in tabs"
+					@click="selectedTab = t"
+					size="16"
+					weight="600"
+					:class="[$style.tab, t === selectedTab && $style.active]"
+				>
+					{{ capitalizeAndReplaceUnderscore(t) }}
+				</Text>
 			</Flex>
-            
-            <RollupsBubbleChart v-if="!isLoading" :series="series" />
+
+			<Button link="/rollups" type="secondary" size="mini">
+				<Icon name="rollup-leaderboard" size="12" color="secondary" />
+				Rollups Leaderboard
+			</Button>
 		</Flex>
 
-		<Flex align="center" direction="column" gap="12" wide>
+		<Flex v-if="selectedTab === 'overview'" align="center" direction="column" gap="12" wide>
+			<RollupsBubbleChart v-if="!isLoading" :series="series" />
+
 			<Flex align="center" justify="between" wide :class="$style.section">
 				<Text size="16" weight="600" color="primary" justify="start">Top Rollups</Text>
 			</Flex>
@@ -72,6 +83,17 @@ onBeforeMount(async () => {
 <style module>
 .wrapper {
 	max-width: calc(var(--base-width) + 48px);
+}
+
+.tab {
+	color: var(--txt-tertiary);
+	cursor: pointer;
+
+	transition: all 0.2s ease;
+}
+
+.tab.active {
+	color: var(--txt-primary);
 }
 
 .section {
