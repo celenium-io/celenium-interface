@@ -20,6 +20,7 @@
 		"sass": "1.66.1",
 		"sass-loader": "13.3.2",
 		"unenv": "^1.9.0",
+		"vite-plugin-top-level-await": "^1.4.4",
 		"vite-plugin-wasm": "^3.3.0"
 	},
 	"dependencies": {
