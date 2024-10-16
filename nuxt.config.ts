@@ -1,4 +1,6 @@
 import { nodePolyfills } from "vite-plugin-node-polyfills"
+import wasm from "vite-plugin-wasm"
+
 import path from "path"
 
 export default defineNuxtConfig({
@@ -141,6 +143,6 @@ export default defineNuxtConfig({
 				"unenv/runtime/node/buffer/index/": path.resolve(__dirname, "./node_modules/buffer/index"),
 			},
 		},
-		plugins: [nodePolyfills()],
+		plugins: [wasm(), nodePolyfills()],
 	},
 })

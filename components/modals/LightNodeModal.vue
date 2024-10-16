@@ -3,7 +3,7 @@ import MyWorker from "@/assets/workers/worker.js?worker&url"
 
 /** Vendor */
 import { DateTime } from "luxon"
-import init, { NodeClient, NodeConfig, Network } from "@/services/lumina-node-wasm/index.js"
+import { NodeClient, NodeConfig, Network } from "@/services/lumina-node-wasm/lumina_node_wasm.js"
 
 /** UI */
 import Modal from "@/components/ui/Modal.vue"
@@ -38,7 +38,6 @@ const props = defineProps({
 
 let bc
 onMounted(async () => {
-	await init()
 	initConfig()
 
 	nodeStore.status = StatusMap.Initialized
@@ -283,11 +282,11 @@ watch(
  */
 
 const normalizeStoredRanges = (networkHead, storedRanges) => {
-	const syncingWindowTail = networkHead - approxSyncingWindowSize
+	const syncingWindowTail = Number.parseInt(networkHead) - approxSyncingWindowSize
 
 	const normalizedRanges = storedRanges.map((range) => {
-		const adjustedStart = Math.max(range.start, syncingWindowTail)
-		const adjustedEnd = Math.max(range.end, syncingWindowTail)
+		const adjustedStart = Math.max(Number.parseInt(range.start), syncingWindowTail)
+		const adjustedEnd = Math.max(Number.parseInt(range.end), syncingWindowTail)
 		return {
 			start: adjustedStart,
 			end: adjustedEnd,
@@ -305,8 +304,9 @@ const syncingPercentage = (ranges) => {
  * Start / Cancel / Free
  */
 
-const handleStop = () => {
-	location.reload()
+const handleStop = async () => {
+	await node.value.stop()
+	nodeStore.status = StatusMap.Initialized
 }
 
 const handleStart = async () => {
@@ -325,14 +325,14 @@ const handleStart = async () => {
 		}
 
 		const onNewHead = async (height) => {
-			const header = await node.value.get_header_by_height(BigInt(height))
+			const header = await node.value.getHeaderByHeight(BigInt(height))
 
 			hash.value = header.commit.block_id.hash
 			squareSize.value = header.dah.row_roots.length
 		}
 
 		const onAddedHeaders = async () => {
-			const info = await node.value.syncer_info()
+			const info = await node.value.syncerInfo()
 			const storedRanges = normalizeStoredRanges(info.subjective_head, info.stored_headers)
 
 			backwardsSyncProgress.value = syncingPercentage(storedRanges)
@@ -381,9 +381,10 @@ const handleStart = async () => {
 			}
 		}
 
-		node.value = await new NodeClient(MyWorker)
+		const worker = new Worker(MyWorker, { type: "module" })
+		node.value = await new NodeClient(worker)
 
-		const events = await node.value.events_channel()
+		const events = await node.value.eventsChannel()
 		events.onmessage = onNodeEvent
 
 		await node.value.start(config.value)
@@ -409,7 +410,7 @@ const handleStart = async () => {
 
 		showDetails.value = true
 
-		pid.value = await node.value.local_peer_id()
+		pid.value = await node.value.localPeerId()
 	} catch (error) {
 		nodeStore.status = StatusMap.Failed
 		amp.log("sampling:failed", { network: networks[selectedNetwork.value], mobile: isMobile() })
@@ -509,6 +510,7 @@ watch(
 									$style.group,
 									status === StatusMap.Starting && $style.starting,
 									status === StatusMap.Started && $style.started,
+									status === StatusMap.Initialized && $style.initialized,
 								]"
 							>
 								<div
@@ -723,16 +725,7 @@ watch(
 						<template v-else> Start Sampling </template>
 					</Button>
 
-					<Tooltip v-if="status === StatusMap.Started" wide>
-						<Button @click="handleStop" type="tertiary" size="small" wide> Stop the light node </Button>
-
-						<template #content>
-							<Flex align="center" direction="column" gap="6">
-								<Text>To stop the running light node - use F5 (refresh the page).</Text>
-								<Text color="tertiary">Stopping a node via the interface is temporarily unsupported.</Text>
-							</Flex>
-						</template>
-					</Tooltip>
+					<Button v-if="status === StatusMap.Started" @click="handleStop" type="tertiary" size="small" wide> Stop the light node </Button>
 
 					<Flex align="center" direction="column" gap="4">
 						<Text size="11" weight="500" color="tertiary">
@@ -907,6 +900,13 @@ watch(
 
 	&.started {
 		background: rgba(24, 210, 165, 25%);
+	}
+
+	&.initialized {
+		& .bar.active {
+			background: var(--txt-secondary);
+			box-shadow: unset;
+		}
 	}
 }
 
