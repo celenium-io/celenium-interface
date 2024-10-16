@@ -132,10 +132,6 @@ export default defineNuxtConfig({
 		enabled: false,
 	},
 
-	/** TEMP */
-	sourcemap: true,
-	debug: true,
-
 	vite: {
 		define: {
 			global: "globalThis",
@@ -149,6 +145,10 @@ export default defineNuxtConfig({
 		worker: {
 			format: "es",
 			plugins: [wasm(), topLevelAwait()],
+		},
+
+		build: {
+			minify: false,
 		},
 	},
 })
