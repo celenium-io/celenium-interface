@@ -2,6 +2,7 @@
 /** Stats Components */
 import PieChartCard from "@/components/modules/stats/PieChartCard.vue"
 import RollupsBubbleChart from "@/components/modules/stats/RollupsBubbleChart.vue"
+import RollupsActivity from "~/components/modules/stats/RollupsActivity.vue"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
@@ -17,6 +18,7 @@ import { fetchRollups, fetchRollupsDailyStats } from "@/services/api/rollup.js"
 
 const isLoading = ref(false)
 const series = computed(() => getSeriesByGroupAndType('Rollups'))
+const rollupsDailyStats = ref([])
 
 const getRollups = async () => {
 	isLoading.value = true
@@ -30,12 +32,46 @@ const getRollups = async () => {
     isLoading.value = false
 }
 
+const getRollupsDailyStats = async () => {
+	isLoading.value = true
+
+	const data = await fetchRollupsDailyStats({
+		limit: 100,
+	})
+	
+	rollupsDailyStats.value = data
+
+    isLoading.value = false
+}
+
 const tabs = ref(['overview', 'daily_stats'])
 const selectedTab = ref(tabs.value[0])
 
 onBeforeMount(async () => {
     await getRollups()
 })
+
+watch(
+	() => selectedTab.value,
+	async () => {
+		switch (selectedTab.value) {
+			case 'overview':
+				if (!series.value.data.length) {
+					await getRollups()
+				}
+
+				break
+			case 'daily_stats':
+				if (!rollupsDailyStats.value.length) {
+						await getRollupsDailyStats()
+					}
+
+				break
+			default:
+				break
+		}
+	}
+)
 </script>
 
 <template>
@@ -77,6 +113,8 @@ onBeforeMount(async () => {
                 />
             </Flex>
 		</Flex>
+
+		<RollupsActivity v-else-if="selectedTab === 'daily_stats' && !isLoading" :rollups="rollupsDailyStats" />
     </Flex>
 </template>
 

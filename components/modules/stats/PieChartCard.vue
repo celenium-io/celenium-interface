@@ -55,6 +55,9 @@ const prepareRollupsData = () => {
             share: 100 - resData.value.reduce((sum, el) => sum + el.share, 0),
         })
     }
+
+    console.log('resData', resData.value);
+    
 }
 
 const chartEl = ref()
