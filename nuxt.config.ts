@@ -132,6 +132,10 @@ export default defineNuxtConfig({
 		enabled: false,
 	},
 
+	/** TEMP */
+	sourcemap: true,
+	debug: true,
+
 	vite: {
 		define: {
 			global: "globalThis",
