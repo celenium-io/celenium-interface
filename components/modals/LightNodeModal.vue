@@ -38,8 +38,6 @@ const props = defineProps({
 
 let bc
 onMounted(async () => {
-	initConfig()
-
 	nodeStore.status = StatusMap.Initialized
 
 	nodeStore.settings.network = networks[selectedNetwork.value]
@@ -425,6 +423,8 @@ watch(
 	() => {
 		if (props.show) {
 			amp.log("sampling:open", { network: networks[selectedNetwork.value], mobile: isMobile() })
+
+			initConfig()
 		}
 	},
 )

@@ -146,9 +146,5 @@ export default defineNuxtConfig({
 			format: "es",
 			plugins: [wasm(), topLevelAwait()],
 		},
-
-		build: {
-			minify: false,
-		},
 	},
 })
