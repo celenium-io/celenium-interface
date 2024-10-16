@@ -53,9 +53,6 @@ dependencies:
   long:
     specifier: ^5.2.3
     version: 5.2.3
-  lumina-node:
-    specifier: ^0.5.1
-    version: 0.5.1
   luxon:
     specifier: 3.4.3
     version: 3.4.3
@@ -6586,16 +6583,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       yallist: 4.0.0
-
-  /lumina-node-wasm@0.5.1:
-    resolution: {integrity: sha512-hTSEKzNjCBhkykQryrAprQXjOUQYAM59QEsTFC44TdCNwyn5N9Ew9KHrYOxWgp1OJiA9gQXH1jeXGhB0vAICCg==}
-    dev: false
-
-  /lumina-node@0.5.1:
-    resolution: {integrity: sha512-pZzSOHtFSTPAB2a5HS3JLr3mk2s+plwBKE7OpkSo7Rao9bLYGyy5pslz9T2OucsqroqOVK3py5tjZ1j6KmNQYA==}
-    dependencies:
-      lumina-node-wasm: 0.5.1
-    dev: false
 
   /luxon@3.4.3:
     resolution: {integrity: sha512-tFWBiv3h7z+T/tDaoxA8rqTxy1CHV6gHS//QdaH4pulbq/JuBSGgQspQQqcgnwdAx6pNI7cmvz5Sv/addzHmUg==}
