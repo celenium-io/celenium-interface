@@ -222,17 +222,11 @@ const onKeydown = (event) => {
 				<div v-if="isOpen" :class="$style.canvas" />
 
 				<Transition name="fastfade">
-					<Flex
-						v-if="isOpen"
-						ref="dropdown"
-						@click="close"
+					<Flex v-if="isOpen" ref="dropdown" @click="close"
 						:class="[$style.dropdown, dropdownStyles.top ? $style.transform_origin_top : $style.transform_origin_bottom]"
 						:style="{
 							...dropdownStyles,
-						}"
-						direction="column"
-						gap="4"
-					>
+						}" direction="column" gap="4">
 						<slot name="popup" />
 					</Flex>
 				</Transition>
@@ -264,7 +258,7 @@ const onKeydown = (event) => {
 	position: fixed;
 	z-index: 2001;
 
-	border-radius: 5px;
+	border-radius: 8px;
 	background: var(--card-background);
 	box-shadow: rgb(0 0 0 / 20%) 0px 2px 6px;
 	border: 1px solid var(--op-5);

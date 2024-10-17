@@ -202,7 +202,7 @@ const getGasEfficiencySeries = async () => {
 	})
 
 	const gasEfficiencySeriesMap = {}
-	for (const item of sRawData) {
+	for (const item of gasEfficiencySeriesRawData) {
 		gasEfficiencySeriesMap[DateTime.fromISO(item.time).toFormat("dd-HH")] = item.value
 	}
 
@@ -352,30 +352,28 @@ onBeforeUnmount(() => {
 
 			<Transition name="fastfade">
 				<div v-if="showTooltip" :class="$style.tooltip_wrapper">
-					<div :style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }" :class="$style.dot" />
+					<div :style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
+						:class="$style.dot" />
 					<div :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
-					<div ref="badgeEl" :style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }" :class="$style.badge">
+					<div ref="badgeEl" :style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"
+						:class="$style.badge">
 						<Text size="12" weight="600" color="secondary">
 							{{ badgeText }}
 						</Text>
 					</div>
-					<Flex
-						ref="tooltipEl"
+					<Flex ref="tooltipEl"
 						:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYDataOffset - 60}px)` }"
-						direction="column"
-						gap="8"
-						:class="$style.tooltip"
-					>
+						direction="column" gap="8" :class="$style.tooltip">
 						<Flex align="center" justify="between" gap="16">
 							<Text size="12" weight="600" color="secondary">Efficiency</Text>
-							<Text size="12" weight="600" color="primary"> {{ Number.parseInt(tooltipEfficiencyText * 100) }}%</Text>
+							<Text size="12" weight="600" color="primary"> {{ Number.parseInt(tooltipEfficiencyText *
+								100) }}%</Text>
 						</Flex>
 
 						<Flex align="center" justify="between" gap="16">
 							<Text size="12" weight="600" color="secondary">Usage</Text>
 							<Text size="12" weight="600" color="primary">
-								{{ abbreviate(tooltipUsedText) }} / {{ abbreviate(tooltipLimitText) }}</Text
-							>
+								{{ abbreviate(tooltipUsedText) }} / {{ abbreviate(tooltipLimitText) }}</Text>
 						</Flex>
 					</Flex>
 				</div>

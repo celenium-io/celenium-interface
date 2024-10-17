@@ -108,7 +108,7 @@ const handleClearAllFilters = () => {
 const searchTerm = ref("")
 
 /** Parse route query */
-for (const key of objecObject.keys(route.query)) {
+for (const key of Object.keys(route.query)) {
 	if (key === "page") continue
 
 	if (key === "from" || key === "to") {
@@ -364,13 +364,10 @@ const handleNext = () => {
 
 <template>
 	<Flex wide direction="column" :class="$style.wrapper">
-		<Breadcrumbs
-			:items="[
-				{ link: '/', name: 'Explore' },
-				{ link: '/txs', name: `Transactions` },
-			]"
-			:class="$style.breadcrumbs"
-		/>
+		<Breadcrumbs :items="[
+			{ link: '/', name: 'Explore' },
+			{ link: '/txs', name: `Transactions` },
+		]" :class="$style.breadcrumbs" />
 
 		<Flex wide direction="column" gap="4">
 			<Flex justify="between" :class="$style.header">
@@ -415,7 +412,8 @@ const handleNext = () => {
 									}}
 								</Text>
 
-								<Icon @click.stop="resetFilters('status', true)" name="close-circle" size="12" color="secondary" />
+								<Icon @click.stop="resetFilters('status', true)" name="close-circle" size="12"
+									color="secondary" />
 							</template>
 						</Button>
 
@@ -432,7 +430,8 @@ const handleNext = () => {
 									</Checkbox>
 								</Flex>
 
-								<Button @click="handleApplyStatusFilters" type="secondary" size="mini" wide>Apply</Button>
+								<Button @click="handleApplyStatusFilters" type="secondary" size="mini"
+									wide>Apply</Button>
 							</Flex>
 						</template>
 					</Popover>
@@ -448,19 +447,19 @@ const handleNext = () => {
 								<Text size="12" weight="600" color="primary">
 									{{
 										Object.keys(filters.message_type).filter((f) => filters.message_type[f]).length < 3
-											? Object.keys(filters.message_type)
-													.filter((f) => filters.message_type[f])
-													.map((f) => f.replace("Msg", ""))
-													.join(", ")
+											? Object.keys(filters.message_type).filter((f) => filters.message_type[f])
+												.map((f) => f.replace("Msg", ""))
+												.join(", ")
 											: `${Object.keys(filters.message_type)
-													.filter((f) => filters.message_type[f])[0]
-													.replace("Msg", "")} and ${
-													Object.keys(filters.message_type).filter((f) => filters.message_type[f]).length - 1
-											  } more`
+												.filter((f) => filters.message_type[f])[0]
+												.replace("Msg", "")} and ${Object.keys(filters.message_type).filter((f) => filters.message_type[f]).length
+											- 1
+											} more`
 									}}
 								</Text>
 
-								<Icon @click.stop="resetFilters('message_type', true)" name="close-circle" size="12" color="secondary" />
+								<Icon @click.stop="resetFilters('message_type', true)" name="close-circle" size="12"
+									color="secondary" />
 							</template>
 						</Button>
 
@@ -471,20 +470,16 @@ const handleNext = () => {
 								<Input v-model="searchTerm" size="small" placeholder="Search" autofocus />
 
 								<Flex direction="column" gap="8" :class="$style.message_types_list">
-									<template
-										v-if="
-											Object.keys(filters.message_type).filter((t) =>
-												t.toLowerCase().includes(searchTerm.trim().toLowerCase()),
-											).length
-										"
-									>
-										<Checkbox
-											v-for="msg_type in Object.keys(filters.message_type).filter((t) =>
-												t.toLowerCase().includes(searchTerm.trim().toLowerCase()),
-											)"
-											v-model="filters.message_type[msg_type]"
-										>
-											<Text size="12" weight="500" color="primary">{{ msg_type.replace("Msg", "") }}</Text>
+									<template v-if="
+										Object.keys(filters.message_type).filter((t) =>
+											t.toLowerCase().includes(searchTerm.trim().toLowerCase()),
+										).length
+									">
+										<Checkbox v-for="msg_type in Object.keys(filters.message_type).filter((t) =>
+											t.toLowerCase().includes(searchTerm.trim().toLowerCase()),
+										)" v-model="filters.message_type[msg_type]">
+											<Text size="12" weight="500" color="primary">{{ msg_type.replace("Msg", "")
+												}}</Text>
 										</Checkbox>
 									</template>
 									<Flex v-else direction="column" gap="8">
@@ -492,15 +487,18 @@ const handleNext = () => {
 									</Flex>
 								</Flex>
 
-								<Button @click="handleApplyMessageTypeFilters" type="secondary" size="mini" wide>Apply</Button>
+								<Button @click="handleApplyMessageTypeFilters" type="secondary" size="mini"
+									wide>Apply</Button>
 							</Flex>
 						</template>
 					</Popover>
 
-					<DatePicker @on-update="handleUpdateDateFilter" :from="filters.from" :to="filters.to" :minDate="getStartChainDate()" />
+					<DatePicker @on-update="handleUpdateDateFilter" :from="filters.from" :to="filters.to"
+						:minDate="getStartChainDate()" />
 				</Flex>
 
-				<Popover :open="isConfigurePopoverOpen" @on-close="isConfigurePopoverOpen = false" width="150" side="right">
+				<Popover :open="isConfigurePopoverOpen" @on-close="isConfigurePopoverOpen = false" width="150"
+					side="right">
 					<Button @click="isConfigurePopoverOpen = true" type="secondary" size="mini">
 						<Icon name="settings" size="12" color="tertiary" />
 						Configure
@@ -554,24 +552,18 @@ const handleNext = () => {
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Hash</Text></th>
-								<th
-									v-for="column in Object.keys(config.columns).filter((c) => config.columns[c])"
-									@click="handleSort(column)"
-									:class="['time'].includes(column) && $style.sortable"
-								>
+								<th v-for="column in Object.keys(config.columns).filter((c) => config.columns[c])"
+									@click="handleSort(column)" :class="['time'].includes(column) && $style.sortable">
 									<Flex v-if="['time'].includes(column)" align="center" gap="6">
-										<Text size="12" weight="600" color="tertiary" noWrap style="text-transform: capitalize">
+										<Text size="12" weight="600" color="tertiary" noWrap
+											style="text-transform: capitalize">
 											{{ column }}
 										</Text>
-										<Icon
-											v-if="sort.by === column"
-											name="chevron"
-											size="12"
-											color="secondary"
-											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
-										/>
+										<Icon v-if="sort.by === column" name="chevron" size="12" color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }" />
 									</Flex>
-									<Text v-else size="12" weight="600" color="tertiary" noWrap style="text-transform: capitalize">
+									<Text v-else size="12" weight="600" color="tertiary" noWrap
+										style="text-transform: capitalize">
 										{{ column }}
 									</Text>
 								</th>
@@ -579,7 +571,8 @@ const handleNext = () => {
 						</thead>
 
 						<tbody>
-							<tr v-for="tx in transactions" :class="findPFB && !tx.message_types.includes('MsgPayForBlobs') && $style.hide">
+							<tr v-for="tx in transactions"
+								:class="findPFB && !tx.message_types.includes('MsgPayForBlobs') && $style.hide">
 								<td style="width: 1px">
 									<NuxtLink :to="`/tx/${tx.hash}`">
 										<Tooltip :disabled="!tx.hash" position="start">
@@ -587,9 +580,7 @@ const handleNext = () => {
 												<Flex align="center" gap="8">
 													<Icon
 														:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
-														size="13"
-														:color="tx.status === 'success' ? 'green' : 'red'"
-													/>
+														size="13" :color="tx.status === 'success' ? 'green' : 'red'" />
 
 													<Text size="13" weight="600" color="primary" mono>
 														{{ tx.hash.slice(0, 4).toUpperCase() }}
@@ -600,7 +591,8 @@ const handleNext = () => {
 													</Flex>
 
 													<Text size="13" weight="600" color="primary" mono>
-														{{ tx.hash.slice(tx.hash.length - 4, tx.hash.length).toUpperCase() }}
+														{{ tx.hash.slice(tx.hash.length - 4,
+															tx.hash.length).toUpperCase() }}
 													</Text>
 
 													<CopyButton :text="tx.hash" />
@@ -619,16 +611,17 @@ const handleNext = () => {
 														<Icon
 															:name="tx.status === 'success' ? 'check-circle' : 'close-circle'"
 															size="13"
-															:color="tx.status === 'success' ? 'green' : 'red'"
-														/>
+															:color="tx.status === 'success' ? 'green' : 'red'" />
 														<Text size="13" weight="600" color="primary">
-															{{ tx.status === "success" ? "Successful" : "Failed" }} Transaction
+															{{ tx.status === "success" ? "Successful" : "Failed" }}
+															Transaction
 														</Text>
 													</Flex>
 
 													{{ space(tx.hash).toUpperCase() }}
 
-													<Text height="120" color="tertiary" style="max-width: 400px" mono align="left">
+													<Text height="120" color="tertiary" style="max-width: 400px" mono
+														align="left">
 														{{ tx.error }}
 													</Text>
 												</Flex>
@@ -640,7 +633,9 @@ const handleNext = () => {
 									<NuxtLink :to="`/tx/${tx.hash}`">
 										<Flex justify="center" direction="column" gap="4">
 											<Text size="12" weight="600" color="primary">
-												{{ DateTime.fromISO(tx.time).toRelative({ locale: "en", style: "short" }) }}
+												{{ DateTime.fromISO(tx.time).toRelative({
+													locale: "en", style: "short"
+												}) }}
 											</Text>
 											<Text size="12" weight="500" color="tertiary">
 												{{ DateTime.fromISO(tx.time).setLocale("en").toFormat("LLL d, t") }}
@@ -670,7 +665,8 @@ const handleNext = () => {
 								<td v-if="config.columns.signer" style="width: 1px">
 									<NuxtLink :to="`/tx/${tx.hash}`">
 										<Flex align="center">
-											<Text size="12" weight="600" color="primary" mono class="table_column_alias">
+											<Text size="12" weight="600" color="primary" mono
+												class="table_column_alias">
 												{{ $getDisplayName("addresses", tx.signers[0]) }}
 											</Text>
 										</Flex>
@@ -683,7 +679,9 @@ const handleNext = () => {
 												<Flex align="center" gap="6">
 													<Icon name="block" size="14" color="secondary" />
 
-													<Text size="13" weight="600" color="primary" tabular>{{ comma(tx.height) }}</Text>
+													<Text size="13" weight="600" color="primary" tabular>{{
+														comma(tx.height)
+														}}</Text>
 												</Flex>
 											</Outline>
 										</Flex>
@@ -702,9 +700,11 @@ const handleNext = () => {
 
 											<template #content>
 												<Flex align="center" gap="4">
-													<Text size="13" weight="600" color="primary">{{ comma(tx.gas_used) }}</Text>
+													<Text size="13" weight="600" color="primary">{{ comma(tx.gas_used)
+														}}</Text>
 													<Text size="13" weight="600" color="tertiary">/</Text>
-													<Text size="13" weight="600" color="secondary">{{ comma(tx.gas_wanted) }}</Text>
+													<Text size="13" weight="600" color="secondary">{{
+														comma(tx.gas_wanted) }}</Text>
 												</Flex>
 											</template>
 										</Tooltip>
@@ -716,10 +716,8 @@ const handleNext = () => {
 								<td v-if="config.columns.fee" style="width: 1px">
 									<NuxtLink :to="`/tx/${tx.hash}`">
 										<Flex align="center">
-											<AmountInCurrency
-												:amount="{ value: tx.fee, decimal: 6 }"
-												:styles="{ amount: { size: '13' } }"
-											/>
+											<AmountInCurrency :amount="{ value: tx.fee, decimal: 6 }"
+												:styles="{ amount: { size: '13' } }" />
 										</Flex>
 									</NuxtLink>
 								</td>
@@ -859,7 +857,7 @@ const handleNext = () => {
 				padding-left: 16px;
 			}
 
-			& > a {
+			&>a {
 				display: flex;
 
 				min-height: 44px;

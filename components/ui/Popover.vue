@@ -99,7 +99,7 @@ watch(
 .card {
 	overflow: hidden;
 
-	border-radius: 6px;
+	border-radius: 8px;
 	background: var(--card-background);
 	box-shadow: inset 0 0 0 1px var(--op-5), 0 14px 34px rgba(0, 0, 0, 15%), 0 4px 14px rgba(0, 0, 0, 5%);
 

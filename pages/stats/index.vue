@@ -88,13 +88,10 @@ watch(
 
 <template>
 	<Flex direction="column" gap="12" wide :class="$style.wrapper">
-		<Breadcrumbs
-			:items="[
-				{ link: '/', name: 'Explore' },
-				{ link: '/stats', name: `Statistics` },
-			]"
-			:class="$style.breadcrumbs"
-		/>
+		<Breadcrumbs :items="[
+			{ link: '/', name: 'Explore' },
+			{ link: '/stats', name: `Statistics` },
+		]" :class="$style.breadcrumbs" />
 
 		<Flex align="center" gap="8" :class="$style.header">
 			<Icon name="bar-chart" size="16" color="secondary" />
@@ -102,7 +99,8 @@ watch(
 		</Flex>
 
 		<Flex align="center" gap="16" :class="$style.tabs_wrapper">
-			<Text v-for="t in tabs" @click="activeTab = t" size="14" color="tertiary" :class="[$style.tab, activeTab === t && $style.tab_active]">
+			<Text v-for="t in tabs" @click="activeTab = t" size="13" weight=600 color="tertiary"
+				:class="[$style.tab, activeTab === t && $style.tab_active]">
 				{{ t }}
 			</Text>
 		</Flex>
@@ -143,17 +141,19 @@ watch(
 }
 
 .tab {
-	padding-bottom: 16px;
-	
 	cursor: pointer;
 
-	/* transition: all 0.1s ease; */
-}
+	border-bottom: 2px solid transparent;
 
-.tab_active {
-	color: var(--txt-primary);
+	padding-bottom: 12px;
 
-	border-bottom: solid 3px var(--txt-primary);
+	transition: border-bottom .2s ease;
+
+	&.tab_active {
+		color: var(--txt-primary);
+
+		border-bottom: 2px solid var(--txt-primary);
+	}
 }
 
 @media (max-width: 500px) {

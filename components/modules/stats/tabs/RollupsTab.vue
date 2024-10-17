@@ -33,7 +33,7 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-    <Flex align="center" direction="column" gap="12" wide :class="$style.wrapper">
+	<Flex align="center" direction="column" gap="12" wide :class="$style.wrapper">
 		<Flex align="center" direction="column" gap="12" wide>
 			<Flex align="center" justify="between" wide :class="$style.section">
 				<Flex align="center" gap="4">
@@ -46,27 +46,21 @@ onBeforeMount(async () => {
 					Rollups Leaderboard
 				</Button>
 			</Flex>
-            
-            <RollupsBubbleChart v-if="!isLoading" :series="series" />
+
+			<RollupsBubbleChart v-if="!isLoading" :series="series" />
 		</Flex>
 
-		<Flex align="center" direction="column" gap="12" wide>
+		<Flex v-if="series.data" align="center" direction="column" gap="12" wide>
 			<Flex align="center" justify="between" wide :class="$style.section">
 				<Text size="16" weight="600" color="primary" justify="start">Top Rollups</Text>
 			</Flex>
 
 			<Flex align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
-                <PieChartCard
-                    v-if="!isLoading"
-                    v-for="s in series"
-                    :series="s"
-                    :data="series.data"
-                    dounut
-					:class="$style.chart_card"
-                />
-            </Flex>
+				<PieChartCard v-if="!isLoading" v-for="s in series" :series="s" :data="series.data" dounut
+					:class="$style.chart_card" />
+			</Flex>
 		</Flex>
-    </Flex>
+	</Flex>
 </template>
 
 <style module>

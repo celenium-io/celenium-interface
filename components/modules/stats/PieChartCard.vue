@@ -1,16 +1,9 @@
 <script setup>
 /** Vendor */
 import * as d3 from "d3"
-import { DateTime } from "luxon"
-
-/** Stats Components */
-import DiffChip from "@/components/modules/stats/DiffChip.vue"
 
 /** Services */
-import { abbreviate, capitilize, comma, formatBytes } from "@/services/utils"
-
-/** API */
-import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
+import { abbreviate, capitilize, formatBytes } from "@/services/utils"
 
 const props = defineProps({
 	series: {
@@ -32,6 +25,7 @@ const total = ref(0)
 
 const prepareRollupsData = () => {
 	const key = props.series.name
+
 	for (const el of props.data) {
 		resData.value.push({
 			name: el.name,
@@ -63,10 +57,7 @@ const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#55c9ab", "#1
 const buildChart = (chart, data) => {
 	const height = chart.getBoundingClientRect().height
 	const width = chart.getBoundingClientRect().width
-	const marginTop = 6
-	const marginRight = 12
-	const marginBottom = 24
-	const marginLeft = 12
+
 	radius.value = Math.min(width, height) / 2
 	innerRadius.value = props.dounut ? radius.value * 0.6 : 0
 
@@ -200,65 +191,56 @@ onMounted(() => {
 
 <template>
 	<Flex direction="column" justify="start" gap="8" wide :class="$style.wrapper">
-        <Flex align="center" justify="start" wide>
-            <Text size="14" weight="600" color="secondary"> {{ `By ${series.title}` }} </Text>
-        </Flex>
+		<Flex align="center" justify="start" wide>
+			<Text size="14" weight="600" color="secondary"> {{ `By ${series.title}` }} </Text>
+		</Flex>
 
 		<Flex align="center" justify="between" wide>
-            <Flex align="center" direction="column" gap="16" wide :class="$style.legend_wrapper">
-                <Flex v-for="(el, index) in resData"
-                    align="center"
-                    justify="between" wide
-                    :style="{ animationDelay: `${index * 0.1}s` }"
-                    :class="[
-                        `legend-item-${series.name}`,
-                        `legend-item-${series.name}-${index}`,
-                        { 
-                            [$style.legend_item]: true,
-                            [$style.fadein]: true,
-                         }
-                    ]"
-                >
-                    <Flex align="center" justify="start" gap="6">
-                        <Icon v-if="index === 0"
-                            name="crown"
-                            size="12"
-                            :style="{
-                                marginLeft: '-2px',
-                                marginRight: '4px',
-                                fill: color(index),
-                            }"
-                        />
-                        <div v-else
-                            :class="$style.legend"
-                            :style="{
-                                background: color(index),
-                            }"
-                        />
+			<Flex align="center" direction="column" gap="16" wide :class="$style.legend_wrapper">
+				<Flex v-for="(el, index) in resData" align="center" justify="between" wide
+					:style="{ animationDelay: `${index * 0.1}s` }" :class="[
+						`legend-item-${series.name}`,
+						`legend-item-${series.name}-${index}`,
+						{
+							[$style.legend_item]: true,
+							[$style.fadein]: true,
+						}
+					]">
+					<Flex align="center" justify="start" gap="6">
+						<Icon v-if="index === 0" name="crown" size="12" :style="{
+							marginLeft: '-2px',
+							marginRight: '4px',
+							fill: color(index),
+						}" />
+						<div v-else :class="$style.legend" :style="{
+							background: color(index),
+						}" />
 
-                        <Text size="12" weight="600" color="primary"> {{ capitilize(el.name) }} </Text>
-                    </Flex>
+						<Text size="12" weight="600" color="primary"> {{ capitilize(el.name) }} </Text>
+					</Flex>
 
-                    <Flex align="center" gap="6">
-                        <Text size="12" weight="500" color="tertiary">
-                            {{ series.units === 'bytes' ? formatBytes(el.value) : series.units === 'utia' ? abbreviate(el.value) + ' TIA' : abbreviate(el.value) }}
-                        </Text>
+					<Flex align="center" gap="6">
+						<Text size="12" weight="500" color="tertiary">
+							{{ series.units === 'bytes' ? formatBytes(el.value) : series.units === 'utia' ?
+								abbreviate(el.value) + ' TIA' : abbreviate(el.value) }}
+						</Text>
 
-                        <Text size="12" weight="500" color="secondary"> {{ `${el.share > 99 && resData.length > 1 ? 99 : el.share < 1 ? '<1' : el.share.toFixed(0)}%` }} </Text>
-                    </Flex>
-                </Flex>
-            </Flex>
+						<Text size="12" weight="500" color="secondary"> {{ `${el.share > 99 && resData.length > 1 ? 99 :
+							el.share < 1 ? '<1' : el.share.toFixed(0)}%` }} </Text>
+					</Flex>
+				</Flex>
+			</Flex>
 
-            <Flex align="center" :class="$style.chart_wrapper">
-                <Flex ref="chartEl" :class="$style.chart" />
-            </Flex>
+			<Flex align="center" :class="$style.chart_wrapper">
+				<Flex ref="chartEl" :class="$style.chart" />
+			</Flex>
 		</Flex>
 	</Flex>
 </template>
 
 <style module>
 .wrapper {
-    width: 100%;
+	width: 100%;
 	height: 100%;
 
 	background: var(--card-background);
@@ -268,11 +250,11 @@ onMounted(() => {
 }
 
 .legend_wrapper {
-    max-width: 55%;
+	max-width: 55%;
 }
 
 .legend_item {
-    transition: all 0.6s ease;
+	transition: all 0.6s ease;
 }
 
 .legend {
@@ -286,14 +268,14 @@ onMounted(() => {
 }
 
 .chart_wrapper {
-    width: 155px;
+	width: 155px;
 	height: 155px;
 
 	position: relative;
 }
 
 .chart {
-    width: 100%;
+	width: 100%;
 	height: 100%;
 	position: absolute;
 
@@ -305,19 +287,20 @@ onMounted(() => {
 }
 
 .fadein {
-    opacity: 0;
-    animation-name: fadeIn;
-    animation-duration: 1s;
-    animation-fill-mode: forwards;
+	opacity: 0;
+	animation-name: fadeIn;
+	animation-duration: 1s;
+	animation-fill-mode: forwards;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
 }
 
 @media (max-width: 1000px) {

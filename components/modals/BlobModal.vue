@@ -165,23 +165,18 @@ const handlePreviewContent = () => {
 			<Text v-if="notFound" size="12" weight="600" color="tertiary"> Blob not found </Text>
 			<Flex v-else direction="column" gap="24">
 				<template v-if="showPreviewImage">
-					<div v-if="['image/png', 'image/jpeg'].includes(blob.content_type)" ref="imagePreviewEl" :class="$style.preview" />
+					<div v-if="['image/png', 'image/jpeg'].includes(blob.content_type)" ref="imagePreviewEl"
+						:class="$style.preview" />
 					<video v-else-if="blob.content_type === 'video/mp4'" controls>
 						<source type="video/mp4" ref="videoPreviewEl" />
 					</video>
 				</template>
 
 				<Flex v-else direction="column" gap="12">
-					<Flex direction="column" :justify="isLoading || isStopped ? 'center' : 'start'" gap="8" :class="$style.data">
-						<Text
-							v-if="!isLoading && !isStopped"
-							size="13"
-							weight="500"
-							height="160"
-							color="secondary"
-							mono
-							:class="[$style.field, isViewAll && $style.full]"
-						>
+					<Flex direction="column" :justify="isLoading || isStopped ? 'center' : 'start'" gap="8"
+						:class="$style.data">
+						<Text v-if="!isLoading && !isStopped" size="13" weight="500" height="160" color="secondary" mono
+							:class="[$style.field, isViewAll && $style.full]">
 							{{ viewData }}
 						</Text>
 						<Flex v-else-if="isStopped" direction="column" align="center" justify="center" gap="16">
@@ -189,32 +184,30 @@ const handlePreviewContent = () => {
 
 							<Flex direction="column" align="center" gap="8">
 								<Text size="13" weight="600" color="secondary">Download not started</Text>
-								<Text size="12" weight="500" color="tertiary">Auto download for data over 1 Mb is paused</Text>
+								<Text size="12" weight="500" color="tertiary">Auto download for data over 1 Mb is
+									paused</Text>
 							</Flex>
 
-							<Text @click="handleLoadAnyway" size="12" weight="600" color="tertiary" :class="$style.load_btn"
-								>Load anyway</Text
-							>
+							<Text @click="handleLoadAnyway" size="12" weight="600" color="tertiary"
+								:class="$style.load_btn">Load
+								anyway</Text>
 						</Flex>
 						<Flex v-else direction="column" align="center" justify="center" gap="16">
 							<Spinner size="16" />
 
 							<Flex direction="column" align="center" gap="8">
 								<Text size="13" weight="600" color="secondary">Blob is loading</Text>
-								<Text size="12" weight="500" color="tertiary">Loading depends on the size of the blob</Text>
+								<Text size="12" weight="500" color="tertiary">Loading depends on the size of the
+									blob</Text>
 							</Flex>
 
-							<Text size="12" weight="600" color="tertiary">Size: {{ formatBytes(cacheStore.selectedBlob.size) }}</Text>
+							<Text size="12" weight="600" color="tertiary">Size: {{
+								formatBytes(cacheStore.selectedBlob.size) }}</Text>
 						</Flex>
 					</Flex>
 
-					<Button
-						@click="isViewAll = !isViewAll"
-						type="secondary"
-						size="small"
-						wide
-						:disabled="!viewData || viewData?.length < 540"
-					>
+					<Button @click="isViewAll = !isViewAll" type="secondary" size="small" wide
+						:disabled="!viewData || viewData?.length < 540">
 						{{ isViewAll ? "Collapse" : "Expand" }}
 					</Button>
 				</Flex>
@@ -233,7 +226,8 @@ const handlePreviewContent = () => {
 						<Text v-else size="13" weight="600" color="tertiary">Unknown</Text>
 					</Flex>
 
-					<NuxtLink :to="`/tx/${cacheStore.selectedBlob.tx.hash}`" target="_blank" :class="[$style.badge, $style.selectable]">
+					<NuxtLink :to="`/tx/${cacheStore.selectedBlob.tx.hash}`" target="_blank"
+						:class="[$style.badge, $style.selectable]">
 						<Flex direction="column" gap="8">
 							<Text size="12" weight="500" color="secondary"> Transaction </Text>
 
@@ -255,12 +249,14 @@ const handlePreviewContent = () => {
 						</Flex>
 					</NuxtLink>
 
-					<NuxtLink :to="`/block/${cacheStore.selectedBlob.height}`" target="_blank" :class="[$style.badge, $style.selectable]">
+					<NuxtLink :to="`/block/${cacheStore.selectedBlob.height}`" target="_blank"
+						:class="[$style.badge, $style.selectable]">
 						<Flex direction="column" gap="8">
 							<Text size="12" weight="500" color="secondary"> Height </Text>
 
 							<Flex align="center" gap="8">
-								<Text size="13" weight="600" color="primary">{{ comma(cacheStore.selectedBlob.height) }}</Text>
+								<Text size="13" weight="600" color="primary">{{ comma(cacheStore.selectedBlob.height)
+									}}</Text>
 
 								<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
 							</Flex>
@@ -270,7 +266,8 @@ const handlePreviewContent = () => {
 					<Flex direction="column" gap="8" :class="$style.badge">
 						<Text size="12" weight="500" color="secondary"> Size </Text>
 
-						<Text size="13" weight="600" color="primary">{{ formatBytes(cacheStore.selectedBlob.size) }}</Text>
+						<Text size="13" weight="600" color="primary">{{ formatBytes(cacheStore.selectedBlob.size)
+							}}</Text>
 					</Flex>
 				</Flex>
 
@@ -286,8 +283,7 @@ const handlePreviewContent = () => {
 
 								<Text
 									v-if="getNamespaceID(cacheStore.selectedBlob.namespace_id) !== cacheStore.selectedBlob.namespace_name"
-									color="secondary"
-								>
+									color="secondary">
 									({{ cacheStore.selectedBlob.namespace_name }})
 								</Text>
 							</Text>
@@ -324,7 +320,8 @@ const handlePreviewContent = () => {
 						</Flex>
 					</Flex>
 
-					<Flex v-if="cacheStore.selectedBlob.rollup" align="center" justify="between" wide :class="$style.metadata">
+					<Flex v-if="cacheStore.selectedBlob.rollup" align="center" justify="between" wide
+						:class="$style.metadata">
 						<Text size="12" weight="500" color="tertiary">Rollup:</Text>
 
 						<NuxtLink :to="`/rollup/${cacheStore.selectedBlob.rollup.slug}`" target="_blank">
@@ -348,10 +345,7 @@ const handlePreviewContent = () => {
 				<Flex gap="8" :class="$style.col">
 					<Button
 						:link="`/blob?commitment=${cacheStore.selectedBlob.commitment}&hash=${cacheStore.selectedBlob.hash}&height=${cacheStore.selectedBlob.height}`"
-						target="_blank"
-						type="secondary"
-						size="small"
-					>
+						target="_blank" type="secondary" size="small">
 						Open Blob Page
 						<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
 					</Button>
@@ -364,22 +358,12 @@ const handlePreviewContent = () => {
 				</Flex>
 
 				<Flex gap="8" :class="$style.col">
-					<Button
-						@click="isDecode = !isDecode"
-						type="secondary"
-						size="small"
-						:disabled="showPreviewImage || showPreviewText || isLoading"
-					>
+					<Button @click="isDecode = !isDecode" type="secondary" size="small"
+						:disabled="showPreviewImage || showPreviewText || isLoading">
 						{{ isDecode ? "Encode" : "Decode" }} Base64
 					</Button>
-					<Button
-						@click="handlePreviewContent"
-						type="secondary"
-						size="small"
-						:disabled="
-							!['image/png', 'image/jpeg', 'video/mp4', 'text/plain; charset=utf-8'].includes(blob.content_type) || isLoading
-						"
-					>
+					<Button @click="handlePreviewContent" type="secondary" size="small" :disabled="!['image/png', 'image/jpeg', 'video/mp4', 'text/plain; charset=utf-8'].includes(blob.content_type) || isLoading
+						">
 						{{ showPreviewImage || showPreviewText ? "Hide" : "Preview" }} Content
 					</Button>
 				</Flex>
@@ -435,8 +419,7 @@ const handlePreviewContent = () => {
 	max-width: 100%;
 }
 
-.badges {
-}
+.badges {}
 
 .badge {
 	border-radius: 6px;
@@ -513,6 +496,7 @@ const handlePreviewContent = () => {
 	}
 
 	.col {
+
 		& a,
 		button {
 			width: 100%;

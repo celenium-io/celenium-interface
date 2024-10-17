@@ -68,6 +68,7 @@ const getNamespaces = async () => {
 	isRefetching.value = true
 
 	blobs.value = await fetchNamespaces()
+	if (blobs.value.length) cacheStore.selectedBlob = setCachedBlob(blobs.value[0])
 
 	isRefetching.value = false
 
@@ -95,9 +96,8 @@ watch(
 	},
 )
 
-const handleViewBlob = (blob) => {
-	/** normalize the blob */
-	cacheStore.selectedBlob = {
+const setCachedBlob = (blob) => {
+	return {
 		hash: blob.namespace.hash,
 		namespace_id: blob.namespace.namespace_id,
 		namespace_name: blob.namespace.name,
@@ -108,6 +108,11 @@ const handleViewBlob = (blob) => {
 		tx: blob.tx,
 		rollup: blob.rollup,
 	}
+}
+
+const handleViewBlob = (blob) => {
+	/** normalize the blob */
+	cacheStore.selectedBlob = setCachedBlob(blob)
 
 	modalsStore.open("blob")
 }
@@ -183,7 +188,8 @@ const handlePrev = () => {
 									<Tooltip position="start" delay="500">
 										<Flex direction="column" gap="4">
 											<Flex align="center" gap="8">
-												<Text size="12" weight="600" color="primary" mono class="table_column_alias">
+												<Text size="12" weight="600" color="primary" mono
+													class="table_column_alias">
 													{{ $getDisplayName('namespaces', blob.namespace.namespace_id) }}
 												</Text>
 
@@ -192,10 +198,7 @@ const handlePrev = () => {
 
 											<Text
 												v-if="blob.namespace.name !== getNamespaceID(blob.namespace.namespace_id)"
-												size="12"
-												weight="500"
-												color="tertiary"
-											>
+												size="12" weight="500" color="tertiary">
 												{{ blob.namespace.name }}
 											</Text>
 										</Flex>
