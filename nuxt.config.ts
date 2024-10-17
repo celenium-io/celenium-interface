@@ -132,6 +132,10 @@ export default defineNuxtConfig({
 		enabled: false,
 	},
 
+	nitro: {
+		minify: false,
+	},
+
 	vite: {
 		define: {
 			global: "globalThis",
@@ -141,7 +145,7 @@ export default defineNuxtConfig({
 				"unenv/runtime/node/buffer/index/": path.resolve(__dirname, "./node_modules/buffer/index"),
 			},
 		},
-		plugins: [wasm(), nodePolyfills()],
+		plugins: [wasm(), topLevelAwait(), nodePolyfills()],
 		worker: {
 			format: "es",
 			plugins: [wasm(), topLevelAwait()],

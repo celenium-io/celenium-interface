@@ -1,9 +1,6 @@
 <script setup>
-import MyWorker from "@/assets/workers/worker.js?worker&url"
-
 /** Vendor */
 import { DateTime } from "luxon"
-import { NodeClient, NodeConfig, Network } from "@/services/lumina-node-wasm/lumina_node_wasm.js"
 
 /** UI */
 import Modal from "@/components/ui/Modal.vue"
@@ -130,31 +127,31 @@ const selectedNetwork = ref()
 const { hostname } = useRequestURL()
 switch (hostname) {
 	case "celenium.io":
-		selectedNetwork.value = Network.Mainnet
+		selectedNetwork.value = 0
 		break
 
 	case "mocha-4.celenium.io":
-		selectedNetwork.value = Network.Mocha
+		selectedNetwork.value = 2
 		break
 
 	case "mocha.celenium.io":
-		selectedNetwork.value = Network.Mocha
+		selectedNetwork.value = 2
 		break
 
 	case "arabica.celenium.io":
-		selectedNetwork.value = Network.Arabica
+		selectedNetwork.value = 1
 		break
 
 	case "dev.celenium.io":
-		selectedNetwork.value = Network.Arabica
+		selectedNetwork.value = 1
 		break
 
 	case "localhost":
-		selectedNetwork.value = Network.Arabica
+		selectedNetwork.value = 1
 		break
 
 	default:
-		selectedNetwork.value = Network.Arabica
+		selectedNetwork.value = 1
 		break
 }
 
@@ -232,7 +229,9 @@ const getEventsLogIconColor = () => {
 }
 
 const initConfig = () => {
-	config.value = NodeConfig.default(selectedNetwork.value)
+	const { $lumina } = useNuxtApp()
+
+	config.value = $lumina.NodeConfig.default(selectedNetwork.value)
 	nodeStore.rawBootnodes = config.value.bootnodes
 	nodeStore.bootnodes = config.value.bootnodes
 }
@@ -310,7 +309,10 @@ const handleStop = async () => {
 const handleStart = async () => {
 	if (disableStart.value) return
 
+	const { $lumina } = useNuxtApp()
+
 	bc.postMessage("start")
+
 
 	nodeStore.status = StatusMap.Starting
 	amp.log("sampling:start", { network: networks[selectedNetwork.value], mobile: isMobile() })
@@ -379,8 +381,8 @@ const handleStart = async () => {
 			}
 		}
 
-		const worker = new Worker(MyWorker, { type: "module" })
-		node.value = await new NodeClient(worker)
+		const worker = new Worker(new URL("@/assets/workers/worker.js?url", import.meta.url), { type: "module" })
+		node.value = await new $lumina.NodeClient(worker)
 
 		const events = await node.value.eventsChannel()
 		events.onmessage = onNodeEvent
@@ -441,7 +443,8 @@ watch(
 				<Flex direction="column" gap="6">
 					<Text size="12" weight="600" color="primary">Welcome to Light Node runner</Text>
 					<Text size="12" weight="500" color="tertiary" height="140">
-						You can run a light node directly in your browser from your computer or from your phone. Read more details in our
+						You can run a light node directly in your browser from your computer or from your phone. Read
+						more details in our
 						documentation.
 					</Text>
 
@@ -449,7 +452,8 @@ watch(
 						<NuxtLink to="https://docs.celenium.io/features/light-node" target="_blank">
 							<Text size="12" weight="600" color="blue">Documentation</Text>
 						</NuxtLink>
-						<NuxtLink @click="showOnboardingBanner = false" :to="null" target="_blank" style="cursor: pointer">
+						<NuxtLink @click="showOnboardingBanner = false" :to="null" target="_blank"
+							style="cursor: pointer">
 							<Text size="12" weight="600" color="blue">Hide</Text>
 						</NuxtLink>
 					</Flex>
@@ -458,23 +462,17 @@ watch(
 
 			<Flex direction="column" gap="24">
 				<Flex direction="column" gap="20" :class="$style.card">
-					<div
-						v-if="[StatusMap.Starting, StatusMap.Started, StatusMap.Failed].includes(status)"
-						:class="[
-							$style.bg,
-							status === StatusMap.Starting && $style.starting,
-							status === StatusMap.Started && $style.started,
-							status === StatusMap.Failed && $style.failed,
-						]"
-					/>
+					<div v-if="[StatusMap.Starting, StatusMap.Started, StatusMap.Failed].includes(status)" :class="[
+						$style.bg,
+						status === StatusMap.Starting && $style.starting,
+						status === StatusMap.Started && $style.started,
+						status === StatusMap.Failed && $style.failed,
+					]" />
 
 					<Flex justify="between" align="center">
 						<Flex align="center" gap="6">
-							<Icon
-								:name="status === StatusMap.Started ? 'zap-circle' : 'play-circle'"
-								size="14"
-								:color="(status === StatusMap.Started && 'brand') || (status === StatusMap.Failed && 'red') || 'secondary'"
-							/>
+							<Icon :name="status === StatusMap.Started ? 'zap-circle' : 'play-circle'" size="14"
+								:color="(status === StatusMap.Started && 'brand') || (status === StatusMap.Failed && 'red') || 'secondary'" />
 							<Text size="12" weight="600" color="secondary">
 								{{ StatusLabelMap[status] }}
 							</Text>
@@ -483,7 +481,8 @@ watch(
 							</Text>
 						</Flex>
 
-						<Icon @click="handleOpenSettings" name="settings" size="14" color="secondary" style="cursor: pointer" />
+						<Icon @click="handleOpenSettings" name="settings" size="14" color="secondary"
+							style="cursor: pointer" />
 					</Flex>
 
 					<Flex direction="column" gap="8">
@@ -495,37 +494,30 @@ watch(
 							</Text>
 							<Spinner
 								v-else-if="!backwardsSyncProgress && [StatusMap.Starting, StatusMap.Started].includes(status)"
-								size="12"
-							/>
+								size="12" />
 							<Text v-else size="12" weight="600" color="tertiary">0%</Text>
 						</Flex>
 
 						<Flex align="center" justify="between" gap="4">
-							<Flex
-								v-for="group in 3"
-								wide
-								align="center"
-								gap="4"
-								:class="[
-									$style.group,
-									status === StatusMap.Starting && $style.starting,
-									status === StatusMap.Started && $style.started,
-									status === StatusMap.Initialized && $style.initialized,
-								]"
-							>
-								<div
-									v-for="bar in 5"
-									:class="[$style.bar, ((bar + (group - 1) * 5) * 100) / 15 <= backwardsSyncProgress && $style.active]"
-								/>
+							<Flex v-for="group in 3" wide align="center" gap="4" :class="[
+								$style.group,
+								status === StatusMap.Starting && $style.starting,
+								status === StatusMap.Started && $style.started,
+								status === StatusMap.Initialized && $style.initialized,
+							]">
+								<div v-for="bar in 5"
+									:class="[$style.bar, ((bar + (group - 1) * 5) * 100) / 15 <= backwardsSyncProgress && $style.active]" />
 							</Flex>
 						</Flex>
 					</Flex>
 
 					<Flex direction="column" gap="12">
 						<Flex align="center" gap="8" :class="$style.badges">
-							<Flex align="center" gap="6" :class="[$style.height_badge, backwardsSyncProgress === 100 && $style.synced]">
+							<Flex align="center" gap="6"
+								:class="[$style.height_badge, backwardsSyncProgress === 100 && $style.synced]">
 								<Icon name="zap-circle" size="14" color="black" />
-								<Text size="12" weight="600" color="black" mono>{{ frontHead ? comma(frontHead) : "TBD" }}</Text>
+								<Text size="12" weight="600" color="black" mono>{{ frontHead ? comma(frontHead) : "TBD"
+									}}</Text>
 								<Text size="12" weight="600" color="semiblack" mono>BLOCK HEIGHT</Text>
 							</Flex>
 							<Flex align="center" gap="6" :class="$style.square_badge">
@@ -556,30 +548,24 @@ watch(
 						<Flex direction="column" gap="6">
 							<Text size="12" weight="600" color="primary">Caution about running a node on a mobile</Text>
 							<Text size="12" weight="500" color="tertiary" height="140">
-								Running a light node on mobile devices may affect the performance of your device and cause your phone to
+								Running a light node on mobile devices may affect the performance of your device and
+								cause your phone to
 								discharge quickly.
 							</Text>
 						</Flex>
 
-						<Text @click="showMobileWarning = false" size="12" weight="600" color="blue">Hide this message</Text>
+						<Text @click="showMobileWarning = false" size="12" weight="600" color="blue">Hide this
+							message</Text>
 					</Flex>
 				</Flex>
 
 				<Flex direction="column" gap="12">
 					<Flex direction="column" gap="4" :class="$style.secondary_card">
-						<Flex
-							@click="showDetails = !showDetails"
-							align="center"
-							justify="between"
-							:class="[$style.header, status !== StatusMap.Started && $style.disabled]"
-						>
+						<Flex @click="showDetails = !showDetails" align="center" justify="between"
+							:class="[$style.header, status !== StatusMap.Started && $style.disabled]">
 							<Text size="12" weight="600" color="secondary">Details</Text>
-							<Icon
-								name="chevron"
-								size="12"
-								color="secondary"
-								:style="{ transform: `rotate(${showDetails ? '180deg' : '0'})` }"
-							/>
+							<Icon name="chevron" size="12" color="secondary"
+								:style="{ transform: `rotate(${showDetails ? '180deg' : '0'})` }" />
 						</Flex>
 
 						<Flex v-if="showDetails" direction="column" gap="12" :class="$style.content">
@@ -593,7 +579,8 @@ watch(
 									</Text>
 									<Text v-else size="12" weight="600" color="tertiary">Unknown</Text>
 
-									<template #content> ~{{ comma(approxSyncingWindowSize) }} blocks or ~30 days</template>
+									<template #content> ~{{ comma(approxSyncingWindowSize) }} blocks or ~30
+										days</template>
 								</Tooltip>
 							</Flex>
 
@@ -602,7 +589,8 @@ watch(
 
 								<Flex align="center" gap="8">
 									<template v-if="pid">
-										<Text size="12" weight="600" color="secondary">{{ pid.slice(0, 4) }}...{{ pid.slice(-4) }}</Text>
+										<Text size="12" weight="600" color="secondary">{{ pid.slice(0, 4) }}...{{
+											pid.slice(-4) }}</Text>
 										<CopyButton :text="pid" size="12" />
 									</template>
 									<Text v-else size="12" weight="600" color="tertiary">Unknown</Text>
@@ -626,28 +614,17 @@ watch(
 					</Flex>
 
 					<Flex direction="column" gap="4" :class="$style.secondary_card">
-						<Flex
-							@click="showLogs = !showLogs"
-							align="center"
-							justify="between"
-							:class="[$style.header, status !== StatusMap.Started && $style.disabled]"
-						>
+						<Flex @click="showLogs = !showLogs" align="center" justify="between"
+							:class="[$style.header, status !== StatusMap.Started && $style.disabled]">
 							<Flex align="center" gap="6">
 								<Text size="12" weight="600" color="secondary">Events</Text>
-								<Icon
-									name="zap"
-									size="12"
+								<Icon name="zap" size="12"
 									:color="status === StatusMap.Started ? getEventsLogIconColor() : 'tertiary'"
-									:class="[status === StatusMap.Started && $style.events_icon, $style[getEventsLogIconColor()]]"
-								/>
+									:class="[status === StatusMap.Started && $style.events_icon, $style[getEventsLogIconColor()]]" />
 							</Flex>
 
-							<Icon
-								name="chevron"
-								size="12"
-								color="secondary"
-								:style="{ transform: `rotate(${showLogs ? '180deg' : '0'})` }"
-							/>
+							<Icon name="chevron" size="12" color="secondary"
+								:style="{ transform: `rotate(${showLogs ? '180deg' : '0'})` }" />
 						</Flex>
 
 						<Flex v-if="showLogs" direction="column" gap="12" :class="$style.raw_events">
@@ -656,53 +633,40 @@ watch(
 									{{ status === StatusMap.Started ? `Latest 20 events` : "No events" }}
 								</Text>
 
-								<Flex
-									@click="isPausedReceivingEvents = !isPausedReceivingEvents"
-									align="center"
-									gap="4"
-									style="cursor: pointer"
-								>
-									<Icon :name="isPausedReceivingEvents ? 'play-circle' : 'stop-circle'" size="12" color="primary" />
+								<Flex @click="isPausedReceivingEvents = !isPausedReceivingEvents" align="center" gap="4"
+									style="cursor: pointer">
+									<Icon :name="isPausedReceivingEvents ? 'play-circle' : 'stop-circle'" size="12"
+										color="primary" />
 									<Text size="12" weight="600" color="secondary">
 										{{ isPausedReceivingEvents ? "Receive Events" : "Pause Events" }}
 									</Text>
 								</Flex>
 							</Flex>
 
-							<Text v-for="event in rawEvents.slice(0, 20)" size="11" weight="500" color="tertiary" height="140">
+							<Text v-for="event in rawEvents.slice(0, 20)" size="11" weight="500" color="tertiary"
+								height="140">
 								{{ event }}
 							</Text>
 						</Flex>
 					</Flex>
 
 					<Flex direction="column" gap="4" :class="$style.secondary_card">
-						<Flex
-							@click="showSquare = !showSquare"
-							align="center"
-							justify="between"
-							:class="[$style.header, status !== StatusMap.Started && $style.disabled]"
-						>
+						<Flex @click="showSquare = !showSquare" align="center" justify="between"
+							:class="[$style.header, status !== StatusMap.Started && $style.disabled]">
 							<Text size="12" weight="600" color="secondary">
 								Square Visualization
-								<Text v-if="status === StatusMap.Started" color="tertiary">for {{ comma(frontHead) }}</Text>
+								<Text v-if="status === StatusMap.Started" color="tertiary">for {{ comma(frontHead)
+									}}</Text>
 							</Text>
 
-							<Icon
-								name="chevron"
-								size="12"
-								color="secondary"
-								:style="{ transform: `rotate(${showSquare ? '180deg' : '0'})` }"
-							/>
+							<Icon name="chevron" size="12" color="secondary"
+								:style="{ transform: `rotate(${showSquare ? '180deg' : '0'})` }" />
 						</Flex>
 
 						<Flex v-if="showSquare" direction="column" :class="$style.content">
 							<Flex v-for="column in squareSize" wide>
-								<Flex
-									v-for="row in squareSize"
-									align="center"
-									wide
-									:class="[$style.square, shares[`${row},${column}`] && $style.active]"
-								>
+								<Flex v-for="row in squareSize" align="center" wide
+									:class="[$style.square, shares[`${row},${column}`] && $style.active]">
 								</Flex>
 							</Flex>
 						</Flex>
@@ -710,13 +674,8 @@ watch(
 				</Flex>
 
 				<Flex align="center" direction="column" gap="12">
-					<Button
-						@click="handleStart"
-						type="secondary"
-						size="small"
-						wide
-						:disabled="[StatusMap.Starting, StatusMap.Started].includes(status) || !nodeStore.bootnodes.length || disableStart"
-					>
+					<Button @click="handleStart" type="secondary" size="small" wide
+						:disabled="[StatusMap.Starting, StatusMap.Started].includes(status) || !nodeStore.bootnodes.length || disableStart">
 						<Icon v-if="status === StatusMap.Started" name="zap-circle" size="12" color="brand" />
 						<template v-if="disableStart"> Node is already running in other tab </template>
 						<template v-else-if="status === StatusMap.Started">
@@ -725,17 +684,19 @@ watch(
 						<template v-else> Start Sampling </template>
 					</Button>
 
-					<Button v-if="status === StatusMap.Started" @click="handleStop" type="tertiary" size="small" wide> Stop the light node </Button>
+					<Button v-if="status === StatusMap.Started" @click="handleStop" type="tertiary" size="small" wide>
+						Stop the light
+						node </Button>
 
 					<Flex align="center" direction="column" gap="4">
 						<Text size="11" weight="500" color="tertiary">
 							Read more about the light node on our
-							<a href="https://docs.celenium.io/features/light-node" target="_blank" style="color: var(--txt-secondary)"
-								>docs</a
-							>.
+							<a href="https://docs.celenium.io/features/light-node" target="_blank"
+								style="color: var(--txt-secondary)">docs</a>.
 						</Text>
 						<Text size="11" weight="500" color="tertiary">
-							Powered by <a href="https://lumina.rs" target="_blank" style="color: var(--txt-secondary)">Lumina.rs</a>
+							Powered by <a href="https://lumina.rs" target="_blank"
+								style="color: var(--txt-secondary)">Lumina.rs</a>
 						</Text>
 					</Flex>
 
@@ -743,14 +704,17 @@ watch(
 						<Icon name="info" size="16" color="yellow" />
 
 						<Flex direction="column" gap="6">
-							<Text size="12" weight="600" color="primary">Something went wrong and the node didn't started</Text>
+							<Text size="12" weight="600" color="primary">Something went wrong and the node didn't
+								started</Text>
 							<Text size="12" weight="500" color="tertiary" height="140">
-								An unexpected error may have occurred. Try refreshing the page and trying again. If the error is still
+								An unexpected error may have occurred. Try refreshing the page and trying again. If the
+								error is still
 								repeated, report to our GitHub.
 							</Text>
 
 							<Flex align="center" gap="12">
-								<NuxtLink to="https://github.com/celenium-io/celenium-interface/issues/new" target="_blank">
+								<NuxtLink to="https://github.com/celenium-io/celenium-interface/issues/new"
+									target="_blank">
 									<Text size="12" weight="600" color="blue">Open Issue Tracker</Text>
 								</NuxtLink>
 							</Flex>
@@ -784,34 +748,28 @@ watch(
 	right: 0;
 
 	&.starting {
-		background: radial-gradient(
-				ellipse farthest-corner at 50% 0%,
+		background: radial-gradient(ellipse farthest-corner at 50% 0%,
 				rgba(230, 197, 37, 25%) 0%,
 				rgba(230, 197, 37, 5%) 70%,
-				rgba(230, 197, 37, 0%) 100%
-			),
+				rgba(230, 197, 37, 0%) 100%),
 			radial-gradient(ellipse at bottom, rgba(230, 197, 37, 10%), transparent);
 		animation: colorChange 6s infinite alternate;
 	}
 
 	&.started {
-		background: radial-gradient(
-				ellipse farthest-corner at 50% 0%,
+		background: radial-gradient(ellipse farthest-corner at 50% 0%,
 				rgba(24, 210, 165, 25%) 0%,
 				rgba(24, 210, 165, 5%) 70%,
-				rgba(24, 210, 165, 0%) 100%
-			),
+				rgba(24, 210, 165, 0%) 100%),
 			radial-gradient(ellipse at bottom, rgba(24, 210, 165, 10%), transparent);
 		animation: colorChange 6s infinite alternate;
 	}
 
 	&.failed {
-		background: radial-gradient(
-				ellipse farthest-corner at 50% 0%,
+		background: radial-gradient(ellipse farthest-corner at 50% 0%,
 				rgba(235, 87, 87, 25%) 0%,
 				rgba(235, 87, 87, 5%) 70%,
-				rgba(235, 87, 87, 0%) 100%
-			),
+				rgba(235, 87, 87, 0%) 100%),
 			radial-gradient(ellipse at bottom, rgba(235, 87, 87, 10%), transparent);
 		animation: colorChange 6s infinite alternate;
 	}
@@ -823,11 +781,13 @@ watch(
 		left: -200px;
 		right: 0;
 	}
+
 	50% {
 		opacity: 0.5;
 		left: 0;
 		right: -200px;
 	}
+
 	100% {
 		opacity: 1;
 		left: -200px;
