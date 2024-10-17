@@ -17,10 +17,13 @@ import { useNodeStore } from "@/store/node"
 import { useAppStore } from "@/store/app"
 import { useBookmarksStore } from "@/store/bookmarks"
 import { useSettingsStore } from "@/store/settings"
+import { useEnumStore } from "@/store/enums"
 const nodeStore = useNodeStore()
 const appStore = useAppStore()
 const bookmarksStore = useBookmarksStore()
 const settingsStore = useSettingsStore()
+const enumStore = useEnumStore()
+
 bookmarksStore.$subscribe((mutation, state) => {
 	localStorage.setItem("bookmarks", JSON.stringify(state.bookmarks))
 })
@@ -51,6 +54,8 @@ onMounted(async () => {
 
 	const gasPrice = await fetchGasPrice()
 	appStore.gas = gasPrice
+
+	enumStore.init()
 
 	window.onbeforeunload = function () {
 		Socket.close()

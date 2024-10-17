@@ -1,10 +1,11 @@
 /** Services */
 import { useServerURL } from "@/services/config"
 
-export const fetchRollups = async ({ limit, offset, sort, sort_by }) => {
+export const fetchRollups = async ({ categories, limit, offset, sort, sort_by }) => {
 	try {
 		const url = new URL(`${useServerURL()}/rollup`)
 
+		if (categories) url.searchParams.append("category", categories)
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 		if (sort) url.searchParams.append("sort", sort)

@@ -14,6 +14,11 @@ export const useCacheStore = defineStore("cache", () => {
 		icon: null,
 	})
 
+	const chart = reactive({
+		series: null,
+		view: null,
+	})
+
 	const current = reactive({
 		_target: null,
 
@@ -55,7 +60,7 @@ export const useCacheStore = defineStore("cache", () => {
 		ts: null,
 	})
 
-	return { selectedBlob, selectedCommitment, qr, current, tx }
+	return { chart, current, qr, selectedBlob, selectedCommitment, tx }
 })
 
 if (import.meta.hot) {

@@ -45,7 +45,19 @@ watch(
 			const triggerRect = triggerEl.value.getBoundingClientRect()
 
 			popoverStyles.top = `${triggerRect.y + triggerRect.height + 8}px`
-			popoverStyles[props.side] = `${props.side === "left" ? triggerRect.x : window.innerWidth - triggerRect.x - triggerRect.width}px`
+			switch (props.side) {
+				case "left":
+					popoverStyles[props.side] = `${triggerRect.x}px`
+					break
+				case "right":
+					popoverStyles[props.side] = `${window.innerWidth - triggerRect.x - triggerRect.width}px`
+					break
+				case "center":
+					popoverStyles.left = `${Math.round(triggerRect.x / 2)}px`
+					break
+			}
+
+			// popoverStyles[props.side] = `${props.side === "left" ? triggerRect.x : window.innerWidth - triggerRect.x - triggerRect.width}px`
 
 			document.addEventListener("scroll", onClose)
 			document.addEventListener("keydown", onKeydown)
