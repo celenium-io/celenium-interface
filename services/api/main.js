@@ -18,3 +18,12 @@ export const fetchConstants = async () => {
 		console.error(error)
 	}
 }
+
+export const fetchEnums = async () => {
+	try {
+		const data = await $fetch(`${useServerURL()}/enums`)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}

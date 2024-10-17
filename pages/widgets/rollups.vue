@@ -11,10 +11,14 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { formatBytes, comma, truncateDecimalPart, abbreviate } from "@/services/utils"
+import { formatBytes, comma, truncateDecimalPart, abbreviate, capitilize } from "@/services/utils"
 
 /** API */
 import { fetchRollups, fetchRollupsCount } from "@/services/api/rollup"
+
+/** Stores */
+import { useEnumStore } from "@/store/enums"
+const enumStore = useEnumStore()
 
 useHead({
 	title: "Rollups - Celestia Explorer",
@@ -71,20 +75,53 @@ definePageMeta({
 const route = useRoute()
 const router = useRouter()
 
-const isRefetching = ref(false)
+const isLoading = ref(false)
 const rollups = ref([])
 const count = ref(0)
-
-const utiaPerMB = (rollup) => {
-	let totalRollupMB = rollup.size / (1024 * 1024)
-
-	return rollup.fee / totalRollupMB
-}
 
 const sort = reactive({
 	by: "size",
 	dir: "desc",
 })
+
+// const categories = computed(() => {
+// 	let res = enumStore.enums.rollupCategories
+// 		.map((c, i) => {
+// 			if (c === 'uncategorized') {
+// 				return {
+// 					alias: c,
+// 					title: 'other',
+// 					order: 99,
+// 				}
+// 			} else {
+// 				return {
+// 					alias: c,
+// 					title: c,
+// 					order: i,
+// 				}
+// 			}
+// 		})
+	
+// 	return res.sort((a, b) => a.order - b.order)
+// })
+const categories = computed(() => {
+	let res = []
+	if (enumStore.enums.rollupCategories.length) {
+		res = enumStore.enums.rollupCategories.slice(1)
+		res.push('other')
+	}
+	
+	return res	
+})
+const selectedCategories = ref([])
+
+const handleSelectCategory = (category) => {
+	if (selectedCategories.value.includes(category)) {
+		selectedCategories.value = selectedCategories.value.filter(c => c !== category)
+	} else {
+		selectedCategories.value.push(category)
+	}
+}
 
 const getRollupsCount = async () => {
 	const { data: rollupsCount } = await fetchRollupsCount()
@@ -98,9 +135,10 @@ const page = ref(route.query.page ? parseInt(route.query.page) : 1)
 const pages = computed(() => Math.ceil(count.value / limit.value))
 
 const getRollups = async () => {
-	isRefetching.value = true
+	isLoading.value = true
 
 	const data = await fetchRollups({
+		categories: selectedCategories.value.map(c => c === 'other' ? 'uncategorized' : c).join(','),
 		limit: limit.value,
 		offset: (page.value - 1) * limit.value,
 		sort: sort.dir,
@@ -109,26 +147,16 @@ const getRollups = async () => {
 
 	rollups.value = data
 
-	rollups.value.forEach(r => {
+	rollups.value?.forEach(r => {
 		r.size_graph = Math.max(Math.round(r.size_pct * 100, 2), 1)
 		r.blobs_count_graph = Math.max(Math.round(r.blobs_count_pct * 100, 2), 1)
 		r.fee_graph = Math.max(Math.round(r.fee_pct * 100, 2), 1)
 	})
 
-	isRefetching.value = false
+	isLoading.value = false
 }
 
-getRollups()
-
-/** Refetch rollups */
-watch(
-	() => page.value,
-	async () => {
-		getRollups()
-
-		router.replace({ query: { page: page.value } })
-	},
-)
+await getRollups()
 
 const expanded = ref({})
 const expand = (rollup) => {
@@ -138,14 +166,14 @@ const expand = (rollup) => {
 		expanded.value = rollup
 	}
 }
-const share = (r, metric) => {
-	return {
-		name: expanded.value.name,
-		value: Math.round(r[`${metric}_pct`] * 100, 2),
-	}
+
+const detailsStyle = (slug) => {
+	return expanded.value.slug === slug
+        ? { maxHeight: '500px', opacity: 1, transition: 'max-height 0.5s ease, opacity 0.5s ease' }
+        : { maxHeight: '0px', opacity: 0, transition: 'max-height 0.5s ease, opacity 0.5s ease' }
 }
 
-const handleSort = (by) => {
+const handleSort = async (by) => {
 	switch (sort.dir) {
 		case "desc":
 			if (sort.by == by) sort.dir = "asc"
@@ -161,7 +189,7 @@ const handleSort = (by) => {
 	if (page.value !== 1) {
 		page.value = 1
 	} else {
-		getRollups()
+		await getRollups()
 	}
 }
 
@@ -199,29 +227,50 @@ onMounted(() => {
 onBeforeUnmount(() => {
 	window.removeEventListener("resize", barWidthCalculation)
 })
+
+watch(
+	() => page.value,
+	async () => {
+		await getRollups()
+
+		router.replace({ query: { page: page.value } })
+	},
+)
+
+watch(
+	() => selectedCategories.value.length,
+	async () => {
+		if (page.value !== 1) {
+			page.value = 1
+		} else {
+			await getRollups()
+		}
+	}
+)
 </script>
 
 <template>
 	<Flex direction="column" wide :class="$style.wrapper" gap="16">
 		<Flex ref="headerEl" align="center" justify="between" :class="$style.actions">
 			<Flex align="center" gap="6">
-				<!-- <Flex align="center" gap="4" :class="$style.chip">
+				<Flex
+					v-if="categories.length"
+					v-for="c in categories"
+					@click="handleSelectCategory(c)"
+					align="center"
+					gap="4"
+					:class="[$style.chip, selectedCategories.includes(c) && $style.active]"
+				>
 					<Flex align="center" gap="4" :class="$style.content">
-						<Text size="12" weight="600" color="primary"> Size </Text>
+						<Text size="12" weight="600" color="primary"> {{ c === 'nft' ? c.toUpperCase() : capitilize(c) }} </Text>
 					</Flex>
 				</Flex>
-
-				<Flex align="center" gap="4" :class="$style.chip">
-					<Flex align="center" gap="4" :class="$style.content">
-						<Text size="12" weight="600" color="primary"> Blobs </Text>
-					</Flex>
-				</Flex>
-
-				<Flex align="center" gap="4" :class="$style.chip">
-					<Flex align="center" gap="4" :class="$style.content">
-						<Text size="12" weight="600" color="primary"> Fee </Text>
-					</Flex>
-				</Flex> -->
+				<Skeleton
+					v-else
+					v-for="i in 3"
+					w="60"
+					h="22"
+				/>
 			</Flex>
 
 			<Flex align="center" gap="12">
@@ -293,12 +342,12 @@ onBeforeUnmount(() => {
 		</Flex>
 
 		<Flex
-			v-if="rollups"
+			v-if="rollups.length"
 			v-for="r in rollups"
 			align="start"
 			direction="column"
 			gap="24"
-			:class="[$style.row, expanded.slug === r.slug && $style.row_expanded]"
+			:class="[isLoading && $style.disabled, $style.row, expanded.slug === r.slug && $style.row_expanded]"
 		>
 			<Flex ref="rowEl" @click="expand(r)" align="center" justify="between" wide>
 				<Flex align="center" gap="12">
@@ -353,9 +402,9 @@ onBeforeUnmount(() => {
 					/>
 				</Flex>
 			</Flex>
-
+			<transition name="expand">
 			<Flex
-				v-show="expanded.slug === r.slug"
+				v-if="expanded.slug === r.slug"
 				align="center"
 				direction="column"
 				gap="16"
@@ -458,7 +507,15 @@ onBeforeUnmount(() => {
 					</NuxtLink>
 				</Flex>
 			</Flex>
+			</transition>
 		</Flex>
+
+		<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+            <Text size="13" weight="600" color="secondary" align="center"> No rollups found </Text>
+            <Text size="12" weight="500" height="160" color="tertiary" align="center">
+                There are no rollups to display
+            </Text>
+        </Flex>
 	</Flex>
 </template>
 
@@ -470,19 +527,19 @@ onBeforeUnmount(() => {
 }
 
 .row {
-	height: 60px;
+	min-height: 60px;
 
 	border-top: 1px solid var(--op-5);
 
 	cursor: pointer;
 
-	padding: 16px 16px;
+	padding: 16px 16px 0 16px;
 
 	transition: all 0.5s ease;
 }
 
 .row_expanded {
-	height: 240px;
+	/* max-height: 240px; */
 
 	transition: all 0.5s ease;
 }
@@ -521,7 +578,21 @@ onBeforeUnmount(() => {
 .rollup_info {
 	padding-left: 52px;
 
-	transition: all 0.2s ease;
+	/* transition: all 0.2s ease; */
+
+	overflow: hidden;
+	max-height: 240px;
+	opacity: 0;
+	/* transition: max-height 0.5s ease, opacity 0.5s ease; */
+}
+
+.expand-enter-active, .expand-leave-active {
+  transition: max-height 5s ease, opacity 5s ease;
+}
+
+.expand-enter, .expand-leave-to {
+  max-height: 0;
+  opacity: 0;
 }
 
 .validator_bar {
@@ -539,6 +610,18 @@ onBeforeUnmount(() => {
 .chip {
     box-shadow: inset 0 0 0 1px var(--op-15);
     border-radius: 10px;
+	cursor: pointer;
+
+	transition: all 0.2s ease;
+
+	&:active {
+		scale: 0.95;
+	}
+
+	&.active {
+		background-color: var(--card-background);
+		box-shadow: inset 0 0 0 1px var(--brand);
+	}
 }
 
 .content {
@@ -566,6 +649,15 @@ a {
 			fill: var(--txt-secondary);
 		}		
 	}
+}
+
+.disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.empty {
+	padding: 16px 0;
 }
 
 @media (max-width: 500px) {
