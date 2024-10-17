@@ -6,7 +6,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Utils */
 import { connect, syncBalance, getAccounts, disconnect } from "~/services/wallet"
-import { getNetworkName } from "@/services/utils/general"
+import { getNetworkName, isMainnet } from "@/services/utils/general"
 import amp from "@/services/amp"
 
 /** Store */
@@ -124,7 +124,7 @@ const handleConnect = async (target) => {
 					</Tooltip>
 
 					<Tooltip wide>
-						<Flex @click="handleConnect('leap')" wide align="center" justify="between" :class="$style.wallet">
+						<Flex @click="handleConnect('leap')" wide align="center" justify="between" :class="[$style.wallet, !isMainnet() && $style.disabled]">
 							<Flex align="center" gap="12">
 								<img src="@/assets/logos/leap.png" />
 								<Text size="14" weight="600" color="primary">Leap Wallet</Text>
@@ -139,9 +139,11 @@ const handleConnect = async (target) => {
 
 						<template #content>
 							{{
-								hasLeap
-									? "Leap is found in your extensions and ready to connect."
-									: "Leap is not found in your extensions, install it."
+								!isMainnet()
+									? "Temporarily unavailable for test networks."
+									: hasLeap
+										? "Leap is found in your extensions and ready to connect."
+										: "Leap is not found in your extensions, install it."
 							}}
 						</template>
 					</Tooltip>
@@ -224,6 +226,12 @@ const handleConnect = async (target) => {
 	}
 
 	transition: all 0.2s ease;
+
+	&.disabled {
+		opacity: 0.5;
+		cursor: default;
+		pointer-events: none;
+	}
 
 	&:hover {
 		box-shadow: inset 0 0 0 1px var(--op-10);

@@ -247,6 +247,7 @@ watch(
 		}
 	}
 )
+// transition mode out-in and v-if v-else
 </script>
 
 <template>
@@ -287,7 +288,6 @@ watch(
 						<DropdownItem @click="handleSort('size')">
 							<Flex align="center" justify="between" gap="16" wide>
 								<Flex align="center" gap="8">
-									<!-- <Icon v-if="sort.by === 'size'" name="check" size="12" color="brand" /> -->
 									<Icon name="check" size="12" color="brand" :class="[sort.by === 'size' && $style.show, sort.by !== 'size' && $style.hide]" />
 
 									<Text size="12" color="primary">Size</Text>
@@ -300,7 +300,6 @@ watch(
 						<DropdownItem @click="handleSort('blobs_count')">
 							<Flex align="center" justify="between" gap="16" wide>
 								<Flex align="center" gap="8">
-									<!-- <Icon v-if="sort.by === 'blobs_count'" name="check" size="12" color="brand" /> -->
 									<Icon name="check" size="12" color="brand" :class="[sort.by === 'blobs_count' && $style.show, sort.by !== 'blobs_count' && $style.hide]" />
 
 									<Text size="12" color="primary">Blobs</Text>
@@ -313,7 +312,6 @@ watch(
 						<DropdownItem @click="handleSort('fee')">
 							<Flex align="center" justify="between" gap="16" wide>
 								<Flex align="center" gap="8">
-									<!-- <Icon v-if="sort.by === 'fee'" name="check" size="12" color="brand" /> -->
 									<Icon name="check" size="12" color="brand" :class="[sort.by === 'fee' && $style.show, sort.by !== 'fee' && $style.hide]" />
 
 									<Text size="12" color="primary">Fee</Text>
@@ -363,32 +361,34 @@ watch(
 						</Flex>
 
 						<Flex align="center" :class="$style.rollup_subtitle">
-							<Flex align="center" gap="8" :class="[expanded.slug === r.slug && $style.hide, expanded.slug !== r.slug && $style.show]">
-								<Text size="13" weight="500" color="tertiary">Size</Text>
-								<Text size="13" weight="600" color="primary">{{ formatBytes(r.size) }}</Text>
+							<Transition name="fade" mode="out-in">
+								<Flex v-if="expanded.slug !== r.slug" align="center" gap="8">
+									<Text size="13" weight="500" color="tertiary">Size</Text>
+									<Text size="13" weight="600" color="primary">{{ formatBytes(r.size) }}</Text>
 
-								<div :class="$style.dot" />
+									<div :class="$style.dot" />
 
-								<Text size="13" weight="500" color="tertiary">Blobs</Text>
-								<Text size="13" weight="600" color="primary">{{ abbreviate(r.blobs_count) }}</Text>
+									<Text size="13" weight="500" color="tertiary">Blobs</Text>
+									<Text size="13" weight="600" color="primary">{{ abbreviate(r.blobs_count) }}</Text>
 
-								<div :class="$style.dot" />
+									<div :class="$style.dot" />
 
-								<Text size="13" weight="500" color="tertiary">Fee</Text>
-								<Text size="13" weight="600" color="primary">{{ `${abbreviate(Math.round(r.fee / 1_000_000))} TIA` }}</Text>
-							</Flex>
+									<Text size="13" weight="500" color="tertiary">Fee</Text>
+									<Text size="13" weight="600" color="primary">{{ `${abbreviate(Math.round(r.fee / 1_000_000))} TIA` }}</Text>
+								</Flex>
 
-							<Flex align="center" gap="12" :class="[expanded.slug !== r.slug && $style.hide, expanded.slug === r.slug && $style.show]">
-								<Icon v-if="r.website" @click.prevent.stop=handleOpenLink(r.website) name="globe" size="13" color="secondary" />
+								<Flex v-else align="center" gap="12">
+									<Icon v-if="r.website" @click.prevent.stop=handleOpenLink(r.website) name="globe" size="13" color="secondary" />
 
-								<Icon v-if="r.twitter" @click.prevent.stop=handleOpenLink(r.twitter) name="twitter" size="13" color="secondary" />
+									<Icon v-if="r.twitter" @click.prevent.stop=handleOpenLink(r.twitter) name="twitter" size="13" color="secondary" />
 
-								<Icon v-if="r.github" @click.prevent.stop=handleOpenLink(r.github) name="github" size="13" color="secondary" />
+									<Icon v-if="r.github" @click.prevent.stop=handleOpenLink(r.github) name="github" size="13" color="secondary" />
 
-								<Icon v-if="r.l2_beat" @click.prevent.stop=handleOpenLink(r.l2_beat) name="l2beat" size="13" color="secondary" />
+									<Icon v-if="r.l2_beat" @click.prevent.stop=handleOpenLink(r.l2_beat) name="l2beat" size="13" color="secondary" />
 
-								<Icon v-if="r.explorer" @click.prevent.stop=handleOpenLink(r.explorer) name="search" size="13" color="secondary" />
-							</Flex>
+									<Icon v-if="r.explorer" @click.prevent.stop=handleOpenLink(r.explorer) name="search" size="13" color="secondary" />
+								</Flex>
+							</Transition>
 						</Flex>
 					</Flex>
 				</Flex>
@@ -402,15 +402,13 @@ watch(
 					/>
 				</Flex>
 			</Flex>
-			<transition name="expand">
+
 			<Flex
-				v-if="expanded.slug === r.slug"
 				align="center"
 				direction="column"
 				gap="16"
-				:class="[$style.rollup_info, expanded.slug === r.slug && $style.show]"
+				:class="[$style.rollup_info, expanded.slug === r.slug && $style.rollup_info_expanded]"
 			>
-			<!-- :class="[$style.rollup_info, expanded.slug === r.slug && $style.show]" -->
 				<Flex direction="column" gap="12">
 					<Flex align="center" justify="between">
 						<Flex align="center" gap="8">
@@ -507,7 +505,6 @@ watch(
 					</NuxtLink>
 				</Flex>
 			</Flex>
-			</transition>
 		</Flex>
 
 		<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
@@ -527,19 +524,19 @@ watch(
 }
 
 .row {
-	min-height: 60px;
+	height: 60px;
+	padding: 16px 16px 0 16px;
 
 	border-top: 1px solid var(--op-5);
 
 	cursor: pointer;
-
-	padding: 16px 16px 0 16px;
-
+	
+	overflow: hidden;
 	transition: all 0.5s ease;
 }
 
 .row_expanded {
-	/* max-height: 240px; */
+	height: 240px;
 
 	transition: all 0.5s ease;
 }
@@ -576,23 +573,14 @@ watch(
 }
 
 .rollup_info {
+	height: 0;
 	padding-left: 52px;
-
-	/* transition: all 0.2s ease; */
-
-	overflow: hidden;
-	max-height: 240px;
-	opacity: 0;
-	/* transition: max-height 0.5s ease, opacity 0.5s ease; */
+	transition: all 0.5s ease;
 }
 
-.expand-enter-active, .expand-leave-active {
-  transition: max-height 5s ease, opacity 5s ease;
-}
-
-.expand-enter, .expand-leave-to {
-  max-height: 0;
-  opacity: 0;
+.rollup_info_expanded {
+	height: 100%;
+	transition: all 0.5s ease;
 }
 
 .validator_bar {

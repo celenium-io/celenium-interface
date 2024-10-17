@@ -22,7 +22,6 @@ import VestingsTable from "./tables/VestingsTable.vue";
 
 /** Services */
 import { comma, splitAddress } from "@/services/utils"
-import { MsgTypes } from "@/services/constants/messages"
 
 /** API */
 import {
@@ -38,10 +37,12 @@ import {
 } from "@/services/api/address"
 
 /** Store */
-import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
-const modalsStore = useModalsStore()
+import { useEnumStore } from "@/store/enums"
+import { useModalsStore } from "@/store/modals"
 const cacheStore = useCacheStore()
+const enumStore = useEnumStore()
+const modalsStore = useModalsStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -177,12 +178,14 @@ const onSort = (by) => {
 }
 
 /** Filters */
+const msgTypes = computed(() => enumStore.enums.messageTypes.sort())
+
 const filters = reactive({
 	status: {
 		success: false,
 		failed: false,
 	},
-	message_type: MsgTypes.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	message_type: msgTypes.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 })
 const hasActiveFilters = computed(() => {
 	let has = false
