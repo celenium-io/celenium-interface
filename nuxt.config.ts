@@ -132,10 +132,6 @@ export default defineNuxtConfig({
 		enabled: false,
 	},
 
-	nitro: {
-		minify: false,
-	},
-
 	vite: {
 		define: {
 			global: "globalThis",

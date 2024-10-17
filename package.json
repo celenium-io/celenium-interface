@@ -6,7 +6,6 @@
 	"license": "MIT",
 	"scripts": {
 		"build": "nuxt build",
-		"build:test": "node --max-old-space-size=8192 node_modules/nuxt/bin/nuxt.mjs build",
 		"dev": "cross-env PORT=9090 nuxt dev",
 		"generate": "nuxt generate",
 		"preview": "nuxt preview",
