@@ -55,7 +55,7 @@ onMounted(async () => {
 	const gasPrice = await fetchGasPrice()
 	appStore.gas = gasPrice
 
-	enumStore.init()
+	await enumStore.init()
 
 	window.onbeforeunload = function () {
 		Socket.close()

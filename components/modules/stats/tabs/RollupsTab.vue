@@ -56,14 +56,13 @@ onBeforeMount(async () => {
             <RollupsBubbleChart v-if="!isLoading" :series="series" />
 		</Flex>
 
-		<Flex align="center" direction="column" gap="12" wide>
+		<Flex v-if="!isLoading" align="center" direction="column" gap="12" wide>
 			<Flex align="center" justify="between" wide :class="$style.section">
 				<Text size="16" weight="600" color="primary" justify="start">Top Rollups</Text>
 			</Flex>
 
 			<Flex align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
                 <PieChartCard
-                    v-if="!isLoading"
                     v-for="s in series"
                     :series="s"
                     :data="series.data"

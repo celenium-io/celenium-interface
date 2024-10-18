@@ -78,7 +78,6 @@ const router = useRouter()
 
 /** Filters */
 const msgTypes = computed(() => enumStore.enums.messageTypes.sort())
-
 const filters = reactive({
 	status: {
 		success: false,
@@ -329,6 +328,13 @@ watch(
 	() => {
 		getTransactions()
 	},
+)
+
+watch(
+	() => msgTypes.value,
+	() => {
+		filters.message_type = msgTypes.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+	}
 )
 
 const handleSort = (by) => {
