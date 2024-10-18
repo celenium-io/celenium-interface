@@ -41,7 +41,7 @@ const getRollups = async () => {
     // isLoading.value = false
 }
 
-onBeforeMount(async () => {
+onMounted(async () => {
     await getRollups()
 })
 </script>
