@@ -14,59 +14,21 @@ import { fetchRollups } from "@/services/api/rollup.js"
 
 const isLoading = ref(false)
 const series = ref()
-// const series = computed(() => getSeriesByGroupAndType('Rollups'))
 
 const getRollups = async () => {
 	isLoading.value = true
 
-	// const data = await fetchRollups({
-	// 	limit: 100,
-	// })
 	series.value = getSeriesByGroupAndType('Rollups')
 
 	fetchRollups({ limit: 100 })
 	.then((res) => {
-		console.log('isLoading.value then', isLoading.value);
-		console.log('series.value.data then1', series.value.data);
-		
 		series.value.data = res
-		console.log('series.value.data then2', series.value.data);
 	})
 	.finally(() => {
-		console.log('isLoading.value finally1', isLoading.value);
 		isLoading.value = false
-		console.log('isLoading.value finally2', isLoading.value);
 	})
 
-// 	fetchRollups({ limit: 100 })
-// 		.then((res) => {
-// 			console.log('isLoading.value then', isLoading.value);
-// 			console.log('series.value.data then1', series.value.data);
-			
-// 			series.value.data = res
-// 			console.log('series.value.data then2', series.value.data);
-// }		)
-// 		.finally(() => {
-// 			console.log('isLoading.value finally1', isLoading.value);
-// 			isLoading.value = false
-// 			console.log('isLoading.value finally2', isLoading.value);
-// 		})
-	
-	// series.value.data = data
-
-    // isLoading.value = false
 }
-
-// onMounted(async () => {
-//     await getRollups()
-// })
-
-// watch(
-// 	() => series.value,
-// 	async () => {
-// 		await getRollups()
-// 	}
-// )
 
 await getRollups()
 </script>
@@ -77,7 +39,6 @@ await getRollups()
 			<Flex align="center" justify="between" wide :class="$style.section">
 				<Flex align="center" gap="4">
 					<Text size="16" weight="600" color="primary" justify="start">Overview</Text>
-					<!-- <Text size="14" weight="600" color="tertiary">(top 10 rollups)</Text> -->
 				</Flex>
 
 				<Button link="/rollups" type="secondary" size="mini">
