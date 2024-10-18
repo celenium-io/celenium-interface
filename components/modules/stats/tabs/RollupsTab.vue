@@ -18,13 +18,19 @@ const series = computed(() => getSeriesByGroupAndType('Rollups'))
 const getRollups = async () => {
 	isLoading.value = true
 
-	const data = await fetchRollups({
-		limit: 100,
-	})
+	// const data = await fetchRollups({
+	// 	limit: 100,
+	// })
 
-	series.value.data = data
+	fetchRollups({ limit: 100 })
+		.then((res) => series.value.data = res)
+		.finally(() => isLoading.value = false)
 
-    isLoading.value = false
+	
+	
+	// series.value.data = data
+
+    // isLoading.value = false
 }
 
 onBeforeMount(async () => {
