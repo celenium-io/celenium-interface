@@ -13,23 +13,24 @@ import { getSeriesByGroupAndType } from "@/services/constants/stats.js"
 import { fetchRollups } from "@/services/api/rollup.js"
 
 const isLoading = ref(false)
-const series = computed(() => getSeriesByGroupAndType('Rollups'))
+const series = ref()
 
 const getRollups = async () => {
 	isLoading.value = true
 
-	const data = await fetchRollups({
-		limit: 100,
+	series.value = getSeriesByGroupAndType('Rollups')
+
+	fetchRollups({ limit: 100 })
+	.then((res) => {
+		series.value.data = res
+	})
+	.finally(() => {
+		isLoading.value = false
 	})
 
-	series.value.data = data
-
-    isLoading.value = false
 }
 
-onBeforeMount(async () => {
-    await getRollups()
-})
+await getRollups()
 </script>
 
 <template>
@@ -38,7 +39,6 @@ onBeforeMount(async () => {
 			<Flex align="center" justify="between" wide :class="$style.section">
 				<Flex align="center" gap="4">
 					<Text size="16" weight="600" color="primary" justify="start">Overview</Text>
-					<!-- <Text size="14" weight="600" color="tertiary">(top 10 rollups)</Text> -->
 				</Flex>
 
 				<Button link="/rollups" type="secondary" size="mini">
@@ -50,14 +50,13 @@ onBeforeMount(async () => {
             <RollupsBubbleChart v-if="!isLoading" :series="series" />
 		</Flex>
 
-		<Flex align="center" direction="column" gap="12" wide>
+		<Flex v-if="!isLoading" align="center" direction="column" gap="12" wide>
 			<Flex align="center" justify="between" wide :class="$style.section">
 				<Text size="16" weight="600" color="primary" justify="start">Top Rollups</Text>
 			</Flex>
 
 			<Flex align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
                 <PieChartCard
-                    v-if="!isLoading"
                     v-for="s in series"
                     :series="s"
                     :data="series.data"

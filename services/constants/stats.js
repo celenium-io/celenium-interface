@@ -165,16 +165,19 @@ export function getInsightsByGroup(group) {
 export const STATS_PERIODS = [
 	{
 		title: 'Last 24 hours',
+		shortTitle: '24h',
 		value: 24,
 		timeframe: 'hour',
 	},
 	{
 		title: 'Last 7 days',
+		shortTitle: '7d',
 		value: 7,
 		timeframe: 'day',
 	},
 	{
 		title: 'Last 31 days',
+		shortTitle: '31d',
 		value: 31,
 		timeframe: 'day',
 	},

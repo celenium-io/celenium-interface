@@ -32,7 +32,7 @@ const total = ref(0)
 
 const prepareRollupsData = () => {
     let key = props.series.name
-    props.data.forEach(el => {
+    props.data?.forEach(el => {
         resData.value.push(
             {
                 name: el.name,
@@ -301,6 +301,24 @@ onMounted(() => {
     animation-name: fadeIn;
     animation-duration: 1s;
     animation-fill-mode: forwards;
+}
+
+.loading {
+	animation: loading 1s ease infinite;
+}
+
+@keyframes loading {
+	0% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0.5;
+	}
+
+	100% {
+		opacity: 1;
+	}
 }
 
 @keyframes fadeIn {
