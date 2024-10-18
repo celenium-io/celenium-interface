@@ -36,7 +36,7 @@ switch (hostname) {
 	// case "arabica.celenium.io":
 	// case "localhost":
 	default:
-		appStore.network = arabica
+		appStore.network = mainnet
 		break
 }
 

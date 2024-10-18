@@ -39,7 +39,8 @@ onMounted(() => {
 
 const handleConnect = async (target) => {
 	window.wallet = window[target]
-
+	console.log(appStore.network);
+	
 	try {
 		await connect(JSON.parse(JSON.stringify(appStore.network)))
 
@@ -124,7 +125,7 @@ const handleConnect = async (target) => {
 					</Tooltip>
 
 					<Tooltip wide>
-						<Flex @click="handleConnect('leap')" wide align="center" justify="between" :class="[$style.wallet, !isMainnet() && $style.disabled]">
+						<Flex @click="handleConnect('leap')" wide align="center" justify="between" :class="$style.wallet">
 							<Flex align="center" gap="12">
 								<img src="@/assets/logos/leap.png" />
 								<Text size="14" weight="600" color="primary">Leap Wallet</Text>
@@ -139,11 +140,9 @@ const handleConnect = async (target) => {
 
 						<template #content>
 							{{
-								!isMainnet()
-									? "Temporarily unavailable for test networks."
-									: hasLeap
-										? "Leap is found in your extensions and ready to connect."
-										: "Leap is not found in your extensions, install it."
+								hasLeap
+									? "Leap is found in your extensions and ready to connect."
+									: "Leap is not found in your extensions, install it."
 							}}
 						</template>
 					</Tooltip>
