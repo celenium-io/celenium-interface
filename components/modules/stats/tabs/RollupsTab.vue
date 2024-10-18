@@ -23,10 +23,18 @@ const getRollups = async () => {
 	// })
 
 	fetchRollups({ limit: 100 })
-		.then((res) => series.value.data = res)
-		.finally(() => isLoading.value = false)
-
-	
+		.then((res) => {
+			console.log('isLoading.value then', isLoading.value);
+			console.log('series.value.data then1', series.value.data);
+			
+			series.value.data = res
+			console.log('series.value.data then2', series.value.data);
+}		)
+		.finally(() => {
+			console.log('isLoading.value finally1', isLoading.value);
+			isLoading.value = false
+			console.log('isLoading.value finally2', isLoading.value);
+		})
 	
 	// series.value.data = data
 
