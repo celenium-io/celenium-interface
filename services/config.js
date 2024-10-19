@@ -61,7 +61,7 @@ export const useSocketURL = () => {
 			return Server.WSS.dev
 
 		default:
-			return Server.WSS.mainnet
+			return Server.WSS.arabica
 	}
 }
 
