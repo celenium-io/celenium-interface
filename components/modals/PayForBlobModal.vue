@@ -143,8 +143,6 @@ const handleContinue = async () => {
 	let gasPrice = appStore.gas.slow
 
 	let fee = gasPrice * estimatedGas > 1 ? Math.trunc(gasPrice * estimatedGas) : 10000
-	console.log(fee);
-	console.log(estimatedGas)
 
 	const proto = [
 		{
@@ -227,7 +225,7 @@ const handleContinue = async () => {
 				icon: "danger",
 				title: `Something went wrong`,
 				description: e.message,
-				autoDestroy: false,
+				autoDestroy: true,
 			},
 		})
 	}
