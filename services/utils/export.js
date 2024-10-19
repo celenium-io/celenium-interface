@@ -1,4 +1,9 @@
+/** Services */
+import amp from "@/services/amp"
+
 export async function exportToCSV(data, fileName) {
+	amp.log("exportCSV", { file: fileName })
+
 	const blob = new Blob([data], { type: "text/csv;charset=utf-8;" })
 	const link = document.createElement("a")
 
@@ -15,9 +20,12 @@ export async function exportToCSV(data, fileName) {
 	document.body.removeChild(link)
 }
 
-export async function exportSVGToPNG(svgElement, fileName) {
+export async function exportSVGToPNG(svgElement, fileName, width = 1920, height = 1080) {
+	amp.log("exportPNG", { file: fileName })
+
 	// Load SVG styles
 	const styleSheets = Array.from(document.styleSheets)
+		.filter(style => style.href === null)
 		.map(sheet => {
 			try {
 				return Array.from(sheet.cssRules)
@@ -30,19 +38,20 @@ export async function exportSVGToPNG(svgElement, fileName) {
 			}
 		}).join('\n')
 
-	// Create <style> element and add to SVG
+	// Create clone and <style> element and add to SVG
 	const svgStyle = document.createElement('style')
 	svgStyle.textContent = styleSheets
-	// console.log('svgStyle.textContent', svgStyle.textContent);
 	
-	svgElement.prepend(svgStyle) //16:9
+	let svgClone = svgElement.cloneNode(true)
+	svgClone.prepend(svgStyle)
+	
+	// Set SVG size
+    svgClone.setAttribute('width', width);
+    svgClone.setAttribute('height', height);
 
 	// Convert SVG to string
 	const serializer = new XMLSerializer()
-	const svgString = serializer.serializeToString(svgElement)
-
-	// Remove internal styles
-	svgElement.removeChild(svgStyle)
+	const svgString = serializer.serializeToString(svgClone)
 
 	// Convert and export SVG
 	const img = new Image()
@@ -51,10 +60,10 @@ export async function exportSVGToPNG(svgElement, fileName) {
 
 	img.onload = function() {
 		const canvas = document.createElement('canvas')
-		canvas.width = svgElement.clientWidth
-		canvas.height = svgElement.clientHeight
+		canvas.width = width
+		canvas.height = height
 		const ctx = canvas.getContext('2d')
-		ctx.drawImage(img, 0, 0)
+		ctx.drawImage(img, 0, 0, width, height)
 		const png = canvas.toDataURL('image/png')
 
 		// Create link for download
@@ -66,6 +75,8 @@ export async function exportSVGToPNG(svgElement, fileName) {
 		document.body.removeChild(link)
 
 		URL.revokeObjectURL(url)
+
+		svgClone = null
 	}
 
 	img.src = url

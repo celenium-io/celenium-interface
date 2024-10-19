@@ -9,9 +9,9 @@ import LineChart from "@/components/modules/stats/LineChart.vue"
 import SquareSizeChart from "@/components/modules/stats/SquareSizeChart.vue"
 
 /** Services */
-import { capitalizeAndReplaceUnderscore } from "@/services/utils"
 import { getStartChainDate } from "@/services/config"
 import { exportSVGToPNG, exportToCSV } from "@/services/utils/export"
+import { capitalizeAndReplaceUnderscore } from "@/services/utils"
 
 /** API */
 import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
@@ -254,7 +254,7 @@ const handleCSVDownload = async () => {
 }
 
 const handlePNGDownload = async () => {
-	const svgElement = document.querySelector('#chart')
+	const svgElement = document.getElementById('chart')
 
 	await exportSVGToPNG(svgElement, `${series.value.name}-${filters.from}-${filters.to}-${chartView.value}`)
 

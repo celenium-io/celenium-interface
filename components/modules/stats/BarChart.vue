@@ -95,7 +95,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 
 				return `${tia(value, 2)} TIA`
 			case 'seconds':
-				return `${truncateDecimalPart(value / 1_000, 1)}s`
+				return `${truncateDecimalPart(value / 1_000, 3)}s`
 			default:
 				return comma(value)
 		}

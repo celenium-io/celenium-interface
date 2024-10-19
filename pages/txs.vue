@@ -16,11 +16,14 @@ import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 
 /** Services */
 import { comma, space, splitAddress, tia } from "@/services/utils"
-import { MsgTypes } from "@/services/constants/messages"
 import { getStartChainDate } from "@/services/config"
 
 /** API */
 import { fetchTransactions } from "@/services/api/tx"
+
+/** Stores */
+import { useEnumStore } from "@/store/enums"
+const enumStore = useEnumStore()
 
 useHead({
 	title: "Transactions - Celestia Explorer",
@@ -74,12 +77,13 @@ const route = useRoute()
 const router = useRouter()
 
 /** Filters */
+const msgTypes = computed(() => enumStore.enums.messageTypes.sort())
 const filters = reactive({
 	status: {
 		success: false,
 		failed: false,
 	},
-	message_type: MsgTypes.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	message_type: msgTypes.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	from: "",
 	to: "",
 })
@@ -324,6 +328,13 @@ watch(
 	() => {
 		getTransactions()
 	},
+)
+
+watch(
+	() => msgTypes.value,
+	() => {
+		filters.message_type = msgTypes.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+	}
 )
 
 const handleSort = (by) => {
