@@ -8,6 +8,7 @@ import * as focusTrap from "focus-trap"
  * Composable
  */
 import { useOutside } from "@/composables/outside"
+import Height from "~/pages/block/[height].vue";
 
 const emit = defineEmits(["onClose"])
 const props = defineProps({
@@ -21,6 +22,10 @@ const props = defineProps({
 	},
 	width: {
 		type: [String, Number],
+	},
+	fullscreen: {
+		type: Boolean,
+		default: false,
 	},
 	closable: {
 		type: Boolean,
@@ -93,7 +98,8 @@ watch(
 
 const calcModalStyles = computed(() => {
 	const styles = {
-		width: props.width ? `${props.width}px` : `400px`,
+		width: props.fullscreen ? 'calc(100vw - 40px)' : props.width ? `${props.width}px` : `400px`,
+		height: props.fullscreen ? '900px' : '',
 	}
 
 	props.new && (styles.padding = "0")

@@ -14,9 +14,8 @@ import { fetchAddressByHash } from "@/services/api/address"
 
 /** Services */
 import amp from "@/services/amp"
-import { suggestChain, getAccounts } from "@/services/keplr"
 import { normalizeAmount, purgeNumber, comma } from "@/services/utils/amounts"
-import { SIMULATE_ADDRESS_FROM, SIMULATE_ADDRESS_TO, simulateMsgs, sendMsgs } from "@/services/keplr"
+import { SIMULATE_ADDRESS_FROM, SIMULATE_ADDRESS_TO, simulateMsgs, sendMsgs } from "~/services/wallet"
 import { MsgSend } from "@/services/proto/gen/msg_send"
 
 /** Store */
@@ -159,7 +158,7 @@ watch(
 		if (props.show) {
 			runGasLimitEstimation()
 		}
-	}
+	},
 )
 
 const calcGasFee = (target) => {
@@ -188,6 +187,7 @@ const runGasLimitEstimation = async () => {
 		[protoMsgs],
 		[{ denom: "utia", amount: "1" }],
 	)
+	
 	estimatedGasLimit.value = parseInt(gasUsed)
 }
 
@@ -215,6 +215,7 @@ watch(
 
 			nextTick(() => {
 				inputEl.value.inputEl.focus()
+				amount.value = ""
 			})
 		} else {
 			amount.value = 0
@@ -225,92 +226,58 @@ watch(
 	},
 )
 
-const getBalance = async () => {
-	const key = await window.keplr.getKey(appStore.network.chainId)
-
-	if (key) {
-		const { data } = await fetchAddressByHash(key.bech32Address)
-
-		if (data.value?.balance) {
-			appStore.balance = parseFloat(data.value.balance.spendable / 1_000_000) || 0
-		}
-	}
-}
-
-const handleConnect = async () => {
-	try {
-		await suggestChain(appStore.network)
-
-		const accounts = await getAccounts(appStore.network)
-		if (accounts.length) {
-			appStore.address = accounts[0].address
-		}
-
-		getBalance()
-
-		amp.log("connect")
-	} catch (error) {
-		amp.log("rejectConnect")
-
-		switch (error.message) {
-			case "Request rejected":
-				notificationsStore.create({
-					notification: {
-						type: "info",
-						icon: "close",
-						title: "Request rejected",
-						description: "You canceled the Keplr wallet request",
-						autoDestroy: true,
-					},
-				})
-				break
-		}
-	}
+const handleConnect = () => {
+	modalsStore.open("connect")
 }
 
 const continueButton = computed(() => {
 	if (addressError.value.length) {
 		return {
-			title: 'Destination address is invalid',
+			title: "Destination address is invalid",
 			disable: true,
 		}
 	}
 
 	if (!address.value?.length) {
 		return {
-			title: 'Enter the destionation address',
+			title: "Enter the destionation address",
 			disable: true,
 		}
 	}
 
 	if (parseFloat(amount.value) === 0) {
 		return {
-			title: 'Enter the amount',
+			title: "Enter the amount",
 			disable: true,
 		}
 	}
 
-	if (!((selectedGasLimit.value === "Estimated" && estimatedGasLimit.value) || (selectedGasLimit.value === "Custom" && customGasLimit.value))) {
+	if (
+		!(
+			(selectedGasLimit.value === "Estimated" && estimatedGasLimit.value) ||
+			(selectedGasLimit.value === "Custom" && customGasLimit.value)
+		)
+	) {
 		return {
-			title: 'Define the gas limit',
+			title: "Define the gas limit",
 			disable: true,
 		}
 	}
-	
+
 	if (isAwaiting.value) {
 		return {
-			title: 'Awating...',
+			title: "Awating...",
 			disable: true,
 		}
 	}
 	return {
-		title: 'Send',
+		title: "Send",
 		disable: false,
-	}	
+	}
 })
 
 const handleContinue = async () => {
-	const key = await window.keplr?.getKey(appStore.network.chainId)
+	const key = await window.wallet?.getKey(appStore.network.chainId)
 
 	const proto = [
 		{
@@ -322,7 +289,7 @@ const handleContinue = async () => {
 					{
 						denom: "utia",
 						amount: DecUtils.getTenExponentN(6)
-							.mul(new Dec(parseFloat(amount.value.replace(/\s/g, ''))))
+							.mul(new Dec(parseFloat(amount.value.replace(/\s/g, ""))))
 							.truncate()
 							.toString(),
 					},
@@ -710,7 +677,7 @@ const handleContinue = async () => {
 }
 
 .divider {
-	width: fill-available;
+	width: -webkit-fill-available;
 	height: 2px;
 
 	background: var(--op-5);

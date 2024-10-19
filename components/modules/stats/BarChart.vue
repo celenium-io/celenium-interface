@@ -95,7 +95,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 
 				return `${tia(value, 2)} TIA`
 			case 'seconds':
-				return `${truncateDecimalPart(value / 1_000, 1)}s`
+				return `${truncateDecimalPart(value / 1_000, 3)}s`
 			default:
 				return comma(value)
 		}
@@ -117,6 +117,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		.attr("viewBox", [0, 0, width, height])
 		.attr("preserveAspectRatio", "none")
 		.attr("style", "max-width: 100%;")
+		.attr("id", "chart")
 		.style("-webkit-tap-highlight-color", "transparent")
 		.on("pointerenter pointermove", onPointerMoved)
 		.on("pointerleave", onPointerLeft)
@@ -124,12 +125,12 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 
 	/** Add axes */
 	svg.append("g")
-	.attr("transform", `translate( ${barWidth / 2 - 3}, ${height - marginAxisX} )`)
-	.attr("color", "var(--op-20)")
-	.call(d3.axisBottom(x0).ticks(6).tickFormat(d3.timeFormat(props.series.timeframe === 'hour' ? "%H:%M" : "%b %d")))
-	.selectAll(".tick line")
-		.filter(function(d) { return d === 0; })
-		.remove();
+		.attr("transform", `translate( ${barWidth / 2 - 3}, ${height - marginAxisX} )`)
+		.attr("color", "var(--op-20)")
+		.call(d3.axisBottom(x0).ticks(6).tickFormat(d3.timeFormat(props.series.timeframe === 'hour' ? "%H:%M" : "%b %d")))
+		.selectAll(".tick line")
+			.filter(function(d) { return d === 0; })
+			.remove();
 	
 	svg.append("g")
 		.attr("transform", `translate(0,0)`)
@@ -166,8 +167,10 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 
 		let selectedCData = cData.data[idx]
 		
-		tooltip.value.x = x0(selectedCData.date)
-		tooltip.value.y = y(selectedCData.value)
+		let xPosition = x0(selectedCData.date)
+		tooltip.value.x = xPosition > (width - 200) ? xPosition - 215 : xPosition + 15
+		tooltip.value.y = Math.min(y(selectedCData.value), height - 100)
+
 		tooltip.value.data[0] = {
 			date: formatDate(selectedCData.date),
 			value: formatValue(selectedCData.value),
