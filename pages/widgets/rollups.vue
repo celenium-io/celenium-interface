@@ -84,26 +84,6 @@ const sort = reactive({
 	dir: "desc",
 })
 
-// const categories = computed(() => {
-// 	let res = enumStore.enums.rollupCategories
-// 		.map((c, i) => {
-// 			if (c === 'uncategorized') {
-// 				return {
-// 					alias: c,
-// 					title: 'other',
-// 					order: 99,
-// 				}
-// 			} else {
-// 				return {
-// 					alias: c,
-// 					title: c,
-// 					order: i,
-// 				}
-// 			}
-// 		})
-	
-// 	return res.sort((a, b) => a.order - b.order)
-// })
 const categories = computed(() => {
 	let res = []
 	if (enumStore.enums.rollupCategories.length) {
@@ -165,12 +145,6 @@ const expand = (rollup) => {
 	} else {
 		expanded.value = rollup
 	}
-}
-
-const detailsStyle = (slug) => {
-	return expanded.value.slug === slug
-        ? { maxHeight: '500px', opacity: 1, transition: 'max-height 0.5s ease, opacity 0.5s ease' }
-        : { maxHeight: '0px', opacity: 0, transition: 'max-height 0.5s ease, opacity 0.5s ease' }
 }
 
 const handleSort = async (by) => {
@@ -247,7 +221,6 @@ watch(
 		}
 	}
 )
-// transition mode out-in and v-if v-else
 </script>
 
 <template>
@@ -262,10 +235,11 @@ watch(
 					gap="4"
 					:class="[$style.chip, selectedCategories.includes(c) && $style.active]"
 				>
-					<Flex align="center" gap="4" :class="$style.content">
+					<Flex align="center" :class="$style.content">
 						<Text size="12" weight="600" color="primary"> {{ c === 'nft' ? c.toUpperCase() : capitilize(c) }} </Text>
 					</Flex>
 				</Flex>
+
 				<Skeleton
 					v-else
 					v-for="i in 3"
@@ -349,15 +323,45 @@ watch(
 		>
 			<Flex ref="rowEl" @click="expand(r)" align="center" justify="between" wide>
 				<Flex align="center" gap="12">
-					<Flex align="center" justify="center" :class="$style.avatar_container">
+					<!-- <Flex align="center" justify="center" :class="$style.avatar_container">
 						<img :src="r.logo" :class="$style.avatar_image" />
+					</Flex> -->
+					<Flex v-if="r.logo" align="center" :class="$style.avatar_wrapper">
+						<div :class="$style.avatar_container">
+							<img :src="r.logo" :class="$style.avatar_image" />
+						</div>
+
+						<div
+							:class="$style.status_dot"
+							:style="{
+								background: `${Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 1
+												? ''
+												: Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 7
+													? 'var(--light-orange)'
+													: 'var(--red)'
+											}`
+							}"
+						/>
 					</Flex>
 
 					<Flex direction="column" gap="12">
-						<Flex align="center" gap="6">
+						<Flex align="center" gap="16">
 							<Text size="13" weight="600" color="primary" mono>
 								{{ r.name }}
 							</Text>
+
+							<Flex align="center" :class="$style.chip" :style="{ borderRadius: '8px' }">
+								<Flex align="center" :class="$style.content" :style="{ padding: '4px 8px' }">
+									<Text size="12" color="tertiary">
+										{{ r.category === 'nft'
+											? r.category.toUpperCase()
+											: r.category === 'uncategorized'
+												? 'Other'
+												: capitilize(r.category)
+										}}
+									</Text>
+								</Flex>
+							</Flex>
 						</Flex>
 
 						<Flex align="center" :class="$style.rollup_subtitle">
@@ -525,7 +529,7 @@ watch(
 
 .row {
 	height: 60px;
-	padding: 16px 16px 0 16px;
+	padding: 12px 16px 0 16px;
 
 	border-top: 1px solid var(--op-5);
 
@@ -549,7 +553,7 @@ watch(
 	background: var(--op-10);
 }
 
-.avatar_container {
+/* .avatar_container {
 	position: relative;
 	width: 40px;
 	height: 40px;
@@ -561,6 +565,38 @@ watch(
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+} */
+
+.avatar_wrapper {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.avatar_container {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	border-radius: 50%;
+}
+
+.avatar_image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.status_dot {
+	position: absolute;
+	bottom: 0px;
+	right: 0px;
+	z-index: 1;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background: var(--brand);
+	border: 1px solid var(--card-background);
 }
 
 .rollup_subtitle {
