@@ -5,13 +5,9 @@ import { DateTime } from "luxon"
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownDivider, DropdownItem, DropdownTitle } from "@/components/ui/Dropdown"
-import Tooltip from "@/components/ui/Tooltip.vue"
-
-/** Components */
-import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { formatBytes, comma, truncateDecimalPart, abbreviate, capitilize } from "@/services/utils"
+import { formatBytes, comma, abbreviate, capitilize } from "@/services/utils"
 
 /** API */
 import { fetchRollups, fetchRollupsCount } from "@/services/api/rollup"
@@ -323,9 +319,6 @@ watch(
 		>
 			<Flex ref="rowEl" @click="expand(r)" align="center" justify="between" wide>
 				<Flex align="center" gap="12">
-					<!-- <Flex align="center" justify="center" :class="$style.avatar_container">
-						<img :src="r.logo" :class="$style.avatar_image" />
-					</Flex> -->
 					<Flex v-if="r.logo" align="center" :class="$style.avatar_wrapper">
 						<div :class="$style.avatar_container">
 							<img :src="r.logo" :class="$style.avatar_image" />
@@ -552,20 +545,6 @@ watch(
 	border-radius: 50%;
 	background: var(--op-10);
 }
-
-/* .avatar_container {
-	position: relative;
-	width: 40px;
-	height: 40px;
-	overflow: hidden;
-	border-radius: 50%;
-}
-
-.avatar_image {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-} */
 
 .avatar_wrapper {
   position: relative;

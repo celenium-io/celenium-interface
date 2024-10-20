@@ -212,7 +212,6 @@ watch(
 	}
 )
 
-/** Refetch rollups */
 watch(
 	() => page.value,
 	async () => {
@@ -318,28 +317,9 @@ watch(
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>#</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Rollup</Text></th>
-								<!-- <th @click="handleSort('time')" :class="$style.sortable">
-									<Flex align="center" gap="6">
-										<Text size="12" weight="600" color="tertiary" noWrap>Last Active</Text>
-										<Icon
-											v-if="sort.by === 'time'"
-											name="chevron"
-											size="12"
-											color="secondary"
-											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
-										/>
-									</Flex>
-								</th> -->
 								<th>
 									<Flex align="center" gap="6">
 										<Text size="12" weight="600" color="tertiary" noWrap>Category</Text>
-										<!-- <Icon
-											v-if="sort.by === 'time'"
-											name="chevron"
-											size="12"
-											color="secondary"
-											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
-										/> -->
 									</Flex>
 								</th>
 								<th @click="handleSort('size')" :class="$style.sortable">
@@ -434,19 +414,6 @@ watch(
 										</Flex>
 									</NuxtLink>
 								</td>
-								<!-- <td>
-									<NuxtLink :to="`/rollup/${r.slug}`">
-										<Flex direction="column" justify="center" gap="4">
-											<Text size="12" weight="600" color="primary">
-												{{ DateTime.fromISO(r.last_message_time).toRelative({ locale: "en", style: "short" }) }}
-											</Text>
-
-											<Text size="12" weight="500" color="tertiary">
-												{{ DateTime.fromISO(r.last_message_time).setLocale("en").toFormat("LLL d, t") }}
-											</Text>
-										</Flex>
-									</NuxtLink>
-								</td> -->
 								<td>
 									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
