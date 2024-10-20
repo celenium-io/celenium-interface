@@ -450,7 +450,7 @@ watch(
 								<td>
 									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
-											<Text size="13" weight="600" color="primary"> {{ capitilize(r.category) }} </Text>
+											<Text size="13" weight="600" color="primary"> {{ r.category === 'nft' ? r.category.toUpperCase() : capitilize(r.category) }} </Text>
 										</Flex>
 									</NuxtLink>
 								</td>
