@@ -18,8 +18,6 @@ const notificationsStore = useNotificationsStore()
 
 const router = useRouter()
 
-const isFetchingAccounts = ref(false)
-
 const { hostname } = useRequestURL()
 
 switch (hostname) {

@@ -202,7 +202,7 @@ watch(
 			amp.log("showSendModal")
 
 			if (!appStore.address?.length) {
-				warningBannerText.value = "Keplr wallet connection is required to send TIA."
+				warningBannerText.value = "Wallet connection is required to send TIA."
 			} else if (hostname !== "celenium.io") {
 				warningBannerText.value = `You are currently on ${hostname}. The transaction will be performed on the test network.`
 			} else {
@@ -531,7 +531,7 @@ const handleContinue = async () => {
 					</Flex>
 				</Flex>
 
-				<Flex gap="6">
+				<Flex v-if="appStore.wallet === 'keplr'" gap="6">
 					<Icon name="info" size="12" color="tertiary" style="margin-top: 1px" />
 					<Text size="12" weight="500" height="140" color="tertiary">
 						Keplr does not currently support receiving a Gas Fee from outside.<br />
