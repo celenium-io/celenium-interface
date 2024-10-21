@@ -1,6 +1,10 @@
+/** Vendor */
 import Long from "long"
 import Base64 from "crypto-js/enc-base64"
 import Hex from "crypto-js/enc-hex"
+
+/** API */
+import { fetchAddressByHash } from "@/services/api/address"
 
 import { AuthInfo, Fee, TxBody, TxRaw, SignerInfo } from "./proto/gen/tx"
 import { SignMode } from "./proto/gen/signing"
@@ -10,12 +14,11 @@ export const SIMULATE_ADDRESS_FROM = "celestia15hgtsr3sezr6tl6jsf0afdh3qlgpgq48c
 export const SIMULATE_ADDRESS_TO = "celestia1uvm9gzwqukm97s7vsq3x6wlcm7hjfvv6u50a4t"
 export const SIMULATE_VALIDATOR = "celestiavaloper12zs7e3n8pjd8y8ex0cyv67ethv30mekg9rcra9"
 
-export const suggestChain = (network) => {
+export const connect = (network) => {
 	return new Promise(async (resolve, reject) => {
 		try {
-			await window.keplr.experimentalSuggestChain(network)
-
-			await window.keplr.enable(network.chainId)
+			await window.wallet.experimentalSuggestChain(network)
+			await window.wallet.enable(network.chainId)
 
 			resolve({ success: true })
 		} catch (error) {
@@ -25,13 +28,19 @@ export const suggestChain = (network) => {
 }
 
 export const disconnect = () => {
-	window.keplr.disable()
+	if (window.wallet.disconnect) window.wallet.disconnect()
+	if (window.wallet.disable) window.wallet.disable()
+}
+
+export const syncBalance = async (address) => {
+	const { data } = await fetchAddressByHash(address)
+	return data.value?.balance ? parseFloat(data.value.balance.spendable / 1_000_000) : 0
 }
 
 export const getAccounts = (network) => {
 	return new Promise(async (resolve, reject) => {
 		try {
-			const offlineSigner = window.getOfflineSigner(network.chainId)
+			const offlineSigner = window.wallet.getOfflineSigner(network.chainId)
 			const accounts = await offlineSigner.getAccounts()
 			resolve(accounts)
 		} catch (error) {
@@ -50,7 +59,7 @@ const buildPayForBlob = (tx, blob) => {
 
 export const sendPayForBlob = async (network, sender, proto, fee, blob) => {
 	const account = await fetchAccountInfo(network, sender)
-	const { pubKey } = await window.keplr.getKey(network.chainId)
+	const { pubKey } = await window.wallet.getKey(network.chainId)
 
 	const tx = TxBody.encode(
 		TxBody.fromPartial({
@@ -94,7 +103,7 @@ export const sendPayForBlob = async (network, sender, proto, fee, blob) => {
 			accountNumber: Long.fromString(account.account_number),
 		}
 
-		const signed = await keplr.signDirect(network.chainId, sender, signDoc)
+		const signed = await window.wallet.signDirect(network.chainId, sender, signDoc)
 
 		const body = buildPayForBlob(
 			TxRaw.encode({
@@ -173,7 +182,7 @@ export const simulateMsgs = async (network, sender, proto, fee) => {
 
 export const sendMsgs = async (network, sender, proto, fee) => {
 	const account = await fetchAccountInfo(network, sender)
-	const { pubKey } = await window.keplr.getKey(network.chainId)
+	const { pubKey } = await window.wallet.getKey(network.chainId)
 
 	const tx = TxBody.encode(
 		TxBody.fromPartial({
@@ -217,7 +226,7 @@ export const sendMsgs = async (network, sender, proto, fee) => {
 			accountNumber: Long.fromString(account.account_number),
 		}
 
-		const signed = await window.keplr.signDirect(network.chainId, sender, signDoc)
+		const signed = await window.wallet.signDirect(network.chainId, sender, signDoc)
 
 		const signedTx = {
 			tx: TxRaw.encode({
@@ -244,7 +253,7 @@ export const fetchAccountInfo = async (network, address) => {
 }
 
 export const broadcastTxSync = async (chainId, tx) => {
-	return window.keplr.sendTx(chainId, tx, "sync")
+	return window.wallet.sendTx(chainId, tx, "sync")
 }
 
 export const fromHexString = (hexString) => Uint8Array.from(hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)))

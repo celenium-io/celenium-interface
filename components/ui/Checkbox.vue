@@ -63,7 +63,7 @@ const emit = defineEmits(["update:modelValue"])
 	transition: all 0.1s ease;
 
 	&.active {
-		background: var(--green);
+		background: var(--brand);
 	}
 }
 </style>

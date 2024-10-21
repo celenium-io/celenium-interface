@@ -1,6 +1,7 @@
 <script setup>
 import AwaitingModal from "./AwaitingModal.vue"
 import BlobModal from "./BlobModal.vue"
+import ChartModal from "./ChartModal.vue"
 import CommitmentModal from "./CommitmentModal.vue"
 import ConfirmationModal from "./ConfirmationModal.vue"
 import ConstantsModal from "./ConstantsModal.vue"
@@ -18,6 +19,7 @@ import HexSettingsModal from "./HexSettingsModal.vue"
 import APIModal from "./APIModal.vue"
 import LightNodeModal from "./LightNodeModal.vue"
 import LightNodeSettingsModal from "./LightNodeSettingsModal.vue"
+import ConnectModal from "./ConnectModal.vue"
 
 /** Store */
 import { useModalsStore } from "@/store/modals"
@@ -44,4 +46,6 @@ const modalsStore = useModalsStore()
 	<APIModal :show="modalsStore.modals.api" @onClose="modalsStore.close('api')" />
 	<LightNodeModal :show="modalsStore.modals.lightNode" @onClose="modalsStore.close('lightNode')" />
 	<LightNodeSettingsModal :show="modalsStore.modals.lightNodeSettings" @onClose="modalsStore.close('lightNodeSettings')" />
+	<ConnectModal :show="modalsStore.modals.connect" @onClose="modalsStore.close('connect')" />
+	<ChartModal :show="modalsStore.modals.chart" @onClose="modalsStore.close('chart')" />
 </template>

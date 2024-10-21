@@ -6,14 +6,12 @@ import Button from "@/components/ui/Button.vue"
 
 /** API */
 import { fetchEstimatedGas } from "@/services/api/gas"
-import { fetchAddressByHash } from "@/services/api/address"
 
 /** Services */
 import amp from "@/services/amp"
 import { getNamespaceID } from "@/services/utils"
-import { sendPayForBlob } from "@/services/keplr"
+import { sendPayForBlob } from "~/services/wallet"
 import { prepareBlob } from "@/services/utils/encode"
-import { suggestChain, getAccounts } from "@/services/keplr"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -130,47 +128,8 @@ const handleUpload = (e, target) => {
 	reader.readAsArrayBuffer(file)
 }
 
-const getBalance = async () => {
-	const key = await window.keplr.getKey(appStore.network.chainId)
-
-	if (key) {
-		const { data } = await fetchAddressByHash(key.bech32Address)
-
-		if (data.value?.balance) {
-			appStore.balance = parseFloat(data.value.balance.spendable / 1_000_000) || 0
-		}
-	}
-}
-
-const handleConnect = async () => {
-	try {
-		await suggestChain(appStore.network)
-
-		const accounts = await getAccounts(appStore.network)
-		if (accounts.length) {
-			appStore.address = accounts[0].address
-		}
-
-		getBalance()
-
-		amp.log("connect")
-	} catch (error) {
-		amp.log("rejectConnect")
-
-		switch (error.message) {
-			case "Request rejected":
-				notificationsStore.create({
-					notification: {
-						type: "info",
-						icon: "close",
-						title: "Request rejected",
-						description: "You canceled the Keplr wallet request",
-						autoDestroy: true,
-					},
-				})
-				break
-		}
-	}
+const handleConnect = () => {
+	modalsStore.open("connect")
 }
 
 const handleContinue = async () => {
@@ -206,6 +165,19 @@ const handleContinue = async () => {
 		const txHash = await sendPayForBlob(appStore.network, appStore.address, proto, stdFee, decodableBlob)
 		isAwaiting.value = false
 
+		if (!txHash) {
+			notificationsStore.create({
+				notification: {
+					type: "warning",
+					icon: "danger",
+					title: `Looks like your account is fresh`,
+					description: 'Top up your balance to submit the blob',
+					autoDestroy: true,
+				},
+			})
+			return
+		}
+
 		amp.log("successfulPfb")
 
 		cacheStore.tx.hash = txHash
@@ -227,7 +199,7 @@ const handleContinue = async () => {
 				notification: {
 					type: "warning",
 					icon: "danger",
-					title: `The request in Kepler was denied`,
+					title: `The request in wallet was denied`,
 					autoDestroy: true,
 				},
 			})
@@ -473,7 +445,7 @@ const handleContinue = async () => {
 }
 
 .divider {
-	width: fill-available;
+	width: -webkit-fill-available;
 	height: 2px;
 
 	background: var(--op-5);

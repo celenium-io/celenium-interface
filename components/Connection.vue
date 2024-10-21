@@ -1,17 +1,12 @@
 <script setup>
 /** UI */
 import Button from "@/components/ui/Button.vue"
-import Spinner from "@/components/ui/Spinner.vue"
-import Tooltip from "@/components/ui/Tooltip.vue"
-import { Dropdown, DropdownItem, DropdownDivider } from "@/components/ui/Dropdown"
+import { Dropdown, DropdownTitle, DropdownItem, DropdownDivider } from "@/components/ui/Dropdown"
 
 /** Services */
 import amp from "@/services/amp"
-import { suggestChain, getAccounts, disconnect } from "@/services/keplr"
+import { disconnect } from "~/services/wallet"
 import { arabica, mocha, mainnet } from "@/services/chains"
-
-/** API */
-import { fetchAddressByHash } from "@/services/api/address"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -23,14 +18,13 @@ const notificationsStore = useNotificationsStore()
 
 const router = useRouter()
 
-const isWalletAvailable = ref(false)
 const isFetchingAccounts = ref(false)
 
 const { hostname } = useRequestURL()
 
 switch (hostname) {
 	case "celenium.io":
-	// case "dev.celenium.io":
+		// case "dev.celenium.io":
 		appStore.network = mainnet
 		break
 
@@ -44,58 +38,10 @@ switch (hostname) {
 	default:
 		appStore.network = arabica
 		break
-
 }
-
-const getBalance = async () => {
-	const key = await window.keplr.getKey(appStore.network.chainId)
-
-	if (key) {
-		const { data } = await fetchAddressByHash(key.bech32Address)
-
-		if (data.value?.balance) {
-			appStore.balance = parseFloat(data.value.balance.spendable / 1_000_000) || 0
-		}
-	}
-}
-
-onMounted(async () => {
-	isWalletAvailable.value = !!window.keplr
-})
 
 const handleConnect = async () => {
-	try {
-		await suggestChain(appStore.network)
-
-		isFetchingAccounts.value = true
-
-		const accounts = await getAccounts(appStore.network)
-		if (accounts.length) {
-			appStore.address = accounts[0].address
-		}
-
-		getBalance()
-
-		isFetchingAccounts.value = false
-
-		amp.log("connect")
-	} catch (error) {
-		amp.log("rejectConnect")
-
-		switch (error.message) {
-			case "Request rejected":
-				notificationsStore.create({
-					notification: {
-						type: "info",
-						icon: "close",
-						title: "Request rejected",
-						description: "You canceled the Keplr wallet request",
-						autoDestroy: true,
-					},
-				})
-				break
-		}
-	}
+	modalsStore.open("connect")
 }
 
 const handleCopy = (target) => {
@@ -109,6 +55,10 @@ const handleCopy = (target) => {
 			autoDestroy: true,
 		},
 	})
+}
+
+const handleChangeWallet = () => {
+	modalsStore.open("connect")
 }
 
 const handleDisconnect = () => {
@@ -131,32 +81,7 @@ const handleDisconnect = () => {
 </script>
 
 <template>
-	<Tooltip v-if="isFetchingAccounts" position="end">
-		<Button type="secondary" size="small" disabled>
-			<Spinner size="14" />
-			Fetching
-		</Button>
-
-		<template #content>
-			<Flex direction="column" align="end" gap="6">
-				<Text>Receiving your accounts </Text>
-				<Text color="tertiary" height="120" align="right" style="max-width: 200px">
-					It's stuck? Try disabling the connection through your wallet and refresh the page
-				</Text>
-				<Text color="tertiary" height="120" align="right" style="max-width: 200px">
-					Sometimes the wallet pop-up may hide behind the browser window
-				</Text>
-			</Flex>
-		</template>
-	</Tooltip>
-
-	<Tooltip v-else-if="!isWalletAvailable" position="end">
-		<Button type="white" size="mini" disabled> Connect </Button>
-
-		<template #content> Install Keplr Wallet before connection </template>
-	</Tooltip>
-
-	<Button v-else-if="!appStore.address" @click="handleConnect" type="white" size="mini"> Connect </Button>
+	<Button v-if="!appStore.address" @click="handleConnect" type="white" size="mini"> Connect </Button>
 
 	<Dropdown v-else>
 		<Button type="secondary" size="mini">
@@ -165,6 +90,7 @@ const handleDisconnect = () => {
 		</Button>
 
 		<template #popup>
+			<DropdownTitle style="text-transform: capitalize">{{ appStore.wallet }} Wallet</DropdownTitle>
 			<DropdownItem @click="modalsStore.open('send')">Send TIA</DropdownItem>
 			<DropdownItem @click="modalsStore.open('pfb')">Submit Blob</DropdownItem>
 			<DropdownDivider />
@@ -178,6 +104,7 @@ const handleDisconnect = () => {
 				<Text>Copy address</Text>
 			</DropdownItem>
 			<DropdownDivider />
+			<DropdownItem @click="handleChangeWallet">Change wallet</DropdownItem>
 			<DropdownItem @click="handleDisconnect">Disconnect</DropdownItem>
 		</template>
 	</Dropdown>
