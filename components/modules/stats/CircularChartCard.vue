@@ -76,7 +76,6 @@ const buildChart = (chart, data) => {
     outerRadius.value = Math.min(width, height) / 2
     const maxValue = d3.max(data, d => d.value)
     const minValue = +d3.min(data, d => d.value)
-    console.log('minValue', minValue);
     
     // console.log('outerRadius.value', outerRadius.value);
     

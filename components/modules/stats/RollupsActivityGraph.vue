@@ -4,6 +4,7 @@ import { abbreviate, formatBytes, comma, sortArrayOfObjects } from "@/services/u
 
 /** Components */
 import CircularChartCard from "@/components/modules/stats/CircularChartCard.vue"
+import ParallelCoordinatesChart from "@/components/modules/stats/ParallelCoordinatesChart.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 const props = defineProps({
@@ -13,9 +14,9 @@ const props = defineProps({
     },
 })
 
-console.log('props.rollups', props.rollups);
+// console.log('props.rollups', props.rollups);
 
-const metrics = ref(['total_size', 'blobs_count', 'avg_size', 'throughput', 'mb_price'])
+const metrics = ref(['mb_price', 'blobs_count', 'total_size', 'avg_size', 'throughput'])
 
 const prepareDataByMetric = (metric) => {
     return props.rollups.map((r) => {
@@ -27,13 +28,14 @@ const prepareDataByMetric = (metric) => {
     })
 }
 
-console.log('prepareDataByMetric', prepareDataByMetric('blobs_count'));
+// console.log('prepareDataByMetric', prepareDataByMetric('blobs_count'));
 
 </script>
 
 <template>
     <Flex align="center" justify="between" wide :class="$style.circular_chart_wrapper">
-        <CircularChartCard v-for="m in metrics" :data="prepareDataByMetric(m)" :class="$style.circular_chart" />
+        <ParallelCoordinatesChart :data="rollups" :metrics="metrics" />
+        <!-- <CircularChartCard v-for="m in metrics" :data="prepareDataByMetric(m)" :class="$style.circular_chart" /> -->
     </Flex>
 </template>
 

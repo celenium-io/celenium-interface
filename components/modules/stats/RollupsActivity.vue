@@ -15,7 +15,7 @@ const props = defineProps({
     },
 })
 
-const selectedView = ref('graph') // , 'table'
+const selectedView = ref('graph') // , table graph
 
 // const sort = reactive({
 // 	by: "total_size",
