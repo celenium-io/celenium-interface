@@ -18,7 +18,7 @@ const prevData = computed(() => {
 	let data = []
 	props.series.prevData?.forEach((d, index) => {
 		data.push({
-			date: currentData.value.data[index].date,
+			date: currentData.value?.data[index].date,
 			realDate: d.date,
 			value: d.value,
 		})

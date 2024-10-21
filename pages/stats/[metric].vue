@@ -130,27 +130,6 @@ const getData = async () => {
     isLoading.value = true
 
     let data = []
-	// if (series.value.aggregate !== 'cumulative') {
-	// 	data = (await fetchSeries({
-	// 		table: series.value.name,
-	// 		period: selectedPeriod.value.timeframe,
-	// 		from: parseInt(
-	// 			DateTime.now().minus({
-	// 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
-	// 				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
-	// 			}).ts / 1_000)
-	// 	})).reverse()
-	// } else {
-	// 	data = await fetchSeriesCumulative({
-	// 		name: series.value.name,
-	// 		period: selectedPeriod.value.timeframe,
-	// 		from: parseInt(
-	// 			DateTime.now().minus({
-	// 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
-	// 				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value * (loadPrevData.value ? 2 : 1) : 0,
-	// 			}).ts / 1_000)
-	// 	})
-	// }
 
 	if (series.value.aggregate !== 'cumulative') {
 		data = (await fetchSeries({
@@ -167,20 +146,14 @@ const getData = async () => {
 		data = await fetchSeriesCumulative({
 			name: series.value.name,
 			period: filters.timeframe,
-			from: filters.from,
+			from: loadPrevData.value ? parseInt(DateTime.fromSeconds(filters.from).minus({
+				hours: filters.timeframe === "hour" ? filters.periodValue : 0,
+				days: filters.timeframe === "day" ? filters.periodValue : 0,
+				weeks: filters.timeframe === "week" ? filters.periodValue : 0,
+			}).ts / 1_000) : filters.from,
 			to: filters.to
 		})
 	}
-
-    // if (data.length) {
-    //     if (loadPrevData.value) {
-    //         prevData.value = data.slice(0, selectedPeriod.value.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
-    //         currentData.value = data.slice(selectedPeriod.value.value, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
-    //     } else {
-	// 		prevData.value = []
-    //         currentData.value = data.slice(0, selectedPeriod.value.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
-    //     }
-    // }
 
 	if (data.length) {
         if (loadPrevData.value) {
@@ -305,7 +278,6 @@ watch(
 		}
 	},
 )
-
 </script>
 
 <template>
@@ -326,22 +298,6 @@ watch(
 				<Text size="16" weight="600" color="primary" justify="start"> {{ `${metricName} Chart` }} </Text>
 
 				<Flex align="center" gap="8" :class="series.name === 'square_size' && $style.disabled">
-					<!-- <Dropdown>
-						<Button size="mini" type="secondary">
-							{{ selectedPeriod.title }}
-							<Icon name="chevron" size="12" color="secondary" />
-						</Button>
-
-						<template #popup>
-							<DropdownItem v-for="(period, idx) in periods" @click="selectedPeriod = period">
-								<Flex align="center" gap="8">
-									<Icon :name="period.title === selectedPeriod.title ? 'check' : ''" size="12" color="secondary" />
-									{{ period.title }}
-								</Flex>
-							</DropdownItem>
-						</template>
-					</Dropdown> -->
-
 					<DatePicker
 						@on-update="handleUpdateDate"
 						:period="selectedPeriod"
