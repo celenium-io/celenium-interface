@@ -25,7 +25,7 @@ const prevData = computed(() => {
 	let data = []
 	props.series.prevData?.forEach((d, index) => {
 		data.push({
-			date: currentData.value.data[index].date,
+			date: currentData.value?.data[index].date,
 			realDate: d.date,
 			value: d.value,
 		})
@@ -82,7 +82,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 
 				return `${tia(value, 2)} TIA`
 			case 'seconds':
-				return `${truncateDecimalPart(value / 1_000, 1)}s`
+				return `${truncateDecimalPart(value / 1_000, 3)}s`
 			default:
 				return comma(value)
 		}

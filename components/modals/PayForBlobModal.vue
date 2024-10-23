@@ -165,6 +165,19 @@ const handleContinue = async () => {
 		const txHash = await sendPayForBlob(appStore.network, appStore.address, proto, stdFee, decodableBlob)
 		isAwaiting.value = false
 
+		if (!txHash) {
+			notificationsStore.create({
+				notification: {
+					type: "warning",
+					icon: "danger",
+					title: `Looks like your account is fresh`,
+					description: 'Top up your balance to submit the blob',
+					autoDestroy: true,
+				},
+			})
+			return
+		}
+
 		amp.log("successfulPfb")
 
 		cacheStore.tx.hash = txHash
@@ -186,7 +199,7 @@ const handleContinue = async () => {
 				notification: {
 					type: "warning",
 					icon: "danger",
-					title: `The request in Kepler was denied`,
+					title: `The request in wallet was denied`,
 					autoDestroy: true,
 				},
 			})

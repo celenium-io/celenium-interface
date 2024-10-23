@@ -4,16 +4,22 @@ import { DateTime } from "luxon"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
+import Checkbox from "@/components/ui/Checkbox.vue"
+import Popover from "@/components/ui/Popover.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Components */
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { formatBytes, comma, truncateDecimalPart } from "@/services/utils"
+import { formatBytes, comma, truncateDecimalPart, capitilize } from "@/services/utils"
 
 /** API */
 import { fetchRollups, fetchRollupsCount } from "@/services/api/rollup"
+
+/** Stores */
+import { useEnumStore } from "@/store/enums"
+const enumStore = useEnumStore()
 
 useHead({
 	title: "Rollups - Celestia Explorer",
@@ -80,6 +86,60 @@ const sort = reactive({
 	by: "size",
 	dir: "desc",
 })
+const categories = computed(() => {
+	let res = []
+	if (enumStore.enums.rollupCategories.length) {
+		res = enumStore.enums.rollupCategories.slice(1)
+		res.push('other')
+	}
+	
+	return res	
+})
+const filters = reactive({
+	categories: categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
+})
+const savedFiltersBeforeChanges = ref(null)
+
+const isCategoriesPopoverOpen = ref(false)
+const handleOpenCategoriesPopover = () => {
+	isCategoriesPopoverOpen.value = true
+
+	if (Object.keys(filters.categories).find((f) => filters.categories[f])) {
+		savedFiltersBeforeChanges.value = { ...filters.categories }
+	}
+}
+const onCategoriesPopoverClose = () => {
+	isCategoriesPopoverOpen.value = false
+
+	if (savedFiltersBeforeChanges.value) {
+		filters.categories = savedFiltersBeforeChanges.value
+		savedFiltersBeforeChanges.value = null
+	} else {
+		resetFilters("categories")
+	}
+}
+const handleApplyCategoriesFilters = () => {
+	savedFiltersBeforeChanges.value = null
+	isCategoriesPopoverOpen.value = false
+
+	if (page.value !== 1) {
+		page.value = 1
+	} else {
+		getRollups()
+	}
+}
+
+const resetFilters = (target) => {
+	Object.keys(filters[target]).forEach((f) => {
+		filters[target][f] = false
+	})
+
+	if (page.value !== 1) {
+		page.value = 1
+	} else {
+		getRollups()
+	}
+}
 
 const getRollupsCount = async () => {
 	const { data: rollupsCount } = await fetchRollupsCount()
@@ -95,6 +155,12 @@ const getRollups = async () => {
 	isRefetching.value = true
 
 	const data = await fetchRollups({
+		categories:
+			Object.keys(filters.categories).find((f) => filters.categories[f]) &&
+			Object.keys(filters.categories)
+				.filter((f) => filters.categories[f])
+				.map(c => c === 'other' ? 'uncategorized' : c)
+				.join(","),
 		limit: 20,
 		offset: (page.value - 1) * 20,
 		sort: sort.dir,
@@ -106,16 +172,6 @@ const getRollups = async () => {
 }
 
 getRollups()
-
-/** Refetch rollups */
-watch(
-	() => page.value,
-	async () => {
-		getRollups()
-
-		router.replace({ query: { page: page.value } })
-	},
-)
 
 const handleSort = (by) => {
 	switch (sort.dir) {
@@ -130,8 +186,11 @@ const handleSort = (by) => {
 	}
 
 	sort.by = by
-
-	getRollups()
+	if (page.value !== 1) {
+		page.value = 1
+	} else {
+		getRollups()
+	}
 }
 
 const handlePrev = () => {
@@ -145,6 +204,22 @@ const handleNext = () => {
 
 	page.value += 1
 }
+
+watch(
+	() => categories.value,
+	() => {
+		filters.categories = categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+	}
+)
+
+watch(
+	() => page.value,
+	async () => {
+		getRollups()
+
+		router.replace({ query: { page: page.value } })
+	},
+)
 </script>
 
 <template>
@@ -191,23 +266,60 @@ const handleNext = () => {
 				</Flex>
 			</Flex>
 
+			<Flex align="center" justify="between" wrap="wrap" gap="8" :class="$style.settings">
+				<Flex wrap="wrap" align="center" gap="8">
+					<Popover :open="isCategoriesPopoverOpen" @on-close="onCategoriesPopoverClose" width="200">
+						<Button @click="handleOpenCategoriesPopover" type="secondary" size="mini">
+							<Icon name="plus-circle" size="12" color="tertiary" />
+							<Text color="secondary">Category</Text>
+
+							<template v-if="Object.keys(filters.categories).find((c) => filters.categories[c])">
+								<div :class="$style.vertical_divider" />
+
+								<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
+									{{ Object.keys(filters.categories)
+										.filter((c) => filters.categories[c])
+										.map(c => c === 'nft' ? c.toUpperCase() : capitilize(c))
+										.join(", ")
+									}}
+								</Text>
+
+								<Icon @click.stop="resetFilters('categories', true)" name="close-circle" size="12" color="secondary" />
+							</template>
+						</Button>
+
+						<template #content>
+							<Flex direction="column" gap="12">
+								<Text size="12" weight="500" color="secondary">Filter by Category</Text>
+
+								<Flex direction="column" gap="8" :class="$style.filters_list">
+									<Checkbox
+										v-for="c in Object.keys(filters.categories)"
+										v-model="filters.categories[c]"
+									>
+										<Text size="12" weight="500" color="primary">
+											{{ c === 'nft' ? c.toUpperCase() : capitilize(c) }}
+										</Text>
+									</Checkbox>
+								</Flex>
+
+								<Button @click="handleApplyCategoriesFilters" type="secondary" size="mini" wide>Apply</Button>
+							</Flex>
+						</template>
+					</Popover>
+				</Flex>
+			</Flex>
+
 			<Flex direction="column" gap="16" wide :class="[$style.table, isRefetching && $style.disabled]">
-				<div v-if="rollups.length" :class="$style.table_scroller">
+				<div v-if="rollups?.length" :class="$style.table_scroller">
 					<table>
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>#</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Rollup</Text></th>
-								<th @click="handleSort('time')" :class="$style.sortable">
+								<th>
 									<Flex align="center" gap="6">
-										<Text size="12" weight="600" color="tertiary" noWrap>Last Active</Text>
-										<Icon
-											v-if="sort.by === 'time'"
-											name="chevron"
-											size="12"
-											color="secondary"
-											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
-										/>
+										<Text size="12" weight="600" color="tertiary" noWrap>Category</Text>
 									</Flex>
 								</th>
 								<th @click="handleSort('size')" :class="$style.sortable">
@@ -262,10 +374,40 @@ const handleNext = () => {
 								<td style="width: 1px">
 									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center" gap="8">
-											<Flex v-if="r.logo" align="center" justify="center" :class="$style.avatar_container">
-												<img :src="r.logo" :class="$style.avatar_image" />
-											</Flex>
+											<Flex v-if="r.logo" align="center" :class="$style.avatar_wrapper">
+												<div :class="$style.avatar_container">
+													<img :src="r.logo" :class="$style.avatar_image" />
+												</div>
 
+												<Tooltip :class="$style.status_dot_wrapper">
+													<div
+														:class="$style.status_dot"
+														:style="{
+															background: `${Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 1
+																			? ''
+																			: Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 7
+																				? 'var(--light-orange)'
+																				: 'var(--red)'
+																		}`
+														}"
+													/>
+
+													<template #content>
+														<Flex align="end" gap="8">
+															<Text size="12" weight="600" color="tertiary"> {{
+																`Was active 
+																${Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 1
+																	? 'less than a day ago'
+																	: Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 7
+																		? 'more than a day ago'
+																		: 'more than a week ago'
+																}`
+															}} </Text>
+														</Flex>
+													</template>
+												</Tooltip>
+											</Flex>
+											
 											<Text size="12" weight="600" color="primary" mono>
 												{{ r.name }}
 											</Text>
@@ -274,14 +416,8 @@ const handleNext = () => {
 								</td>
 								<td>
 									<NuxtLink :to="`/rollup/${r.slug}`">
-										<Flex direction="column" justify="center" gap="4">
-											<Text size="12" weight="600" color="primary">
-												{{ DateTime.fromISO(r.last_message_time).toRelative({ locale: "en", style: "short" }) }}
-											</Text>
-
-											<Text size="12" weight="500" color="tertiary">
-												{{ DateTime.fromISO(r.last_message_time).setLocale("en").toFormat("LLL d, t") }}
-											</Text>
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary"> {{ r.category === 'nft' ? r.category.toUpperCase() : capitilize(r.category) }} </Text>
 										</Flex>
 									</NuxtLink>
 								</td>
@@ -387,6 +523,23 @@ const handleNext = () => {
 	padding: 0 16px;
 }
 
+.settings {
+	border-radius: 4px;
+	background: var(--card-background);
+
+	padding: 8px 16px;
+}
+
+.vertical_divider {
+	min-width: 2px;
+	height: 12px;
+	background: var(--op-10);
+}
+
+.filters_list {
+	height: auto;
+}
+
 .table_scroller {
 	overflow-x: auto;
 }
@@ -469,10 +622,16 @@ const handleNext = () => {
 	}
 }
 
+.avatar_wrapper {
+  position: relative;
+  width: 25px;
+  height: 25px;
+}
+
 .avatar_container {
 	position: relative;
-	width: 25px;
-	height: 25px;
+	width: 100%;
+	height: 100%;
 	overflow: hidden;
 	border-radius: 50%;
 }
@@ -481,6 +640,21 @@ const handleNext = () => {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+}
+
+.status_dot_wrapper {
+	position: absolute;
+	bottom: 0px;
+	right: 0px;
+	z-index: 1;
+}
+
+.status_dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: var(--brand);
+	border: 1px solid var(--card-background);
 }
 
 .table.disabled {

@@ -187,6 +187,7 @@ const runGasLimitEstimation = async () => {
 		[protoMsgs],
 		[{ denom: "utia", amount: "1" }],
 	)
+	
 	estimatedGasLimit.value = parseInt(gasUsed)
 }
 

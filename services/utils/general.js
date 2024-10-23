@@ -124,6 +124,10 @@ export const getNetworkName = () => {
 	}
 }
 
+export const isMainnet = () => {
+	return getNetworkName() === "Mainnet"
+}
+
 export const isMac = () => {
 	return navigator.platform.toUpperCase().indexOf("MAC") >= 0
 }

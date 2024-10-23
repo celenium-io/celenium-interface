@@ -103,7 +103,7 @@ export const sendPayForBlob = async (network, sender, proto, fee, blob) => {
 			accountNumber: Long.fromString(account.account_number),
 		}
 
-		const signed = await keplr.signDirect(network.chainId, sender, signDoc)
+		const signed = await window.wallet.signDirect(network.chainId, sender, signDoc)
 
 		const body = buildPayForBlob(
 			TxRaw.encode({

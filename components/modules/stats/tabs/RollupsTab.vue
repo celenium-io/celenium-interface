@@ -17,19 +17,22 @@ import { capitalizeAndReplaceUnderscore } from "@/services/utils";
 import { fetchRollups, fetchRollupsDailyStats } from "@/services/api/rollup.js"
 
 const isLoading = ref(false)
-const series = computed(() => getSeriesByGroupAndType('Rollups'))
 const rollupsDailyStats = ref([])
+const series = ref()
 
 const getRollups = async () => {
 	isLoading.value = true
 
-	const data = await fetchRollups({
-		limit: 100,
+	series.value = getSeriesByGroupAndType('Rollups')
+
+	fetchRollups({ limit: 100 })
+	.then((res) => {
+		series.value.data = res
+	})
+	.finally(() => {
+		isLoading.value = false
 	})
 
-	series.value.data = data
-
-    isLoading.value = false
 }
 
 const getRollupsDailyStats = async () => {
@@ -46,10 +49,6 @@ const getRollupsDailyStats = async () => {
 
 const tabs = ref(['overview', 'daily_stats'])
 const selectedTab = ref(tabs.value[0])
-
-onBeforeMount(async () => {
-    await getRollups()
-})
 
 watch(
 	() => selectedTab.value,
@@ -72,6 +71,8 @@ watch(
 		}
 	}
 )
+
+await getRollups()
 </script>
 
 <template>
@@ -104,7 +105,6 @@ watch(
 
 			<Flex align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
                 <PieChartCard
-                    v-if="!isLoading"
                     v-for="s in series"
                     :series="s"
                     :data="series.data"

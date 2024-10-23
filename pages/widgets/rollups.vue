@@ -5,16 +5,16 @@ import { DateTime } from "luxon"
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownDivider, DropdownItem, DropdownTitle } from "@/components/ui/Dropdown"
-import Tooltip from "@/components/ui/Tooltip.vue"
-
-/** Components */
-import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { formatBytes, comma, truncateDecimalPart, abbreviate } from "@/services/utils"
+import { formatBytes, comma, abbreviate, capitilize } from "@/services/utils"
 
 /** API */
 import { fetchRollups, fetchRollupsCount } from "@/services/api/rollup"
+
+/** Stores */
+import { useEnumStore } from "@/store/enums"
+const enumStore = useEnumStore()
 
 useHead({
 	title: "Rollups - Celestia Explorer",
@@ -71,20 +71,33 @@ definePageMeta({
 const route = useRoute()
 const router = useRouter()
 
-const isRefetching = ref(false)
+const isLoading = ref(false)
 const rollups = ref([])
 const count = ref(0)
-
-const utiaPerMB = (rollup) => {
-	let totalRollupMB = rollup.size / (1024 * 1024)
-
-	return rollup.fee / totalRollupMB
-}
 
 const sort = reactive({
 	by: "size",
 	dir: "desc",
 })
+
+const categories = computed(() => {
+	let res = []
+	if (enumStore.enums.rollupCategories.length) {
+		res = enumStore.enums.rollupCategories.slice(1)
+		res.push('other')
+	}
+	
+	return res	
+})
+const selectedCategories = ref([])
+
+const handleSelectCategory = (category) => {
+	if (selectedCategories.value.includes(category)) {
+		selectedCategories.value = selectedCategories.value.filter(c => c !== category)
+	} else {
+		selectedCategories.value.push(category)
+	}
+}
 
 const getRollupsCount = async () => {
 	const { data: rollupsCount } = await fetchRollupsCount()
@@ -98,9 +111,10 @@ const page = ref(route.query.page ? parseInt(route.query.page) : 1)
 const pages = computed(() => Math.ceil(count.value / limit.value))
 
 const getRollups = async () => {
-	isRefetching.value = true
+	isLoading.value = true
 
 	const data = await fetchRollups({
+		categories: selectedCategories.value.map(c => c === 'other' ? 'uncategorized' : c).join(','),
 		limit: limit.value,
 		offset: (page.value - 1) * limit.value,
 		sort: sort.dir,
@@ -109,26 +123,16 @@ const getRollups = async () => {
 
 	rollups.value = data
 
-	rollups.value.forEach(r => {
+	rollups.value?.forEach(r => {
 		r.size_graph = Math.max(Math.round(r.size_pct * 100, 2), 1)
 		r.blobs_count_graph = Math.max(Math.round(r.blobs_count_pct * 100, 2), 1)
 		r.fee_graph = Math.max(Math.round(r.fee_pct * 100, 2), 1)
 	})
 
-	isRefetching.value = false
+	isLoading.value = false
 }
 
-getRollups()
-
-/** Refetch rollups */
-watch(
-	() => page.value,
-	async () => {
-		getRollups()
-
-		router.replace({ query: { page: page.value } })
-	},
-)
+await getRollups()
 
 const expanded = ref({})
 const expand = (rollup) => {
@@ -138,14 +142,8 @@ const expand = (rollup) => {
 		expanded.value = rollup
 	}
 }
-const share = (r, metric) => {
-	return {
-		name: expanded.value.name,
-		value: Math.round(r[`${metric}_pct`] * 100, 2),
-	}
-}
 
-const handleSort = (by) => {
+const handleSort = async (by) => {
 	switch (sort.dir) {
 		case "desc":
 			if (sort.by == by) sort.dir = "asc"
@@ -161,7 +159,7 @@ const handleSort = (by) => {
 	if (page.value !== 1) {
 		page.value = 1
 	} else {
-		getRollups()
+		await getRollups()
 	}
 }
 
@@ -199,29 +197,51 @@ onMounted(() => {
 onBeforeUnmount(() => {
 	window.removeEventListener("resize", barWidthCalculation)
 })
+
+watch(
+	() => page.value,
+	async () => {
+		await getRollups()
+
+		router.replace({ query: { page: page.value } })
+	},
+)
+
+watch(
+	() => selectedCategories.value.length,
+	async () => {
+		if (page.value !== 1) {
+			page.value = 1
+		} else {
+			await getRollups()
+		}
+	}
+)
 </script>
 
 <template>
 	<Flex direction="column" wide :class="$style.wrapper" gap="16">
 		<Flex ref="headerEl" align="center" justify="between" :class="$style.actions">
 			<Flex align="center" gap="6">
-				<!-- <Flex align="center" gap="4" :class="$style.chip">
-					<Flex align="center" gap="4" :class="$style.content">
-						<Text size="12" weight="600" color="primary"> Size </Text>
+				<Flex
+					v-if="categories.length"
+					v-for="c in categories"
+					@click="handleSelectCategory(c)"
+					align="center"
+					gap="4"
+					:class="[$style.chip, selectedCategories.includes(c) && $style.active]"
+				>
+					<Flex align="center" :class="$style.content">
+						<Text size="12" weight="600" color="primary"> {{ c === 'nft' ? c.toUpperCase() : capitilize(c) }} </Text>
 					</Flex>
 				</Flex>
 
-				<Flex align="center" gap="4" :class="$style.chip">
-					<Flex align="center" gap="4" :class="$style.content">
-						<Text size="12" weight="600" color="primary"> Blobs </Text>
-					</Flex>
-				</Flex>
-
-				<Flex align="center" gap="4" :class="$style.chip">
-					<Flex align="center" gap="4" :class="$style.content">
-						<Text size="12" weight="600" color="primary"> Fee </Text>
-					</Flex>
-				</Flex> -->
+				<Skeleton
+					v-else
+					v-for="i in 3"
+					w="60"
+					h="22"
+				/>
 			</Flex>
 
 			<Flex align="center" gap="12">
@@ -238,7 +258,6 @@ onBeforeUnmount(() => {
 						<DropdownItem @click="handleSort('size')">
 							<Flex align="center" justify="between" gap="16" wide>
 								<Flex align="center" gap="8">
-									<!-- <Icon v-if="sort.by === 'size'" name="check" size="12" color="brand" /> -->
 									<Icon name="check" size="12" color="brand" :class="[sort.by === 'size' && $style.show, sort.by !== 'size' && $style.hide]" />
 
 									<Text size="12" color="primary">Size</Text>
@@ -251,7 +270,6 @@ onBeforeUnmount(() => {
 						<DropdownItem @click="handleSort('blobs_count')">
 							<Flex align="center" justify="between" gap="16" wide>
 								<Flex align="center" gap="8">
-									<!-- <Icon v-if="sort.by === 'blobs_count'" name="check" size="12" color="brand" /> -->
 									<Icon name="check" size="12" color="brand" :class="[sort.by === 'blobs_count' && $style.show, sort.by !== 'blobs_count' && $style.hide]" />
 
 									<Text size="12" color="primary">Blobs</Text>
@@ -264,7 +282,6 @@ onBeforeUnmount(() => {
 						<DropdownItem @click="handleSort('fee')">
 							<Flex align="center" justify="between" gap="16" wide>
 								<Flex align="center" gap="8">
-									<!-- <Icon v-if="sort.by === 'fee'" name="check" size="12" color="brand" /> -->
 									<Icon name="check" size="12" color="brand" :class="[sort.by === 'fee' && $style.show, sort.by !== 'fee' && $style.hide]" />
 
 									<Text size="12" color="primary">Fee</Text>
@@ -293,53 +310,82 @@ onBeforeUnmount(() => {
 		</Flex>
 
 		<Flex
-			v-if="rollups"
+			v-if="rollups.length"
 			v-for="r in rollups"
 			align="start"
 			direction="column"
 			gap="24"
-			:class="[$style.row, expanded.slug === r.slug && $style.row_expanded]"
+			:class="[isLoading && $style.disabled, $style.row, expanded.slug === r.slug && $style.row_expanded]"
 		>
 			<Flex ref="rowEl" @click="expand(r)" align="center" justify="between" wide>
 				<Flex align="center" gap="12">
-					<Flex align="center" justify="center" :class="$style.avatar_container">
-						<img :src="r.logo" :class="$style.avatar_image" />
+					<Flex v-if="r.logo" align="center" :class="$style.avatar_wrapper">
+						<div :class="$style.avatar_container">
+							<img :src="r.logo" :class="$style.avatar_image" />
+						</div>
+
+						<div
+							:class="$style.status_dot"
+							:style="{
+								background: `${Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 1
+												? ''
+												: Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 7
+													? 'var(--light-orange)'
+													: 'var(--red)'
+											}`
+							}"
+						/>
 					</Flex>
 
 					<Flex direction="column" gap="12">
-						<Flex align="center" gap="6">
+						<Flex align="center" gap="16">
 							<Text size="13" weight="600" color="primary" mono>
 								{{ r.name }}
 							</Text>
+
+							<Flex align="center" :class="$style.chip" :style="{ borderRadius: '8px' }">
+								<Flex align="center" :class="$style.content" :style="{ padding: '4px 8px' }">
+									<Text size="12" color="tertiary">
+										{{ r.category === 'nft'
+											? r.category.toUpperCase()
+											: r.category === 'uncategorized'
+												? 'Other'
+												: capitilize(r.category)
+										}}
+									</Text>
+								</Flex>
+							</Flex>
 						</Flex>
 
 						<Flex align="center" :class="$style.rollup_subtitle">
-							<Flex align="center" gap="8" :class="[expanded.slug === r.slug && $style.hide, expanded.slug !== r.slug && $style.show]">
-								<Text size="13" weight="500" color="tertiary">Size</Text>
-								<Text size="13" weight="600" color="primary">{{ formatBytes(r.size) }}</Text>
+							<Transition name="fade" mode="out-in">
+								<Flex v-if="expanded.slug !== r.slug" align="center" gap="8">
+									<Text size="13" weight="500" color="tertiary">Size</Text>
+									<Text size="13" weight="600" color="primary">{{ formatBytes(r.size) }}</Text>
 
-								<div :class="$style.dot" />
+									<div :class="$style.dot" />
 
-								<Text size="13" weight="500" color="tertiary">Blobs</Text>
-								<Text size="13" weight="600" color="primary">{{ abbreviate(r.blobs_count) }}</Text>
+									<Text size="13" weight="500" color="tertiary">Blobs</Text>
+									<Text size="13" weight="600" color="primary">{{ abbreviate(r.blobs_count) }}</Text>
 
-								<div :class="$style.dot" />
+									<div :class="$style.dot" />
 
-								<Text size="13" weight="500" color="tertiary">Fee</Text>
-								<Text size="13" weight="600" color="primary">{{ `${abbreviate(Math.round(r.fee / 1_000_000))} TIA` }}</Text>
-							</Flex>
+									<Text size="13" weight="500" color="tertiary">Fee</Text>
+									<Text size="13" weight="600" color="primary">{{ `${abbreviate(Math.round(r.fee / 1_000_000))} TIA` }}</Text>
+								</Flex>
 
-							<Flex align="center" gap="12" :class="[expanded.slug !== r.slug && $style.hide, expanded.slug === r.slug && $style.show]">
-								<Icon v-if="r.website" @click.prevent.stop=handleOpenLink(r.website) name="globe" size="13" color="secondary" />
+								<Flex v-else align="center" gap="12">
+									<Icon v-if="r.website" @click.prevent.stop=handleOpenLink(r.website) name="globe" size="13" color="secondary" />
 
-								<Icon v-if="r.twitter" @click.prevent.stop=handleOpenLink(r.twitter) name="twitter" size="13" color="secondary" />
+									<Icon v-if="r.twitter" @click.prevent.stop=handleOpenLink(r.twitter) name="twitter" size="13" color="secondary" />
 
-								<Icon v-if="r.github" @click.prevent.stop=handleOpenLink(r.github) name="github" size="13" color="secondary" />
+									<Icon v-if="r.github" @click.prevent.stop=handleOpenLink(r.github) name="github" size="13" color="secondary" />
 
-								<Icon v-if="r.l2_beat" @click.prevent.stop=handleOpenLink(r.l2_beat) name="l2beat" size="13" color="secondary" />
+									<Icon v-if="r.l2_beat" @click.prevent.stop=handleOpenLink(r.l2_beat) name="l2beat" size="13" color="secondary" />
 
-								<Icon v-if="r.explorer" @click.prevent.stop=handleOpenLink(r.explorer) name="search" size="13" color="secondary" />
-							</Flex>
+									<Icon v-if="r.explorer" @click.prevent.stop=handleOpenLink(r.explorer) name="search" size="13" color="secondary" />
+								</Flex>
+							</Transition>
 						</Flex>
 					</Flex>
 				</Flex>
@@ -355,13 +401,11 @@ onBeforeUnmount(() => {
 			</Flex>
 
 			<Flex
-				v-show="expanded.slug === r.slug"
 				align="center"
 				direction="column"
 				gap="16"
-				:class="[$style.rollup_info, expanded.slug === r.slug && $style.show]"
+				:class="[$style.rollup_info, expanded.slug === r.slug && $style.rollup_info_expanded]"
 			>
-			<!-- :class="[$style.rollup_info, expanded.slug === r.slug && $style.show]" -->
 				<Flex direction="column" gap="12">
 					<Flex align="center" justify="between">
 						<Flex align="center" gap="8">
@@ -459,6 +503,13 @@ onBeforeUnmount(() => {
 				</Flex>
 			</Flex>
 		</Flex>
+
+		<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+            <Text size="13" weight="600" color="secondary" align="center"> No rollups found </Text>
+            <Text size="12" weight="500" height="160" color="tertiary" align="center">
+                There are no rollups to display
+            </Text>
+        </Flex>
 	</Flex>
 </template>
 
@@ -469,13 +520,13 @@ onBeforeUnmount(() => {
 
 .row {
 	height: 60px;
+	padding: 12px 16px 0 16px;
 
 	border-top: 1px solid var(--op-5);
 
 	cursor: pointer;
-
-	padding: 16px 16px;
-
+	
+	overflow: hidden;
 	transition: all 0.5s ease;
 }
 
@@ -493,10 +544,16 @@ onBeforeUnmount(() => {
 	background: var(--op-10);
 }
 
+.avatar_wrapper {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
 .avatar_container {
 	position: relative;
-	width: 40px;
-	height: 40px;
+	width: 100%;
+	height: 100%;
 	overflow: hidden;
 	border-radius: 50%;
 }
@@ -505,6 +562,18 @@ onBeforeUnmount(() => {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+}
+
+.status_dot {
+	position: absolute;
+	bottom: 0px;
+	right: 0px;
+	z-index: 1;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background: var(--brand);
+	border: 1px solid var(--card-background);
 }
 
 .rollup_subtitle {
@@ -517,9 +586,14 @@ onBeforeUnmount(() => {
 }
 
 .rollup_info {
+	height: 0;
 	padding-left: 52px;
+	transition: all 0.5s ease;
+}
 
-	transition: all 0.2s ease;
+.rollup_info_expanded {
+	height: 100%;
+	transition: all 0.5s ease;
 }
 
 .validator_bar {
@@ -537,6 +611,18 @@ onBeforeUnmount(() => {
 .chip {
     box-shadow: inset 0 0 0 1px var(--op-15);
     border-radius: 10px;
+	cursor: pointer;
+
+	transition: all 0.2s ease;
+
+	&:active {
+		scale: 0.95;
+	}
+
+	&.active {
+		background-color: var(--card-background);
+		box-shadow: inset 0 0 0 1px var(--brand);
+	}
 }
 
 .content {
@@ -564,6 +650,15 @@ a {
 			fill: var(--txt-secondary);
 		}		
 	}
+}
+
+.disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.empty {
+	padding: 16px 0;
 }
 
 @media (max-width: 500px) {
