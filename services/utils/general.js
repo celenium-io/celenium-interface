@@ -156,6 +156,8 @@ export function base64ToHex(base64) {
 }
 
 export function sortArrayOfObjects(arr, param, asc = true) {
+	if (!arr || !arr?.length) return []
+
 	return arr.sort((a, b) => {
 		if (a[param] > b[param]) {
 			return asc ? 1 : -1

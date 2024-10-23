@@ -5,6 +5,11 @@ import { DateTime } from "luxon"
 
 /** Stats Components */
 import DiffChip from "@/components/modules/stats/DiffChip.vue"
+import RollupsActivityTable from "@/components/modules/stats/RollupsActivityTable.vue"
+
+/** Components */
+import Tooltip from "@/components/ui/Tooltip.vue"
+
 
 /** Services */
 import { abbreviate, capitilize, comma, formatBytes, sortArrayOfObjects } from "@/services/utils"
@@ -25,60 +30,17 @@ const props = defineProps({
 
 const resData = ref([])
 const sortedData = ref({})
-// const sortedData1 = computed(() => {
-//     let res = {}
-//     props.metrics.forEach(m => {
-//         res[m] = sortArrayOfObjects(resData.value, m)
-//     })
 
-//     return res
-// })
+const selectedRollups = ref([])
+const selectedRollupsData = computed(() => {
+    let res = []
+    res = sortedData.value[sort?.by]?.filter(r => selectedRollups.value?.includes(r.slug))
+    res = sortArrayOfObjects(res, sort.by, sort.dir === 'asc' ? true : false)
 
-// console.log('sortedData', sortedData.value);
-
-const total = ref(0)
-
-// const prepareRollupsData = () => {
-//     props.data.forEach(el => {
-//         resData.value.push({
-//             name: el.name,
-//             value: el.throughput,
-//         })
-//     })
-
-    // console.log('resData', resData.value);
-    
-    // let key = props.series.name
-    // props.data.forEach(el => {
-    //     resData.value.push(
-    //         {
-    //             name: el.name,
-    //             value: props.series.units === 'utia' ? Math.round(el[key], 2) : el[key],
-    //             share: Math.round(el[`${key}_pct`] * 100, 2),
-    //         }
-    //     )
-    // })
-
-    // resData.value.sort((a, b) => b.value - a.value)
-    // total.value = resData.value.reduce((sum, el) => sum + el.value, 0)
-
-    // let startlength = resData.value.length
-    // resData.value = resData.value.slice(0, Math.min(startlength, 4))
-
-    // if (startlength > 4) {
-    //     resData.value.push({
-    //         name: "Other",
-    //         value: total.value - resData.value.reduce((sum, el) => sum + el.value, 0),
-    //         share: 100 - resData.value.reduce((sum, el) => sum + el.share, 0),
-    //     })
-    // }
-// }
+    return res
+})
 
 const chartEl = ref()
-const innerRadius = ref(0)
-const outerRadius = ref(0)
-const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#55c9ab", "#142f28"]))
-        .domain([0, 5])
 
 const prepareData = () => {
     let res = []
@@ -90,233 +52,452 @@ const prepareData = () => {
             row[m] = d[m]
             row.metric = m
             row.slug = d.slug
+            row.name = d.name
         })
 
         res.push(row)
     })
 
     props.metrics.forEach(m => {
-        sortRes[m] = [...props.data].sort((a, b) => a[m] - b[m]) //sortArrayOfObjects(props.data, m)
+        sortRes[m] = [...props.data].sort((a, b) => a[m] - b[m])
     })
 
     resData.value = res
     sortedData.value = sortRes
 }
 
+const sort = reactive({
+	by: "mb_price",
+	dir: "desc",
+})
+
+const handleSort = (by) => {
+	switch (sort.dir) {
+		case "desc":
+			if (sort.by == by) sort.dir = "asc"
+			break
+
+		case "asc":
+			sort.dir = "desc"
+
+			break
+	}
+
+	sort.by = by
+}
+
+function highlight(slug) {
+    const elements = document.querySelectorAll(`[slug="${slug}"]`)
+    elements.forEach(el => {
+        switch (el.nodeName) {
+        case "text":
+            el.style.fill = "var(--txt-primary)"
+
+            break
+        case "path":
+            el.style.opacity = 1
+            el.style.filter = "brightness(1.2)"
+
+            break
+        }
+    })
+}
+
+function unhighlight(slug) {
+    const elements = document.querySelectorAll(`[slug="${slug}"]`)
+    elements.forEach(el => {
+        if (!selectedRollups.value.includes(slug)) {
+            switch (el.nodeName) {
+                case "text":
+                    el.style.fill = "var(--txt-secondary)"
+
+                    break
+                case "path":
+                    el.style.opacity = 0.5
+                    el.style.filter = "brightness(0.6)"
+
+                    break
+            }
+        }
+    })
+}
+
+function selectRollup(slug) {
+    if (selectedRollups.value.includes(slug)) {
+        selectedRollups.value = selectedRollups.value.filter(r => r !== slug)
+        unhighlight(slug)
+
+        return
+    } else if (selectedRollups.value.length > 2) {
+        let firstRollup = selectedRollups.value.shift()
+        unhighlight(firstRollup)
+    }
+
+    highlight(slug)
+    selectedRollups.value.push(slug)
+}
+
 const buildChart = (chart, data) => {
 	const height = chart.getBoundingClientRect().height
 	const width = chart.getBoundingClientRect().width
     
-    const margin = { top: 6, right: 12, bottom: 12, left: 12 }
-    innerRadius.value = 60
-    outerRadius.value = Math.min(width, height) / 2
-    const maxValue = d3.max(data, d => d.value)
-    const minValue = +d3.min(data, d => d.value)
-    
+    const margin = { top: 32, right: 12, bottom: 6, left: 12 }
 
 	/** SVG Container */
 	const svg = d3
 		.create("svg")
             .attr("width", width)
-            .attr("height", height)
+            .attr("height", height - margin.top - margin.bottom)
             .attr("viewBox", [0, 0, width, height])
-        // .append("g")
-        //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    
-    // const yy = d3.scaleLinear()
-    //             // .domain( d3.extent(data, function(d) { return +d[m]; }) )
-    //             .domain([ 0, data.length + 1 ])
-    //             .range([height, 0])
-    // console.log('data.length', data.length);
-    
-    // console.log('yy(3)', yy(3));
-    
-    
-    let y = {}
-    props.metrics.forEach(m => {
-        // switch (m) {
-        //     case 'total_size':
-        //         y[m] = d3.scaleLog()
-        //             .domain([1, maxFee + maxFee * 0.3])
-        //             .range([height + 5, 0])
-        //             .base(10)
-        //             .nice()
-                
-        //         break;
         
-        //     default:
-        //         break;
-        // }
-        y[m] = d3.scaleLinear()
-                // .domain( d3.extent(data, function(d) { return +d[m]; }) )
-                .domain([ 0, data.length + 1 ])
-                .range([height, 0])
-        // y[m] = d3.scaleLog()
-        //         .domain( d3.extent(data, function(d) { return +d[m]; }) )
-        //         .range([height, 0])
-    })
-
-    // for (i in dimensions) {
-    //     name = dimensions[i]
-    //     y[name] = d3.scaleLinear()
-    //     .domain( d3.extent(data, function(d) { return +d[name]; }) )
-    //     .range([height, 0])
-    // }
+    const y = d3.scaleLinear()
+                .domain([ -1, data.length ])
+                .range([height - 2, margin.top])
 
     // X scale
     const x = d3.scalePoint()
-                .range([0, width])
+                .range([ 0, width ])
                 .padding(1)
                 .domain(props.metrics)
-    // const x = d3.scaleBand()
-    //     .range([0, 2 * Math.PI])    // X axis goes from 0 to 2pi = all around the circle. If I stop at 1Pi, it will be around a half circle
-    //     .align(0)                  // This does nothing ?
-    //     .domain( data.map(function(d) { return d.name; }) ); // The domain of the X axis is the list of states.
-
-    // const y = d3.scaleLog()
-    //     .range([innerRadius.value, outerRadius.value])   // Domain will be define later.
-    //     .domain([minValue, maxValue]) // Domain of Y is from 0 to the max seen in the data
     
-    // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
-    const path = (d) => {
-        // console.log('d', d);        
-        
-        // console.log('metrics.map', props.metrics.map(m => [x(m), y[m](i)]));
-        
-        return d3.line()(props.metrics.map(function(m) {
-            // console.log('i', i);
-            
-            // console.log('x(p)', x(m));
-            // console.log('y[p]', y[p]);
-            // console.log('d[p]', d[p]);
-            // console.log('y[p](i)', y[m](i));
-            
-            let index = sortedData.value[m].findIndex(el => el.slug === d.slug)
-            // console.log('m', m);
-            // console.log('d.slug', d.slug);
-            
-            // console.log('sortedData.value[m]', sortedData.value[m]);
-            
-            // console.log('index', index);            
-            // console.log('y[m](index)', y[m](index));
-            
-            return [x(m), y[m](index)]; }));
+    const getAxisTitle = (metric) => {
+        switch (metric) {
+            case 'total_size':
+                return 'Total Size'
+            case 'blobs_count':
+                return 'Blobs'
+            case 'avg_size':
+                return 'Avg Blob Size'
+            case 'throughput':
+                return 'Throughput (b/s)'
+            case 'mb_price':
+                return 'MB Price'
+            default:
+                return metric
+        }
     }
-    // console.log('x(avg_size)', x('avg_size'));
-    // console.log('y["avg_size"](2)', y.avg_size(2));
-    
-    
 
-    // console.log('data', data);
-    
-    // console.log('resData()', resData());
-    
+    // The path function take a row as input, and return x and y coordinates of the line to draw
+    const path = (d) => {
+        return d3.line()(props.metrics.map(function(m) {
+            let index = sortedData.value[m].findIndex(el => el.slug === d.slug)
+            
+            return [ x(m), y(index) ]
+        }))
+    }
+
+    // Draw the axis:
+    const midAxis = props.metrics.slice(1, props.metrics.length - 1)
+    const edgeAxis = [props.metrics[0], props.metrics[props.metrics.length - 1]]
+    svg.selectAll("middle-axis")
+        .data(midAxis).enter()
+        .append("g")
+        .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+        .attr("class", "axis")
+        .each(function(d, i) { 
+            const g = d3.select(this)
+            g.call(
+                d3.axisLeft()
+                    .scale(y)
+                    .ticks(0)
+                    .tickSizeOuter(0)
+            )
+
+            // Outer ticks
+            g.append("line")
+                .attr("x1", -10)
+                .attr("y1", margin.top)
+                .attr("x2", 10)
+                .attr("y2", margin.top)
+            g.append("line")
+                .attr("x1", -10)
+                .attr("y1", height - 2)
+                .attr("x2", 10)
+                .attr("y2", height - 2)
+            
+            // Axis titles
+            g.append("text")
+                .attr("y", margin.top - 8)
+                .text(getAxisTitle(d))
+                .style("text-anchor", "middle")
+                .style("font-size", "12")
+                .style("font-style", "12")
+                .style("font-weight", "600")
+                .style("fill", "#454749")
+        })
 
     // Draw the lines
-    svg
-        .selectAll("myPath")
+    svg.selectAll("pathes")
         .data(data)
         .enter().append("path")
         .attr("d", path )
+        .attr("class", "graph")
+        .attr("slug", d => d.slug)
         .style("fill", "none")
         .style("stroke", "var(--brand)")
-        .style("stroke-width", "6px")
+        .style("stroke-width", "3px")
         .style("opacity", 0.5)
+        .style("filter", "brightness(0.6)")
+        .style("transition", "all 0.5s ease")
+    
+    svg.selectAll("first-last-axis")
+        .data(edgeAxis).enter()
+        .append("g")
+        .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+        .attr("class", "axis")
+        .each(function(d, i) { 
+            const g = d3.select(this)
+            g.call(
+                d3.axisLeft()
+                    .scale(y)
+                    .ticks(0)
+                    .tickSizeOuter(0)
+            )
+
+            // Outer ticks
+            g.append("line")
+                .attr("x1", -10)
+                .attr("y1", margin.top)
+                .attr("x2", 10)
+                .attr("y2", margin.top)
+            g.append("line")
+                .attr("x1", -10)
+                .attr("y1", height - 2)
+                .attr("x2", 10)
+                .attr("y2", height - 2)
+            
+            // Axis titles
+            g.append("text")
+                .attr("y", margin.top - 8)
+                .text(getAxisTitle(d))
+                .style("text-anchor", "middle")
+                .style("font-size", "12")
+                .style("font-style", "12")
+                .style("font-weight", "600")
+                .style("fill", "#454749")
+        })
+
+    svg.selectAll("line, path:not(.graph)")
+        .style("stroke", "#454749")
+        .style("stroke-width", "2px")
     
     
-    
-    // // Add bars
-    // svg.append("g")
-    //     .selectAll("path")
-    //     .data(data)
-    //     .enter()
-    //     .append("path")
-    //         .attr("fill", "var(--brand)")
-    //         .attr("d", d3.arc()     // imagine your doing a part of a donut plot
-    //             .innerRadius(innerRadius.value)
-    //             .outerRadius(function(d) { return y(d.value); })
-    //             .startAngle(function(d) { return x(d.name); })
-    //             .endAngle(function(d) { return x(d.name) + x.bandwidth(); })
-    //             .padAngle(0.01)
-    //             .padRadius(innerRadius.value))
-    
-      // Draw the axis:
-  svg.selectAll("myAxis")
-    // For each dimension of the dataset I add a 'g' element:
-    .data(props.metrics).enter()
-    .append("g")
-    // I translate this element to its right position on the x axis
-    .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
-    // And I build the axis with the call function
-    .each(function(d) { d3.select(this).call(d3.axisLeft().scale(y[d])); })
-    // Add axis title
-    .append("text")
-        .style("text-anchor", "middle")
-        .attr("y", -9)
-        .text(function(d) { return d; })
-        .style("fill", "black")
-    
+    edgeAxis.forEach((m, i) => {
+        svg.selectAll("labels")
+            .data(sortedData.value[m]).enter()
+            .append("text")
+                .attr("x", x(m) + (i === 0 ? -10 : 10))
+                .attr("y", (d, i) => y(i) + 5 )
+                .attr("slug", d => d.slug)
+                .text(d => d.name)
+                .style("text-anchor", `${i === 0 ? 'end' : 'start'}`)
+                .style("font-size", "12")
+                .style("font-weight", "600")
+                .style("fill", "var(--txt-secondary)")
+                .style("cursor", "pointer")
+                .on('mouseover', (event, d) => highlight(d.slug))
+                .on('mouseleave', (event, d) => unhighlight(d.slug))
+                .on('click', function(event, d) {
+                    const el = d3.select(this)
+                    const elX = el.attr("x")
+                    const elY = el.attr("y")
+
+                    el
+                        .transition()
+                        .duration(150)
+                        .attr("transform", `translate(${elX},${elY}) scale(0.9) translate(${-elX},${-elY})`)
+                        .transition()
+                        .duration(150)
+                        .attr("transform", `translate(${elX},${elY}) scale(1) translate(${-elX},${-elY})`)
+
+                    selectRollup(d.slug)
+                })
+    })
+
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
 }
 
 onMounted(() => {
     prepareData()
-    console.log('sortedData.value', sortedData.value);
-    
 
     buildChart(chartEl.value.wrapper, resData.value)
-    // console.log('props.data', props.data);
-    
 })
 </script>
 
 <template>
-	<Flex direction="column" justify="start" gap="8" wide :class="$style.wrapper">
-        <Flex ref="chartEl" :class="$style.chart" />
+	<Flex direction="column" justify="start" gap="4" wide :class="$style.wrapper">
+        <div :class="$style.chart_wrapper">
+            <Flex ref="chartEl" :class="$style.chart" />
+        </div>
+
+        <div :class="$style.horizontal_divider" />
+
+        <Flex justify="center" direction="column" gap="8" wide :class="$style.table">
+            <Transition name="fastfade" mode="out-in">
+                <div v-if="selectedRollupsData?.length" :class="$style.table_scroller">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><Text size="12" weight="600" color="tertiary" noWrap>Rollup</Text></th>
+                                <th @click="handleSort('mb_price')" :class="$style.sortable">
+                                    <Flex align="center" gap="6">
+                                        <Text size="12" weight="600" color="tertiary" noWrap>MB Price</Text>
+                                        <Icon
+                                            v-if="sort.by === 'mb_price'"
+                                            name="chevron"
+                                            size="12"
+                                            color="secondary"
+                                            :style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+                                        />
+                                    </Flex>
+                                </th>
+                                <th @click="handleSort('blobs_count')" :class="$style.sortable">
+                                    <Flex align="center" gap="6">
+                                        <Text size="12" weight="600" color="tertiary" noWrap>Blobs</Text>
+                                        <Icon
+                                            v-if="sort.by === 'blobs_count'"
+                                            name="chevron"
+                                            size="12"
+                                            color="secondary"
+                                            :style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+                                        />
+                                    </Flex>
+                                </th>
+                                <th @click="handleSort('total_size')" :class="$style.sortable">
+                                    <Flex align="center" gap="6">
+                                        <Text size="12" weight="600" color="tertiary" noWrap>Total Size</Text>
+                                        <Icon
+                                            v-if="sort.by === 'total_size'"
+                                            name="chevron"
+                                            size="12"
+                                            color="secondary"
+                                            :style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+                                        />
+                                    </Flex>
+                                </th>
+                                <th @click="handleSort('avg_size')" :class="$style.sortable">
+                                    <Flex align="center" gap="6">
+                                        <Text size="12" weight="600" color="tertiary" noWrap>Avg Blob Size</Text>
+                                        <Icon
+                                            v-if="sort.by === 'avg_size'"
+                                            name="chevron"
+                                            size="12"
+                                            color="secondary"
+                                            :style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+                                        />
+                                    </Flex>
+                                </th>
+                                <th @click="handleSort('throughput')" :class="$style.sortable">
+                                    <Flex align="center" gap="6">
+                                        <Text size="12" weight="600" color="tertiary" noWrap>Throughput (b/s)</Text>
+                                        <Icon
+                                            v-if="sort.by === 'throughput'"
+                                            name="chevron"
+                                            size="12"
+                                            color="secondary"
+                                            :style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+                                        />
+                                    </Flex>
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr v-for="r in selectedRollupsData">
+                                <td style="width: 1px">
+                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                        <Flex align="center" gap="8">
+                                            <Flex v-if="r.logo" align="center" justify="center" :class="$style.avatar_container">
+                                                <img :src="r.logo" :class="$style.avatar_image" />
+                                            </Flex>
+
+                                            <Text size="12" weight="600" color="primary" mono>
+                                                {{ r.name }}
+                                            </Text>
+                                        </Flex>
+                                    </NuxtLink>
+                                </td>
+                                <td>
+                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                        <Flex align="center">
+                                            <AmountInCurrency :amount="{ value: r.mb_price }" />
+                                        </Flex>
+                                    </NuxtLink>
+                                </td>
+                                <td>
+                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                        <Tooltip position="start" delay="400">
+                                            <Flex align="center">
+                                                <Text size="12" weight="600" color="primary">{{ abbreviate(r.blobs_count) }}</Text>
+                                            </Flex>
+
+                                            <template #content>
+                                                <Text size="12" weight="600" color="tertiary"> {{ comma(r.blobs_count) }} </Text>
+                                            </template>
+                                        </Tooltip>
+                                    </NuxtLink>
+                                </td>
+                                <td>
+                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                        <Flex align="center">
+                                            <Text size="12" weight="600" color="primary">{{ formatBytes(r.total_size) }}</Text>
+                                        </Flex>
+                                    </NuxtLink>
+                                </td>
+                                <td>
+                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                        <Flex align="center">
+                                            <Text size="12" weight="600" color="primary">
+                                                {{ formatBytes(r.avg_size) }}
+                                            </Text>
+                                        </Flex>
+                                    </NuxtLink>
+                                </td>
+                                <td>
+                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                        <Flex align="center">
+                                            <Text size="12" weight="600" color="primary">
+                                                {{ formatBytes(r.throughput) }}
+                                            </Text>
+                                        </Flex>
+                                    </NuxtLink>
+                                </td>
+                                <td>
+                                    <Icon @click.prevent.stop="selectRollup(r.slug)" name="close" size="16" color="secondary" :class="$style.remove_icon" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+                    <Text size="13" weight="600" color="secondary" align="center"> No rollups for comparison </Text>
+                    <Text size="12" weight="500" height="160" color="tertiary" align="center">
+                        Click on the rollup name to add it here
+                    </Text>
+                </Flex>
+            </Transition>
+        </Flex>
 	</Flex>
 </template>
 
 <style module>
 .wrapper {
+    padding-top: 12px;
     width: 100%;
 	height: 100%;
-
-	/* background: var(--card-background); */
-	/* border-radius: 12px; */
-
-	/* padding: 16px; */
-}
-
-.legend_wrapper {
-    max-width: 55%;
-}
-
-.legend_item {
-    transition: all 0.6s ease;
-}
-
-.legend {
-	width: 10px;
-	height: 10px;
-
-	border-radius: 5px;
-	cursor: pointer;
-
-	margin-right: 6px;
 }
 
 .chart_wrapper {
-    width: 155px;
-	height: 155px;
-
-	position: relative;
+    width: 100%;
+    height: 100%;
+	max-height: 700px;
 }
 
 .chart {
     width: 100%;
 	height: 100%;
-	/* position: absolute; */
 
 	overflow: hidden;
 
@@ -325,20 +506,136 @@ onMounted(() => {
 	}
 }
 
-.fadein {
-    opacity: 0;
-    animation-name: fadeIn;
-    animation-duration: 1s;
-    animation-fill-mode: forwards;
+.rollups_table_wrapper {
+    width: 100%;
+    height: 100%;
+
+    padding: 0 12px;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
+.table_scroller {
+	overflow-x: auto;
+}
+
+.table {
+	border-radius: 4px 4px 8px 8px;
+	background: var(--card-background);
+
+	transition: all 0.2s ease;
+
+	& table {
+		width: 100%;
+		height: fit-content;
+
+		border-spacing: 0px;
+
+		padding-bottom: 4px;
+
+		& tbody {
+			& tr {
+				cursor: pointer;
+
+				transition: all 0.05s ease;
+
+				&:hover {
+					background: var(--op-5);
+                    
+                    & .remove_icon {
+                        opacity: 1;
+                    }
+				}
+
+				&:active {
+					background: var(--op-8);
+				}
+			}
+		}
+
+		& tr th {
+			text-align: left;
+
+			padding: 4px 16px 8px 0;
+
+			& span {
+				display: flex;
+			}
+
+			&:first-child {
+				padding-left: 32px;
+			}
+
+			&:last-child {
+                flex-grow: 1;
+				padding-right: 32px;
+			}
+
+			&.sortable {
+				cursor: pointer;
+			}
+
+			&.sortable:hover {
+				& span {
+					color: var(--txt-secondary);
+				}
+			}
+		}
+
+		& tr td {
+			padding: 0;
+
+			white-space: nowrap;
+
+			&:first-child {
+				padding-left: 32px;
+                min-width: 250px;
+			}
+
+			& > a {
+				display: flex;
+
+				min-height: 44px;
+
+				padding-right: 24px;
+			}
+		}
+	}
+}
+
+.remove_icon {
+    padding: 2px;
+    margin-right: 12px;
+    opacity: 0;
+    border-radius: 50%;
+
+    &:hover {
+        background: var(--op-10);
+        scale: 1.1;
     }
-    to {
-        opacity: 1;
-    }
+}
+
+.avatar_container {
+	position: relative;
+	width: 25px;
+	height: 25px;
+	overflow: hidden;
+	border-radius: 50%;
+}
+
+.avatar_image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.horizontal_divider {
+	width: 100%;
+	height: 2px;
+    margin-bottom: 12px;
+    background: linear-gradient(to right, transparent 0%, var(--op-10) 5%, var(--op-10) 95%, transparent 100%);
+}
+
+.empty {
+	padding: 32px 0;
 }
 
 @media (max-width: 1000px) {

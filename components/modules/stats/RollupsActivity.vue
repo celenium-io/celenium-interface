@@ -1,9 +1,5 @@
 <script setup>
-/** Services */
-import { abbreviate, formatBytes, comma, sortArrayOfObjects } from "@/services/utils"
-
 /** Components */
-import CircularChartCard from "@/components/modules/stats/CircularChartCard.vue"
 import RollupsActivityGraph from "~/components/modules/stats/RollupsActivityGraph.vue"
 import RollupsActivityTable from "~/components/modules/stats/RollupsActivityTable.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
@@ -15,64 +11,55 @@ const props = defineProps({
     },
 })
 
-const selectedView = ref('graph') // , table graph
-
-// const sort = reactive({
-// 	by: "total_size",
-// 	dir: "desc",
-// })
-
-// const handleSort = (by) => {
-// 	switch (sort.dir) {
-// 		case "desc":
-// 			if (sort.by == by) sort.dir = "asc"
-// 			break
-
-// 		case "asc":
-// 			sort.dir = "desc"
-
-// 			break
-// 	}
-
-// 	sort.by = by
-
-// 	props.rollups = sortArrayOfObjects(props.rollups, by, sort.dir === 'desc' ? false : true)
-// }
+const selectedView = ref('table')
+const handleSelectView = () => {
+    selectedView.value === 'graph' ? selectedView.value = 'table' : selectedView.value = 'graph'
+}
 </script>
 
 <template>
     <Flex wide direction="column" gap="4">
-        <Flex justify="between" :class="$style.header">
+        <Flex align="center" justify="between" :class="$style.header">
             <Flex align="center" gap="8">
                 <Icon name="rollup" size="16" color="secondary" />
                 <Text size="14" weight="600" color="primary">Rollups Activity</Text>
                 <Text size="13" color="tertiary">(last 24h)</Text>
             </Flex>
 
-            <!-- Pagination -->
-            <!-- <Flex v-if="pages" align="center" gap="6">
-                <Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
-                    <Icon name="arrow-left-stop" size="12" color="primary" />
-                </Button>
-                <Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
-                    <Icon name="arrow-left" size="12" color="primary" />
-                </Button>
+            <Tooltip side="top">
+                <Flex
+                    @click="handleSelectView"
+                    align="center"
+                    gap="12"
+                    :class="$style.view_selector"
+                    :style="{
+                        background: `linear-gradient(to ${selectedView === 'table' ? 'right' : 'left'}, var(--op-5) 50%, transparent 50%)`,
+                    }"
+                >
+                    <Icon
+                        name="table"
+                        size="16"
+                        :style="{ fill: `${selectedView === 'table' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
+                    />
 
-                <Button type="secondary" size="mini" disabled>
-                    <Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
-                </Button>
+                    <Icon
+                        name="gantt-chart"
+                        size="16"
+                        :style="{ fill: `${selectedView === 'graph' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
+                    />
+                </Flex>
 
-                <Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
-                    <Icon name="arrow-right" size="12" color="primary" />
-                </Button>
-                <Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages">
-                    <Icon name="arrow-right-stop" size="12" color="primary" />
-                </Button>
-            </Flex> -->
+                <template #content>
+                    <Text size="12" color="tertiary">
+                        Changing data display view
+                    </Text>
+                </template>
+            </Tooltip>
         </Flex>
-
-        <RollupsActivityTable v-if="selectedView === 'table'" :rollups="rollups" />
-        <RollupsActivityGraph v-if="selectedView === 'graph'" :rollups="rollups" />
+        <Transition name="fastfade" mode="out-in">
+            <RollupsActivityTable v-if="selectedView === 'table'" :rollups="rollups" />
+            <RollupsActivityGraph v-else-if="selectedView === 'graph'" :rollups="rollups" />
+        </Transition>
     </Flex>
 </template>
 
@@ -84,5 +71,14 @@ const selectedView = ref('graph') // , table graph
 	background: var(--card-background);
 
 	padding: 0 16px;
+}
+
+.view_selector {
+    max-height: 24px;
+	padding: 4px 6px 4px 6px;
+	box-shadow: inset 0 0 0 1px var(--op-10);
+	border-radius: 5px;
+	cursor: pointer;
+	transition: all 1s ease-in-out;
 }
 </style>

@@ -22,42 +22,6 @@ const props = defineProps({
 const resData = ref([])
 const total = ref(0)
 
-// const prepareRollupsData = () => {
-//     props.data.forEach(el => {
-//         resData.value.push({
-//             name: el.name,
-//             value: el.throughput,
-//         })
-//     })
-
-    // console.log('resData', resData.value);
-    
-    // let key = props.series.name
-    // props.data.forEach(el => {
-    //     resData.value.push(
-    //         {
-    //             name: el.name,
-    //             value: props.series.units === 'utia' ? Math.round(el[key], 2) : el[key],
-    //             share: Math.round(el[`${key}_pct`] * 100, 2),
-    //         }
-    //     )
-    // })
-
-    // resData.value.sort((a, b) => b.value - a.value)
-    // total.value = resData.value.reduce((sum, el) => sum + el.value, 0)
-
-    // let startlength = resData.value.length
-    // resData.value = resData.value.slice(0, Math.min(startlength, 4))
-
-    // if (startlength > 4) {
-    //     resData.value.push({
-    //         name: "Other",
-    //         value: total.value - resData.value.reduce((sum, el) => sum + el.value, 0),
-    //         share: 100 - resData.value.reduce((sum, el) => sum + el.share, 0),
-    //     })
-    // }
-// }
-
 const chartEl = ref()
 const innerRadius = ref(0)
 const outerRadius = ref(0)
@@ -66,10 +30,8 @@ const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#55c9ab", "#1
 
 const buildChart = (chart, data) => {
 	const height = chart.getBoundingClientRect().height
-    // console.log('height', height);
     
 	const width = chart.getBoundingClientRect().width
-    // console.log('width', width);
     
     const margin = { top: 6, right: 12, bottom: 12, left: 12 }
     innerRadius.value = 60
@@ -77,22 +39,13 @@ const buildChart = (chart, data) => {
     const maxValue = d3.max(data, d => d.value)
     const minValue = +d3.min(data, d => d.value)
     
-    // console.log('outerRadius.value', outerRadius.value);
-    
-
 	/** SVG Container */
 	const svg = d3
 		.create("svg")
             .attr("width", width)
             .attr("height", height)
-            // .attr("width", width + margin.left + margin.right)
-            // .attr("height", height + margin.top + margin.bottom)
             .attr("viewBox", [0, 0, width, height])
-		// .attr("preserveAspectRatio", "none")
-		// .attr("style", "max-width: 100%;")
         .attr("transform", `translate(${width / 2}, ${height / 2 + 10})`)
-		// .style("-webkit-tap-highlight-color", "transparent")
-		// .on("touchstart", (event) => event.preventDefault())
 
     // X scale
     const x = d3.scaleBand()
@@ -100,18 +53,10 @@ const buildChart = (chart, data) => {
         .align(0)                  // This does nothing ?
         .domain( data.map(function(d) { return d.name; }) ); // The domain of the X axis is the list of states.
 
-    // Y scale
-    // const y = d3.scaleRadial()
-    //     .range([innerRadius.value, outerRadius.value])   // Domain will be define later.
-    //     .domain([minValue * 1.2, maxValue]) // Domain of Y is from 0 to the max seen in the data
     const y = d3.scaleLog()
         .range([innerRadius.value, outerRadius.value])   // Domain will be define later.
         .domain([minValue, maxValue]) // Domain of Y is from 0 to the max seen in the data
 
-    // console.log('y(12332)', y(960));
-    // console.log('x(Eclipse)', x('B3'));
-    
-    
     // Add bars
     svg.append("g")
         .selectAll("path")
@@ -146,11 +91,6 @@ onMounted(() => {
 .wrapper {
     width: 100%;
 	height: 100%;
-
-	/* background: var(--card-background); */
-	/* border-radius: 12px; */
-
-	/* padding: 16px; */
 }
 
 .legend_wrapper {
@@ -181,29 +121,12 @@ onMounted(() => {
 .chart {
     width: 100%;
 	height: 100%;
-	/* position: absolute; */
 
 	overflow: hidden;
 
 	& svg {
 		overflow: visible;
 	}
-}
-
-.fadein {
-    opacity: 0;
-    animation-name: fadeIn;
-    animation-duration: 1s;
-    animation-fill-mode: forwards;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
 }
 
 @media (max-width: 1000px) {
