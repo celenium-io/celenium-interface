@@ -56,11 +56,11 @@ const handleSort = (by) => {
                                 />
                             </Flex>
                         </th>
-                        <th @click="handleSort('blobs_count')" :class="$style.sortable">
+                        <th @click="handleSort('avg_size')" :class="$style.sortable">
                             <Flex align="center" gap="6">
-                                <Text size="12" weight="600" color="tertiary" noWrap>Blobs</Text>
+                                <Text size="12" weight="600" color="tertiary" noWrap>Avg Blob Size</Text>
                                 <Icon
-                                    v-if="sort.by === 'blobs_count'"
+                                    v-if="sort.by === 'avg_size'"
                                     name="chevron"
                                     size="12"
                                     color="secondary"
@@ -68,11 +68,11 @@ const handleSort = (by) => {
                                 />
                             </Flex>
                         </th>
-                        <th @click="handleSort('avg_size')" :class="$style.sortable">
+                        <th @click="handleSort('blobs_count')" :class="$style.sortable">
                             <Flex align="center" gap="6">
-                                <Text size="12" weight="600" color="tertiary" noWrap>Avg Blob Size</Text>
+                                <Text size="12" weight="600" color="tertiary" noWrap>Blobs</Text>
                                 <Icon
-                                    v-if="sort.by === 'avg_size'"
+                                    v-if="sort.by === 'blobs_count'"
                                     name="chevron"
                                     size="12"
                                     color="secondary"
@@ -150,6 +150,15 @@ const handleSort = (by) => {
                         </td>
                         <td>
                             <NuxtLink :to="`/rollup/${r.slug}`">
+                                <Flex align="center">
+                                    <Text size="12" weight="600" color="primary">
+                                        {{ formatBytes(r.avg_size) }}
+                                    </Text>
+                                </Flex>
+                            </NuxtLink>
+                        </td>
+                        <td>
+                            <NuxtLink :to="`/rollup/${r.slug}`">
                                 <Tooltip position="start" delay="400">
                                     <Flex align="center">
                                         <Text size="12" weight="600" color="primary">{{ abbreviate(r.blobs_count) }}</Text>
@@ -159,15 +168,6 @@ const handleSort = (by) => {
                                         <Text size="12" weight="600" color="tertiary"> {{ comma(r.blobs_count) }} </Text>
                                     </template>
                                 </Tooltip>
-                            </NuxtLink>
-                        </td>
-                        <td>
-                            <NuxtLink :to="`/rollup/${r.slug}`">
-                                <Flex align="center">
-                                    <Text size="12" weight="600" color="primary">
-                                        {{ formatBytes(r.avg_size) }}
-                                    </Text>
-                                </Flex>
                             </NuxtLink>
                         </td>
                         <td>

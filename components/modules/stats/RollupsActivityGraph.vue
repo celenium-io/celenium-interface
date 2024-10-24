@@ -9,7 +9,13 @@ const props = defineProps({
     },
 })
 
-const metrics = ref(['mb_price', 'blobs_count', 'total_size', 'avg_size', 'throughput'])
+const metrics = ref([
+    'total_size',
+    'avg_size',
+    'blobs_count',
+    'throughput',
+    'mb_price',
+])
 </script>
 
 <template>

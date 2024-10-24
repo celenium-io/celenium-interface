@@ -1,21 +1,13 @@
 <script setup>
 /** Vendor */
 import * as d3 from "d3"
-import { DateTime } from "luxon"
-
-/** Stats Components */
-import DiffChip from "@/components/modules/stats/DiffChip.vue"
-import RollupsActivityTable from "@/components/modules/stats/RollupsActivityTable.vue"
 
 /** Components */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 
 /** Services */
-import { abbreviate, capitilize, comma, formatBytes, sortArrayOfObjects } from "@/services/utils"
-
-/** API */
-import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
+import { abbreviate, comma, formatBytes, sortArrayOfObjects } from "@/services/utils"
 
 const props = defineProps({
     data: {
@@ -59,7 +51,7 @@ const prepareData = () => {
     })
 
     props.metrics.forEach(m => {
-        sortRes[m] = [...props.data].sort((a, b) => a[m] - b[m])
+        sortRes[m] = [...props.data].sort((a, b) => m === 'mb_price' ? b[m] - a[m] : a[m] - b[m])
     })
 
     resData.value = res
@@ -68,7 +60,7 @@ const prepareData = () => {
 
 const sort = reactive({
 	by: "mb_price",
-	dir: "desc",
+	dir: "asc",
 })
 
 const handleSort = (by) => {
@@ -97,6 +89,7 @@ function highlight(slug) {
         case "path":
             el.style.opacity = 1
             el.style.filter = "brightness(1.2)"
+            el.style.strokeWidth = "4px"
 
             break
         }
@@ -115,6 +108,7 @@ function unhighlight(slug) {
                 case "path":
                     el.style.opacity = 0.5
                     el.style.filter = "brightness(0.6)"
+                    el.style.strokeWidth = "3px"
 
                     break
             }
@@ -179,10 +173,11 @@ const buildChart = (chart, data) => {
 
     // The path function take a row as input, and return x and y coordinates of the line to draw
     const path = (d) => {
-        return d3.line()(props.metrics.map(function(m) {
+        return d3.line()
+            (props.metrics.map(function(m, i) {
             let index = sortedData.value[m].findIndex(el => el.slug === d.slug)
             
-            return [ x(m), y(index) ]
+            return [ x(m) + (i === 0 ? + 0.5 : i === props.metrics.length - 1 ? - 0.5 : 0), y(index) ]
         }))
     }
 
@@ -223,7 +218,7 @@ const buildChart = (chart, data) => {
                 .style("font-size", "12")
                 .style("font-style", "12")
                 .style("font-weight", "600")
-                .style("fill", "#454749")
+                .style("fill", "#6d696b")
         })
 
     // Draw the lines
@@ -231,17 +226,29 @@ const buildChart = (chart, data) => {
     graph
         .data(data)
         .enter().append("path")
-        .attr("d", path )
         .attr("class", "graph")
         .attr("slug", d => d.slug)
         .style("fill", "none")
         .style("stroke", "var(--brand)")
-		.attr("stroke-linecap", "round")
-		.attr("stroke-linejoin", "round")
         .style("stroke-width", "3px")
         .style("opacity", 0.5)
         .style("filter", "brightness(0.6)")
         .style("transition", "all 0.5s ease")
+		// .attr("stroke-linecap", "round")
+		.attr("stroke-linejoin", "round")
+        .attr("d", path )
+        .on('mouseover', (event, d) => highlight(d.slug))
+        .on('mouseleave', (event, d) => unhighlight(d.slug))
+        .on('click', (event, d) => selectRollup(d.slug))
+        .style("stroke-dasharray", function() { return this.getTotalLength(); })
+        .style("stroke-dashoffset", function() {
+            return Math.random() > 0.5 ? this.getTotalLength() : -this.getTotalLength();
+        })
+        // .style("stroke-dashoffset", function() { return this.getTotalLength(); })
+        .transition()
+        .duration(1000)
+        .ease(d3.easeCubic)
+        .style("stroke-dashoffset", 0)
     
     svg.selectAll("first-last-axis")
         .data(edgeAxis).enter()
@@ -277,12 +284,12 @@ const buildChart = (chart, data) => {
                 .style("font-size", "12")
                 .style("font-style", "12")
                 .style("font-weight", "600")
-                .style("fill", "#454749")
+                .style("fill", "#6d696b")
         })
 
     svg.selectAll("line, path:not(.graph)")
-        .style("stroke", "#454749")
-        .style("stroke-width", "2px")
+        .style("stroke", "#6d696b")
+        .style("stroke-width", "2.5px")
     
     
     edgeAxis.forEach((m, i) => {
@@ -300,34 +307,11 @@ const buildChart = (chart, data) => {
                 .style("cursor", "pointer")
                 .on('mouseover', (event, d) => highlight(d.slug))
                 .on('mouseleave', (event, d) => unhighlight(d.slug))
-                .on('click', function(event, d) {
-                    const el = d3.select(this)
-                    const elX = el.attr("x")
-                    const elY = el.attr("y")
-
-                    el
-                        .transition()
-                        .duration(150)
-                        .attr("transform", `translate(${elX},${elY}) scale(0.9) translate(${-elX},${-elY})`)
-                        .transition()
-                        .duration(150)
-                        .attr("transform", `translate(${elX},${elY}) scale(1) translate(${-elX},${-elY})`)
-
-                    selectRollup(d.slug)
-                })
+                .on('click', (event, d) => selectRollup(d.slug))
     })
 
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
-
-    // const totalLength = graph.node().getTotalLength()
-    // graph.attr("stroke-dasharray", `${totalLength} ${totalLength}`)
-	// 	.attr("stroke-dashoffset", totalLength)
-	// 	.transition()
-	// 	.duration(1_000)
-	// 	.ease(d3.easeLinear)
-	// 	.attr("stroke-dashoffset", 0);
-
 }
 
 onMounted(() => {
@@ -341,6 +325,19 @@ onMounted(() => {
 	<Flex direction="column" justify="start" gap="4" wide :class="$style.wrapper">
         <div :class="$style.chart_wrapper">
             <Flex ref="chartEl" :class="$style.chart" />
+
+            <Tooltip width="200" :class="$style.info_tooltip">
+                <Icon name="info" size="16" color="tertiary" />
+
+                <template #content>
+                    <Flex align="center" :style="{ width: '200px' }">
+                        <Text size="12" color="secondary">
+                            This graph displays the rollup rankings for each metric, not the absolute values.
+                        </Text>
+                    </Flex>
+                </template>
+            </Tooltip>
+            
         </div>
 
         <div :class="$style.horizontal_divider" />
@@ -352,30 +349,6 @@ onMounted(() => {
                         <thead>
                             <tr>
                                 <th><Text size="12" weight="600" color="tertiary" noWrap>Rollup</Text></th>
-                                <th @click="handleSort('mb_price')" :class="$style.sortable">
-                                    <Flex align="center" gap="6">
-                                        <Text size="12" weight="600" color="tertiary" noWrap>MB Price</Text>
-                                        <Icon
-                                            v-if="sort.by === 'mb_price'"
-                                            name="chevron"
-                                            size="12"
-                                            color="secondary"
-                                            :style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
-                                        />
-                                    </Flex>
-                                </th>
-                                <th @click="handleSort('blobs_count')" :class="$style.sortable">
-                                    <Flex align="center" gap="6">
-                                        <Text size="12" weight="600" color="tertiary" noWrap>Blobs</Text>
-                                        <Icon
-                                            v-if="sort.by === 'blobs_count'"
-                                            name="chevron"
-                                            size="12"
-                                            color="secondary"
-                                            :style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
-                                        />
-                                    </Flex>
-                                </th>
                                 <th @click="handleSort('total_size')" :class="$style.sortable">
                                     <Flex align="center" gap="6">
                                         <Text size="12" weight="600" color="tertiary" noWrap>Total Size</Text>
@@ -400,11 +373,35 @@ onMounted(() => {
                                         />
                                     </Flex>
                                 </th>
+                                <th @click="handleSort('blobs_count')" :class="$style.sortable">
+                                    <Flex align="center" gap="6">
+                                        <Text size="12" weight="600" color="tertiary" noWrap>Blobs</Text>
+                                        <Icon
+                                            v-if="sort.by === 'blobs_count'"
+                                            name="chevron"
+                                            size="12"
+                                            color="secondary"
+                                            :style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+                                        />
+                                    </Flex>
+                                </th>
                                 <th @click="handleSort('throughput')" :class="$style.sortable">
                                     <Flex align="center" gap="6">
                                         <Text size="12" weight="600" color="tertiary" noWrap>Throughput (b/s)</Text>
                                         <Icon
                                             v-if="sort.by === 'throughput'"
+                                            name="chevron"
+                                            size="12"
+                                            color="secondary"
+                                            :style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+                                        />
+                                    </Flex>
+                                </th>
+                                <th @click="handleSort('mb_price')" :class="$style.sortable">
+                                    <Flex align="center" gap="6">
+                                        <Text size="12" weight="600" color="tertiary" noWrap>MB Price</Text>
+                                        <Icon
+                                            v-if="sort.by === 'mb_price'"
                                             name="chevron"
                                             size="12"
                                             color="secondary"
@@ -433,7 +430,16 @@ onMounted(() => {
                                 <td>
                                     <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
                                         <Flex align="center">
-                                            <AmountInCurrency :amount="{ value: r.mb_price }" />
+                                            <Text size="12" weight="600" color="primary">{{ formatBytes(r.total_size) }}</Text>
+                                        </Flex>
+                                    </NuxtLink>
+                                </td>
+                                <td>
+                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                        <Flex align="center">
+                                            <Text size="12" weight="600" color="primary">
+                                                {{ formatBytes(r.avg_size) }}
+                                            </Text>
                                         </Flex>
                                     </NuxtLink>
                                 </td>
@@ -453,25 +459,16 @@ onMounted(() => {
                                 <td>
                                     <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
                                         <Flex align="center">
-                                            <Text size="12" weight="600" color="primary">{{ formatBytes(r.total_size) }}</Text>
-                                        </Flex>
-                                    </NuxtLink>
-                                </td>
-                                <td>
-                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
-                                        <Flex align="center">
-                                            <Text size="12" weight="600" color="primary">
-                                                {{ formatBytes(r.avg_size) }}
-                                            </Text>
-                                        </Flex>
-                                    </NuxtLink>
-                                </td>
-                                <td>
-                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
-                                        <Flex align="center">
                                             <Text size="12" weight="600" color="primary">
                                                 {{ formatBytes(r.throughput) }}
                                             </Text>
+                                        </Flex>
+                                    </NuxtLink>
+                                </td>
+                                <td>
+                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                        <Flex align="center">
+                                            <AmountInCurrency :amount="{ value: r.mb_price }" />
                                         </Flex>
                                     </NuxtLink>
                                 </td>
@@ -502,6 +499,7 @@ onMounted(() => {
 }
 
 .chart_wrapper {
+    position: relative;
     width: 100%;
     height: 100%;
 	max-height: 700px;
@@ -516,6 +514,13 @@ onMounted(() => {
 	& svg {
 		overflow: visible;
 	}
+}
+
+.info_tooltip {
+    position: absolute;
+    cursor: help;
+    top: 10px;
+    right: 16px;
 }
 
 .rollups_table_wrapper {
