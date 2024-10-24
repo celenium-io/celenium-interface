@@ -237,7 +237,7 @@ watch(
 
 <template>
 	<Flex direction="column" wide :class="$style.wrapper">
-		<Flex align="end" justify="between" :class="$style.breadcrumbs">
+		<Flex align="start" justify="between" :class="$style.breadcrumbs">
 			<Breadcrumbs
 				:items="[
 					{ link: '/', name: 'Explore' },

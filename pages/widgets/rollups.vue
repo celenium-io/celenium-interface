@@ -524,8 +524,6 @@ watch(
 <style module>
 .wrapper {
 	padding: 20px 24px 60px 24px;
-
-	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 .row {

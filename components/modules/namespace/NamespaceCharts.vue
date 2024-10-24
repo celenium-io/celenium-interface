@@ -159,14 +159,14 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 	/** Chart Line */
 	svg.append("path")
 		.attr("fill", "none")
-		.attr("stroke", "var(--green)")
+		.attr("stroke", "var(--brand)")
 		.attr("stroke-width", 2)
 		.attr("stroke-linecap", "round")
 		.attr("stroke-linejoin", "round")
 		.attr("d", line(data.slice(0, data.length - 1)))
 	svg.append("path")
 		.attr("fill", "none")
-		.attr("stroke", "var(--green)")
+		.attr("stroke", "var(--brand)")
 		.attr("stroke-width", 2)
 		.attr("stroke-linecap", "round")
 		.attr("stroke-linejoin", "round")
@@ -176,7 +176,7 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 	svg.append("circle")
 		.attr("cx", x(data[data.length - 1].date))
 		.attr("cy", y(data[data.length - 1].value))
-		.attr("fill", "var(--green)")
+		.attr("fill", "var(--brand)")
 		.attr("r", 3)
 
 	if (chartEl.children[0]) chartEl.children[0].remove()
@@ -552,9 +552,9 @@ onBeforeUnmount(() => {
 		width: 6px;
 		height: 6px;
 		border-radius: 50px;
-		background: var(--green);
+		background: var(--brand);
 
-		box-shadow: 0 0 0 4px rgba(10, 222, 113, 27%);
+		box-shadow: 0 0 0 4px var(--dark-mint);
 
 		transition: all 0.15s ease;
 	}
