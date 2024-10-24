@@ -227,7 +227,8 @@ const buildChart = (chart, data) => {
         })
 
     // Draw the lines
-    svg.selectAll("pathes")
+    const graph = svg.selectAll("pathes")
+    graph
         .data(data)
         .enter().append("path")
         .attr("d", path )
@@ -235,6 +236,8 @@ const buildChart = (chart, data) => {
         .attr("slug", d => d.slug)
         .style("fill", "none")
         .style("stroke", "var(--brand)")
+		.attr("stroke-linecap", "round")
+		.attr("stroke-linejoin", "round")
         .style("stroke-width", "3px")
         .style("opacity", 0.5)
         .style("filter", "brightness(0.6)")
@@ -316,6 +319,15 @@ const buildChart = (chart, data) => {
 
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
+
+    // const totalLength = graph.node().getTotalLength()
+    // graph.attr("stroke-dasharray", `${totalLength} ${totalLength}`)
+	// 	.attr("stroke-dashoffset", totalLength)
+	// 	.transition()
+	// 	.duration(1_000)
+	// 	.ease(d3.easeLinear)
+	// 	.attr("stroke-dashoffset", 0);
+
 }
 
 onMounted(() => {

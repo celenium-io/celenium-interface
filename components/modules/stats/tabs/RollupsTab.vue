@@ -99,19 +99,21 @@ await getRollups()
 		<Flex v-if="selectedTab === 'overview'" align="center" direction="column" gap="12" wide>
 			<RollupsBubbleChart v-if="!isLoading" :series="series" />
 
-			<Flex align="center" justify="between" wide :class="$style.section">
-				<Text size="16" weight="600" color="primary" justify="start">Top Rollups</Text>
-			</Flex>
+			<template v-if="!isLoading">
+				<Flex align="center" justify="between" wide :class="$style.section">
+					<Text size="16" weight="600" color="primary" justify="start">Top Rollups</Text>
+				</Flex>
 
-			<Flex align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
-                <PieChartCard
-                    v-for="s in series"
-                    :series="s"
-                    :data="series.data"
-                    dounut
-					:class="$style.chart_card"
-                />
-            </Flex>
+				<Flex align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
+					<PieChartCard
+						v-for="s in series"
+						:series="s"
+						:data="series.data"
+						dounut
+						:class="$style.chart_card"
+					/>
+				</Flex>
+			</template>
 		</Flex>
 
 		<RollupsActivity v-else-if="selectedTab === 'daily_stats' && !isLoading" :rollups="rollupsDailyStats" />
