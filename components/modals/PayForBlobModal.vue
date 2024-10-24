@@ -75,7 +75,7 @@ watch(
 			amp.log("showPfbModal")
 
 			if (!appStore.address?.length) {
-				warningBannerText.value = "Keplr wallet connection is required to submit a blob."
+				warningBannerText.value = "Wallet connection is required to submit a blob."
 			} else if (hostname !== "celenium.io") {
 				warningBannerText.value = `You are currently on ${hostname}. The transaction will be performed on the test network.`
 			} else {

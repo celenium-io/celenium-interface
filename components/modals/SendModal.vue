@@ -163,7 +163,7 @@ watch(
 
 const calcGasFee = (target) => {
 	const gasLimit = typeof estimatedGasLimit.value === "number" ? estimatedGasLimit.value : estimatedGasLimit.value.replaceAll(" ", "")
-	return comma((gasLimit * appStore.gas[target.toLowerCase()]).toFixed(2))
+	return comma(((selectedGasLimit.value === 'Custom' ? Number.parseInt(customGasLimit.value.toString().replaceAll(" ", "")) : gasLimit) * appStore.gas[target.toLowerCase()]).toFixed(2))
 }
 
 const runGasLimitEstimation = async () => {
@@ -202,7 +202,7 @@ watch(
 			amp.log("showSendModal")
 
 			if (!appStore.address?.length) {
-				warningBannerText.value = "Keplr wallet connection is required to send TIA."
+				warningBannerText.value = "Wallet connection is required to send TIA."
 			} else if (hostname !== "celenium.io") {
 				warningBannerText.value = `You are currently on ${hostname}. The transaction will be performed on the test network.`
 			} else {
@@ -245,7 +245,7 @@ const continueButton = computed(() => {
 		}
 	}
 
-	if (parseFloat(amount.value) === 0) {
+	if (parseFloat(amount.value) === 0 || isNaN(parseFloat(amount.value))) {
 		return {
 			title: "Enter the amount",
 			disable: true,
@@ -481,8 +481,8 @@ const handleContinue = async () => {
 					placeholder="0.00"
 				/>
 
-				<Flex direction="column" gap="12" style="opacity: 0.3; pointer-events: none">
-					<Flex direction="column" gap="8">
+				<Flex direction="column" gap="12">
+					<Flex direction="column" gap="8" :style="appStore.wallet !== 'leap' && { pointerEvents: 'none', opacity: 0.3 }">
 						<Text size="12" weight="600" color="secondary">Gas Fees</Text>
 
 						<Flex align="center" justify="between" gap="12">
@@ -531,7 +531,7 @@ const handleContinue = async () => {
 					</Flex>
 				</Flex>
 
-				<Flex gap="6">
+				<Flex v-if="appStore.wallet === 'keplr'" gap="6">
 					<Icon name="info" size="12" color="tertiary" style="margin-top: 1px" />
 					<Text size="12" weight="500" height="140" color="tertiary">
 						Keplr does not currently support receiving a Gas Fee from outside.<br />

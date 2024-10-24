@@ -95,6 +95,19 @@ const categories = computed(() => {
 	
 	return res	
 })
+const getCategoryDisplayName = (category) => {
+	switch (category) {
+		case 'nft':
+			return 'NFT'
+
+		case 'uncategorized':
+			return 'Other'
+
+		default:
+			return capitilize(category)
+	}
+}
+
 const filters = reactive({
 	categories: categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 })
@@ -279,7 +292,7 @@ watch(
 								<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
 									{{ Object.keys(filters.categories)
 										.filter((c) => filters.categories[c])
-										.map(c => c === 'nft' ? c.toUpperCase() : capitilize(c))
+										.map(c => getCategoryDisplayName(c))
 										.join(", ")
 									}}
 								</Text>
@@ -298,7 +311,7 @@ watch(
 										v-model="filters.categories[c]"
 									>
 										<Text size="12" weight="500" color="primary">
-											{{ c === 'nft' ? c.toUpperCase() : capitilize(c) }}
+											{{ getCategoryDisplayName(c) }}
 										</Text>
 									</Checkbox>
 								</Flex>
@@ -417,7 +430,7 @@ watch(
 								<td>
 									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
-											<Text size="13" weight="600" color="primary"> {{ r.category === 'nft' ? r.category.toUpperCase() : capitilize(r.category) }} </Text>
+											<Text size="13" weight="600" color="primary"> {{ getCategoryDisplayName(r.category) }} </Text>
 										</Flex>
 									</NuxtLink>
 								</td>
