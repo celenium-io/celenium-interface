@@ -91,6 +91,19 @@ const categories = computed(() => {
 })
 const selectedCategories = ref([])
 
+const getCategoryDisplayName = (category) => {
+	switch (category) {
+		case 'nft':
+			return 'NFT'
+
+		case 'uncategorized':
+			return 'Other'
+
+		default:
+			return capitilize(category)
+	}
+}
+
 const handleSelectCategory = (category) => {
 	if (selectedCategories.value.includes(category)) {
 		selectedCategories.value = selectedCategories.value.filter(c => c !== category)
@@ -232,7 +245,7 @@ watch(
 					:class="[$style.chip, selectedCategories.includes(c) && $style.active]"
 				>
 					<Flex align="center" :class="$style.content">
-						<Text size="12" weight="600" color="primary"> {{ c === 'nft' ? c.toUpperCase() : capitilize(c) }} </Text>
+						<Text size="12" weight="600" color="primary"> {{ getCategoryDisplayName(c) }} </Text>
 					</Flex>
 				</Flex>
 
@@ -346,12 +359,7 @@ watch(
 							<Flex align="center" :class="$style.chip" :style="{ borderRadius: '8px' }">
 								<Flex align="center" :class="$style.content" :style="{ padding: '4px 8px' }">
 									<Text size="12" color="tertiary">
-										{{ r.category === 'nft'
-											? r.category.toUpperCase()
-											: r.category === 'uncategorized'
-												? 'Other'
-												: capitilize(r.category)
-										}}
+										{{ getCategoryDisplayName(r.category) }}
 									</Text>
 								</Flex>
 							</Flex>

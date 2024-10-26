@@ -316,7 +316,7 @@ const rawQuickCommandsActions = [
 		icon: "coins",
 		title: "Send TIA",
 		subtitle: "Command",
-		runText: "Send via Keplr",
+		runText: "Send TIA",
 
 		callback: () => {
 			modalsStore.open("send")
@@ -327,7 +327,7 @@ const rawQuickCommandsActions = [
 		icon: "blob",
 		title: "Submit data blob",
 		subtitle: "Command",
-		runText: "Submit via Keplr",
+		runText: "Submit blob",
 
 		callback: () => {
 			modalsStore.open("pfb")
