@@ -15,7 +15,7 @@ useHead({
 			<Text :class="$style.section_title">1. General information</Text>
 
 			<Flex :class="[$style.section, $style.section_content]">
-				<Text :class="$style.section_paragraph">PK Labs AG, a Swiss corporation, having its registered office at Gartenstrasse 6, Zug 6300, Switzerland, (“<b>Company</b>”, “<b>we</b>”, or “<b>us</b>”) is the operator of the Website <a href="https://celenium.io">https://celenium.io</a> (the “<b>Website</b>”).</Text>
+				<Text :class="$style.section_paragraph">PK Labs AG, a Swiss corporation, having its registered office at Gartenstrasse 6, Zug 6300, Switzerland, (“<b>Company</b>”, “<b>we</b>”, or “<b>us</b>”) is the operator of the Website <a href="https://celenium.io" :class="$style.link">https://celenium.io</a> (the “<b>Website</b>”).</Text>
 
 				<Text :class="$style.section_paragraph">As the operator of the Website, we take the protection of your personal data very seriously. We collect, process, and use your personal data in accordance with this privacy policy and in compliance with the Swiss Federal Act on Data Protection (“FADP”), the Swiss Ordinance to the Federal Act on Data Protection (“OFADP”), and the General European Data Protection Regulation (“GDPR”).</Text>
 
@@ -31,7 +31,7 @@ useHead({
 			<Flex :class="[$style.section, $style.section_content]">
 				<Text :class="$style.section_paragraph">PK Labs AG is the controller for the processing under this Privacy Policy unless we tell you otherwise in an individual case.</Text>
 
-				<Text :class="$style.section_paragraph">For any matters, relating to data protection and to exercise your rights under Section 13, you may contact <a href="mailto:celenium@pklabs.me">celenium@pklabs.me</a> in writing by e-mail or letter to the following address: PK Labs AG, Gartenstrasse 6, Zug 6300, Switzerland</Text>
+				<Text :class="$style.section_paragraph">For any matters, relating to data protection and to exercise your rights under Section 13, you may contact <a href="mailto:celenium@pklabs.me" :class="$style.link">celenium@pklabs.me</a> in writing by e-mail or letter to the following address: PK Labs AG, Gartenstrasse 6, Zug 6300, Switzerland</Text>
 			</Flex>
 		</Flex>
 
@@ -57,7 +57,7 @@ useHead({
 					<Text :class="$style.section_paragraph">Any collection and processing of this technical data is for the purpose of enabling the use and functionality of our Website, continuously ensuring system security and stability, optimising our Website, to show you Website customized for your region, and for internal statistical purposes. Furthermore, the collection of technical data shall ensure the functionality and security of our services.</Text>
 					<Text :class="$style.section_paragraph">Technical data is not assigned to specific persons nor linked to data from other sources. So technical data as such does not permit us to draw conclusions about your identity. However, technical data may be linked with other categories of data (and potentially with your person) in relation to user accounts, registrations, access controls or the performance of a contract.</Text>
 					<Text :class="$style.section_paragraph">Furthermore, the IP addresses may be evaluated, together with other data, in case of attacks on the network infrastructure or other unauthorised use or misuse of the Website, for the purpose of intelligence and protection, and if appropriate, used in criminal proceedings for identification and civil and criminal proceedings against the relevant users.</Text>
-					<Text :class="$style.section_paragraph">In order to ensure the functionality of our services, we may also assign an individual code to you or your terminal device (for example as a cookie). Cookies are text files that are stored in a computer system via an Internet browser. More detailed information on cookies and how they work can be found at: <a href="http://www.allaboutcookies.org" target="_blank">http://www.allaboutcookies.org</a> and section 4.</Text>
+					<Text :class="$style.section_paragraph">In order to ensure the functionality of our services, we may also assign an individual code to you or your terminal device (for example as a cookie). Cookies are text files that are stored in a computer system via an Internet browser. More detailed information on cookies and how they work can be found at: <a href="http://www.allaboutcookies.org" target="_blank" :class="$style.link">http://www.allaboutcookies.org</a> and section 4.</Text>
 				</Flex>
 			</Flex>
 
@@ -118,35 +118,35 @@ useHead({
 						<Flex direction="column">
 							<Text weight="600" :class="$style.section_paragraph">Google Analytics</Text>
 							<Text :class="$style.section_paragraph">Provider: Google Ireland Ltd.</Text>
-							<Text :class="$style.section_paragraph">Privacy policy: <a href="https://support.google.com/analytics/answer/6004245" target="_blank">https://support.google.com/analytics/answer/6004245</a></Text>
+							<Text :class="$style.section_paragraph">Privacy policy: <a href="https://support.google.com/analytics/answer/6004245" target="_blank" :class="$style.link">https://support.google.com/analytics/answer/6004245</a></Text>
 						</Flex>
 					</li>
 					<li>
 						<Flex direction="column">
 							<Text weight="600" :class="$style.section_paragraph">Google Fonts</Text>
 							<Text :class="$style.section_paragraph">Provider: Google Ireland Ltd.</Text>
-							<Text :class="$style.section_paragraph">Privacy policy: <a href="https://developers.google.com/fonts/faq/privacy" target="_blank">https://developers.google.com/fonts/faq/privacy</a></Text>
+							<Text :class="$style.section_paragraph">Privacy policy: <a href="https://developers.google.com/fonts/faq/privacy" target="_blank" :class="$style.link">https://developers.google.com/fonts/faq/privacy</a></Text>
 						</Flex>
 					</li>
 					<li>
 						<Flex direction="column">
 							<Text weight="600" :class="$style.section_paragraph">Cloudflare</Text>
 							<Text :class="$style.section_paragraph">Provider: Cloudflare, Inc.</Text>
-							<Text :class="$style.section_paragraph">Privacy policy: <a href="https://www.cloudflare.com/privacypolicy" target="_blank">https://www.cloudflare.com/privacypolicy/</a></Text>
+							<Text :class="$style.section_paragraph">Privacy policy: <a href="https://www.cloudflare.com/privacypolicy" target="_blank" :class="$style.link">https://www.cloudflare.com/privacypolicy/</a></Text>
 						</Flex>
 					</li>
 					<li>
 						<Flex direction="column">
 							<Text weight="600" :class="$style.section_paragraph">Amplitude</Text>
 							<Text :class="$style.section_paragraph">Provider: Amplitude, Inc.</Text>
-							<Text :class="$style.section_paragraph">Privacy policy: <a href="https://amplitude.com/privacy" target="_blank">https://amplitude.com/privacy</a></Text>
+							<Text :class="$style.section_paragraph">Privacy policy: <a href="https://amplitude.com/privacy" target="_blank" :class="$style.link">https://amplitude.com/privacy</a></Text>
 						</Flex>
 					</li>
 					<li>
 						<Flex direction="column">
 							<Text weight="600" :class="$style.section_paragraph">Keplr</Text>
 							<Text :class="$style.section_paragraph">Provider: Chainapsis, Inc.</Text>
-							<Text :class="$style.section_paragraph">Privacy policy: <a href="https://wallet.keplr.app/privacy-policy.html" target="_blank">https://wallet.keplr.app/privacy-policy.html</a></Text>
+							<Text :class="$style.section_paragraph">Privacy policy: <a href="https://wallet.keplr.app/privacy-policy.html" target="_blank" :class="$style.link">https://wallet.keplr.app/privacy-policy.html</a></Text>
 						</Flex>
 					</li>
 				</ul>
@@ -207,7 +207,7 @@ useHead({
 
 			<Flex :class="[$style.section, $style.section_content]">
 				<Text :class="$style.section_paragraph">As referred in Section 6, we disclose data to other parties. These are not all located in Switzerland.</Text>
-				<Text :class="$style.section_paragraph">If a recipient is located in a country without adequate statutory data protection, we require the recipient to undertake to comply with data protection (for this purpose, we use the revised European Commission’s standard contractual clauses, which can be accessed here: <a href="https://eur-lex.europa.eu/eli/dec_impl/2021/914/oj" target="_blank">https://eur-lex.europa.eu/eli/dec_impl/2021/914/oj</a>, unless the recipient is subject to a legally accepted set of rules to ensure data protection and unless we cannot rely on an exception. An exception may apply for example in case of legal proceedings abroad, but also in cases of overriding public interest or if the performance of a contract requires disclosure, if you have consented or if data has been made available generally by you and you have not objected against the processing.</Text>
+				<Text :class="$style.section_paragraph">If a recipient is located in a country without adequate statutory data protection, we require the recipient to undertake to comply with data protection (for this purpose, we use the revised European Commission’s standard contractual clauses, which can be accessed here: <a href="https://eur-lex.europa.eu/eli/dec_impl/2021/914/oj" target="_blank" :class="$style.link">https://eur-lex.europa.eu/eli/dec_impl/2021/914/oj</a>, unless the recipient is subject to a legally accepted set of rules to ensure data protection and unless we cannot rely on an exception. An exception may apply for example in case of legal proceedings abroad, but also in cases of overriding public interest or if the performance of a contract requires disclosure, if you have consented or if data has been made available generally by you and you have not objected against the processing.</Text>
 				<Text :class="$style.section_paragraph">Please note that data exchanged via the internet is often routed through third countries. Your data may therefore be sent abroad even if the sender and recipient are in the same country.</Text>
 			</Flex>
 		</Flex>
@@ -375,12 +375,12 @@ useHead({
 				<Text :class="$style.section_paragraph">For more information on applicable privacy regulations, you may refer to:</Text>
 
 				<ul>
-					<li>EU General Data Protection Regulation: <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2016.119.01.0001.01.ENG" target="_blank">https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2016.119.01.0001.01.ENG</a></li>
-					<li>Swiss Federal Act on Data Protection: <a href="https://www.admin.ch/opc/en/classified-compilation/19920153/index.html" target="_blank">https://www.admin.ch/opc/en/classified-compilation/19920153/index.html</a></li>
-					<li>Swiss Ordinance to the Federal Act on Data Protection: <a href="https://www.admin.ch/opc/en/classified-compilation/19930159/index.html" target="_blank">https://www.admin.ch/opc/en/classified-compilation/19930159/index.html</a></li>
+					<li>EU General Data Protection Regulation: <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2016.119.01.0001.01.ENG" target="_blank" :class="$style.link">https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2016.119.01.0001.01.ENG</a></li>
+					<li>Swiss Federal Act on Data Protection: <a href="https://www.admin.ch/opc/en/classified-compilation/19920153/index.html" target="_blank" :class="$style.link">https://www.admin.ch/opc/en/classified-compilation/19920153/index.html</a></li>
+					<li>Swiss Ordinance to the Federal Act on Data Protection: <a href="https://www.admin.ch/opc/en/classified-compilation/19930159/index.html" target="_blank" :class="$style.link">https://www.admin.ch/opc/en/classified-compilation/19930159/index.html</a></li>
 				</ul>
 
-				<Text :class="$style.section_paragraph">Please do not hesitate to contact us if you have any questions regarding this Privacy Policy by contacting us at <a href="mailto:celenium@pklabs.me">celenium@pklabs.me</a>.</Text>
+				<Text :class="$style.section_paragraph">Please do not hesitate to contact us if you have any questions regarding this Privacy Policy by contacting us at <a href="mailto:celenium@pklabs.me" :class="$style.link">celenium@pklabs.me</a>.</Text>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -427,7 +427,7 @@ li:not(li:last-child) {
 	margin-bottom: 4px;
 }
 
-a {
+.link {
 	color: var(--txt-secondary);
 
 	&:hover {
