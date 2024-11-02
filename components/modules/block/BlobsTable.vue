@@ -9,7 +9,7 @@ import { space, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
 import { fetchTxBlobs, fetchTxBlobsCount } from "@/services/api/tx"
-import { fetchBlockBlobs, fetchBlockBlobsCount } from "@/services/api/block"
+import { fetchBlockBlobs } from "@/services/api/block"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
@@ -21,6 +21,10 @@ const props = defineProps({
 	hash: {
 		type: String,
 		default: "",
+	},
+	block: {
+		type: Object,
+		required: false,
 	},
 	height: {
 		type: Number,
@@ -59,9 +63,9 @@ const fetchNamespaces = async () => {
 	}
 
 	if (props.hash.length) params.hash = props.hash
-	if (props.height) params.height = props.height
+	if (props.block?.height) params.height = props.block?.height
 
-	return (props.hash.length && (await fetchTxBlobs(params))) || (props.height && (await fetchBlockBlobs(params))) || []
+	return (props.hash.length && (await fetchTxBlobs(params))) || (props.block?.height && (await fetchBlockBlobs(params))) || []
 }
 
 const getNamespaces = async () => {
@@ -79,9 +83,8 @@ const getTotal = async () => {
 		const data = await fetchTxBlobsCount(props.hash)
 		total.value = data
 	}
-	if (props.height > 1) {
-		const data = await fetchBlockBlobsCount(props.height)
-		total.value = data
+	if (props.block?.height > 1) {
+		total.value = props.block?.stats.blobs_count
 	}
 }
 

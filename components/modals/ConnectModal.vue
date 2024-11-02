@@ -90,9 +90,13 @@ const handleConnect = async (target) => {
 
 				<Text size="13" weight="500" height="160" color="tertiary" align="center" style="max-width: 250px">
 					By connecting your wallet, you agree to
-					<a href="https://www.pklabs.me/terms" target="_blank"><Text color="secondary">Terms of Service</Text></a> and
-					<a href="https://www.pklabs.me/privacy" target="_blank"><Text color="secondary">Privacy Policy</Text></a
-					>.
+					<NuxtLink to="/terms-of-use" target="_blank">
+						<Text color="secondary">Terms of Use</Text>
+					</NuxtLink>
+					 and 
+					<NuxtLink to="/privacy-policy" target="_blank">
+						<Text color="secondary">Privacy Policy</Text>
+					</NuxtLink>
 				</Text>
 			</Flex>
 

@@ -241,10 +241,10 @@ const buildChart = (chart, data) => {
         .on('mouseleave', (event, d) => unhighlight(d.slug))
         .on('click', (event, d) => selectRollup(d.slug))
         .style("stroke-dasharray", function() { return this.getTotalLength(); })
-        .style("stroke-dashoffset", function() {
-            return Math.random() > 0.5 ? this.getTotalLength() : -this.getTotalLength();
-        })
-        // .style("stroke-dashoffset", function() { return this.getTotalLength(); })
+        // .style("stroke-dashoffset", function() {
+        //     return Math.random() > 0.5 ? this.getTotalLength() : -this.getTotalLength();
+        // })
+        .style("stroke-dashoffset", function() { return this.getTotalLength(); })
         .transition()
         .duration(1000)
         .ease(d3.easeCubic)

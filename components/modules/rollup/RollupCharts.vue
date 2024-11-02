@@ -8,6 +8,9 @@ import { useDebounceFn } from "@vueuse/core"
 import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 
+/** Components */
+import RollupComparison from "./RollupComparison.vue"
+
 /** Services */
 import { abbreviate, formatBytes, tia } from "@/services/utils"
 
@@ -46,16 +49,19 @@ const chartWrapperEl = ref()
 const sizeSeriesChartEl = ref()
 const pfbSeriesChartEl = ref()
 const feeSeriesChartEl = ref()
+const comparisonChartEl = ref()
 
 /** Data */
 const sizeSeries = ref([])
 const pfbSeries = ref([])
 const feeSeries = ref([])
+const comparisonSeries = ref([])
 
 /** Tooltip */
 const showSeriesTooltip = ref(false)
 const showPfbTooltip = ref(false)
 const showFeeTooltip = ref(false)
+const showComparisonTooltip = ref(false)
 const tooltipEl = ref()
 const tooltipXOffset = ref(0)
 const tooltipYOffset = ref(0)
@@ -627,6 +633,10 @@ onBeforeUnmount(() => {
 
 						<Flex ref="feeSeriesChartEl" :class="$style.chart" />
 					</Flex>
+				</Flex>
+
+				<Flex>
+					<RollupComparison :period="selectedPeriod" />
 				</Flex>
 			</Flex>
 		</Flex>
