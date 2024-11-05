@@ -124,3 +124,9 @@ export const normalizeAmount = (target, max = 9_999_999_999_999, maxStr = "9 999
 	if (target.length === 1 && !/^(0|[1-9]\d*)(\.\d+)?$/.test(target)) return ""
 	if (parseFloat(purgeNumber(target)) >= max) return maxStr
 }
+
+export const spaces = (num) => {
+	if (!num) return 0
+	
+	return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}

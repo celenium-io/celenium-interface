@@ -426,7 +426,7 @@ watch(
 
 					<Flex :style="`width: ${barWidth}px`">
 						<div
-							:class="$style.validator_bar"
+							:class="$style.graph_bar"
 							:style="{
 								width: `${r.size_graph}%`,
 								background: 'var(--mint)',
@@ -434,7 +434,7 @@ watch(
 							}"
 						></div>
 						<div
-							:class="$style.validator_bar"
+							:class="$style.graph_bar"
 							:style="{
 								width: `${100 - r.size_graph}%`,
 								background: 'var(--op-20)',
@@ -455,7 +455,7 @@ watch(
 
 					<Flex :style="`width: ${barWidth}px`">
 						<div
-							:class="$style.validator_bar"
+							:class="$style.graph_bar"
 							:style="{
 								width: `${r.blobs_count_graph}%`,
 								background: 'var(--mint)',
@@ -463,7 +463,7 @@ watch(
 							}"
 						></div>
 						<div
-							:class="$style.validator_bar"
+							:class="$style.graph_bar"
 							:style="{
 								width: `${100 - r.blobs_count_graph}%`,
 								background: 'var(--op-20)',
@@ -484,7 +484,7 @@ watch(
 
 					<Flex :style="`width: ${barWidth}px`">
 						<div
-							:class="$style.validator_bar"
+							:class="$style.graph_bar"
 							:style="{
 								width: `${r.fee_graph}%`,
 								background: 'var(--mint)',
@@ -492,7 +492,7 @@ watch(
 							}"
 						></div>
 						<div
-							:class="$style.validator_bar"
+							:class="$style.graph_bar"
 							:style="{
 								width: `${100 - r.fee_graph}%`,
 								background: 'var(--op-20)',
@@ -604,7 +604,7 @@ watch(
 	transition: all 0.5s ease;
 }
 
-.validator_bar {
+.graph_bar {
 	height: 4px;
 
 	border-radius: 2px;

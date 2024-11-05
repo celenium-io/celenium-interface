@@ -15,7 +15,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 
 /** Services */
-import { comma, space, splitAddress, tia } from "@/services/utils"
+import { comma, space } from "@/services/utils"
 import { getStartChainDate } from "@/services/config"
 
 /** API */
