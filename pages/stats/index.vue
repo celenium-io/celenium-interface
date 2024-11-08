@@ -1,4 +1,7 @@
 <script setup>
+/** UI */
+import Button from "@/components/ui/Button.vue"
+
 /** Stats Tabs */
 import BlocksTab from "@/components/modules/stats/tabs/BlocksTab.vue"
 import GeneralTab from "@/components/modules/stats/tabs/GeneralTab.vue"
@@ -112,10 +115,19 @@ watch(
 			<Text size="16" weight="600" color="primary">Celestia Statistics</Text>
 		</Flex>
 
-		<Flex align="center" gap="16" :class="$style.tabs_wrapper">
-			<Text v-for="t in tabs" @click="activeTab = t" size="14" color="tertiary" :class="[$style.tab, activeTab === t && $style.tab_active]">
-				{{ capitilize(t) }}
-			</Text>
+		<Flex align="center" justify="between" wide :class="$style.tabs_wrapper">
+			<Flex align="center" gap="16">
+				<Text v-for="t in tabs" @click="activeTab = t" size="14" color="tertiary" :class="[$style.tab, activeTab === t && $style.tab_active]">
+					{{ capitilize(t) }}
+				</Text>
+			</Flex>
+
+			<Flex v-if="activeTab === 'rollups'" align="start" :class="$style.actions">
+				<Button link="/rollups" type="secondary" size="mini">
+					<Icon name="rollup-leaderboard" size="12" color="secondary" />
+					Rollups Leaderboard
+				</Button>
+			</Flex>
 		</Flex>
 
 		<GeneralTab v-if="activeTab === 'general'" />
@@ -154,17 +166,19 @@ watch(
 }
 
 .tab {
-	padding-bottom: 16px;
+	padding-bottom: 12px;
 	
 	cursor: pointer;
-
-	/* transition: all 0.1s ease; */
 }
 
 .tab_active {
 	color: var(--txt-primary);
 
 	border-bottom: solid 3px var(--txt-primary);
+}
+
+.actions {
+	transform: translateY(-8px);
 }
 
 @media (max-width: 500px) {

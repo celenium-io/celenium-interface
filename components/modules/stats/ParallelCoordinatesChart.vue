@@ -319,6 +319,15 @@ onMounted(() => {
 
     buildChart(chartEl.value.wrapper, resData.value)
 })
+
+watch(
+	() => props.data,
+	() => {
+        prepareData()
+
+        buildChart(chartEl.value.wrapper, resData.value)
+    }
+)
 </script>
 
 <template>

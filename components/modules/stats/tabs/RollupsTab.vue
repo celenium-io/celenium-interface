@@ -28,6 +28,7 @@ const isLoading = ref(false)
 const rollupsDailyStats = ref([])
 const series = ref()
 const filteredRollups = ref([])
+const filteredRollupsDailyStats = ref([])
 
 const getRollups = async () => {
 	isLoading.value = true
@@ -37,6 +38,7 @@ const getRollups = async () => {
 	fetchRollups({ limit: 100 })
 	.then((res) => {
 		series.value.data = res
+		filteredRollups.value = res
 	})
 	.finally(() => {
 		isLoading.value = false
@@ -52,6 +54,7 @@ const getRollupsDailyStats = async () => {
 	})
 	
 	rollupsDailyStats.value = data
+	filteredRollupsDailyStats.value = data
 
     isLoading.value = false
 }
@@ -87,6 +90,7 @@ const filterRollupByCategories = () => {
 						.map(([key]) => key === 'other' ? 'uncategorized' : key)
 	
 	filteredRollups.value = categories.length > 0 ? series.value?.data.filter(el => categories.includes(el.category)) : series.value?.data
+	filteredRollupsDailyStats.value = categories.length > 0 ? rollupsDailyStats.value?.filter(el => categories.includes(el.category)) : rollupsDailyStats.value
 }
 const savedFiltersBeforeChanges = ref(null)
 const isCategoriesPopoverOpen = ref(false)
@@ -239,11 +243,6 @@ watch(
 						</Flex>
 					</template>
 				</Popover>
-
-				<Button link="/rollups" type="secondary" size="mini">
-					<Icon name="rollup-leaderboard" size="12" color="secondary" />
-					Rollups Leaderboard
-				</Button>
 			</Flex>
 		</Flex>
 
@@ -267,7 +266,7 @@ watch(
 			</template>
 		</Flex>
 
-		<RollupsActivity v-else-if="activeSection === 'daily_stats' && !isLoading" :rollups="rollupsDailyStats" />
+		<RollupsActivity v-else-if="activeSection === 'daily_stats' && !isLoading" :rollups="filteredRollupsDailyStats" />
     </Flex>
 </template>
 
