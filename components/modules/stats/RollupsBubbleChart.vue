@@ -10,8 +10,8 @@ import { abbreviate, formatBytes } from "@/services/utils"
 import { fetchRollups } from "@/services/api/rollup.js"
 
 const props = defineProps({
-	series: {
-		type: Object,
+	data: {
+		type: Array,
 		required: true,
 	},
 })
@@ -55,9 +55,10 @@ const buildChart = (chart, data) => {
 	const marginBottom = 24
 	const marginLeft = 32
 
+    const minBlobsCount = d3.min(data, d => d.blobs_count)
     const maxBlobsCount = d3.max(data, d => d.blobs_count)
-    const maxFee = d3.max(data, d => d.feeUpdated)
     const minFee = d3.min(data, d => d.feeUpdated)
+    const maxFee = d3.max(data, d => d.feeUpdated)
     const maxSize = d3.max(data, d => d.size)
     const minSize = d3.min(data, d => d.size)
     const midSize = maxSize / 2
@@ -77,40 +78,109 @@ const buildChart = (chart, data) => {
         .range([ 15, 70 ]);
     
     const x = d3.scaleLog()
-        .domain([1_000, maxBlobsCount + maxBlobsCount * 0.1])
-        .range([marginLeft, width])
+        .domain([minBlobsCount, maxBlobsCount + maxBlobsCount * 0.1])
+        .range([marginLeft, width -  z(maxSize) / 2 - 5])
         .base(10)
         .nice()
     
+    const yDomain = [1, maxFee + maxFee * 0.3]
     const y = d3.scaleLog()
-        .domain([1, maxFee + maxFee * 0.3])
-        .range([height + 5, 0])
+        .domain(yDomain)
+        .range([height + 5, z(maxSize) / 2])
         .base(10)
         .nice()
     
+    function generateAxisData(axis, startExp) {
+        let data = []
+        let exponent = startExp
+
+        while (true) {
+            let value = Math.pow(10, exponent)
+            
+
+            if (axis === 'x') {
+                if (x(value) < width) {
+                    data.push(value)
+                    exponent = exponent + 2
+                } else {
+                    break
+                }
+            } else if (axis === 'y') {
+                data.push(value)
+                if (y(value) > 0) {
+                    exponent++
+                } else {
+                    break
+                }
+            } else {
+                break
+            }
+        }
+
+        return data
+    }
+    const yAxisData = generateAxisData('y', 1)
+    const xAxisData = generateAxisData('x', Math.floor(Math.log10(minBlobsCount)))
+
     // Add axes:
-    svg.append("g")
-        .attr("transform", "translate(0," + (height - 20) + ")")
-        .attr("color", "var(--op-20)")
-        .call(d3.axisBottom(x).ticks(2).tickFormat(d3.format(".2s")))
+    // svg.append("g")
+    //     .attr("transform", "translate(0," + (height - 20) + ")")
+    //     .attr("color", "var(--op-20)")
+    //     .call(d3.axisBottom(x).ticks(2).tickFormat(d3.format(".2s")))
+    svg.append("line")
+            .attr("x1", marginLeft - 0.5)
+            .attr("x2", width - 0.5)
+            .attr("y1", height - 15)
+            .attr("y2", height - 15)
+            .attr("stroke", "var(--op-20)")
+
+    xAxisData.forEach((xValue) => {
+        let xPos = x(xValue)
+
+        svg.append("line")
+            .attr("x1", xPos)
+            .attr("x2", xPos)
+            .attr("y1", height - 14.5)
+            .attr("y2", height - 10)
+            .attr("stroke", "var(--op-20)")
+        
+        svg.append("text")
+            .attr("x", xPos)
+            .attr("y", height)
+            .attr("fill", "var(--op-20)")
+            .attr("font-size", "10px")
+            .attr("text-anchor", "middle")
+            .text(abbreviate(xValue))
+    })
+
+    svg.append("line")
+            .attr("x1", width - 1)
+            .attr("x2", width - 1)
+            .attr("y1", height - 14.5)
+            .attr("y2", height - 10)
+            .attr("stroke", "var(--op-20)")
+
+
     
-    svg.append("g")
-        .attr("transform", `translate(${marginLeft},0)`)
-        .attr("color", "var(--op-20)")
-        .call(d3.axisRight(y)
-            .ticks(4)
-            .tickSize(width - marginLeft - marginRight)
-            .tickFormat(d3.format(".2s")))
-        .call(g => g.select(".domain")
-            .remove())
-        .call(g => g.selectAll(".tick:not(:first-of-type) line")
-            .attr("stroke-opacity", 0.7)
-            .attr("stroke-dasharray", "10, 10"))
-        .call(g => g.selectAll(".tick text")
-            .attr("x", 4)
-            .attr("dy", -4))
-        .call(g => g.selectAll(".tick:first-child").remove())
-        .call(g => g.selectAll(".tick:last-child").remove())
+    yAxisData.forEach((yValue) => {
+        let yPos = y(yValue)
+
+        svg.append("line")
+            .attr("x1", marginLeft)
+            .attr("x2", width)
+            .attr("y1", yPos)
+            .attr("y2", yPos)
+            .attr("stroke", "var(--op-20)")
+            .attr("stroke-dasharray", "10 10")
+        
+        svg.append("text")
+            .attr("x", marginLeft)
+            .attr("y", yPos - 5)
+            .attr("fill", "var(--op-20)")
+            .attr("font-size", "10px")
+            .attr("text-anchor", "start")
+            .text(abbreviate(yValue))
+    })
 
     // Add axis labels:
     svg.append("text")
@@ -118,7 +188,7 @@ const buildChart = (chart, data) => {
         .attr("font-size", "14px")
         .attr("text-anchor", "end")
         .attr("x", 130)
-        .attr("y", height - 5)
+        .attr("y", height)
         .text("Blobs count");
 
     svg.append("text")
@@ -268,17 +338,24 @@ const buildChart = (chart, data) => {
 }
 
 onMounted(async () => {
-    if (!props.series?.data) {
+    if (!props.data) {
         await getRollups()
     } else {
-        rollups.value = prepareRollupsData(props.series.data)
+        rollups.value = prepareRollupsData(props.data)
     }
 
-	buildChart(
-        chartEl.value.wrapper,
-        rollups.value
-    )
+	buildChart(chartEl.value.wrapper, rollups.value)
 })
+
+watch(
+	() => props.data,
+	() => {
+        rollups.value = prepareRollupsData(props.data)
+
+        buildChart(chartEl.value.wrapper, rollups.value)
+	}
+)
+
 </script>
 
 <template>
@@ -315,7 +392,7 @@ onMounted(async () => {
 
                         <Flex align="center" justify="between" wide gap="12">
                             <Text size="12" color="tertiary"> Fee Paid </Text>
-                            <Text size="12" color="secondary"> {{ `${abbreviate(d.fee)} TIA` }} </Text>
+                            <Text size="12" color="secondary"> {{ `${abbreviate(d.feeUpdated)} TIA` }} </Text>
                         </Flex>
                     </Flex>
                 </Flex>

@@ -4,6 +4,9 @@ import BlocksTab from "@/components/modules/stats/tabs/BlocksTab.vue"
 import GeneralTab from "@/components/modules/stats/tabs/GeneralTab.vue"
 import RollupsTab from "@/components/modules/stats/tabs/RollupsTab.vue"
 
+/** Services */
+import { capitilize } from "@/services/utils"
+
 useHead({
 	title: "Statistics - Celestia Explorer",
 	link: [
@@ -55,14 +58,22 @@ useHead({
 const route = useRoute()
 const router = useRouter()
 
-// const tabs = ref(['General', 'Blocks', 'Rollups', 'Finance'])
-const tabs = ref(['General', 'Blocks', 'Rollups'])
+const tabs = ref(['general', 'blocks', 'rollups'])
 const activeTab = ref(route.query.tab && tabs.value.includes(route.query.tab) ? route.query.tab : tabs.value[0])
 
 const updateRouteQuery = () => {
 	router.replace({
 		query: {
 			tab: activeTab.value,
+		},
+	})
+}
+
+const handleSectionUpdate = (event) => {
+	router.replace({
+		query: {
+			tab: activeTab.value,
+			section: event,
 		},
 	})
 }
@@ -84,8 +95,6 @@ watch(
 		if (route.query.tab) activeTab.value = route.query.tab
 	},
 )
-
-
 </script>
 
 <template>
@@ -105,13 +114,13 @@ watch(
 
 		<Flex align="center" gap="16" :class="$style.tabs_wrapper">
 			<Text v-for="t in tabs" @click="activeTab = t" size="14" color="tertiary" :class="[$style.tab, activeTab === t && $style.tab_active]">
-				{{ t }}
+				{{ capitilize(t) }}
 			</Text>
 		</Flex>
 
-		<GeneralTab v-if="activeTab === 'General'" />
-		<BlocksTab v-if="activeTab === 'Blocks'" />
-		<RollupsTab v-if="activeTab === 'Rollups'" />
+		<GeneralTab v-if="activeTab === 'general'" />
+		<BlocksTab v-if="activeTab === 'blocks'" />
+		<RollupsTab v-if="activeTab === 'rollups'" @onUpdateSection="handleSectionUpdate" />
 	</Flex>
 </template>
 

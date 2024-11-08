@@ -3,7 +3,6 @@
 import { abbreviate, formatBytes, comma, sortArrayOfObjects } from "@/services/utils"
 
 /** Components */
-import CircularChartCard from "@/components/modules/stats/CircularChartCard.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 const props = defineProps({

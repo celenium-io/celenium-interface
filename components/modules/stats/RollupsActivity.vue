@@ -11,7 +11,7 @@ const props = defineProps({
     },
 })
 
-const selectedView = ref('table')
+const selectedView = ref('graph')
 const handleSelectView = () => {
     selectedView.value === 'graph' ? selectedView.value = 'table' : selectedView.value = 'graph'
 }

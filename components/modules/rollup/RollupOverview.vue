@@ -59,7 +59,7 @@ const tagNames = ref(['stack', 'type', 'vm', 'provider', 'category'])
 const tags = computed(() => tagNames.value.reduce((res, tagName) => {
 	if (props.rollup[tagName]) {
 		let tag = {}
-		tag.name = capitilize(tagName)
+		tag.name = tagName === 'vm' ? 'VM' : capitilize(tagName)
 		switch (tagName) {
 			case 'vm':
 				tag.value = props.rollup[tagName].toUpperCase()
