@@ -1,14 +1,37 @@
 <script setup>
+/** Vendor */
+import { DateTime } from "luxon"
+
+/** Constants */
+import { TERMS_OF_USE_DATE } from "@/services/constants/legal.js"
+
 useHead({
 	title: "Terms of Use",
 })
+
+/**
+ * 
+ * When updating the document, don't forget to change the date in the constants.
+ * 
+ */
+
+const lastUpdate = () => {
+	const dt = DateTime.fromISO(TERMS_OF_USE_DATE)
+	const day = dt.day
+	const suffix =
+		day % 10 === 1 && day !== 11 ? 'st' :
+		day % 10 === 2 && day !== 12 ? 'nd' :
+		day % 10 === 3 && day !== 13 ? 'rd' : 'th'
+
+	return dt.toFormat(`LLLL d'${suffix}', yyyy`)
+}
 </script>
 
 <template>
 	<Flex direction="column" align="start" gap="24" :class="$style.wrapper" wide>
 		<Flex direction="column" gap="6" wide>
 			<Text color="primary" size="18" :style="{fontWeight: 800}">Terms of Use</Text>
-			<Text color="tertiary" size="12">Last Updated: November 1th, 2024</Text>
+			<Text color="tertiary" size="12"> {{ `Last Updated: ${lastUpdate()}` }} </Text>
 		</Flex>
 
 		<Flex :class="$style.section">

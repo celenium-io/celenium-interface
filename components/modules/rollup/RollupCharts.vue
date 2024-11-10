@@ -500,28 +500,34 @@ onBeforeUnmount(() => {
 						</Flex>
 
 						<Flex :class="[$style.axis, $style.x]">
-							<Flex align="end" justify="between" wide>
-								<Text v-if="selectedPeriod.timeframe === 'month'" size="12" weight="600" color="tertiary">
+							<Flex v-if="selectedPeriod.timeframe === 'month'" align="end" justify="between" wide>
+								<Text size="12" weight="600" color="tertiary">
 									{{
 										DateTime.now()
 											.minus({ months: selectedPeriod.value - 1 })
 											.toFormat("LLL y")
 									}}
 								</Text>
-								<Text v-else-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">
+
+								<Text size="12" weight="600" color="tertiary">{{ DateTime.now().toFormat("LLL") }}</Text>
+							</Flex>
+							<Flex v-else-if="selectedPeriod.timeframe === 'day'" align="end" justify="between" wide>
+								<Text size="12" weight="600" color="tertiary">
 									{{
 										DateTime.now()
 											.minus({ days: selectedPeriod.value - 1 })
 											.toFormat("LLL dd")
 									}}
 								</Text>
-								<Text v-else size="12" weight="600" color="tertiary">
+
+								<Text size="12" weight="600" color="tertiary">Today</Text>
+							</Flex>
+							<Flex v-else align="end" justify="between" wide>
+								<Text size="12" weight="600" color="tertiary">
 									{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
 								</Text>
 
-								<Text v-if="selectedPeriod.timeframe === 'month'" size="12" weight="600" color="tertiary">{{ DateTime.now().toFormat("LLL") }}</Text>
-								<Text v-else-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">Today</Text>
-								<Text v-else size="12" weight="600" color="tertiary">Now</Text>
+								<Text size="12" weight="600" color="tertiary">Now</Text>
 							</Flex>
 						</Flex>
 
@@ -597,28 +603,34 @@ onBeforeUnmount(() => {
 						</Flex>
 
 						<Flex :class="[$style.axis, $style.x]">
-							<Flex align="end" justify="between" wide>
-								<Text v-if="selectedPeriod.timeframe === 'month'" size="12" weight="600" color="tertiary">
+							<Flex v-if="selectedPeriod.timeframe === 'month'" align="end" justify="between" wide>
+								<Text size="12" weight="600" color="tertiary">
 									{{
 										DateTime.now()
 											.minus({ months: selectedPeriod.value - 1 })
 											.toFormat("LLL y")
 									}}
 								</Text>
-								<Text v-else-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">
+
+								<Text size="12" weight="600" color="tertiary">{{ DateTime.now().toFormat("LLL") }}</Text>
+							</Flex>
+							<Flex v-else-if="selectedPeriod.timeframe === 'day'" align="end" justify="between" wide>
+								<Text size="12" weight="600" color="tertiary">
 									{{
 										DateTime.now()
 											.minus({ days: selectedPeriod.value - 1 })
 											.toFormat("LLL dd")
 									}}
 								</Text>
-								<Text v-else size="12" weight="600" color="tertiary">
+
+								<Text size="12" weight="600" color="tertiary">Today</Text>
+							</Flex>
+							<Flex v-else align="end" justify="between" wide>
+								<Text size="12" weight="600" color="tertiary">
 									{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
 								</Text>
 
-								<Text v-if="selectedPeriod.timeframe === 'month'" size="12" weight="600" color="tertiary">{{ DateTime.now().toFormat("LLL") }}</Text>
-								<Text v-else-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">Today</Text>
-								<Text v-else size="12" weight="600" color="tertiary">Now</Text>
+								<Text size="12" weight="600" color="tertiary">Now</Text>
 							</Flex>
 						</Flex>
 
@@ -700,28 +712,34 @@ onBeforeUnmount(() => {
 						</Flex>
 
 						<Flex :class="[$style.axis, $style.x]">
-							<Flex align="end" justify="between" wide>
-								<Text v-if="selectedPeriod.timeframe === 'month'" size="12" weight="600" color="tertiary">
+							<Flex v-if="selectedPeriod.timeframe === 'month'" align="end" justify="between" wide>
+								<Text size="12" weight="600" color="tertiary">
 									{{
 										DateTime.now()
 											.minus({ months: selectedPeriod.value - 1 })
 											.toFormat("LLL y")
 									}}
 								</Text>
-								<Text v-else-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">
+
+								<Text size="12" weight="600" color="tertiary">{{ DateTime.now().toFormat("LLL") }}</Text>
+							</Flex>
+							<Flex v-else-if="selectedPeriod.timeframe === 'day'" align="end" justify="between" wide>
+								<Text size="12" weight="600" color="tertiary">
 									{{
 										DateTime.now()
 											.minus({ days: selectedPeriod.value - 1 })
 											.toFormat("LLL dd")
 									}}
 								</Text>
-								<Text v-else size="12" weight="600" color="tertiary">
+
+								<Text size="12" weight="600" color="tertiary">Today</Text>
+							</Flex>
+							<Flex v-else align="end" justify="between" wide>
+								<Text size="12" weight="600" color="tertiary">
 									{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
 								</Text>
 
-								<Text v-if="selectedPeriod.timeframe === 'month'" size="12" weight="600" color="tertiary">{{ DateTime.now().toFormat("LLL") }}</Text>
-								<Text v-else-if="selectedPeriod.timeframe === 'day'" size="12" weight="600" color="tertiary">Today</Text>
-								<Text v-else size="12" weight="600" color="tertiary">Now</Text>
+								<Text size="12" weight="600" color="tertiary">Now</Text>
 							</Flex>
 						</Flex>
 

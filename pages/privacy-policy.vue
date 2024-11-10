@@ -1,14 +1,37 @@
 <script setup>
+/** Vendor */
+import { DateTime } from "luxon"
+
+/** Constants */
+import { PRIVACY_POLICY_DATE } from "@/services/constants/legal.js"
+
 useHead({
 	title: "Privacy Policy",
 })
+
+/**
+ * 
+ * When updating the document, don't forget to change the date in the constants.
+ * 
+ */
+
+ const lastUpdate = () => {
+	const dt = DateTime.fromISO(PRIVACY_POLICY_DATE)
+	const day = dt.day
+	const suffix =
+		day % 10 === 1 && day !== 11 ? 'st' :
+		day % 10 === 2 && day !== 12 ? 'nd' :
+		day % 10 === 3 && day !== 13 ? 'rd' : 'th'
+
+	return dt.toFormat(`LLLL d'${suffix}', yyyy`)
+}
 </script>
 
 <template>
 	<Flex direction="column" align="start" gap="24" :class="$style.wrapper" wide>
 		<Flex direction="column" gap="6" wide>
 			<Text color="primary" size="18" :style="{fontWeight: 800}">Privacy Policy</Text>
-			<Text color="tertiary" size="12">Last Updated: November 1th, 2024</Text>
+			<Text color="tertiary" size="12"> {{ `Last Updated: ${lastUpdate()}` }} </Text>
 		</Flex>
 
 		<Flex :class="$style.section">
@@ -147,6 +170,13 @@ useHead({
 							<Text weight="600" :class="$style.section_paragraph">Keplr</Text>
 							<Text :class="$style.section_paragraph">Provider: Chainapsis, Inc.</Text>
 							<Text :class="$style.section_paragraph">Privacy policy: <a href="https://wallet.keplr.app/privacy-policy.html" target="_blank" :class="$style.link">https://wallet.keplr.app/privacy-policy.html</a></Text>
+						</Flex>
+					</li>
+					<li>
+						<Flex direction="column">
+							<Text weight="600" :class="$style.section_paragraph">Leap</Text>
+							<Text :class="$style.section_paragraph">Provider: Hyphen Labs Ltd.</Text>
+							<Text :class="$style.section_paragraph">Privacy policy: <a href="https://www.leapwallet.io/legal/privacy" target="_blank" :class="$style.link">https://www.leapwallet.io/legal/privacy</a></Text>
 						</Flex>
 					</li>
 				</ul>
