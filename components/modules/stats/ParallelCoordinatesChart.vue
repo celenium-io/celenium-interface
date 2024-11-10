@@ -20,6 +20,8 @@ const props = defineProps({
     }
 })
 
+const chartEl = ref()
+
 const resData = ref([])
 const sortedData = ref({})
 
@@ -31,8 +33,6 @@ const selectedRollupsData = computed(() => {
 
     return res
 })
-
-const chartEl = ref()
 
 const prepareData = () => {
     let res = []

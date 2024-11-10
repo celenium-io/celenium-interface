@@ -144,16 +144,13 @@ onMounted(async () => {
 			filterRollupByCategories()
 
 			break
-		case 'overview':
+		case 'daily_stats':
 			await getRollupsDailyStats()
 
 			break
 		default:
 			break
 	}
-	nextTick(() => {
-		updateSection(activeSection.value)
-	})
 })
 
 watch(

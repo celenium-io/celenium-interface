@@ -3,7 +3,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 
 const props = defineProps({
     value: {
-        type: Number,
+        type: [String, Number],
         required: true,
     },
     invert: {
