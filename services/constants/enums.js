@@ -144,6 +144,7 @@ export const defaultEnums = {
 		"uncategorized",
 		"finance",
 		"gaming",
-		"nft"
+		"nft",
+		"social"
 	]
 }

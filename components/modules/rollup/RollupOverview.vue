@@ -255,25 +255,33 @@ const handleCSVDownload = async (value) => {
 				<Text size="13" weight="600" color="primary">Rollup</Text>
 			</Flex>
 
-			<Dropdown>
-				<Tooltip>
-					<Button type="secondary" size="mini">
-						<Icon name="download" size="12" color="secondary" />
+			<Flex align="cneter" gap="12">
+				<Button link="/stats?tab=rollups&section=daily_stats" type="secondary" size="mini">
+					<Icon name="line-chart" size="12" color="secondary" />
 
-						<Text>Export</Text>
-					</Button>
+					<Text>Daily Stats</Text>
+				</Button>
 
-					<template #content>
-						<Text color="tertiary">Export blobs to CSV</Text>
+				<Dropdown>
+					<Tooltip>
+						<Button type="secondary" size="mini">
+							<Icon name="download" size="12" color="secondary" />
+
+							<Text>Export</Text>
+						</Button>
+
+						<template #content>
+							<Text color="tertiary">Export blobs to CSV</Text>
+						</template>
+					</Tooltip>
+
+					<template #popup>
+						<DropdownItem v-for="period in periods" @click="handleCSVDownload(period.value)">
+							{{ period.title }}
+						</DropdownItem>
 					</template>
-				</Tooltip>
-
-				<template #popup>
-					<DropdownItem v-for="period in periods" @click="handleCSVDownload(period.value)">
-						{{ period.title }}
-					</DropdownItem>
-				</template>
-			</Dropdown>
+				</Dropdown>
+			</Flex>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
