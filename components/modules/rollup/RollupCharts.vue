@@ -671,7 +671,7 @@ onBeforeUnmount(() => {
 			</Flex>
 
 			<Flex justify="between" gap="32" :class="[$style.data, $style.bottom]">
-				<Flex direction="column" gap="20" wide :style="{width: '464px'}">
+				<Flex direction="column" gap="20" wide>
 					<Text size="13" weight="600" color="primary">Fee Spent</Text>
 
 					<Flex direction="column" :class="$style.chart_wrapper">
@@ -778,11 +778,11 @@ onBeforeUnmount(() => {
 					</Flex>
 				</Flex>
 
-				<Flex ref="comparisonChartEl" direction="column" gap="12" :class="$style.chart_wrapper_single">
+				<Flex ref="comparisonChartEl" direction="column" gap="12">
 					<Flex align="center" justify="between">
 						<Text size="13" weight="600" color="primary">Rollups Comparison</Text>
 
-						<Popover :open="isRollupPopoverOpen" @on-close="handleRollupPopoverClose" width="250">
+						<Popover :open="isRollupPopoverOpen" @on-close="handleRollupPopoverClose" side="right" width="250">
 							<Flex
 								@click="isRollupPopoverOpen = true"
 								align="center"
@@ -842,7 +842,7 @@ onBeforeUnmount(() => {
 						</Popover>
 					</Flex>
 
-					<Flex direction="column" gap="12">
+					<Flex direction="column" gap="12" :class=$style.chart_wrapper_single>
 						<Flex direction="column" gap="12">
 							<Text size="13" weight="500" color="secondary">Size</Text>
 
@@ -967,8 +967,6 @@ onBeforeUnmount(() => {
 	position: relative;
 
 	width: 464px;
-
-	height: 180px;
 }
 
 .chart {
