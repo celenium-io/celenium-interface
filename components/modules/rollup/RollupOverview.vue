@@ -255,7 +255,7 @@ const handleCSVDownload = async (value) => {
 				<Text size="13" weight="600" color="primary">Rollup</Text>
 			</Flex>
 
-			<Flex align="cneter" gap="12">
+			<Flex align="center" gap="12">
 				<Button link="/stats?tab=rollups&section=daily_stats" type="secondary" size="mini">
 					<Icon name="line-chart" size="12" color="secondary" />
 

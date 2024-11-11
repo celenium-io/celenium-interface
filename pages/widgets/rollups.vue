@@ -10,7 +10,7 @@ import { Dropdown, DropdownDivider, DropdownItem, DropdownTitle } from "@/compon
 import { formatBytes, comma, abbreviate, capitilize } from "@/services/utils"
 
 /** API */
-import { fetchRollups, fetchRollupsCount } from "@/services/api/rollup"
+import { fetchRollups } from "@/services/api/rollup"
 
 /** Stores */
 import { useEnumStore } from "@/store/enums"
@@ -111,13 +111,6 @@ const handleSelectCategory = (category) => {
 		selectedCategories.value.push(category)
 	}
 }
-
-const getRollupsCount = async () => {
-	const { data: rollupsCount } = await fetchRollupsCount()
-	count.value = rollupsCount.value
-}
-
-await getRollupsCount()
 
 const limit = ref(10)
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
@@ -234,30 +227,8 @@ watch(
 
 <template>
 	<Flex direction="column" wide :class="$style.wrapper" gap="16">
-		<Flex ref="headerEl" align="center" justify="between" :class="$style.actions">
-			<Flex align="center" gap="6">
-				<Flex
-					v-if="categories.length"
-					v-for="c in categories"
-					@click="handleSelectCategory(c)"
-					align="center"
-					gap="4"
-					:class="[$style.chip, selectedCategories.includes(c) && $style.active]"
-				>
-					<Flex align="center" :class="$style.content">
-						<Text size="12" weight="600" color="primary"> {{ getCategoryDisplayName(c) }} </Text>
-					</Flex>
-				</Flex>
-
-				<Skeleton
-					v-else
-					v-for="i in 3"
-					w="60"
-					h="22"
-				/>
-			</Flex>
-
-			<Flex align="center" gap="12">
+		<Flex ref="headerEl" direction="column" gap="12" :class="$style.actions">
+			<Flex align="center" justify="end" gap="12" wide>
 				<Dropdown>
 					<Button type="secondary" size="mini">
 						<Icon :name="`sort-${sort.dir}`" size="16" color="primary" />
@@ -312,13 +283,36 @@ watch(
 					</Button>
 
 					<Button type="secondary" size="mini" disabled>
-						<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
+						<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
 					</Button>
 
-					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
+
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="rollups.length < limit">
 						<Icon name="arrow-right" size="12" color="primary" />
 					</Button>
 				</Flex>
+			</Flex>
+
+			<Flex align="center" justify="start" gap="6" wide :style="{flexWrap: 'wrap'}">
+				<Flex
+					v-if="categories.length"
+					v-for="c in categories"
+					@click="handleSelectCategory(c)"
+					align="center"
+					gap="4"
+					:class="[$style.chip, selectedCategories.includes(c) && $style.active]"
+				>
+					<Flex align="center" :class="$style.content">
+						<Text size="12" weight="600" color="primary"> {{ getCategoryDisplayName(c) }} </Text>
+					</Flex>
+				</Flex>
+
+				<Skeleton
+					v-else
+					v-for="i in 3"
+					w="60"
+					h="22"
+				/>
 			</Flex>
 		</Flex>
 
@@ -515,7 +509,7 @@ watch(
 		<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
             <Text size="13" weight="600" color="secondary" align="center"> No rollups found </Text>
             <Text size="12" weight="500" height="160" color="tertiary" align="center">
-                There are no rollups to display
+                {{ `There are no ${page > 1 ? 'more' : ''} rollups to display` }}
             </Text>
         </Flex>
 	</Flex>
