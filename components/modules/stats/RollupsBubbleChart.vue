@@ -201,22 +201,22 @@ const buildChart = (chart, data) => {
         .text("Fee paid (TIA)")
 
     // Size legend
-    let size = d3.scaleSqrt()
-        .domain([minSize, maxSize / 2])
-        .range([ 10, 35 ])
-    
-    let legendValues = [500 * 1_024 * 1_024, midSize * 0.5, maxSize / 2]
-    let xCircle = width - 50
-    let xLabel = width - 150
-    let yCircle = height - 30
+    let legendValues = data.length === 1
+        ? [ maxSize ]
+        : data.length === 2
+            ? [ minSize, maxSize ]
+            : [ minSize, midSize * 0.5, maxSize / 2 ]
+    let xCircle = width - z(maxSize)
+    let xLabel = width - z(maxSize) - 100
+    let yCircle = height - 20
     svg
         .selectAll("legend")
         .data(legendValues)
         .enter()
         .append("circle")
             .attr("cx", xCircle)
-            .attr("cy", function(d){ return yCircle - size(d) } )
-            .attr("r", function(d){ return size(d) })
+            .attr("cy", function(d){ return yCircle - z(d) } )
+            .attr("r", function(d){ return z(d) })
             .style("fill", "none")
             .attr("stroke", "var(--op-20)")
 
@@ -225,10 +225,10 @@ const buildChart = (chart, data) => {
         .data(legendValues)
         .enter()
         .append("line")
-            .attr("x1", function(d){ return xCircle - size(d) } )
+            .attr("x1", function(d){ return xCircle - z(d) } )
             .attr("x2", xLabel)
-            .attr("y1", function(d, i){ return yCircle - size(d) + (i === 0 ? 5 : i === 2 ? -7 : 0) } )
-            .attr("y2", function(d, i){ return yCircle - size(d) + (i === 0 ? 5 : i === 2 ? -7 : 0) } )
+            .attr("y1", function(d, i){ return yCircle - z(d) + (i === 0 ? 5 : i === 2 ? -7 : 0) } )
+            .attr("y2", function(d, i){ return yCircle - z(d) + (i === 0 ? 5 : i === 2 ? -7 : 0) } )
             .attr("stroke", "var(--op-20)")
             .style("stroke-dasharray", ("2, 2"))
 
@@ -237,8 +237,8 @@ const buildChart = (chart, data) => {
         .enter()
         .append("text")
             .attr('x', xLabel)
-            .attr('y', function(d, i){ return yCircle - size(d) - 5 + (i === 0 ? 5 : i === 2 ? -7 : 0) } )
-            .text( function(d, i){ return i === 0 ? '<' + formatBytes(d, 0) : formatBytes(d, 0) } )
+            .attr('y', function(d, i){ return yCircle - z(d) - 5 + (i === 0 ? 5 : i === 2 ? -7 : 0) } )
+            .text( function(d, i){ return formatBytes(d, 0) } )
             .style("font-size", 10)
             .style("fill", "var(--op-20)")
             .attr('alignment-baseline', 'middle')

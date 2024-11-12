@@ -1,5 +1,5 @@
 /** Services */
-import { useServerURL } from "@/services/config"
+import { blockscoutURL, useServerURL } from "@/services/config"
 
 export const fetchNamespaces = async ({ limit, offset, sort, sort_by }) => {
 	try {
@@ -135,6 +135,23 @@ export const fetchBlobMetadata = async ({ hash, height, commitment }) => {
 				commitment,
 			},
 		})
+		
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchBlobBlockscoutData = async ({ height, namespace, commitment }) => {
+	try {
+		const url = new URL(blockscoutURL)
+
+		url.searchParams.append("height", height)
+		url.searchParams.append("namespace", namespace)
+		url.searchParams.append("commitment", commitment)
+
+		const data = useFetch(url.href)
+
 		return data
 	} catch (error) {
 		console.error(error)

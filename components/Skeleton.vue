@@ -1,7 +1,7 @@
 <script setup>
 const props = defineProps({
-	w: String,
-	h: String,
+	w: [String, Number],
+	h: [String, Number],
 	c: {
 		type: String,
 		default: "gray",

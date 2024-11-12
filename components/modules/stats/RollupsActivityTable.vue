@@ -36,7 +36,7 @@ const handleSort = (by) => {
 </script>
 
 <template>
-    <Flex v-if="rollups.length > 0" direction="column" gap="16" wide :class="[$style.table, isRefetching && $style.disabled]">
+    <Flex direction="column" gap="16" wide :class="[$style.table, isRefetching && $style.disabled]">
         <div v-if="rollups.length" :class="$style.table_scroller">
             <table>
                 <thead>
