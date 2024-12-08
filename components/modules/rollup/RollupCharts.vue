@@ -842,7 +842,8 @@ onBeforeUnmount(() => {
 						</Popover>
 					</Flex>
 
-					<Flex direction="column" gap="12" :class=$style.chart_wrapper_single>
+
+					<Flex v-if="comparisonData[0]?.size_graph" direction="column" gap="12" :class=$style.chart_wrapper_single>
 						<Flex direction="column" gap="12">
 							<Text size="13" weight="500" color="secondary">Size</Text>
 
@@ -926,6 +927,18 @@ onBeforeUnmount(() => {
 								<Text size="12" color="tertiary"> {{ tia(comparisonData[1]?.fee) }} TIA</Text>
 							</Flex>
 						</Flex>
+					</Flex>
+					<Flex
+						v-else
+						align="center"
+						justify="center"
+						direction="column"
+						gap="4"
+						:class=$style.chart_wrapper_single
+						:style="{height: '100%', paddingBottom: '24px'}"
+					>
+						<Text size="12" color="secondary" weight="600">No data for comparison</Text>
+						<Text size="12" color="tertiary">Try to select a different rollup or period</Text>
 					</Flex>
 				</Flex>
 			</Flex>
