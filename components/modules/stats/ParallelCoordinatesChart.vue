@@ -27,11 +27,11 @@ const sortedData = ref({})
 
 const selectedRollups = ref([])
 const selectedRollupsData = computed(() => {
-    let res = []
-    res = sortedData.value[sort?.by]?.filter(r => selectedRollups.value?.includes(r.slug))
-    res = sortArrayOfObjects(res, sort.by, sort.dir === 'asc' ? true : false)
-
-    return res
+    return sortArrayOfObjects(
+        props.data.filter(r => selectedRollups.value?.includes(r.slug)),
+        sort.by,
+        sort.dir === 'asc' ? true : false
+    )
 })
 
 const prepareData = () => {
@@ -370,6 +370,18 @@ watch(
                                         />
                                     </Flex>
                                 </th>
+                                <th @click="handleSort('avg_pfb_size')" :class="$style.sortable">
+                                    <Flex align="center" gap="6">
+                                        <Text size="12" weight="600" color="tertiary" noWrap>Avg PFB Size</Text>
+                                        <Icon
+                                            v-if="sort.by === 'avg_pfb_size'"
+                                            name="chevron"
+                                            size="12"
+                                            color="secondary"
+                                            :style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+                                        />
+                                    </Flex>
+                                </th>
                                 <th @click="handleSort('avg_size')" :class="$style.sortable">
                                     <Flex align="center" gap="6">
                                         <Text size="12" weight="600" color="tertiary" noWrap>Avg Blob Size</Text>
@@ -394,9 +406,21 @@ watch(
                                         />
                                     </Flex>
                                 </th>
+                                <th @click="handleSort('pfb_hour_count')" :class="$style.sortable">
+                                    <Flex align="center" gap="6">
+                                        <Text size="12" weight="600" color="tertiary" noWrap>Frequency, pfb/hour</Text>
+                                        <Icon
+                                            v-if="sort.by === 'pfb_hour_count'"
+                                            name="chevron"
+                                            size="12"
+                                            color="secondary"
+                                            :style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+                                        />
+                                    </Flex>
+                                </th>
                                 <th @click="handleSort('throughput')" :class="$style.sortable">
                                     <Flex align="center" gap="6">
-                                        <Text size="12" weight="600" color="tertiary" noWrap>Throughput (b/s)</Text>
+                                        <Text size="12" weight="600" color="tertiary" noWrap>Throughput, b/s</Text>
                                         <Icon
                                             v-if="sort.by === 'throughput'"
                                             name="chevron"
@@ -447,6 +471,15 @@ watch(
                                     <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
                                         <Flex align="center">
                                             <Text size="12" weight="600" color="primary">
+                                                {{ formatBytes(r.avg_pfb_size) }}
+                                            </Text>
+                                        </Flex>
+                                    </NuxtLink>
+                                </td>
+                                <td>
+                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                        <Flex align="center">
+                                            <Text size="12" weight="600" color="primary">
                                                 {{ formatBytes(r.avg_size) }}
                                             </Text>
                                         </Flex>
@@ -469,7 +502,16 @@ watch(
                                     <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
                                         <Flex align="center">
                                             <Text size="12" weight="600" color="primary">
-                                                {{ formatBytes(r.throughput) }}
+                                                {{ comma(r.pfb_hour_count) }}
+                                            </Text>
+                                        </Flex>
+                                    </NuxtLink>
+                                </td>
+                                <td>
+                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                        <Flex align="center">
+                                            <Text size="12" weight="600" color="primary">
+                                                {{ comma(r.throughput) }}
                                             </Text>
                                         </Flex>
                                     </NuxtLink>

@@ -17,6 +17,8 @@ const sort = reactive({
 	dir: "desc",
 })
 
+const sortedRollups = ref(props.rollups)
+
 const handleSort = (by) => {
 	switch (sort.dir) {
 		case "desc":
@@ -31,13 +33,13 @@ const handleSort = (by) => {
 
 	sort.by = by
 
-	props.rollups = sortArrayOfObjects(props.rollups, by, sort.dir === 'desc' ? false : true)
+	sortedRollups.value = sortArrayOfObjects(sortedRollups.value, by, sort.dir === 'desc' ? false : true)
 }
 </script>
 
 <template>
-    <Flex direction="column" gap="16" wide :class="[$style.table, isRefetching && $style.disabled]">
-        <div v-if="rollups.length" :class="$style.table_scroller">
+    <Flex direction="column" gap="16" wide :class="$style.table">
+        <div v-if="sortedRollups.length" :class="$style.table_scroller">
             <table>
                 <thead>
                     <tr>
@@ -48,6 +50,18 @@ const handleSort = (by) => {
                                 <Text size="12" weight="600" color="tertiary" noWrap>Total Size</Text>
                                 <Icon
                                     v-if="sort.by === 'total_size'"
+                                    name="chevron"
+                                    size="12"
+                                    color="secondary"
+                                    :style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+                                />
+                            </Flex>
+                        </th>
+                        <th @click="handleSort('avg_pfb_size')" :class="$style.sortable">
+                            <Flex align="center" gap="6">
+                                <Text size="12" weight="600" color="tertiary" noWrap>Avg PFB Size</Text>
+                                <Icon
+                                    v-if="sort.by === 'avg_pfb_size'"
                                     name="chevron"
                                     size="12"
                                     color="secondary"
@@ -79,9 +93,21 @@ const handleSort = (by) => {
                                 />
                             </Flex>
                         </th>
+                        <th @click="handleSort('pfb_hour_count')" :class="$style.sortable">
+                            <Flex align="center" gap="6">
+                                <Text size="12" weight="600" color="tertiary" noWrap>Frequency, pfb/hour</Text>
+                                <Icon
+                                    v-if="sort.by === 'pfb_hour_count'"
+                                    name="chevron"
+                                    size="12"
+                                    color="secondary"
+                                    :style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+                                />
+                            </Flex>
+                        </th>
                         <th @click="handleSort('throughput')" :class="$style.sortable">
                             <Flex align="center" gap="6">
-                                <Text size="12" weight="600" color="tertiary" noWrap>Throughput (b/s)</Text>
+                                <Text size="12" weight="600" color="tertiary" noWrap>Throughput, b/s</Text>
                                 <Icon
                                     v-if="sort.by === 'throughput'"
                                     name="chevron"
@@ -103,23 +129,11 @@ const handleSort = (by) => {
                                 />
                             </Flex>
                         </th>
-                        <th @click="handleSort('namespace_count')" :class="$style.sortable">
-                            <Flex align="center" gap="6">
-                                <Text size="12" weight="600" color="tertiary" noWrap>Namespaces</Text>
-                                <Icon
-                                    v-if="sort.by === 'namespace_count'"
-                                    name="chevron"
-                                    size="12"
-                                    color="secondary"
-                                    :style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
-                                />
-                            </Flex>
-                        </th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    <tr v-for="(r, index) in rollups">
+                    <tr v-for="(r, index) in sortedRollups">
                         <td>
                             <NuxtLink :to="`/rollup/${r.slug}`">
                                 <Flex align="center">
@@ -151,6 +165,15 @@ const handleSort = (by) => {
                             <NuxtLink :to="`/rollup/${r.slug}`">
                                 <Flex align="center">
                                     <Text size="12" weight="600" color="primary">
+                                        {{ formatBytes(r.avg_pfb_size) }}
+                                    </Text>
+                                </Flex>
+                            </NuxtLink>
+                        </td>
+                        <td>
+                            <NuxtLink :to="`/rollup/${r.slug}`">
+                                <Flex align="center">
+                                    <Text size="12" weight="600" color="primary">
                                         {{ formatBytes(r.avg_size) }}
                                     </Text>
                                 </Flex>
@@ -173,8 +196,18 @@ const handleSort = (by) => {
                             <NuxtLink :to="`/rollup/${r.slug}`">
                                 <Flex align="center">
                                     <Text size="12" weight="600" color="primary">
-                                        {{ formatBytes(r.throughput) }}
+                                        {{ comma(r.pfb_hour_count) }}
                                     </Text>
+                                </Flex>
+                            </NuxtLink>
+                        </td>
+                        <td>
+                            <NuxtLink :to="`/rollup/${r.slug}`">
+                                <Flex align="center" gap="4">
+                                    <Text size="12" weight="600" color="primary">
+                                        {{ comma(r.throughput) }}
+                                    </Text>
+                                    <!-- <Text size="12" weight="600" color="tertiary">/ sec</Text> -->
                                 </Flex>
                             </NuxtLink>
                         </td>
@@ -182,18 +215,6 @@ const handleSort = (by) => {
                             <NuxtLink :to="`/rollup/${r.slug}`">
                                 <Flex align="center">
                                     <AmountInCurrency :amount="{ value: r.mb_price }" />
-                                    <!-- <Text size="12" weight="600" color="primary">
-                                        {{ r.mb_price }}
-                                    </Text> -->
-                                </Flex>
-                            </NuxtLink>
-                        </td>
-                        <td>
-                            <NuxtLink :to="`/rollup/${r.slug}`">
-                                <Flex align="center">
-                                    <Text size="12" weight="600" color="primary">
-                                        {{ r.namespace_count }}
-                                    </Text>
                                 </Flex>
                             </NuxtLink>
                         </td>

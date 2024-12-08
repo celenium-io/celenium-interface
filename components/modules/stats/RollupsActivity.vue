@@ -11,6 +11,16 @@ const props = defineProps({
     },
 })
 
+const processedRollups = computed(() => {
+    const arr = [...props.rollups]
+    arr.forEach(r => {
+        r.avg_pfb_size = r.avg_size * r.blobs_per_pfb
+        r.pfb_hour_count = Math.round(r.pfb_count / 24)
+    })
+
+    return arr
+})
+
 const selectedView = ref('graph')
 const handleSelectView = () => {
     selectedView.value === 'graph' ? selectedView.value = 'table' : selectedView.value = 'graph'
@@ -57,8 +67,8 @@ const handleSelectView = () => {
             </Tooltip>
         </Flex>
         <Transition name="fastfade" mode="out-in">
-            <RollupsActivityTable v-if="selectedView === 'table'" :rollups="rollups" />
-            <RollupsActivityGraph v-else-if="selectedView === 'graph'" :rollups="rollups" />
+            <RollupsActivityTable v-if="selectedView === 'table'" :rollups="processedRollups" />
+            <RollupsActivityGraph v-else-if="selectedView === 'graph'" :rollups="processedRollups" />
         </Transition>
     </Flex>
 </template>
