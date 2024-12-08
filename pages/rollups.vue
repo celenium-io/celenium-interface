@@ -179,7 +179,7 @@ const getRollups = async () => {
 		sort: sort.dir,
 		sort_by: sort.by,
 	})
-	rollups.value = data
+	rollups.value = data.map((r, i) => ({...r, index: ((page.value - 1) * 20) + i + 1}))
 
 	isRefetching.value = false
 }
@@ -237,7 +237,7 @@ watch(
 
 <template>
 	<Flex direction="column" wide :class="$style.wrapper">
-		<Flex align="end" justify="between" :class="$style.breadcrumbs">
+		<Flex align="start" justify="between" :class="$style.breadcrumbs">
 			<Breadcrumbs
 				:items="[
 					{ link: '/', name: 'Explore' },
@@ -376,11 +376,11 @@ watch(
 						</thead>
 
 						<tbody>
-							<tr v-for="(r, index) in rollups">
+							<tr v-for="r in rollups">
 								<td>
 									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
-											<Text size="13" weight="600" color="primary">{{ index + 1 }}</Text>
+											<Text size="13" weight="600" color="primary">{{ r.index }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
@@ -514,6 +514,28 @@ watch(
 					</Text>
 				</Flex>
 			</Flex>
+			<Flex justify="end" :class="$style.footer">
+				<!-- Pagination -->
+				<Flex v-if="pages" align="center" gap="6">
+					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
+						<Icon name="arrow-left-stop" size="12" color="primary" />
+					</Button>
+					<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
+						<Icon name="arrow-left" size="12" color="primary" />
+					</Button>
+
+					<Button type="secondary" size="mini" disabled>
+						<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
+					</Button>
+
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
+						<Icon name="arrow-right" size="12" color="primary" />
+					</Button>
+					<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages">
+						<Icon name="arrow-right-stop" size="12" color="primary" />
+					</Button>
+				</Flex>
+			</Flex>
 		</Flex>
 	</Flex>
 </template>
@@ -531,6 +553,15 @@ watch(
 	height: 46px;
 
 	border-radius: 8px 8px 4px 4px;
+	background: var(--card-background);
+
+	padding: 0 16px;
+}
+
+.footer {
+	height: 46px;
+
+	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 
 	padding: 0 16px;
@@ -558,7 +589,7 @@ watch(
 }
 
 .table {
-	border-radius: 4px 4px 8px 8px;
+	border-radius: 4px 4px 4px 4px;
 	background: var(--card-background);
 
 	transition: all 0.2s ease;

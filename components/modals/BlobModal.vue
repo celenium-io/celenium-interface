@@ -8,7 +8,7 @@ import Spinner from "@/components/ui/Spinner.vue"
 import { comma, formatBytes, getNamespaceID, shortHash, space, strToHex } from "@/services/utils"
 
 /** API */
-import { fetchBlobByMetadata } from "@/services/api/namespace"
+import { fetchBlobBlockscoutData, fetchBlobByMetadata } from "@/services/api/namespace"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
@@ -23,6 +23,8 @@ const isLoading = ref(true)
 const isStopped = ref(false)
 const blob = ref({})
 const notFound = ref(false)
+
+const l2BlockscoutUrl = ref("")
 
 const isDecode = ref(false)
 const isViewAll = ref(false)
@@ -83,6 +85,14 @@ watch(
 			}
 
 			await getBlobMetadata()
+
+			
+			const { data } = await fetchBlobBlockscoutData({
+				height: cacheStore.selectedBlob.height,
+				namespace: cacheStore.selectedBlob.hash,
+				commitment: cacheStore.selectedBlob.commitment,
+			})
+			l2BlockscoutUrl.value = data?.value?.l2BlockscoutUrl
 
 			/** auto preview for small images */
 			if (
@@ -157,7 +167,7 @@ const handlePreviewContent = () => {
 </script>
 
 <template>
-	<Modal :show="show" @onClose="emit('onClose')" width="600" disable-trap>
+	<Modal :show="show" @onClose="emit('onClose')" width="640" disable-trap>
 		<Flex direction="column" gap="16">
 			<Text size="14" weight="600" color="primary">Blob Viewer</Text>
 
@@ -354,6 +364,13 @@ const handlePreviewContent = () => {
 						Open Blob Page
 						<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
 					</Button>
+
+					<Button v-if="l2BlockscoutUrl" :link="l2BlockscoutUrl" target="_blank" size="mini" type="secondary">
+						<Icon name="blockscout" size="12" color="secondary" />
+						View batch
+						<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
+					</Button>
+
 
 					<Button @click="handleDownload" type="secondary" size="small" :disabled="isLoading">
 						<Icon name="download" size="14" color="secondary" />

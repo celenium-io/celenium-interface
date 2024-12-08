@@ -31,19 +31,31 @@ const resData = ref([])
 const total = ref(0)
 
 const prepareRollupsData = () => {
+    resData.value = []
     let key = props.series.name
     props.data?.forEach(el => {
         resData.value.push(
             {
                 name: el.name,
                 value: props.series.units === 'utia' ? Math.round(el[key], 2) : el[key],
-                share: Math.round(el[`${key}_pct`] * 100, 2),
             }
         )
     })
 
     resData.value.sort((a, b) => b.value - a.value)
-    total.value = resData.value.reduce((sum, el) => sum + el.value, 0)
+
+    total.value = resData.value.reduce((sum, el) => sum + +el.value, 0)
+    let length = resData.value.length
+    let totalShare = 0
+    resData.value.forEach((el, i) => {
+        let share = +(el.value / total.value * 100).toFixed(0)
+        totalShare += share
+        if (i < length - 1 || length === 1) {
+            el.share = share
+        } else {
+            el.share = 100 - totalShare
+        }
+    })
 
     let startlength = resData.value.length
     resData.value = resData.value.slice(0, Math.min(startlength, 4))
@@ -144,7 +156,7 @@ const buildChart = (chart, data) => {
 	chart.append(svg.node())
 }
 
-onMounted(() => {
+const init = () => {
     prepareRollupsData()
 
     buildChart(chartEl.value.wrapper, resData.value)
@@ -187,7 +199,18 @@ onMounted(() => {
             })
         })
     })
+}
+
+onMounted(() => {
+    init()
 })
+
+watch(
+	() => props.data,
+	() => {
+		init()
+	}
+)
 </script>
 
 <template>

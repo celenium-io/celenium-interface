@@ -950,7 +950,7 @@ const handleOpenQRModal = () => {
 
 						<!-- Blobs Table -->
 						<template v-if="activeTab === 'blobs'">
-							<BlobsTable v-if="blobs.length" :blobs="blobs" />
+							<BlobsTable v-if="blobs.length" :blobs="blobs" source="account" />
 
 							<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 								<Text size="13" weight="600" color="secondary" align="center"> No Blobs </Text>

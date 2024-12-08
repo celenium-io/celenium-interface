@@ -189,7 +189,7 @@ onMounted(async () => {
 			</Flex>
 		</Flex>
 
-		<Flex @pointerleave="handleHoverLeave()" ref="barWrapperEl" :style="`width: ${barWidth}px`" :class="$style.bar_wrapper">
+		<Flex @pointerleave="handleHoverLeave()" ref="barWrapperEl" :class="$style.bar_wrapper">
 			<div
 				@pointerenter="handleHoverEnter(index)"
 				v-if="series.name !== 'gas'"

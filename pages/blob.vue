@@ -3,7 +3,7 @@
 import { DateTime } from "luxon"
 
 /** API */
-import { fetchBlobMetadata, fetchBlobByMetadata } from "@/services/api/namespace"
+import { fetchBlobBlockscoutData, fetchBlobMetadata, fetchBlobByMetadata } from "@/services/api/namespace"
 
 /** Components */
 import HexViewer from "@/components/modules/blob/HexViewer.vue"
@@ -19,6 +19,7 @@ import { space, formatBytes, comma, strToHex } from "@/services/utils"
 import { useCacheStore } from "@/store/cache"
 import { useModalsStore } from "@/store/modals"
 import { useNotificationsStore } from "@/store/notifications"
+import { blockscoutURL } from "~/services/config"
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
@@ -68,6 +69,8 @@ const bytes = computed(() => {
 	if (!blob.value) return []
 	return hex.value.flat()
 })
+
+const l2BlockscoutUrl = ref("")
 
 /** Selected byte (1) */
 const cursor = ref(0)
@@ -143,6 +146,13 @@ const init = async (fromCache = false) => {
 				return acc
 			}, [])
 	}
+
+	const { data } = await fetchBlobBlockscoutData({
+		height: height,
+		namespace: hash,
+		commitment: commitment,
+	})
+	l2BlockscoutUrl.value = data?.value?.l2BlockscoutUrl
 }
 init()
 
@@ -208,6 +218,10 @@ const handleCopy = (text) => {
 			</Flex>
 
 			<Flex align="center" gap="8">
+				<Button v-if="l2BlockscoutUrl" :link="l2BlockscoutUrl" target="_blank" size="mini" type="secondary">
+					<Icon name="blockscout" size="12" color="secondary" />
+					View batch
+				</Button>
 				<Button @click="modalsStore.open('changeBlob')" size="mini" type="secondary">
 					<Icon name="blob" size="12" color="secondary" />
 					Select blob

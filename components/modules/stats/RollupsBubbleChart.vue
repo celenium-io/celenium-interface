@@ -10,8 +10,8 @@ import { abbreviate, formatBytes } from "@/services/utils"
 import { fetchRollups } from "@/services/api/rollup.js"
 
 const props = defineProps({
-	series: {
-		type: Object,
+	data: {
+		type: Array,
 		required: true,
 	},
 })
@@ -39,7 +39,9 @@ const getRollups = async () => {
 
 const prepareRollupsData = (data) => {
     data.forEach(r => {
-        r.fee = +(r.fee / 1_000_000).toFixed(2)
+        if (!r.feeUpdated) {
+            r.feeUpdated = +(r.fee / 1_000_000).toFixed(2)
+        }
     })
 
     return data
@@ -53,14 +55,15 @@ const buildChart = (chart, data) => {
 	const marginBottom = 24
 	const marginLeft = 32
 
+    const minBlobsCount = d3.min(data, d => d.blobs_count)
     const maxBlobsCount = d3.max(data, d => d.blobs_count)
-    const maxFee = d3.max(data, d => d.fee)
-    const minFee = d3.min(data, d => d.fee)
+    const minFee = d3.min(data, d => d.feeUpdated)
+    const maxFee = d3.max(data, d => d.feeUpdated)
     const maxSize = d3.max(data, d => d.size)
     const minSize = d3.min(data, d => d.size)
     const midSize = maxSize / 2
 
-	/** SVG Container */
+    /** SVG Container */
 	const svg = d3
 		.create("svg")
 		.attr("width", width)
@@ -74,49 +77,110 @@ const buildChart = (chart, data) => {
         .domain([minSize, maxSize])
         .range([ 15, 70 ]);
     
-    // const x = d3.scaleLinear()
-    //     .domain([0, maxBlobsCount + maxBlobsCount * 0.1])
-    //     .range([ marginLeft, width ]);
-        
     const x = d3.scaleLog()
-        .domain([1_000, maxBlobsCount + maxBlobsCount * 0.1])
-        .range([marginLeft, width])
+        .domain([minBlobsCount, maxBlobsCount + maxBlobsCount * 0.1])
+        .range([marginLeft, width -  z(maxSize) / 2 - 5])
         .base(10)
         .nice()
     
-    // const y = d3.scaleLinear()
-    //     .domain([0, maxFee + maxFee * 0.3])
-    //     .range([ height - 30, 0]);
-
+    const yDomain = [1, maxFee + maxFee * 0.3]
     const y = d3.scaleLog()
-        .domain([1, maxFee + maxFee * 0.3])
-        .range([height + 5, 0])
+        .domain(yDomain)
+        .range([height + 5, z(maxSize) / 2])
         .base(10)
         .nice()
     
+    function generateAxisData(axis, startExp) {
+        let data = []
+        let exponent = startExp
+
+        while (true) {
+            let value = Math.pow(10, exponent)
+            
+
+            if (axis === 'x') {
+                if (x(value) < width) {
+                    data.push(value)
+                    exponent = exponent + 2
+                } else {
+                    break
+                }
+            } else if (axis === 'y') {
+                data.push(value)
+                if (y(value) > 0) {
+                    exponent++
+                } else {
+                    break
+                }
+            } else {
+                break
+            }
+        }
+
+        return data
+    }
+    const yAxisData = generateAxisData('y', 1)
+    const xAxisData = generateAxisData('x', Math.floor(Math.log10(minBlobsCount)))
+
     // Add axes:
-    svg.append("g")
-        .attr("transform", "translate(0," + (height - 20) + ")")
-        .attr("color", "var(--op-20)")
-        .call(d3.axisBottom(x).ticks(2).tickFormat(d3.format(".2s")))
+    // svg.append("g")
+    //     .attr("transform", "translate(0," + (height - 20) + ")")
+    //     .attr("color", "var(--op-20)")
+    //     .call(d3.axisBottom(x).ticks(2).tickFormat(d3.format(".2s")))
+    svg.append("line")
+            .attr("x1", marginLeft - 0.5)
+            .attr("x2", width - 0.5)
+            .attr("y1", height - 15)
+            .attr("y2", height - 15)
+            .attr("stroke", "var(--op-20)")
+
+    xAxisData.forEach((xValue) => {
+        let xPos = x(xValue)
+
+        svg.append("line")
+            .attr("x1", xPos)
+            .attr("x2", xPos)
+            .attr("y1", height - 14.5)
+            .attr("y2", height - 10)
+            .attr("stroke", "var(--op-20)")
+        
+        svg.append("text")
+            .attr("x", xPos)
+            .attr("y", height)
+            .attr("fill", "var(--op-20)")
+            .attr("font-size", "10px")
+            .attr("text-anchor", "middle")
+            .text(abbreviate(xValue))
+    })
+
+    svg.append("line")
+            .attr("x1", width - 1)
+            .attr("x2", width - 1)
+            .attr("y1", height - 14.5)
+            .attr("y2", height - 10)
+            .attr("stroke", "var(--op-20)")
+
+
     
-    svg.append("g")
-        .attr("transform", `translate(${marginLeft},0)`)
-        .attr("color", "var(--op-20)")
-        .call(d3.axisRight(y)
-            .ticks(4)
-            .tickSize(width - marginLeft - marginRight)
-            .tickFormat(d3.format(".2s")))
-        .call(g => g.select(".domain")
-            .remove())
-        .call(g => g.selectAll(".tick:not(:first-of-type) line")
-            .attr("stroke-opacity", 0.7)
-            .attr("stroke-dasharray", "10, 10"))
-        .call(g => g.selectAll(".tick text")
-            .attr("x", 4)
-            .attr("dy", -4))
-        .call(g => g.selectAll(".tick:first-child").remove())
-        .call(g => g.selectAll(".tick:last-child").remove())
+    yAxisData.forEach((yValue) => {
+        let yPos = y(yValue)
+
+        svg.append("line")
+            .attr("x1", marginLeft)
+            .attr("x2", width)
+            .attr("y1", yPos)
+            .attr("y2", yPos)
+            .attr("stroke", "var(--op-20)")
+            .attr("stroke-dasharray", "10 10")
+        
+        svg.append("text")
+            .attr("x", marginLeft)
+            .attr("y", yPos - 5)
+            .attr("fill", "var(--op-20)")
+            .attr("font-size", "10px")
+            .attr("text-anchor", "start")
+            .text(abbreviate(yValue))
+    })
 
     // Add axis labels:
     svg.append("text")
@@ -124,7 +188,7 @@ const buildChart = (chart, data) => {
         .attr("font-size", "14px")
         .attr("text-anchor", "end")
         .attr("x", 130)
-        .attr("y", height - 5)
+        .attr("y", height)
         .text("Blobs count");
 
     svg.append("text")
@@ -137,22 +201,22 @@ const buildChart = (chart, data) => {
         .text("Fee paid (TIA)")
 
     // Size legend
-    let size = d3.scaleSqrt()
-        .domain([minSize, maxSize / 2])
-        .range([ 10, 35 ])
-    
-    let legendValues = [500 * 1_024 * 1_024, midSize * 0.5, maxSize / 2]
-    let xCircle = width - 50
-    let xLabel = width - 150
-    let yCircle = 100
+    let legendValues = data.length === 1
+        ? [ maxSize ]
+        : data.length === 2
+            ? [ minSize, maxSize ]
+            : [ minSize, midSize * 0.5, maxSize / 2 ]
+    let xCircle = width - z(maxSize)
+    let xLabel = width - z(maxSize) - 100
+    let yCircle = height - 20
     svg
         .selectAll("legend")
         .data(legendValues)
         .enter()
         .append("circle")
             .attr("cx", xCircle)
-            .attr("cy", function(d){ return yCircle - size(d) } )
-            .attr("r", function(d){ return size(d) })
+            .attr("cy", function(d){ return yCircle - z(d) } )
+            .attr("r", function(d){ return z(d) })
             .style("fill", "none")
             .attr("stroke", "var(--op-20)")
 
@@ -161,10 +225,10 @@ const buildChart = (chart, data) => {
         .data(legendValues)
         .enter()
         .append("line")
-            .attr("x1", function(d){ return xCircle - size(d) } )
+            .attr("x1", function(d){ return xCircle - z(d) } )
             .attr("x2", xLabel)
-            .attr("y1", function(d, i){ return yCircle - size(d) + (i === 0 ? 5 : i === 2 ? -7 : 0) } )
-            .attr("y2", function(d, i){ return yCircle - size(d) + (i === 0 ? 5 : i === 2 ? -7 : 0) } )
+            .attr("y1", function(d, i){ return yCircle - z(d) + (i === 0 ? 5 : i === 2 ? -7 : 0) } )
+            .attr("y2", function(d, i){ return yCircle - z(d) + (i === 0 ? 5 : i === 2 ? -7 : 0) } )
             .attr("stroke", "var(--op-20)")
             .style("stroke-dasharray", ("2, 2"))
 
@@ -173,8 +237,8 @@ const buildChart = (chart, data) => {
         .enter()
         .append("text")
             .attr('x', xLabel)
-            .attr('y', function(d, i){ return yCircle - size(d) - 5 + (i === 0 ? 5 : i === 2 ? -7 : 0) } )
-            .text( function(d, i){ return i === 0 ? '<' + formatBytes(d, 0) : formatBytes(d, 0) } )
+            .attr('y', function(d, i){ return yCircle - z(d) - 5 + (i === 0 ? 5 : i === 2 ? -7 : 0) } )
+            .text( function(d, i){ return formatBytes(d, 0) } )
             .style("font-size", 10)
             .style("fill", "var(--op-20)")
             .attr('alignment-baseline', 'middle')
@@ -186,7 +250,7 @@ const buildChart = (chart, data) => {
 
         if (!tooltip.value.data.length) {
             tooltip.value.x = x(rollup.blobs_count)
-            tooltip.value.y = y(rollup.fee)
+            tooltip.value.y = y(rollup.feeUpdated)
             tooltip.value.r = z(rollup.size)
             tooltip.value.data.push(rollup)
             tooltip.value.show = true
@@ -202,7 +266,7 @@ const buildChart = (chart, data) => {
     }
 
     const calculateY = (d) => {
-        let cy = y(d.fee)                
+        let cy = y(d.feeUpdated)                
         if (cy > height - 30) {
             return height - 30 - 1
         }
@@ -230,7 +294,7 @@ const buildChart = (chart, data) => {
         .append("circle")
             .attr("cx", d => x(d.blobs_count))
             .attr("cy", d => {
-                let cy = y(d.fee)                
+                let cy = y(d.feeUpdated)                
                 if (cy > height - 30) {
                     return height - 30 - 1
                 }
@@ -256,7 +320,7 @@ const buildChart = (chart, data) => {
             .attr("height", d => z(d.size) * 2)
             .attr("x", d => x(d.blobs_count) - z(d.size))
             .attr("y", d => {
-                let cy = y(d.fee)
+                let cy = y(d.feeUpdated)
                 if (cy > height - 30) {
                     return height - 30 - z(d.size) - 1
                 }
@@ -274,17 +338,24 @@ const buildChart = (chart, data) => {
 }
 
 onMounted(async () => {
-    if (!props.series?.data) {
+    if (!props.data) {
         await getRollups()
     } else {
-        rollups.value = prepareRollupsData(props.series.data)
+        rollups.value = prepareRollupsData(props.data)
     }
 
-	buildChart(
-        chartEl.value.wrapper,
-        rollups.value
-    )
+	buildChart(chartEl.value.wrapper, rollups.value)
 })
+
+watch(
+	() => props.data,
+	() => {
+        rollups.value = prepareRollupsData(props.data)
+
+        buildChart(chartEl.value.wrapper, rollups.value)
+	}
+)
+
 </script>
 
 <template>
@@ -321,7 +392,7 @@ onMounted(async () => {
 
                         <Flex align="center" justify="between" wide gap="12">
                             <Text size="12" color="tertiary"> Fee Paid </Text>
-                            <Text size="12" color="secondary"> {{ `${abbreviate(d.fee)} TIA` }} </Text>
+                            <Text size="12" color="secondary"> {{ `${abbreviate(d.feeUpdated)} TIA` }} </Text>
                         </Flex>
                     </Flex>
                 </Flex>

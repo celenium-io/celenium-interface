@@ -35,7 +35,19 @@ const handleActionCallback = (callback, notification) => {
 						</Text>
 
 						<div v-if="notification.description" :class="$style.description">
-							{{ notification.description }}
+							<Text v-if="notification.description === 'privacy'">
+								Here's our
+								<NuxtLink to="/privacy-policy" :class="$style.link">
+									Privacy Policy
+								</NuxtLink>
+								and 
+								<NuxtLink to="/terms-of-use" :class="$style.link">
+									Terms of Use
+								</NuxtLink>
+							</Text>
+							<Text v-else>
+								{{ notification.description }}
+							</Text>
 						</div>
 
 						<div v-if="notification.badges" :class="$style.badges">
@@ -68,6 +80,7 @@ const handleActionCallback = (callback, notification) => {
 					</Flex>
 
 					<Icon
+						v-if="!notification.irremovable"
 						@click="notificationsStore.remove({ id: notification.id })"
 						name="close-circle"
 						size="12"
@@ -231,6 +244,14 @@ const handleActionCallback = (callback, notification) => {
 
 .notification .close_icon:hover {
 	opacity: 1;
+}
+
+.link {
+	color: var(--txt-secondary);
+
+	&:hover {
+		text-decoration: underline;
+	}
 }
 
 @media (max-width: 500px) {

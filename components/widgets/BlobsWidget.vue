@@ -16,7 +16,10 @@ const router = useRouter()
 const days = ref([])
 const weeks = ref([])
 
-const totalSize = ref(0)
+const totalSize = reactive({
+	time: "",
+	value: 0,
+})
 const minValue = ref(0)
 const maxValue = ref(0)
 
@@ -59,19 +62,9 @@ onMounted(async () => {
 	while (weeks.value.length > 24) {
 		weeks.value.shift()
 	}
+
+	totalSize.time = DateTime.fromISO(weeks.value[0][0].time)
 })
-
-const getOpacity = (val) => {
-	const pct = (parseInt(val) * 100) / maxValue.value
-
-	if (pct < 30) {
-		return 0.3
-	} else if (pct < 60) {
-		return 0.5
-	} else if (pct < 100) {
-		return 1
-	}
-}
 
 const calculateOpacity = (val) => {
 	let opacity = 0.4
@@ -98,12 +91,18 @@ const selectDay = (d) => {
 				<Text size="13" weight="600" height="110" color="primary">Blobs Graph</Text>
 			</Flex>
 
-			<Flex align="center" gap="6">
-				<Icon name="namespace" size="12" color="primary" />
+			<Tooltip>
+				<Flex align="center" gap="6">
+					<Icon name="namespace" size="12" color="primary" />
 
-				<Text v-if="totalSize" size="13" color="primary" weight="600">{{ formatBytes(totalSize) }}</Text>
-				<Skeleton v-else w="56" h="13" />
-			</Flex>
+					<Text v-if="totalSize.value" size="13" color="primary" weight="600">{{ formatBytes(totalSize.value) }}</Text>
+					<Skeleton v-else w="56" h="13" />
+				</Flex>
+
+				<template #content>
+					<Text size="12" color="secondary">{{ `Since ${DateTime.fromISO(totalSize.time).toFormat("LLL dd")}th` }}</Text>
+				</template>
+			</Tooltip>
 		</Flex>
 
 		<Flex v-if="weeks.length == 24" justify="between" wide :class="$style.weeks">

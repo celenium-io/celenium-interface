@@ -15,7 +15,7 @@ import BlobsTable from "./tables/BlobsTable.vue"
 import NamespacesTable from "./tables/NamespacesTable.vue"
 
 /** Services */
-import { comma, formatBytes, truncateDecimalPart } from "@/services/utils"
+import { capitilize, comma, formatBytes, truncateDecimalPart } from "@/services/utils"
 import { exportToCSV } from "@/services/utils/export"
 
 /** API */
@@ -24,6 +24,7 @@ import { fetchRollupBlobs, fetchRollupExportData, fetchRollupNamespaces } from "
 /** Store */
 import { useCacheStore } from "@/store/cache"
 import { useNotificationsStore } from "@/store/notifications"
+import { capitalize } from "vue"
 const cacheStore = useCacheStore()
 const notificationsStore = useNotificationsStore()
 
@@ -53,6 +54,43 @@ const activeTab = ref(preselectedTab)
 const isRefetching = ref(false)
 const namespaces = ref([])
 const blobs = ref([])
+
+const tagNames = ref(['stack', 'type', 'vm', 'provider', 'category'])
+const tags = computed(() => tagNames.value.reduce((res, tagName) => {
+	if (props.rollup[tagName]) {
+		let tag = {}
+		tag.name = tagName === 'vm' ? 'VM' : capitilize(tagName)
+		switch (tagName) {
+			case 'vm':
+				tag.value = props.rollup[tagName].toUpperCase()
+				break
+			case 'category':
+				tag.value = getCategoryDisplayName(props.rollup[tagName])
+				break
+			default:
+				tag.value = capitalize(props.rollup[tagName])
+				break
+		}
+
+		res.push(tag)
+	}
+
+	return res
+}, []))
+
+const getCategoryDisplayName = (category) => {
+	switch (category) {
+		case 'nft':
+			return 'NFT'
+
+		case 'uncategorized':
+			return 'Other'
+
+		default:
+			return capitilize(category)
+	}
+}
+
 const relatedLinks = computed(() => {
 	if (props.rollup.links?.length) {
 		return props.rollup.links
@@ -217,25 +255,33 @@ const handleCSVDownload = async (value) => {
 				<Text size="13" weight="600" color="primary">Rollup</Text>
 			</Flex>
 
-			<Dropdown>
-				<Tooltip>
-					<Button type="secondary" size="mini">
-						<Icon name="download" size="12" color="secondary" />
+			<Flex align="center" gap="12">
+				<Button link="/stats?tab=rollups&section=daily_stats" type="secondary" size="mini">
+					<Icon name="line-chart" size="12" color="secondary" />
 
-						<Text>Export</Text>
-					</Button>
+					<Text>Daily Stats</Text>
+				</Button>
 
-					<template #content>
-						<Text color="tertiary">Export blobs to CSV</Text>
+				<Dropdown>
+					<Tooltip>
+						<Button type="secondary" size="mini">
+							<Icon name="download" size="12" color="secondary" />
+
+							<Text>Export</Text>
+						</Button>
+
+						<template #content>
+							<Text color="tertiary">Export blobs to CSV</Text>
+						</template>
+					</Tooltip>
+
+					<template #popup>
+						<DropdownItem v-for="period in periods" @click="handleCSVDownload(period.value)">
+							{{ period.title }}
+						</DropdownItem>
 					</template>
-				</Tooltip>
-
-				<template #popup>
-					<DropdownItem v-for="period in periods" @click="handleCSVDownload(period.value)">
-						{{ period.title }}
-					</DropdownItem>
-				</template>
-			</Dropdown>
+				</Dropdown>
+			</Flex>
 		</Flex>
 
 		<Flex gap="4" :class="$style.content">
@@ -255,6 +301,19 @@ const handleCSVDownload = async (value) => {
 								<CopyButton :text="rollup.name" />
 							</Flex>
 						</Flex>
+					</Flex>
+					<Flex align="center" gap="6">
+						<Tooltip v-for="(t, i) in tags" :style="{cursor: 'default'}">
+							<Flex align="center" gap="6">
+								<Text size="12" color="tertiary"> {{ t.value }} </Text>
+
+								<div v-if="i !== tags.length - 1" :class="$style.dot" />
+							</Flex>
+
+							<template #content>
+								<Text size="12" color="tertiary"> {{ t.name }} </Text>
+							</template>
+						</Tooltip>
 					</Flex>
 					<Flex direction="column" gap="6">
 						<Text size="12" weight="600" color="secondary">Description</Text>
@@ -560,6 +619,18 @@ const handleCSVDownload = async (value) => {
 
 	.link:hover {
 		color: var(--txt-secondary);
+	}
+
+	.btn:hover {
+		fill: var(--txt-primary);
+	}
+
+	.dot {
+		width: 4px;
+		height: 4px;
+
+		border-radius: 50%;
+		background: var(--op-10);
 	}
 }
 

@@ -18,17 +18,24 @@ import { useAppStore } from "@/store/app"
 import { useBookmarksStore } from "@/store/bookmarks"
 import { useSettingsStore } from "@/store/settings"
 import { useEnumStore } from "@/store/enums"
+import { useLegalStore } from "@/store/legal"
+import { useNotificationsStore } from "@/store/notifications"
 const nodeStore = useNodeStore()
 const appStore = useAppStore()
 const bookmarksStore = useBookmarksStore()
 const settingsStore = useSettingsStore()
 const enumStore = useEnumStore()
+const legalStore = useLegalStore()
+const notificationsStore = useNotificationsStore()
 
 bookmarksStore.$subscribe((mutation, state) => {
 	localStorage.setItem("bookmarks", JSON.stringify(state.bookmarks))
 })
 settingsStore.$subscribe((mutation, state) => {
 	localStorage.setItem("settings", JSON.stringify(state))
+})
+legalStore.$subscribe((mutation, state) => {
+	localStorage.setItem("legal", JSON.stringify(state.legal))
 })
 
 onMounted(async () => {
@@ -57,6 +64,28 @@ onMounted(async () => {
 
 	await enumStore.init()
 
+	legalStore.init()
+	if (!legalStore.isAccepted()) {
+		notificationsStore.create({
+			notification: {
+				type: "warning",
+				icon: "info",
+				title: "Just so you know: we use analytics.",
+				description: "privacy",
+				autoDestroy: false,
+				irremovable: true,
+				actions: [
+					{
+						name: "OK",
+						callback: () => {
+							legalStore.acceptLegal()
+						},
+					},
+				],
+			},
+		})
+	}
+
 	window.onbeforeunload = function () {
 		Socket.close()
 	}
@@ -66,7 +95,7 @@ onMounted(async () => {
 <template>
 	<CommandMenu :show="appStore.showCmd" />
 
-	<NuxtLoadingIndicator :height="2" color="#0ade71" />
+	<NuxtLoadingIndicator :height="2" color="#18d2a5" />
 	<NuxtLayout>
 		<NuxtPage />
 
