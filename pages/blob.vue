@@ -226,6 +226,9 @@ const handleCopy = (text) => {
 					<Icon name="blob" size="12" color="secondary" />
 					Select blob
 				</Button>
+				<Button @click="handleDownload" type="secondary" size="mini" wide>
+					<Icon name="download" size="14" color="secondary" />
+				</Button>
 				<Button @click="modalsStore.open('hexSettings')" size="mini" type="secondary">
 					<Icon name="settings" size="12" color="secondary" />
 				</Button>
@@ -417,54 +420,47 @@ const handleCopy = (text) => {
 								</Flex>
 							</Flex>
 
-							<Flex direction="column" gap="16">
-								<Flex direction="column" gap="8">
-									<Text size="12" weight="600" color="tertiary"> Commitment </Text>
-									<Text
-										size="12"
-										weight="600"
-										color="secondary"
-										selectable
-										style="text-overflow: ellipsis; overflow: hidden"
-									>
-										{{ blob.commitment }}
-									</Text>
-								</Flex>
-
-								<NuxtLink :to="`/address/${metadata.signer}`" target="_blank">
-									<Flex direction="column" gap="8">
-										<Text size="12" weight="600" color="tertiary"> Signer </Text>
-										<Text size="12" weight="600" color="secondary" style="text-overflow: ellipsis; overflow: hidden">
-											{{ metadata.signer }}
-										</Text>
-									</Flex>
-								</NuxtLink>
-
-								<NuxtLink v-if="metadata.rollup" :to="`/rollup/${metadata.rollup.slug}`" target="_blank">
-									<Flex direction="column" gap="8">
-										<Text size="12" weight="600" color="tertiary"> Rollup </Text>
-
-										<Flex align="center" gap="8">
-											<Flex align="center" justify="center" :class="$style.avatar_container">
-												<img :src="metadata.rollup.logo" :class="$style.avatar_image" />
-											</Flex>
-											<Text
-												size="12"
-												weight="600"
-												color="secondary"
-												style="text-overflow: ellipsis; overflow: hidden"
-											>
-												{{ metadata.rollup.name }}
-											</Text>
-										</Flex>
-									</Flex>
-								</NuxtLink>
+							<Flex direction="column" gap="8">
+								<Text size="12" weight="600" color="tertiary"> Commitment </Text>
+								<Text
+									size="12"
+									weight="600"
+									color="secondary"
+									selectable
+									style="text-overflow: ellipsis; overflow: hidden"
+								>
+									{{ blob.commitment }}
+								</Text>
 							</Flex>
 
-							<Button @click="handleDownload" type="secondary" size="small" wide>
-								<Icon name="download" size="14" color="secondary" />
-								<Text>Download</Text>
-							</Button>
+							<NuxtLink :to="`/address/${metadata.signer}`" target="_blank">
+								<Flex direction="column" gap="8">
+									<Text size="12" weight="600" color="tertiary"> Signer </Text>
+									<Text size="12" weight="600" color="secondary" style="text-overflow: ellipsis; overflow: hidden">
+										{{ metadata.signer }}
+									</Text>
+								</Flex>
+							</NuxtLink>
+
+							<NuxtLink v-if="metadata.rollup" :to="`/rollup/${metadata.rollup.slug}`" target="_blank">
+								<Flex direction="column" gap="8">
+									<Text size="12" weight="600" color="tertiary"> Rollup </Text>
+
+									<Flex align="center" gap="8">
+										<Flex align="center" justify="center" :class="$style.avatar_container">
+											<img :src="metadata.rollup.logo" :class="$style.avatar_image" />
+										</Flex>
+										<Text
+											size="12"
+											weight="600"
+											color="secondary"
+											style="text-overflow: ellipsis; overflow: hidden"
+										>
+											{{ metadata.rollup.name }}
+										</Text>
+									</Flex>
+								</Flex>
+							</NuxtLink>
 						</Flex>
 					</Flex>
 

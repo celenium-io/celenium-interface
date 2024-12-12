@@ -27,6 +27,8 @@ const props = defineProps({
     },
 })
 
+const router = useRouter()
+
 const resData = ref([])
 const total = ref(0)
 
@@ -37,6 +39,7 @@ const prepareRollupsData = () => {
         resData.value.push(
             {
                 name: el.name,
+                slug: el.slug,
                 value: props.series.units === 'utia' ? Math.round(el[key], 2) : el[key],
             }
         )
@@ -201,6 +204,12 @@ const init = () => {
     })
 }
 
+const handleNavigate = (el) => {
+    if (el.slug) {
+        router.push(`/rollup/${el.slug}`)
+    }
+}
+
 onMounted(() => {
     init()
 })
@@ -222,6 +231,7 @@ watch(
 		<Flex align="center" justify="between" wide>
             <Flex align="center" direction="column" gap="16" wide :class="$style.legend_wrapper">
                 <Flex v-for="(el, index) in resData"
+                    @click="handleNavigate(el)"
                     align="center"
                     justify="between" wide
                     :style="{ animationDelay: `${index * 0.1}s` }"
@@ -231,6 +241,7 @@ watch(
                         { 
                             [$style.legend_item]: true,
                             [$style.fadein]: true,
+                            [$style.clickable]: el.name !== 'Other',
                          }
                     ]"
                 >
@@ -298,6 +309,10 @@ watch(
 	cursor: pointer;
 
 	margin-right: 6px;
+}
+
+.clickable {
+    cursor: pointer;
 }
 
 .chart_wrapper {
