@@ -27,6 +27,7 @@ const preview = reactive({
 	block: blocks.value[0],
 	transactions: [],
 	pfbs: [],
+	blobs: [],
 
 	isLoadingNamespaces: true,
 })
@@ -46,6 +47,7 @@ const getTransactionsByBlock = async () => {
 	const { data } = await fetchTransactionsByBlock({
 		height: preview.block.height,
 		from: parseInt(DateTime.fromISO(preview.block.time) / 1000),
+		limit: 5,
 	})
 	preview.transactions = data.value
 }
@@ -120,14 +122,16 @@ watch(
 			return
 		}
 
-		const data = await fetchBlockBlobs({ height: preview.block.height })
-		let namespaces = []
+		const data = await fetchBlockBlobs({ height: preview.block.height, limit: 3 })
+		// let namespaces = []
 
-		data.forEach(blob => {
-			namespaces.push(blob.namespace)
-		});
+		// data.forEach(blob => {
+		// 	namespaces.push(blob.namespace)
+		// });
 
-		preview.namespaces = Array.from(new Map(namespaces.map(item => [item.id, item])).values());
+		// preview.namespaces = Array.from(new Map(namespaces.map(item => [item.id, item])).values());
+
+		preview.blobs = data
 		preview.isLoadingNamespaces = false
 	},
 )
@@ -456,7 +460,48 @@ watch(
 						</Text>
 					</Flex>
 
+
 					<Flex direction="column" gap="12">
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Blobs</Text>
+							<Text size="12" weight="600" color="secondary">
+								{{ preview.block.stats.blobs_count > 3 ? "3 /" : "" }} {{ preview.block.stats.blobs_count }}
+							</Text>
+						</Flex>
+
+						<Text
+							v-if="preview.isLoadingNamespaces"
+							size="12"
+							weight="600"
+							color="tertiary"
+							align="center"
+							:class="$style.empty_state"
+						>
+							Loading blobs..
+						</Text>
+						<Flex v-else-if="preview.block.stats.blobs_count" direction="column" gap="8">
+							<NuxtLink v-for="b in preview.blobs" :to="`/blob?commitment=${b.commitment}&hash=${b.namespace.hash}&height=${b.height}`" target="_blank">
+								<Outline wide height="32" padding="8" radius="6">
+									<Flex align="center" justify="between" wide>
+										<Flex align="center" gap="8">
+											<Icon name="blob" size="12" color="secondary" />
+
+											<Text size="13" weight="600" color="primary" mono class="overflow_ellipsis" style="max-width: 250px">
+												{{ shortHex(b.commitment) }}
+											</Text>
+										</Flex>
+
+										<Text size="12" weight="600" color="tertiary">{{ formatBytes(b.size) }}</Text>
+									</Flex>
+								</Outline>
+							</NuxtLink>
+						</Flex>
+						<Text v-else size="12" weight="600" color="tertiary" align="center" :class="$style.empty_state">
+							No blobs
+						</Text>
+					</Flex>
+
+					<!-- <Flex direction="column" gap="12">
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Namespaces</Text>
 							<Text size="12" weight="600" color="secondary">
@@ -494,7 +539,7 @@ watch(
 						<Text v-else size="12" weight="600" color="tertiary" align="center" :class="$style.empty_state">
 							No namespaces
 						</Text>
-					</Flex>
+					</Flex> -->
 
 					<Flex direction="column" gap="16">
 						<Text size="12" weight="600" color="secondary">Details</Text>

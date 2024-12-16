@@ -106,3 +106,5 @@ export const getStartChainDate = () => {
 			return "2023-09-06T03:15:51.510579Z"
 	}
 }
+
+export const blockscoutURL = "https://celestia-l2-router.k8s-dev.blockscout.com/api/v1/celestia/l2BatchMetadata"

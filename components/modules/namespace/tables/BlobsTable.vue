@@ -6,7 +6,7 @@ import { DateTime } from "luxon"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { formatBytes } from "@/services/utils"
+import { formatBytes, getNamespaceID, space } from "@/services/utils"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
@@ -21,8 +21,12 @@ const props = defineProps({
 	},
 	namespace: {
 		type: Object,
-		required: true,
+		required: false,
 	},
+	source: {
+		type: String,
+		required: false,
+	}
 })
 
 const handleViewBlob = (blob) => {
@@ -43,7 +47,7 @@ const handleViewBlob = (blob) => {
 		<table :class="$style.table">
 			<thead>
 				<tr>
-					<th><Text size="12" weight="600" color="tertiary">Signer</Text></th>
+					<th><Text size="12" weight="600" color="tertiary"> {{ source === "account" ? "Namespace" : "Signer" }} </Text></th>
 					<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
 					<th><Text size="12" weight="600" color="tertiary">Share Commitments</Text></th>
 					<th><Text size="12" weight="600" color="tertiary">Size</Text></th>
@@ -52,7 +56,33 @@ const handleViewBlob = (blob) => {
 
 			<tbody>
 				<tr v-for="blob in blobs" @click.stop="handleViewBlob(blob)">
-					<td>
+					<td v-if="source === 'account'">
+						<Tooltip position="start" delay="500">
+							<Flex direction="column" gap="4">
+								<Flex align="center" gap="8">
+									<Text size="12" weight="600" color="primary" mono class="table_column_alias">
+										{{ $getDisplayName('namespaces', blob.namespace.namespace_id) }}
+									</Text>
+
+									<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
+								</Flex>
+
+								<Text
+									v-if="blob.namespace.name !== getNamespaceID(blob.namespace.namespace_id)"
+									size="12"
+									weight="500"
+									color="tertiary"
+								>
+									{{ blob.namespace.name }}
+								</Text>
+							</Flex>
+
+							<template #content>
+								{{ space(getNamespaceID(blob.namespace.namespace_id)) }}
+							</template>
+						</Tooltip>					
+					</td>
+					<td v-else>
 						<Tooltip v-if="blob.signer" position="start" delay="500">
 							<Flex align="center" gap="8">
 								<AddressBadge :hash="blob.signer" />

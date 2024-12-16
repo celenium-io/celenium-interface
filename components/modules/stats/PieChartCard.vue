@@ -27,23 +27,38 @@ const props = defineProps({
     },
 })
 
+const router = useRouter()
+
 const resData = ref([])
 const total = ref(0)
 
 const prepareRollupsData = () => {
+    resData.value = []
     let key = props.series.name
     props.data?.forEach(el => {
         resData.value.push(
             {
                 name: el.name,
+                slug: el.slug,
                 value: props.series.units === 'utia' ? Math.round(el[key], 2) : el[key],
-                share: Math.round(el[`${key}_pct`] * 100, 2),
             }
         )
     })
 
     resData.value.sort((a, b) => b.value - a.value)
-    total.value = resData.value.reduce((sum, el) => sum + el.value, 0)
+
+    total.value = resData.value.reduce((sum, el) => sum + +el.value, 0)
+    let length = resData.value.length
+    let totalShare = 0
+    resData.value.forEach((el, i) => {
+        let share = +(el.value / total.value * 100).toFixed(0)
+        totalShare += share
+        if (i < length - 1 || length === 1) {
+            el.share = share
+        } else {
+            el.share = 100 - totalShare
+        }
+    })
 
     let startlength = resData.value.length
     resData.value = resData.value.slice(0, Math.min(startlength, 4))
@@ -144,7 +159,7 @@ const buildChart = (chart, data) => {
 	chart.append(svg.node())
 }
 
-onMounted(() => {
+const init = () => {
     prepareRollupsData()
 
     buildChart(chartEl.value.wrapper, resData.value)
@@ -187,7 +202,24 @@ onMounted(() => {
             })
         })
     })
+}
+
+const handleNavigate = (el) => {
+    if (el.slug) {
+        router.push(`/rollup/${el.slug}`)
+    }
+}
+
+onMounted(() => {
+    init()
 })
+
+watch(
+	() => props.data,
+	() => {
+		init()
+	}
+)
 </script>
 
 <template>
@@ -199,6 +231,7 @@ onMounted(() => {
 		<Flex align="center" justify="between" wide>
             <Flex align="center" direction="column" gap="16" wide :class="$style.legend_wrapper">
                 <Flex v-for="(el, index) in resData"
+                    @click="handleNavigate(el)"
                     align="center"
                     justify="between" wide
                     :style="{ animationDelay: `${index * 0.1}s` }"
@@ -208,6 +241,7 @@ onMounted(() => {
                         { 
                             [$style.legend_item]: true,
                             [$style.fadein]: true,
+                            [$style.clickable]: el.name !== 'Other',
                          }
                     ]"
                 >
@@ -275,6 +309,10 @@ onMounted(() => {
 	cursor: pointer;
 
 	margin-right: 6px;
+}
+
+.clickable {
+    cursor: pointer;
 }
 
 .chart_wrapper {
