@@ -69,15 +69,15 @@ const mainLinks = reactive([
 		children: [
 			{
 				name: "General",
-				path: "/stats?tab=General",
+				path: "/stats?tab=general",
 			},
 			{
 				name: "Blocks",
-				path: "/stats?tab=Blocks",
+				path: "/stats?tab=blocks",
 			},
 			{
 				name: "Rollups",
-				path: "/stats?tab=Rollups",
+				path: "/stats?tab=rollups",
 			},
 		],
 	},
