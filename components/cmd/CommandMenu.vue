@@ -300,6 +300,24 @@ const rawNavigationActions = [
 			window.open("https://docs.celenium.io", "_blank")
 		},
 	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
+		title: "Read Privacy Policy",
+		runText: "Open Privacy Policy",
+		callback: () => {
+			router.push("/privacy-policy")
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
+		title: "Read Terms of Use",
+		runText: "Open Terms of Use",
+		callback: () => {
+			router.push("/terms-of-use")
+		},
+	},
 ]
 const navigationGroup = computed(() => {
 	const actions = rawNavigationActions.map((a) => ({ id: id(), ...a }))

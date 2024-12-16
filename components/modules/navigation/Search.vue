@@ -118,13 +118,13 @@ const getResultMetadata = (target) => {
 watch(
 	() => results.value,
 	() => {
-		if (results.value.length) show.value = true
+		if (results.value?.length) show.value = true
 	},
 )
 
 const handleSelect = () => {
 	show.value = false
-	results.value.length = []
+	results.value = []
 	searchTerm.value = ""
 }
 </script>
@@ -147,8 +147,8 @@ const handleSelect = () => {
 		</Flex>
 
 		<Transition name="fastfade">
-			<Flex v-if="show && results.length" @click="handleSelect" direction="column" gap="6" :class="$style.popup">
-				<template v-if="results.length">
+			<Flex v-if="show && results?.length" @click="handleSelect" direction="column" gap="6" :class="$style.popup">
+				<template v-if="results?.length">
 					<Text size="12" weight="600" color="tertiary">Results</Text>
 
 					<Flex direction="column">
