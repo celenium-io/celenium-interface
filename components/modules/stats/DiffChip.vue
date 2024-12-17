@@ -52,7 +52,6 @@ const styles = computed(() => {
         }
     }
 })
-
 </script>
 
 <template>

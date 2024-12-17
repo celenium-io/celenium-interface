@@ -27,10 +27,12 @@ const currentData = ref([])
 const prevData = ref([])
 const currentTotal = ref(0)
 const prevTotal = ref(0)
+const dataLoaded = ref(false)
 const diff = computed(() => {
-	if (!prevTotal.value) return undefined
+	if (!dataLoaded.value) return undefined
 
-	return (((currentTotal.value - prevTotal.value) / prevTotal.value) * 100).toFixed(1)
+	const res = prevTotal.value ? ((currentTotal.value - prevTotal.value) / prevTotal.value) : 1
+	return (res * 100).toFixed(1)
 })
 const chartEl = ref()
 const chartElPrev = ref()
@@ -95,7 +97,7 @@ const getSeries = async () => {
 
 		prevTotal.value = prevData.value.reduce((sum, el) => {
 			return sum + +el.value;
-		}, 0);
+		}, 0);		
 	} else {
 		currentTotal.value = currentData.value.slice(-1)[0].value
 		prevTotal.value = prevData.value.slice(-1)[0].value
@@ -105,6 +107,8 @@ const getSeries = async () => {
 		prevTotal.value = prevTotal.value / prevData.value.length
 		currentTotal.value = currentTotal.value / currentData.value.length
 	}
+
+	dataLoaded.value = true
 }
 
 const buildChart = (chart, data, color) => {
