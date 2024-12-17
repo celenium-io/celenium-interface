@@ -34,21 +34,21 @@ const highlights = computed(() => {
 			name: 'txs',
 			title: 'Transactions',
 			value: lastHead.value.total_tx,
-			diff: diffs24h.value.tx_count_24h,
+			diff: diffs24h.value.tx_count_24h * 100,
 		},
 		{
 			name: 'blobs_size',
 			title: 'Blobs Size',
 			units: 'bytes',
 			value: lastHead.value.total_blobs_size,
-			diff: diffs24h.value.blobs_size_24h,
+			diff: diffs24h.value.blobs_size_24h * 100,
 		},
 		{
 			name: 'fee',
 			title: 'Total Fees',
 			units: 'utia',
 			value: lastHead.value.total_fee,
-			diff: diffs24h.value.fee_24h,
+			diff: diffs24h.value.fee_24h * 100,
 		},
 	]
 })
