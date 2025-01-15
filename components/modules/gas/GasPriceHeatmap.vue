@@ -146,7 +146,7 @@ onMounted(async () => {
 
 		& tbody {
 			& tr td {
-				background: var(--neutral-green);
+				background: var(--mint);
 				border: 1px solid var(--card-background);
 			}
 

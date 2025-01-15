@@ -152,14 +152,14 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 	/** Chart Line */
 	svg.append("path")
 		.attr("fill", "none")
-		.attr("stroke", "var(--green)")
+		.attr("stroke", "var(--mint)")
 		.attr("stroke-width", 2)
 		.attr("stroke-linecap", "round")
 		.attr("stroke-linejoin", "round")
 		.attr("d", lineEfficiency(data.slice(0, 23)))
 	svg.append("path")
 		.attr("fill", "none")
-		.attr("stroke", "var(--green)")
+		.attr("stroke", "var(--mint)")
 		.attr("stroke-width", 2)
 		.attr("stroke-linecap", "round")
 		.attr("stroke-linejoin", "round")
@@ -187,7 +187,7 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 	svg.append("circle")
 		.attr("cx", xScaleEfficiency(data[data.length - 1].date))
 		.attr("cy", yScaleEfficiency(data[data.length - 1].value))
-		.attr("fill", "var(--green)")
+		.attr("fill", "var(--mint)")
 		.attr("r", 3)
 
 	if (chartEl.children[0]) chartEl.children[0].remove()
@@ -307,7 +307,7 @@ onBeforeUnmount(() => {
 
 			<Flex align="center" gap="12">
 				<Flex align="center" gap="6">
-					<div style="width: 10px; height: 3px; border-radius: 50px; background: var(--green)" />
+					<div style="width: 10px; height: 3px; border-radius: 50px; background: var(--mint)" />
 					<Text size="11" weight="600" color="tertiary">Efficiency</Text>
 				</Flex>
 				<Flex align="center" gap="6">
@@ -420,7 +420,7 @@ onBeforeUnmount(() => {
 		width: 6px;
 		height: 6px;
 		border-radius: 50px;
-		background: var(--green);
+		background: var(--mint);
 
 		box-shadow: 0 0 0 4px rgba(10, 222, 113, 27%);
 

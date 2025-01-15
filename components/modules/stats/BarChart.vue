@@ -40,7 +40,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	const marginBottom = 24
 	const marginLeft = 36
 	const marginAxisX = 20
-	const barWidth = Math.round(Math.max((width - marginLeft - marginRight) / (cData.data.length) - (pData.data.length ? 2 : 5)), 4)
+	const barWidth = Math.max(Math.round((width - marginLeft - marginRight) / (cData.data.length) - (pData.data.length ? 2 : 5)), 4)
 
 	const MIN_VALUE = d3.min([...cData.data.map(s => s.value), ...pData.data?.map(s => s.value)])
 	const MAX_VALUE = d3.max([...cData.data.map(s => s.value), ...pData.data?.map(s => s.value)])
