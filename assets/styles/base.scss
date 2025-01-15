@@ -73,9 +73,10 @@ $grayscale: (
 	--logo-name: var(--txt-primary);
 	--bar-fill: rgb(243, 147, 45);
 	--validator-active: #85f891;
-	--validator-inactive: #65c7f8;
+	--validator-inactive: #1ca7ed;
 	--validator-jailed: #f8774a;
-	--supply: #65c7f8;
+	// --supply: #65c7f8;
+	--supply: #1ca7ed;
 	--staking: #85f891;
 }
 

@@ -146,7 +146,7 @@ onMounted(async () => {
 
 		& tbody {
 			& tr td {
-				background: var(--mint);
+				background: var(--brand);
 				border: 1px solid var(--card-background);
 			}
 
@@ -155,7 +155,7 @@ onMounted(async () => {
 			}
 
 			& tr td:hover {
-				outline: 1px solid #fff;
+				outline: 1px solid var(--txt-secondary);
 			}
 
 			& tr th {
