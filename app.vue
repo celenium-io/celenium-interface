@@ -47,6 +47,8 @@ onMounted(async () => {
 		nodeStore.settings = JSON.parse(localStorage.nodeSettings)
 	}
 
+	settingsStore.init()
+
 	const runtimeConfig = useRuntimeConfig()
 	amp.init(runtimeConfig.public.AMP)
 

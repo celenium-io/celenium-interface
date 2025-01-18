@@ -18,6 +18,10 @@ import { abbreviate, formatBytes, sortArrayOfObjects, spaces, tia } from "@/serv
 import { fetchRollupSeries } from "@/services/api/stats"
 import { fetchRollups } from "@/services/api/rollup"
 
+/** Store */
+import { useSettingsStore } from "@/store/settings"
+const settingsStore = useSettingsStore()
+
 const props = defineProps({
 	rollup: {
 		type: Object,
@@ -50,8 +54,8 @@ const periods = ref([
 	},
 ])
 const selectedPeriod = computed(() => periods.value[selectedPeriodIdx.value])
-const selectedChartView = ref("line")
-const showLastValue = ref(true)
+const chartView = ref("line")
+const loadLastValue = ref(true)
 
 const isOpen = ref(false)
 const handleOpen = () => {
@@ -62,10 +66,18 @@ const handleClose = () => {
 }
 
 const handleChangeChartView = () => {
-	if (selectedChartView.value === 'line') {
-		selectedChartView.value = 'bar'
+	if (chartView.value === 'line') {
+		chartView.value = 'bar'
 	} else {
-		selectedChartView.value = 'line'
+		chartView.value = 'line'
+	}
+}
+
+const updateUserSettings = () => {
+	settingsStore.chart = {
+		...settingsStore.chart,
+		view: chartView.value,
+		loadLastValue: loadLastValue.value,
 	}
 }
 
@@ -110,15 +122,15 @@ const xAxisLabels = computed(() => {
 	switch (selectedPeriod.value.timeframe) {
 		case "month":
 			labels.firstDate = DateTime.now().minus({ months: selectedPeriod.value.value - 1 }).toFormat("LLL y")
-			labels.lastDate = showLastValue.value ? DateTime.now().toFormat("LLL") : DateTime.now().minus({ months: 1 }).toFormat("LLL")
+			labels.lastDate = loadLastValue.value ? DateTime.now().toFormat("LLL") : DateTime.now().minus({ months: 1 }).toFormat("LLL")
 			break;
 		case "day":
 			labels.firstDate = DateTime.now().minus({ days: selectedPeriod.value.value - 1 }).toFormat("LLL dd")
-			labels.lastDate = showLastValue.value ? "Today" : DateTime.now().minus({ days: 1 }).toFormat("LLL dd")
+			labels.lastDate = loadLastValue.value ? "Today" : DateTime.now().minus({ days: 1 }).toFormat("LLL dd")
 			break;
 		default:
 			labels.firstDate = DateTime.now().minus({ hours: selectedPeriod.value.value - 1 }).set({ minutes: 0 }).toFormat("hh:mm a")
-			labels.lastDate = showLastValue.value ? "Now" : DateTime.now().minus({ hours: 1 }).set({ minutes: 0 }).toFormat("hh:mm a")
+			labels.lastDate = loadLastValue.value ? "Now" : DateTime.now().minus({ hours: 1 }).set({ minutes: 0 }).toFormat("hh:mm a")
 			break;
 	}
 
@@ -230,9 +242,9 @@ const buildLineChart = (chartEl, data, onEnter, onLeave) => {
 			.attr("stroke-width", 2)
 			.attr("stroke-linecap", "round")
 			.attr("stroke-linejoin", "round")
-			.attr("d", line(showLastValue.value ? data.slice(0, data.length - 1) : data))
+			.attr("d", line(loadLastValue.value ? data.slice(0, data.length - 1) : data))
 
-	if (showLastValue.value) {
+	if (loadLastValue.value) {
 		// Create pattern
 		const defs = svg.append("defs")
 		const pattern = defs.append("pattern")
@@ -262,7 +274,7 @@ const buildLineChart = (chartEl, data, onEnter, onLeave) => {
 	}
 	
 	const totalDuration = 1_000
-	const path1Duration = showLastValue.value ? totalDuration / data.length * (data.length - 1) : totalDuration
+	const path1Duration = loadLastValue.value ? totalDuration / data.length * (data.length - 1) : totalDuration
 	const path1Length = path1.node().getTotalLength()
 
 	path1
@@ -273,7 +285,7 @@ const buildLineChart = (chartEl, data, onEnter, onLeave) => {
 		.ease(d3.easeLinear)
 		.attr("stroke-dashoffset", 0)
 	
-	if (showLastValue.value) {
+	if (loadLastValue.value) {
 		const path2Duration = totalDuration / data.length
 		const path2Length = path2.node().getTotalLength() + 1
 		
@@ -436,7 +448,7 @@ const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 		.attr("x", d => x(new Date(d.date)))
 		.attr('y', d => y(d.value))
 		.attr("width", barWidth)
-		.attr('fill', (d, i) => (showLastValue.value && i === data.length - 1) ? `url(#diagonal-stripe)` : "var(--brand)")
+		.attr('fill', (d, i) => (loadLastValue.value && i === data.length - 1) ? `url(#diagonal-stripe)` : "var(--brand)")
 		.transition()
 		.duration(1_000)
 		.attr('height', d => Math.max(height - marginBottom - 6 - y(d.value), 0))
@@ -620,43 +632,43 @@ const buildRollupCharts = async (loadData = true) => {
 		await getFeeSeries()
 	}
 
-	if (selectedChartView.value === "line") {
+	if (chartView.value === "line") {
 		buildLineChart(
 			sizeSeriesChartEl.value.wrapper,
-			showLastValue.value ? sizeSeries.value : sizeSeries.value.slice(0, sizeSeries.value.length - 1),
+			loadLastValue.value ? sizeSeries.value : sizeSeries.value.slice(0, sizeSeries.value.length - 1),
 			() => (showSeriesTooltip.value = true),
 			() => (showSeriesTooltip.value = false),
 		)
 		buildLineChart(
 			pfbSeriesChartEl.value.wrapper,
-			showLastValue.value ? pfbSeries.value : pfbSeries.value.slice(0, pfbSeries.value.length - 1),
+			loadLastValue.value ? pfbSeries.value : pfbSeries.value.slice(0, pfbSeries.value.length - 1),
 			() => (showPfbTooltip.value = true),
 			() => (showPfbTooltip.value = false),
 		)
 		buildLineChart(
 			feeSeriesChartEl.value.wrapper,
-			showLastValue.value ? feeSeries.value : feeSeries.value.slice(0, feeSeries.value.length - 1),
+			loadLastValue.value ? feeSeries.value : feeSeries.value.slice(0, feeSeries.value.length - 1),
 			() => (showFeeTooltip.value = true),
 			() => (showFeeTooltip.value = false),
 		)
 	} else {
 		buildBarChart(
 			sizeSeriesChartEl.value.wrapper,
-			showLastValue.value ? sizeSeries.value : sizeSeries.value.slice(0, sizeSeries.value.length - 1),
+			loadLastValue.value ? sizeSeries.value : sizeSeries.value.slice(0, sizeSeries.value.length - 1),
 			() => (showSeriesTooltip.value = true),
 			() => (showSeriesTooltip.value = false),
 			"size",
 		)
 		buildBarChart(
 			pfbSeriesChartEl.value.wrapper,
-			showLastValue.value ? pfbSeries.value : pfbSeries.value.slice(0, pfbSeries.value.length - 1),
+			loadLastValue.value ? pfbSeries.value : pfbSeries.value.slice(0, pfbSeries.value.length - 1),
 			() => (showPfbTooltip.value = true),
 			() => (showPfbTooltip.value = false),
 			"pfb",
 		)
 		buildBarChart(
 			feeSeriesChartEl.value.wrapper,
-			showLastValue.value ? feeSeries.value : feeSeries.value.slice(0, feeSeries.value.length - 1),
+			loadLastValue.value ? feeSeries.value : feeSeries.value.slice(0, feeSeries.value.length - 1),
 			() => (showFeeTooltip.value = true),
 			() => (showFeeTooltip.value = false),
 			"fee",
@@ -678,8 +690,9 @@ watch(
 )
 
 watch(
-	() => [selectedChartView.value, showLastValue.value],
+	() => [chartView.value, loadLastValue.value],
 	() => {
+		updateUserSettings()
 		buildRollupCharts(false)
 	}
 )
@@ -697,6 +710,12 @@ watch(
 const debouncedRedraw = useDebounceFn((e) => {
 	buildRollupCharts()
 }, 500)
+
+onBeforeMount(() => {
+	const settings = JSON.parse(localStorage.getItem("settings"))
+	chartView.value = settings?.chart?.view || "line"
+	loadLastValue.value = settings?.chart?.loadLastValue
+})
 
 onMounted(async () => {
 	window.addEventListener("resize", debouncedRedraw)
@@ -750,26 +769,26 @@ onBeforeUnmount(() => {
 									gap="12"
 									:class="$style.chart_selector"
 									:style="{
-										background: `linear-gradient(to ${selectedChartView === 'line' ? 'right' : 'left'}, var(--op-5) 50%, transparent 50%)`,
+										background: `linear-gradient(to ${chartView === 'line' ? 'right' : 'left'}, var(--op-5) 50%, transparent 50%)`,
 									}"
 								>
 									<Icon
 										name="line-chart"
 										size="14"
-										:style="{ fill: `${selectedChartView === 'line' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
+										:style="{ fill: `${chartView === 'line' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
 									/>
 
 									<Icon
 										name="bar-chart"
 										size="14"
-										:style="{ fill: `${selectedChartView === 'bar' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
+										:style="{ fill: `${chartView === 'bar' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
 									/>
 								</Flex>
 							</Flex>
 
 							<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
-								<Text size="12" :color="showLastValue ? 'secondary' : 'tertiary'">Show last value</Text>
-								<Toggle v-model="showLastValue" color="var(--neutral-mint)" />
+								<Text size="12" :color="loadLastValue ? 'secondary' : 'tertiary'">Show last value</Text>
+								<Toggle v-model="loadLastValue" color="var(--neutral-mint)" />
 							</Flex>
 						</Flex>
 					</template>
@@ -830,11 +849,11 @@ onBeforeUnmount(() => {
 
 						<Transition name="fastfade">
 							<div v-if="showSeriesTooltip" :class="$style.tooltip_wrapper">
-								<div v-if="selectedChartView === 'line'"
+								<div v-if="chartView === 'line'"
 									:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
 									:class="$style.dot"
 								/>
-								<div v-if="selectedChartView === 'line'" :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
+								<div v-if="chartView === 'line'" :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
 								<div
 									ref="badgeEl"
 									:style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"
@@ -913,11 +932,11 @@ onBeforeUnmount(() => {
 
 						<Transition name="fastfade">
 							<div v-if="showPfbTooltip" :class="$style.tooltip_wrapper">
-								<div v-if="selectedChartView === 'line'"
+								<div v-if="chartView === 'line'"
 									:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
 									:class="$style.dot"
 								/>
-								<div v-if="selectedChartView === 'line'" :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
+								<div v-if="chartView === 'line'" :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
 								<div
 									ref="badgeEl"
 									:style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"
@@ -1002,11 +1021,11 @@ onBeforeUnmount(() => {
 
 						<Transition name="fastfade">
 							<div v-if="showFeeTooltip" :class="$style.tooltip_wrapper">
-								<div v-if="selectedChartView === 'line'"
+								<div v-if="chartView === 'line'"
 									:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
 									:class="$style.dot"
 								/>
-								<div v-if="selectedChartView === 'line'" :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
+								<div v-if="chartView === 'line'" :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
 								<div
 									ref="badgeEl"
 									:style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"

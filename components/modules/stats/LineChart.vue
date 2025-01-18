@@ -252,7 +252,6 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 const drawChart = () => {
 	currentData.value.color = "var(--mint)"
 	prevData.value.color = "var(--txt-tertiary)"
-
 	buildChart(
 		chartEl.value.wrapper,
 		currentData.value,
@@ -265,12 +264,16 @@ const drawChart = () => {
 watch(
 	() => [currentData.value, prevData.value],
 	() => {
-		drawChart()
+		if (chartEl?.value?.wrapper) {
+			drawChart()
+		}
 	},
 )
 
-onMounted(async () => {
-	drawChart()
+onMounted(() => {
+	if (chartEl?.value?.wrapper) {
+		drawChart()
+	}	
 })
 
 </script>

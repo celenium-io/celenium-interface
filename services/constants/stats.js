@@ -183,6 +183,33 @@ export const STATS_PERIODS = [
 	},
 ]
 
+export const STATS_TIMEFRAMES = [
+	{
+		title: '1 hour',
+		shortTitle: '1H',
+		interval: { hours: 1 },
+		timeframe: 'hour',
+	},
+	{
+		title: '1 day',
+		shortTitle: '1D',
+		interval: { days: 1 },
+		timeframe: 'day',
+	},
+	{
+		title: '1 week',
+		shortTitle: '1W',
+		interval: { weeks: 1 },
+		timeframe: 'week',
+	},
+	{
+		title: '1 month',
+		shortTitle: '1M',
+		interval: { months: 1 },
+		timeframe: 'month',
+	},
+]
+
 export const STATS_HIGHLIGHTS = [
 	{
 		group: 'General',

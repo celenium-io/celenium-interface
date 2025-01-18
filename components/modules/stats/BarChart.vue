@@ -56,6 +56,11 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		[0, barWidth],
 	)
 
+	const scaleX = d3.scaleUtc(
+		d3.extent(cData.data, (d) => new Date(d.date)),
+		[marginLeft + barWidth / 2, width],
+	)
+
 	let data = cData.data.map((d, i) => ({
 		date: new Date(d.date),
 		value: d.value,
@@ -254,12 +259,16 @@ const drawChart = () => {
 watch(
 	() => [currentData.value, prevData.value],
 	() => {
-		drawChart()
+		if (chartEl?.value?.wrapper) {
+			drawChart()
+		}
 	},
 )
 
 onMounted(async () => {
-	drawChart()
+	if (chartEl?.value?.wrapper) {
+		drawChart()
+	}
 })
 </script>
 

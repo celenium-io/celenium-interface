@@ -111,19 +111,22 @@ const handleClearAllFilters = () => {
 const searchTerm = ref("")
 
 /** Parse route query */
-Object.keys(route.query).forEach((key) => {
-	if (key === "page") return
+const parseRouteQuery = () => {
+	Object.keys(route.query).forEach((key) => {
+		if (key === "page") return
 
-	if (key === "from" || key === "to") {
-		filters[key] = route.query[key]
-	} else if (route.query[key].split(",").length) {
-		route.query[key].split(",").forEach((item) => {
-			filters[key][item] = true
-		})
-	} else {
-		filters[key][route.query[key]] = true
-	}
-})
+		if (key === "from" || key === "to") {
+			filters[key] = route.query[key]
+		} else if (route.query[key].split(",").length) {
+			route.query[key].split(",").forEach((item) => {
+				filters[key][item] = true
+			})
+		} else {
+			filters[key][route.query[key]] = true
+		}
+	})
+}
+parseRouteQuery()
 
 const updateRouteQuery = () => {
 	router.replace({
@@ -223,10 +226,15 @@ const handleUpdateDateFilter = (event) => {
 const resetFilters = (target, refetch) => {
 	if (target === "from" || target === "to") {
 		filters[target] = ""
-	} else {
+	} else if (target) {
 		Object.keys(filters[target]).forEach((f) => {
 			filters[target][f] = false
 		})
+	} else {
+		resetFilters("from")
+		resetFilters("to")
+		resetFilters("status")
+		resetFilters("message_type")
 	}
 
 	if (refetch) {
@@ -315,6 +323,21 @@ onBeforeMount(() => {
 })
 
 /** Refetch transactions */
+watch(
+	() => route.query,
+	() => {
+		if (!isRefetching.value) {
+			if (Object.keys(route.query).length) {
+				parseRouteQuery()
+			} else {
+				resetFilters()
+			}
+			
+			getTransactions()
+		}
+	},
+)
+
 watch(
 	() => page.value,
 	async () => {

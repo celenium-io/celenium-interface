@@ -253,8 +253,9 @@ onBeforeUnmount(() => {
 
 	width: 100%;
 
-	background: var(--dark-mint);
-	/* background: var(block-progress-fill-background); */
+	/* background: var(--dark-mint); */
+	background: var(--neutral-mint);
+	/* background: var(--block-progress-fill-background); */
 
 	z-index: -1;
 

@@ -1,6 +1,5 @@
 <script setup>
 /** Vendor */
-import { useDebounceFn } from "@vueuse/core"
 import { DateTime, Info } from "luxon"
 
 /** Stats Constants */
@@ -299,27 +298,29 @@ watch(
 
 				<Flex direction="column" gap="12" :style="popoverStyles.calendar">
 					<Flex align="center" justify="center" gap="6">
-						<Icon
-							@click="handleMonthChange(-1)"
-							name="chevron"
-							size="14"
-							color="tertiary"
-							class="clickable"
-							:class="!isPrevMonthAvailable && $style.disabled"
-							:style="{ transform: 'rotate(90deg)' }"
-						/>
+						<Flex align="center" justify="between" :style="{width: '140px'}">
+							<Icon
+								@click="handleMonthChange(-1)"
+								name="chevron"
+								size="14"
+								color="tertiary"
+								class="clickable"
+								:class="!isPrevMonthAvailable && $style.disabled"
+								:style="{ transform: 'rotate(90deg)' }"
+							/>
 
-						<Text size="12" color="secondary"> {{ `${DateTime.local(year, month).toFormat('LLLL')} ${year}` }} </Text>
+							<Text size="12" color="secondary"> {{ `${DateTime.local(year, month).toFormat('LLLL')} ${year}` }} </Text>
 
-						<Icon
-							@click="handleMonthChange(1)"
-							name="chevron"
-							size="14"
-							color="tertiary"
-							class="clickable"
-							:class="!isNextMonthAvailable && $style.disabled"
-							:style="{ transform: 'rotate(-90deg)' }"
-						/>
+							<Icon
+								@click="handleMonthChange(1)"
+								name="chevron"
+								size="14"
+								color="tertiary"
+								class="clickable"
+								:class="!isNextMonthAvailable && $style.disabled"
+								:style="{ transform: 'rotate(-90deg)' }"
+							/>
+						</Flex>
 					</Flex>
 
 					<Flex direction="column" gap="16" wide :class="$style.table">
