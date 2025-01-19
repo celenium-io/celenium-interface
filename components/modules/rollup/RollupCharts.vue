@@ -693,7 +693,9 @@ watch(
 	() => [chartView.value, loadLastValue.value],
 	() => {
 		updateUserSettings()
-		buildRollupCharts(false)
+		if (!isLoading.value) {
+			buildRollupCharts(false)
+		}		
 	}
 )
 
@@ -712,6 +714,7 @@ const debouncedRedraw = useDebounceFn((e) => {
 }, 500)
 
 onBeforeMount(() => {
+	isLoading.value = true
 	const settings = JSON.parse(localStorage.getItem("settings"))
 	chartView.value = settings?.chart?.view || "line"
 	loadLastValue.value = settings?.chart?.loadLastValue

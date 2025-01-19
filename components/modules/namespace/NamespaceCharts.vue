@@ -80,6 +80,7 @@ const sizeSeriesChartEl = ref()
 const pfbSeriesChartEl = ref()
 
 /** Data */
+const isLoading = ref(false)
 const sizeSeries = ref([])
 const pfbSeries = ref([])
 
@@ -507,6 +508,8 @@ const getPfbSeries = async () => {
 }
 
 const buildNamespaceCharts = async (loadData = true) => {
+	isLoading.value = true
+
 	if (loadData) {
 		await getSizeSeries()
 		await getPfbSeries()
@@ -541,6 +544,8 @@ const buildNamespaceCharts = async (loadData = true) => {
 			"pfb",
 		)
 	}
+
+	isLoading.value = false
 }
 
 watch(
@@ -554,7 +559,9 @@ watch(
 	() => [chartView.value, loadLastValue.value],
 	() => {
 		updateUserSettings()
-		buildNamespaceCharts(false)
+		if (!isLoading.value) {
+			buildNamespaceCharts(false)
+		}		
 	}
 )
 
@@ -563,6 +570,7 @@ const debouncedRedraw = useDebounceFn((e) => {
 }, 500)
 
 onBeforeMount(() => {
+	isLoading.value = true
 	const settings = JSON.parse(localStorage.getItem("settings"))
 	chartView.value = settings?.chart?.view || "line"
 	loadLastValue.value = settings?.chart?.loadLastValue
