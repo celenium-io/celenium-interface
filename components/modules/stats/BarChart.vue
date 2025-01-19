@@ -38,8 +38,8 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	const marginTop = 12
 	const marginRight = 12
 	const marginBottom = 24
-	const marginLeft = 36
-	const marginAxisX = 20
+	const marginLeft = 48
+	const marginAxisX = 24
 	const barWidth = Math.max(Math.round((width - marginLeft - marginRight) / (cData.data.length) - (pData.data.length ? 2 : 5)), 4)
 
 	const MIN_VALUE = d3.min([...cData.data.map(s => s.value), ...pData.data?.map(s => s.value)])
@@ -53,12 +53,12 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 
 	const x1 = d3.scaleBand(
 		['prev', 'current'],
-		[0, barWidth],
+		[0, barWidth / 1.1],
 	)
 
 	const scaleX = d3.scaleUtc(
 		d3.extent(cData.data, (d) => new Date(d.date)),
-		[marginLeft + barWidth / 2, width],
+		[marginLeft - barWidth / 2, width - marginRight - barWidth / 2],
 	)
 
 	let data = cData.data.map((d, i) => ({
@@ -132,11 +132,11 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	svg.append("g")
 		.attr("transform", `translate( ${barWidth / 2 - 3}, ${height - marginAxisX} )`)
 		.attr("color", "var(--op-20)")
-		.call(d3.axisBottom(x0).ticks(6).tickFormat(d3.timeFormat(props.series.timeframe === 'hour' ? "%H:%M" : "%b %d")))
+		.call(d3.axisBottom(scaleX).ticks(Math.min(cData.data.length, 6)).tickFormat(d3.timeFormat(props.series.timeframe === 'hour' ? "%H:%M" : "%b %d")))
 		.selectAll(".tick line")
 			.filter(function(d) { return d === 0; })
 			.remove();
-	
+		
 	svg.append("g")
 		.attr("transform", `translate(0,0)`)
 		.attr("color", "var(--op-20)")
