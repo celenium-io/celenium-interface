@@ -47,6 +47,7 @@ export const useCacheStore = defineStore("cache", () => {
 
 		/** blob viewer */
 		blob: null,
+		proof: null,
 	})
 
 	const tx = reactive({

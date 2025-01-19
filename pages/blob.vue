@@ -3,7 +3,7 @@
 import { DateTime } from "luxon"
 
 /** API */
-import { fetchBlobBlockscoutData, fetchBlobMetadata, fetchBlobByMetadata } from "@/services/api/namespace"
+import { fetchBlobBlockscoutData, fetchBlobByMetadata, fetchBlobMetadata, fetchBlobProof } from "@/services/api/namespace"
 
 /** Components */
 import HexViewer from "@/components/modules/blob/HexViewer.vue"
@@ -19,7 +19,6 @@ import { space, formatBytes, comma, strToHex } from "@/services/utils"
 import { useCacheStore } from "@/store/cache"
 import { useModalsStore } from "@/store/modals"
 import { useNotificationsStore } from "@/store/notifications"
-import { blockscoutURL } from "~/services/config"
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
@@ -189,6 +188,23 @@ const handleDownload = () => {
 	document.body.removeChild(a)
 }
 
+const handleViewProof = async () => {
+	const { data } = await fetchBlobProof({
+		hash: hash.replaceAll(" ", "+"),
+		height: parseInt(height),
+		commitment: commitment.replaceAll(" ", "+"),
+	})
+
+	if (!data.value) {
+		cacheStore.current.proof = "Failed to load proof.."
+	} else {
+		cacheStore.current.proof = data.value
+	}
+	
+	cacheStore.current._target = "proof"
+	modalsStore.open("rawData")
+}
+
 const handleCopy = (text) => {
 	window.navigator.clipboard.writeText(text)
 
@@ -221,6 +237,10 @@ const handleCopy = (text) => {
 				<Button v-if="l2BlockscoutUrl" :link="l2BlockscoutUrl" target="_blank" size="mini" type="secondary">
 					<Icon name="blockscout" size="12" color="secondary" />
 					View batch
+				</Button>
+				<Button @click="handleViewProof" size="mini" type="secondary">
+					<Icon name="proof" size="14" color="secondary" />
+					View proof
 				</Button>
 				<Button @click="modalsStore.open('changeBlob')" size="mini" type="secondary">
 					<Icon name="blob" size="12" color="secondary" />
