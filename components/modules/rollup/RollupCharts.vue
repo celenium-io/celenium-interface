@@ -10,6 +10,7 @@ import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Input from "@/components/ui/Input.vue"
 import Popover from "@/components/ui/Popover.vue"
 import Toggle from "@/components/ui/Toggle.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
 import { abbreviate, formatBytes, sortArrayOfObjects, spaces, tia } from "@/services/utils"
@@ -86,6 +87,7 @@ const chartWrapperEl = ref()
 const sizeSeriesChartEl = ref()
 const pfbSeriesChartEl = ref()
 const feeSeriesChartEl = ref()
+const tvlSeriesChartEl = ref()
 const comparisonChartEl = ref()
 const comparisonBarWidth = ref(0)
 
@@ -94,6 +96,7 @@ const isLoading = ref(false)
 const sizeSeries = ref([])
 const pfbSeries = ref([])
 const feeSeries = ref([])
+const tvlSeries = ref([])
 const rollupsList = ref()
 const comparisonData = ref([])
 const selectedRollup = ref()
@@ -102,6 +105,7 @@ const selectedRollup = ref()
 const showSeriesTooltip = ref(false)
 const showPfbTooltip = ref(false)
 const showFeeTooltip = ref(false)
+const showTVLTooltip = ref(false)
 const tooltipEl = ref()
 const tooltipXOffset = ref(0)
 const tooltipYOffset = ref(0)
@@ -113,31 +117,38 @@ const badgeEl = ref()
 const badgeText = ref("")
 const badgeOffset = ref(0)
 
-const xAxisLabels = computed(() => {
-	let labels = {
-		firstDate: "",
-		lastDate: "",
+const getXAxisLabels = (start, tvl = false) => {
+	let res = ""
+
+	let tf = selectedPeriod.value.timeframe
+	let periodValue = selectedPeriod.value.value
+	if ( tvl && ["hour", "week"].includes(selectedPeriod.value.timeframe)) {
+		tf = "day"
+		periodValue = 30
 	}
 
-	switch (selectedPeriod.value.timeframe) {
+	switch (tf) {
 		case "month":
-			labels.firstDate = DateTime.now().minus({ months: selectedPeriod.value.value - 1 }).toFormat("LLL y")
-			labels.lastDate = loadLastValue.value ? DateTime.now().toFormat("LLL") : DateTime.now().minus({ months: 1 }).toFormat("LLL")
+			start
+				? res = DateTime.now().minus({ months: periodValue - 1 }).toFormat("LLL y")
+				: res = loadLastValue.value ? DateTime.now().toFormat("LLL") : DateTime.now().minus({ months: 1 }).toFormat("LLL")
 			break;
 		case "day":
-			labels.firstDate = DateTime.now().minus({ days: selectedPeriod.value.value - 1 }).toFormat("LLL dd")
-			labels.lastDate = loadLastValue.value ? "Today" : DateTime.now().minus({ days: 1 }).toFormat("LLL dd")
+			start
+				? res = DateTime.now().minus({ days: periodValue - 1 }).toFormat("LLL dd")
+				: res = loadLastValue.value ? "Today" : DateTime.now().minus({ days: 1 }).toFormat("LLL dd")
 			break;
 		default:
-			labels.firstDate = DateTime.now().minus({ hours: selectedPeriod.value.value - 1 }).set({ minutes: 0 }).toFormat("hh:mm a")
-			labels.lastDate = loadLastValue.value ? "Now" : DateTime.now().minus({ hours: 1 }).set({ minutes: 0 }).toFormat("hh:mm a")
+			start
+				? res = DateTime.now().minus({ hours: periodValue - 1 }).set({ minutes: 0 }).toFormat("hh:mm a")
+				: res = loadLastValue.value ? "Now" : DateTime.now().minus({ hours: 1 }).set({ minutes: 0 }).toFormat("hh:mm a")
 			break;
 	}
 
-	return labels
-})
+	return res
+}
 
-const buildLineChart = (chartEl, data, onEnter, onLeave) => {
+const buildLineChart = (chartEl, data, onEnter, onLeave, metric) => {
 	const width = chartWrapperEl.value.wrapper.getBoundingClientRect().width
 	const height = 180
 	const marginTop = 0
@@ -178,10 +189,14 @@ const buildLineChart = (chartEl, data, onEnter, onLeave) => {
 			}
 		}
 
+		let tf = selectedPeriod.value.timeframe
+		if (metric === "tvl" && ["hour", "week"].includes(selectedPeriod.value.timeframe)) {
+			tf = "day"
+		}
 		badgeText.value =
-			selectedPeriod.value.timeframe === "month"
+			tf === "month"
 				? DateTime.fromJSDate(data[idx].date).toFormat("LLL")
-				: selectedPeriod.value.timeframe === "day"
+				: tf === "day"
 					? DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
 					: DateTime.fromJSDate(data[idx].date).set({ minutes: 0 }).toFormat("hh:mm a")
 
@@ -365,10 +380,14 @@ const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 			}
 		}
 
+		let tf = selectedPeriod.value.timeframe
+		if (metric === "tvl" && ["hour", "week"].includes(selectedPeriod.value.timeframe)) {
+			tf = "day"
+		}
 		badgeText.value =
-			selectedPeriod.value.timeframe === "month"
+			tf === "month"
 				? DateTime.fromJSDate(data[idx].date).toFormat("LLL")
-				: selectedPeriod.value.timeframe === "day"
+				: tf === "day"
 					? DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
 					: DateTime.fromJSDate(data[idx].date).set({ minutes: 0 }).toFormat("hh:mm a")
 
@@ -465,12 +484,12 @@ const getRollupsList = async () => {
 	rollupsList.value = sortArrayOfObjects(data, 'slug').filter(r => r.id !== props.rollup.id)
 }
 
-const fetchData = async (rollup, metric) => {
+const fetchData = async (rollup, metric, from, timeframe) => {
 	const data = await fetchRollupSeries({
 		id: rollup.id,
 		name: metric,
-		timeframe: selectedPeriod.value.timeframe,
-		from: parseInt(
+		timeframe: timeframe ? timeframe : selectedPeriod.value.timeframe,
+		from: from ? from : parseInt(
 			DateTime.now().minus({
 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
 				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
@@ -567,6 +586,44 @@ const getFeeSeries = async () => {
 	}
 }
 
+const getTVLSeries = async () => {
+	tvlSeries.value = []
+
+	let from = ""
+	let tf = selectedPeriod.value.timeframe
+	let periodValue = selectedPeriod.value.value
+	if (["hour", "week"].includes(selectedPeriod.value.timeframe)) {
+		from = parseInt(DateTime.now().minus({ days: 30 }).ts / 1_000)
+		tf = "day"
+		periodValue = 30
+	}
+
+	const tvlSeriesRawData = await fetchData(props.rollup, 'tvl', from, tf)
+
+	const tvlSeriesMap = {}
+	tvlSeriesRawData.forEach((item) => {
+		tvlSeriesMap[DateTime.fromISO(item.time).toFormat(["day", "month"].includes(tf) ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
+	})
+
+	for (let i = 1; i < periodValue + 1; i++) {
+		let dt
+		if (tf === "month") {
+			dt = DateTime.now().startOf('month').minus({
+				months: tf === "month" ? periodValue - i : 0,
+			})
+		} else {
+			dt = DateTime.now().minus({
+				days: tf === "day" ? periodValue - i : 0,
+				hours: tf === "hour" ? periodValue - i : 0,
+			})
+		}
+		tvlSeries.value.push({
+			date: dt.toJSDate(),
+			value: parseFloat(tvlSeriesMap[dt.toFormat(["day", "month"].includes(tf) ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+		})
+	}
+}
+
 const prepareComparisonData = async () => {
 	isLoading.value = true
 
@@ -630,6 +687,7 @@ const buildRollupCharts = async (loadData = true) => {
 		await getSizeSeries()
 		await getPfbSeries()
 		await getFeeSeries()
+		await getTVLSeries()
 	}
 
 	if (chartView.value === "line") {
@@ -650,6 +708,13 @@ const buildRollupCharts = async (loadData = true) => {
 			loadLastValue.value ? feeSeries.value : feeSeries.value.slice(0, feeSeries.value.length - 1),
 			() => (showFeeTooltip.value = true),
 			() => (showFeeTooltip.value = false),
+		)
+		buildLineChart(
+			tvlSeriesChartEl.value.wrapper,
+			loadLastValue.value ? tvlSeries.value : tvlSeries.value.slice(0, tvlSeries.value.length - 1),
+			() => (showTVLTooltip.value = true),
+			() => (showTVLTooltip.value = false),
+			"tvl",
 		)
 	} else {
 		buildBarChart(
@@ -672,6 +737,13 @@ const buildRollupCharts = async (loadData = true) => {
 			() => (showFeeTooltip.value = true),
 			() => (showFeeTooltip.value = false),
 			"fee",
+		)
+		buildBarChart(
+			tvlSeriesChartEl.value.wrapper,
+			loadLastValue.value ? tvlSeries.value : tvlSeries.value.slice(0, tvlSeries.value.length - 1),
+			() => (showTVLTooltip.value = true),
+			() => (showTVLTooltip.value = false),
+			"tvl",
 		)
 	}
 
@@ -841,11 +913,11 @@ onBeforeUnmount(() => {
 						<Flex :class="[$style.axis, $style.x]">
 							<Flex align="end" justify="between" wide>
 								<Text size="12" weight="600" color="tertiary">
-									{{ xAxisLabels.firstDate }}
+									{{ getXAxisLabels(true) }}
 								</Text>
 
 								<Text size="12" weight="600" color="tertiary">
-									{{ xAxisLabels.lastDate }}
+									{{ getXAxisLabels(false) }}
 								</Text>
 							</Flex>
 						</Flex>
@@ -924,11 +996,11 @@ onBeforeUnmount(() => {
 						<Flex :class="[$style.axis, $style.x]">
 							<Flex align="end" justify="between" wide>
 								<Text size="12" weight="600" color="tertiary">
-									{{ xAxisLabels.firstDate }}
+									{{ getXAxisLabels(true) }}
 								</Text>
 
 								<Text size="12" weight="600" color="tertiary">
-									{{ xAxisLabels.lastDate }}
+									{{ getXAxisLabels(false) }}
 								</Text>
 							</Flex>
 						</Flex>
@@ -969,7 +1041,7 @@ onBeforeUnmount(() => {
 				</Flex>
 			</Flex>
 
-			<Flex justify="between" gap="32" :class="[$style.data, $style.bottom]">
+			<Flex justify="between" gap="32" :class="$style.data">
 				<Flex direction="column" gap="20" wide>
 					<Text size="13" weight="600" color="primary">Fee Spent</Text>
 
@@ -1013,11 +1085,11 @@ onBeforeUnmount(() => {
 						<Flex :class="[$style.axis, $style.x]">
 							<Flex align="end" justify="between" wide>
 								<Text size="12" weight="600" color="tertiary">
-									{{ xAxisLabels.firstDate }}
+									{{ getXAxisLabels(true) }}
 								</Text>
 
 								<Text size="12" weight="600" color="tertiary">
-									{{ xAxisLabels.lastDate }}
+									{{ getXAxisLabels(false) }}
 								</Text>
 							</Flex>
 						</Flex>
@@ -1057,7 +1129,110 @@ onBeforeUnmount(() => {
 					</Flex>
 				</Flex>
 
-				<Flex ref="comparisonChartEl" direction="column" gap="12">
+				<Flex direction="column" gap="20" wide>
+					<Flex align="center" justify="between">
+						<Text size="13" weight="600" color="primary">TVL</Text>
+
+						<Tooltip position="end">
+							<Icon name="info" size="16" color="tertiary" />
+
+							<template #content>
+								<Flex align="center" :style="{ width: '160px' }">
+									<Text size="12" color="secondary">
+										Grouping by day or month is only available for this chart.
+									</Text>
+								</Flex>
+							</template>
+						</Tooltip>
+					</Flex>
+
+					<Flex direction="column" :class="$style.chart_wrapper">
+						<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">
+							<Text
+								v-if="tvlSeries.length"
+								size="12"
+								weight="600"
+								color="tertiary"
+								:style="{ opacity: Math.max(...tvlSeries.map((d) => d.value)) ? 1 : 0 }"
+							>
+								{{ Math.max(...tvlSeries.map((d) => d.value)) > 1
+									? abbreviate(Math.max(...tvlSeries.map((d) => d.value)))
+									: abbreviate(Math.max(...tvlSeries.map((d) => d.value))) }} $
+							</Text>
+							<Skeleton v-else-if="!tvlSeries.length" w="32" h="12" />
+
+							<Text
+								v-if="tvlSeries.length"
+								size="12"
+								weight="600"
+								color="tertiary"
+								:style="{
+									opacity:
+										Math.round(Math.max(...tvlSeries.map((d) => d.value)) / 2) != Math.max(...tvlSeries.map((d) => d.value))
+											? 1
+											: 0,
+								}"
+							>
+								{{ Math.round(Math.max(...tvlSeries.map((d) => d.value)) / 2)
+									? abbreviate(Math.round(Math.max(...tvlSeries.map((d) => d.value)) / 2))
+									: abbreviate(Math.round(Math.max(...tvlSeries.map((d) => d.value)) / 2)) }} $
+							</Text>
+							<Skeleton v-else-if="!tvlSeries.length" w="24" h="12" />
+
+							<Text v-if="tvlSeries.length" size="12" weight="600" color="tertiary"> 0 </Text>
+							<Skeleton v-else-if="!tvlSeries.length" w="16" h="12" />
+						</Flex>
+
+						<Flex :class="[$style.axis, $style.x]">
+							<Flex align="end" justify="between" wide>
+								<Text size="12" weight="600" color="tertiary">
+									{{ getXAxisLabels(true, true) }}
+								</Text>
+
+								<Text size="12" weight="600" color="tertiary">
+									{{ getXAxisLabels(false, true) }}
+								</Text>
+							</Flex>
+						</Flex>
+
+						<Transition name="fastfade">
+							<div v-if="showTVLTooltip" :class="$style.tooltip_wrapper">
+								<div v-if="chartView === 'line'"
+									:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
+									:class="$style.dot"
+								/>
+								<div v-if="chartView === 'line'" :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
+								<div
+									ref="badgeEl"
+									:style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"
+									:class="$style.badge"
+								>
+									<Text size="12" weight="600" color="secondary">
+										{{ badgeText }}
+									</Text>
+								</div>
+								<Flex
+									ref="tooltipEl"
+									:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYDataOffset - 40}px)` }"
+									direction="column"
+									gap="8"
+									:class="$style.tooltip"
+								>
+									<Flex align="center" gap="16">
+										<!-- <Text size="12" weight="600" color="secondary">Spent</Text> -->
+										<Text size="12" weight="600" color="primary"> {{ abbreviate(tooltipText) }} $</Text>
+									</Flex>
+								</Flex>
+							</div>
+						</Transition>
+
+						<Flex ref="tvlSeriesChartEl" :class="$style.chart" />
+					</Flex>
+				</Flex>
+			</Flex>
+
+			<Flex justify="between" gap="32" :class="[$style.data, $style.bottom]">
+				<Flex ref="comparisonChartEl" direction="column" gap="12" :style="{minHeight: '207px'}">
 					<Flex align="center" justify="between">
 						<Text size="13" weight="600" color="primary">Rollups Comparison</Text>
 
