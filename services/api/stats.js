@@ -65,6 +65,25 @@ export const fetchTPS = async () => {
 	}
 }
 
+export const fetchTVS = async ({ period, from, to }) => {
+	try {
+		let url = ""
+
+		if (period) {
+			url = new URL(`${useServerURL()}/stats/tvs/${period}`)
+			if (from) url.searchParams.append("from", from)
+			if (to) url.searchParams.append("to", to)
+		} else {
+			url = new URL(`${useServerURL()}/stats/tvs`)
+		}
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchPrice = async () => {
 	try {
 		const url = new URL(`${useServerURL()}/stats/price/current`)

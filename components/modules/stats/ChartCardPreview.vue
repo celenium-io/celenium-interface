@@ -10,7 +10,7 @@ import DiffChip from "@/components/modules/stats/DiffChip.vue"
 import { abbreviate, comma, formatBytes, tia } from "@/services/utils"
 
 /** API */
-import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
+import { fetchSeries, fetchSeriesCumulative, fetchTVS } from "@/services/api/stats"
 
 const props = defineProps({
 	series: {
@@ -58,6 +58,12 @@ const getSeries = async () => {
 		// 			hours: props.period.timeframe === "hour" ? props.period.value * 2 : 0,
 		// 		}).ts / 1_000)
 		// })).reverse()
+	} else if (props.series.name === "tvs") {
+		data = (await fetchTVS({
+			period: props.period.timeframe,
+		}))
+
+		data = data.slice(0, 62).reverse()
 	} else {
 		data = (await fetchSeries({
 			table: props.series.name,
@@ -90,7 +96,10 @@ const getSeries = async () => {
 			})
 	}
 
-	if (props.series.aggregate !== 'cumulative') {
+	if (props.series.name === 'tvs') {
+		currentTotal.value = currentData.value[currentData.value.length - 1].value // Math.max(...currentData.value.map(d => d.value))
+		prevTotal.value = prevData.value[prevData.value.length - 1].value // Math.max(...prevTotal.value.map(d => d.value))
+	} else if (props.series.aggregate !== 'cumulative') {
 		currentTotal.value = currentData.value.reduce((sum, el) => {
 			return sum + +el.value;
 		}, 0);
@@ -237,6 +246,10 @@ watch(
 			<Flex v-else-if="series.units === 'utia'" align="end" gap="10" justify="start" wide>
 				<Text size="16" weight="600" color="primary"> {{ series.name === 'gas_price' ? `${currentTotal.toFixed(4)} UTIA` : `${tia(currentTotal, 2)} TIA` }} </Text>
 				<Text size="14" weight="600" color="tertiary"> {{ series.name === 'gas_price' ? `${prevTotal.toFixed(4)} UTIA` : `${tia(prevTotal, 2)} TIA` }} </Text>
+			</Flex>
+			<Flex v-else-if="series.units === 'usd'" align="end" gap="10" justify="start" wide>
+				<Text size="16" weight="600" color="primary"> {{ `${abbreviate(currentTotal)} $` }} </Text>
+				<Text size="14" weight="600" color="tertiary"> {{ `${abbreviate(prevTotal)} $` }} </Text>
 			</Flex>
 			<Flex v-else align="end" gap="10" justify="start" wide>
 				<Text size="16" weight="600" color="primary"> {{ series.units === 'bytes' ? formatBytes(currentTotal) : comma(currentTotal) }} </Text>

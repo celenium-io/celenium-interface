@@ -95,18 +95,27 @@ export const STATS_SERIES = [
 		group: 'Rollups',
 		series: [
 			{
+				subGroup: 'top',
 				name: 'size',
 				title: 'size',
 				units: 'bytes',
 			},
 			{
+				subGroup: 'top',
 				name: 'blobs_count',
 				title: 'blobs count',
 			},
 			{
+				subGroup: 'top',
 				name: 'fee',
 				title: 'fee paid',
 				units: 'utia',
+			},
+			{
+				subGroup: 'economy',
+				name: 'tvs',
+				title: 'TVS',
+				units: 'usd',
 			},
 		],
 	},
