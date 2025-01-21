@@ -61,9 +61,12 @@ const getSeries = async () => {
 	} else if (props.series.name === "tvs") {
 		data = (await fetchTVS({
 			period: props.period.timeframe,
-		}))
-
-		data = data.slice(0, 62).reverse()
+			from: parseInt(
+				DateTime.now().minus({
+					days: props.period.timeframe === "day" ? props.period.value * 2 : 0,
+					hours: props.period.timeframe === "hour" ? props.period.value * 2 : 0,
+				}).ts / 1_000)
+		})).reverse()
 	} else {
 		data = (await fetchSeries({
 			table: props.series.name,

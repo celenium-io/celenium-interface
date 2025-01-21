@@ -3,14 +3,8 @@
 import * as d3 from "d3"
 import { DateTime } from "luxon"
 
-/** Stats Components */
-import DiffChip from "@/components/modules/stats/DiffChip.vue"
-
 /** Services */
 import { abbreviate, comma, formatBytes, tia, truncateDecimalPart } from "@/services/utils"
-
-/** API */
-import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
 
 const props = defineProps({
 	series: {
@@ -83,6 +77,8 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 				return `${tia(value, 2)} TIA`
 			case 'seconds':
 				return `${truncateDecimalPart(value / 1_000, 3)}s`
+			case 'usd':
+				return `${abbreviate(value)} $`
 			default:
 				return comma(value)
 		}

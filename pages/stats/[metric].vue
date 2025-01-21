@@ -14,7 +14,7 @@ import { exportSVGToPNG, exportToCSV } from "@/services/utils/export"
 import { capitalizeAndReplaceUnderscore } from "@/services/utils"
 
 /** API */
-import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
+import { fetchSeries, fetchSeriesCumulative, fetchTVS } from "@/services/api/stats"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
@@ -97,7 +97,7 @@ useHead({
 const periods = ref(STATS_PERIODS)
 const selectedPeriod = ref(periods.value[2])
 
-const selectedTimeframe = ref(STATS_TIMEFRAMES.find(tf => tf.timeframe === selectedPeriod.value.timeframe))
+const selectedTimeframe = ref(STATS_TIMEFRAMES.find(tf => tf.timeframe === (series.value.name === "tvs" ? "day" : selectedPeriod.value.timeframe)))
 const timeframes = computed(() => {
 	let res = []
 
@@ -107,6 +107,10 @@ const timeframes = computed(() => {
 		if (pointCount > 1 && pointCount < 100) {
 			res.push(tf)
 		}
+	}
+
+	if (series.value.name === "tvs") {
+		res = res.filter(tf => tf.timeframe === "day" || tf.timeframe === "month")
 	}
 
 	return res
@@ -163,7 +167,22 @@ const handleChangeChartView = () => {
 const isLoading = ref(false)
 const fetchData = async (from, to) => {
     let data = []
-	if (series.value.aggregate !== 'cumulative') {
+	if (series.value.name === "tvs") {
+		data = (await fetchTVS({
+			period: selectedTimeframe.value.timeframe,
+			from: from 
+				? from
+				: loadPrevData.value
+					? parseInt(DateTime.fromSeconds(filters.from).minus({
+						hours: filters.timeframe === "hour" ? filters.periodValue : 0,
+						days: filters.timeframe === "day" ? filters.periodValue : 0,
+						weeks: filters.timeframe === "week" ? filters.periodValue : 0,
+						months: filters.timeframe === "month" ? filters.periodValue : 0,
+					}).ts / 1_000)
+					: filters.from,
+			to: to ? to : filters.to
+		}))
+	} else if (series.value.aggregate !== 'cumulative') {
 		data = (await fetchSeries({
 			table: series.value.name,
 			period: selectedTimeframe.value.timeframe,
@@ -177,9 +196,9 @@ const fetchData = async (from, to) => {
 					}).ts / 1_000)
 					: filters.from,
 			to: to ? to : filters.to
-		})).reverse()
+		}))
 	} else {
-		data = await fetchSeriesCumulative({
+		data = (await fetchSeriesCumulative({
 			name: series.value.name,
 			period: selectedTimeframe.value.timeframe,
 			from: loadPrevData.value ? parseInt(DateTime.fromSeconds(filters.from).minus({
@@ -188,7 +207,7 @@ const fetchData = async (from, to) => {
 				weeks: filters.timeframe === "week" ? filters.periodValue : 0,
 			}).ts / 1_000) : filters.from,
 			to: filters.to
-		})
+		})).reverse()
 	}
 
 	return data
@@ -198,7 +217,6 @@ const getData = async () => {
 
 	let data = await fetchData()
 	if (data.length) {
-		data.reverse()
         if (loadPrevData.value) {
 			if (selectedTimeframe.value.timeframe !== filters.timeframe) {
 				if (data.length % 2 > 0) {
@@ -279,15 +297,25 @@ const handleUpdateDate = async (event) => {
 		let to = event.to
 
 		let daysDiff = Math.round(DateTime.fromSeconds(to).diff(DateTime.fromSeconds(from), 'days').days)
-		if (daysDiff < 7) {
-			filters.timeframe = 'hour'
-			filters.periodValue = Math.round(DateTime.fromSeconds(to).diff(DateTime.fromSeconds(from), 'hours').hours)
-		} else if (daysDiff < 50) {
-			filters.timeframe = 'day'
-			filters.periodValue = daysDiff
+		if (series.value.name === "tvs") {
+			if (daysDiff < 50) {
+				filters.timeframe = 'day'
+				filters.periodValue = daysDiff
+			} else {
+				filters.timeframe = 'month'
+				filters.periodValue = Math.ceil(daysDiff / 30)
+			}
 		} else {
-			filters.timeframe = 'week'
-			filters.periodValue = Math.ceil(daysDiff / 7)
+			if (daysDiff < 7) {
+				filters.timeframe = 'hour'
+				filters.periodValue = Math.round(DateTime.fromSeconds(to).diff(DateTime.fromSeconds(from), 'hours').hours)
+			} else if (daysDiff < 50) {
+				filters.timeframe = 'day'
+				filters.periodValue = daysDiff
+			} else {
+				filters.timeframe = 'week'
+				filters.periodValue = Math.ceil(daysDiff / 7)
+			}
 		}
 		
 		if (filters.timeframe === 'hour') {
