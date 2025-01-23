@@ -41,7 +41,10 @@ if (!series.value.page) {
 	router.push("/stats")
 }
 
-const metricName = computed(() => capitalizeAndReplaceUnderscore(series.value?.page))
+const metricName = computed(() => {
+	if (series.value.page === "tvs") return series.value.title
+	return capitalizeAndReplaceUnderscore(series.value?.page)
+})
 
 // defineOgImage({
 // 	title: "Rollup",

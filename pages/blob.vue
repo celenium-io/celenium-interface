@@ -100,7 +100,7 @@ cacheStore.current.blob = {
 }
 
 onMounted(() => {
-	if (!supportedContentTypeForPreview.includes(blob.content_type)) cards.value.preview = false
+	if (!supportedContentTypeForPreview.includes(blob.value?.content_type)) cards.value.preview = false
 
 	innerWidth.value = window.innerWidth
 	if (innerWidth.value <= 1020) {
@@ -177,12 +177,18 @@ const handleDownload = () => {
 			.map((e) => parseInt(e, 16)),
 	)
 
+	let extension = "bin"
+	if (supportedContentTypeForPreview.includes(blob.value?.content_type)) {
+		const ct = blob.value.content_type.split(";")[0].split("/")[1]
+		extension = ct === "plain" ? "txt" : ct
+	}
+
 	const a = window.document.createElement("a")
 	a.href = window.URL.createObjectURL(new Blob([byteArray], { type: "application/octet-stream" }))
 	a.download = `${metadata.value.namespace.namespace_id}_${blob.value.commitment.slice(
 		blob.value.commitment.length - 8,
 		blob.value.commitment.length,
-	)}.bin`
+	)}.${extension}`
 	document.body.appendChild(a)
 	a.click()
 	document.body.removeChild(a)

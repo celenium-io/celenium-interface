@@ -114,7 +114,7 @@ export const STATS_SERIES = [
 			{
 				subGroup: 'economy',
 				name: 'tvs',
-				title: 'TVS',
+				title: 'Total Value Secured',
 				page: 'tvs',
 				units: 'usd',
 			},
