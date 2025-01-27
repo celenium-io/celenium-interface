@@ -234,7 +234,7 @@ const handleNavigate = (url) => {
 				</Flex>
 			</Flex> -->
 
-			<AdvBanner />
+			<AdvBanner advName="celestia_update" />
 		</Flex>
 
 		<Flex direction="column" gap="16" style="margin-right: 20px">

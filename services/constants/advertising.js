@@ -26,6 +26,15 @@ const advertisements = [
 		footer: 'Run Light Node',
 		weight: 0.5,
 	},
+	{
+		name: 'celestia_update',
+		link: 'https://blog.celestia.org/ginger/',
+		icon: 'zap',
+		header: 'Ginger Upgrade',
+		body: 'Celestia mainnet update on 28.01.2025.',
+		footer: 'View Docs',
+		weight: 1.1,
+	},
 ]
 
 export function getRandomAdv() {
