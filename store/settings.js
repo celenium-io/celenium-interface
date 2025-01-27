@@ -15,7 +15,7 @@ export const useSettingsStore = defineStore("settings", () => {
 	})
 
 	const chart = ref({
-		view: "line",
+		view: "bar",
 		loadPrevData: true,
 		loadLastValue: true,
 	})

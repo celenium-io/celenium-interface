@@ -31,7 +31,7 @@ const props = defineProps({
 })
 
 /** Chart settings */
-const selectedPeriodIdx = ref(0)
+const selectedPeriodIdx = ref(2)
 const periods = ref([
 	{
 		title: "Last 24 hours",
@@ -521,7 +521,8 @@ const getSizeSeries = async () => {
 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
 				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - i : 0,
 			})
-		}		sizeSeries.value.push({
+		}
+		sizeSeries.value.push({
 			date: dt.toJSDate(),
 			value: parseInt(sizeSeriesMap[dt.toFormat(["day", "month"].includes(selectedPeriod.value.timeframe) ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
@@ -788,8 +789,8 @@ const debouncedRedraw = useDebounceFn((e) => {
 onBeforeMount(() => {
 	isLoading.value = true
 	const settings = JSON.parse(localStorage.getItem("settings"))
-	chartView.value = settings?.chart?.view || "line"
-	loadLastValue.value = settings?.chart?.loadLastValue
+	chartView.value = settings?.chart?.view || "bar"
+	loadLastValue.value = settings?.chart?.view ? settings.chart.loadLastValue : true
 })
 
 onMounted(async () => {
@@ -1155,8 +1156,8 @@ onBeforeUnmount(() => {
 								color="tertiary"
 								:style="{ opacity: Math.max(...tvlSeries.map((d) => d.value)) ? 1 : 0 }"
 							>
-								{{ Math.max(...tvlSeries.map((d) => d.value)) > 1
-									? abbreviate(Math.max(...tvlSeries.map((d) => d.value)))
+								{{ Math.max(...tvlSeries.map((d) => d.value)) < 1_000_000
+									? abbreviate(Math.max(...tvlSeries.map((d) => d.value)), 0)
 									: abbreviate(Math.max(...tvlSeries.map((d) => d.value))) }} $
 							</Text>
 							<Skeleton v-else-if="!tvlSeries.length" w="32" h="12" />
@@ -1173,8 +1174,8 @@ onBeforeUnmount(() => {
 											: 0,
 								}"
 							>
-								{{ Math.round(Math.max(...tvlSeries.map((d) => d.value)) / 2)
-									? abbreviate(Math.round(Math.max(...tvlSeries.map((d) => d.value)) / 2))
+								{{ Math.round(Math.max(...tvlSeries.map((d) => d.value)) / 2) < 1_000_000
+									? abbreviate(Math.round(Math.max(...tvlSeries.map((d) => d.value)) / 2), 0)
 									: abbreviate(Math.round(Math.max(...tvlSeries.map((d) => d.value)) / 2)) }} $
 							</Text>
 							<Skeleton v-else-if="!tvlSeries.length" w="24" h="12" />

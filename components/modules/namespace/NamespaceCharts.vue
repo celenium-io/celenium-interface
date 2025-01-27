@@ -28,7 +28,7 @@ const props = defineProps({
 })
 
 /** Chart settings */
-const selectedPeriodIdx = ref(1)
+const selectedPeriodIdx = ref(2)
 const periods = ref([
 	{
 		title: "Last 24 hours",
@@ -44,6 +44,11 @@ const periods = ref([
 		title: "Last 31 days",
 		value: 30,
 		timeframe: "day",
+	},
+	{
+		title: "Last 12 months",
+		value: 12,
+		timeframe: "month",
 	},
 ])
 const selectedPeriod = computed(() => periods.value[selectedPeriodIdx.value])
@@ -442,67 +447,75 @@ const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 	chartEl.append(svg.node())
 }
 
-const getSizeSeries = async () => {
-	sizeSeries.value = []
-
-	const sizeSeriesRawData = await fetchNamespaceSeries({
+const fetchData = async (metric, from) => {
+	const data = await fetchNamespaceSeries({
 		id: props.id,
-		name: "size",
+		name: metric,
 		timeframe: selectedPeriod.value.timeframe,
-		from: parseInt(
+		from: from ? from : parseInt(
 			DateTime.now().minus({
 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
 				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
+				months: selectedPeriod.value.timeframe === "month" ? selectedPeriod.value.value : 0,
 			}).ts / 1_000,
 		),
 	})
 
+	return data
+}
+const getSizeSeries = async () => {
+	sizeSeries.value = []
+
+	const sizeSeriesRawData = await fetchData("size")
+
 	const sizeSeriesMap = {}
 	sizeSeriesRawData.forEach((item) => {
-		sizeSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] =
-			item.value
+		sizeSeriesMap[DateTime.fromISO(item.time).toFormat(["day", "month"].includes(selectedPeriod.value.timeframe) ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
 	})
 
 	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
-		const dt = DateTime.now().minus({
-			days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
-			hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - i : 0,
-		})
+		let dt
+		if (selectedPeriod.value.timeframe === "month") {
+			dt = DateTime.now().startOf('month').minus({
+				months: selectedPeriod.value.timeframe === "month" ? selectedPeriod.value.value - i : 0,
+			})
+		} else {
+			dt = DateTime.now().minus({
+				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
+				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - i : 0,
+			})
+		}
 		sizeSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseInt(sizeSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+			value: parseInt(sizeSeriesMap[dt.toFormat(["day", "month"].includes(selectedPeriod.value.timeframe) ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
-	}
-}
+	}}
 
 const getPfbSeries = async () => {
 	pfbSeries.value = []
 
-	const pfbSeriesRawData = await fetchNamespaceSeries({
-		id: props.id,
-		name: "pfb_count",
-		timeframe: selectedPeriod.value.timeframe,
-		from: parseInt(
-			DateTime.now().minus({
-				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
-				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
-			}).ts / 1_000,
-		),
-	})
+	const pfbSeriesRawData = await fetchData("pfb_count")
 
 	const pfbSeriesMap = {}
 	pfbSeriesRawData.forEach((item) => {
-		pfbSeriesMap[DateTime.fromISO(item.time).toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
+		pfbSeriesMap[DateTime.fromISO(item.time).toFormat(["day", "month"].includes(selectedPeriod.value.timeframe) ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
 	})
 
 	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
-		const dt = DateTime.now().minus({
-			days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
-			hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - i : 0,
-		})
+		let dt
+		if (selectedPeriod.value.timeframe === "month") {
+			dt = DateTime.now().startOf('month').minus({
+				months: selectedPeriod.value.timeframe === "month" ? selectedPeriod.value.value - i : 0,
+			})
+		} else {
+			dt = DateTime.now().minus({
+				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
+				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - i : 0,
+			})
+		}
 		pfbSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseInt(pfbSeriesMap[dt.toFormat(selectedPeriod.value.timeframe === "day" ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+			value: parseInt(pfbSeriesMap[dt.toFormat(["day", "month"].includes(selectedPeriod.value.timeframe) ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
 }
@@ -572,8 +585,8 @@ const debouncedRedraw = useDebounceFn((e) => {
 onBeforeMount(() => {
 	isLoading.value = true
 	const settings = JSON.parse(localStorage.getItem("settings"))
-	chartView.value = settings?.chart?.view || "line"
-	loadLastValue.value = settings?.chart?.loadLastValue
+	chartView.value = settings?.chart?.view || "bar"
+	loadLastValue.value = settings?.chart?.view ? settings.chart.loadLastValue : true
 })
 
 onMounted(async () => {
