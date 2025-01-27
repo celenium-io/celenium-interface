@@ -31,7 +31,7 @@ const advertisements = [
 		link: 'https://blog.celestia.org/ginger/',
 		icon: 'zap',
 		header: 'Ginger Upgrade',
-		body: 'Celestia mainnet update on 28.01.2025.',
+		body: 'Celestia mainnet update scheduled for 28.01.2025.',
 		footer: 'View Docs',
 		weight: 1.1,
 	},
