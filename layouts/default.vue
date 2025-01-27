@@ -11,7 +11,7 @@ import AdvBanner from "@/components/shared/AdvBanner.vue"
 
 			<Flex direction="column" align="center" :class="$style.content">
 				<Feed />
-				<AdvBanner advName="celenium_survey" orientation="horizontal" />
+				<AdvBanner advName="celestia_update" orientation="horizontal" />
 				<ActionBar />
 
 				<Flex direction="column" align="center" wide :class="$style.container">
