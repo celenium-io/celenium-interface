@@ -473,7 +473,7 @@ const handleCSVDownload = async (value) => {
 								</Text>
 
 								<template #content>
-									{{ DateTime.fromISO(rollup.first_message_time).setLocale("en").toFormat("LLL d, t") }}
+									{{ DateTime.fromISO(rollup.first_message_time).setLocale("en").toFormat("LLL d y, t") }}
 								</template>
 							</Tooltip>
 						</Flex>
@@ -486,7 +486,7 @@ const handleCSVDownload = async (value) => {
 								</Text>
 
 								<template #content>
-									{{ DateTime.fromISO(rollup.last_message_time).setLocale("en").toFormat("LLL d, t") }}
+									{{ DateTime.fromISO(rollup.last_message_time).setLocale("en").toFormat("LLL d y, t") }}
 								</template>
 							</Tooltip>
 						</Flex>
