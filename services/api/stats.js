@@ -1,5 +1,5 @@
 /** Services */
-import { useServerURL } from "@/services/config"
+import { tvlServiceURL, useServerURL } from "@/services/config"
 
 export const fetch24hDiffs = async ({ name }) => {
 	try {
@@ -70,11 +70,12 @@ export const fetchTVS = async ({ period, from, to }) => {
 		let url = ""
 
 		if (period) {
-			url = new URL(`${useServerURL()}/stats/tvs/${period}`)
+			url = new URL(`${tvlServiceURL}/tvs/${period}`)
+
 			if (from) url.searchParams.append("from", from)
 			if (to) url.searchParams.append("to", to)
 		} else {
-			url = new URL(`${useServerURL()}/stats/tvs`)
+			url = new URL(`${tvlServiceURL}/tvs`)
 		}
 
 		const data = await $fetch(url.href)

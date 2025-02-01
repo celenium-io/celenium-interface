@@ -107,4 +107,5 @@ export const getStartChainDate = () => {
 	}
 }
 
+export const tvlServiceURL = "https://tvl.celenium.io/v1"
 export const blockscoutURL = "https://celestia-l2-router.k8s-dev.blockscout.com/api/v1/celestia/l2BatchMetadata"

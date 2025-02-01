@@ -17,7 +17,7 @@ import { abbreviate, formatBytes, sortArrayOfObjects, spaces, tia } from "@/serv
 
 /** API */
 import { fetchRollupSeries } from "@/services/api/stats"
-import { fetchRollups } from "@/services/api/rollup"
+import { fetchRollups, fetchRollupTVL } from "@/services/api/rollup"
 
 /** Store */
 import { useSettingsStore } from "@/store/settings"
@@ -599,7 +599,11 @@ const getTVLSeries = async () => {
 		periodValue = 30
 	}
 
-	const tvlSeriesRawData = await fetchData(props.rollup, 'tvl', from, tf)
+	const tvlSeriesRawData = await fetchRollupTVL({
+		slug: props.rollup.slug,
+		period: tf,
+		from,
+	})
 
 	const tvlSeriesMap = {}
 	tvlSeriesRawData.forEach((item) => {
