@@ -14,7 +14,9 @@ const selectedPeriod = ref(periods.value[0])
 <template>
     <Flex align="center" direction="column" gap="16" wide :class="$style.wrapper">
         
-		<GeoMap />		
+		<GeoMap
+			:class="$style.chart"
+		/>
     </Flex>
 </template>
 
@@ -31,39 +33,23 @@ const selectedPeriod = ref(periods.value[0])
 	flex-wrap: wrap;
 }
 
-.chart_card {
-	width: 320px;
-	height: 280px;
-}
-
-.square_size_chart_card {
-	width: 320px;
-	height: 280px;
+.chart {
+	width: 1000px;
+	height: 640px;
 }
 
 @media (max-width: 1050px) {
-	.chart_card {
+	.chart {
 		width: 400px;
 		height: 280px;
-	}
-
-	.square_size_chart_card {
-		width: 400px;
-		height: 320px;
 	}
 }
 
 @media (max-width: 900px) {
-	.chart_card {
+	.chart {
 		flex: 1;
 		min-width: 400px;
 		height: 280px;
-	}
-
-	.square_size_chart_card {
-		flex: 1;
-		min-width: 400px;
-		height: 380px;
 	}
 }
 
@@ -72,13 +58,7 @@ const selectedPeriod = ref(periods.value[0])
 		padding: 32px 0px;
 	}
 
-	.chart_card {
-		flex: 1;
-		min-width: 340px;
-		height: 380px;
-	}
-
-	.square_size_chart_card {
+	.chart {
 		flex: 1;
 		min-width: 340px;
 		height: 380px;

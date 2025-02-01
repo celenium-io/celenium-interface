@@ -1,16 +1,18 @@
 <script setup>
 /** Vendor */
 import * as d3 from "d3"
+import { geoCentroid } from "d3-geo"
 import { DateTime } from "luxon"
 
 /** Stats Components */
 import DiffChip from "@/components/modules/stats/DiffChip.vue"
 
 /** Services */
-import { abbreviate, capitilize, comma, formatBytes } from "@/services/utils"
+import { convertCountryCode } from "@/services/constants/mapping"
+import { abbreviate, capitilize, comma, formatBytes, sortArrayOfObjects } from "@/services/utils"
 
 /** API */
-import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
+import { fetchNodeStats } from "@/services/api/stats"
 
 const props = defineProps({
     data: {
@@ -19,25 +21,35 @@ const props = defineProps({
     },
 })
 
-const resData = ref([])
-const total = ref(0)
+const isLoading = ref(false)
+const geoMap = ref()
+const nodeCityData = ref([])
+const nodeCountryData = ref([])
+
+const getNodeStats = async (name) => {
+    isLoading.value = true
+    try {
+        const data = await fetchNodeStats({ name })
+
+        if (!data.length) return []
+
+        // res = sortArrayOfObjects(data, "amount") //.filter(el => el.latitude)
+        
+        return sortArrayOfObjects(data, "amount")
+    } finally {
+        isLoading.value = false
+    }
+}
+
 
 const chartEl = ref()
-const innerRadius = ref(0)
-const outerRadius = ref(0)
-const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#55c9ab", "#142f28"]))
-        .domain([0, 5])
+// const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#55c9ab", "#142f28"]))
+//         .domain([0, 5])
 
-const buildChart = async (chart, data) => {
-	// const height = chart.getBoundingClientRect().height
-	// const width = chart.getBoundingClientRect().width
-    const height = 600
-	const width = 1_000
+const buildChart = async (chart) => {
+	const { height, width } = chart.getBoundingClientRect()
     const margin = { top: 6, right: 12, bottom: 12, left: 12 }
 
-    // const maxValue = d3.max(data, d => d.value)
-    // const minValue = +d3.min(data, d => d.value)
-    
 	/** SVG Container */
 	const svg = d3
 		.create("svg")
@@ -52,54 +64,121 @@ const buildChart = async (chart, data) => {
         .scale(150)                     // This is like the zoom
         .translate([ width / 2, height / 2 ])
     
-    // d3.queue()
-    //     .defer(d3.json, "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")  // World shape
-    //     .defer(d3.csv, "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_gpsLocSurfer.csv") // Position of circles
-    //     .await(ready);
+    const countryMaxAmount = d3.max(geoMap.value, (d) => +d.amount)
+    const countryMinAmount = d3.min(geoMap.value, (d) => +d.amount)
 
-    // Load external data and boot
-    const geoMap = await d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
-    const geoData = await d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_gpsLocSurfer.csv")
-
-    const allContinent = d3.map(geoData, function(d){return(d.homecontinent)}).keys()
-    const color = d3.scaleOrdinal()
-        .domain(allContinent)
-        .range(d3.schemePaired);
+    const countryColor = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["var(--dark-mint)", "var(--mint)"]))
+        .domain([countryMinAmount, countryMaxAmount])
     
-    // Filter data
-    // const fData = geoData?.features.filter( function(d){return d.properties.name=="France"} )
+    const colorScale = d3.scaleThreshold()
+        .domain([1, 10, 100, 200, 300])
+        .range(d3.schemeBlues[5]);
+    
+    const size = d3.scaleSqrt()
+        .domain(d3.extent(nodeCityData.value, d => +d.amount))
+        .range([ 4, 20])
 
+    const path =  d3.geoPath().projection(projection)
+    console.log('path.centroid("AFG")', path.centroid("AFG"));
+    
+    
+    // Main container
+    const g = svg.append("g")
     // Draw the map
-    svg.append("g")
+    const map = g.append("g")
         .selectAll("path")
-        .data(geoMap.features.filter(d => d.properties.name !== "Antarctica"))
+        .data(geoMap.value)
         .enter()
         .append("path")
-        .attr("fill", "none")
+        .attr("fill", d => d.amount ? colorScale(+d.amount) : "none")
         .attr("d", d3.geoPath()
             .projection(projection)
         )
-        .style("stroke", "var(--txt-secondary)")
-        .style("opacity", .3)
+        .style("stroke", "var(--geo-map)")
+        .attr("stroke-width", 1)
     
-    // svg.append("g")
-    //     .selectAll("path")
-    //     .data(geoData.features)
-    //     .enter()
-    //     .append("path")
-    //     .attr("fill", "green")
-    //     .attr("d", d3.geoPath()
-    //         .projection(projection)
-    //     )
-    //     .style("stroke", "white")
-    //     .style("opacity", .3)
+    // Add circles:
+    const circles = g.append("g")
+        .selectAll("myCircles")
+        .data(nodeCityData.value)
+        .enter()
+        .append("circle")
+            // .attr("cx", d => projection([+d.longitude, +d.latitude])[0])
+            // .attr("cy", d => projection([+d.longitude, +d.latitude])[1])
+            .attr("cx", d => projection([+d.longitude, +d.latitude])[0])
+            .attr("cy", d => projection([+d.longitude, +d.latitude])[1])
+            // .attr("r", "5px")
+            .attr("r", d => size(d.amount))
+            .style("fill", "var(--brand)")
+            // .style("fill", "none")
+            // .attr("stroke", function(d){ if(d.n>2000){return "black"}else{return "none"}  })
+            // .attr("stroke-width", 1)
+            .attr("fill-opacity", .7)
     
+    const centerCircles = g.append("g")
+        .selectAll("centerCircles")
+        .data(geoMap.value)
+        .enter()
+        .append("circle")
+            .attr("transform", function(d) {
+                let coords = path.centroid(d.geometry);
+
+                return `translate(${coords[0]}, ${coords[1]})`
+            })
+            .attr("r", "2px")
+            .attr("fill", "red")
+    
+    const bounds = d3.geoPath().projection(projection).bounds({ type: "FeatureCollection", features: geoMap.value })
+    const [[x0, y0], [x1, y1]] = bounds
+
+    // Add zoom functionality
+    const zoom = d3.zoom()
+        .scaleExtent([1, 200])
+        .translateExtent([[x0, y0], [x1, y1]])
+        .on("zoom", (event) => {
+            g.attr("transform", event.transform)
+            circles.attr("r", d => size(d.amount) / (event.transform.k * 1.5))
+            map.attr("stroke-width", 1 / event.transform.k)
+        })
+
+    svg.call(zoom);
+
+    svg.on("wheel", (event) => event.preventDefault(), { passive: false });
+
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
 }
 
 onMounted( async () => {
-    await buildChart(chartEl.value.wrapper, props.data)
+    const geoData = await d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
+    if (geoData?.features.length) {
+        geoMap.value = geoData.features.filter(d => d.properties.name !== "Antarctica")
+        const countryData = await getNodeStats("country")
+        const amountMap = Object.fromEntries(
+            countryData.map(d => {
+                const name = convertCountryCode(d.name)
+                return name ? [name, d.amount] : null
+            })
+            .filter(Boolean)
+        )
+        
+        geoMap.value = geoMap.value.map(feature => ({
+            ...feature,
+            amount: amountMap[feature.id] || 0
+        }))
+        
+        //geoContains
+
+        nodeCityData.value = (await getNodeStats("city")).filter(el => el.latitude)
+        console.log('nodeCityData.value', nodeCityData.value);
+
+        console.log('geoMap.value', geoMap.value);
+        
+        
+        
+        await buildChart(chartEl.value.wrapper)
+        // console.log('nodeCountryData.value', nodeCountryData.value);
+    }
 })
 </script>
 
