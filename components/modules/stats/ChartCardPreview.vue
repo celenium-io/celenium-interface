@@ -66,7 +66,7 @@ const getSeries = async () => {
 					days: props.period.timeframe === "day" ? props.period.value * 2 : 0,
 					hours: props.period.timeframe === "hour" ? props.period.value * 2 : 0,
 				}).ts / 1_000)
-		})).reverse()
+		})).map(v => { return { time: v.time, value: v.close } }).reverse()
 	} else {
 		data = (await fetchSeries({
 			table: props.series.name,

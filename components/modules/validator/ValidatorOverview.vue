@@ -31,6 +31,8 @@ const props = defineProps({
 	},
 })
 
+console.log('props.validator', props.validator);
+
 const tabs = ref([
 	{
 		name: "Delegators",
@@ -277,9 +279,9 @@ const handleDelegate = () => {
 							</Tooltip>
 						</Flex>
 						<Flex align="center" gap="6">
-							<Text size="12" weight="600" color="tertiary"> {{ splitAddress(validator.address) }} </Text>
+							<Text size="12" weight="600" color="tertiary"> {{ splitAddress(validator.address.hash) }} </Text>
 
-							<CopyButton :text="validator.address" />
+							<CopyButton :text="validator.address.hash" />
 						</Flex>
 					</Flex>
 
@@ -351,8 +353,8 @@ const handleDelegate = () => {
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Delegator Address</Text>
 							<Flex gap="6">
-								<AddressBadge :hash="validator.delegator" color="tertiary" />
-								<CopyButton :text="validator.delegator" />
+								<AddressBadge :account="validator.delegator" color="tertiary" />
+								<CopyButton :text="validator.delegator.hash" />
 							</Flex>
 						</Flex>
 

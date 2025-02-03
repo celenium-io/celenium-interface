@@ -32,13 +32,13 @@ const props = defineProps({
 			<tbody>
 				<tr v-for="d in delegators">
 					<td>
-						<NuxtLink :to="`/address/${d.delegator}`">
+						<NuxtLink :to="`/address/${d.delegator.hash}`">
 							<Flex align="center" direction="row" gap="12">
 								<Text size="12" weight="600" color="primary" class="table_column_alias">
-									{{ $getDisplayName('addresses', d.delegator) }}
+									{{ $getDisplayName('addresses', d.delegator.hash) }}
 								</Text>
 
-								<Tooltip v-if="validator.delegator === d.delegator" position="start" delay="500">
+								<Tooltip v-if="validator.delegator.hash === d.delegator.hash" position="start" delay="500">
 									<Icon name="self-delegation" size="14" color="neutral-green" />
 
 									<template #content>
@@ -51,12 +51,12 @@ const props = defineProps({
 						</NuxtLink>
 					</td>
 					<td>
-						<NuxtLink :to="`/address/${d.delegator}`">
+						<NuxtLink :to="`/address/${d.delegator.hash}`">
 							<AmountInCurrency :amount="{ value: d.amount, decimal: 2 }" :styles="{ amount: { size: '13' }, currency: { size: '13' }}" />
 						</NuxtLink>
 					</td>
 					<td>
-						<NuxtLink :to="`/address/${d.delegator}`">
+						<NuxtLink :to="`/address/${d.delegator.hash}`">
 							<Flex align="center" gap="4">
 								<Text size="13" weight="600" :color="parseFloat(d.amount) ? 'primary' : 'tertiary'">
 									{{ shareOfTotalString(d.amount, validator.stake) }}

@@ -184,7 +184,7 @@ const fetchData = async (from, to) => {
 					}).ts / 1_000)
 					: filters.from,
 			to: to ? to : filters.to
-		}))
+		})).map(v => { return { time: v.time, value: v.close } })
 	} else if (series.value.aggregate !== 'cumulative') {
 		data = (await fetchSeries({
 			table: series.value.name,

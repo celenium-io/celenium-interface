@@ -106,7 +106,7 @@ isLoading.value = false
 								<NuxtLink :to="`/tx/${pfb.hash}`">
 									<Flex align="center" justify="center">
 										<Text size="12" weight="600" color="primary" class="table_column_alias">
-											{{ $getDisplayName('addresses', pfb.signers[0]) }}
+											{{ $getDisplayName('addresses', pfb.signers[0].hash) }}
 										</Text>
 									</Flex>
 								</NuxtLink>

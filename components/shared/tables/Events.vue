@@ -677,14 +677,14 @@ watch(
 					<!-- Event: cosmos.authz.v1beta1.EventGrant -->
 					<Flex v-else-if="event.type === 'cosmos.authz.v1beta1.EventGrant'" align="center" gap="4" color="secondary" :class="$style.text">
 						<Tooltip :class="$style.tooltip">
-							<NuxtLink :to="`/address/${event.data.granter}`" @click.stop>
+							<NuxtLink :to="`/address/${event.data.granter.hash}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
-									{{ splitAddress(event.data.granter.replace(/"/g,'')) }}
+									{{ splitAddress(event.data.granter.hash.replace(/"/g,'')) }}
 								</Text>
 							</NuxtLink>
 
 							<template #content>
-								{{ event.data.granter.replace(/"/g,'') }}
+								{{ event.data.granter.hash.replace(/"/g,'') }}
 							</template>
 						</Tooltip>
 
@@ -697,28 +697,28 @@ watch(
 						<Text size="12" weight="500" color="secondary">for</Text>
 
 						<Tooltip :class="$style.tooltip">
-							<NuxtLink :to="`/address/${event.data.grantee}`" @click.stop>
+							<NuxtLink :to="`/address/${event.data.grantee.hash}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
-									{{ splitAddress(event.data.grantee.replace(/"/g,'')) }}
+									{{ splitAddress(event.data.grantee.hash.replace(/"/g,'')) }}
 								</Text>
 							</NuxtLink>
 
 							<template #content>
-								{{ event.data.grantee.replace(/"/g,'') }}
+								{{ event.data.grantee.hash.replace(/"/g,'') }}
 							</template>
 						</Tooltip>
 					</Flex>
 					<!-- Event: cosmos.authz.v1beta1.EventRevoke -->
 					<Flex v-else-if="event.type === 'cosmos.authz.v1beta1.EventRevoke'" align="center" gap="4" color="secondary" :class="$style.text">
 						<Tooltip :class="$style.tooltip">
-							<NuxtLink :to="`/address/${event.data.granter}`" @click.stop>
+							<NuxtLink :to="`/address/${event.data.granter.hash}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
 									{{ splitAddress(event.data.granter.replace(/"/g,'')) }}
 								</Text>
 							</NuxtLink>
 
 							<template #content>
-								{{ event.data.granter.replace(/"/g,'') }}
+								{{ event.data.granter.hash.replace(/"/g,'') }}
 							</template>
 						</Tooltip>
 
@@ -731,42 +731,42 @@ watch(
 						<Text size="12" weight="500" color="secondary">from</Text>
 
 						<Tooltip :class="$style.tooltip">
-							<NuxtLink :to="`/address/${event.data.grantee}`" @click.stop>
+							<NuxtLink :to="`/address/${event.data.grantee.hash}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
-									{{ splitAddress(event.data.grantee.replace(/"/g,'')) }}
+									{{ splitAddress(event.data.grantee.hash.replace(/"/g,'')) }}
 								</Text>
 							</NuxtLink>
 
 							<template #content>
-								{{ event.data.grantee.replace(/"/g,'') }}
+								{{ event.data.grantee.hash.replace(/"/g,'') }}
 							</template>
 						</Tooltip>
 					</Flex>
 					<!-- Event: set_feegrant -->
 					<Flex v-else-if="event.type === 'set_feegrant'" align="center" gap="4" color="secondary" :class="$style.text">
 						<Tooltip :class="$style.tooltip">
-							<NuxtLink :to="`/address/${event.data.granter}`" @click.stop>
+							<NuxtLink :to="`/address/${event.data.granter.hash}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
-									{{ splitAddress(event.data.granter) }}
+									{{ splitAddress(event.data.granter.hash) }}
 								</Text>
 							</NuxtLink>
 
 							<template #content>
-								{{ event.data.granter }}
+								{{ event.data.granter.hash }}
 							</template>
 						</Tooltip>
 
 						<Text size="12" weight="500" color="secondary">grants fee allowances to</Text>
 
 						<Tooltip :class="$style.tooltip">
-							<NuxtLink :to="`/address/${event.data.grantee}`" @click.stop>
+							<NuxtLink :to="`/address/${event.data.grantee.hash}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
-									{{ splitAddress(event.data.grantee) }}
+									{{ splitAddress(event.data.grantee.hash) }}
 								</Text>
 							</NuxtLink>
 
 							<template #content>
-								{{ event.data.grantee }}
+								{{ event.data.grantee.hash }}
 							</template>
 						</Tooltip>
 					</Flex>

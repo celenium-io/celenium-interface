@@ -53,15 +53,15 @@ const handleViewBlob = (blob) => {
 			<tbody>
 				<tr v-for="blob in blobs" @click.stop="handleViewBlob(blob)">
 					<td>
-						<Tooltip v-if="blob.signer" position="start" delay="500">
+						<Tooltip v-if="blob.signer.hash" position="start" delay="500">
 							<Flex align="center" gap="8">
-								<AddressBadge :hash="blob.signer" />
+								<AddressBadge :account="blob.signer" />
 
-								<CopyButton :text="blob.signer" />
+								<CopyButton :text="blob.signer.hash" />
 							</Flex>
 
 							<template #content>
-								{{ blob.signer }}
+								{{ blob.signer.hash }}
 							</template>
 						</Tooltip>
 						<Flex v-else align="center">

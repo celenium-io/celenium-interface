@@ -459,11 +459,11 @@ const handleCopy = (text) => {
 								</Text>
 							</Flex>
 
-							<NuxtLink :to="`/address/${metadata.signer}`" target="_blank">
+							<NuxtLink :to="`/address/${metadata.signer.hash}`" target="_blank">
 								<Flex direction="column" gap="8">
 									<Text size="12" weight="600" color="tertiary"> Signer </Text>
 									<Text size="12" weight="600" color="secondary" style="text-overflow: ellipsis; overflow: hidden">
-										{{ metadata.signer }}
+										{{ metadata.signer.hash }}
 									</Text>
 								</Flex>
 							</NuxtLink>

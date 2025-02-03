@@ -106,7 +106,7 @@ const handleViewBlob = (blob) => {
 		namespace_name: blob.namespace.name,
 		commitment: blob.commitment,
 		height: blob.height,
-		signer: blob.signer,
+		signer: blob.signer.hash,
 		size: blob.size,
 		tx: blob.tx,
 		rollup: blob.rollup,
@@ -212,13 +212,13 @@ const handlePrev = () => {
 							<td>
 								<Tooltip position="start" delay="500">
 									<Flex align="center" gap="8">
-										<AddressBadge :hash="blob.signer" />
+										<AddressBadge :account="blob.signer" />
 
-										<CopyButton :text="blob.signer" />
+										<CopyButton :text="blob.signer.hash" />
 									</Flex>
 
 									<template #content>
-										{{ blob.signer }}
+										{{ blob.signer.hash }}
 									</template>
 								</Tooltip>
 							</td>
