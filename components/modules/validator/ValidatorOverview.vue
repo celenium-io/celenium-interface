@@ -31,8 +31,6 @@ const props = defineProps({
 	},
 })
 
-console.log('props.validator', props.validator);
-
 const tabs = ref([
 	{
 		name: "Delegators",
