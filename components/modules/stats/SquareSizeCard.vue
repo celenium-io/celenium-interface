@@ -144,7 +144,7 @@ onMounted(async () => {
 			/>
 		</Flex>
 
-		<Flex @pointerleave="handleHoverLeave()" align="center" direction="column" gap="8">
+		<Flex @pointerleave="handleHoverLeave()" align="center" direction="column" gap="6">
 			<Flex
 				v-for="s in squareSize"
 				@pointerenter="handleHoverEnter(s.size)"

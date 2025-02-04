@@ -39,7 +39,19 @@ const chartElPrev = ref()
 
 const getSeries = async () => {
 	let data = []
-
+	let from = parseInt(
+		DateTime.now().minus({
+			days: props.period.timeframe === "day" ? props.period.value * 2 + 1 : 0,
+			hours: props.period.timeframe === "hour" ? props.period.value * 2 + 1 : 0,
+		}).ts / 1_000
+	)
+	let to = parseInt(
+		DateTime.now().minus({
+			days: props.period.timeframe === "day" ? 1 : 0,
+			hours: props.period.timeframe === "hour" ? 1 : 0,
+		}).ts / 1_000
+	)
+	
 	if (props.series.aggregate === 'cumulative') {
 		data = await fetchSeriesCumulative({
 			name: props.series.name,
@@ -49,33 +61,18 @@ const getSeries = async () => {
 					days: 48,
 				}).ts / 1_000)
 		})
-		// data = (await fetchSeriesCumulative({
-		// 	name: props.series.name,
-		// 	period: props.period.timeframe,
-		// 	from: parseInt(
-		// 		DateTime.now().minus({
-		// 			days: props.period.timeframe === "day" ? props.period.value * 2 : 0,
-		// 			hours: props.period.timeframe === "hour" ? props.period.value * 2 : 0,
-		// 		}).ts / 1_000)
-		// })).reverse()
 	} else if (props.series.name === "tvs") {
 		data = (await fetchTVS({
 			period: props.period.timeframe,
-			from: parseInt(
-				DateTime.now().minus({
-					days: props.period.timeframe === "day" ? props.period.value * 2 : 0,
-					hours: props.period.timeframe === "hour" ? props.period.value * 2 : 0,
-				}).ts / 1_000)
+			from: from,
+			to: to,
 		})).map(v => { return { time: v.time, value: v.close } }).reverse()
 	} else {
 		data = (await fetchSeries({
 			table: props.series.name,
 			period: props.period.timeframe,
-			from: parseInt(
-				DateTime.now().minus({
-					days: props.period.timeframe === "day" ? props.period.value * 2 : 0,
-					hours: props.period.timeframe === "hour" ? props.period.value * 2 : 0,
-				}).ts / 1_000)
+			from: from,
+			to: to,
 		})).reverse()
 	}
 	
@@ -274,7 +271,11 @@ watch(
 				</Text>
 
 				<Text size="11" weight="600" color="tertiary">
-					Today
+					{{ DateTime.now().minus({
+							days: period.timeframe === "day" ? 1 : 0,
+							hours: period.timeframe === "hour" ? 1 : 0,
+						}).toFormat("LLL dd")
+					}}
 				</Text>
 			</Flex>
 		</Flex>
