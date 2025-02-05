@@ -10,7 +10,7 @@ export const MessageIconMap = {
 	unjail: "hash",
 }
 
-const countryCodes = {
+const countryCodesMap = {
 	AF: 'AFG',
 	AL: 'ALB',
 	DZ: 'DZA',
@@ -262,4 +262,18 @@ const countryCodes = {
 	XK: 'XKK'
 }
 
-export const convertCountryCode = (alpha2) => countryCodes[alpha2.toUpperCase()] || ""
+export const convertCountryCode = (alpha2) => countryCodesMap[alpha2.toUpperCase()] || ""
+
+const cityCountryMap = {
+	sakaiminato: "JPN",
+	istanbul: "TUR",
+	imperia: "ITA",
+	ko_samui: "THA",
+	fatih: "TUR",
+	nicosia: "CYP",
+}
+
+export const getCountryByCity = (city) => {
+	const name = city.toLowerCase().replace(" ", "_")
+	return cityCountryMap[name] || ""
+}
