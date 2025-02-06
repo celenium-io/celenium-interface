@@ -13,6 +13,9 @@ import Spinner from "@/components/ui/Spinner.vue"
 /** API */
 import { search } from "@/services/api/search"
 
+/** Services */
+import { shortHex } from "@/services/utils"
+
 const wrapperEl = ref()
 const inputRef = ref()
 const searchTerm = ref("")
@@ -57,7 +60,20 @@ const debouncedSearch = useDebounceFn(async () => {
 	isSearching.value = true
 
 	const { data } = await search(searchTerm.value.trim())
-	results.value = data.value
+	if (data.value?.length) {
+		results.value = data.value.map(res => {
+			const metadata = getResultMetadata(res)
+			return {
+				...res,
+				type: metadata.type,
+				title: metadata.title,
+				subtitle: metadata.subtitle,
+				routerLink: metadata.routerLink,
+			}
+		})
+	} else {
+		results.value = []
+	}
 
 	isSearching.value = false
 }, 250)
@@ -68,7 +84,7 @@ const handleInput = () => {
 }
 
 const getResultMetadata = (target) => {
-	let metadata = { type: null, title: null, routerLink: null }
+	let metadata = { type: null, title: null, subtitle: null, routerLink: null }
 
 	switch (target.type.toLowerCase()) {
 		case "tx":
@@ -92,12 +108,7 @@ const getResultMetadata = (target) => {
 
 		case "address":
 			metadata.type = target.type
-			if (target.result.celestials?.name) {
-				metadata.title = target.result.celestials?.name
-				metadata.subtitle = target.result.hash
-			} else {
-				metadata.title = target.result.alias || target.result.hash
-			}			
+			metadata.title = target.result.celestials?.name || target.result.alias || target.result.hash
 			metadata.routerLink = `/address/${target.bookmark ? target.result.id : target.result.hash}`
 			break
 
@@ -157,12 +168,11 @@ const handleSelect = () => {
 					<Text size="12" weight="600" color="tertiary">Results</Text>
 
 					<Flex direction="column">
-						<NuxtLink v-for="result in results" :to="getResultMetadata(result).routerLink">
-							<Flex align="center" justify="between" :class="$style.item">
-								<Flex align="center" gap="8">
-									<Icon :name="getResultMetadata(result).type" size="12" color="tertiary" />
-									<Text size="13" weight="600" color="primary">{{ getResultMetadata(result).title }}</Text>
-									<Text v-if="getResultMetadata(result).subtitle" size="12" weight="500" color="tertiary">{{ getResultMetadata(result).subtitle }}</Text>
+						<NuxtLink v-for="result in results" :to="result.routerLink">
+							<Flex align="center" justify="between" gap="4" :class="$style.item">
+								<Flex align="center" gap="8" :class="$style.title_wrapper">
+									<Icon :name="result.type" size="12" color="tertiary" />
+									<Text size="13" weight="600" color="primary" :class="$style.title">{{ result.title }}</Text>
 								</Flex>
 
 								<Text size="13" weight="500" color="tertiary" style="text-transform: capitalize">{{ result.type }}</Text>
@@ -208,7 +218,8 @@ const handleSelect = () => {
 .popup {
 	position: absolute;
 	max-width: 600px;
-	top: 40px;
+	/* top: 40px; */
+	top: calc(100% + 10px);
 	left: 0;
 	right: 0;
 	z-index: 1000;
@@ -245,19 +256,36 @@ const handleSelect = () => {
 	&:hover {
 		background: var(--op-5);
 	}
+
+	.title_wrapper {
+		width: 90%;
+
+		.title {
+			max-width: 100%;
+			text-overflow: ellipsis;
+			overflow: hidden;
+			white-space: nowrap;
+		}
+	}
 }
 
 @media (max-width: 800px) {
 	.wrapper {
-		position: initial;
+		position: relative;
 	}
 
 	.popup {
 		max-width: initial;
 
-		top: 160px;
+		/* top: 160px; */
 		left: 12px;
 		right: 12px;
+	}
+
+	.item {
+		.title_wrapper {
+			width: 85%;
+		}
 	}
 }
 </style>
