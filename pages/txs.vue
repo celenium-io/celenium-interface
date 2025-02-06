@@ -143,6 +143,7 @@ const updateRouteQuery = () => {
 					.join(","),
 			...(filters.from ? { from: filters.from } : {}),
 			...(filters.to ? { to: filters.to } : {}),
+			page: page.value,
 		},
 	})
 }
@@ -282,8 +283,9 @@ const sort = reactive({
 	dir: "desc",
 })
 
-const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = computed(() => Math.ceil(count.value / 20))
+const page = ref(route.query.page ? parseInt(route.query.page) < 1 ? 1 : parseInt(route.query.page) : 1)
+const limit = ref(20)
+const handleNextCondition = ref(false)
 
 const findPFB = ref(false)
 
@@ -291,7 +293,7 @@ const getTransactions = async () => {
 	isRefetching.value = true
 
 	const { data } = await fetchTransactions({
-		limit: 20,
+		limit: limit.value,
 		offset: (page.value - 1) * 20,
 		sort: sort.dir,
 		sort_by: sort.by,
@@ -310,6 +312,7 @@ const getTransactions = async () => {
 	})
 	transactions.value = data.value
 
+	handleNextCondition.value = transactions.value.length < limit.value
 	isLoaded.value = true
 	isRefetching.value = false
 }
@@ -342,7 +345,7 @@ watch(
 	() => page.value,
 	async () => {
 		getTransactions()
-		router.replace({ query: { page: page.value } })
+		updateRouteQuery()
 	},
 )
 
@@ -424,7 +427,7 @@ const handleNext = () => {
 						<Text size="12" weight="600" color="primary">Page {{ comma(page) }} </Text>
 					</Button>
 
-					<Button @click="handleNext" type="secondary" size="mini" :disabled="!transactions.length">
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="handleNextCondition">
 						<Icon name="arrow-right" size="12" color="primary" />
 					</Button>
 				</Flex>
@@ -704,7 +707,7 @@ const handleNext = () => {
 									<NuxtLink :to="`/tx/${tx.hash}`">
 										<Flex align="center">
 											<Text size="12" weight="600" color="primary" mono class="table_column_alias">
-												{{ $getDisplayName("addresses", tx.signers[0].hash) }}
+												{{ $getDisplayName("addresses", "", tx.signers[0]) }}
 											</Text>
 										</Flex>
 									</NuxtLink>

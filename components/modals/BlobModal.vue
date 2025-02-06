@@ -327,12 +327,12 @@ const handlePreviewContent = () => {
 						<Text size="12" weight="500" color="tertiary">Signer:</Text>
 
 						<Flex align="center" gap="8" :class="$style.value_wrapper">
-							<CopyButton :text="cacheStore.selectedBlob.signer" />
+							<CopyButton :text="cacheStore.selectedBlob.signer.hash" />
 
-							<NuxtLink :to="`/address/${cacheStore.selectedBlob.signer}`" target="_blank">
+							<NuxtLink :to="`/address/${cacheStore.selectedBlob.signer.hash}`" target="_blank">
 								<Flex align="center" gap="6">
 									<Text size="13" weight="600" color="primary" :class="$style.value">
-										{{ $getDisplayName("addresses", cacheStore.selectedBlob.signer) }}
+										{{ $getDisplayName("addresses", "", cacheStore.selectedBlob.signer) }}
 									</Text>
 
 									<Icon name="arrow-narrow-up-right" size="12" color="secondary" />

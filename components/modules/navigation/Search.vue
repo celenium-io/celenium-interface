@@ -92,7 +92,12 @@ const getResultMetadata = (target) => {
 
 		case "address":
 			metadata.type = target.type
-			metadata.title = target.result.alias || target.result.hash
+			if (target.result.celestials?.name) {
+				metadata.title = target.result.celestials?.name
+				metadata.subtitle = target.result.hash
+			} else {
+				metadata.title = target.result.alias || target.result.hash
+			}			
 			metadata.routerLink = `/address/${target.bookmark ? target.result.id : target.result.hash}`
 			break
 
@@ -157,6 +162,7 @@ const handleSelect = () => {
 								<Flex align="center" gap="8">
 									<Icon :name="getResultMetadata(result).type" size="12" color="tertiary" />
 									<Text size="13" weight="600" color="primary">{{ getResultMetadata(result).title }}</Text>
+									<Text v-if="getResultMetadata(result).subtitle" size="12" weight="500" color="tertiary">{{ getResultMetadata(result).subtitle }}</Text>
 								</Flex>
 
 								<Text size="13" weight="500" color="tertiary" style="text-transform: capitalize">{{ result.type }}</Text>

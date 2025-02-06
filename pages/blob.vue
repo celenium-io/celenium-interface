@@ -463,7 +463,7 @@ const handleCopy = (text) => {
 								<Flex direction="column" gap="8">
 									<Text size="12" weight="600" color="tertiary"> Signer </Text>
 									<Text size="12" weight="600" color="secondary" style="text-overflow: ellipsis; overflow: hidden">
-										{{ metadata.signer.hash }}
+										{{ $getDisplayName("addresses", "", metadata.signer) }}
 									</Text>
 								</Flex>
 							</NuxtLink>

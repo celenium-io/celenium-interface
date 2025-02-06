@@ -106,7 +106,7 @@ const handleViewBlob = (blob) => {
 		namespace_name: blob.namespace.name,
 		commitment: blob.commitment,
 		height: blob.height,
-		signer: blob.signer.hash,
+		signer: blob.signer,
 		size: blob.size,
 		tx: blob.tx,
 		rollup: blob.rollup,
