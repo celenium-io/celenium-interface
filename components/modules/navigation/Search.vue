@@ -284,7 +284,7 @@ const handleSelect = () => {
 
 	.item {
 		.title_wrapper {
-			width: 85%;
+			width: 70%;
 		}
 	}
 }
