@@ -32,9 +32,9 @@ const getNamespaces = async () => {
 	isLoading.value = false
 }
 
-getNamespaces()
+await getNamespaces()
 
-const handleSort = (by) => {
+const handleSort = async (by) => {
 	switch (sort.dir) {
 		case "desc":
 			if (sort.by == by) sort.dir = "asc"
@@ -48,7 +48,7 @@ const handleSort = (by) => {
 
 	sort.by = by
 
-	getNamespaces()
+	await getNamespaces()
 }
 </script>
 

@@ -317,7 +317,7 @@ const getTransactions = async () => {
 	isRefetching.value = false
 }
 
-getTransactions()
+await getTransactions()
 
 onBeforeMount(() => {
 	if (localStorage.getItem("page:transactions:config:columns")) {
@@ -328,7 +328,7 @@ onBeforeMount(() => {
 /** Refetch transactions */
 watch(
 	() => route.query,
-	() => {
+	async () => {
 		if (!isRefetching.value) {
 			if (Object.keys(route.query).length) {
 				parseRouteQuery()
@@ -336,7 +336,7 @@ watch(
 				resetFilters()
 			}
 			
-			getTransactions()
+			await getTransactions()
 		}
 	},
 )
@@ -344,15 +344,15 @@ watch(
 watch(
 	() => page.value,
 	async () => {
-		getTransactions()
+		await getTransactions()
 		updateRouteQuery()
 	},
 )
 
 watch(
 	() => findPFB.value,
-	() => {
-		getTransactions()
+	async () => {
+		await getTransactions()
 	},
 )
 
@@ -363,7 +363,7 @@ watch(
 	}
 )
 
-const handleSort = (by) => {
+const handleSort = async (by) => {
 	/** temp. only for time */
 	if (!["time"].includes(by)) return
 
@@ -384,7 +384,7 @@ const handleSort = (by) => {
 		page.value = 1
 	}
 
-	getTransactions()
+	await getTransactions()
 }
 
 const handlePrev = () => {
