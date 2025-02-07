@@ -211,8 +211,8 @@ const handleChangeTheme = (target) => {
 				</NuxtLink>
 			</Flex>
 
-			<a href="https://www.pklabs.me/" target="_blank" style="line-height: 12px">
-				<Text size="12" weight="500" color="tertiary">Made by PK Labs</Text>
+			<a href="https://bakingbad.dev/" target="_blank" style="line-height: 12px">
+				<Text size="12" weight="500" color="tertiary">Made by Baking Bad</Text>
 			</a>
 		</Flex>
 	</Flex>
