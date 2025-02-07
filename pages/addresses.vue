@@ -243,7 +243,7 @@ const handleLast = async () => {
 									<NuxtLink :to="`/address/${address.hash}`">
 										<Tooltip position="start" delay="500">
 											<Flex align="center" gap="8">
-												<AddressBadge :hash="address.hash" />
+												<AddressBadge :account="address" />
 
 												<CopyButton :text="address.hash" />
 											</Flex>

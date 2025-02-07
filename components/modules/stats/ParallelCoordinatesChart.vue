@@ -234,21 +234,23 @@ const buildChart = (chart, data) => {
         .style("opacity", 0.5)
         .style("filter", "brightness(0.6)")
         .style("transition", "all 0.5s ease")
-		// .attr("stroke-linecap", "round")
 		.attr("stroke-linejoin", "round")
         .attr("d", path )
+        .each(function () {
+        const length = this.getTotalLength();
+            if (!isNaN(length) && length > 0) {
+                d3.select(this)
+                    .attr("stroke-dasharray", length)
+                    .attr("stroke-dashoffset", length)
+                    .transition()
+                    .duration(1000)
+                    .ease(d3.easeCubic)
+                    .attr("stroke-dashoffset", 0);
+            }
+        })
         .on('mouseover', (event, d) => highlight(d.slug))
         .on('mouseleave', (event, d) => unhighlight(d.slug))
         .on('click', (event, d) => selectRollup(d.slug))
-        .style("stroke-dasharray", function() { return this.getTotalLength(); })
-        // .style("stroke-dashoffset", function() {
-        //     return Math.random() > 0.5 ? this.getTotalLength() : -this.getTotalLength();
-        // })
-        .style("stroke-dashoffset", function() { return this.getTotalLength(); })
-        .transition()
-        .duration(1000)
-        .ease(d3.easeCubic)
-        .style("stroke-dashoffset", 0)
     
     svg.selectAll("first-last-axis")
         .data(edgeAxis).enter()

@@ -10,7 +10,7 @@ import DiffChip from "@/components/modules/stats/DiffChip.vue"
 import { abbreviate, comma, formatBytes, tia } from "@/services/utils"
 
 /** API */
-import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
+import { fetchSeries, fetchSeriesCumulative, fetchTVS } from "@/services/api/stats"
 
 const props = defineProps({
 	series: {
@@ -39,7 +39,19 @@ const chartElPrev = ref()
 
 const getSeries = async () => {
 	let data = []
-
+	let from = parseInt(
+		DateTime.now().minus({
+			days: props.period.timeframe === "day" ? props.period.value * 2 + 1 : 0,
+			hours: props.period.timeframe === "hour" ? props.period.value * 2 + 1 : 0,
+		}).ts / 1_000
+	)
+	let to = parseInt(
+		DateTime.now().minus({
+			days: props.period.timeframe === "day" ? 1 : 0,
+			hours: props.period.timeframe === "hour" ? 1 : 0,
+		}).ts / 1_000
+	)
+	
 	if (props.series.aggregate === 'cumulative') {
 		data = await fetchSeriesCumulative({
 			name: props.series.name,
@@ -49,24 +61,18 @@ const getSeries = async () => {
 					days: 48,
 				}).ts / 1_000)
 		})
-		// data = (await fetchSeriesCumulative({
-		// 	name: props.series.name,
-		// 	period: props.period.timeframe,
-		// 	from: parseInt(
-		// 		DateTime.now().minus({
-		// 			days: props.period.timeframe === "day" ? props.period.value * 2 : 0,
-		// 			hours: props.period.timeframe === "hour" ? props.period.value * 2 : 0,
-		// 		}).ts / 1_000)
-		// })).reverse()
+	} else if (props.series.name === "tvs") {
+		data = (await fetchTVS({
+			period: props.period.timeframe,
+			from: from,
+			to: to,
+		})).map(v => { return { time: v.time, value: v.close } }).reverse()
 	} else {
 		data = (await fetchSeries({
 			table: props.series.name,
 			period: props.period.timeframe,
-			from: parseInt(
-				DateTime.now().minus({
-					days: props.period.timeframe === "day" ? props.period.value * 2 : 0,
-					hours: props.period.timeframe === "hour" ? props.period.value * 2 : 0,
-				}).ts / 1_000)
+			from: from,
+			to: to,
 		})).reverse()
 	}
 	
@@ -90,7 +96,10 @@ const getSeries = async () => {
 			})
 	}
 
-	if (props.series.aggregate !== 'cumulative') {
+	if (props.series.name === 'tvs') {
+		currentTotal.value = currentData.value[currentData.value.length - 1].value // Math.max(...currentData.value.map(d => d.value))
+		prevTotal.value = prevData.value[prevData.value.length - 1].value // Math.max(...prevTotal.value.map(d => d.value))
+	} else if (props.series.aggregate !== 'cumulative') {
 		currentTotal.value = currentData.value.reduce((sum, el) => {
 			return sum + +el.value;
 		}, 0);
@@ -238,6 +247,10 @@ watch(
 				<Text size="16" weight="600" color="primary"> {{ series.name === 'gas_price' ? `${currentTotal.toFixed(4)} UTIA` : `${tia(currentTotal, 2)} TIA` }} </Text>
 				<Text size="14" weight="600" color="tertiary"> {{ series.name === 'gas_price' ? `${prevTotal.toFixed(4)} UTIA` : `${tia(prevTotal, 2)} TIA` }} </Text>
 			</Flex>
+			<Flex v-else-if="series.units === 'usd'" align="end" gap="10" justify="start" wide>
+				<Text size="16" weight="600" color="primary"> {{ `${abbreviate(currentTotal)} $` }} </Text>
+				<Text size="14" weight="600" color="tertiary"> {{ `${abbreviate(prevTotal)} $` }} </Text>
+			</Flex>
 			<Flex v-else align="end" gap="10" justify="start" wide>
 				<Text size="16" weight="600" color="primary"> {{ series.units === 'bytes' ? formatBytes(currentTotal) : comma(currentTotal) }} </Text>
 				<Text size="14" weight="600" color="tertiary"> {{ `${series.units === 'bytes' ? formatBytes(prevTotal) : abbreviate(prevTotal)} previous ${period.title.replace('Last ', '')}` }} </Text>
@@ -258,7 +271,11 @@ watch(
 				</Text>
 
 				<Text size="11" weight="600" color="tertiary">
-					Today
+					{{ DateTime.now().minus({
+							days: period.timeframe === "day" ? 1 : 0,
+							hours: period.timeframe === "hour" ? 1 : 0,
+						}).toFormat("LLL dd")
+					}}
 				</Text>
 			</Flex>
 		</Flex>

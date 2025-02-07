@@ -3,7 +3,7 @@
 import { DateTime } from "luxon"
 
 /** Stats Components/Constants */
-import { getSeriesByPage, STATS_PERIODS } from "@/services/constants/stats.js"
+import { getSeriesByPage, STATS_PERIODS, STATS_TIMEFRAMES } from "@/services/constants/stats.js"
 import BarChart from "@/components/modules/stats/BarChart.vue"
 import LineChart from "@/components/modules/stats/LineChart.vue"
 import SquareSizeChart from "@/components/modules/stats/SquareSizeChart.vue"
@@ -14,7 +14,7 @@ import { exportSVGToPNG, exportToCSV } from "@/services/utils/export"
 import { capitalizeAndReplaceUnderscore } from "@/services/utils"
 
 /** API */
-import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
+import { fetchSeries, fetchSeriesCumulative, fetchTVS } from "@/services/api/stats"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
@@ -23,13 +23,14 @@ import Popover from "@/components/ui/Popover.vue"
 import Toggle from "@/components/ui/Toggle.vue"
 
 /** Store */
-/** Store */
+import { useCacheStore } from "@/store/cache"
 import { useModalsStore } from "@/store/modals"
 import { useNotificationsStore } from "@/store/notifications"
-import { useCacheStore } from "@/store/cache"
+import { useSettingsStore } from "@/store/settings"
+const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
-const cacheStore = useCacheStore()
+const settingsStore = useSettingsStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -40,7 +41,10 @@ if (!series.value.page) {
 	router.push("/stats")
 }
 
-const metricName = computed(() => capitalizeAndReplaceUnderscore(series.value?.page))
+const metricName = computed(() => {
+	if (series.value.page === "tvs") return series.value.title
+	return capitalizeAndReplaceUnderscore(series.value?.page)
+})
 
 // defineOgImage({
 // 	title: "Rollup",
@@ -96,12 +100,50 @@ useHead({
 const periods = ref(STATS_PERIODS)
 const selectedPeriod = ref(periods.value[2])
 
+const selectedTimeframe = ref(STATS_TIMEFRAMES.find(tf => tf.timeframe === (series.value.name === "tvs" ? "day" : selectedPeriod.value.timeframe)))
+const timeframes = computed(() => {
+	let res = []
+
+	for (const tf of STATS_TIMEFRAMES) {
+		const pointCount = Math.floor(DateTime.fromSeconds(filters.to).diff(DateTime.fromSeconds(filters.from), `${tf.timeframe}s`)[`${tf.timeframe}s`]) + 1
+
+		if (pointCount > 1 && pointCount < 100) {
+			res.push(tf)
+		}
+	}
+
+	if (series.value.name === "tvs") {
+		res = res.filter(tf => tf.timeframe === "day" || tf.timeframe === "month")
+	}
+
+	return res
+})
+const timeframesStyles = computed(() => {
+	const len = timeframes.value.length
+	if (!len) return { background: "var(--op-5)" }
+
+	const segment = 100 / len
+	const index = timeframes.value.findIndex(tf => tf.timeframe === selectedTimeframe.value.timeframe)
+	const start = segment * index
+	const end = start + segment
+	
+	return { background: `linear-gradient(to right, transparent ${start}%, var(--op-5) ${start}%, var(--op-5) ${end}%, transparent ${end}%)` }
+})
+
 const currentData = ref([])
 const prevData = ref([])
 
-const chartView = ref('line')
+const chartView = ref("line")
 const loadPrevData = ref(true)
 const loadLastValue = ref(true)
+const updateUserSettings = () => {
+	settingsStore.chart = {
+		...settingsStore.chart,
+		view: chartView.value,
+		loadPrevData: loadPrevData.value,
+		loadLastValue: loadLastValue.value,
+	}
+}
 
 const filters = reactive({})
 
@@ -109,9 +151,9 @@ const setDefaultFilters = () => {
 	filters.timeframe = selectedPeriod.value.timeframe
 	filters.periodValue = selectedPeriod.value.value
 	filters.from = parseInt(DateTime.now().startOf('day').minus({
-				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - 1 : 0, // ??
-				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
-			}).ts  / 1_000)
+		days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - 1 : 0,
+		hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
+	}).ts  / 1_000)
 	filters.to = parseInt(DateTime.now().endOf('day').ts  / 1_000)
 }
 
@@ -126,15 +168,42 @@ const handleChangeChartView = () => {
 }
 
 const isLoading = ref(false)
-const getData = async () => {
-    isLoading.value = true
-
+const fetchData = async (from, to) => {
     let data = []
-
-	if (series.value.aggregate !== 'cumulative') {
+	if (series.value.name === "tvs") {
+		data = (await fetchTVS({
+			period: selectedTimeframe.value.timeframe,
+			from: from 
+				? from
+				: loadPrevData.value
+					? parseInt(DateTime.fromSeconds(filters.from).minus({
+						hours: filters.timeframe === "hour" ? filters.periodValue : 0,
+						days: filters.timeframe === "day" ? filters.periodValue : 0,
+						weeks: filters.timeframe === "week" ? filters.periodValue : 0,
+						months: filters.timeframe === "month" ? filters.periodValue : 0,
+					}).ts / 1_000)
+					: filters.from,
+			to: to ? to : filters.to
+		})).map(v => { return { time: v.time, value: v.close } })
+	} else if (series.value.aggregate !== 'cumulative') {
 		data = (await fetchSeries({
 			table: series.value.name,
-			period: filters.timeframe,
+			period: selectedTimeframe.value.timeframe,
+			from: from 
+				? from
+				: loadPrevData.value
+					? parseInt(DateTime.fromSeconds(filters.from).minus({
+						hours: filters.timeframe === "hour" ? filters.periodValue : 0,
+						days: filters.timeframe === "day" ? filters.periodValue : 0,
+						weeks: filters.timeframe === "week" ? filters.periodValue : 0,
+					}).ts / 1_000)
+					: filters.from,
+			to: to ? to : filters.to
+		}))
+	} else {
+		data = (await fetchSeriesCumulative({
+			name: series.value.name,
+			period: selectedTimeframe.value.timeframe,
 			from: loadPrevData.value ? parseInt(DateTime.fromSeconds(filters.from).minus({
 				hours: filters.timeframe === "hour" ? filters.periodValue : 0,
 				days: filters.timeframe === "day" ? filters.periodValue : 0,
@@ -142,26 +211,65 @@ const getData = async () => {
 			}).ts / 1_000) : filters.from,
 			to: filters.to
 		})).reverse()
-	} else {
-		data = await fetchSeriesCumulative({
-			name: series.value.name,
-			period: filters.timeframe,
-			from: loadPrevData.value ? parseInt(DateTime.fromSeconds(filters.from).minus({
-				hours: filters.timeframe === "hour" ? filters.periodValue : 0,
-				days: filters.timeframe === "day" ? filters.periodValue : 0,
-				weeks: filters.timeframe === "week" ? filters.periodValue : 0,
-			}).ts / 1_000) : filters.from,
-			to: filters.to
-		})
 	}
 
+	return data
+}
+const getData = async () => {
+    isLoading.value = true
+
+	let data = await fetchData()
 	if (data.length) {
         if (loadPrevData.value) {
-            prevData.value = data.slice(0, filters.periodValue).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
-            currentData.value = data.slice(filters.periodValue, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+			if (selectedTimeframe.value.timeframe !== filters.timeframe) {
+				if (data.length % 2 > 0) {
+					const from = parseInt(DateTime.fromISO(data[data.length - 1].time)
+									.minus({
+										hours: selectedTimeframe.value.timeframe === "hour" ? 1 : 0,
+										days: selectedTimeframe.value.timeframe === "day" ? 1 : 0,
+										weeks: selectedTimeframe.value.timeframe === "week" ? 1 : 0,
+										months: selectedTimeframe.value.timeframe === "month" ? 1 : 0
+									}).ts / 1_000
+					)
+					const to = parseInt(DateTime.fromISO(data[data.length - 1].time).ts / 1_000)
+					let addData = await fetchData(from, to)
+					if (!addData.length) {
+						addData = [{
+							date: DateTime.fromISO(data[data.length - 1].time)
+								.minus({
+									hours: filters.timeframe === "hour" ? 1 : 0,
+									days: filters.timeframe === "day" ? 1 : 0,
+									weeks: filters.timeframe === "week" ? 1 : 0,
+								})
+								.toJSDate(),
+							value: 0,
+						}]
+					}
+					data.push(addData[0])
+				}
+
+				currentData.value = data.slice(0, data.length / 2).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
+            	prevData.value = data.slice(data.length / 2, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
+			} else {
+				currentData.value = data.slice(0, filters.periodValue).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
+				prevData.value = data.slice(filters.periodValue, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
+				while (prevData.value.length < currentData.value.length) {
+					prevData.value.unshift({
+						date: DateTime.fromJSDate(prevData.value[0]?.date)
+							.minus({
+								hours: filters.timeframe === "hour" ? 1 : 0,
+								days: filters.timeframe === "day" ? 1 : 0,
+								weeks: filters.timeframe === "week" ? 1 : 0,
+							})
+							.toJSDate(),
+						value: 0
+					})
+				}
+			}
         } else {
+            // currentData.value = data.slice(0, filters.periodValue).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
+			currentData.value = data.map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
 			prevData.value = []
-            currentData.value = data.slice(0, filters.periodValue).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
         }
     }
 
@@ -185,21 +293,48 @@ const handleClose = () => {
 }
 
 const handleUpdateDate = async (event) => {
+	isLoading.value = true
+
 	if (event.from && event.to) {
-		let daysDiff = Math.round(DateTime.fromSeconds(event.to).diff(DateTime.fromSeconds(event.from), 'days').days)
-		if (daysDiff < 7) {
-			filters.timeframe = 'hour'
-			filters.periodValue = Math.round(DateTime.fromSeconds(event.to).diff(DateTime.fromSeconds(event.from), 'hours').hours)
-		} else if (daysDiff < 50) {
-			filters.timeframe = 'day'
-			filters.periodValue = daysDiff
+		let from = event.from
+		let to = event.to
+
+		let daysDiff = Math.round(DateTime.fromSeconds(to).diff(DateTime.fromSeconds(from), 'days').days)
+		if (series.value.name === "tvs") {
+			if (daysDiff < 50) {
+				filters.timeframe = 'day'
+				filters.periodValue = daysDiff
+			} else {
+				filters.timeframe = 'month'
+				filters.periodValue = Math.ceil(daysDiff / 30)
+			}
 		} else {
-			filters.timeframe = 'week'
-			filters.periodValue = Math.round(daysDiff / 7)
+			if (daysDiff < 7) {
+				filters.timeframe = 'hour'
+				filters.periodValue = Math.round(DateTime.fromSeconds(to).diff(DateTime.fromSeconds(from), 'hours').hours)
+			} else if (daysDiff < 50) {
+				filters.timeframe = 'day'
+				filters.periodValue = daysDiff
+			} else {
+				filters.timeframe = 'week'
+				filters.periodValue = Math.ceil(daysDiff / 7)
+			}
 		}
 		
-		filters.from = event.from
-		filters.to = event.to
+		if (filters.timeframe === 'hour') {
+			const hoursDiff = Math.round(DateTime.fromSeconds(Math.min(to, DateTime.now().ts / 1_000)).diff(DateTime.fromSeconds(from), 'hours').hours)
+			if (hoursDiff < filters.periodValue) {
+				from = parseInt(
+					DateTime.fromSeconds(Math.min(to, DateTime.now().ts / 1_000))
+					.minus({ hours: filters.periodValue })
+					.ts / 1_000
+				)
+			}
+		}
+		
+		filters.from = from
+		filters.to = to
+		selectedTimeframe.value = timeframes.value.find(tf => tf.timeframe === filters.timeframe)
 
 		await getData()
 	} else if (event.clear) {
@@ -207,6 +342,10 @@ const handleUpdateDate = async (event) => {
 
 		await getData()
 	}
+}
+
+const handleTimeframeUpdate = (tf) => {
+	selectedTimeframe.value = tf
 }
 
 const handleCSVDownload = async () => {
@@ -278,6 +417,29 @@ watch(
 		}
 	},
 )
+
+watch(
+	() => selectedTimeframe.value,
+	async () => {
+		if (!isLoading.value) {
+			await getData()
+		}
+	}
+)
+
+watch(
+	() => [chartView.value, loadLastValue.value, loadPrevData.value],
+	() => {
+		updateUserSettings()
+	}
+)
+
+onBeforeMount(() => {
+	const settings = JSON.parse(localStorage.getItem("settings"))
+	chartView.value = settings?.chart?.view || "line"
+	loadPrevData.value = settings?.chart?.loadPrevData
+	loadLastValue.value = settings?.chart?.loadLastValue	
+})
 </script>
 
 <template>
@@ -349,6 +511,28 @@ watch(
 									<Text size="12" :color="loadLastValue ? 'secondary' : 'tertiary'">Show last value</Text>
 									<Toggle v-model="loadLastValue" color="var(--neutral-mint)" />
 								</Flex>
+
+								<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
+									<Text size="12" color="secondary">Group by</Text>
+
+									<Flex
+										align="center"
+										gap="12"
+										:class="$style.groupping_selector"
+										:style="timeframesStyles"
+									>
+										<Text
+											v-for="tf in timeframes"
+											@click="handleTimeframeUpdate(tf)"
+											size="10"
+											weight="600"
+											:color="selectedTimeframe.timeframe === tf.timeframe ? 'brand' : 'secondary'"
+											:class="$style.item"
+										>
+											{{ tf.shortTitle }}
+										</Text>
+									</Flex>
+								</Flex>
 							</Flex>
 						</template>
 					</Popover>
@@ -399,6 +583,18 @@ watch(
 	border-radius: 5px;
 	cursor: pointer;
 	transition: all 1s ease-in-out;
+}
+
+.groupping_selector {
+	padding: 4px 6px 4px 6px;
+	box-shadow: inset 0 0 0 1px var(--op-10);
+	border-radius: 5px;
+	cursor: pointer;
+	transition: all 1s ease-in-out;
+
+	& .item {
+		padding: 2px;
+	}
 }
 
 .disabled {

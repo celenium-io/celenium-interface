@@ -119,7 +119,8 @@ onMounted(async () => {
 	padding: 0 12px;
 
 	&.fast {
-		background: linear-gradient(rgba(10, 219, 111, 25%), rgba(10, 219, 111, 10%));
+		/* background: linear-gradient(rgba(10, 219, 111, 25%), rgba(10, 219, 111, 10%)); */
+		background: linear-gradient(var(--dark-mint), rgba(10, 219, 111, 10%));
 		box-shadow: inset 0 0 0 1px rgba(10, 219, 111, 50%);
 	}
 

@@ -1,9 +1,9 @@
 /** Vendor */
 import { reactive } from "vue"
-import { defineStore } from "pinia"
+import { defineStore, acceptHMRUpdate } from "pinia"
 
 export const useSettingsStore = defineStore("settings", () => {
-	const hex = reactive({
+	const hex = ref({
 		inspector: {
 			binary: true,
 			uint8: true,
@@ -14,5 +14,21 @@ export const useSettingsStore = defineStore("settings", () => {
 		characterSet: "ibm437",
 	})
 
-	return { hex }
+	const chart = ref({
+		view: "bar",
+		loadPrevData: true,
+		loadLastValue: true,
+	})
+
+	const init = () => {
+		const savedSettings = JSON.parse(localStorage.getItem("settings"))
+		if (savedSettings?.hex) hex.value = savedSettings.hex
+		if (savedSettings?.chart) chart.value = savedSettings.chart
+	}
+
+	return { chart, hex, init }
 })
+
+if (import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(useSettingsStore, import.meta.hot))
+}

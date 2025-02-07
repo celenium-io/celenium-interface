@@ -190,6 +190,10 @@ watch(
 		router.replace({ query: { status: activeTab.value, page: page.value } })
 	},
 )
+
+onMounted(() => {
+	router.replace({ query: { status: activeTab.value, page: page.value } })
+})
 </script>
 
 <template>

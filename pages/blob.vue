@@ -3,7 +3,7 @@
 import { DateTime } from "luxon"
 
 /** API */
-import { fetchBlobBlockscoutData, fetchBlobMetadata, fetchBlobByMetadata } from "@/services/api/namespace"
+import { fetchBlobBlockscoutData, fetchBlobByMetadata, fetchBlobMetadata, fetchBlobProof } from "@/services/api/namespace"
 
 /** Components */
 import HexViewer from "@/components/modules/blob/HexViewer.vue"
@@ -19,7 +19,6 @@ import { space, formatBytes, comma, strToHex } from "@/services/utils"
 import { useCacheStore } from "@/store/cache"
 import { useModalsStore } from "@/store/modals"
 import { useNotificationsStore } from "@/store/notifications"
-import { blockscoutURL } from "~/services/config"
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
@@ -101,7 +100,7 @@ cacheStore.current.blob = {
 }
 
 onMounted(() => {
-	if (!supportedContentTypeForPreview.includes(blob.content_type)) cards.value.preview = false
+	if (!supportedContentTypeForPreview.includes(blob.value?.content_type)) cards.value.preview = false
 
 	innerWidth.value = window.innerWidth
 	if (innerWidth.value <= 1020) {
@@ -178,15 +177,38 @@ const handleDownload = () => {
 			.map((e) => parseInt(e, 16)),
 	)
 
+	let extension = "bin"
+	if (supportedContentTypeForPreview.includes(blob.value?.content_type)) {
+		const ct = blob.value.content_type.split(";")[0].split("/")[1]
+		extension = ct === "plain" ? "txt" : ct
+	}
+
 	const a = window.document.createElement("a")
 	a.href = window.URL.createObjectURL(new Blob([byteArray], { type: "application/octet-stream" }))
 	a.download = `${metadata.value.namespace.namespace_id}_${blob.value.commitment.slice(
 		blob.value.commitment.length - 8,
 		blob.value.commitment.length,
-	)}.bin`
+	)}.${extension}`
 	document.body.appendChild(a)
 	a.click()
 	document.body.removeChild(a)
+}
+
+const handleViewProof = async () => {
+	const { data } = await fetchBlobProof({
+		hash: hash.replaceAll(" ", "+"),
+		height: parseInt(height),
+		commitment: commitment.replaceAll(" ", "+"),
+	})
+
+	if (!data.value) {
+		cacheStore.current.proof = "Failed to load proof.."
+	} else {
+		cacheStore.current.proof = data.value
+	}
+	
+	cacheStore.current._target = "proof"
+	modalsStore.open("rawData")
 }
 
 const handleCopy = (text) => {
@@ -221,6 +243,10 @@ const handleCopy = (text) => {
 				<Button v-if="l2BlockscoutUrl" :link="l2BlockscoutUrl" target="_blank" size="mini" type="secondary">
 					<Icon name="blockscout" size="12" color="secondary" />
 					View batch
+				</Button>
+				<Button @click="handleViewProof" size="mini" type="secondary">
+					<Icon name="proof" size="14" color="secondary" />
+					View proof
 				</Button>
 				<Button @click="modalsStore.open('changeBlob')" size="mini" type="secondary">
 					<Icon name="blob" size="12" color="secondary" />
@@ -433,11 +459,11 @@ const handleCopy = (text) => {
 								</Text>
 							</Flex>
 
-							<NuxtLink :to="`/address/${metadata.signer}`" target="_blank">
+							<NuxtLink :to="`/address/${metadata.signer.hash}`" target="_blank">
 								<Flex direction="column" gap="8">
 									<Text size="12" weight="600" color="tertiary"> Signer </Text>
 									<Text size="12" weight="600" color="secondary" style="text-overflow: ellipsis; overflow: hidden">
-										{{ metadata.signer }}
+										{{ $getDisplayName("addresses", "", metadata.signer) }}
 									</Text>
 								</Flex>
 							</NuxtLink>

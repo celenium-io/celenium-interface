@@ -19,6 +19,8 @@ const props = defineProps({
 	show: Boolean,
 })
 
+const supportedContentTypeForPreview = ["image/png", "image/jpeg", "video/mp4", "text/plain; charset=utf-8"]
+
 const isLoading = ref(true)
 const isStopped = ref(false)
 const blob = ref({})
@@ -121,12 +123,18 @@ const handleDownload = () => {
 			.map((e) => parseInt(e, 16)),
 	)
 
+	let extension = "bin"
+	if (supportedContentTypeForPreview.includes(blob.value?.content_type)) {
+		const ct = blob.value.content_type.split(";")[0].split("/")[1]
+		extension = ct === "plain" ? "txt" : ct
+	}
+
 	const a = window.document.createElement("a")
 	a.href = window.URL.createObjectURL(new Blob([byteArray], { type: "application/octet-stream" }))
 	a.download = `${getNamespaceID(cacheStore.selectedBlob.namespace_id)}_${cacheStore.selectedBlob.commitment.slice(
 		cacheStore.selectedBlob.commitment.length - 8,
 		cacheStore.selectedBlob.commitment.length,
-	)}.bin`
+	)}.${extension}`
 	document.body.appendChild(a)
 	a.click()
 	document.body.removeChild(a)
@@ -319,12 +327,12 @@ const handlePreviewContent = () => {
 						<Text size="12" weight="500" color="tertiary">Signer:</Text>
 
 						<Flex align="center" gap="8" :class="$style.value_wrapper">
-							<CopyButton :text="cacheStore.selectedBlob.signer" />
+							<CopyButton :text="cacheStore.selectedBlob.signer.hash" />
 
-							<NuxtLink :to="`/address/${cacheStore.selectedBlob.signer}`" target="_blank">
+							<NuxtLink :to="`/address/${cacheStore.selectedBlob.signer.hash}`" target="_blank">
 								<Flex align="center" gap="6">
 									<Text size="13" weight="600" color="primary" :class="$style.value">
-										{{ $getDisplayName("addresses", cacheStore.selectedBlob.signer) }}
+										{{ $getDisplayName("addresses", "", cacheStore.selectedBlob.signer) }}
 									</Text>
 
 									<Icon name="arrow-narrow-up-right" size="12" color="secondary" />

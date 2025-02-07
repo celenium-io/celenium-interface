@@ -158,6 +158,8 @@ const handleCopy = (target) => {
 .constants {
 	max-height: 600px;
 	overflow: auto;
+
+	overscroll-behavior: contain;
 }
 
 .module {

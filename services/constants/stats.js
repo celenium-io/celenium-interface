@@ -95,18 +95,28 @@ export const STATS_SERIES = [
 		group: 'Rollups',
 		series: [
 			{
+				subGroup: 'top',
 				name: 'size',
 				title: 'size',
 				units: 'bytes',
 			},
 			{
+				subGroup: 'top',
 				name: 'blobs_count',
 				title: 'blobs count',
 			},
 			{
+				subGroup: 'top',
 				name: 'fee',
 				title: 'fee paid',
 				units: 'utia',
+			},
+			{
+				subGroup: 'economy',
+				name: 'tvs',
+				title: 'Total Value Secured',
+				page: 'tvs',
+				units: 'usd',
 			},
 		],
 	},
@@ -134,19 +144,23 @@ export function getSeriesByGroupAndType(group, type) {
 
 export function getSeriesByPage(page, aggregate) {
 	let series = {}
-	STATS_SERIES.forEach(el => {
-		el.series.forEach(s => {
+	for (const p of STATS_SERIES) {
+		for (const s of p.series) {
 			if (s.page === page) {
 				if (aggregate) {
 					if (s.aggregate === aggregate) {
 						series = s
+						break;
 					}
 				} else {
 					series = s
+					break;
 				}
 			}
-		})
-	})
+		}
+
+		if (series.page) break;
+	}
 
 	return series
 }
@@ -183,8 +197,29 @@ export const STATS_PERIODS = [
 	},
 ]
 
-export const STATS_HIGHLIGHTS = [
+export const STATS_TIMEFRAMES = [
 	{
-		group: 'General',
-	}
+		title: '1 hour',
+		shortTitle: '1H',
+		interval: { hours: 1 },
+		timeframe: 'hour',
+	},
+	{
+		title: '1 day',
+		shortTitle: '1D',
+		interval: { days: 1 },
+		timeframe: 'day',
+	},
+	{
+		title: '1 week',
+		shortTitle: '1W',
+		interval: { weeks: 1 },
+		timeframe: 'week',
+	},
+	{
+		title: '1 month',
+		shortTitle: '1M',
+		interval: { months: 1 },
+		timeframe: 'month',
+	},
 ]

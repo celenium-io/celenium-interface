@@ -9,13 +9,19 @@ import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Input from "@/components/ui/Input.vue"
 import Popover from "@/components/ui/Popover.vue"
+import Toggle from "@/components/ui/Toggle.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
 import { abbreviate, formatBytes, sortArrayOfObjects, spaces, tia } from "@/services/utils"
 
 /** API */
 import { fetchRollupSeries } from "@/services/api/stats"
-import { fetchRollups } from "@/services/api/rollup"
+import { fetchRollups, fetchRollupTVL } from "@/services/api/rollup"
+
+/** Store */
+import { useSettingsStore } from "@/store/settings"
+const settingsStore = useSettingsStore()
 
 const props = defineProps({
 	rollup: {
@@ -24,7 +30,8 @@ const props = defineProps({
 	},
 })
 
-const selectedPeriodIdx = ref(0)
+/** Chart settings */
+const selectedPeriodIdx = ref(2)
 const periods = ref([
 	{
 		title: "Last 24 hours",
@@ -48,20 +55,48 @@ const periods = ref([
 	},
 ])
 const selectedPeriod = computed(() => periods.value[selectedPeriodIdx.value])
+const chartView = ref("line")
+const loadLastValue = ref(true)
+
+const isOpen = ref(false)
+const handleOpen = () => {
+	isOpen.value = true
+}
+const handleClose = () => {
+	isOpen.value = false
+}
+
+const handleChangeChartView = () => {
+	if (chartView.value === 'line') {
+		chartView.value = 'bar'
+	} else {
+		chartView.value = 'line'
+	}
+}
+
+const updateUserSettings = () => {
+	settingsStore.chart = {
+		...settingsStore.chart,
+		view: chartView.value,
+		loadLastValue: loadLastValue.value,
+	}
+}
 
 /** Charts */
 const chartWrapperEl = ref()
 const sizeSeriesChartEl = ref()
 const pfbSeriesChartEl = ref()
 const feeSeriesChartEl = ref()
+const tvlSeriesChartEl = ref()
 const comparisonChartEl = ref()
-const barWidth = ref(0)
+const comparisonBarWidth = ref(0)
 
 /** Data */
 const isLoading = ref(false)
 const sizeSeries = ref([])
 const pfbSeries = ref([])
 const feeSeries = ref([])
+const tvlSeries = ref([])
 const rollupsList = ref()
 const comparisonData = ref([])
 const selectedRollup = ref()
@@ -70,7 +105,7 @@ const selectedRollup = ref()
 const showSeriesTooltip = ref(false)
 const showPfbTooltip = ref(false)
 const showFeeTooltip = ref(false)
-const showComparisonTooltip = ref(false)
+const showTVLTooltip = ref(false)
 const tooltipEl = ref()
 const tooltipXOffset = ref(0)
 const tooltipYOffset = ref(0)
@@ -82,13 +117,44 @@ const badgeEl = ref()
 const badgeText = ref("")
 const badgeOffset = ref(0)
 
-const buildChart = (chartEl, data, onEnter, onLeave) => {
+const getXAxisLabels = (start, tvl = false) => {
+	let res = ""
+
+	let tf = selectedPeriod.value.timeframe
+	let periodValue = selectedPeriod.value.value
+	if ( tvl && ["hour", "week"].includes(selectedPeriod.value.timeframe)) {
+		tf = "day"
+		periodValue = 30
+	}
+
+	switch (tf) {
+		case "month":
+			start
+				? res = DateTime.now().minus({ months: periodValue - 1 }).toFormat("LLL y")
+				: res = loadLastValue.value ? DateTime.now().toFormat("LLL") : DateTime.now().minus({ months: 1 }).toFormat("LLL")
+			break;
+		case "day":
+			start
+				? res = DateTime.now().minus({ days: periodValue - 1 }).toFormat("LLL dd")
+				: res = loadLastValue.value ? "Today" : DateTime.now().minus({ days: 1 }).toFormat("LLL dd")
+			break;
+		default:
+			start
+				? res = DateTime.now().minus({ hours: periodValue - 1 }).set({ minutes: 0 }).toFormat("hh:mm a")
+				: res = loadLastValue.value ? "Now" : DateTime.now().minus({ hours: 1 }).set({ minutes: 0 }).toFormat("hh:mm a")
+			break;
+	}
+
+	return res
+}
+
+const buildLineChart = (chartEl, data, onEnter, onLeave, metric) => {
 	const width = chartWrapperEl.value.wrapper.getBoundingClientRect().width
 	const height = 180
 	const marginTop = 0
 	const marginRight = 0
 	const marginBottom = 24
-	const marginLeft = 40
+	const marginLeft = 52
 
 	const MAX_VALUE = d3.max(data, (d) => d.value) ? d3.max(data, (d) => d.value) : 1
 
@@ -123,20 +189,25 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 			}
 		}
 
+		let tf = selectedPeriod.value.timeframe
+		if (metric === "tvl" && ["hour", "week"].includes(selectedPeriod.value.timeframe)) {
+			tf = "day"
+		}
 		badgeText.value =
-			selectedPeriod.value.timeframe === "month"
+			tf === "month"
 				? DateTime.fromJSDate(data[idx].date).toFormat("LLL")
-				: selectedPeriod.value.timeframe === "day"
+				: tf === "day"
 					? DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
 					: DateTime.fromJSDate(data[idx].date).set({ minutes: 0 }).toFormat("hh:mm a")
 
 		if (!badgeEl.value) return
-		if (idx < 2) {
+		const badgeWidth = badgeEl.value.getBoundingClientRect().width
+		if (tooltipXOffset.value - marginLeft < badgeWidth / 2) {
 			badgeOffset.value = 0
-		} else if (idx > selectedPeriod.value.value - 3) {
-			badgeOffset.value = badgeEl.value.getBoundingClientRect().width
+		} else if (badgeWidth + tooltipXOffset.value > width) {
+			badgeOffset.value = Math.abs(width - (badgeWidth + tooltipXOffset.value)) + ((data.length - 1 - idx) * 2)
 		} else {
-			badgeOffset.value = badgeEl.value.getBoundingClientRect().width / 2
+			badgeOffset.value = badgeWidth / 2
 		}
 	}
 	const onPointerleft = () => {
@@ -177,27 +248,229 @@ const buildChart = (chartEl, data, onEnter, onLeave) => {
 		.attr("d", `M${0},${height - marginBottom - 6} L${width},${height - marginBottom - 6}`)
 
 	/** Chart Line */
-	svg.append("path")
-		.attr("fill", "none")
-		.attr("stroke", "var(--brand)")
-		.attr("stroke-width", 2)
-		.attr("stroke-linecap", "round")
-		.attr("stroke-linejoin", "round")
-		.attr("d", line(data.slice(0, data.length - 1)))
-	svg.append("path")
-		.attr("fill", "none")
-		.attr("stroke", "var(--brand)")
-		.attr("stroke-width", 2)
-		.attr("stroke-linecap", "round")
-		.attr("stroke-linejoin", "round")
-		.attr("stroke-dasharray", "8")
-		.attr("d", line(data.slice(data.length - 2, data.length)))
+	let path1 = null
+	let path2 = null
+	path1 = svg
+		.append("path")
+			.attr("fill", "none")
+			.attr("stroke", "var(--brand)")
+			.attr("stroke-width", 2)
+			.attr("stroke-linecap", "round")
+			.attr("stroke-linejoin", "round")
+			.attr("d", line(loadLastValue.value ? data.slice(0, data.length - 1) : data))
 
-	svg.append("circle")
+	if (loadLastValue.value) {
+		// Create pattern
+		const defs = svg.append("defs")
+		const pattern = defs.append("pattern")
+			.attr("id", "dashedPattern")
+			.attr("width", 8)
+			.attr("height", 2)
+			.attr("patternUnits", "userSpaceOnUse")
+		pattern.append("rect")
+			.attr("width", 4)
+			.attr("height", 2)
+			.attr("fill", "var(--brand)")
+		pattern.append("rect")
+			.attr("x", 8)
+			.attr("width", 4)
+			.attr("height", 2)
+			.attr("fill", "transparent")
+		
+		// Last dash segment
+		path2 = svg
+			.append("path")
+				.attr("fill", "none")
+				.attr("stroke", "url(#dashedPattern)")
+				.attr("stroke-width", 2)
+				.attr("stroke-linecap", "round")
+				.attr("stroke-linejoin", "round")
+				.attr("d", line(data.slice(data.length - 2, data.length)))
+	}
+	
+	const totalDuration = 1_000
+	const path1Duration = loadLastValue.value ? totalDuration / data.length * (data.length - 1) : totalDuration
+	const path1Length = path1.node().getTotalLength()
+
+	path1
+		.attr("stroke-dasharray", path1Length)
+		.attr("stroke-dashoffset", path1Length)
+		.transition()
+		.duration(path1Duration)
+		.ease(d3.easeLinear)
+		.attr("stroke-dashoffset", 0)
+	
+	if (loadLastValue.value) {
+		const path2Duration = totalDuration / data.length
+		const path2Length = path2.node().getTotalLength() + 1
+		
+		path2
+			.attr("stroke-dasharray", path2Length)
+			.attr("stroke-dashoffset", path2Length)
+			.transition()
+			.duration(path2Duration)
+			.ease(d3.easeLinear)
+			.delay(path1Duration)
+			.attr("stroke-dashoffset", 0)
+	}
+
+	const point = svg.append("circle")
 		.attr("cx", x(data[data.length - 1].date))
 		.attr("cy", y(data[data.length - 1].value))
 		.attr("fill", "var(--brand)")
 		.attr("r", 3)
+		.attr("opacity", 0)
+	
+	point.transition()
+		.delay(totalDuration)
+		.duration(200)
+		.attr("opacity", 1)
+
+	if (chartEl.children[0]) chartEl.children[0].remove()
+	chartEl.append(svg.node())
+}
+
+const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
+	const width = chartWrapperEl.value.wrapper.getBoundingClientRect().width
+	const height = 180
+	const marginTop = 0
+	const marginRight = 2
+	const marginBottom = 24
+	const marginLeft = 52
+
+	const barWidth = Math.max(Math.round((width - marginLeft - marginRight) / data.length - (data.length > 7 ? 4 : 8)), 4)
+
+	const MAX_VALUE = d3.max(data, (d) => d.value) ? d3.max(data, (d) => d.value) : 1
+
+	/** Scale */
+	const x = d3.scaleUtc(
+		d3.extent(data, (d) => d.date),
+		[marginLeft, width - marginRight - barWidth],
+	)
+	const y = d3.scaleLinear([0, MAX_VALUE], [height - marginBottom, marginTop])
+
+	/** Tooltip */
+	const bisect = d3.bisector((d) => d.date).center
+	const onPointermoved = (event) => {
+		onEnter()
+
+		// const idx = bisect(data, x.invert(d3.pointer(event)[0]))
+		const idx = bisect(data, x.invert(d3.pointer(event)[0] - barWidth / 2))
+		
+		const elements = document.querySelectorAll(`[metric="${metric}"]`)
+		elements.forEach(el => {
+			if (+el.getAttribute('data-index') === idx) {
+				el.style.filter = "brightness(1.2)"
+			} else {
+				el.style.filter = "brightness(0.6)"
+			}
+			
+		})
+
+		tooltipXOffset.value = x(data[idx].date)
+		tooltipYDataOffset.value = y(data[idx].value)
+		tooltipYOffset.value = event.layerY
+		tooltipText.value = data[idx].value
+
+		if (tooltipEl.value) {
+			if (idx > parseInt(selectedPeriod.value.value / 2)) {
+				tooltipDynamicXPosition.value = tooltipXOffset.value - tooltipEl.value.wrapper.getBoundingClientRect().width - 16
+			} else {
+				tooltipDynamicXPosition.value = tooltipXOffset.value + 16
+			}
+		}
+
+		let tf = selectedPeriod.value.timeframe
+		if (metric === "tvl" && ["hour", "week"].includes(selectedPeriod.value.timeframe)) {
+			tf = "day"
+		}
+		badgeText.value =
+			tf === "month"
+				? DateTime.fromJSDate(data[idx].date).toFormat("LLL")
+				: tf === "day"
+					? DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
+					: DateTime.fromJSDate(data[idx].date).set({ minutes: 0 }).toFormat("hh:mm a")
+
+		if (!badgeEl.value) return
+		const badgeWidth = badgeEl.value.getBoundingClientRect().width
+		if (tooltipXOffset.value - marginLeft < badgeWidth / 2) {
+			badgeOffset.value = 0
+		} else if (badgeWidth + tooltipXOffset.value > width) {
+			badgeOffset.value = Math.abs(width - (badgeWidth + tooltipXOffset.value)) + ((data.length - 1 - idx) * 2)
+		} else {
+			badgeOffset.value = (badgeWidth - barWidth) / 2
+		}
+	}
+	const onPointerleft = () => {
+		onLeave()
+
+		const elements = document.querySelectorAll('[data-index]')
+		elements.forEach(el => {
+			el.style.filter = ""
+		})
+		badgeText.value = ""
+	}
+
+	/** SVG Container */
+	const svg = d3
+		.create("svg")
+		.attr("width", width)
+		.attr("height", height)
+		.attr("viewBox", [0, 0, width, height])
+		.attr("preserveAspectRatio", "none")
+		.attr("style", "max-width: 100%;  height: intrinsic;")
+		.style("-webkit-tap-highlight-color", "transparent")
+		.on("pointerenter pointermove", onPointermoved)
+		.on("pointerleave", onPointerleft)
+		.on("touchstart", (event) => event.preventDefault())
+
+	/** Vertical Lines */
+	svg.append("path")
+		.attr("fill", "none")
+		.attr("stroke", "var(--op-10)")
+		.attr("stroke-width", 2)
+		.attr("d", `M${marginLeft},${height - marginBottom + 2} L${marginLeft},${height - marginBottom - 5}`)
+	svg.append("path")
+		.attr("fill", "none")
+		.attr("stroke", "var(--op-10)")
+		.attr("stroke-width", 2)
+		.attr("d", `M${width - 1},${height - marginBottom + 2} L${width - 1},${height - marginBottom - 5}`)
+
+	/** Default Horizontal Line  */
+	svg.append("path")
+		.attr("fill", "none")
+		.attr("stroke", "var(--op-10)")
+		.attr("stroke-width", 2)
+		.attr("d", `M${0},${height - marginBottom - 6} L${width},${height - marginBottom - 6}`)
+
+	/** Chart Bars */
+	svg.append("defs")
+		.append("pattern")
+		.attr("id", "diagonal-stripe")
+		.attr("width", 6)
+		.attr("height", 6)
+		.attr("patternUnits", "userSpaceOnUse")
+		.attr("patternTransform", "rotate(45)")
+		.append("rect")
+			.attr("width", 2)
+			.attr("height", 6)
+			.attr("transform", "translate(0,0)")
+			.attr("fill", "var(--brand)")
+
+	svg.append('g')
+		.selectAll("g")
+		.data(data)
+		.enter().append("rect")
+		.attr("class", "bar")
+		.attr('data-index', (d, i) => i)
+		.attr('metric', metric)
+		.attr("x", d => x(new Date(d.date)))
+		.attr('y', d => y(d.value))
+		.attr("width", barWidth)
+		.attr('fill', (d, i) => (loadLastValue.value && i === data.length - 1) ? `url(#diagonal-stripe)` : "var(--brand)")
+		.transition()
+		.duration(1_000)
+		.attr('height', d => Math.max(height - marginBottom - 6 - y(d.value), 0))
 
 	if (chartEl.children[0]) chartEl.children[0].remove()
 	chartEl.append(svg.node())
@@ -211,12 +484,12 @@ const getRollupsList = async () => {
 	rollupsList.value = sortArrayOfObjects(data, 'slug').filter(r => r.id !== props.rollup.id)
 }
 
-const fetchData = async (rollup, metric) => {
+const fetchData = async (rollup, metric, from, timeframe) => {
 	const data = await fetchRollupSeries({
 		id: rollup.id,
 		name: metric,
-		timeframe: selectedPeriod.value.timeframe,
-		from: parseInt(
+		timeframe: timeframe ? timeframe : selectedPeriod.value.timeframe,
+		from: from ? from : parseInt(
 			DateTime.now().minus({
 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
 				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
@@ -248,7 +521,8 @@ const getSizeSeries = async () => {
 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
 				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value - i : 0,
 			})
-		}		sizeSeries.value.push({
+		}
+		sizeSeries.value.push({
 			date: dt.toJSDate(),
 			value: parseInt(sizeSeriesMap[dt.toFormat(["day", "month"].includes(selectedPeriod.value.timeframe) ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
@@ -313,6 +587,48 @@ const getFeeSeries = async () => {
 	}
 }
 
+const getTVLSeries = async () => {
+	tvlSeries.value = []
+
+	let from = ""
+	let tf = selectedPeriod.value.timeframe
+	let periodValue = selectedPeriod.value.value
+	if (["hour", "week"].includes(selectedPeriod.value.timeframe)) {
+		from = parseInt(DateTime.now().minus({ days: 30 }).ts / 1_000)
+		tf = "day"
+		periodValue = 30
+	}
+
+	const tvlSeriesRawData = await fetchRollupTVL({
+		slug: props.rollup.slug,
+		period: tf,
+		from,
+	})
+
+	const tvlSeriesMap = {}
+	tvlSeriesRawData.forEach((item) => {
+		tvlSeriesMap[DateTime.fromISO(item.time).toFormat(["day", "month"].includes(tf) ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
+	})
+
+	for (let i = 1; i < periodValue + 1; i++) {
+		let dt
+		if (tf === "month") {
+			dt = DateTime.now().startOf('month').minus({
+				months: tf === "month" ? periodValue - i : 0,
+			})
+		} else {
+			dt = DateTime.now().minus({
+				days: tf === "day" ? periodValue - i : 0,
+				hours: tf === "hour" ? periodValue - i : 0,
+			})
+		}
+		tvlSeries.value.push({
+			date: dt.toJSDate(),
+			value: parseFloat(tvlSeriesMap[dt.toFormat(["day", "month"].includes(tf) ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+		})
+	}
+}
+
 const prepareComparisonData = async () => {
 	isLoading.value = true
 
@@ -362,39 +678,79 @@ const filteredRollupsList = computed(() => {
 	return rollupsList.value.filter((r) => r.name.toLowerCase().includes(searchTerm.value.trim().toLowerCase()))
 })
 
-const buildRollupCharts = async () => {
+const buildRollupCharts = async (loadData = true) => {
 	isLoading.value = true
 
-	await getRollupsList()
-	if (!selectedRollup.value) {
-		selectedRollup.value = rollupsList.value[0]
+	if (loadData) {
+		await getRollupsList()
+		if (!selectedRollup.value) {
+			selectedRollup.value = rollupsList.value[0]
+		}
+
+		comparisonBarWidth.value = comparisonChartEl.value.wrapper.getBoundingClientRect().width
+
+		await getSizeSeries()
+		await getPfbSeries()
+		await getFeeSeries()
+		await getTVLSeries()
 	}
 
-	barWidth.value = comparisonChartEl.value.wrapper.getBoundingClientRect().width
-
-	await getSizeSeries()
-	buildChart(
-		sizeSeriesChartEl.value.wrapper,
-		sizeSeries.value,
-		() => (showSeriesTooltip.value = true),
-		() => (showSeriesTooltip.value = false),
-	)
-
-	await getPfbSeries()
-	buildChart(
-		pfbSeriesChartEl.value.wrapper,
-		pfbSeries.value,
-		() => (showPfbTooltip.value = true),
-		() => (showPfbTooltip.value = false),
-	)
-
-	await getFeeSeries()
-	buildChart(
-		feeSeriesChartEl.value.wrapper,
-		feeSeries.value,
-		() => (showFeeTooltip.value = true),
-		() => (showFeeTooltip.value = false),
-	)
+	if (chartView.value === "line") {
+		buildLineChart(
+			sizeSeriesChartEl.value.wrapper,
+			loadLastValue.value ? sizeSeries.value : sizeSeries.value.slice(0, sizeSeries.value.length - 1),
+			() => (showSeriesTooltip.value = true),
+			() => (showSeriesTooltip.value = false),
+		)
+		buildLineChart(
+			pfbSeriesChartEl.value.wrapper,
+			loadLastValue.value ? pfbSeries.value : pfbSeries.value.slice(0, pfbSeries.value.length - 1),
+			() => (showPfbTooltip.value = true),
+			() => (showPfbTooltip.value = false),
+		)
+		buildLineChart(
+			feeSeriesChartEl.value.wrapper,
+			loadLastValue.value ? feeSeries.value : feeSeries.value.slice(0, feeSeries.value.length - 1),
+			() => (showFeeTooltip.value = true),
+			() => (showFeeTooltip.value = false),
+		)
+		buildLineChart(
+			tvlSeriesChartEl.value.wrapper,
+			loadLastValue.value ? tvlSeries.value : tvlSeries.value.slice(0, tvlSeries.value.length - 1),
+			() => (showTVLTooltip.value = true),
+			() => (showTVLTooltip.value = false),
+			"tvl",
+		)
+	} else {
+		buildBarChart(
+			sizeSeriesChartEl.value.wrapper,
+			loadLastValue.value ? sizeSeries.value : sizeSeries.value.slice(0, sizeSeries.value.length - 1),
+			() => (showSeriesTooltip.value = true),
+			() => (showSeriesTooltip.value = false),
+			"size",
+		)
+		buildBarChart(
+			pfbSeriesChartEl.value.wrapper,
+			loadLastValue.value ? pfbSeries.value : pfbSeries.value.slice(0, pfbSeries.value.length - 1),
+			() => (showPfbTooltip.value = true),
+			() => (showPfbTooltip.value = false),
+			"pfb",
+		)
+		buildBarChart(
+			feeSeriesChartEl.value.wrapper,
+			loadLastValue.value ? feeSeries.value : feeSeries.value.slice(0, feeSeries.value.length - 1),
+			() => (showFeeTooltip.value = true),
+			() => (showFeeTooltip.value = false),
+			"fee",
+		)
+		buildBarChart(
+			tvlSeriesChartEl.value.wrapper,
+			loadLastValue.value ? tvlSeries.value : tvlSeries.value.slice(0, tvlSeries.value.length - 1),
+			() => (showTVLTooltip.value = true),
+			() => (showTVLTooltip.value = false),
+			"tvl",
+		)
+	}
 
 	await prepareComparisonData()
 
@@ -411,6 +767,16 @@ watch(
 )
 
 watch(
+	() => [chartView.value, loadLastValue.value],
+	() => {
+		updateUserSettings()
+		if (!isLoading.value) {
+			buildRollupCharts(false)
+		}		
+	}
+)
+
+watch(
 	() => selectedRollup.value,
 	() => {
 		if (!isLoading.value) {
@@ -423,6 +789,13 @@ watch(
 const debouncedRedraw = useDebounceFn((e) => {
 	buildRollupCharts()
 }, 500)
+
+onBeforeMount(() => {
+	isLoading.value = true
+	const settings = JSON.parse(localStorage.getItem("settings"))
+	chartView.value = settings?.chart?.view || "bar"
+	loadLastValue.value = settings?.chart?.view ? settings.chart.loadLastValue : true
+})
 
 onMounted(async () => {
 	window.addEventListener("resize", debouncedRedraw)
@@ -443,21 +816,64 @@ onBeforeUnmount(() => {
 				<Text size="13" weight="600" color="primary">Analytics</Text>
 			</Flex>
 
-			<Dropdown>
-				<Button size="mini" type="secondary">
-					{{ selectedPeriod.title }}
-					<Icon name="chevron" size="12" color="secondary" />
-				</Button>
+			<Flex align="center" gap="6">
+				<Dropdown>
+					<Button size="mini" type="secondary">
+						{{ selectedPeriod.title }}
+						<Icon name="chevron" size="12" color="secondary" />
+					</Button>
 
-				<template #popup>
-					<DropdownItem v-for="(period, idx) in periods" @click="selectedPeriodIdx = idx">
-						<Flex align="center" gap="8">
-							<Icon :name="idx === selectedPeriodIdx ? 'check' : ''" size="12" color="secondary" />
-							{{ period.title }}
+					<template #popup>
+						<DropdownItem v-for="(period, idx) in periods" @click="selectedPeriodIdx = idx">
+							<Flex align="center" gap="8">
+								<Icon :name="idx === selectedPeriodIdx ? 'check' : ''" size="12" color="secondary" />
+								{{ period.title }}
+							</Flex>
+						</DropdownItem>
+					</template>
+				</Dropdown>
+
+				<Popover :open="isOpen" @on-close="handleClose" width="200" side="right">
+					<Button @click="handleOpen" type="secondary" size="mini">
+						<Icon name="settings" size="12" color="tertiary" />
+					</Button>
+
+					<template #content>
+						<Flex direction="column" gap="12">
+							<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
+								<Text size="12" color="secondary">Chart view</Text>
+
+								<Flex
+									@click="handleChangeChartView"
+									align="center"
+									gap="12"
+									:class="$style.chart_selector"
+									:style="{
+										background: `linear-gradient(to ${chartView === 'line' ? 'right' : 'left'}, var(--op-5) 50%, transparent 50%)`,
+									}"
+								>
+									<Icon
+										name="line-chart"
+										size="14"
+										:style="{ fill: `${chartView === 'line' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
+									/>
+
+									<Icon
+										name="bar-chart"
+										size="14"
+										:style="{ fill: `${chartView === 'bar' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
+									/>
+								</Flex>
+							</Flex>
+
+							<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
+								<Text size="12" :color="loadLastValue ? 'secondary' : 'tertiary'">Show last value</Text>
+								<Toggle v-model="loadLastValue" color="var(--neutral-mint)" />
+							</Flex>
 						</Flex>
-					</DropdownItem>
-				</template>
-			</Dropdown>
+					</template>
+				</Popover>
+			</Flex>
 		</Flex>
 
 		<Flex direction="column">
@@ -500,44 +916,24 @@ onBeforeUnmount(() => {
 						</Flex>
 
 						<Flex :class="[$style.axis, $style.x]">
-							<Flex v-if="selectedPeriod.timeframe === 'month'" align="end" justify="between" wide>
+							<Flex align="end" justify="between" wide>
 								<Text size="12" weight="600" color="tertiary">
-									{{
-										DateTime.now()
-											.minus({ months: selectedPeriod.value - 1 })
-											.toFormat("LLL y")
-									}}
+									{{ getXAxisLabels(true) }}
 								</Text>
 
-								<Text size="12" weight="600" color="tertiary">{{ DateTime.now().toFormat("LLL") }}</Text>
-							</Flex>
-							<Flex v-else-if="selectedPeriod.timeframe === 'day'" align="end" justify="between" wide>
 								<Text size="12" weight="600" color="tertiary">
-									{{
-										DateTime.now()
-											.minus({ days: selectedPeriod.value - 1 })
-											.toFormat("LLL dd")
-									}}
+									{{ getXAxisLabels(false) }}
 								</Text>
-
-								<Text size="12" weight="600" color="tertiary">Today</Text>
-							</Flex>
-							<Flex v-else align="end" justify="between" wide>
-								<Text size="12" weight="600" color="tertiary">
-									{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
-								</Text>
-
-								<Text size="12" weight="600" color="tertiary">Now</Text>
 							</Flex>
 						</Flex>
 
 						<Transition name="fastfade">
 							<div v-if="showSeriesTooltip" :class="$style.tooltip_wrapper">
-								<div
+								<div v-if="chartView === 'line'"
 									:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
 									:class="$style.dot"
 								/>
-								<div :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
+								<div v-if="chartView === 'line'" :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
 								<div
 									ref="badgeEl"
 									:style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"
@@ -603,44 +999,24 @@ onBeforeUnmount(() => {
 						</Flex>
 
 						<Flex :class="[$style.axis, $style.x]">
-							<Flex v-if="selectedPeriod.timeframe === 'month'" align="end" justify="between" wide>
+							<Flex align="end" justify="between" wide>
 								<Text size="12" weight="600" color="tertiary">
-									{{
-										DateTime.now()
-											.minus({ months: selectedPeriod.value - 1 })
-											.toFormat("LLL y")
-									}}
+									{{ getXAxisLabels(true) }}
 								</Text>
 
-								<Text size="12" weight="600" color="tertiary">{{ DateTime.now().toFormat("LLL") }}</Text>
-							</Flex>
-							<Flex v-else-if="selectedPeriod.timeframe === 'day'" align="end" justify="between" wide>
 								<Text size="12" weight="600" color="tertiary">
-									{{
-										DateTime.now()
-											.minus({ days: selectedPeriod.value - 1 })
-											.toFormat("LLL dd")
-									}}
+									{{ getXAxisLabels(false) }}
 								</Text>
-
-								<Text size="12" weight="600" color="tertiary">Today</Text>
-							</Flex>
-							<Flex v-else align="end" justify="between" wide>
-								<Text size="12" weight="600" color="tertiary">
-									{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
-								</Text>
-
-								<Text size="12" weight="600" color="tertiary">Now</Text>
 							</Flex>
 						</Flex>
 
 						<Transition name="fastfade">
 							<div v-if="showPfbTooltip" :class="$style.tooltip_wrapper">
-								<div
+								<div v-if="chartView === 'line'"
 									:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
 									:class="$style.dot"
 								/>
-								<div :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
+								<div v-if="chartView === 'line'" :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
 								<div
 									ref="badgeEl"
 									:style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"
@@ -670,7 +1046,7 @@ onBeforeUnmount(() => {
 				</Flex>
 			</Flex>
 
-			<Flex justify="between" gap="32" :class="[$style.data, $style.bottom]">
+			<Flex justify="between" gap="32" :class="$style.data">
 				<Flex direction="column" gap="20" wide>
 					<Text size="13" weight="600" color="primary">Fee Spent</Text>
 
@@ -712,44 +1088,24 @@ onBeforeUnmount(() => {
 						</Flex>
 
 						<Flex :class="[$style.axis, $style.x]">
-							<Flex v-if="selectedPeriod.timeframe === 'month'" align="end" justify="between" wide>
+							<Flex align="end" justify="between" wide>
 								<Text size="12" weight="600" color="tertiary">
-									{{
-										DateTime.now()
-											.minus({ months: selectedPeriod.value - 1 })
-											.toFormat("LLL y")
-									}}
+									{{ getXAxisLabels(true) }}
 								</Text>
 
-								<Text size="12" weight="600" color="tertiary">{{ DateTime.now().toFormat("LLL") }}</Text>
-							</Flex>
-							<Flex v-else-if="selectedPeriod.timeframe === 'day'" align="end" justify="between" wide>
 								<Text size="12" weight="600" color="tertiary">
-									{{
-										DateTime.now()
-											.minus({ days: selectedPeriod.value - 1 })
-											.toFormat("LLL dd")
-									}}
+									{{ getXAxisLabels(false) }}
 								</Text>
-
-								<Text size="12" weight="600" color="tertiary">Today</Text>
-							</Flex>
-							<Flex v-else align="end" justify="between" wide>
-								<Text size="12" weight="600" color="tertiary">
-									{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
-								</Text>
-
-								<Text size="12" weight="600" color="tertiary">Now</Text>
 							</Flex>
 						</Flex>
 
 						<Transition name="fastfade">
 							<div v-if="showFeeTooltip" :class="$style.tooltip_wrapper">
-								<div
+								<div v-if="chartView === 'line'"
 									:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
 									:class="$style.dot"
 								/>
-								<div :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
+								<div v-if="chartView === 'line'" :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
 								<div
 									ref="badgeEl"
 									:style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"
@@ -778,7 +1134,110 @@ onBeforeUnmount(() => {
 					</Flex>
 				</Flex>
 
-				<Flex ref="comparisonChartEl" direction="column" gap="12">
+				<Flex direction="column" gap="20" wide>
+					<Flex align="center" justify="between">
+						<Text size="13" weight="600" color="primary">TVL</Text>
+
+						<Tooltip position="end">
+							<Icon name="info" size="16" color="tertiary" />
+
+							<template #content>
+								<Flex align="center" :style="{ width: '160px' }">
+									<Text size="12" color="secondary">
+										Grouping by day or month is only available for this chart.
+									</Text>
+								</Flex>
+							</template>
+						</Tooltip>
+					</Flex>
+
+					<Flex direction="column" :class="$style.chart_wrapper">
+						<Flex direction="column" justify="between" :class="[$style.axis, $style.y]">
+							<Text
+								v-if="tvlSeries.length"
+								size="12"
+								weight="600"
+								color="tertiary"
+								:style="{ opacity: Math.max(...tvlSeries.map((d) => d.value)) ? 1 : 0 }"
+							>
+								{{ Math.max(...tvlSeries.map((d) => d.value)) < 1_000_000
+									? abbreviate(Math.max(...tvlSeries.map((d) => d.value)), 0)
+									: abbreviate(Math.max(...tvlSeries.map((d) => d.value))) }} $
+							</Text>
+							<Skeleton v-else-if="!tvlSeries.length" w="32" h="12" />
+
+							<Text
+								v-if="tvlSeries.length"
+								size="12"
+								weight="600"
+								color="tertiary"
+								:style="{
+									opacity:
+										Math.round(Math.max(...tvlSeries.map((d) => d.value)) / 2) != Math.max(...tvlSeries.map((d) => d.value))
+											? 1
+											: 0,
+								}"
+							>
+								{{ Math.round(Math.max(...tvlSeries.map((d) => d.value)) / 2) < 1_000_000
+									? abbreviate(Math.round(Math.max(...tvlSeries.map((d) => d.value)) / 2), 0)
+									: abbreviate(Math.round(Math.max(...tvlSeries.map((d) => d.value)) / 2)) }} $
+							</Text>
+							<Skeleton v-else-if="!tvlSeries.length" w="24" h="12" />
+
+							<Text v-if="tvlSeries.length" size="12" weight="600" color="tertiary"> 0 </Text>
+							<Skeleton v-else-if="!tvlSeries.length" w="16" h="12" />
+						</Flex>
+
+						<Flex :class="[$style.axis, $style.x]">
+							<Flex align="end" justify="between" wide>
+								<Text size="12" weight="600" color="tertiary">
+									{{ getXAxisLabels(true, true) }}
+								</Text>
+
+								<Text size="12" weight="600" color="tertiary">
+									{{ getXAxisLabels(false, true) }}
+								</Text>
+							</Flex>
+						</Flex>
+
+						<Transition name="fastfade">
+							<div v-if="showTVLTooltip" :class="$style.tooltip_wrapper">
+								<div v-if="chartView === 'line'"
+									:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
+									:class="$style.dot"
+								/>
+								<div v-if="chartView === 'line'" :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
+								<div
+									ref="badgeEl"
+									:style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"
+									:class="$style.badge"
+								>
+									<Text size="12" weight="600" color="secondary">
+										{{ badgeText }}
+									</Text>
+								</div>
+								<Flex
+									ref="tooltipEl"
+									:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYDataOffset - 40}px)` }"
+									direction="column"
+									gap="8"
+									:class="$style.tooltip"
+								>
+									<Flex align="center" gap="16">
+										<!-- <Text size="12" weight="600" color="secondary">Spent</Text> -->
+										<Text size="12" weight="600" color="primary"> {{ abbreviate(tooltipText) }} $</Text>
+									</Flex>
+								</Flex>
+							</div>
+						</Transition>
+
+						<Flex ref="tvlSeriesChartEl" :class="$style.chart" />
+					</Flex>
+				</Flex>
+			</Flex>
+
+			<Flex justify="between" gap="32" :class="[$style.data, $style.bottom]">
+				<Flex ref="comparisonChartEl" direction="column" gap="12" :style="{minHeight: '207px'}">
 					<Flex align="center" justify="between">
 						<Text size="13" weight="600" color="primary">Rollups Comparison</Text>
 
@@ -847,7 +1306,7 @@ onBeforeUnmount(() => {
 						<Flex direction="column" gap="12">
 							<Text size="13" weight="500" color="secondary">Size</Text>
 
-							<Flex :style="`width: ${barWidth}px`">
+							<Flex :style="`width: ${comparisonBarWidth}px`">
 								<div
 									:class="$style.graph_bar"
 									:style="{
@@ -875,7 +1334,7 @@ onBeforeUnmount(() => {
 						<Flex direction="column" gap="12">
 							<Text size="13" weight="500" color="secondary">Blobs</Text>
 
-							<Flex :style="`width: ${barWidth}px`">
+							<Flex :style="`width: ${comparisonBarWidth}px`">
 								<div
 									:class="$style.graph_bar"
 									:style="{
@@ -903,7 +1362,7 @@ onBeforeUnmount(() => {
 						<Flex direction="column" gap="12">
 							<Text size="13" weight="500" color="secondary">Fee</Text>
 
-							<Flex :style="`width: ${barWidth}px`">
+							<Flex :style="`width: ${comparisonBarWidth}px`">
 								<div
 									:class="$style.graph_bar"
 									:style="{
@@ -956,6 +1415,18 @@ onBeforeUnmount(() => {
 	padding: 0 12px;
 }
 
+.setting_item {
+	min-height: 24px;
+}
+
+.chart_selector {
+	padding: 4px 6px 4px 6px;
+	box-shadow: inset 0 0 0 1px var(--op-10);
+	border-radius: 5px;
+	cursor: pointer;
+	transition: all 1s ease-in-out;
+}
+
 .data {
 	background: var(--card-background);
 
@@ -997,7 +1468,7 @@ onBeforeUnmount(() => {
 
 	&.x {
 		bottom: 6px;
-		left: 40px;
+		left: 52px;
 	}
 
 	&.y {

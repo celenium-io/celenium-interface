@@ -1,8 +1,12 @@
 <script setup>
 /** Stats Components */
+import ChartCardPreview from "@/components/modules/stats/ChartCardPreview.vue"
 import PieChartCard from "@/components/modules/stats/PieChartCard.vue"
 import RollupsBubbleChart from "@/components/modules/stats/RollupsBubbleChart.vue"
 import RollupsActivity from "~/components/modules/stats/RollupsActivity.vue"
+
+/** Stats Constants */
+import { STATS_PERIODS } from "@/services/constants/stats.js"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
@@ -253,10 +257,24 @@ watch(
 
 				<Flex align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
 					<PieChartCard
-						v-for="s in series"
+						v-for="s in series.filter(s => s.subGroup === 'top')"
 						:series="s"
 						:data="filteredRollups"
 						dounut
+						:class="$style.chart_card"
+					/>
+				</Flex>
+			</template>
+
+			<template v-if="!isLoading">
+				<Flex align="center" justify="between" wide :class="$style.segment">
+					<Text size="16" weight="600" color="primary" justify="start">Economics</Text>
+				</Flex>
+
+				<Flex align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
+					<ChartCardPreview v-for="s in series.filter(s => s.subGroup === 'economy')"
+						:series="s"
+						:period="STATS_PERIODS[2]"
 						:class="$style.chart_card"
 					/>
 				</Flex>

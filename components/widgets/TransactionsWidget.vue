@@ -223,7 +223,7 @@ const getSectorName = (item) => {
 
 .hour.current {
 	.bar {
-		background: var(--blue);
+		background: var(--supply);
 		animation: blink 1.5s ease infinite;
 	}
 }
@@ -249,7 +249,7 @@ const getSectorName = (item) => {
 	background: var(--txt-tertiary);
 
 	&.green {
-		background: var(--green);
+		background: var(--brand);
 	}
 }
 
