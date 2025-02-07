@@ -75,6 +75,9 @@ useHead({
 						<li>Terminal device ID, type, operating system, date, time, region, country, latitude, longitude</li>
 						<li>Browser type, user agent, language, screen resolution</li>
 						<li>IP address, network provider, traffic routing data, system configuration information, and other information about traffic to and from the Website</li>
+						<li>Mouse movements, clicks, scrolling behavior</li>
+						<li>Keystrokes (excluding sensitive fields such as passwords)</li>
+						<li>Pages visited, time spent, and navigation paths</li>
 					</ul>
 
 					<Text :class="$style.section_paragraph">Any collection and processing of this technical data is for the purpose of enabling the use and functionality of our Website, continuously ensuring system security and stability, optimising our Website, to show you Website customized for your region, and for internal statistical purposes. Furthermore, the collection of technical data shall ensure the functionality and security of our services.</Text>

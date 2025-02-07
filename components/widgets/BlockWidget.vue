@@ -110,7 +110,7 @@ onBeforeUnmount(() => {
 				<Flex align="center" gap="4">
 					<Text size="16" weight="600" color="primary"> Block </Text>
 
-					<Text v-if="lastBlock" size="16" weight="600" color="green"> {{ comma(lastBlock.height) }}</Text>
+					<Text v-if="lastBlock" size="16" weight="600" color="brand"> {{ comma(lastBlock.height) }}</Text>
 					<Skeleton v-else w="60" h="12" />
 				</Flex>
 
@@ -253,7 +253,9 @@ onBeforeUnmount(() => {
 
 	width: 100%;
 
-	background: var(--block-progress-fill-background);
+	/* background: var(--dark-mint); */
+	background: var(--neutral-mint);
+	/* background: var(--block-progress-fill-background); */
 
 	z-index: -1;
 

@@ -51,14 +51,17 @@ const mainLinks = reactive([
 			{
 				name: "Active",
 				path: "/validators?status=active&page=1",
+				queryParam: {status: "active"},
 			},
 			{
 				name: "Jailed",
 				path: "/validators?status=jailed&page=1",
+				queryParam: {status: "jailed"},
 			},
 			{
 				name: "Inactive",
 				path: "/validators?status=inactive&page=1",
+				queryParam: {status: "inactive"},
 			},
 		],
 	},
@@ -70,14 +73,17 @@ const mainLinks = reactive([
 			{
 				name: "General",
 				path: "/stats?tab=general",
+				queryParam: {tab: "general"},
 			},
 			{
 				name: "Blocks",
 				path: "/stats?tab=blocks",
+				queryParam: {tab: "blocks"},
 			},
 			{
 				name: "Rollups",
 				path: "/stats?tab=rollups",
+				queryParam: {tab: "rollups"},
 			},
 		],
 	},

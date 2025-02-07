@@ -1,5 +1,5 @@
 /** Services */
-import { useServerURL } from "@/services/config"
+import { tvlServiceURL, useServerURL } from "@/services/config"
 
 export const fetchRollups = async ({ categories, limit, offset, sort, sort_by }) => {
 	try {
@@ -104,6 +104,20 @@ export const fetchRollupsDailyStats = async ({ limit, offset, sort, sort_by }) =
 		if (sort) url.searchParams.append("sort", sort)
 		if (sort_by) url.searchParams.append("sort_by", sort_by)
 
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchRollupTVL = async ({ slug, period, from, to }) => {
+	try {
+		const url = new URL(`${tvlServiceURL}/tvl/${slug}/${period}`)
+
+		if (from) url.searchParams.append("from", from)
+		if (to) url.searchParams.append("to", to)
+		
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {

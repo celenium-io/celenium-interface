@@ -111,19 +111,22 @@ const handleClearAllFilters = () => {
 const searchTerm = ref("")
 
 /** Parse route query */
-Object.keys(route.query).forEach((key) => {
-	if (key === "page") return
+const parseRouteQuery = () => {
+	Object.keys(route.query).forEach((key) => {
+		if (key === "page") return
 
-	if (key === "from" || key === "to") {
-		filters[key] = route.query[key]
-	} else if (route.query[key].split(",").length) {
-		route.query[key].split(",").forEach((item) => {
-			filters[key][item] = true
-		})
-	} else {
-		filters[key][route.query[key]] = true
-	}
-})
+		if (key === "from" || key === "to") {
+			filters[key] = route.query[key]
+		} else if (route.query[key].split(",").length) {
+			route.query[key].split(",").forEach((item) => {
+				filters[key][item] = true
+			})
+		} else {
+			filters[key][route.query[key]] = true
+		}
+	})
+}
+parseRouteQuery()
 
 const updateRouteQuery = () => {
 	router.replace({
@@ -140,6 +143,7 @@ const updateRouteQuery = () => {
 					.join(","),
 			...(filters.from ? { from: filters.from } : {}),
 			...(filters.to ? { to: filters.to } : {}),
+			page: page.value,
 		},
 	})
 }
@@ -223,10 +227,15 @@ const handleUpdateDateFilter = (event) => {
 const resetFilters = (target, refetch) => {
 	if (target === "from" || target === "to") {
 		filters[target] = ""
-	} else {
+	} else if (target) {
 		Object.keys(filters[target]).forEach((f) => {
 			filters[target][f] = false
 		})
+	} else {
+		resetFilters("from")
+		resetFilters("to")
+		resetFilters("status")
+		resetFilters("message_type")
 	}
 
 	if (refetch) {
@@ -274,8 +283,9 @@ const sort = reactive({
 	dir: "desc",
 })
 
-const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = computed(() => Math.ceil(count.value / 20))
+const page = ref(route.query.page ? parseInt(route.query.page) < 1 ? 1 : parseInt(route.query.page) : 1)
+const limit = ref(20)
+const handleNextCondition = ref(false)
 
 const findPFB = ref(false)
 
@@ -283,7 +293,7 @@ const getTransactions = async () => {
 	isRefetching.value = true
 
 	const { data } = await fetchTransactions({
-		limit: 20,
+		limit: limit.value,
 		offset: (page.value - 1) * 20,
 		sort: sort.dir,
 		sort_by: sort.by,
@@ -302,11 +312,12 @@ const getTransactions = async () => {
 	})
 	transactions.value = data.value
 
+	handleNextCondition.value = transactions.value.length < limit.value
 	isLoaded.value = true
 	isRefetching.value = false
 }
 
-getTransactions()
+await getTransactions()
 
 onBeforeMount(() => {
 	if (localStorage.getItem("page:transactions:config:columns")) {
@@ -316,17 +327,32 @@ onBeforeMount(() => {
 
 /** Refetch transactions */
 watch(
+	() => route.query,
+	async () => {
+		if (!isRefetching.value) {
+			if (Object.keys(route.query).length) {
+				parseRouteQuery()
+			} else {
+				resetFilters()
+			}
+			
+			await getTransactions()
+		}
+	},
+)
+
+watch(
 	() => page.value,
 	async () => {
-		getTransactions()
-		router.replace({ query: { page: page.value } })
+		await getTransactions()
+		updateRouteQuery()
 	},
 )
 
 watch(
 	() => findPFB.value,
-	() => {
-		getTransactions()
+	async () => {
+		await getTransactions()
 	},
 )
 
@@ -337,7 +363,7 @@ watch(
 	}
 )
 
-const handleSort = (by) => {
+const handleSort = async (by) => {
 	/** temp. only for time */
 	if (!["time"].includes(by)) return
 
@@ -358,7 +384,7 @@ const handleSort = (by) => {
 		page.value = 1
 	}
 
-	getTransactions()
+	await getTransactions()
 }
 
 const handlePrev = () => {
@@ -401,7 +427,7 @@ const handleNext = () => {
 						<Text size="12" weight="600" color="primary">Page {{ comma(page) }} </Text>
 					</Button>
 
-					<Button @click="handleNext" type="secondary" size="mini" :disabled="!transactions.length">
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="handleNextCondition">
 						<Icon name="arrow-right" size="12" color="primary" />
 					</Button>
 				</Flex>
@@ -681,7 +707,7 @@ const handleNext = () => {
 									<NuxtLink :to="`/tx/${tx.hash}`">
 										<Flex align="center">
 											<Text size="12" weight="600" color="primary" mono class="table_column_alias">
-												{{ $getDisplayName("addresses", tx.signers[0]) }}
+												{{ $getDisplayName("addresses", "", tx.signers[0]) }}
 											</Text>
 										</Flex>
 									</NuxtLink>

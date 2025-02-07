@@ -66,7 +66,7 @@ const gasFee = computed(() => {
 			<Flex justify="between">
 				<Flex direction="column" gap="6">
 					<Flex align="center" gap="6">
-						<Icon name="gas_fast" size="12" color="green" />
+						<Icon name="gas_fast" size="12" color="brand" />
 						<Text size="11" weight="600" color="secondary">Fast</Text>
 					</Flex>
 

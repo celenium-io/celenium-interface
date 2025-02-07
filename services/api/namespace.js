@@ -142,6 +142,25 @@ export const fetchBlobMetadata = async ({ hash, height, commitment }) => {
 	}
 }
 
+export const fetchBlobProof = async ({ hash, height, commitment }) => {
+	try {
+		const url = new URL(`${useServerURL()}/blob/proofs`)
+
+		const data = await useFetch(encodeURI(url.href), {
+			method: "post",
+			body: {
+				hash,
+				height,
+				commitment,
+			},
+		})
+		
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchBlobBlockscoutData = async ({ height, namespace, commitment }) => {
 	try {
 		const url = new URL(blockscoutURL)

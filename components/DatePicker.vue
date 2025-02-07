@@ -1,6 +1,5 @@
 <script setup>
 /** Vendor */
-import { useDebounceFn } from "@vueuse/core"
 import { DateTime, Info } from "luxon"
 
 /** Stats Constants */
@@ -129,8 +128,8 @@ const updateSelectedRange = (from, to) => {
 }
 updateSelectedRange(startDate.value, endDate.value)
 
-const isNextMonthAvailable = computed(() => !(month.value === currentDate.value.month && year.value === currentDate.value.year))
-const isPrevMonthAvailable = computed(() => limitMinDate.value ? limitMinDate.value.ts < days.value[0][0].ts : true)
+const isNextMonthAvailable = true // computed(() => !(month.value === currentDate.value.month && year.value === currentDate.value.year))
+const isPrevMonthAvailable = true // computed(() => limitMinDate.value ? limitMinDate.value.ts < days.value[0][0].ts : true)
 const isDayAvailable = (d) => {
 	if (d.startOf('day').ts > currentDate.value.startOf('day').ts) {
 		return false
@@ -237,6 +236,10 @@ const handleMonthChange = (v) => {
 	}
 }
 
+const handleYearChange = (v) => {
+	year.value = year.value + v
+}
+
 watch(
 	() => props.from,
 	() => {
@@ -299,27 +302,49 @@ watch(
 
 				<Flex direction="column" gap="12" :style="popoverStyles.calendar">
 					<Flex align="center" justify="center" gap="6">
-						<Icon
-							@click="handleMonthChange(-1)"
-							name="chevron"
-							size="14"
-							color="tertiary"
-							class="clickable"
-							:class="!isPrevMonthAvailable && $style.disabled"
-							:style="{ transform: 'rotate(90deg)' }"
-						/>
+						<Flex align="center" justify="between" :style="{width: '160px'}">
+							<Flex align="center">
+								<Icon
+									@click="handleYearChange(-1)"
+									name="chevron-double-left"
+									size="14"
+									color="tertiary"
+									class="clickable"
+									:class="!isPrevMonthAvailable && $style.disabled"
+								/>
+								<Icon
+									@click="handleMonthChange(-1)"
+									name="chevron-left"
+									size="14"
+									color="tertiary"
+									class="clickable"
+									:class="!isPrevMonthAvailable && $style.disabled"
+								/>
+							</Flex>
 
-						<Text size="12" color="secondary"> {{ `${DateTime.local(year, month).toFormat('LLLL')} ${year}` }} </Text>
+							<Text size="12" color="secondary"> {{ `${DateTime.local(year, month).toFormat('LLLL')} ${year}` }} </Text>
 
-						<Icon
-							@click="handleMonthChange(1)"
-							name="chevron"
-							size="14"
-							color="tertiary"
-							class="clickable"
-							:class="!isNextMonthAvailable && $style.disabled"
-							:style="{ transform: 'rotate(-90deg)' }"
-						/>
+							<Flex align="center">
+								<Icon
+									@click="handleMonthChange(1)"
+									name="chevron-left"
+									size="14"
+									color="tertiary"
+									class="clickable"
+									:class="!isNextMonthAvailable && $style.disabled"
+									:style="{ transform: 'rotate(180deg)' }"
+								/>
+								<Icon
+									@click="handleYearChange(1)"
+									name="chevron-double-left"
+									size="14"
+									color="tertiary"
+									class="clickable"
+									:class="!isNextMonthAvailable && $style.disabled"
+									:style="{ transform: 'rotate(180deg)' }"
+								/>
+							</Flex>
+						</Flex>
 					</Flex>
 
 					<Flex direction="column" gap="16" wide :class="$style.table">

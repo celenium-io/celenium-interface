@@ -206,9 +206,9 @@ const handleViewRawTransaction = () => {
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Signer</Text>
 							<Flex align="center" gap="6">
-								<AddressBadge :hash="tx.signers[0]" color="secondary" />
+								<AddressBadge :account="tx.signers[0]" color="secondary" />
 
-								<CopyButton :text="tx.signers[0]" />
+								<CopyButton :text="tx.signers[0].hash" />
 							</Flex>
 						</Flex>
 						<Flex align="center" justify="between">

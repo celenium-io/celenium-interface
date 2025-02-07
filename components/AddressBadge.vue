@@ -1,7 +1,7 @@
 <script setup>
 const props = defineProps({
-	hash: {
-		type: String,
+	account: {
+		type: Object,
 		required: true,
 	},
 	color: {
@@ -13,12 +13,12 @@ const props = defineProps({
 const alias = computed(() => {
 	const { $getDisplayName } = useNuxtApp()
 
-  	return $getDisplayName('addresses', props.hash)
+  	return $getDisplayName('addresses', "", props.account)
 })
 </script>
 
 <template>
-	<NuxtLink :to="`/address/${hash}`" @click.stop>
+	<NuxtLink :to="`/address/${account.hash}`" @click.stop>
 		<Flex align="center" gap="6">
 			<Text size="13" weight="600" :color="color"> {{ alias }} </Text>
 		</Flex>

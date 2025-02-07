@@ -368,6 +368,16 @@ const handleCSVDownload = async (value) => {
 							</template>
 						</Tooltip>
 
+						<Tooltip v-if="rollup.defi_lama" position="start" delay="500">
+							<a :href="`https://defillama.com/chain/${rollup.defi_lama}`" target="_blank">
+								<Icon name="lama" size="14" color="secondary" :class="$style.btn" />
+							</a>
+
+							<template #content>
+								{{ `https://defillama.com/chain/${rollup.defi_lama}` }}
+							</template>
+						</Tooltip>
+
 						<Tooltip v-if="rollup.l2_beat" position="start" delay="500">
 							<a :href="rollup.l2_beat" target="_blank">
 								<Icon name="l2beat" size="14" color="secondary" :class="$style.btn" />
@@ -463,7 +473,7 @@ const handleCSVDownload = async (value) => {
 								</Text>
 
 								<template #content>
-									{{ DateTime.fromISO(rollup.first_message_time).setLocale("en").toFormat("LLL d, t") }}
+									{{ DateTime.fromISO(rollup.first_message_time).setLocale("en").toFormat("LLL d y, t") }}
 								</template>
 							</Tooltip>
 						</Flex>
@@ -476,7 +486,7 @@ const handleCSVDownload = async (value) => {
 								</Text>
 
 								<template #content>
-									{{ DateTime.fromISO(rollup.last_message_time).setLocale("en").toFormat("LLL d, t") }}
+									{{ DateTime.fromISO(rollup.last_message_time).setLocale("en").toFormat("LLL d y, t") }}
 								</template>
 							</Tooltip>
 						</Flex>

@@ -383,6 +383,8 @@ watch(
 
 									<Icon v-if="r.github" @click.prevent.stop=handleOpenLink(r.github) name="github" size="13" color="secondary" />
 
+									<Icon v-if="r.defi_lama" @click.prevent.stop="handleOpenLink(`https://defillama.com/chain/${r.defi_lama}`)" name="lama" size="13" color="secondary" />
+
 									<Icon v-if="r.l2_beat" @click.prevent.stop=handleOpenLink(r.l2_beat) name="l2beat" size="13" color="secondary" />
 
 									<Icon v-if="r.explorer" @click.prevent.stop=handleOpenLink(r.explorer) name="search" size="13" color="secondary" />
