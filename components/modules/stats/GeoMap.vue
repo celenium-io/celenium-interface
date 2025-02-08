@@ -24,9 +24,8 @@ const props = defineProps({
 const isLoading = ref(false)
 const geoMap = ref()
 const nodeCityData = ref([])
-const nodeCountryData = ref([])
-const chartView = ref("countries")
-// const chartView = ref("cities")
+// const chartView = ref("countries")
+const chartView = ref("cities")
 const showCities = ref(true)
 
 const getNodeStats = async (name) => {
@@ -70,11 +69,11 @@ const buildChart = async (chart) => {
     const countryMinAmount = d3.min(geoMap.value, (d) => +d.amount)
     
     const countryColor = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#1e473d", "#18d2a5"]))
-        .domain([countryMinAmount, countryMaxAmount])
+        .domain([1, countryMaxAmount])
     
     const size = d3.scaleSqrt()
         .domain(d3.extent(nodeCityData.value, d => +d.amount))
-        .range([ 4, 20])
+        .range([4, 20])
     
     let zoomScale = 1
 
@@ -88,8 +87,7 @@ const buildChart = async (chart) => {
             .attr("viewBox", [0, 0, width, height])
         // .attr("transform", `translate(${width / 2}, ${height / 2 + 10})`)
 
-
-    // We wrap the SVG with a container that has the html element above it
+    // Tooltip | We wrap the SVG with a container that has the html element above it
     const container = document.createElement("div");
     container.innerHTML = `
         <style>
@@ -202,7 +200,7 @@ const buildChart = async (chart) => {
                 .attr("r", d => size(d.amount))
                 .style("fill", "var(--brand)")
                 // .attr("stroke-width", 1)
-                .attr("fill-opacity", showCities.value ? 0.7 : 0)
+                .attr("fill-opacity", 0.7)
                 .on("mouseover", mouseover)
                 .on("mousemove", mousemove)
                 .on("mouseleave", mouseleave)
@@ -218,7 +216,7 @@ const buildChart = async (chart) => {
                 })
                 .attr("r", d => size(d.amount))
                 .style("fill", "var(--brand)")
-                .attr("fill-opacity", showCities.value ? 0.7 : 0)
+                .attr("fill-opacity", 0.7)
                 .on("mouseover", mouseover)
                 .on("mousemove", mousemove)
                 .on("mouseleave", mouseleave)
@@ -230,6 +228,101 @@ const buildChart = async (chart) => {
     const bounds = d3.geoPath().projection(projection).bounds({ type: "FeatureCollection", features: geoMap.value })
     const [[x0, y0], [x1, y1]] = bounds
 
+    
+    // Legend
+    const legend = {
+        width: 250,
+        height: 10,
+        marginBottom: 40,
+        marginRight: 150,
+        marginLeft: 40,
+    }
+    let legendValues = []
+    function legendCitiesX(i) {
+        let x = legend.marginLeft
+
+        if (!i) return x
+        
+        for (let ind = 0; ind < i; ind++) {
+            x = x + size(legendValues[ind]) * 2 + 30
+        }
+        x = x - size(legendValues[0]) + size(legendValues[i])
+
+        return x
+    }
+
+
+    let legendGroup, legendCitiesMarkers, legendCitiesLabels
+    
+    if (chartView.value === "countries") {
+        legendGroup = svg
+            .append("g")
+            .attr("transform", `translate(${width - legend.width - 20}, ${height - legend.marginBottom})`)
+            .style("opacity", 1)
+        const defs = svg.append("defs")
+        const linearGradient = defs.append("linearGradient")
+            .attr("id", "legend-gradient")
+            .attr("x1", "0%")
+            .attr("x2", "100%")
+            .attr("y1", "0%")
+            .attr("y2", "0%")
+        
+        legendValues = [1, 10, 25, 50, 100, countryMaxAmount]
+        legendValues.forEach((d, i, arr) => {
+            linearGradient.append("stop")
+                .attr("offset", `${(i / (arr.length - 1)) * 100}%`)
+                .attr("stop-color", countryColor(d))
+        })
+        
+        legendGroup.append("rect")
+            .attr("x", 20)
+            .attr("y", 10)
+            .attr("width", legend.width)
+            .attr("height", legend.height)
+            .style("fill", "url(#legend-gradient)")
+        
+        const legendScale = d3.scaleLinear()
+            .domain([1, countryMaxAmount])
+            .range([0, countryMaxAmount * 2])
+
+        const legendAxis = d3.axisBottom(legendScale)
+            .tickValues(legendValues)
+            .tickFormat(d3.format("d"))
+
+        legendGroup.append("g")
+            .attr("transform", `translate(20, ${legend.marginBottom - 20})`)
+            .call(legendAxis)
+            // .attr("color", "var(--txt-secondary)")
+            .attr("color", "var(--txt-tertiary)")
+    } else if (chartView.value === "cities") {
+        legendValues = [1, 25, 100]
+        legendCitiesMarkers = svg.append("g")
+            .selectAll("legendCircles")
+            .data(legendValues)
+            .enter()
+            .append("circle")
+                .attr("cx", (d, i) => legendCitiesX(i))
+                .attr("cy", d => height - legend.marginBottom + 20 - size(d))
+                .attr("r", d => size(d))
+                .style("fill", "var(--brand)")
+                .attr("fill-opacity", 0.7)
+
+        legendCitiesLabels = svg.append("g")
+            .selectAll("legendLabels")
+            .data(legendValues)
+            .enter()
+            .append("text")
+                .attr('x', (d, i) => legendCitiesX(i))
+                .attr('y', height - legend.marginBottom + 15 + size(legendValues.pop()))
+                .text(d => d)
+                .style("font-size", 12)
+                // .style("fill", "var(--txt-secondary)")
+                .style("fill", "var(--txt-tertiary)")
+                .attr('text-anchor', 'middle')
+                .attr("fill-opacity", 1)
+    }
+
+
     // Add zoom functionality
     const zoom = d3.zoom()
         .scaleExtent([1, 20])
@@ -238,25 +331,48 @@ const buildChart = async (chart) => {
             zoomScale = event.transform.k
             g.attr("transform", event.transform)
             map.attr("stroke-width", 1 / zoomScale)
-            if (chartView.value === "cities") {
+            if (chartView.value === "countries") {
+                if (zoomScale > 3) {
+                    legendGroup
+                        .transition()
+                        .duration(1_000)
+                        .style("opacity", 0)
+                } else {
+                    legendGroup
+                        .transition()
+                        .duration(1_000)
+                        .style("opacity", 1)
+                }
+            } else if (chartView.value === "cities") {
                 if (zoomScale > 1) {
                     circles
                         .attr("r", d => size(d.amount) / (zoomScale * 1.1))
-                        .attr("fill-opacity", 0.7)
                     centerCircles
                         .attr("r", d => size(d.amount) / (zoomScale * 1.1))
-                        .attr("fill-opacity", 0.7)
-                } else if (showCities.value) {
+                    if (zoomScale > 3) {
+                        legendCitiesMarkers
+                            .transition()
+                            .duration(1_000)
+                            .attr("fill-opacity", 0)
+                        legendCitiesLabels
+                            .transition()
+                            .duration(1_000)
+                            .attr("fill-opacity", 0)
+                    } else {
+                        legendCitiesMarkers
+                            .transition()
+                            .duration(1_000)
+                            .attr("fill-opacity", 0.7)
+                        legendCitiesLabels
+                            .transition()
+                            .duration(1_000)
+                            .attr("fill-opacity", 1)
+                    }
+                } else {
                     circles
                         .attr("r", d => size(d.amount))
-                        .attr("fill-opacity", 0.7)
                     centerCircles
                         .attr("r", d => size(d.amount))
-                        .attr("fill-opacity", 0.7)
-
-                } else {
-                    circles.attr("fill-opacity", 0)
-                    centerCircles.attr("fill-opacity", 0)
                 }
             }
         })
