@@ -112,7 +112,7 @@ const selectDay = (d) => {
 						@click="selectDay(day)"
 						:class="[$style.day, day?.value > 0 && $style.shadow]"
 						:style="{
-							background: parseInt(day?.value) > 0 ? `rgb(10, 219, 111)` : 'var(--op-10)',
+							background: parseInt(day?.value) > 0 ? `var(--brand)` : 'var(--op-10)',
 							opacity: calculateOpacity(day?.value),
 						}"
 					/>

@@ -1,5 +1,5 @@
 /** Services */
-import { useServerURL, nodeStatsURL } from "@/services/config"
+import { nodeStatsURL, tvlServiceURL, useServerURL } from "@/services/config"
 
 export const fetchGeneralStats = async ({ name }) => {
 	try {
@@ -57,6 +57,26 @@ export const fetchSummary = async ({ table, func, column, from, to }) => {
 export const fetchTPS = async () => {
 	try {
 		const url = new URL(`${useServerURL()}/stats/tps`)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchTVS = async ({ period, from, to }) => {
+	try {
+		let url = ""
+
+		if (period) {
+			url = new URL(`${tvlServiceURL}/tvs/${period}`)
+
+			if (from) url.searchParams.append("from", from)
+			if (to) url.searchParams.append("to", to)
+		} else {
+			url = new URL(`${tvlServiceURL}/tvs`)
+		}
 
 		const data = await $fetch(url.href)
 		return data

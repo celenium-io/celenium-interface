@@ -10,6 +10,58 @@ const props = defineProps({
 
 const isExpanded = ref(props.link.children?.some((l) => l.path === route.path) ? true : (props.link.name === 'Rollups' ? true : false))
 
+const isSubRouteActive = (link) => {
+	let res = false
+	if (link.queryParam) {
+		const queryString = route.fullPath.split('?')[1]
+		const params = new URLSearchParams(queryString)
+		
+		for (const [key, value] of params.entries()) {
+			if (link.queryParam[key] === value) {
+				res = true
+				break;
+			}
+		}
+	}
+	
+	return res
+}
+
+const isAnyChildrenActive = computed(() => {
+	let res = false
+
+	if (props.link.children?.length) {
+		for (const link of props.link.children) {
+			if (isSubRouteActive(link)) {
+				res = true
+				break;
+			}
+		}
+	}
+
+	return res
+})
+
+const isActive = computed(() => {
+	let res = false
+
+	if (props.link.queryParam) {
+		res = isSubRouteActive(props.link)
+	} else {
+		if (route.path?.includes("/txs")) {
+			if (props.link.name === "Transactions") {
+				res = !route.fullPath?.includes("message_type=MsgPayForBlobs")
+			} else if (props.link.name === "Pay for Blobs") {
+				res = route.fullPath?.includes("message_type=MsgPayForBlobs")
+			}
+		} else {
+			res = route.path === props.link.path
+		}
+	}
+	
+	return res
+})
+
 const handleClick = () => {
 	emit("onClose")
 	if (props.link.callback) props.link.callback()
@@ -18,7 +70,12 @@ const handleClick = () => {
 
 <template>
 	<NuxtLink @click="handleClick" :to="link.path" :target="link.external && '_blank'">
-		<Flex align="center" gap="8" justify="between" :class="[$style.link, route.path === link.path && $style.active]">
+		<Flex
+			align="center"
+			justify="between"
+			gap="8"
+			:class="[$style.link, (isActive && (!isAnyChildrenActive || !isExpanded)) && $style.active, (isAnyChildrenActive && isExpanded) && $style.parentActive]"
+		>
 			<Flex align="center" gap="8">
 				<Icon :name="link.icon" size="14" color="secondary" :class="$style.link_icon" />
 				<Text size="13" weight="600" color="secondary">{{ link.name }}</Text>
@@ -62,6 +119,16 @@ const handleClick = () => {
 	&.active {
 		background: var(--op-5);
 
+		& span {
+			color: var(--txt-primary);
+		}
+
+		& .link_icon:first-of-type {
+			fill: var(--brand);
+		}
+	}
+
+	&.parentActive {
 		& span {
 			color: var(--txt-primary);
 		}

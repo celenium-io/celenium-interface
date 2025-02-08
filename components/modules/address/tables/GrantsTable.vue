@@ -73,7 +73,7 @@ const handleViewRawGrants = (g) => {
 					<td @click="handleViewRawGrants(g)">
 						<Flex align="center">
 							<Text size="12" weight="600" color="primary" class="table_column_alias">
-								{{ $getDisplayName('addresses', g.grantee) }}
+								{{ $getDisplayName('addresses', g.grantee.hash) }}
 							</Text>
 						</Flex>
 					</td>

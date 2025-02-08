@@ -35,7 +35,7 @@ const validatorsGraph = ref([
 		title: "active",
 		count: 0,
 		width: 0,
-		color: "var(--validator-active)",
+		color: "var(--brand)",
 	},
 	{
 		title: "inactive",
@@ -253,7 +253,7 @@ onMounted(() => {
 
 	border-radius: 2px;
 
-	background: linear-gradient(90deg, var(--staking) var(--percentStaking), var(--supply) var(--percentStaking));
+	background: linear-gradient(90deg, var(--brand) var(--percentStaking), var(--supply) var(--percentStaking));
 }
 
 .validator_bar {

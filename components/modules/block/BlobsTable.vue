@@ -212,13 +212,13 @@ const handlePrev = () => {
 							<td>
 								<Tooltip position="start" delay="500">
 									<Flex align="center" gap="8">
-										<AddressBadge :hash="blob.signer" />
+										<AddressBadge :account="blob.signer" />
 
-										<CopyButton :text="blob.signer" />
+										<CopyButton :text="blob.signer.hash" />
 									</Flex>
 
 									<template #content>
-										{{ blob.signer }}
+										{{ blob.signer.hash }}
 									</template>
 								</Tooltip>
 							</td>

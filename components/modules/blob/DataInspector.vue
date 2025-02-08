@@ -69,7 +69,7 @@ const decode = (bytes) => {
 
 <template>
 	<Flex direction="column" gap="16" :class="$style.wrapper">
-		<Flex align="center" justify="between" :class="$style.header">
+		<Flex align="center" justify="between">
 			<Text size="13" weight="600" color="primary">Data Inspector</Text>
 		</Flex>
 

@@ -1552,6 +1552,8 @@ const runBounce = () => {
 	scroll-padding: 4px;
 	overflow-y: auto;
 
+	overscroll-behavior: contain;
+
 	padding-bottom: 4px;
 }
 
