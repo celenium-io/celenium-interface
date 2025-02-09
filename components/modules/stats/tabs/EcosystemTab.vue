@@ -40,15 +40,15 @@ const selectedPeriod = ref(periods.value[0])
 
 @media (max-width: 1050px) {
 	.chart {
-		width: 400px;
+		width: 700px;
 		height: 280px;
 	}
 }
 
 @media (max-width: 900px) {
 	.chart {
-		flex: 1;
-		min-width: 400px;
+		/* flex: 1; */
+		min-width: 500px;
 		height: 280px;
 	}
 }

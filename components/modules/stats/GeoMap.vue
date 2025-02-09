@@ -4,29 +4,29 @@ import * as d3 from "d3"
 import { geoCentroid } from "d3-geo"
 import { DateTime } from "luxon"
 
-/** Stats Components */
-import DiffChip from "@/components/modules/stats/DiffChip.vue"
+/** UI */
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { convertCountryCode, getCountryByCity } from "@/services/constants/mapping"
 import { abbreviate, capitilize, comma, formatBytes, sortArrayOfObjects } from "@/services/utils"
+
+/** Constants */
+import { convertCountryCode, getCountryByCity, getCountryCentroid } from "@/services/constants/stats"
 
 /** API */
 import { fetchNodeStats } from "@/services/api/stats"
 
-const props = defineProps({
-    data: {
-        type: Array,
-        required: true,
-    },
-})
-
 const isLoading = ref(false)
 const geoMap = ref()
 const nodeCityData = ref([])
-// const chartView = ref("countries")
-const chartView = ref("cities")
-const showCities = ref(true)
+const chartView = ref("countries")
+const handleChangeChartView = () => {
+	if (chartView.value === "countries") {
+		chartView.value = "cities"
+	} else {
+		chartView.value = "countries"
+	}
+}
 
 const getNodeStats = async (name) => {
     isLoading.value = true
@@ -66,8 +66,6 @@ const buildChart = async (chart) => {
         .translate([ width / 2, height / 2 ])
     
     const countryMaxAmount = d3.max(geoMap.value, (d) => +d.amount)
-    const countryMinAmount = d3.min(geoMap.value, (d) => +d.amount)
-    
     const countryColor = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#1e473d", "#18d2a5"]))
         .domain([1, countryMaxAmount])
     
@@ -75,9 +73,8 @@ const buildChart = async (chart) => {
         .domain(d3.extent(nodeCityData.value, d => +d.amount))
         .range([4, 20])
     
-    let zoomScale = 1
-
     const path =  d3.geoPath().projection(projection)
+    let zoomScale = 1
 
 	/** SVG Container */
 	const svg = d3
@@ -110,31 +107,62 @@ const buildChart = async (chart) => {
     container.appendChild(svg.node());
     document.body.appendChild(container);
 
-    // Main container
-    const g = svg.append("g")
-
     // Three function that change the tooltip when user hover / move / leave a cell
+    const tooltip = container.querySelector(".tooltip");
     const mouseover = function(d) {
         tooltip.style.opacity = 1
     }
     const mousemove = function(event, d) {
-        // console.log('d', d);
-        const title = chartView.value === "countries" ? d.properties.name : d.name
         const { pageX, pageY } = event
-
         tooltip.style.display = "block";
         tooltip.style.left = `${pageX + 10}px`
         tooltip.style.top = `${pageY - 20}px`
-        tooltip.innerHTML = `
-            <div class="flex items-center gap--8">
-                <span style="color: var(--txt-secondary);">${title}:</span>
-                <span style="color: var(--txt-primary);">${d.amount}</span>
-            </div>
-        `;
+
+        if (chartView.value === "countries") {
+            tooltip.innerHTML = `
+                <div class="flex items-center gap--8">
+                    <span style="color: var(--txt-secondary);">${d.properties.name}:</span>
+                    <span style="color: var(--txt-primary);">${d.amount}</span>
+                </div>
+            `;
+        } else if (chartView.value === "cities") {
+            let hoverCities = []
+            if (zoomScale > 4) {
+                const { x, y } = d
+                const r = size(d.amount) / (zoomScale * 1.1)
+
+                cities.each(c => {
+                    const x1 = c.x
+                    const y1 = c.y
+                    const r1 = size(c.amount) / (zoomScale * 1.1)
+
+                    const distance = Math.sqrt((x - x1) ** 2 + (y - y1) ** 2)
+                    
+                    if (distance < r + r1) {
+                        hoverCities.push(c)
+                    }
+                });
+            } else {
+                hoverCities.push(d)
+            }
+            
+            let tooltipContent = sortArrayOfObjects(hoverCities, "amount", false).map(c => {
+                return `
+                    <div class="flex items-center gap--8">
+                        <span style="color: var(--txt-secondary);">${c.name}:</span>
+                        <span style="color: var(--txt-primary);">${c.amount}</span>
+                    </div>
+                `;
+            }).join('')
+            tooltip.innerHTML = tooltipContent
+        }
     }
     const mouseleave = function(event, d) {
         tooltip.style.opacity = 0
     }
+
+    // Main container
+    const g = svg.append("g")
 
     // Draw the map
     const map = g.append("g")
@@ -142,21 +170,14 @@ const buildChart = async (chart) => {
         .data(geoMap.value)
         .enter()
         .append("path")
-        .attr("fill", d => chartView.value === "countries"
-            ? d.amount
-                ? countryColor(+d.amount)
-                : "transparent"
-            : "transparent")
+        .attr("stroke", "var(--geo-map)")
+        .attr("stroke-width", 1)
+        .attr("fill", "transparent")
         .attr("d", d3.geoPath()
             .projection(projection)
         )
-        .attr("stroke", "var(--geo-map)")
-        .attr("stroke-width", 1)
-        // .on("mouseover", mouseover)
-        // .on("mousemove", mousemove)
-        // .on("mouseleave", mouseleave)
-    // Add circles:
-    let circles, centerCircles
+
+    let cities, circles, centerCircles
     if (chartView.value === "countries") {
         map
             .on("mouseover", function(event, d) {
@@ -164,7 +185,6 @@ const buildChart = async (chart) => {
                     .transition()
                     .duration(200)
                     .attr("stroke", "var(--brand)")
-                    // .attr("stroke-width", zoomScale < 1.5 ? 2 : 1)
                     .attr("stroke-width", 2 / zoomScale)
                 d3.select(this).raise();
                 mouseover(event, d);
@@ -175,69 +195,77 @@ const buildChart = async (chart) => {
                     .transition()
                     .duration(200)
                     .attr("stroke", "var(--geo-map)")
-                    // .attr("stroke-width", 1);
                     .attr("stroke-width", 1 / zoomScale)
                 d3.select(this).lower();
                 mouseleave(event, d);
             })
-
+        
+        map
+            .transition()
+            .duration(700)
+            .attr("fill", d => chartView.value === "countries"
+                ? d.amount
+                    ? countryColor(+d.amount)
+                    : "transparent"
+                : "transparent")
     } else if (chartView.value === "cities") {
         const lostCities = geoMap.value
-            .filter(el => el.amountLostCities > 0)
-            .map(el => ({
-                name: `Somewhere in ${el.properties.name}`,
-                amount: el.amountLostCities,
-                geometry: el.geometry,
-            }))
+            .filter(c => c.amountLostCities > 0)
+            .map(c => {
+                const centroid = getCountryCentroid(c.id)
+                let coords
+                if (centroid) {
+                    coords = projection([+centroid[0], +centroid[1]])
+                } else {
+                    coords = path.centroid(c.geometry)
+                }
+                return {
+                    name: `Somewhere in ${c.properties.name}`,
+                    amount: c.amountLostCities,
+                    x: coords[0],
+                    y: coords[1],
+                }
+            })
+        nodeCityData.value = nodeCityData.value.map(c => {
+            const coords = projection([+c.longitude, +c.latitude])
+            return {
+                ...c,
+                x: coords[0],
+                y: coords[1],
+            }
+        })
+        nodeCityData.value = [...nodeCityData.value, ...lostCities]
 
-        circles = g.append("g")
-            .selectAll("myCircles")
+        cities = g.append("g")
+            .selectAll("cities")
             .data(nodeCityData.value)
             .enter()
             .append("circle")
-                .attr("cx", d => projection([+d.longitude, +d.latitude])[0])
-                .attr("cy", d => projection([+d.longitude, +d.latitude])[1])
-                .attr("r", d => size(d.amount))
+                .attr("transform", d => `translate(${d.x}, ${d.y})`)
+                // .attr("r", d => size(d.amount))
+                .attr("r", 0)
                 .style("fill", "var(--brand)")
-                // .attr("stroke-width", 1)
-                .attr("fill-opacity", 0.7)
+                .attr("fill-opacity", 0)
                 .on("mouseover", mouseover)
                 .on("mousemove", mousemove)
                 .on("mouseleave", mouseleave)
-    
-        centerCircles = g.append("g")
-            .selectAll("centerCircles")
-            .data(lostCities)
-            .enter()
-            .append("circle")
-                .attr("transform", function(d) {
-                    let coords = path.centroid(d.geometry);
-                    return `translate(${coords[0]}, ${coords[1]})`
-                })
-                .attr("r", d => size(d.amount))
-                .style("fill", "var(--brand)")
-                .attr("fill-opacity", 0.7)
-                .on("mouseover", mouseover)
-                .on("mousemove", mousemove)
-                .on("mouseleave", mouseleave)
-
+        
+        cities.transition()
+            .delay((d, i) => i * 3)
+            .duration(500)
+            .attr("r", d => size(d.amount))
+            .attr("fill-opacity", 0.7)
     }
 
-    const tooltip = container.querySelector(".tooltip");
-    
-    const bounds = d3.geoPath().projection(projection).bounds({ type: "FeatureCollection", features: geoMap.value })
-    const [[x0, y0], [x1, y1]] = bounds
-
-    
     // Legend
     const legend = {
-        width: 250,
+        width: 220,
         height: 10,
         marginBottom: 40,
         marginRight: 150,
         marginLeft: 40,
     }
-    let legendValues = []
+    
     function legendCitiesX(i) {
         let x = legend.marginLeft
 
@@ -251,14 +279,13 @@ const buildChart = async (chart) => {
         return x
     }
 
-
+    let legendValues = []
     let legendGroup, legendCitiesMarkers, legendCitiesLabels
-    
     if (chartView.value === "countries") {
         legendGroup = svg
             .append("g")
-            .attr("transform", `translate(${width - legend.width - 20}, ${height - legend.marginBottom})`)
-            .style("opacity", 1)
+            .attr("transform", `translate(${legend.marginLeft}, ${height - legend.marginBottom})`)
+            .style("opacity", 0)
         const defs = svg.append("defs")
         const linearGradient = defs.append("linearGradient")
             .attr("id", "legend-gradient")
@@ -267,7 +294,7 @@ const buildChart = async (chart) => {
             .attr("y1", "0%")
             .attr("y2", "0%")
         
-        legendValues = [1, 10, 25, 50, 100, countryMaxAmount]
+        legendValues = [1, 25, 50, 100, countryMaxAmount]
         legendValues.forEach((d, i, arr) => {
             linearGradient.append("stop")
                 .attr("offset", `${(i / (arr.length - 1)) * 100}%`)
@@ -275,7 +302,7 @@ const buildChart = async (chart) => {
         })
         
         legendGroup.append("rect")
-            .attr("x", 20)
+            .attr("x", 0)
             .attr("y", 10)
             .attr("width", legend.width)
             .attr("height", legend.height)
@@ -283,17 +310,22 @@ const buildChart = async (chart) => {
         
         const legendScale = d3.scaleLinear()
             .domain([1, countryMaxAmount])
-            .range([0, countryMaxAmount * 2])
+            .range([1, legend.width])
 
         const legendAxis = d3.axisBottom(legendScale)
             .tickValues(legendValues)
             .tickFormat(d3.format("d"))
 
         legendGroup.append("g")
-            .attr("transform", `translate(20, ${legend.marginBottom - 20})`)
+            .attr("transform", `translate(0, ${legend.marginBottom - 20})`)
             .call(legendAxis)
-            // .attr("color", "var(--txt-secondary)")
             .attr("color", "var(--txt-tertiary)")
+        
+        legendGroup
+            .transition()
+            .duration(1_000)
+            .style("opacity", 1)
+            
     } else if (chartView.value === "cities") {
         legendValues = [1, 25, 100]
         legendCitiesMarkers = svg.append("g")
@@ -305,7 +337,11 @@ const buildChart = async (chart) => {
                 .attr("cy", d => height - legend.marginBottom + 20 - size(d))
                 .attr("r", d => size(d))
                 .style("fill", "var(--brand)")
-                .attr("fill-opacity", 0.7)
+                .attr("fill-opacity", 0)
+        legendCitiesMarkers
+            .transition()
+            .duration(1_000)
+            .attr("fill-opacity", 0.7)
 
         legendCitiesLabels = svg.append("g")
             .selectAll("legendLabels")
@@ -319,11 +355,17 @@ const buildChart = async (chart) => {
                 // .style("fill", "var(--txt-secondary)")
                 .style("fill", "var(--txt-tertiary)")
                 .attr('text-anchor', 'middle')
-                .attr("fill-opacity", 1)
+                .attr("fill-opacity", 0)
+        legendCitiesLabels
+            .transition()
+            .duration(1_000)
+            .attr("fill-opacity", 1)
     }
 
 
     // Add zoom functionality
+    const bounds = d3.geoPath().projection(projection).bounds({ type: "FeatureCollection", features: geoMap.value })
+    const [[x0, y0], [x1, y1]] = bounds
     const zoom = d3.zoom()
         .scaleExtent([1, 20])
         .translateExtent([[x0, y0], [x1, y1]])
@@ -345,10 +387,11 @@ const buildChart = async (chart) => {
                 }
             } else if (chartView.value === "cities") {
                 if (zoomScale > 1) {
-                    circles
-                        .attr("r", d => size(d.amount) / (zoomScale * 1.1))
-                    centerCircles
-                        .attr("r", d => size(d.amount) / (zoomScale * 1.1))
+                    cities.attr("r", d => size(d.amount) / (zoomScale * 1.1))
+                    // circles
+                    //     .attr("r", d => size(d.amount) / (zoomScale * 1.1))
+                    // centerCircles
+                    //     .attr("r", d => size(d.amount) / (zoomScale * 1.1))
                     if (zoomScale > 3) {
                         legendCitiesMarkers
                             .transition()
@@ -369,10 +412,11 @@ const buildChart = async (chart) => {
                             .attr("fill-opacity", 1)
                     }
                 } else {
-                    circles
-                        .attr("r", d => size(d.amount))
-                    centerCircles
-                        .attr("r", d => size(d.amount))
+                    cities.attr("r", d => size(d.amount))
+                    // circles
+                    //     .attr("r", d => size(d.amount))
+                    // centerCircles
+                    //     .attr("r", d => size(d.amount))
                 }
             }
         })
@@ -391,11 +435,20 @@ onMounted( async () => {
     if (geoData?.features.length) {
         geoMap.value = geoData.features.filter(d => d.properties.name !== "Antarctica")
         const countryData = await getNodeStats("country")
+        const cityData = (await getNodeStats("city")).filter(el => el.latitude)
 
-        nodeCityData.value = (await getNodeStats("city")).filter(el => el.latitude)
+        nodeCityData.value = Object.values(cityData.reduce((acc, obj) => {
+            if (!acc[obj.name]) {
+                acc[obj.name] = { ...obj }
+            } else {
+                acc[obj.name].amount += obj.amount
+            }
+            return acc
+        }, {}))
+
         nodeCityData.value.forEach(c => {
             c.country = getCountryByCoordinatesOrCityName(c.name, c.latitude, c.longitude, geoData)
-        })
+        })        
 
         const amountCityMap = nodeCityData.value.reduce((acc, { country, amount }) => {
             if (acc[country]) {
@@ -425,23 +478,55 @@ onMounted( async () => {
         await buildChart(chartEl.value.wrapper)
     }
 })
+
+watch(
+    () => chartView.value,
+    async () => {
+        await buildChart(chartEl.value.wrapper)
+    }
+)
 </script>
 
 <template>
 	<Flex direction="column" justify="start" gap="8" wide :class="$style.wrapper">
-        <!-- <Transition name="fastfade">
-            <div :class="$style.tooltip_wrapper">
-                <Flex
-                    align="center"
-                    :style="{ transform: `translate(${tooltip.x}px, ${tooltip.y}px)` }"
-                    gap="12"
-                    :class="$style.tooltip"
-                >
-                    <Text size="12" weight="600" color="primary"> {{ tooltip.label }} </Text>
-                </Flex>
-            </div>
-        </Transition> -->
+        <Flex
+            @click="handleChangeChartView"
+            align="center"
+            gap="12"
+            :class="$style.chart_selector"
+            :style="{
+                background: `linear-gradient(to ${chartView === 'countries' ? 'right' : 'left'}, var(--op-5) 50%, transparent 50%)`,
+            }"
+        >
+            <Icon
+                name="earth"
+                size="14"
+                :style="{ fill: `${chartView === 'countries' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
+            />
 
+            <Icon
+                name="city"
+                size="14"
+                :style="{ fill: `${chartView === 'cities' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
+            />
+        </Flex>
+
+        <Tooltip v-if="chartView === 'cities'" position="start" :class="$style.chart_info">
+            <Icon name="info" size="16" color="tertiary" />
+
+            <template #content>
+                <Flex align="center" gap="2" :style="{ width: '200px' }">
+                    <Text size="12" weight="600" color="secondary">
+                        Somewhere in..
+                        <Text size="12" weight="400" color="secondary">
+                            means that it was not possible to determine the exact location.
+                        </Text>
+                    </Text>
+                    
+                </Flex>
+            </template>
+        </Tooltip>
+        
         <Flex ref="chartEl" :class="$style.chart" />
 	</Flex>
 </template>
@@ -450,31 +535,8 @@ onMounted( async () => {
 .wrapper {
     width: 100%;
 	height: 100%;
-}
 
-.legend_wrapper {
-    max-width: 55%;
-}
-
-.legend_item {
-    transition: all 0.6s ease;
-}
-
-.legend {
-	width: 10px;
-	height: 10px;
-
-	border-radius: 5px;
-	cursor: pointer;
-
-	margin-right: 6px;
-}
-
-.chart_wrapper {
-    width: 155px;
-	height: 155px;
-
-	position: relative;
+    position: relative;
 }
 
 .chart {
@@ -485,44 +547,28 @@ onMounted( async () => {
 
 	& svg {
 		overflow: visible;
+        /* display: block; */
 	}
 }
 
-.tooltip_wrapper {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
+.chart_selector {
+    width: 52px;
+    position: absolute;
+    top: 8px;
+	right: 8px;
 
-	& .tooltip {
-		min-width: 200px;
-		pointer-events: none;
-		position: absolute;
-		z-index: 10;
-
-		background: var(--card-background);
-		border-radius: 6px;
-		box-shadow: inset 0 0 0 1px var(--op-5), 0 14px 34px rgba(0, 0, 0, 15%), 0 4px 14px rgba(0, 0, 0, 5%);
-
-		padding: 10px;
-
-		transition: all 0.2s ease;
-	}
-
-	& .legend {
-		height: 34px;
-		width: 3px;
-		border-radius: 8px;
-	}
-
-	& .horizontal_divider {
-		width: 100%;
-		height: 1px;
-		background: var(--op-5);
-	}
+	padding: 4px 6px;
+	box-shadow: inset 0 0 0 1px var(--op-10);
+	border-radius: 5px;
+	cursor: pointer;
+	transition: all 1s ease-in-out;
 }
 
+.chart_info {
+    position: absolute;
+    top: 8px;
+	left: 8px;
+}
 @media (max-width: 1000px) {
 	.wrapper {
 		max-width: initial;
