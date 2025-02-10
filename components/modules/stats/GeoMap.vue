@@ -1,22 +1,21 @@
 <script setup>
 /** Vendor */
 import * as d3 from "d3"
-import { geoCentroid } from "d3-geo"
-import { DateTime } from "luxon"
 
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { abbreviate, capitilize, comma, formatBytes, sortArrayOfObjects } from "@/services/utils"
+import { sortArrayOfObjects } from "@/services/utils"
 
 /** Constants */
-import { convertCountryCode, getCountryByCity, getCountryCentroid } from "@/services/constants/stats"
+import { convertCountryCode, getCountryByCity, getCountryCentroid, getRandomLoaderPath } from "@/services/constants/stats"
 
 /** API */
 import { fetchNodeStats } from "@/services/api/stats"
 
-const isLoading = ref(false)
+const isLoading = ref(true)
+const loaderPath = ref(getRandomLoaderPath())
 const geoMap = ref()
 const nodeCityData = ref([])
 const chartView = ref("countries")
@@ -85,7 +84,7 @@ const buildChart = async (chart) => {
         // .attr("transform", `translate(${width / 2}, ${height / 2 + 10})`)
 
     // Tooltip | We wrap the SVG with a container that has the html element above it
-    const container = document.createElement("div");
+    const container = document.createElement("div")
     container.innerHTML = `
         <style>
             .tooltip {
@@ -104,11 +103,11 @@ const buildChart = async (chart) => {
         </style>
         <div class="tooltip"></div>
     `
-    container.appendChild(svg.node());
-    document.body.appendChild(container);
+    container.appendChild(svg.node())
+    document.body.appendChild(container)
 
     // Three function that change the tooltip when user hover / move / leave a cell
-    const tooltip = container.querySelector(".tooltip");
+    const tooltip = container.querySelector(".tooltip")
     const mouseover = function(d) {
         tooltip.style.opacity = 1
     }
@@ -124,7 +123,7 @@ const buildChart = async (chart) => {
                     <span style="color: var(--txt-secondary);">${d.properties.name}:</span>
                     <span style="color: var(--txt-primary);">${d.amount}</span>
                 </div>
-            `;
+            `
         } else if (chartView.value === "cities") {
             let hoverCities = []
             if (zoomScale > 4) {
@@ -141,7 +140,7 @@ const buildChart = async (chart) => {
                     if (distance < r + r1) {
                         hoverCities.push(c)
                     }
-                });
+                })
             } else {
                 hoverCities.push(d)
             }
@@ -152,7 +151,7 @@ const buildChart = async (chart) => {
                         <span style="color: var(--txt-secondary);">${c.name}:</span>
                         <span style="color: var(--txt-primary);">${c.amount}</span>
                     </div>
-                `;
+                `
             }).join('')
             tooltip.innerHTML = tooltipContent
         }
@@ -177,7 +176,7 @@ const buildChart = async (chart) => {
             .projection(projection)
         )
 
-    let cities, circles, centerCircles
+    let cities
     if (chartView.value === "countries") {
         map
             .on("mouseover", function(event, d) {
@@ -186,8 +185,8 @@ const buildChart = async (chart) => {
                     .duration(200)
                     .attr("stroke", "var(--brand)")
                     .attr("stroke-width", 2 / zoomScale)
-                d3.select(this).raise();
-                mouseover(event, d);
+                d3.select(this).raise()
+                mouseover(event, d)
             })
             .on("mousemove", mousemove)
             .on("mouseleave", function(event, d) {
@@ -196,8 +195,8 @@ const buildChart = async (chart) => {
                     .duration(200)
                     .attr("stroke", "var(--geo-map)")
                     .attr("stroke-width", 1 / zoomScale)
-                d3.select(this).lower();
-                mouseleave(event, d);
+                d3.select(this).lower()
+                mouseleave(event, d)
             })
         
         map
@@ -234,11 +233,11 @@ const buildChart = async (chart) => {
                 y: coords[1],
             }
         })
-        nodeCityData.value = [...nodeCityData.value, ...lostCities]
+        const citiesData = [...nodeCityData.value, ...lostCities]
 
         cities = g.append("g")
             .selectAll("cities")
-            .data(nodeCityData.value)
+            .data(citiesData)
             .enter()
             .append("circle")
                 .attr("transform", d => `translate(${d.x}, ${d.y})`)
@@ -249,7 +248,6 @@ const buildChart = async (chart) => {
                 .on("mouseover", mouseover)
                 .on("mousemove", mousemove)
                 .on("mouseleave", mouseleave)
-        
         cities.transition()
             .delay((d, i) => i * 3)
             .duration(500)
@@ -388,10 +386,6 @@ const buildChart = async (chart) => {
             } else if (chartView.value === "cities") {
                 if (zoomScale > 1) {
                     cities.attr("r", d => size(d.amount) / (zoomScale * 1.1))
-                    // circles
-                    //     .attr("r", d => size(d.amount) / (zoomScale * 1.1))
-                    // centerCircles
-                    //     .attr("r", d => size(d.amount) / (zoomScale * 1.1))
                     if (zoomScale > 3) {
                         legendCitiesMarkers
                             .transition()
@@ -413,17 +407,13 @@ const buildChart = async (chart) => {
                     }
                 } else {
                     cities.attr("r", d => size(d.amount))
-                    // circles
-                    //     .attr("r", d => size(d.amount))
-                    // centerCircles
-                    //     .attr("r", d => size(d.amount))
                 }
             }
         })
 
     svg.call(zoom);
 
-    svg.on("wheel", (event) => event.preventDefault(), { passive: false });
+    svg.on("wheel", (event) => event.preventDefault(), { passive: false })
 
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
@@ -457,8 +447,8 @@ onMounted( async () => {
                 acc[country] = amount;
             }
 
-            return acc;
-            }, {});
+            return acc
+            }, {})
         
         const amountCountryMap = Object.fromEntries(
             countryData.map(d => {
@@ -528,6 +518,14 @@ watch(
         </Tooltip>
         
         <Flex ref="chartEl" :class="$style.chart" />
+
+        <Flex v-if="isLoading" align="center" direction="column" gap="8" :class="$style.loader">
+            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 512 512">
+                <path id="france-path" fill="transparent" :d="loaderPath"/>
+            </svg>
+
+            <Text size="12" color="secondary">Loading map..</Text>
+        </Flex>
 	</Flex>
 </template>
 
@@ -569,6 +567,59 @@ watch(
     top: 8px;
 	left: 8px;
 }
+
+.loader{
+    position: absolute;
+    top: 30%;
+    right: 50%;
+    animation: blink 1s ease-in-out infinite;
+
+    path {
+        stroke: var(--txt-secondary);
+        stroke-width: 5;
+        stroke-dasharray: 1800;
+        stroke-dashoffset: 1800;
+        animation: drawPath 2s linear infinite;
+    }
+}
+
+/* .france_icon circle {
+    fill: var(--brand);
+    box-shadow: 0 0 0 4px var(--dark-mint);
+    animation: movePoint 2s linear infinite, blink 1s ease-in-out infinite;
+    offset-path: path('M283.4 19.83c-3.2 0-31.2 5.09-31.2 5.09c-1.3 41.61-30.4 78.48-90.3 84.88l-12.8-23.07l-25.1 2.48l11.3 60.09l-113.79-4.9l12.2 41.5C156.3 225.4 150.7 338.4 124 439.4c47 53 141.8 47.8 186 43.1c3.1-62.2 52.4-64.5 135.9-32.2c11.3-17.6 18.8-36 44.6-50.7l-46.6-139.5l-27.5 6.2c11-21.1 32.2-49.9 50.4-63.4l15.6-86.9c-88.6-6.3-146.4-46.36-199-96.17');
+    offset-distance: 103%;
+} */
+
+@keyframes drawPath {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* @keyframes movePoint {
+    0% {
+        offset-distance: 0%;
+        transform: translate(0, 0);
+    }
+    100% {
+        offset-distance: 103%;
+        transform: translate(0, 0);
+    }
+} */
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.4;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
 @media (max-width: 1000px) {
 	.wrapper {
 		max-width: initial;
