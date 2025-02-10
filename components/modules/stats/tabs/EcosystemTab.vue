@@ -34,22 +34,24 @@ const selectedPeriod = ref(periods.value[0])
 }
 
 .chart {
-	width: 1000px;
-	height: 640px;
+	width: 100%;
+	max-width: 1000px;
+	aspect-ratio: 16 / 10;
+	/* height: 640px; */
 }
 
 @media (max-width: 1050px) {
 	.chart {
-		width: 700px;
-		height: 280px;
+		/* width: 700px; */
+		/* height: 280px; */
 	}
 }
 
 @media (max-width: 900px) {
 	.chart {
 		/* flex: 1; */
-		min-width: 500px;
-		height: 280px;
+		/* max-width: 500px; */
+		/* height: 280px; */
 	}
 }
 
@@ -59,9 +61,10 @@ const selectedPeriod = ref(periods.value[0])
 	}
 
 	.chart {
-		flex: 1;
-		min-width: 340px;
-		height: 380px;
+		/* flex: 1; */
+		/* max-width: 340px; */
+		/* height: 380px; */
+		aspect-ratio: 4 / 5;
 	}
 }
 </style>
