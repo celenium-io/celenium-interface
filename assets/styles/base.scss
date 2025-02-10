@@ -78,6 +78,7 @@ $grayscale: (
 	// --supply: #65c7f8;
 	--supply: #1ca7ed;
 	--staking: #85f891;
+	--geo-map: #8B8C8D;
 }
 
 [theme="dimmed"] {
@@ -139,6 +140,7 @@ $grayscale: (
 	--block-progress-fill-background: #33a853;
 	--logo-name: var(--txt-primary);
 	--bar-fill: rgb(243, 147, 45);
+	--geo-map: #8B8C8D;
 }
 
 [theme="light"] {
@@ -200,6 +202,7 @@ $grayscale: (
 	--block-progress-fill-background: #33a853;
 	--logo-name: var(--txt-primary);
 	--bar-fill: rgb(243, 147, 45);
+	--geo-map: #8B8C8D;
 }
 
 @font-face {
