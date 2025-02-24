@@ -120,7 +120,19 @@ export const STATS_SERIES = [
 			},
 		],
 	},
-]
+	{
+		group: 'Ecosystem',
+		series: [
+			{
+				name: 'nodetype',
+				title: 'node type',
+			},
+			{
+				name: 'version',
+				title: 'version',
+			},
+		],
+	},]
 
 // TO DO: Replace forEach with for
 export function getSeriesByGroupAndType(group, type) {

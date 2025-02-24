@@ -1,22 +1,69 @@
 <script setup>
 /** Stats Components */
 import GeoMap from "@/components/modules/stats/GeoMap.vue"
+import BarplotChartCard from "@/components/modules/stats/BarplotChartCard.vue";
+// import PieChartCard from "@/components/modules/stats/PieChartCard.vue"
 
 /** Constants */
 import { getSeriesByGroupAndType, STATS_PERIODS } from "@/services/constants/stats.js"
 
-const series = computed(() => getSeriesByGroupAndType('Blocks'))
-const periods = ref(STATS_PERIODS)
-const selectedPeriod = ref(periods.value[0])
+/** Services */
+import { capitilize, isMobile, sortArrayOfObjects } from "@/services/utils"
 
+/** API */
+import { fetchNodeStats } from "@/services/api/stats"
+
+const isLoading = ref(true)
+const series = computed(() => getSeriesByGroupAndType('Ecosystem'))
+
+const getNodeStats = async (name) => {
+	const data = await fetchNodeStats({ name })
+
+	if (!data.length) return []
+
+	return sortArrayOfObjects(data, "amount")
+}
+
+const prepareData = async () => {
+	isLoading.value = true
+	
+	for (const s of series.value) {
+		const data = await getNodeStats(s.name)
+		s.data = data.map(d => {
+			return {
+				...d,
+				name: d.name === "celestia-celestia" ? "Celestia" : capitilize(d.name)				
+			}
+		})
+		if (s.name === "version") {
+			s.data = sortArrayOfObjects(data, "name")
+		}
+	}
+}
+
+onMounted(async () => {
+	await prepareData()
+
+	isLoading.value = false
+})
 </script>
 
 <template>
     <Flex align="center" direction="column" gap="16" wide :class="$style.wrapper">
-        
-		<GeoMap
-			:class="$style.chart"
-		/>
+        <Flex align="start" direction="column" gap="32" wide :class="$style.section">
+			<Text size="16" weight="600" color="primary" justify="start">Light Node Distribution</Text>
+
+			<GeoMap :class="$style.chart" />
+
+			<Flex v-if="!isLoading" align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
+				<BarplotChartCard
+					v-for="s in series"
+					:series="s"
+					:data="s.data"
+					:class="$style.chart_card"
+				/>
+			</Flex>
+		</Flex>
     </Flex>
 </template>
 
@@ -27,6 +74,7 @@ const selectedPeriod = ref(periods.value[0])
 
 .section {
 	margin-top: 20px;
+	max-width: 100%;
 }
 
 .charts_wrapper {
@@ -38,6 +86,13 @@ const selectedPeriod = ref(periods.value[0])
 	max-width: 1000px;
 	aspect-ratio: 16 / 10;
 	/* height: 640px; */
+}
+
+.chart_card {
+	width: 480px;
+	max-width: 480px;
+	max-height: 240px;
+	height: 240px;
 }
 
 @media (max-width: 1050px) {

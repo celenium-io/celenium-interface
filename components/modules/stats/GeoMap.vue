@@ -6,7 +6,7 @@ import * as d3 from "d3"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { sortArrayOfObjects } from "@/services/utils"
+import { isMobile, sortArrayOfObjects } from "@/services/utils"
 
 /** Constants */
 import { convertCountryCode, getCountryByCity, getCountryCentroid, getRandomLoaderPath } from "@/services/constants/stats"
@@ -28,16 +28,11 @@ const handleChangeChartView = () => {
 }
 
 const getNodeStats = async (name) => {
-    isLoading.value = true
-    try {
-        const data = await fetchNodeStats({ name })
+    const data = await fetchNodeStats({ name })
 
-        if (!data.length) return []
+    if (!data.length) return []
 
-        return sortArrayOfObjects(data, "amount")
-    } finally {
-        isLoading.value = false
-    }
+    return sortArrayOfObjects(data, "amount")
 }
 
 function getCountryByCoordinatesOrCityName(name, lat, lon, geoJSON) {
@@ -128,12 +123,12 @@ const buildChart = async (chart) => {
             let hoverCities = []
             if (zoomScale > 4) {
                 const { x, y } = d
-                const r = size(d.amount) / (zoomScale * 1.1)
+                const r = size(+d.amount) / (zoomScale * 1.1)
 
                 cities.each(c => {
                     const x1 = c.x
                     const y1 = c.y
-                    const r1 = size(c.amount) / (zoomScale * 1.1)
+                    const r1 = size(+c.amount) / (zoomScale * 1.1)
 
                     const distance = Math.sqrt((x - x1) ** 2 + (y - y1) ** 2)
                     
@@ -226,7 +221,7 @@ const buildChart = async (chart) => {
                 }
             })
         nodeCityData.value = nodeCityData.value.map(c => {
-            const coords = projection([+c.longitude, +c.latitude])
+            const coords = projection([+c.latitude, +c.longitude])
             return {
                 ...c,
                 x: coords[0],
@@ -251,7 +246,7 @@ const buildChart = async (chart) => {
         cities.transition()
             .delay((d, i) => i * 3)
             .duration(500)
-            .attr("r", d => size(d.amount))
+            .attr("r", d => size(+d.amount))
             .attr("fill-opacity", 0.7)
     }
 
@@ -279,87 +274,88 @@ const buildChart = async (chart) => {
 
     let legendValues = []
     let legendGroup, legendCitiesMarkers, legendCitiesLabels
-    if (chartView.value === "countries") {
-        legendGroup = svg
-            .append("g")
-            .attr("transform", `translate(${legend.marginLeft}, ${height - legend.marginBottom})`)
-            .style("opacity", 0)
-        const defs = svg.append("defs")
-        const linearGradient = defs.append("linearGradient")
-            .attr("id", "legend-gradient")
-            .attr("x1", "0%")
-            .attr("x2", "100%")
-            .attr("y1", "0%")
-            .attr("y2", "0%")
-        
-        legendValues = [1, 25, 50, 100, countryMaxAmount]
-        legendValues.forEach((d, i, arr) => {
-            linearGradient.append("stop")
-                .attr("offset", `${(i / (arr.length - 1)) * 100}%`)
-                .attr("stop-color", countryColor(d))
-        })
-        
-        legendGroup.append("rect")
-            .attr("x", 0)
-            .attr("y", 10)
-            .attr("width", legend.width)
-            .attr("height", legend.height)
-            .style("fill", "url(#legend-gradient)")
-        
-        const legendScale = d3.scaleLinear()
-            .domain([1, countryMaxAmount])
-            .range([1, legend.width])
-
-        const legendAxis = d3.axisBottom(legendScale)
-            .tickValues(legendValues)
-            .tickFormat(d3.format("d"))
-
-        legendGroup.append("g")
-            .attr("transform", `translate(0, ${legend.marginBottom - 20})`)
-            .call(legendAxis)
-            .attr("color", "var(--txt-tertiary)")
-        
-        legendGroup
-            .transition()
-            .duration(1_000)
-            .style("opacity", 1)
+    if (!isMobile()) {
+        if (chartView.value === "countries") {
+            legendGroup = svg
+                .append("g")
+                .attr("transform", `translate(${legend.marginLeft}, ${height - legend.marginBottom})`)
+                .style("opacity", 0)
+            const defs = svg.append("defs")
+            const linearGradient = defs.append("linearGradient")
+                .attr("id", "legend-gradient")
+                .attr("x1", "0%")
+                .attr("x2", "100%")
+                .attr("y1", "0%")
+                .attr("y2", "0%")
             
-    } else if (chartView.value === "cities") {
-        legendValues = [1, 25, 100]
-        legendCitiesMarkers = svg.append("g")
-            .selectAll("legendCircles")
-            .data(legendValues)
-            .enter()
-            .append("circle")
-                .attr("cx", (d, i) => legendCitiesX(i))
-                .attr("cy", d => height - legend.marginBottom + 20 - size(d))
-                .attr("r", d => size(d))
-                .style("fill", "var(--brand)")
-                .attr("fill-opacity", 0)
-        legendCitiesMarkers
-            .transition()
-            .duration(1_000)
-            .attr("fill-opacity", 0.7)
+            legendValues = [1, 25, 50, 100, countryMaxAmount]
+            legendValues.forEach((d, i, arr) => {
+                linearGradient.append("stop")
+                    .attr("offset", `${(i / (arr.length - 1)) * 100}%`)
+                    .attr("stop-color", countryColor(d))
+            })
+            
+            legendGroup.append("rect")
+                .attr("x", 0)
+                .attr("y", 10)
+                .attr("width", legend.width)
+                .attr("height", legend.height)
+                .style("fill", "url(#legend-gradient)")
+            
+            const legendScale = d3.scaleLinear()
+                .domain([1, countryMaxAmount])
+                .range([1, legend.width])
 
-        legendCitiesLabels = svg.append("g")
-            .selectAll("legendLabels")
-            .data(legendValues)
-            .enter()
-            .append("text")
-                .attr('x', (d, i) => legendCitiesX(i))
-                .attr('y', height - legend.marginBottom + 15 + size(legendValues.pop()))
-                .text(d => d)
-                .style("font-size", 12)
-                // .style("fill", "var(--txt-secondary)")
-                .style("fill", "var(--txt-tertiary)")
-                .attr('text-anchor', 'middle')
-                .attr("fill-opacity", 0)
-        legendCitiesLabels
-            .transition()
-            .duration(1_000)
-            .attr("fill-opacity", 1)
+            const legendAxis = d3.axisBottom(legendScale)
+                .tickValues(legendValues)
+                .tickFormat(d3.format("d"))
+
+            legendGroup.append("g")
+                .attr("transform", `translate(0, ${legend.marginBottom - 20})`)
+                .call(legendAxis)
+                .attr("color", "var(--txt-tertiary)")
+            
+            legendGroup
+                .transition()
+                .duration(1_000)
+                .style("opacity", 1)
+                
+        } else if (chartView.value === "cities") {
+            legendValues = [1, 25, 100]
+            legendCitiesMarkers = svg.append("g")
+                .selectAll("legendCircles")
+                .data(legendValues)
+                .enter()
+                .append("circle")
+                    .attr("cx", (d, i) => legendCitiesX(i))
+                    .attr("cy", d => height - legend.marginBottom + 20 - size(+d))
+                    .attr("r", d => size(+d))
+                    .style("fill", "var(--brand)")
+                    .attr("fill-opacity", 0)
+            legendCitiesMarkers
+                .transition()
+                .duration(1_000)
+                .attr("fill-opacity", 0.7)
+
+            legendCitiesLabels = svg.append("g")
+                .selectAll("legendLabels")
+                .data(legendValues)
+                .enter()
+                .append("text")
+                    .attr('x', (d, i) => legendCitiesX(i))
+                    .attr('y', height - legend.marginBottom + 15 + size(legendValues.pop()))
+                    .text(d => d)
+                    .style("font-size", 12)
+                    // .style("fill", "var(--txt-secondary)")
+                    .style("fill", "var(--txt-tertiary)")
+                    .attr('text-anchor', 'middle')
+                    .attr("fill-opacity", 0)
+            legendCitiesLabels
+                .transition()
+                .duration(1_000)
+                .attr("fill-opacity", 1)
+        }
     }
-
 
     // Add zoom functionality
     const bounds = d3.geoPath().projection(projection).bounds({ type: "FeatureCollection", features: geoMap.value })
@@ -371,7 +367,7 @@ const buildChart = async (chart) => {
             zoomScale = event.transform.k
             g.attr("transform", event.transform)
             map.attr("stroke-width", 1 / zoomScale)
-            if (chartView.value === "countries") {
+            if (chartView.value === "countries" && legendValues.length) {
                 if (zoomScale > 3) {
                     legendGroup
                         .transition()
@@ -385,28 +381,30 @@ const buildChart = async (chart) => {
                 }
             } else if (chartView.value === "cities") {
                 if (zoomScale > 1) {
-                    cities.attr("r", d => size(d.amount) / (zoomScale * 1.1))
-                    if (zoomScale > 3) {
-                        legendCitiesMarkers
-                            .transition()
-                            .duration(1_000)
-                            .attr("fill-opacity", 0)
-                        legendCitiesLabels
-                            .transition()
-                            .duration(1_000)
-                            .attr("fill-opacity", 0)
-                    } else {
-                        legendCitiesMarkers
-                            .transition()
-                            .duration(1_000)
-                            .attr("fill-opacity", 0.7)
-                        legendCitiesLabels
-                            .transition()
-                            .duration(1_000)
-                            .attr("fill-opacity", 1)
+                    cities.attr("r", d => size(+d.amount) / (zoomScale * 1.1))
+                    if (legendValues.length) {
+                        if (zoomScale > 3) {
+                            legendCitiesMarkers
+                                .transition()
+                                .duration(1_000)
+                                .attr("fill-opacity", 0)
+                            legendCitiesLabels
+                                .transition()
+                                .duration(1_000)
+                                .attr("fill-opacity", 0)
+                        } else {
+                            legendCitiesMarkers
+                                .transition()
+                                .duration(1_000)
+                                .attr("fill-opacity", 0.7)
+                            legendCitiesLabels
+                                .transition()
+                                .duration(1_000)
+                                .attr("fill-opacity", 1)
+                        }
                     }
                 } else {
-                    cities.attr("r", d => size(d.amount))
+                    cities.attr("r", d => size(+d.amount))
                 }
             }
         })
@@ -420,52 +418,57 @@ const buildChart = async (chart) => {
 }
 
 onMounted( async () => {
-    const geoData = await d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
-    // const geoData = await d3.json("https://raw.githubusercontent.com/datasets/geo-boundaries-world-110m/master/countries.geojson")
-    if (geoData?.features.length) {
-        geoMap.value = geoData.features.filter(d => d.properties.name !== "Antarctica")
-        const countryData = await getNodeStats("country")
-        const cityData = (await getNodeStats("city")).filter(el => el.latitude)
+    isLoading.value = true
+    try {
+        const geoData = await d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
+        // const geoData = await d3.json("https://raw.githubusercontent.com/datasets/geo-boundaries-world-110m/master/countries.geojson")
+        if (geoData?.features.length) {
+            geoMap.value = geoData.features.filter(d => d.properties.name !== "Antarctica")
+            const countryData = await getNodeStats("country")
+            const cityData = (await getNodeStats("city")).filter(el => el.latitude)
 
-        nodeCityData.value = Object.values(cityData.reduce((acc, obj) => {
-            if (!acc[obj.name]) {
-                acc[obj.name] = { ...obj }
-            } else {
-                acc[obj.name].amount += obj.amount
-            }
-            return acc
-        }, {}))
+            nodeCityData.value = Object.values(cityData.reduce((acc, obj) => {
+                if (!acc[obj.name]) {
+                    acc[obj.name] = { ...obj }
+                } else {
+                    acc[obj.name].amount += obj.amount
+                }
+                return acc
+            }, {}))
 
-        nodeCityData.value.forEach(c => {
-            c.country = getCountryByCoordinatesOrCityName(c.name, c.latitude, c.longitude, geoData)
-        })        
+            nodeCityData.value.forEach(c => {
+                c.country = getCountryByCoordinatesOrCityName(c.name, c.latitude, c.longitude, geoData)
+            })        
 
-        const amountCityMap = nodeCityData.value.reduce((acc, { country, amount }) => {
-            if (acc[country]) {
-                acc[country] += amount;
-            } else {
-                acc[country] = amount;
-            }
+            const amountCityMap = nodeCityData.value.reduce((acc, { country, amount }) => {
+                if (acc[country]) {
+                    acc[country] += amount;
+                } else {
+                    acc[country] = amount;
+                }
 
-            return acc
-            }, {})
-        
-        const amountCountryMap = Object.fromEntries(
-            countryData.map(d => {
-                const name = convertCountryCode(d.name)
-                return name ? [name, d.amount] : null
-            })
-            .filter(Boolean)
-        )
-        
-        geoMap.value = geoMap.value.map(feature => ({
-            ...feature,
-            amount: amountCountryMap[feature.id] || 0,
-            amountLostCities: (amountCountryMap[feature.id] || 0) - (amountCityMap[feature.id] || 0),
-        }))
-        
-        
-        await buildChart(chartEl.value.wrapper)
+                return acc
+                }, {})
+            
+            const amountCountryMap = Object.fromEntries(
+                countryData.map(d => {
+                    const name = convertCountryCode(d.name)
+                    return name ? [name, d.amount] : null
+                })
+                .filter(Boolean)
+            )
+            
+            geoMap.value = geoMap.value.map(feature => ({
+                ...feature,
+                amount: amountCountryMap[feature.id] || 0,
+                amountLostCities: (amountCountryMap[feature.id] || 0) - (amountCityMap[feature.id] || 0),
+            }))
+            
+            
+            await buildChart(chartEl.value.wrapper)
+        }
+    } finally {
+        isLoading.value = false
     }
 })
 
