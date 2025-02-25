@@ -17,17 +17,6 @@ export const fetchNamespaces = async ({ limit, offset, sort, sort_by }) => {
 	}
 }
 
-export const fetchNamespacesCount = async () => {
-	try {
-		const url = new URL(`${useServerURL()}/namespace/count`)
-
-		const data = await useFetch(url.href)
-		return data
-	} catch (error) {
-		console.error(error)
-	}
-}
-
 export const fetchRecentNamespaces = async () => {
 	try {
 		const url = new URL(`${useServerURL()}/namespace/active`)
