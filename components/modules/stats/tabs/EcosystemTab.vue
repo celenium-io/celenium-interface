@@ -26,17 +26,32 @@ const getNodeStats = async (name) => {
 
 const prepareData = async () => {
 	isLoading.value = true
-	
+
 	for (const s of series.value) {
 		const data = await getNodeStats(s.name)
-		s.data = data.map(d => {
-			return {
-				...d,
-				name: d.name === "celestia-celestia" ? "Celestia" : capitilize(d.name)				
-			}
-		})
+		
+		let otherEntry = null
+		s.data = data.reduce((acc, d) => {
+            let name = d.name === "celestia-celestia" ? "Celestia" : capitilize(d.name);
+
+            if (name === "Unknown" || name === "Other") {
+                if (!otherEntry) {
+                    otherEntry = { ...d, name: "Other" }
+                    acc.push(otherEntry)
+                } else {
+                    otherEntry.amount += d.amount
+                }
+            } else {
+                acc.push({ ...d, name })
+            }
+
+            return acc
+        }, [])
+
 		if (s.name === "version") {
-			s.data = sortArrayOfObjects(data, "name")
+			s.data = sortArrayOfObjects(s.data, "name")
+		} else if (s.name === "nodetype") {
+			s.data = sortArrayOfObjects(s.data, "amount")
 		}
 	}
 }

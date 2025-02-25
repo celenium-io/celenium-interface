@@ -505,7 +505,7 @@ watch(
         </Flex>
 
         <Tooltip v-if="chartView === 'cities'" position="start" :class="$style.chart_info">
-            <Icon name="info" size="16" color="tertiary" />
+            <Icon name="info" size="16" color="yellow" />
 
             <template #content>
                 <Flex align="center" gap="2" :style="{ width: '200px' }">
