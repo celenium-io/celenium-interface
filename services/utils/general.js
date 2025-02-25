@@ -4,7 +4,7 @@ export const formatBytes = (bytes, decimals = 2) => {
 	if (!+bytes) return "0 Byte"
 
 	const dm = decimals < 0 ? 0 : decimals
-	const sizes = ["Bytes", "KB", "MiB", "GB", "TB", "PB"]
+	const sizes = ["Bytes", "KiB", "MiB", "GiB", "TiB", "PiB"]
 
 	const i = Math.floor(Math.log(bytes) / Math.log(1024))
 
@@ -94,7 +94,7 @@ export const isMobile = () => {
 		userAgent = navigator.userAgent
 	}
 
-	return REGEX_MOBILE1.test(userAgent) || REGEX_MOBILE2.test(userAgent.slice(0, 4))
+	return REGEX_MOBILE1.test(userAgent) || REGEX_MOBILE2.test(userAgent.slice(0, 4)) || (typeof window !== "undefined" && window.innerWidth < 1300)
 }
 
 export const getNetworkName = () => {

@@ -10,7 +10,11 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { space, formatBytes, comma, getNamespaceID } from "@/services/utils"
 
 /** API */
-import { fetchNamespaces, fetchNamespacesCount } from "@/services/api/namespace"
+import { fetchNamespaces } from "@/services/api/namespace"
+
+/** Store */
+import { useAppStore } from "@/store/app"
+const appStore = useAppStore()
 
 useHead({
 	title: "Namespaces - Celestia Explorer",
@@ -65,19 +69,12 @@ const router = useRouter()
 
 const isRefetching = ref(false)
 const namespaces = ref([])
-const count = ref(0)
+const count = computed(() => appStore.lastHead?.total_namespaces ?? 1)
 
 const sort = reactive({
 	by: "time",
 	dir: "desc",
 })
-
-const getNamespacesCount = async () => {
-	const { data: namespacesCount } = await fetchNamespacesCount()
-	count.value = namespacesCount.value
-}
-
-await getNamespacesCount()
 
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
 const pages = computed(() => Math.ceil(count.value / 20))
@@ -138,8 +135,6 @@ const handleNext = () => {
 }
 
 const handleLast = async () => {
-	await getNamespacesCount()
-
 	page.value = pages.value
 }
 </script>

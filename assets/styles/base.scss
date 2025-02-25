@@ -168,7 +168,7 @@ $grayscale: (
 	--brand: #0ade71;
 	--blue: #0b84fe;
 	--red: #eb5757;
-	--dark-red: #592121;
+	--dark-red: #f6c0c0;
 	--orange: #ff5a17;
 	--light-orange: #ff8351;
 	--yellow: #e5c10b;
@@ -177,7 +177,7 @@ $grayscale: (
 	--purple: #5856de;
 	--mint: #18d2a5;
 	--neutral-mint: #109373;
-	--dark-mint: #1e473d;
+	--dark-mint: #c4f9eb;
 
 	/* Grayscale */
 	@each $gray, $value in $grayscale {
