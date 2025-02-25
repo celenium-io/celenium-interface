@@ -22,7 +22,7 @@ const props = defineProps({
 	rollup: {
 		type: Object,
 		required: false,
-	}
+	},
 })
 
 const handleViewBlob = (blob) => {
