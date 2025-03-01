@@ -15,6 +15,15 @@ const advertisements = [
 		header: 'Celenium survey',
 		body: 'Please take 5 minutes of your time and answer a few questions.',
 		footer: 'Take the survey',
+		weight: 1.1,
+	},
+	{
+		name: 'faucet',
+		internalLink: '/faucet',
+		icon: 'drop',
+		header: 'Celenium Faucet',
+		body: 'Free testnet TIA for the Celestia Mocha network!',
+		footer: 'Get Tokens',
 		weight: 0.3,
 	},
 	{
