@@ -32,7 +32,7 @@ isLoading.value = false
 		</Flex>
 
 		<Flex direction="column" gap="16" :class="$style.pfb_body">
-			<div v-if="pfbs.length" :class="$style.table_scroller">
+			<div v-if="pfbs?.length" :class="$style.table_scroller">
 				<table>
 					<thead>
 						<tr>

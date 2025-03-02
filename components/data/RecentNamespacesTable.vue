@@ -60,7 +60,7 @@ const handleSort = async (by) => {
 		</Flex>
 
 		<Flex direction="column" gap="16" :class="$style.namespaces_body">
-			<div v-if="namespaces.length" :class="$style.table_scroller">
+			<div v-if="namespaces?.length" :class="$style.table_scroller">
 				<table>
 					<thead>
 						<tr>

@@ -51,11 +51,27 @@ const validatorsGraph = ref([
 	},
 ])
 
-const getValidatorsStats = async () => {
+const fetchValidatorsStats = async () => {
 	isRefetching.value = true
 
 	const { data } = await fetchValidatorsCount()
-	validatorsStats.value = data.value
+	console.log('data', data);
+	
+	if (data.value) {
+		validatorsStats.value = data.value
+
+		totalValidators.value = validatorsStats.value["total"]
+		activeValidators.value = validatorsStats.value["active"]
+
+		for (let item of validatorsGraph.value) {
+			let value = validatorsStats.value[item.title]
+
+			if (value) {
+				item.count = value
+				item.width = ((value / totalValidators.value) * 100).toFixed(2)
+			}
+		}
+	}
 
 	isRefetching.value = false
 }
@@ -74,8 +90,9 @@ const fillValidatorsGraph = () => {
 	}
 }
 
-await getValidatorsStats()
-fillValidatorsGraph()
+// await getValidatorsStats()
+// fillValidatorsGraph()
+await fetchValidatorsStats()
 
 onMounted(() => {
 	wrapperWidth.value = wrapperEl.value.wrapper.offsetWidth

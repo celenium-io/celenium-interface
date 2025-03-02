@@ -279,7 +279,7 @@ onMounted(() => {
 					<Flex id="transferWindow" align="center" gap="12" :class="[$style.transfer, !(address && validation.type !== 'error') && $style.disabled]">
 						<Flex align="center" justify="between" wide>
 							<Flex align="center" gap="12">
-								<Icon name="faucet" size="16" color="secondary" />
+								<Icon name="faucet" size="16" color="secondary" :class="$style.icon" />
 
 								<Flex direction="column" gap="6" :class="$style.metadata" wide>
 									<Flex align="center" gap="6">
@@ -292,9 +292,13 @@ onMounted(() => {
 										</Text>
 									</Flex>
 
-									<Text size="12" weight="500" color="tertiary">
-										{{ splitAddress(faucetAddress) }}
-									</Text>
+									<Flex align="center" gap="6">
+										<Text size="12" weight="500" color="tertiary">
+											{{ splitAddress(faucetAddress) }}
+										</Text>
+
+										<CopyButton size="11" :text="faucetAddress" />
+									</Flex>									
 								</Flex>
 							</Flex>
 
@@ -323,7 +327,7 @@ onMounted(() => {
 									</Text>
 								</Flex>
 
-								<Icon name="address" size="16" color="secondary" />
+								<Icon name="address" size="16" color="secondary" :class="$style.icon" />
 							</Flex>
 
 							<div v-if="isLoading" :class="[$style.line, $style.runner]" />
@@ -540,7 +544,7 @@ onMounted(() => {
 		z-index: 1;
 	}
 
-	& svg {
+	& .icon {
 		z-index: 1;
 		box-sizing: content-box;
 
