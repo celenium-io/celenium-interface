@@ -381,7 +381,7 @@ const getBlobs = async () => {
 	})
 
 	if (data.value?.length) {
-		blobs.value = data.value.map((b) => ({ ...b, signer: props.address.hash }))
+		blobs.value = data.value.map((b) => ({ ...b, signer: props.address }))
 	}
 	handleNextCondition.value = data.value.length < 10
 

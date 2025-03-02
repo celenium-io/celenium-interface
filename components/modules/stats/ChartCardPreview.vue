@@ -39,14 +39,15 @@ const chartElPrev = ref()
 
 const getSeries = async () => {
 	let data = []
+	let baseTime = DateTime.now().startOf("hour").plus({ seconds: 1 })
 	let from = parseInt(
-		DateTime.now().minus({
+		baseTime.minus({
 			days: props.period.timeframe === "day" ? props.period.value * 2 + 1 : 0,
 			hours: props.period.timeframe === "hour" ? props.period.value * 2 + 1 : 0,
 		}).ts / 1_000
 	)
 	let to = parseInt(
-		DateTime.now().minus({
+		baseTime.minus({
 			days: props.period.timeframe === "day" ? 1 : 0,
 			hours: props.period.timeframe === "hour" ? 1 : 0,
 		}).ts / 1_000
@@ -57,8 +58,8 @@ const getSeries = async () => {
 			name: props.series.name,
 			period: 'day',
 			from: parseInt(
-				DateTime.now().minus({
-					days: 48,
+				baseTime.minus({
+					months: 2,
 				}).ts / 1_000)
 		})
 	} else if (props.series.name === "tvs") {
@@ -253,7 +254,24 @@ watch(
 			</Flex>
 			<Flex v-else align="end" gap="10" justify="start" wide>
 				<Text size="16" weight="600" color="primary"> {{ series.units === 'bytes' ? formatBytes(currentTotal) : comma(currentTotal) }} </Text>
-				<Text size="14" weight="600" color="tertiary"> {{ `${series.units === 'bytes' ? formatBytes(prevTotal) : abbreviate(prevTotal)} previous ${period.title.replace('Last ', '')}` }} </Text>
+
+				<Text
+					v-if="series.aggregate === 'cumulative'"
+					size="14"
+					weight="600"
+					color="tertiary"
+				>
+					{{ `${formatBytes(prevTotal)} previous month` }}
+				</Text>
+				<Text
+					v-else
+					size="14"
+					weight="600"
+					color="tertiary"
+				>
+					{{ `${series.units === 'bytes' ? formatBytes(prevTotal) : abbreviate(prevTotal)} previous ${period.title.replace('Last ', '')}` }}
+				</Text>
+				
 			</Flex>
 		</Flex>
 
@@ -262,7 +280,13 @@ watch(
 			<Flex ref="chartEl" wide :class="$style.chart" />
 
 			<Flex align="center" justify="between" :class="$style.axis">
-				<Text size="11" weight="600" color="tertiary">
+				<Text v-if="series.aggregate === 'cumulative'" size="11" weight="600" color="tertiary">
+					{{ DateTime.now().minus({
+							months: 2,
+						}).toFormat("LLL dd")
+					}}
+				</Text>
+				<Text v-else size="11" weight="600" color="tertiary">
 					{{ DateTime.now().minus({
 							days: period.timeframe === "day" ? period.value : 0,
 							hours: period.timeframe === "hour" ? period.value : 0,
