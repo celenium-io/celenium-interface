@@ -207,6 +207,10 @@ watch(
 )
 
 await refreshFaucetBalance()
+onMounted(() => {
+	const transferEl = document.getElementById("transferWindow")
+	document.documentElement.style.setProperty('--runner-distance', `${transferEl.clientWidth}px`)
+})
 </script>
 
 <template>
@@ -272,7 +276,7 @@ await refreshFaucetBalance()
 				</Flex>
 				
 				<Flex direction="column" gap="4">
-					<Flex align="center" gap="12" :class="[$style.transfer, !(address && validation.type !== 'error') && $style.disabled]">
+					<Flex id="transferWindow" align="center" gap="12" :class="[$style.transfer, !(address && validation.type !== 'error') && $style.disabled]">
 						<Flex align="center" justify="between" wide>
 							<Flex align="center" gap="12">
 								<Icon name="faucet" size="16" color="secondary" />
@@ -591,15 +595,15 @@ await refreshFaucetBalance()
 
 @keyframes runner {
 	0% {
-		transform: translateX(-50px);
+		transform: translateX(-60px);
 	}
 
 	50% {
-		transform: translateX(600px);
+		transform: translateX(calc(var(--runner-distance) - 40px));
 	}
 
 	100% {
-		transform: translateX(-50px);
+		transform: translateX(-60px);
 	}
 }
 
