@@ -30,7 +30,7 @@ const handleChangeChartView = () => {
 const getNodeStats = async (name) => {
     const data = await fetchNodeStats({ name })
 
-    if (!data.length) return []
+    if (!data?.length) return []
 
     return sortArrayOfObjects(data, "amount")
 }
