@@ -85,6 +85,11 @@ const mainLinks = reactive([
 				path: "/stats?tab=rollups",
 				queryParam: {tab: "rollups"},
 			},
+			{
+				name: "Ecosystem",
+				path: "/stats?tab=ecosystem",
+				queryParam: {tab: "ecosystem"},
+			},
 		],
 	},
 ])
