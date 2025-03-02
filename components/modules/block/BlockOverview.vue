@@ -206,7 +206,7 @@ const getTransactions = async () => {
 	const { data } = await fetchTransactionsByBlock({
 		height: props.block.height,
 		from: parseInt(DateTime.fromISO(props.block.time) / 1000),
-		to: parseInt(DateTime.fromISO(props.block.time) + 1 / 1000),
+		to: parseInt(DateTime.fromISO(props.block.time + 1) / 1000),
 		limit: 10,
 		offset: (page.value - 1) * 10,
 		sort: "desc",
