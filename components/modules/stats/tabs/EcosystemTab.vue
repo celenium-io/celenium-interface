@@ -29,29 +29,35 @@ const prepareData = async () => {
 
 	for (const s of series.value) {
 		const data = await getNodeStats(s.name)
-		
+
 		let otherEntry = null
-		s.data = data.reduce((acc, d) => {
-            let name = d.name === "celestia-celestia" ? "Celestia" : capitilize(d.name);
+		if (s.name === "nodetype") {
+			s.data = data.reduce((acc, d) => {
+				let name = d.name === "celestia-celestia" ? "Celestia" : capitilize(d.name);
 
-            if (name === "Unknown" || name === "Other") {
-                if (!otherEntry) {
-                    otherEntry = { ...d, name: "Other" }
-                    acc.push(otherEntry)
-                } else {
-                    otherEntry.amount += d.amount
-                }
-            } else {
-                acc.push({ ...d, name })
-            }
+				if (name === "Unknown" || name === "Other") {
+					if (!otherEntry) {
+						otherEntry = { ...d, name: "Other" }
+						acc.push(otherEntry)
+					} else {
+						otherEntry.amount += d.amount
+					}
+				} else {
+					acc.push({ ...d, name })
+				}
 
-            return acc
-        }, [])
+				return acc
+			}, [])
 
-		if (s.name === "version") {
-			s.data = sortArrayOfObjects(s.data, "name")
-		} else if (s.name === "nodetype") {
 			s.data = sortArrayOfObjects(s.data, "amount")
+		} else if (s.name === "version") {
+			s.data = data.sort((a, b) => {
+				const parseVersion = (version) => version.split('.').map(Number)
+				const [aMajor, aMinor, aPatch] = parseVersion(a.name)
+				const [bMajor, bMinor, bPatch] = parseVersion(b.name)
+
+				return aMajor - bMajor || aMinor - bMinor || aPatch - bPatch
+			})
 		}
 	}
 }
