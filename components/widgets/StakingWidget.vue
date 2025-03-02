@@ -19,12 +19,12 @@ const wrapperEl = ref(null)
 const wrapperWidth = ref(0)
 const barWidth = computed(() => Math.round(wrapperWidth.value - 32))
 
-const totalSupply = computed(() => lastHead.value.total_supply / 1_000_000)
+const totalSupply = computed(() => lastHead.value?.total_supply / 1_000_000)
 const totalSupplyUSD = computed(() => totalSupply.value * currentPrice.value?.close)
-const totalVotingPower = computed(() => lastHead.value.total_voting_power)
+const totalVotingPower = computed(() => lastHead.value?.total_voting_power)
 const totalVotingPowerUSD = computed(() => totalVotingPower.value * currentPrice.value?.close)
 
-const bondedShare = computed(() => shareOfTotal(lastHead?.value.total_voting_power * 1_000_000, lastHead?.value.total_supply, 2))
+const bondedShare = computed(() => shareOfTotal(lastHead.value?.total_voting_power * 1_000_000, lastHead.value?.total_supply, 2))
 
 const isRefetching = ref(false)
 const totalValidators = ref(0)
@@ -51,11 +51,27 @@ const validatorsGraph = ref([
 	},
 ])
 
-const getValidatorsStats = async () => {
+const fetchValidatorsStats = async () => {
 	isRefetching.value = true
 
 	const { data } = await fetchValidatorsCount()
-	validatorsStats.value = data.value
+	console.log('data', data);
+	
+	if (data.value) {
+		validatorsStats.value = data.value
+
+		totalValidators.value = validatorsStats.value["total"]
+		activeValidators.value = validatorsStats.value["active"]
+
+		for (let item of validatorsGraph.value) {
+			let value = validatorsStats.value[item.title]
+
+			if (value) {
+				item.count = value
+				item.width = ((value / totalValidators.value) * 100).toFixed(2)
+			}
+		}
+	}
 
 	isRefetching.value = false
 }
@@ -74,8 +90,9 @@ const fillValidatorsGraph = () => {
 	}
 }
 
-await getValidatorsStats()
-fillValidatorsGraph()
+// await getValidatorsStats()
+// fillValidatorsGraph()
+await fetchValidatorsStats()
 
 onMounted(() => {
 	wrapperWidth.value = wrapperEl.value.wrapper.offsetWidth
