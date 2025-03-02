@@ -199,12 +199,6 @@ export const STATS_PERIODS = [
 
 export const STATS_TIMEFRAMES = [
 	{
-		title: '1 hour',
-		shortTitle: '1H',
-		interval: { hours: 1 },
-		timeframe: 'hour',
-	},
-	{
 		title: '1 day',
 		shortTitle: '1D',
 		interval: { days: 1 },

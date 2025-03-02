@@ -14,18 +14,23 @@ const props = defineProps({
 })
 
 // TO DO: Fetch data if series.currentData is null
-const currentData = computed(() => { return {data: props.series.currentData}})
-const prevData = computed(() => { 
-	let data = []
-	props.series.prevData?.forEach((d, index) => {
-		data.push({
-			date: currentData.value?.data[index].date,
-			realDate: d.date,
-			value: d.value,
-		})
-	})
-	return { data: data }
+const currentData = computed(() => {
+	console.log('currentData', props.series.currentData)
+	return { data: props.series.currentData }
 })
+// const prevData = computed(() => { 
+// 	let data = []
+// 	props.series.prevData?.forEach((d, index) => {
+// 		if (currentData.value?.data[index]) {
+// 			data.push({
+// 				date: currentData.value?.data[index].date,
+// 				realDate: d.date,
+// 				value: d.value,
+// 			})
+// 		}
+// 	})
+// 	return { data: data }
+// })
 
 const chartEl = ref()
 const tooltip = ref({
@@ -33,7 +38,7 @@ const tooltip = ref({
 	show: false,
 })
 
-const buildChart = (chart, cData, pData, onEnter, onLeave) => {
+const buildChart = (chart, cData, onEnter, onLeave) => {
 	const width = chart.getBoundingClientRect().width
 	const height = chart.getBoundingClientRect().height
 	const marginTop = 6
@@ -42,8 +47,8 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	const marginLeft = 12
 	const marginAxisX = 20
 
-	const MIN_VALUE = d3.min([...cData.data?.map(s => s.value), ...pData.data?.map(s => s.value)])
-	const MAX_VALUE = d3.max([...cData.data?.map(s => s.value), ...pData.data?.map(s => s.value)])
+	const MIN_VALUE = d3.min([...cData.data?.map(s => s.value)])
+	const MAX_VALUE = d3.max([...cData.data?.map(s => s.value)])
 
 	/** Scales */
 	const x = d3.scaleUtc(
@@ -139,13 +144,13 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 			.style("opacity", 0)
 			.style("transition", "all 0.2s ease" )
 
-	const pFocus = svg
-		.append('g')
-		.append('circle')
-			.style("fill", pData.color)
-			.attr('r', 4)
-			.style("opacity", 0)
-			.style("transition", "all 0.2s ease" )
+	// const pFocus = svg
+	// 	.append('g')
+	// 	.append('circle')
+	// 		.style("fill", pData.color)
+	// 		.attr('r', 4)
+	// 		.style("opacity", 0)
+	// 		.style("transition", "all 0.2s ease" )
 
 	const focusLine = svg
 		.append('g')
@@ -182,27 +187,27 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 			color: cData.color,
 		}
 		tooltip.value.data.splice(1, 1)
-		if (pData.data.length) {
-			let selectedPData = pData.data[idx]
+		// if (pData.data.length) {
+		// 	let selectedPData = pData.data[idx]
 
-			pFocus
-				.attr("cx", x(selectedPData.date))
-				.attr("cy", y(selectedPData.value))
-				.style("opacity", 1)
+		// 	pFocus
+		// 		.attr("cx", x(selectedPData.date))
+		// 		.attr("cy", y(selectedPData.value))
+		// 		.style("opacity", 1)
 			
-			tooltip.value.data[1] = {
-				date: formatDate(selectedPData.realDate),
-				value: formatValue(selectedPData.value),
-				color: pData.color,
-			}
-		}
+		// 	tooltip.value.data[1] = {
+		// 		date: formatDate(selectedPData.realDate),
+		// 		value: formatValue(selectedPData.value),
+		// 		color: pData.color,
+		// 	}
+		// }
 
 	}
 
 	function onPointerleft() {
 		onLeave()
 		cFocus.style("opacity", 0)
-		pFocus.style("opacity", 0)
+		// pFocus.style("opacity", 0)
 		focusLine.style("opacity", 0)
 	}
 
@@ -215,19 +220,19 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		.attr("stroke-linejoin", "round")
 		.attr("d", line(cData.data.filter((item) => item.value !== null)))
 
-	const pPath = svg.append("path")
-		.attr("fill", "none")
-		.attr("stroke", pData.color)
-		.attr("stroke-width", 2)
-		.attr("stroke-linecap", "round")
-		.attr("stroke-linejoin", "round")
-		.attr("d", line(pData.data?.filter((item) => item.value !== null)))
+	// const pPath = svg.append("path")
+	// 	.attr("fill", "none")
+	// 	.attr("stroke", pData.color)
+	// 	.attr("stroke-width", 2)
+	// 	.attr("stroke-linecap", "round")
+	// 	.attr("stroke-linejoin", "round")
+	// 	.attr("d", line(pData.data?.filter((item) => item.value !== null)))
 
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
 
 	const cTotalLength = cPath.node().getTotalLength();
-	const pTotalLength = pPath.node().getTotalLength();
+	// const pTotalLength = pPath.node().getTotalLength();
 
 	cPath.attr("stroke-dasharray", `${cTotalLength} ${cTotalLength}`)
 		.attr("stroke-dashoffset", cTotalLength)
@@ -236,29 +241,29 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		.ease(d3.easeLinear)
 		.attr("stroke-dashoffset", 0);
 
-	pPath.attr("stroke-dasharray", `${pTotalLength} ${pTotalLength}`)
-		.attr("stroke-dashoffset", pTotalLength)
-		.transition()
-		.duration(1_000)
-		.ease(d3.easeLinear)
-		.attr("stroke-dashoffset", 0)
+	// pPath.attr("stroke-dasharray", `${pTotalLength} ${pTotalLength}`)
+	// 	.attr("stroke-dashoffset", pTotalLength)
+	// 	.transition()
+	// 	.duration(1_000)
+	// 	.ease(d3.easeLinear)
+	// 	.attr("stroke-dashoffset", 0)
 
 }
 
 const drawChart = () => {
 	currentData.value.color = "var(--mint)"
-	prevData.value.color = "var(--txt-tertiary)"
+	// prevData.value.color = "var(--txt-tertiary)"
 	buildChart(
 		chartEl.value.wrapper,
 		currentData.value,
-		prevData.value,
+		// prevData.value,
 		() => (tooltip.value.show = true),
 		() => (tooltip.value.show = false),
 	)
 }
 
 watch(
-	() => [currentData.value, prevData.value],
+	() => [currentData.value],
 	() => {
 		if (chartEl?.value?.wrapper) {
 			drawChart()
