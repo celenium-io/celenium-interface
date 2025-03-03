@@ -130,12 +130,13 @@ export const fetchLatestPFBs = async (height) => {
 	}
 }
 
-export const fetchTransactionsByBlock = async ({ limit, offset, sort, height, from, status, type, excluded_types }) => {
+export const fetchTransactionsByBlock = async ({ limit, offset, sort, height, from, to, status, type, excluded_types }) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx`)
 
 		url.searchParams.append("height", height)
 		if (from) url.searchParams.append("from", from)
+		if (to) url.searchParams.append("to", to)
 		if (limit) url.searchParams.append("limit", limit)
 		if (sort) url.searchParams.append("sort", sort)
 		if (offset) url.searchParams.append("offset", offset)

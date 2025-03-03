@@ -8,10 +8,11 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
+import { useServerURL } from "@/services/config"
 import { comma, space, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
-import { fetchNamespaces } from "@/services/api/namespace"
+// import { fetchNamespaces } from "@/services/api/namespace"
 
 const router = useRouter()
 
@@ -23,16 +24,36 @@ const sort = reactive({
 	dir: "desc",
 })
 
+const fetchNamespaces = async ({ limit, offset, sort, sort_by }) => {
+	try {
+		const url = new URL(`${useServerURL()}/namespace`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+		if (sort) url.searchParams.append("sort", sort)
+		if (sort_by) url.searchParams.append("sort_by", sort_by)
+
+		
+		return await $fetch(url.href)
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 const getNamespaces = async () => {
 	isLoading.value = true
 
-	const { data } = await fetchNamespaces({ limit: 5, sort: sort.dir, sort_by: sort.by })
-	namespaces.value = data.value
+	namespaces.value = await fetchNamespaces({ limit: 5, sort: sort.dir, sort_by: sort.by })
+	// namespaces.value = data.value
 
 	isLoading.value = false
 }
 
-await getNamespaces()
+// await getNamespaces()
+
+onBeforeMount(async() => {
+	await getNamespaces()
+})
 
 const handleSort = async (by) => {
 	switch (sort.dir) {
@@ -60,7 +81,7 @@ const handleSort = async (by) => {
 		</Flex>
 
 		<Flex direction="column" gap="16" :class="$style.namespaces_body">
-			<div v-if="namespaces.length" :class="$style.table_scroller">
+			<div v-if="namespaces?.length" :class="$style.table_scroller">
 				<table>
 					<thead>
 						<tr>
@@ -158,7 +179,7 @@ const handleSort = async (by) => {
 					</tbody>
 				</table>
 			</div>
-			<Flex v-else-if="isLoading" align="center" justify="center" gap="8" wide>
+			<Flex v-else-if="isLoading" align="center" justify="center" gap="8" wide :class="$style.empty">
 				<Spinner size="14" />
 				<Text size="13" weight="500" color="secondary"> Loading recent namespaces </Text>
 			</Flex>

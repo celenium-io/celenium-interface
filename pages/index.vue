@@ -79,18 +79,20 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-	<Flex direction="column" wide :class="$style.wrapper">
-		<Widgets :class="$style.widgets" />
+	<!-- <ClientOnly> -->
+		<Flex direction="column" wide :class="$style.wrapper">
+			<Widgets :class="$style.widgets" />
 
-		<Flex direction="column" gap="40" :class="$style.main">
-			<Flex gap="20" :class="$style.small_tables">
-				<RecentNamespacesTable />
-				<LatestPFBTable />
+			<Flex direction="column" gap="40" :class="$style.main">
+				<Flex gap="20" :class="$style.small_tables">
+					<RecentNamespacesTable />
+					<LatestPFBTable />
+				</Flex>
+
+				<BlocksTimelineTable v-if="appStore.lastHead && appStore.latestBlocks.length" />
 			</Flex>
-
-			<BlocksTimelineTable v-if="appStore.lastHead && appStore.latestBlocks.length" />
 		</Flex>
-	</Flex>
+	<!-- </ClientOnly> -->
 </template>
 
 <style module>
