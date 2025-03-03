@@ -3,10 +3,11 @@
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
+import { useServerURL } from "@/services/config"
 import { abbreviate, capitilize, numToPercent, shareOfTotal } from "@/services/utils"
 
 /** API */
-import { fetchValidatorsCount } from "@/services/api/validator"
+// import { fetchValidatorsCount } from "@/services/api/validator"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -29,7 +30,6 @@ const bondedShare = computed(() => shareOfTotal(lastHead?.value.total_voting_pow
 const isRefetching = ref(false)
 const totalValidators = ref(0)
 const activeValidators = ref(0)
-const validatorsStats = ref({})
 const validatorsGraph = ref([
 	{
 		title: "active",
@@ -51,33 +51,44 @@ const validatorsGraph = ref([
 	},
 ])
 
+const fetchValidatorsCount = async () => {
+	try {
+		const url = new URL(`${useServerURL()}/validators/count`)
+
+		return await $fetch(url.href)
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 const getValidatorsStats = async () => {
 	isRefetching.value = true
 
-	const { data } = await fetchValidatorsCount()
-	validatorsStats.value = data.value
+	const data = await fetchValidatorsCount()
+	if (data?.total) {
+		totalValidators.value = data.total
+		activeValidators.value = data.active
+
+		for (let item of validatorsGraph.value) {
+			let value = data[item.title]
+
+			if (value) {
+				item.count = value
+				item.width = ((value / totalValidators.value) * 100).toFixed(2)
+			}
+		}
+	}
 
 	isRefetching.value = false
 }
 
-const fillValidatorsGraph = () => {
-	totalValidators.value = validatorsStats.value["total"]
-	activeValidators.value = validatorsStats.value["active"]
+// await getValidatorsStats()
 
-	for (let item of validatorsGraph.value) {
-		let value = validatorsStats.value[item.title]
+onBeforeMount(async() => {
+	await getValidatorsStats()
+})
 
-		if (value) {
-			item.count = value
-			item.width = ((value / totalValidators.value) * 100).toFixed(2)
-		}
-	}
-}
-
-await getValidatorsStats()
-fillValidatorsGraph()
-
-onMounted(() => {
+onMounted( async () => {
 	wrapperWidth.value = wrapperEl.value.wrapper.offsetWidth
 })
 </script>
