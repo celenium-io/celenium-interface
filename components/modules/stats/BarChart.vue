@@ -14,17 +14,6 @@ const props = defineProps({
 })
 
 const currentData = computed(() => { return {data: props.series.currentData}})
-const prevData = computed(() => { 
-	let data = []
-	props.series.prevData?.forEach((d, index) => {
-		data.push({
-			date: currentData.value?.data[index].date,
-			realDate: d.date,
-			value: d.value,
-		})
-	})
-	return { data: data }
-})
 
 const chartEl = ref()
 const tooltip = ref({
@@ -40,20 +29,15 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	const marginBottom = 24
 	const marginLeft = 48
 	const marginAxisX = 24
-	const barWidth = Math.max(Math.round((width - marginLeft - marginRight) / (cData.data.length) - (pData.data.length ? 2 : 5)), 4)
+	const barWidth = Math.max(Math.round((width - marginLeft - marginRight) / (cData.data.length) - 5), 4)
 
-	const MIN_VALUE = d3.min([...cData.data.map(s => s.value), ...pData.data?.map(s => s.value)])
-	const MAX_VALUE = d3.max([...cData.data.map(s => s.value), ...pData.data?.map(s => s.value)])
+	const MIN_VALUE = d3.min([...cData.data.map(s => s.value)])
+	const MAX_VALUE = d3.max([...cData.data.map(s => s.value)])
 
 	/** Scales */
 	const x0 = d3.scaleUtc(
 		d3.extent(cData.data, (d) => new Date(d.date)),
 		[marginLeft, width - marginRight - barWidth],
-	)
-
-	const x1 = d3.scaleBand(
-		['prev', 'current'],
-		[0, barWidth / 1.1],
 	)
 
 	const scaleX = d3.scaleUtc(
@@ -68,24 +52,10 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 		group: 'current',
 		index: i,
 	}))
-	if (pData.data.length) {
-		data = data.concat(pData.data.map((d, i) => ({
-			date: new Date(d.date),
-			realDate: new Date(d.realDate),
-			value: d.value,
-			color: pData.color,
-			group: 'prev',
-			index: i,
-		})))
-	}
 
 	const y = d3.scaleLinear([MIN_VALUE, MAX_VALUE], [height - marginBottom, marginTop])
 	
 	function formatDate(date) {
-		if (props.series.timeframe === 'hour') {
-			return DateTime.fromJSDate(date).toFormat("LLL dd, HH:mm")
-		}
-
 		return DateTime.fromJSDate(date).toFormat("LLL dd, yyyy")
 	}
 
@@ -134,7 +104,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	svg.append("g")
 		.attr("transform", `translate( ${barWidth / 2 - 3}, ${height - marginAxisX} )`)
 		.attr("color", "var(--op-20)")
-		.call(d3.axisBottom(scaleX).ticks(Math.min(cData.data.length, 6)).tickFormat(d3.timeFormat(props.series.timeframe === 'hour' ? "%H:%M" : "%b %d")))
+		.call(d3.axisBottom(scaleX).ticks(Math.min(cData.data.length, 6)).tickFormat(d3.timeFormat("%b %d")))
 		.selectAll(".tick line")
 			.filter(function(d) { return d === 0; })
 			.remove();
@@ -184,15 +154,6 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 			color: cData.color,
 		}
 		tooltip.value.data.splice(1, 1)
-		if (pData.data.length) {
-			let selectedPData = pData.data[idx]
-
-			tooltip.value.data[1] = {
-				date: formatDate(selectedPData.realDate),
-				value: formatValue(selectedPData.value),
-				color: pData.color,
-			}
-		}
 	}
 
 	function onPointerLeft() {
@@ -205,41 +166,21 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	}
 
 	/** Draw bars */
-	if (pData.data.length) {
-		svg.append('g')
-			.selectAll('g')
-			.data(data)
-			.enter().append('g')
-			.attr('transform', d => `translate(${x0(new Date(d.date))}, 0)`)
-			.selectAll('rect')
-			.data(d => [d])
-			.enter().append('rect')
-			.attr("class", "bar")
-			.attr('data-index', d => d.index)
-			.attr('x', d => x1(d.group))
-			.attr('y', d => y(d.value) - marginAxisX)
-			.attr('width', barWidth / 4)
-			.attr('height', 0)
-			.attr('fill', d => d.color)
-			.transition()
-			.duration(1_000)
-			.attr('height', d => height - y(d.value))
-	} else {
-		svg.append('g')
-			.selectAll("g")
-			.data(data)
-			.enter().append("rect")
-			.attr("class", "bar")
-			.attr('data-index', d => d.index)
-			.attr("x", d => x0(new Date(d.date)))
-			.attr('y', d => y(d.value) - marginAxisX)
-			.attr("width", barWidth)
-			.attr('height', 0)
-			.attr('fill', d => d.color)
-			.transition()
-			.duration(1_000)
-			.attr('height', d => height - y(d.value))
-	}
+
+	svg.append('g')
+		.selectAll("g")
+		.data(data)
+		.enter().append("rect")
+		.attr("class", "bar")
+		.attr('data-index', d => d.index)
+		.attr("x", d => x0(new Date(d.date)))
+		.attr('y', d => y(d.value) - marginAxisX)
+		.attr("width", barWidth)
+		.attr('height', 0)
+		.attr('fill', d => d.color)
+		.transition()
+		.duration(1_000)
+		.attr('height', d => height - y(d.value))
 
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
@@ -247,19 +188,17 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 
 const drawChart = () => {
 	currentData.value.color = "var(--mint)"
-	prevData.value.color = "var(--txt-tertiary)"
 
 	buildChart(
 		chartEl.value.wrapper,
 		currentData.value,
-		prevData.value,
 		() => (tooltip.value.show = true),
 		() => (tooltip.value.show = false),
 	)
 }
 
 watch(
-	() => [currentData.value, prevData.value],
+	() => [currentData.value],
 	() => {
 		if (chartEl?.value?.wrapper) {
 			drawChart()
