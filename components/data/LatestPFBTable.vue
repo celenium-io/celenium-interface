@@ -13,31 +13,16 @@ import { useServerURL } from "@/services/config"
 import { comma, space, splitAddress, tia } from "@/services/utils"
 
 /** API */
-// import { fetchLatestPFBs } from "@/services/api/tx"
+import { fetchLatestPFBs } from "@/services/api/tx"
 
 const router = useRouter()
 
 const isLoading = ref(true)
 const pfbs = ref([])
 
-const fetchLatestPFBs = async (height) => {
-	try {
-		return await $fetch(`${useServerURL()}/tx?msg_type=MsgPayForBlobs&sort=desc&limit=5`)
-	} catch (error) {
-		console.error(error)
-	}
-}
-
-// pfbs.value = await fetchLatestPFBs()
-// pfbs.value = data.value
-
-onBeforeMount(async() => {
-	isLoading.value = true
-
-	pfbs.value = await fetchLatestPFBs()
-
-	isLoading.value = false
-})
+const { data } = await fetchLatestPFBs()
+pfbs.value = data.value
+isLoading.value = false
 
 </script>
 

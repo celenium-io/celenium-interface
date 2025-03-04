@@ -12,7 +12,7 @@ import { useServerURL } from "@/services/config"
 import { comma, space, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
-// import { fetchNamespaces } from "@/services/api/namespace"
+import { fetchNamespaces } from "@/services/api/namespace"
 
 const router = useRouter()
 
@@ -24,36 +24,16 @@ const sort = reactive({
 	dir: "desc",
 })
 
-const fetchNamespaces = async ({ limit, offset, sort, sort_by }) => {
-	try {
-		const url = new URL(`${useServerURL()}/namespace`)
-
-		if (limit) url.searchParams.append("limit", limit)
-		if (offset) url.searchParams.append("offset", offset)
-		if (sort) url.searchParams.append("sort", sort)
-		if (sort_by) url.searchParams.append("sort_by", sort_by)
-
-		
-		return await $fetch(url.href)
-	} catch (error) {
-		console.error(error)
-	}
-}
-
 const getNamespaces = async () => {
 	isLoading.value = true
 
-	namespaces.value = await fetchNamespaces({ limit: 5, sort: sort.dir, sort_by: sort.by })
-	// namespaces.value = data.value
+	const { data } = await fetchNamespaces({ limit: 5, sort: sort.dir, sort_by: sort.by })
+	namespaces.value = data.value
 
 	isLoading.value = false
 }
 
-// await getNamespaces()
-
-onBeforeMount(async() => {
-	await getNamespaces()
-})
+await getNamespaces()
 
 const handleSort = async (by) => {
 	switch (sort.dir) {
