@@ -7,7 +7,7 @@ import { useServerURL } from "@/services/config"
 import { abbreviate, capitilize, numToPercent, shareOfTotal } from "@/services/utils"
 
 /** API */
-// import { fetchValidatorsCount } from "@/services/api/validator"
+import { fetchValidatorsCount } from "@/services/api/validator"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -27,7 +27,7 @@ const totalVotingPowerUSD = computed(() => totalVotingPower.value * currentPrice
 
 const bondedShare = computed(() => shareOfTotal(lastHead?.value.total_voting_power * 1_000_000, lastHead?.value.total_supply, 2))
 
-const isRefetching = ref(false)
+const isRefetching = ref(true)
 const totalValidators = ref(0)
 const activeValidators = ref(0)
 const validatorsGraph = ref([
@@ -51,26 +51,16 @@ const validatorsGraph = ref([
 	},
 ])
 
-const fetchValidatorsCount = async () => {
-	try {
-		const url = new URL(`${useServerURL()}/validators/count`)
-
-		return await $fetch(url.href)
-	} catch (error) {
-		console.error(error)
-	}
-}
-
 const getValidatorsStats = async () => {
 	isRefetching.value = true
 
-	const data = await fetchValidatorsCount()
-	if (data?.total) {
-		totalValidators.value = data.total
-		activeValidators.value = data.active
+	const { data } = await fetchValidatorsCount()
+	if (data.value?.total) {
+		totalValidators.value = data.value.total
+		activeValidators.value = data.value.active
 
 		for (let item of validatorsGraph.value) {
-			let value = data[item.title]
+			let value = data.value[item.title]
 
 			if (value) {
 				item.count = value
@@ -82,11 +72,7 @@ const getValidatorsStats = async () => {
 	isRefetching.value = false
 }
 
-// await getValidatorsStats()
-
-onBeforeMount(async() => {
-	await getValidatorsStats()
-})
+await getValidatorsStats()
 
 onMounted( async () => {
 	wrapperWidth.value = wrapperEl.value.wrapper.offsetWidth
