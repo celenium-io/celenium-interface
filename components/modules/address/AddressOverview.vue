@@ -25,15 +25,16 @@ import { comma, splitAddress } from "@/services/utils"
 
 /** API */
 import {
-	fetchTxsByAddressHash,
-	fetchMessagesByAddressHash,
-	fetchBlobsByAddressHash,
 	fetchAddressDelegations,
+	fetchAddressGranters,
+	fetchAddressGrants,
 	fetchAddressRedelegations,
 	fetchAddressUndelegations,
-	fetchAddressGrants,
-	fetchAddressGranters,
 	fetchAddressVestings,
+	fetchBlobsByAddressHash,
+	fetchCelestials,
+	fetchMessagesByAddressHash,
+	fetchTxsByAddressHash,
 } from "@/services/api/address"
 
 /** Store */
@@ -58,6 +59,7 @@ const isRefetching = ref(false)
 const transactions = ref([])
 const messages = ref([])
 const blobs = ref([])
+const celestials = ref([])
 
 /** Tabs */
 const tabs = ref([
@@ -388,9 +390,25 @@ const getBlobs = async () => {
 	isRefetching.value = false
 }
 
+const getCelestials = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchCelestials({
+		hash: props.address.hash,
+	})
+
+	if (data.value?.length) {
+		celestials.value = data.value
+	}
+
+	isRefetching.value = false
+}
+await getCelestials()
+
 /** Delegation */
 const isActiveDelegator = props.address.balance.delegated > 0 || props.address.balance.unbonding > 0
 const collapseBalances = ref(!isActiveDelegator)
+const collapseCelestials = ref(false)
 const totalBalance =
 	parseInt(props.address.balance.spendable) + parseInt(props.address.balance.delegated) + parseInt(props.address.balance.unbonding)
 const delegations = ref([])
@@ -693,7 +711,22 @@ const handleOpenQRModal = () => {
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" justify="between" gap="32" :class="$style.data">
 				<Flex direction="column" gap="24" :class="$style.main">
-					<Flex direction="column" gap="8" :class="$style.key_value">
+					<Flex v-if="address.celestials" align="center" gap="12" :class="$style.key_value">
+						<Flex v-if="address.celestials?.image_url" align="center" justify="center" :class="$style.avatar_container">
+							<img :src="address.celestials?.image_url" :class="$style.avatar_image" />
+						</Flex>
+
+						<Flex direction="column" gap="8" :class="$style.key_value">
+							<Text size="14" weight="600" color="secondary"> {{ address.celestials?.name }} </Text>
+
+							<Flex align="center" gap="10">
+								<Text size="12" weight="600" color="secondary"> {{ splitAddress(address.hash) }} </Text>
+
+								<CopyButton :text="address.hash" />
+							</Flex>
+						</Flex>
+					</Flex>
+					<Flex v-else direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Address</Text>
 
 						<Flex align="center" gap="10">
@@ -711,7 +744,6 @@ const handleOpenQRModal = () => {
 									:amount="{ value: totalBalance }"
 									:styles="{ amount: { size: '13' }, currency: { size: '13', color: 'primary' } }"
 								/>
-								<!-- <Text size="13" weight="600" color="primary" selectable>{{ tia(totalBalance).toLocaleString('en-US') }} TIA</Text> -->
 							</Flex>
 
 							<Icon
@@ -748,6 +780,31 @@ const handleOpenQRModal = () => {
 									:amount="{ value: address.balance.unbonding }"
 									:styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }"
 								/>
+							</Flex>
+						</Flex>
+					</Flex>
+
+					<Flex v-if="celestials.length" direction="column" gap="16">
+						<Flex @click="collapseCelestials = !collapseCelestials" align="center" justify="between" style="cursor: pointer">
+							<Text size="12" weight="600" color="secondary">Celestials</Text>
+							<Icon
+								name="chevron"
+								size="14"
+								color="secondary"
+								:style="{
+									transform: `rotate(${collapseCelestials ? '0' : '180'}deg)`,
+									transition: 'all 400ms ease',
+								}"
+							/>
+						</Flex>
+
+						<Flex v-if="!collapseCelestials" direction="column" gap="12" :class="$style.key_value">
+							<Flex v-for="c in celestials" align="center" gap="8">
+								<Flex v-if="c.image_url" align="center" justify="center" :class="$style.cel_image_container">
+									<img :src="c.image_url" :class="$style.cel_image" />
+								</Flex>
+
+								<Text size="12" weight="600" color="tertiary"> {{ c.name }} </Text>
 							</Flex>
 						</Flex>
 					</Flex>
@@ -1087,6 +1144,34 @@ const handleOpenQRModal = () => {
 			max-width: 100%;
 		}
 	}
+
+	.avatar_container {
+		position: relative;
+		width: 50px;
+		height: 50px;
+		overflow: hidden;
+		border-radius: 50%;
+	}
+
+	.avatar_image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+}
+
+.cel_image_container {
+	position: relative;
+	width: 16px;
+	height: 16px;
+	overflow: hidden;
+	border-radius: 50%;
+}
+
+.cel_image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .txs_wrapper {
