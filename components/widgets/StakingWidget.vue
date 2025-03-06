@@ -3,6 +3,7 @@
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
+import { useServerURL } from "@/services/config"
 import { abbreviate, capitilize, numToPercent, shareOfTotal } from "@/services/utils"
 
 /** API */
@@ -26,10 +27,9 @@ const totalVotingPowerUSD = computed(() => totalVotingPower.value * currentPrice
 
 const bondedShare = computed(() => shareOfTotal(lastHead.value?.total_voting_power * 1_000_000, lastHead.value?.total_supply, 2))
 
-const isRefetching = ref(false)
+const isRefetching = ref(true)
 const totalValidators = ref(0)
 const activeValidators = ref(0)
-const validatorsStats = ref({})
 const validatorsGraph = ref([
 	{
 		title: "active",
@@ -55,16 +55,12 @@ const fetchValidatorsStats = async () => {
 	isRefetching.value = true
 
 	const { data } = await fetchValidatorsCount()
-	console.log('data', data);
-	
-	if (data.value) {
-		validatorsStats.value = data.value
-
-		totalValidators.value = validatorsStats.value["total"]
-		activeValidators.value = validatorsStats.value["active"]
+	if (data.value?.total) {
+		totalValidators.value = data.value.total
+		activeValidators.value = data.value.active
 
 		for (let item of validatorsGraph.value) {
-			let value = validatorsStats.value[item.title]
+			let value = data.value[item.title]
 
 			if (value) {
 				item.count = value
@@ -76,25 +72,9 @@ const fetchValidatorsStats = async () => {
 	isRefetching.value = false
 }
 
-const fillValidatorsGraph = () => {
-	totalValidators.value = validatorsStats.value["total"]
-	activeValidators.value = validatorsStats.value["active"]
+await getValidatorsStats()
 
-	for (let item of validatorsGraph.value) {
-		let value = validatorsStats.value[item.title]
-
-		if (value) {
-			item.count = value
-			item.width = ((value / totalValidators.value) * 100).toFixed(2)
-		}
-	}
-}
-
-// await getValidatorsStats()
-// fillValidatorsGraph()
-await fetchValidatorsStats()
-
-onMounted(() => {
+onMounted( async () => {
 	wrapperWidth.value = wrapperEl.value.wrapper.offsetWidth
 })
 </script>

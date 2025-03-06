@@ -1,7 +1,35 @@
 /** Services */
 import { useServerURL } from "@/services/config"
 
-export const fetchBlocks = async ({ limit, offset }) => {
+// export const fetchBlocks = async ({ limit, offset }) => {
+// 	try {
+// 		const url = new URL(`${useServerURL()}/block`)
+
+// 		url.searchParams.append("stats", true)
+// 		url.searchParams.append("sort", "desc")
+
+// 		if (limit) url.searchParams.append("limit", limit)
+// 		if (offset) url.searchParams.append("offset", offset)
+
+// 		const data = await useFetch(url.href)
+// 		return data
+// 	} catch (error) {
+// 		console.error(error)
+// 	}
+// }
+
+// export const fetchBlocksCount = async () => {
+// 	try {
+// 		const url = new URL(`${useServerURL()}/block/count`)
+
+// 		const data = await useFetch(url.href)
+// 		return data
+// 	} catch (error) {
+// 		console.error(error)
+// 	}
+// }
+
+export const fetchBlocks = ({ limit, offset }) => {
 	try {
 		const url = new URL(`${useServerURL()}/block`)
 
@@ -11,19 +39,21 @@ export const fetchBlocks = async ({ limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		const data = await useFetch(url.href)
-		return data
+		return useFetch(url.href, {
+			key: "blocks",
+		})
 	} catch (error) {
 		console.error(error)
 	}
 }
 
-export const fetchBlocksCount = async () => {
+export const fetchBlocksCount = () => {
 	try {
 		const url = new URL(`${useServerURL()}/block/count`)
 
-		const data = await useFetch(url.href)
-		return data
+		return useFetch(url.href, {
+			key: "blocks_count",
+		})
 	} catch (error) {
 		console.error(error)
 	}
