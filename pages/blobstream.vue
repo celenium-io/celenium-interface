@@ -243,7 +243,7 @@ await getCommitments()
 		<Flex wide direction="column" gap="4">
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
-					<!-- <Icon name="address" size="16" color="secondary" /> -->
+					<Icon name="blob" size="16" color="secondary" />
 					<Text size="14" weight="600" color="primary">Blobstream Commitments</Text>
 				</Flex>
 

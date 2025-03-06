@@ -453,7 +453,6 @@ const handleLast = async () => {
 	}
 
 	.header {
-		flex-direction: column;
 		gap: 16px;
 
 		height: initial;
