@@ -15,7 +15,7 @@ const advertisements = [
 		header: 'Celestials ID',
 		body: 'Platform to buy Celestia modular domains',
 		footer: 'Pick your domain',
-		weight: 1,
+		weight: 0.2,
 	},
 	{
 		name: 'lumina',

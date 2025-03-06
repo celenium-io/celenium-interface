@@ -717,7 +717,9 @@ const handleOpenQRModal = () => {
 						</Flex>
 
 						<Flex direction="column" gap="8" :class="$style.key_value">
-							<Text size="14" weight="600" color="secondary"> {{ address.celestials?.name }} </Text>
+							<Text size="14" weight="600" color="secondary">
+								{{ $getDisplayName('addresses', '', address) }}
+							</Text>
 
 							<Flex align="center" gap="10">
 								<Text size="12" weight="600" color="secondary"> {{ splitAddress(address.hash) }} </Text>
