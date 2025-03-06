@@ -4,7 +4,7 @@ import { DateTime } from "luxon"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
-// import Tooltip from "@/components/ui/Tooltip.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
 import { capitilize, comma, shortHex } from "@/services/utils"
@@ -220,9 +220,22 @@ await getCommitments()
 				</Flex>
 
 				<Flex align="center" justify="between" wide>
-					<Text size="12" weight="600" color="tertiary">Last Hash</Text>
+					<Flex align="center" gap="6">
+						<Text size="12" weight="600" color="tertiary">Last Activity</Text>
 
-					<Text size="12" weight="600" color="secondary"> {{ shortHex(n.last_hash) }} </Text>
+						<Tooltip v-if="DateTime.fromISO(n.time).diffNow().negate().as('hours') > 2" side="top" position="start">
+							<Icon name="info" size="12" color="yellow" />
+							<template #content>
+								<Text size="12" weight="600" color="secondary">
+									No activity in the last 
+									{{ DateTime.fromISO(n.time).diffNow().negate().toFormat("h") }}
+									hours
+								</Text>
+							</template>
+						</Tooltip>
+					</Flex>					
+
+					<Text size="12" weight="600" color="secondary"> {{ DateTime.fromISO(n.time).setLocale("en").toFormat("LLL d, t") }} </Text>
 				</Flex>
 			</Flex>
 		</Flex>
@@ -495,7 +508,7 @@ await getCommitments()
 }
 
 .card_active {
-	box-shadow: inset 0 0 0 1px var(--green);
+	box-shadow: inset 0 0 0 1px var(--brand);
 }
 
 .unclickable {
