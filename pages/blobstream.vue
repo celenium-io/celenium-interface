@@ -181,8 +181,8 @@ const handleViewCommitment = (commitment) => {
 	modalsStore.open("commitment")
 }
 
-getNetworks()
-getCommitments()
+await getNetworks()
+await getCommitments()
 </script>
 
 <template>

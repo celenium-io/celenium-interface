@@ -1,7 +1,27 @@
 /** Services */
 import { useServerURL } from "@/services/config"
 
-export const fetchTransactions = async ({ msg_type, status, from, to, limit, offset, sort_by, sort }) => {
+// export const fetchTransactions = async ({ msg_type, status, from, to, limit, offset, sort_by, sort }) => {
+// 	try {
+// 		const url = new URL(`${useServerURL()}/tx`)
+
+// 		if (msg_type) url.searchParams.append("msg_type", msg_type)
+// 		if (status) url.searchParams.append("status", status)
+// 		if (from) url.searchParams.append("from", from)
+// 		if (to) url.searchParams.append("to", to)
+// 		if (limit) url.searchParams.append("limit", limit)
+// 		if (offset) url.searchParams.append("offset", offset)
+// 		if (sort_by) url.searchParams.append("sort_by", sort_by)
+// 		if (sort) url.searchParams.append("sort", sort)
+
+// 		const data = await useFetch(url.href)
+// 		return data
+// 	} catch (error) {
+// 		console.error(error)
+// 	}
+// }
+
+export const fetchTransactions = ({ msg_type, status, from, to, limit, offset, sort_by, sort }) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx`)
 
@@ -14,30 +34,56 @@ export const fetchTransactions = async ({ msg_type, status, from, to, limit, off
 		if (sort_by) url.searchParams.append("sort_by", sort_by)
 		if (sort) url.searchParams.append("sort", sort)
 
-		const data = await useFetch(url.href)
-		return data
+		// const data = await 
+		return useFetch(url.href, {
+			key: "transactions",
+		})
 	} catch (error) {
 		console.error(error)
 	}
 }
 
-export const fetchTxsCount = async () => {
+// export const fetchTxsCount = async () => {
+// 	try {
+// 		const url = new URL(`${useServerURL()}/tx/count`)
+
+// 		const data = await useFetch(url.href)
+// 		return data
+// 	} catch (error) {
+// 		console.error(error)
+// 	}
+// }
+
+export const fetchTxsCount = () => {
 	try {
 		const url = new URL(`${useServerURL()}/tx/count`)
 
-		const data = await useFetch(url.href)
-		return data
+		return useFetch(url.href, {
+			key: "transactions_count",
+		})
 	} catch (error) {
 		console.error(error)
 	}
 }
 
-export const fetchTxByHash = async (hash) => {
+// export const fetchTxByHash = async (hash) => {
+// 	try {
+// 		const url = new URL(`${useServerURL()}/tx/${hash}`)
+
+// 		const data = await useFetch(url.href)
+// 		return data
+// 	} catch (error) {
+// 		console.error(error)
+// 	}
+// }
+
+export const fetchTxByHash = (hash) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx/${hash}`)
 
-		const data = await useFetch(url.href)
-		return data
+		return useFetch(url.href, {
+			key: "transaction",
+		})
 	} catch (error) {
 		console.error(error)
 	}
@@ -121,21 +167,53 @@ export const fetchTxBlobsCount = async (hash) => {
 }
 
 /** Latest PayForBlobs */
-export const fetchLatestPFBs = async (height) => {
+// export const fetchLatestPFBs = async (height) => {
+// 	try {
+// 		const data = await useFetch(`${useServerURL()}/tx?msg_type=MsgPayForBlobs&sort=desc&limit=5`)
+// 		return data
+// 	} catch (error) {
+// 		console.error(error)
+// 	}
+// }
+
+export const fetchLatestPFBs = () => {
 	try {
-		const data = await useFetch(`${useServerURL()}/tx?msg_type=MsgPayForBlobs&sort=desc&limit=5`)
-		return data
+		return useFetch(`${useServerURL()}/tx?msg_type=MsgPayForBlobs&sort=desc&limit=5`, {
+			key: "latest_pfbs",
+		})
 	} catch (error) {
 		console.error(error)
 	}
 }
 
-export const fetchTransactionsByBlock = async ({ limit, offset, sort, height, from, status, type, excluded_types }) => {
+// export const fetchTransactionsByBlock = async ({ limit, offset, sort, height, from, to, status, type, excluded_types }) => {
+// 	try {
+// 		const url = new URL(`${useServerURL()}/tx`)
+
+// 		url.searchParams.append("height", height)
+// 		if (from) url.searchParams.append("from", from)
+// 		if (to) url.searchParams.append("to", to)
+// 		if (limit) url.searchParams.append("limit", limit)
+// 		if (sort) url.searchParams.append("sort", sort)
+// 		if (offset) url.searchParams.append("offset", offset)
+// 		if (status) url.searchParams.append("status", status)
+// 		if (type) url.searchParams.append("msg_type", type)
+// 		if (excluded_types) url.searchParams.append("excluded_msg_type", excluded_types)
+
+// 		const data = await useFetch(url.href)
+// 		return data
+// 	} catch (error) {
+// 		console.error(error)
+// 	}
+// }
+
+export const fetchTransactionsByBlock = ({ limit, offset, sort, height, from, to, status, type, excluded_types }) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx`)
 
 		url.searchParams.append("height", height)
 		if (from) url.searchParams.append("from", from)
+		if (to) url.searchParams.append("to", to)
 		if (limit) url.searchParams.append("limit", limit)
 		if (sort) url.searchParams.append("sort", sort)
 		if (offset) url.searchParams.append("offset", offset)
@@ -143,8 +221,9 @@ export const fetchTransactionsByBlock = async ({ limit, offset, sort, height, fr
 		if (type) url.searchParams.append("msg_type", type)
 		if (excluded_types) url.searchParams.append("excluded_msg_type", excluded_types)
 
-		const data = await useFetch(url.href)
-		return data
+		return useFetch(url.href, {
+			key: "transactions_by_block",
+		})
 	} catch (error) {
 		console.error(error)
 	}

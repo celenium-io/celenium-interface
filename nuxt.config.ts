@@ -144,7 +144,7 @@ export default defineNuxtConfig({
 		plugins: [wasm(), topLevelAwait(), nodePolyfills()],
 		worker: {
 			format: "es",
-			plugins: [wasm(), topLevelAwait()],
+			plugins: () => [wasm(), topLevelAwait()],
 		},
 	},
 })
