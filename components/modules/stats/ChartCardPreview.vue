@@ -39,14 +39,15 @@ const chartElPrev = ref()
 
 const getSeries = async () => {
 	let data = []
+	let baseTime = DateTime.now().startOf("hour").plus({ seconds: 1 })
 	let from = parseInt(
-		DateTime.now().minus({
+		baseTime.minus({
 			days: props.period.timeframe === "day" ? props.period.value * 2 + 1 : 0,
 			hours: props.period.timeframe === "hour" ? props.period.value * 2 + 1 : 0,
 		}).ts / 1_000
 	)
 	let to = parseInt(
-		DateTime.now().minus({
+		baseTime.minus({
 			days: props.period.timeframe === "day" ? 1 : 0,
 			hours: props.period.timeframe === "hour" ? 1 : 0,
 		}).ts / 1_000
@@ -57,7 +58,7 @@ const getSeries = async () => {
 			name: props.series.name,
 			period: 'day',
 			from: parseInt(
-				DateTime.now().minus({
+				baseTime.minus({
 					months: 2,
 				}).ts / 1_000)
 		})

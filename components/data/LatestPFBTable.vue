@@ -9,6 +9,7 @@ import Spinner from "@/components/ui/Spinner.vue"
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
+import { useServerURL } from "@/services/config"
 import { comma, space, splitAddress, tia } from "@/services/utils"
 
 /** API */
@@ -22,6 +23,7 @@ const pfbs = ref([])
 const { data } = await fetchLatestPFBs()
 pfbs.value = data.value
 isLoading.value = false
+
 </script>
 
 <template>
@@ -32,7 +34,7 @@ isLoading.value = false
 		</Flex>
 
 		<Flex direction="column" gap="16" :class="$style.pfb_body">
-			<div v-if="pfbs.length" :class="$style.table_scroller">
+			<div v-if="pfbs?.length" :class="$style.table_scroller">
 				<table>
 					<thead>
 						<tr>
@@ -120,7 +122,7 @@ isLoading.value = false
 					</tbody>
 				</table>
 			</div>
-			<Flex v-else-if="isLoading" align="center" justify="center" gap="8" wide>
+			<Flex v-else-if="isLoading" align="center" justify="center" gap="8" wide :class="$style.empty">
 				<Spinner size="14" />
 				<Text size="13" weight="500" color="secondary"> Loading latest PFBs </Text>
 			</Flex>

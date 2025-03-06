@@ -310,9 +310,10 @@ const getTransactions = async () => {
 		from: filters.from,
 		to: filters.to,
 	})
+	
 	transactions.value = data.value
 
-	handleNextCondition.value = transactions.value.length < limit.value
+	handleNextCondition.value = transactions.value?.length < limit.value
 	isLoaded.value = true
 	isRefetching.value = false
 }
@@ -324,6 +325,10 @@ onBeforeMount(() => {
 		config.columns = JSON.parse(localStorage.getItem("page:transactions:config:columns"))
 	}
 })
+
+// onMounted(() => {
+// 	getTransactions()
+// })
 
 /** Refetch transactions */
 watch(
@@ -585,7 +590,7 @@ const handleNext = () => {
 			</Flex>
 
 			<Flex direction="column" gap="16" wide :class="[$style.table, isRefetching && $style.disabled]">
-				<div v-if="transactions.length" :class="$style.table_scroller">
+				<div v-if="transactions?.length" :class="$style.table_scroller">
 					<table>
 						<thead>
 							<tr>
