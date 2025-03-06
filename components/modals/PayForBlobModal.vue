@@ -95,17 +95,17 @@ watch(
 const handleUpload = (e, target) => {
 	const file = target === "drop" ? e.dataTransfer.files[0] : uploadInputRef.value.files[0]
 
-	if (file.size > 80_000) {
-		notificationsStore.create({
-			notification: {
-				type: "error",
-				icon: "close",
-				title: "Max 25kb",
-				autoDestroy: true,
-			},
-		})
-		return
-	}
+	// if (file.size > 80_000) {
+	// 	notificationsStore.create({
+	// 		notification: {
+	// 			type: "error",
+	// 			icon: "close",
+	// 			title: "Max 25kb",
+	// 			autoDestroy: true,
+	// 		},
+	// 	})
+	// 	return
+	// }
 
 	if (!["text/plain", "image/png", "image/jpeg"].includes(file.type)) {
 		notificationsStore.create({
@@ -294,9 +294,8 @@ const handleContinue = async () => {
 							type="file"
 							name="file"
 							accept="image/png, image/jpeg, text/plain"
-							size="25000"
 						/>
-
+						<!-- size="25000" -->
 						<Flex
 							id="drop_zone"
 							@drop.prevent="(e) => handleUpload(e, 'drop')"
@@ -313,7 +312,8 @@ const handleContinue = async () => {
 								<Text size="13" weight="500" color="tertiary" align="center">
 									Drag and drop the file you want to submit
 								</Text>
-								<Text size="13" weight="500" color="support" align="center"> PNG, JPEG or TXT, max size 25kb </Text>
+								<!-- <Text size="13" weight="500" color="support" align="center"> PNG, JPEG or TXT, max size 25kb </Text> -->
+								<Text size="13" weight="500" color="support" align="center"> PNG, JPEG or TXT </Text>
 							</Flex>
 						</Flex>
 					</label>
