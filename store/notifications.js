@@ -20,7 +20,7 @@ export const useNotificationsStore = defineStore("notifications", () => {
 				() => {
 					remove({ id })
 				},
-				notification.delay ? notification.delay : 4500,
+				notification.delay ? notification.delay : 4_500,
 			)
 		}
 
