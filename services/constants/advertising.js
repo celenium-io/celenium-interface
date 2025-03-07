@@ -9,6 +9,15 @@ const advertisements = [
 		weight: 0.4,
 	},
 	{
+		name: 'faucet',
+		internalLink: '/faucet',
+		icon: 'drop',
+		header: 'Celenium Faucet',
+		body: 'Free testnet TIA for the Celestia Mocha network!',
+		footer: 'Get Tokens',
+		weight: 0.2,
+  },
+  {
 		name: 'celestials',
 		link: 'https://celestials.id/',
 		icon: 'celestials',
@@ -24,7 +33,7 @@ const advertisements = [
 		header: 'Your Own Node',
 		body: 'Easily launch a node right in your browser or on your phone.',
 		footer: 'Run Light Node',
-		weight: 0.4,
+		weight: 0.2,
 	},
 	{
 		name: 'celestia_update',
@@ -33,7 +42,7 @@ const advertisements = [
 		header: 'Celestia Upgrade',
 		body: 'Mainnet update scheduled for 28.01.2025.',
 		footer: 'View Docs',
-		weight: 1.1,
+		weight: 0,
 	},
 	{
 		name: 'celenium_survey',
