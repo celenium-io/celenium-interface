@@ -51,7 +51,7 @@ const validatorsGraph = ref([
 	},
 ])
 
-const fetchValidatorsStats = async () => {
+const getValidatorsStats = async () => {
 	isRefetching.value = true
 
 	const { data } = await fetchValidatorsCount()
