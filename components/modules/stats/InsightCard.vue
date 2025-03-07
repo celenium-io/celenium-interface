@@ -10,7 +10,7 @@ import DiffChip from "@/components/modules/stats/DiffChip.vue"
 import { abbreviate, capitilize, comma, formatBytes, shareOfTotal, shareOfTotalString } from "@/services/utils"
 
 /** API */
-import { fetch24hDiffs, fetchSummary } from "@/services/api/stats"
+import { fetchGeneralStats, fetchSummary } from "@/services/api/stats"
 
 const props = defineProps({
 	series: {
@@ -67,7 +67,7 @@ const getSeries = async () => {
 			},
 		]
 	} else {
-		data = await fetch24hDiffs({ name: props.series.name })	
+		data = await fetchGeneralStats({ name: props.series.name })	
 	}
 	
 	switch (props.series.name) {
