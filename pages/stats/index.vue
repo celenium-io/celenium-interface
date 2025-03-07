@@ -9,7 +9,7 @@ import EcosystemTab from "@/components/modules/stats/tabs/EcosystemTab.vue"
 import RollupsTab from "@/components/modules/stats/tabs/RollupsTab.vue"
 
 /** Services */
-import { capitilize } from "@/services/utils"
+import { capitilize, isMainnet } from "@/services/utils"
 
 useHead({
 	title: "Statistics - Celestia Explorer",
@@ -62,8 +62,25 @@ useHead({
 const route = useRoute()
 const router = useRouter()
 
-const tabs = ref(['general', 'blocks', 'rollups', 'ecosystem'])
-const activeTab = ref(route.query.tab && tabs.value.includes(route.query.tab) ? route.query.tab : tabs.value[0])
+const tabs = ref([
+	{
+		name: "general",
+		visible: true,
+	},
+	{
+		name: "blocks",
+		visible: true,
+	},
+	{
+		name: "rollups",
+		visible: true,
+	},
+	{
+		name: "ecosystem",
+		visible: isMainnet(),
+	},
+])
+const activeTab = ref(route.query.tab && tabs.value.filter(t => t.visible).map(t => t.name).includes(route.query.tab) ? route.query.tab : tabs.value[0].name)
 
 const updateRouteQuery = () => {
 	router.replace({
@@ -118,8 +135,8 @@ watch(
 
 		<Flex align="center" justify="between" wide :class="$style.tabs_wrapper">
 			<Flex align="center" gap="16">
-				<Text v-for="t in tabs" @click="activeTab = t" size="14" color="tertiary" :class="[$style.tab, activeTab === t && $style.tab_active]">
-					{{ capitilize(t) }}
+				<Text v-for="t in tabs.filter(t => t.visible)" @click="activeTab = t.name" size="14" color="tertiary" :class="[$style.tab, activeTab === t.name && $style.tab_active]">
+					{{ capitilize(t.name) }}
 				</Text>
 			</Flex>
 
