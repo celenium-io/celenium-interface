@@ -266,7 +266,7 @@ watch(
 				</Flex>
 			</template>
 
-			<template v-if="!isLoading && isMainnet()">
+			<template v-if="!isLoading">
 				<Flex align="center" justify="between" wide :class="$style.segment">
 					<Text size="16" weight="600" color="primary" justify="start">Economics</Text>
 				</Flex>
