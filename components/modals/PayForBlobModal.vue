@@ -225,7 +225,7 @@ const handleContinue = async () => {
 				icon: "danger",
 				title: `Something went wrong`,
 				description: e.message,
-				autoDestroy: true,
+				autoDestroy: false,
 			},
 		})
 	}
