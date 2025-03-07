@@ -8,6 +8,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
+import { useServerURL } from "@/services/config"
 import { comma, space, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
@@ -60,7 +61,7 @@ const handleSort = async (by) => {
 		</Flex>
 
 		<Flex direction="column" gap="16" :class="$style.namespaces_body">
-			<div v-if="namespaces.length" :class="$style.table_scroller">
+			<div v-if="namespaces?.length" :class="$style.table_scroller">
 				<table>
 					<thead>
 						<tr>
@@ -158,7 +159,7 @@ const handleSort = async (by) => {
 					</tbody>
 				</table>
 			</div>
-			<Flex v-else-if="isLoading" align="center" justify="center" gap="8" wide>
+			<Flex v-else-if="isLoading" align="center" justify="center" gap="8" wide :class="$style.empty">
 				<Spinner size="14" />
 				<Text size="13" weight="500" color="secondary"> Loading recent namespaces </Text>
 			</Flex>
