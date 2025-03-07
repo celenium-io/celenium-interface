@@ -133,6 +133,11 @@ const modularLinks = reactive([
 const isToolsLinkCollapsed = ref(false)
 const toolsLinks = reactive([
 	{
+		icon: "drop",
+		name: "Faucet",
+		path: "/faucet",
+	},
+	{
 		icon: "blob",
 		name: "Blobstream",
 		path: "/blobstream",
@@ -356,9 +361,9 @@ const handleNavigate = (url) => {
 
 .group_title {
 	border-radius: 5px;
-	cursor: default;
+	cursor: pointer;
 
-	padding: 4px 6px;
+	padding: 6px 6px;
 	margin: 0 2px;
 
 	transition: all 0.2s ease;

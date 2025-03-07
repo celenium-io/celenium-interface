@@ -326,10 +326,6 @@ onBeforeMount(() => {
 	}
 })
 
-// onMounted(() => {
-// 	getTransactions()
-// })
-
 /** Refetch transactions */
 watch(
 	() => route.query,
@@ -349,7 +345,6 @@ watch(
 watch(
 	() => page.value,
 	async () => {
-		await getTransactions()
 		updateRouteQuery()
 	},
 )
