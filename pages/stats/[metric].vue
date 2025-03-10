@@ -159,13 +159,13 @@ const updateUserSettings = () => {
 const filters = reactive({})
 
 const setDefaultFilters = () => {
-	filters.timeframe = selectedPeriod.value.timeframe
+	// filters.timeframe = selectedPeriod.value.timeframe
 	filters.periodValue = selectedPeriod.value.value
-	filters.from = parseInt(
-		DateTime.now()
-			.startOf("day")
-	)
-	filters.to = parseInt(DateTime.now().endOf("day").ts / 1_000)
+	// filters.from = parseInt(
+	// 	DateTime.now()
+	// 		.startOf("day")
+	// )
+	// filters.to = parseInt(DateTime.now().endOf("day").ts / 1_000)
 }
 
 setDefaultFilters()

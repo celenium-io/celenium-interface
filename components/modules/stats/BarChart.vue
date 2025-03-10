@@ -21,15 +21,15 @@ const tooltip = ref({
 	show: false,
 })
 
-const buildChart = (chart, cData, pData, onEnter, onLeave) => {
+const buildChart = (chart, cData, onEnter, onLeave) => {
 	const width = chart.getBoundingClientRect().width
 	const height = chart.getBoundingClientRect().height
 	const marginTop = 12
 	const marginRight = 12
 	const marginBottom = 24
-	const marginLeft = 48
+	const marginLeft = 12
 	const marginAxisX = 24
-	const barWidth = Math.max(Math.round((width - marginLeft - marginRight) / (cData.data.length) - 5), 4)
+	const barWidth = Math.max(Math.round((width - marginLeft - marginRight - cData.data.length * 5 ) / cData.data.length ), 2)
 
 	const MIN_VALUE = d3.min([...cData.data.map(s => s.value)])
 	const MAX_VALUE = d3.max([...cData.data.map(s => s.value)])
@@ -37,12 +37,12 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 	/** Scales */
 	const x0 = d3.scaleUtc(
 		d3.extent(cData.data, (d) => new Date(d.date)),
-		[marginLeft, width - marginRight - barWidth],
+		[marginLeft, width - marginRight - marginLeft],
 	)
 
 	const scaleX = d3.scaleUtc(
 		d3.extent(cData.data, (d) => new Date(d.date)),
-		[marginLeft - barWidth / 2, width - marginRight - barWidth / 2],
+		[marginLeft - barWidth / 2, width - marginRight - marginLeft / 2],
 	)
 
 	let data = cData.data.map((d, i) => ({
@@ -262,7 +262,7 @@ onMounted(async () => {
     </Flex>
 </template>
 
-<style module>
+<style module lang="scss">
 .wrapper {
 	height: 800px;
 
