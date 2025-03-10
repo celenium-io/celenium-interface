@@ -64,7 +64,7 @@ const getSeries = async () => {
 			period: 'day',
 			from: parseInt(
 				baseTime.minus({
-					months: 2,
+					days: 60,
 				}).ts / 1_000)
 		})
 	} else if (props.series.name === "tvs") {
@@ -82,8 +82,13 @@ const getSeries = async () => {
 		})).reverse()
 	}
 	
-	prevData.value = data.slice(0, props.period.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
-	currentData.value = data.slice(props.period.value, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+	if (props.series.aggregate === 'cumulative') {
+		prevData.value = data.slice(0, 30).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+		currentData.value = data.slice(30, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+	} else {
+		prevData.value = data.slice(0, props.period.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+		currentData.value = data.slice(props.period.value, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+	}
 
 	if (props.series.name === 'block_time') {
 		prevData.value = prevData.value
@@ -103,8 +108,8 @@ const getSeries = async () => {
 	}
 
 	if (props.series.name === 'tvs') {
-		currentTotal.value = currentData.value[currentData.value.length - 1].value // Math.max(...currentData.value.map(d => d.value))
-		prevTotal.value = prevData.value[prevData.value.length - 1].value // Math.max(...prevTotal.value.map(d => d.value))
+		currentTotal.value = currentData.value[currentData.value.length - 1].value
+		prevTotal.value = prevData.value[prevData.value.length - 1].value
 	} else if (props.series.aggregate !== 'cumulative') {
 		currentTotal.value = currentData.value.reduce((sum, el) => {
 			return sum + +el.value;
@@ -444,10 +449,7 @@ watch(
 
 			<Flex align="center" justify="between" :class="$style.axis">
 				<Text v-if="series.aggregate === 'cumulative'" size="11" weight="600" color="tertiary">
-					{{ DateTime.now().minus({
-							months: 2,
-						}).toFormat("LLL dd")
-					}}
+					{{ DateTime.fromJSDate(currentData[0]?.date).toFormat("LLL dd") }}
 				</Text>
 				<Text v-else size="11" weight="600" color="tertiary">
 					{{ DateTime.now().minus({
