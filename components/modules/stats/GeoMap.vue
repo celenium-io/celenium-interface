@@ -121,7 +121,7 @@ const buildChart = async (chart) => {
             `
         } else if (chartView.value === "cities") {
             let hoverCities = []
-            if (zoomScale > 4) {
+            if (zoomScale > 2) {
                 const { x, y } = d
                 const r = size(+d.amount) / (zoomScale * 1.1)
 
@@ -221,7 +221,7 @@ const buildChart = async (chart) => {
                 }
             })
         nodeCityData.value = nodeCityData.value.map(c => {
-            const coords = projection([+c.latitude, +c.longitude])
+            const coords = projection([+c.longitude, +c.latitude])
             return {
                 ...c,
                 x: coords[0],
