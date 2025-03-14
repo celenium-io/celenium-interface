@@ -42,7 +42,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	const y = d3
 		.scaleLinear()
 		.domain([0, d3.max(data, (d) => +d.value)])
-		.range([height - 4- axisBottomHeight, margin.bottom + 10])
+		.range([height - 4 - axisBottomHeight, margin.bottom + 10])
 
 	const svg = d3
 		.select(chart)
@@ -179,7 +179,64 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.attr("r", 1)
 		.attr("fill", "var(--op-50)")
 
-	const dragBehavior = d3
+	// Левая ручка
+	const leftHandle = gb
+		.append("g")
+		.attr("class", "brush-handle left")
+		.style("display", "inline")
+		.style("cursor", "ew-resize")
+		.attr("transform", "translate(0, 0)")
+
+	leftHandle
+		.append("rect")
+		.attr("y", 20)
+		.attr("x", margin.top - 16.5)
+		.attr("height", 25)
+		.attr("width", 5)
+		.attr("ry", 2)
+		.attr("fill", "var(--op-30)")
+
+	leftHandle
+		.append("g")
+		.attr("transform", `translate(${margin.top - 15}, 25)`)
+		.selectAll("circle")
+		.data([0, 1, 2])
+		.join("circle")
+		.attr("cy", (d) => d * 6)
+		.attr("cx", 1)
+		.attr("r", 1)
+		.attr("fill", "var(--op-50)")
+
+	// Правая ручка
+	const rightHandle = gb
+		.append("g")
+		.attr("class", "brush-handle right")
+		.style("display", "inline")
+		.style("cursor", "ew-resize")
+		.attr("transform", "translate(0, 0)")
+
+	rightHandle
+		.append("rect")
+		.attr("y", 20)
+		.attr("x", margin.top - 11.5)
+		.attr("height", 25)
+		.attr("width", 5)
+		.attr("ry", 2)
+		.attr("fill", "var(--op-30)")
+
+	rightHandle
+		.append("g")
+		.attr("transform", `translate(${margin.top - 10}, 25)`)
+		.selectAll("circle")
+		.data([0, 1, 2])
+		.join("circle")
+		.attr("cy", (d) => d * 6)
+		.attr("cx", 1)
+		.attr("r", 1)
+		.attr("fill", "var(--op-50)")
+
+	// Добавим drag behavior для центральной ручки
+	const handleDragBehavior = d3
 		.drag()
 		.on("start", function () {
 			d3.select(this).style("cursor", "grabbing")
@@ -201,15 +258,41 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			d3.select(this).style("cursor", "grab")
 		})
 
-	handle.call(dragBehavior)
+	handle.call(handleDragBehavior)
 
+	// Обновим функцию updateHandlePosition для всех ручек
 	function updateHandlePosition(selection) {
 		if (selection) {
 			const [x0, x1] = selection
 			const handleX = x0 + (x1 - x0) / 2 - 12.5
 			handle.attr("transform", `translate(${handleX}, 0)`)
+			leftHandle.attr("transform", `translate(${x0}, 0)`)
+			rightHandle.attr("transform", `translate(${x1 - 5}, 0)`) // -5 для компенсации ширины ручки
 		}
 	}
+
+	// Добавим drag behavior для боковых ручек
+	const leftDragBehavior = d3.drag().on("drag", function (event) {
+		const selection = d3.brushSelection(gb.node())
+		if (selection) {
+			const [x0, x1] = selection
+			const newX0 = Math.min(Math.max(x0 + event.dx, margin.left), x1 - 10)
+			gb.call(brush.move, [newX0, x1])
+		}
+	})
+
+	const rightDragBehavior = d3.drag().on("drag", function (event) {
+		const selection = d3.brushSelection(gb.node())
+		if (selection) {
+			const [x0, x1] = selection
+			const newX1 = Math.max(Math.min(x1 + event.dx, width - margin.right), x0 + 10)
+			gb.call(brush.move, [x0, newX1])
+		}
+	})
+
+	leftHandle.call(leftDragBehavior)
+	rightHandle.call(rightDragBehavior)
+
 	function brushed({ selection }) {
 		if (selection) {
 			const [x0, x1] = selection
