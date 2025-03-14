@@ -299,7 +299,7 @@ const handleUpdateDate = async (event) => {
 		filters.from = from
 		filters.to = to
 		// selectedTimeframe.value = timeframes.value.find((tf) => tf.timeframe === filters.timeframe)
-		console.log('selectedTimeframe', selectedTimeframe.value)
+		// console.log('selectedTimeframe', selectedTimeframe.value)
 		await getData()
 	} else if (event.clear) {
 		setDefaultFilters()

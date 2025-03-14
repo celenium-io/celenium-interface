@@ -16,32 +16,29 @@ const emit = defineEmits(["onUpdate"])
 const chartEl = ref()
 const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#55c9ab", "#142f28"])).domain([0, 5])
 
-/* TODO:
-	+ Разобраться с высотой графика (убрать рандомные значения)
-	- Добавить ручки на слайдер за которые можно тянуть
-	- Добавить всплывающие тултипы с датами
-	- Смена на бары
-*/
-
 const buildTimelineSlider = (chart, data, chartView) => {
 	const width = chart.getBoundingClientRect().width
 
-	// console.log("buildTimelineSlider_slider", width, chart)
-	const margin = { top: 4, right: 12, bottom: 4, left: 12 }
+	const margin = { top: 14, right: 12, bottom: 4, left: 12 }
 	const height = 75
 	const axisBottomHeight = 20
-	// const barWidth = Math.max(Math.round((width - margin.left - margin.right - props.allData.length * 5) / props.allData.length ), 2)
-	const barWidth = Math.max(Math.round((width - margin.left - margin.right - data.length * 5 ) / data.length ), 2)
+
 
 	const x = d3
 		.scaleUtc()
 		.domain(d3.extent(data, (d) => new Date(d.time)))
-		.range([margin.left, width - margin.right - margin.left])
+		.range([margin.left, width - margin.right])
+
+	const xBand = d3
+		.scaleBand()
+		.domain(data.map((d) => new Date(d.time).toISOString()))
+		.range([margin.left, width - margin.right])
+		.padding(0.1)
 
 	const scaleX = d3
 		.scaleUtc()
 		.domain(d3.extent(data, (d) => new Date(d.time)))
-		.range([margin.left - barWidth / 2, width - margin.right - margin.left / 2])
+		.range([margin.left, width - margin.right])
 
 	const y = d3
 		.scaleLinear()
@@ -58,7 +55,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.style("display", "block")
 
 	svg.append("g")
-		.attr("transform", `translate(${barWidth / 2 - 3 }, ${height - axisBottomHeight} )`)
+		.attr("transform", `translate(0, ${height - axisBottomHeight} )`)
 		.attr("color", "var(--op-20)")
 		.call(d3.axisBottom(scaleX).ticks(Math.min(data.length, 6)).tickFormat(d3.timeFormat("%b %d")))
 		.selectAll(".tick line")
@@ -101,37 +98,36 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			)
 	} else {
 		svg.append("g")
-			.selectAll("g")
-			.data(data)
-			.enter()
-			.append("rect")
-			.attr("class", "bar")
-			.attr("data-index", (d) => d.index)
-			.attr("x", (d) => x(new Date(d.time)))
-			.attr("y", (d) => y(d.value))
-			.attr("width", barWidth)
-			.attr("height", 0)
 			.attr("fill", "var(--txt-tertiary)")
+			.attr("class", "bar")
+			.selectAll("rect")
+			.data(data)
+			.join("rect")
+			.attr("x", (d) => width - xBand(new Date(d.time).toISOString()) - xBand.bandwidth())
+			.attr("y", height - axisBottomHeight)
+			.attr("height", 0)
+			.attr("width", xBand.bandwidth())
 			.transition()
-			.duration(1_000)
+			.duration(1000)
+			.attr("y", (d) => y(d.value))
 			.attr("height", (d) => height - y(d.value) - axisBottomHeight)
 
 		const highlightedBars = svg
 			.append("g")
-			.selectAll("rect.highlighted")
+			.attr("class", "highlighted-bars")
+			.selectAll("rect")
 			.data(data)
-			.enter()
-			.append("rect")
+			.join("rect")
 			.attr("class", "bar highlighted")
-			.attr("data-index", (d) => d.index)
-			.attr("x", (d) => x(new Date(d.time)))
-			.attr("y", (d) => y(d.value))
-			.attr("width", barWidth)
-			.attr("height", 0)
 			.attr("fill", "var(--mint)")
+			.attr("x", (d) => width - xBand(new Date(d.time).toISOString()) - xBand.bandwidth())
+			.attr("y", height - axisBottomHeight)
+			.attr("height", 0)
+			.attr("width", xBand.bandwidth())
 			.attr("clip-path", "url(#clip)")
 			.transition()
 			.duration(1000)
+			.attr("y", (d) => y(d.value))
 			.attr("height", (d) => height - y(d.value) - axisBottomHeight)
 	}
 
@@ -148,13 +144,14 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	const brush = d3
 		.brushX()
 		.extent([
-			[margin.left, margin.top],
-			[width - margin.right - margin.left, height - axisBottomHeight],
+			[margin.left, margin.top - 4],
+			[width - margin.right, height - axisBottomHeight],
 		])
 		.on("brush", brushed)
 		.on("end", brushended)
 
 	function brushed({ selection }) {
+
 		if (selection) {
 			const [x0, x1] = selection
 
@@ -171,7 +168,8 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		}
 	}
 
-	function brushended({ selection }) {
+	function brushended({ selection, sourceEvent }) {
+		console.log("brushended", selection, sourceEvent)
 		if (!selection) {
 			gb.call(brush.move, defaultSelection)
 			clip.attr("x", 0).attr("width", 0)
@@ -182,7 +180,43 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 	const gb = svg.append("g").call(brush).call(brush.move, defaultSelection)
 
-	gb.select(".selection").attr("fill", "var(--op-30)").attr("stroke", "var(--op-30)")
+	gb.select(".selection").attr("fill", "var(--op-30)").attr("stroke", "var(--op-30)").style("pointer-events", "none")
+
+	const handle = gb
+		.append("g")
+		.attr("class", "brush-handle")
+		.style("display", "inline")
+		.style("cursor", "grab")
+		.attr("transform", `translate(${width / 2}, 0)`)
+
+	handle
+		.append("rect")
+		.attr("x", -2.5)
+		.attr("y", margin.top - 14)
+		.attr("width", 25)
+		.attr("height", 5)
+		.attr("rx", 2)
+		.attr("fill", "var(--op-30)")
+
+	handle
+		.append("g")
+		.attr("transform", `translate(4, ${margin.top - 12.5})`)
+		.selectAll("circle")
+		.data([0, 1, 2])
+		.join("circle")
+		.attr("cx", (d) => d * 6)
+		.attr("cy", 1)
+		.attr("r", 1)
+		.attr("fill", "var(--op-50)")
+
+	function updateHandlePosition(selection) {
+		if (selection) {
+			const [x0, x1] = selection
+			const handleX = x0 + (x1 - x0) / 2
+			handle.attr("transform", `translate(${handleX}, 0)`)
+		}
+	}
+	updateHandlePosition(defaultSelection)
 
 	return svg.node()
 }

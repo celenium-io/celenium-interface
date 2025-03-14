@@ -13,7 +13,9 @@ const props = defineProps({
 	},
 })
 
-const currentData = computed(() => { return {data: props.series.currentData}})
+const currentData = computed(() => {
+	return { data: props.series.currentData }
+})
 
 const chartEl = ref()
 const tooltip = ref({
@@ -29,49 +31,49 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 	const marginBottom = 24
 	const marginLeft = 12
 	const marginAxisX = 24
-	const barWidth = Math.max(Math.round((width - marginLeft - marginRight - cData.data.length * 5 ) / cData.data.length ), 2)
+	const barWidth = Math.max(Math.round((width - marginLeft - marginRight - cData.data.length * 5) / cData.data.length), 0.5)
 
-	const MIN_VALUE = d3.min([...cData.data.map(s => s.value)])
-	const MAX_VALUE = d3.max([...cData.data.map(s => s.value)])
+	const MIN_VALUE = d3.min([...cData.data.map((s) => s.value)])
+	const MAX_VALUE = d3.max([...cData.data.map((s) => s.value)])
 
 	/** Scales */
 	const x0 = d3.scaleUtc(
 		d3.extent(cData.data, (d) => new Date(d.date)),
-		[marginLeft, width - marginRight - marginLeft],
+		[marginLeft, width - marginRight - barWidth],
 	)
 
 	const scaleX = d3.scaleUtc(
 		d3.extent(cData.data, (d) => new Date(d.date)),
-		[marginLeft - barWidth / 2, width - marginRight - marginLeft / 2],
+		[marginLeft - barWidth / 2, width - marginRight - barWidth / 2],
 	)
 
 	let data = cData.data.map((d, i) => ({
 		date: new Date(d.date),
 		value: d.value,
 		color: cData.color,
-		group: 'current',
+		group: "current",
 		index: i,
 	}))
 
 	const y = d3.scaleLinear([MIN_VALUE, MAX_VALUE], [height - marginBottom, marginTop])
-	
+
 	function formatDate(date) {
 		return DateTime.fromJSDate(date).toFormat("LLL dd, yyyy")
 	}
 
 	function formatValue(value) {
 		switch (props.series.units) {
-			case 'bytes':
+			case "bytes":
 				return formatBytes(value)
-			case 'utia':
-				if (props.series.name === 'gas_price') {
+			case "utia":
+				if (props.series.name === "gas_price") {
 					return `${truncateDecimalPart(value, 4)} UTIA`
 				}
 
 				return `${tia(value, 2)} TIA`
-			case 'seconds':
+			case "seconds":
 				return `${truncateDecimalPart(value / 1_000, 3)}s`
-			case 'usd':
+			case "usd":
 				return `${abbreviate(value)} $`
 			default:
 				return comma(value)
@@ -101,51 +103,51 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 		.on("touchstart", (event) => event.preventDefault())
 
 	/** Add axes */
+
+	if (isNaN(barWidth) || !isFinite(barWidth)) {
+		// console.error("barWidth is not a valid number:", barWidth)
+		return
+	}
 	svg.append("g")
 		.attr("transform", `translate( ${barWidth / 2 - 3}, ${height - marginAxisX} )`)
 		.attr("color", "var(--op-20)")
 		.call(d3.axisBottom(scaleX).ticks(Math.min(cData.data.length, 6)).tickFormat(d3.timeFormat("%b %d")))
 		.selectAll(".tick line")
-			.filter(function(d) { return d === 0; })
-			.remove();
-		
+		.filter(function (d) {
+			return d === 0
+		})
+		.remove()
+
 	svg.append("g")
 		.attr("transform", `translate(0,0)`)
 		.attr("color", "var(--op-20)")
-		.call(d3.axisRight(y)
-			.ticks(4)
-			.tickSize(width)
-			.tickFormat(formatScaleValue))
-		.call(g => g.select(".domain")
-			.remove())
-		.call(g => g.selectAll(".tick line")
-			.attr("stroke-opacity", 0.7)
-			.attr("stroke-dasharray", "10, 10"))
-		.call(g => g.selectAll(".tick text")
-			.attr("x", 4)
-			.attr("dy", -4))
+		.call(d3.axisRight(y).ticks(4).tickSize(width).tickFormat(formatScaleValue))
+		.call((g) => g.select(".domain").remove())
+		.call((g) => g.selectAll(".tick line").attr("stroke-opacity", 0.7).attr("stroke-dasharray", "10, 10"))
+		.call((g) => g.selectAll(".tick text").attr("x", 4).attr("dy", -4))
 
 	// This allows to find the closest X index of the mouse:
-	const bisect = d3.bisector(function(d) { return d.date }).center
+	const bisect = d3.bisector(function (d) {
+		return d.date
+	}).center
 
 	function onPointerMoved(event) {
 		onEnter()
 		// Recover coordinate we need
 		let idx = bisect(cData.data, x0.invert(d3.pointer(event)[0] - barWidth / 2))
-		const elements = document.querySelectorAll('[data-index]')
-		elements.forEach(el => {
-			if (+el.getAttribute('data-index') === idx) {
+		const elements = document.querySelectorAll("[data-index]")
+		elements.forEach((el) => {
+			if (+el.getAttribute("data-index") === idx) {
 				el.style.filter = "brightness(1.2)"
 			} else {
 				el.style.filter = "brightness(0.6)"
 			}
-			
 		})
 
 		let selectedCData = cData.data[idx]
-		
+
 		let xPosition = x0(selectedCData.date)
-		tooltip.value.x = xPosition > (width - 200) ? xPosition - 215 : xPosition + 15
+		tooltip.value.x = xPosition > width - 200 ? xPosition - 215 : xPosition + 15
 		tooltip.value.y = Math.min(y(selectedCData.value), height - 100)
 
 		tooltip.value.data[0] = {
@@ -159,28 +161,29 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 	function onPointerLeft() {
 		onLeave()
 
-		const elements = document.querySelectorAll('[data-index]')
-		elements.forEach(el => {
+		const elements = document.querySelectorAll("[data-index]")
+		elements.forEach((el) => {
 			el.style.filter = ""
 		})
 	}
 
 	/** Draw bars */
 
-	svg.append('g')
+	svg.append("g")
 		.selectAll("g")
 		.data(data)
-		.enter().append("rect")
+		.enter()
+		.append("rect")
 		.attr("class", "bar")
-		.attr('data-index', d => d.index)
-		.attr("x", d => x0(new Date(d.date)))
-		.attr('y', d => y(d.value) - marginAxisX)
+		.attr("data-index", (d) => d.index)
+		.attr("x", (d) => x0(new Date(d.date)))
+		.attr("y", (d) => y(d.value) - marginAxisX)
 		.attr("width", barWidth)
-		.attr('height', 0)
-		.attr('fill', d => d.color)
+		.attr("height", 0)
+		.attr("fill", (d) => d.color)
 		.transition()
 		.duration(1_000)
-		.attr('height', d => height - y(d.value))
+		.attr("height", (d) => height - y(d.value))
 
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
@@ -214,8 +217,8 @@ onMounted(async () => {
 </script>
 
 <template>
-    <Flex direction="column" justify="between" gap="16" wide :class="$style.wrapper">
-        <Flex :class="$style.chart_wrapper">
+	<Flex direction="column" justify="between" gap="16" wide :class="$style.wrapper">
+		<Flex :class="$style.chart_wrapper">
 			<Transition name="fastfade">
 				<div v-if="tooltip.show" :class="$style.tooltip_wrapper">
 					<Flex
@@ -225,19 +228,13 @@ onMounted(async () => {
 						gap="12"
 						:class="$style.tooltip"
 					>
-						<Flex
-							v-for="(d, index) in tooltip.data"
-							align="center"
-							direction="column"
-							wide
-							gap="12"
-						>
+						<Flex v-for="(d, index) in tooltip.data" align="center" direction="column" wide gap="12">
 							<Flex align="center" justify="between" wide gap="12">
 								<Flex align="center" direction="column" gap="10">
 									<Flex align="center" justify="start" wide>
 										<Text size="12" weight="600" color="primary"> {{ d.value }} </Text>
 									</Flex>
-									
+
 									<Flex align="center" justify="start" wide>
 										<Text size="12" weight="500" color="tertiary"> {{ d.date }} </Text>
 									</Flex>
@@ -246,7 +243,7 @@ onMounted(async () => {
 								<div
 									:class="$style.legend"
 									:style="{
-										background: d.color
+										background: d.color,
 									}"
 								/>
 							</Flex>
@@ -257,9 +254,9 @@ onMounted(async () => {
 				</div>
 			</Transition>
 
-            <Flex ref="chartEl" wide :class="$style.chart" />
-        </Flex>
-    </Flex>
+			<Flex ref="chartEl" wide :class="$style.chart" />
+		</Flex>
+	</Flex>
 </template>
 
 <style module lang="scss">
