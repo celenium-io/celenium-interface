@@ -23,7 +23,6 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	const height = 75
 	const axisBottomHeight = 20
 
-
 	const x = d3
 		.scaleUtc()
 		.domain(d3.extent(data, (d) => new Date(d.time)))
@@ -43,7 +42,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	const y = d3
 		.scaleLinear()
 		.domain([0, d3.max(data, (d) => +d.value)])
-		.range([height - margin.top - axisBottomHeight, margin.bottom + 7])
+		.range([height - 4- axisBottomHeight, margin.bottom + 10])
 
 	const svg = d3
 		.select(chart)
@@ -63,6 +62,18 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			return d === 0
 		})
 		.remove()
+
+	const clip = svg
+		.append("defs")
+		.append("clipPath")
+		.attr("id", "clip")
+		.append("rect")
+		.attr("x", 0)
+		.attr("y", 0)
+		.attr("width", 0)
+		.attr("height", height)
+
+	const defaultSelection = [x.range()[0], x.range()[1]]
 
 	if (chartView === "line") {
 		svg.append("path")
@@ -131,63 +142,22 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			.attr("height", (d) => height - y(d.value) - axisBottomHeight)
 	}
 
-	const clip = svg
-		.append("defs")
-		.append("clipPath")
-		.attr("id", "clip")
-		.append("rect")
-		.attr("x", 0)
-		.attr("y", 0)
-		.attr("width", 0)
-		.attr("height", height)
-
-	const brush = d3
-		.brushX()
-		.extent([
-			[margin.left, margin.top - 4],
-			[width - margin.right, height - axisBottomHeight],
-		])
-		.on("brush", brushed)
-		.on("end", brushended)
-
-	function brushed({ selection }) {
-
-		if (selection) {
-			const [x0, x1] = selection
-
-			const [from, to] = selection.map(x.invert, x).map((d) => Math.floor(d?.getTime() / 1_000))
-
-			setTimeout(() => {
-				emit("onUpdate", { from, to })
-			}, 300)
-
-			clip.attr("x", x0).attr("width", x1 - x0)
-
-			svg.property("value", selection.map(x.invert, x).map(d3.utcDay.round))
-			svg.dispatch("input")
-		}
-	}
-
-	function brushended({ selection, sourceEvent }) {
-		console.log("brushended", selection, sourceEvent)
-		if (!selection) {
-			gb.call(brush.move, defaultSelection)
-			clip.attr("x", 0).attr("width", 0)
-		}
-	}
-
-	const defaultSelection = [x.range()[0], x.range()[1]]
+	const brush = d3.brushX().extent([
+		[margin.left, margin.top - 4],
+		[width - margin.right, height - axisBottomHeight],
+	])
 
 	const gb = svg.append("g").call(brush).call(brush.move, defaultSelection)
 
 	gb.select(".selection").attr("fill", "var(--op-30)").attr("stroke", "var(--op-30)").style("pointer-events", "none")
+	clip.attr("x", defaultSelection[0]).attr("width", defaultSelection[1] - defaultSelection[0])
 
 	const handle = gb
 		.append("g")
 		.attr("class", "brush-handle")
 		.style("display", "inline")
 		.style("cursor", "grab")
-		.attr("transform", `translate(${width / 2}, 0)`)
+		.attr("transform", "translate(0, 0)")
 
 	handle
 		.append("rect")
@@ -209,13 +179,66 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.attr("r", 1)
 		.attr("fill", "var(--op-50)")
 
+	const dragBehavior = d3
+		.drag()
+		.on("start", function () {
+			d3.select(this).style("cursor", "grabbing")
+		})
+		.on("drag", function (event) {
+			const selection = d3.brushSelection(gb.node())
+			if (selection) {
+				const dx = event.dx
+				const [x0, x1] = selection
+				const newSelection = [x0 + dx, x1 + dx]
+
+				// Проверяем границы
+				if (newSelection[0] >= margin.left && newSelection[1] <= width - margin.right) {
+					gb.call(brush.move, newSelection)
+				}
+			}
+		})
+		.on("end", function () {
+			d3.select(this).style("cursor", "grab")
+		})
+
+	handle.call(dragBehavior)
+
 	function updateHandlePosition(selection) {
 		if (selection) {
 			const [x0, x1] = selection
-			const handleX = x0 + (x1 - x0) / 2
+			const handleX = x0 + (x1 - x0) / 2 - 12.5
 			handle.attr("transform", `translate(${handleX}, 0)`)
 		}
 	}
+	function brushed({ selection }) {
+		if (selection) {
+			const [x0, x1] = selection
+
+			const [from, to] = selection.map(x.invert, x).map((d) => Math.floor(d?.getTime() / 1_000))
+
+			setTimeout(() => {
+				emit("onUpdate", { from, to })
+			}, 300)
+
+			clip.attr("x", x0).attr("width", x1 - x0)
+
+			svg.property("value", selection.map(x.invert, x).map(d3.utcDay.round))
+			svg.dispatch("input")
+
+			updateHandlePosition(selection)
+		}
+	}
+
+	function brushended({ selection, sourceEvent }) {
+		console.log("brushended", selection, sourceEvent)
+		if (!selection) {
+			gb.call(brush.move, defaultSelection)
+			clip.attr("x", 0).attr("width", 0)
+		}
+	}
+
+	brush.on("brush", brushed).on("end", brushended)
+
 	updateHandlePosition(defaultSelection)
 
 	return svg.node()
