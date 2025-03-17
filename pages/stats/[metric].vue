@@ -184,7 +184,7 @@ const fetchData = async () => {
 	loadedAllData.value = false
 	let data = []
 
-	console.trace('fetchData', series.value.name)
+	console.trace("fetchData", series.value.name)
 
 	if (series.value.name === "tvs") {
 		data = (
@@ -220,10 +220,9 @@ const getData = async () => {
 
 	let data = []
 
-	const isSameRequest = currentChartName.value === series.value.name &&
-		loadedAllData.value && allData.value.length > 0
+	const isSameRequest = currentChartName.value === series.value.name && loadedAllData.value && allData.value.length > 0
 
-	if (!isSameRequest) { 
+	if (!isSameRequest) {
 		await fetchData()
 	}
 
@@ -237,7 +236,7 @@ const getData = async () => {
 		.map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
 		.reverse()
 
-	series.value.currentData = [...currentData.value.slice(0, -1)]
+	series.value.currentData = [...currentData.value]
 
 	series.value.timeframe = filters.timeframe
 	isLoading.value = false
@@ -309,7 +308,7 @@ const handleUpdateDate = async (event) => {
 }
 
 const handleTimeframeUpdate = (tf) => {
-	console.log('handleTimeframeUpdate', tf)
+	console.log("handleTimeframeUpdate", tf)
 	selectedTimeframe.value = tf
 }
 
@@ -358,7 +357,7 @@ watch(
 	() => selectedTimeframe.value,
 	async () => {
 		if (!isLoading.value) {
-			allData.value = [];
+			allData.value = []
 			await getData()
 		}
 	},

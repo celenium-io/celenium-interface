@@ -31,20 +31,20 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 	const marginBottom = 24
 	const marginLeft = 12
 	const marginAxisX = 24
-	const barWidth = Math.max(Math.round((width - marginLeft - marginRight - cData.data.length * 5) / cData.data.length), 0.5)
 
 	const MIN_VALUE = d3.min([...cData.data.map((s) => s.value)])
 	const MAX_VALUE = d3.max([...cData.data.map((s) => s.value)])
 
 	/** Scales */
-	const x0 = d3.scaleUtc(
-		d3.extent(cData.data, (d) => new Date(d.date)),
-		[marginLeft, width - marginRight - barWidth],
-	)
+	const xBand = d3
+		.scaleBand()
+		.domain(cData.data.map((d) => new Date(d.date)))
+		.range([marginLeft, width - marginRight])
+		.padding(0.1)
 
 	const scaleX = d3.scaleUtc(
 		d3.extent(cData.data, (d) => new Date(d.date)),
-		[marginLeft - barWidth / 2, width - marginRight - barWidth / 2],
+		[marginLeft, width - marginRight],
 	)
 
 	let data = cData.data.map((d, i) => ({
@@ -103,13 +103,8 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 		.on("touchstart", (event) => event.preventDefault())
 
 	/** Add axes */
-
-	if (isNaN(barWidth) || !isFinite(barWidth)) {
-		// console.error("barWidth is not a valid number:", barWidth)
-		return
-	}
 	svg.append("g")
-		.attr("transform", `translate( ${barWidth / 2 - 3}, ${height - marginAxisX} )`)
+		.attr("transform", `translate(0, ${height - marginAxisX})`)
 		.attr("color", "var(--op-20)")
 		.call(d3.axisBottom(scaleX).ticks(Math.min(cData.data.length, 6)).tickFormat(d3.timeFormat("%b %d")))
 		.selectAll(".tick line")
@@ -133,8 +128,10 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 
 	function onPointerMoved(event) {
 		onEnter()
-		// Recover coordinate we need
-		let idx = bisect(cData.data, x0.invert(d3.pointer(event)[0] - barWidth / 2))
+		const mouseX = d3.pointer(event)[0]
+		const date = scaleX.invert(mouseX)
+		const idx = bisect(cData.data, date)
+
 		const elements = document.querySelectorAll("[data-index]")
 		elements.forEach((el) => {
 			if (+el.getAttribute("data-index") === idx) {
@@ -145,8 +142,8 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 		})
 
 		let selectedCData = cData.data[idx]
+		let xPosition = xBand(new Date(selectedCData.date))
 
-		let xPosition = x0(selectedCData.date)
 		tooltip.value.x = xPosition > width - 200 ? xPosition - 215 : xPosition + 15
 		tooltip.value.y = Math.min(y(selectedCData.value), height - 100)
 
@@ -168,7 +165,6 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 	}
 
 	/** Draw bars */
-
 	svg.append("g")
 		.selectAll("g")
 		.data(data)
@@ -176,9 +172,9 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 		.append("rect")
 		.attr("class", "bar")
 		.attr("data-index", (d) => d.index)
-		.attr("x", (d) => x0(new Date(d.date)))
+		.attr("x", (d) => xBand(new Date(d.date)))
 		.attr("y", (d) => y(d.value) - marginAxisX)
-		.attr("width", barWidth)
+		.attr("width", xBand.bandwidth())
 		.attr("height", 0)
 		.attr("fill", (d) => d.color)
 		.transition()
