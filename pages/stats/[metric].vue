@@ -41,10 +41,16 @@ const metricName = ref('')
 if (!series.value?.page) {
 	router.push("/stats")
 } else {
-	if (series.value?.page === "tvs") {
-		metricName.value = series.value?.title
-	} else {
-		metricName.value = capitalizeAndReplaceUnderscore(series.value?.page)
+	switch (series.value?.page) {
+		case "tvs":
+			metricName.value = series.value?.title
+			break;
+		case "rollups":
+			metricName.value = "Rollup Distribution"
+			break;
+		default:
+			metricName.value = capitalizeAndReplaceUnderscore(series.value?.page)
+			break;
 	}
 }
 
@@ -524,6 +530,18 @@ watch(
 		updateUserSettings()
 	}
 )
+
+watch(
+	() => rollupsSetting.value[0].selected,
+	() => {
+		router.replace({
+			query: {
+				aggregate: rollupsSetting.value[0].selected,
+			},
+		})
+	}
+)
+
 onBeforeMount(() => {
 	const settings = JSON.parse(localStorage.getItem("settings"))
 	chartView.value = settings?.chart?.view || "line"
@@ -549,7 +567,7 @@ onBeforeMount(() => {
 			<Flex v-if="series?.name" align="center" justify="between" wide :class="$style.header">
 				<Text size="16" weight="600" color="primary" justify="start"> {{ `${metricName} Chart` }} </Text>
 
-				<Flex v-if="series?.name !== 'square_size'" align="center" gap="8">
+				<Flex v-if="series?.name !== 'square_size'" align="center" gap="8" :class="$style.settings">
 					<Flex v-if="series?.page !== 'rollups'" align="center" gap="8">
 						<DatePicker
 							@on-update="handleUpdateDate"
@@ -717,6 +735,19 @@ onBeforeMount(() => {
 	opacity: 0.3;
 	pointer-events: none;
 	cursor: default;
+}
+
+@media (max-width: 650px) {
+	.header {
+		flex-direction: column;
+		align-items: start;
+		gap: 12px;
+		
+		& .settings {
+			width: 100%;
+			justify-content: end;
+		}
+	}
 }
 
 @media (max-width: 500px) {

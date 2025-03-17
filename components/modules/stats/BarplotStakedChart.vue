@@ -4,7 +4,7 @@ import * as d3 from "d3"
 import { DateTime } from "luxon"
 
 /** Services */
-import { abbreviate, comma, formatBytes, sortArrayOfObjects, tia, truncateDecimalPart } from "@/services/utils"
+import { abbreviate, comma, formatBytes, isMobile, sortArrayOfObjects, tia, truncateDecimalPart } from "@/services/utils"
 
 const props = defineProps({
 	series: {
@@ -180,10 +180,20 @@ const buildChart = (chart, data) => {
 					: "%b"
 		)))
 		.selectAll("text")
-			.attr("transform", "rotate(-45)")
-			.attr("x", -10)
-			.attr("y", 10)
-			.style("text-anchor", "end")
+			.each(function(d) {
+				const text = d3.select(this)
+				if (!isMobile()) {
+					text.attr("transform", "rotate(-45)")
+						.attr("x", -10)
+						.attr("y", 10)
+						.style("text-anchor", "end")
+				} else {
+					text.attr("transform", "rotate(-90)")
+						.attr("x", -10)
+						.attr("y", -5)
+						.style("text-anchor", "end")
+				}
+			})
 
 	function onPointerLeft() {
 		d3.selectAll("[class^='rect_']").style("opacity", 0.8)
