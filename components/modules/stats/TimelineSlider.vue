@@ -14,6 +14,8 @@ const props = defineProps({
 const emit = defineEmits(["onUpdate"])
 
 const chartEl = ref()
+let currentChart = null
+
 const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#55c9ab", "#142f28"])).domain([0, 5])
 
 const buildTimelineSlider = (chart, data, chartView) => {
@@ -150,6 +152,13 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	const gb = svg.append("g").call(brush).call(brush.move, defaultSelection)
 
 	gb.select(".selection").attr("fill", "var(--op-30)").attr("stroke", "var(--op-30)").style("pointer-events", "none")
+
+	gb.selectAll(".handle").remove()
+
+	gb.select(".overlay").on("mousedown.brush", function () {
+		brush.on("brush", brushed)
+	})
+
 	clip.attr("x", defaultSelection[0]).attr("width", defaultSelection[1] - defaultSelection[0])
 
 	const [from, to] = defaultSelection.map(x.invert, x).map((d) => Math.floor(d?.getTime() / 1_000))
@@ -166,14 +175,14 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.append("rect")
 		.attr("x", -2.5)
 		.attr("y", margin.top - 14)
-		.attr("width", 25)
+		.attr("width", 20)
 		.attr("height", 5)
 		.attr("rx", 2)
 		.attr("fill", "var(--op-30)")
 
 	handle
 		.append("g")
-		.attr("transform", `translate(4, ${margin.top - 12.5})`)
+		.attr("transform", `translate(2, ${margin.top - 12.5})`)
 		.selectAll("circle")
 		.data([0, 1, 2])
 		.join("circle")
@@ -262,7 +271,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	function updateHandlePosition(selection) {
 		if (selection) {
 			const [x0, x1] = selection
-			const handleX = x0 + (x1 - x0) / 2 - 12.5
+			const handleX = x0 + (x1 - x0) / 2 - 10
 			handle.attr("transform", `translate(${handleX}, 0)`)
 			leftHandle.attr("transform", `translate(${x0}, 0)`)
 			rightHandle.attr("transform", `translate(${x1 - 5}, 0)`)
@@ -321,20 +330,33 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 	updateHandlePosition(defaultSelection)
 
+	gb.select(".selection").on("mousedown.brush", function (event) {
+		if (!event.target.classList.contains("handle")) {
+			event.stopPropagation()
+		}
+	})
+
 	return svg.node()
 }
 
-onMounted(() => {
-	buildTimelineSlider(chartEl.value.wrapper, props.allData)
-})
+const clearChart = () => {
+	if (chartEl.value?.wrapper) {
+		d3.select(chartEl.value.wrapper).selectAll("*").remove()
+	}
+}
+
+const createChart = () => {
+	if (chartEl.value?.wrapper && props.allData) {
+		clearChart()
+		currentChart = buildTimelineSlider(chartEl.value.wrapper, props.allData, props.chartView)
+	}
+}
 
 watch(
 	() => props.chartView,
 	(newTypeChart, oldTypeChart) => {
 		if (newTypeChart !== oldTypeChart) {
-			d3.select(chartEl.value.wrapper).selectAll("*").remove()
-
-			buildTimelineSlider(chartEl.value.wrapper, props.allData, props.chartView)
+			createChart()
 		}
 	},
 )
@@ -343,11 +365,19 @@ watch(
 	() => props.allData,
 	(newData, oldData) => {
 		if (newData !== oldData) {
-			d3.select(chartEl.value.wrapper).selectAll("*").remove()
-			buildTimelineSlider(chartEl.value.wrapper, props.allData, props.chartView)
+			createChart()
 		}
 	},
+	{ deep: true },
 )
+
+onMounted(() => {
+	createChart()
+})
+
+onUnmounted(() => {
+	clearChart()
+})
 </script>
 
 <template>
