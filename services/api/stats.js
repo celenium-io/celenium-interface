@@ -149,6 +149,20 @@ export const fetchNamespaceSeries = async ({ id, name, timeframe, from }) => {
 	}
 }
 
+export const fetchRollupsSeries = async ({ timeframe, from, to }) => {
+	try {
+		const url = new URL(`${useServerURL()}/rollup/stats/series/${timeframe}`)
+
+		if (from) url.searchParams.append("from", from)
+		if (to) url.searchParams.append("to", to)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchRollupSeries = async ({ id, name, timeframe, from, to }) => {
 	try {
 		const url = new URL(`${useServerURL()}/rollup/${id}/stats/${name}/${timeframe}`)

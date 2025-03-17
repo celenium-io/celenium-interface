@@ -1,16 +1,9 @@
 <script setup>
 /** Vendor */
 import * as d3 from "d3"
-import { DateTime } from "luxon"
-
-/** Stats Components */
-import DiffChip from "@/components/modules/stats/DiffChip.vue"
 
 /** Services */
 import { abbreviate, capitilize, comma, formatBytes } from "@/services/utils"
-
-/** API */
-import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
 
 const props = defineProps({
 	series: {
@@ -79,12 +72,7 @@ const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#55c9ab", "#1
         .domain([0, 5])
 
 const buildChart = (chart, data) => {
-	const height = chart.getBoundingClientRect().height
-	const width = chart.getBoundingClientRect().width
-	const marginTop = 6
-	const marginRight = 12
-	const marginBottom = 24
-	const marginLeft = 12
+	const { width, height } = chart.getBoundingClientRect()
     radius.value = Math.min(width, height) / 2
     innerRadius.value = props.dounut ? radius.value * 0.6 : 0
 
@@ -224,8 +212,14 @@ watch(
 
 <template>
 	<Flex direction="column" justify="start" gap="8" wide :class="$style.wrapper">
-        <Flex align="center" justify="start" wide>
+        <Flex align="center" justify="between" wide>
             <Text size="14" weight="600" color="secondary"> {{ `By ${series.title}` }} </Text>
+
+            <NuxtLink v-if="series.page" :to="`/stats/${series.page}${series.aggregate ? '?aggregate=' + series.aggregate : ''}`">
+                <Flex align="center">
+                    <Icon name="bar-chart" size="16" color="tertiary" :class="$style.link" />
+                </Flex>
+            </NuxtLink>
         </Flex>
 
 		<Flex align="center" justify="between" wide>
@@ -291,6 +285,14 @@ watch(
 	border-radius: 12px;
 
 	padding: 16px;
+}
+
+.link {
+    transition: fill 0.3s ease;
+
+    &:hover {
+        fill: var(--txt-secondary)
+    }
 }
 
 .legend_wrapper {

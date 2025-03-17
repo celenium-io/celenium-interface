@@ -5,16 +5,17 @@ import { DateTime } from "luxon"
 /** Stats Components/Constants */
 import { getSeriesByPage, STATS_PERIODS, STATS_TIMEFRAMES } from "@/services/constants/stats.js"
 import BarChart from "@/components/modules/stats/BarChart.vue"
+import BarplotStakedChart from "@/components/modules/stats/BarplotStakedChart.vue"
 import LineChart from "@/components/modules/stats/LineChart.vue"
 import SquareSizeChart from "@/components/modules/stats/SquareSizeChart.vue"
 
 /** Services */
 import { getStartChainDate } from "@/services/config"
 import { exportSVGToPNG, exportToCSV } from "@/services/utils/export"
-import { capitalizeAndReplaceUnderscore } from "@/services/utils"
+import { capitilize, capitalizeAndReplaceUnderscore } from "@/services/utils"
 
 /** API */
-import { fetchSeries, fetchSeriesCumulative, fetchTVS } from "@/services/api/stats"
+import { fetchSeries, fetchRollupsSeries, fetchSeriesCumulative, fetchTVS } from "@/services/api/stats"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
@@ -36,15 +37,16 @@ const route = useRoute()
 const router = useRouter()
 
 const series = ref(getSeriesByPage(route.params.metric, route.query.aggregate))
-
-if (!series.value.page) {
+const metricName = ref('')
+if (!series.value?.page) {
 	router.push("/stats")
+} else {
+	if (series.value?.page === "tvs") {
+		metricName.value = series.value?.title
+	} else {
+		metricName.value = capitalizeAndReplaceUnderscore(series.value?.page)
+	}
 }
-
-const metricName = computed(() => {
-	if (series.value.page === "tvs") return series.value.title
-	return capitalizeAndReplaceUnderscore(series.value?.page)
-})
 
 // defineOgImage({
 // 	title: "Rollup",
@@ -100,7 +102,7 @@ useHead({
 const periods = ref(STATS_PERIODS)
 const selectedPeriod = ref(periods.value[2])
 
-const selectedTimeframe = ref(STATS_TIMEFRAMES.find(tf => tf.timeframe === (series.value.name === "tvs" ? "day" : selectedPeriod.value.timeframe)))
+const selectedTimeframe = ref(STATS_TIMEFRAMES.find(tf => tf.timeframe === (series.value?.name === "tvs" ? "day" : selectedPeriod.value?.timeframe)))
 const timeframes = computed(() => {
 	let res = []
 
@@ -112,7 +114,7 @@ const timeframes = computed(() => {
 		}
 	}
 
-	if (series.value.name === "tvs") {
+	if (series.value?.name === "tvs") {
 		res = res.filter(tf => tf.timeframe === "day" || tf.timeframe === "month")
 	}
 
@@ -129,6 +131,54 @@ const timeframesStyles = computed(() => {
 	
 	return { background: `linear-gradient(to right, transparent ${start}%, var(--op-5) ${start}%, var(--op-5) ${end}%, transparent ${end}%)` }
 })
+const rollupsSetting = ref([
+	{
+		name: "grouped_by",
+		title: "Group by",
+		items: ["blobs_count", "fee", "size"],
+		selected: "blobs_count",
+	},
+	{
+		name: "top",
+		title: "Top",
+		items: ["5", "10", "20", "all"],
+		selected: "10",
+	},
+	{
+		name: "period",
+		title: "Last",
+		items: ["day", "month", "year"],
+		selected: "month",
+	},
+])
+const handleRollupSettingsSelect = async (setting, value) => {
+	setting.selected = value
+	switch (setting.name) {
+		case "grouped_by":
+			series.value.metric = value
+			switch (value) {
+				case "fee":
+					series.value.units = "utia"
+					break;
+				case "size":
+					series.value.units = "bytes"
+					break;
+				default:
+					series.value.units = ""
+					break;
+			}
+			break;
+		case "top":
+			series.value.itemsCount = value
+			break;
+		case "period":
+			series.value.timeframe = value
+			await getData()
+			break;
+		default:
+			break;
+	}
+}
 
 const currentData = ref([])
 const prevData = ref([])
@@ -146,7 +196,6 @@ const updateUserSettings = () => {
 }
 
 const filters = reactive({})
-
 const setDefaultFilters = () => {
 	filters.timeframe = selectedPeriod.value.timeframe
 	filters.periodValue = selectedPeriod.value.value
@@ -155,8 +204,18 @@ const setDefaultFilters = () => {
 		hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
 	}).ts  / 1_000)
 	filters.to = parseInt(DateTime.now().endOf('day').ts  / 1_000)
-}
 
+	if (series.value.page === "rollups") {
+		if (route.query.aggregate && rollupsSetting.value[0].items.includes(route.query.aggregate)) {
+			series.value.metric = route.query.aggregate
+			rollupsSetting.value[0].selected = route.query.aggregate
+		} else {
+			series.value.metric = rollupsSetting.value[0].selected
+		}
+		series.value.itemsCount = rollupsSetting.value[1].selected
+		series.value.timeframe = rollupsSetting.value[2].selected
+	}
+}
 setDefaultFilters()
 
 const handleChangeChartView = () => {
@@ -185,7 +244,15 @@ const fetchData = async (from, to) => {
 					: filters.from,
 			to: to ? to : filters.to
 		})).map(v => { return { time: v.time, value: v.close } })
-	} else if (series.value.aggregate !== 'cumulative') {
+	} else if (series.value.page === "rollups") {
+		data = (await fetchRollupsSeries({
+			timeframe: series.value.timeframe === "day"
+				? "hour"
+				: series.value.timeframe === "month"
+					? "day"
+					: "month",
+		}))
+	} else if (series.value.aggregate !== "cumulative") {
 		data = (await fetchSeries({
 			table: series.value.name,
 			period: selectedTimeframe.value.timeframe,
@@ -219,68 +286,77 @@ const getData = async () => {
     isLoading.value = true
 
 	let data = await fetchData()
-	if (data.length) {
-        if (loadPrevData.value) {
-			if (selectedTimeframe.value.timeframe !== filters.timeframe) {
-				if (data.length % 2 > 0) {
-					const from = parseInt(DateTime.fromISO(data[data.length - 1].time)
+	if (series.value.page !== "rollups") {
+		if (data.length) {
+			if (loadPrevData.value) {
+				if (selectedTimeframe.value.timeframe !== filters.timeframe) {
+					if (data.length % 2 > 0) {
+						const from = parseInt(DateTime.fromISO(data[data.length - 1].time)
+										.minus({
+											hours: selectedTimeframe.value.timeframe === "hour" ? 1 : 0,
+											days: selectedTimeframe.value.timeframe === "day" ? 1 : 0,
+											weeks: selectedTimeframe.value.timeframe === "week" ? 1 : 0,
+											months: selectedTimeframe.value.timeframe === "month" ? 1 : 0
+										}).ts / 1_000
+						)
+						const to = parseInt(DateTime.fromISO(data[data.length - 1].time).ts / 1_000)
+						let addData = await fetchData(from, to)
+						if (!addData.length) {
+							addData = [{
+								date: DateTime.fromISO(data[data.length - 1].time)
 									.minus({
-										hours: selectedTimeframe.value.timeframe === "hour" ? 1 : 0,
-										days: selectedTimeframe.value.timeframe === "day" ? 1 : 0,
-										weeks: selectedTimeframe.value.timeframe === "week" ? 1 : 0,
-										months: selectedTimeframe.value.timeframe === "month" ? 1 : 0
-									}).ts / 1_000
-					)
-					const to = parseInt(DateTime.fromISO(data[data.length - 1].time).ts / 1_000)
-					let addData = await fetchData(from, to)
-					if (!addData.length) {
-						addData = [{
-							date: DateTime.fromISO(data[data.length - 1].time)
+										hours: filters.timeframe === "hour" ? 1 : 0,
+										days: filters.timeframe === "day" ? 1 : 0,
+										weeks: filters.timeframe === "week" ? 1 : 0,
+									})
+									.toJSDate(),
+								value: 0,
+							}]
+						}
+						data.push(addData[0])
+					}
+
+					currentData.value = data.slice(0, data.length / 2).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
+					prevData.value = data.slice(data.length / 2, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
+				} else {
+					currentData.value = data.slice(0, filters.periodValue).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
+					prevData.value = data.slice(filters.periodValue, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
+					while (prevData.value.length < currentData.value.length) {
+						prevData.value.unshift({
+							date: DateTime.fromJSDate(prevData.value[0]?.date)
 								.minus({
 									hours: filters.timeframe === "hour" ? 1 : 0,
 									days: filters.timeframe === "day" ? 1 : 0,
 									weeks: filters.timeframe === "week" ? 1 : 0,
 								})
 								.toJSDate(),
-							value: 0,
-						}]
+							value: 0
+						})
 					}
-					data.push(addData[0])
 				}
-
-				currentData.value = data.slice(0, data.length / 2).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
-            	prevData.value = data.slice(data.length / 2, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
 			} else {
-				currentData.value = data.slice(0, filters.periodValue).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
-				prevData.value = data.slice(filters.periodValue, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
-				while (prevData.value.length < currentData.value.length) {
-					prevData.value.unshift({
-						date: DateTime.fromJSDate(prevData.value[0]?.date)
-							.minus({
-								hours: filters.timeframe === "hour" ? 1 : 0,
-								days: filters.timeframe === "day" ? 1 : 0,
-								weeks: filters.timeframe === "week" ? 1 : 0,
-							})
-							.toJSDate(),
-						value: 0
-					})
-				}
+				currentData.value = data.map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
+				prevData.value = []
 			}
-        } else {
-            // currentData.value = data.slice(0, filters.periodValue).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
-			currentData.value = data.map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) })).reverse()
-			prevData.value = []
-        }
-    }
+		}
 
-	series.value.currentData = loadLastValue.value ? currentData.value : [...currentData.value.slice(0, -1)]
-	series.value.prevData = (loadLastValue.value ? prevData.value : (prevData.value.length ? [...prevData.value.slice(0, -1)] : prevData.value)).slice(-series.value.currentData.length)
-	series.value.timeframe = filters.timeframe
+		series.value.currentData = loadLastValue.value ? currentData.value : [...currentData.value.slice(0, -1)]
+		series.value.prevData = (loadLastValue.value ? prevData.value : (prevData.value.length ? [...prevData.value.slice(0, -1)] : prevData.value)).slice(-series.value.currentData.length)
+		series.value.timeframe = filters.timeframe
+	} else {
+		series.value.data = data.map(d => ({
+			...d, 
+			items: d.items.map(item => ({
+				...item, 
+				fee: parseFloat(item.fee)
+			}))
+		}))
+	}
 
     isLoading.value = false
 }
 
-if (series.value.name !== 'square_size') {
+if (series.value?.name && series.value?.name !== "square_size") {
 	await getData()
 }
 
@@ -349,9 +425,24 @@ const handleTimeframeUpdate = (tf) => {
 }
 
 const handleCSVDownload = async () => {
-	let data = [...series.value.currentData, ...series.value.prevData]
-	let csvHeaders = 'timestamp,value\n'
-	let csvRow = data.map(el => `${DateTime.fromJSDate(el.date).ts},${el.value}`).join('\n')
+	let data = []
+	let csvHeaders = ""
+	let csvRow = ""
+	if (series.value.page === "rollups") {
+		data = [...series.value.data]
+		csvHeaders = "timestamp,rollup,value\n"
+		let csvData = []
+		data.forEach(d => {
+			d.items.forEach(item => {
+				csvData.push(`${DateTime.fromISO(d.time).ts},${item.name},${item[rollupsSetting.value[0].selected]}`)
+			})
+		})
+		csvRow = csvData.join("\n")
+	} else {
+		data = loadPrevData.value ? [...series.value.currentData, ...series.value.prevData] : [...series.value.currentData]
+		csvHeaders = "timestamp,value\n"
+		csvRow = data.map(d => `${DateTime.fromJSDate(d.date).ts},${d.value}`).join("\n")
+	}
 
 	await exportToCSV(csvHeaders + csvRow, `${series.value.name}-${filters.from}-${filters.to}`)
 	
@@ -382,7 +473,7 @@ const handlePNGDownload = async () => {
 
 const handleOpenChartModal = () => {
 	cacheStore.chart.series = series.value
-	cacheStore.chart.view = chartView.value
+	cacheStore.chart.view = series.value.page === "rollups" ? "barplot-stacked" : chartView.value
 
 	modalsStore.open("chart")
 }
@@ -433,12 +524,11 @@ watch(
 		updateUserSettings()
 	}
 )
-
 onBeforeMount(() => {
 	const settings = JSON.parse(localStorage.getItem("settings"))
 	chartView.value = settings?.chart?.view || "line"
 	loadPrevData.value = settings?.chart?.loadPrevData
-	loadLastValue.value = settings?.chart?.loadLastValue	
+	loadLastValue.value = settings?.chart?.loadLastValue
 })
 </script>
 
@@ -447,7 +537,7 @@ onBeforeMount(() => {
 		<Flex direction="column" gap="16">
 			<Flex align="end" justify="between" :class="$style.breadcrumbs">
 				<Breadcrumbs
-					v-if="series"
+					v-if="series?.page"
 					:items="[
 						{ link: '/', name: 'Explore' },
 						{ link: '/stats', name: 'Statistics' },
@@ -456,86 +546,110 @@ onBeforeMount(() => {
 				/>
 			</Flex>
 
-			<Flex align="center" justify="between" wide :class="$style.header">
+			<Flex v-if="series?.name" align="center" justify="between" wide :class="$style.header">
 				<Text size="16" weight="600" color="primary" justify="start"> {{ `${metricName} Chart` }} </Text>
 
-				<Flex align="center" gap="8" :class="series.name === 'square_size' && $style.disabled">
-					<DatePicker
-						@on-update="handleUpdateDate"
-						:period="selectedPeriod"
-						:from="filters.from"
-						:to="filters.to"
-						:minDate="getStartChainDate()"
-						:showTitle="false"
-					/>
+				<Flex v-if="series?.name !== 'square_size'" align="center" gap="8">
+					<Flex v-if="series?.page !== 'rollups'" align="center" gap="8">
+						<DatePicker
+							@on-update="handleUpdateDate"
+							:period="selectedPeriod"
+							:from="filters?.from"
+							:to="filters?.to"
+							:minDate="getStartChainDate()"
+							:showTitle="false"
+						/>
 					
-					<Popover :open="isOpen" @on-close="handleClose" width="200" side="right">
-						<Button @click="handleOpen" type="secondary" size="mini">
-							<Icon name="settings" size="12" color="tertiary" />
-						</Button>
+						<Popover :open="isOpen" @on-close="handleClose" width="200" side="right">
+							<Button @click="handleOpen" type="secondary" size="mini">
+								<Icon name="settings" size="12" color="tertiary" />
+							</Button>
 
-						<template #content>
-							<Flex direction="column" gap="12">
-								<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
-									<Text size="12" color="secondary">Chart view</Text>
+							<template #content>
+								<Flex direction="column" gap="12">
+									<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
+										<Text size="12" color="secondary">Chart view</Text>
 
-									<Flex
-										@click="handleChangeChartView"
-										align="center"
-										gap="12"
-										:class="$style.chart_selector"
-										:style="{
-											background: `linear-gradient(to ${chartView === 'line' ? 'right' : 'left'}, var(--op-5) 50%, transparent 50%)`,
-										}"
-									>
-										<Icon
-											name="line-chart"
-											size="14"
-											:style="{ fill: `${chartView === 'line' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
-										/>
-
-										<Icon
-											name="bar-chart"
-											size="14"
-											:style="{ fill: `${chartView === 'bar' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
-										/>
-									</Flex>
-								</Flex>
-
-								<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
-									<Text size="12" :color="loadPrevData ? 'secondary' : 'tertiary'">Previous period</Text>
-									<Toggle v-model="loadPrevData" color="var(--neutral-mint)" />
-								</Flex>
-
-								<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
-									<Text size="12" :color="loadLastValue ? 'secondary' : 'tertiary'">Show last value</Text>
-									<Toggle v-model="loadLastValue" color="var(--neutral-mint)" />
-								</Flex>
-
-								<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
-									<Text size="12" color="secondary">Group by</Text>
-
-									<Flex
-										align="center"
-										gap="12"
-										:class="$style.groupping_selector"
-										:style="timeframesStyles"
-									>
-										<Text
-											v-for="tf in timeframes"
-											@click="handleTimeframeUpdate(tf)"
-											size="10"
-											weight="600"
-											:color="selectedTimeframe.timeframe === tf.timeframe ? 'brand' : 'secondary'"
-											:class="$style.item"
+										<Flex
+											@click="handleChangeChartView"
+											align="center"
+											gap="12"
+											:class="$style.chart_selector"
+											:style="{
+												background: `linear-gradient(to ${chartView === 'line' ? 'right' : 'left'}, var(--op-5) 50%, transparent 50%)`,
+											}"
 										>
-											{{ tf.shortTitle }}
-										</Text>
+											<Icon
+												name="line-chart"
+												size="14"
+												:style="{ fill: `${chartView === 'line' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
+											/>
+
+											<Icon
+												name="bar-chart"
+												size="14"
+												:style="{ fill: `${chartView === 'bar' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
+											/>
+										</Flex>
+									</Flex>
+
+									<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
+										<Text size="12" :color="loadPrevData ? 'secondary' : 'tertiary'">Previous period</Text>
+										<Toggle v-model="loadPrevData" color="var(--neutral-mint)" />
+									</Flex>
+
+									<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
+										<Text size="12" :color="loadLastValue ? 'secondary' : 'tertiary'">Show last value</Text>
+										<Toggle v-model="loadLastValue" color="var(--neutral-mint)" />
+									</Flex>
+
+									<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
+										<Text size="12" color="secondary">Group by</Text>
+
+										<Flex
+											align="center"
+											gap="12"
+											:class="$style.groupping_selector"
+											:style="timeframesStyles"
+										>
+											<Text
+												v-for="tf in timeframes"
+												@click="handleTimeframeUpdate(tf)"
+												size="10"
+												weight="600"
+												:color="selectedTimeframe?.timeframe === tf?.timeframe ? 'brand' : 'secondary'"
+												:class="$style.item"
+											>
+												{{ tf?.shortTitle }}
+											</Text>
+										</Flex>
 									</Flex>
 								</Flex>
-							</Flex>
-						</template>
-					</Popover>
+							</template>
+						</Popover>
+					</Flex>
+					<Flex v-else align="center" gap="8">
+						<Dropdown v-for="rs in rollupsSetting">
+							<Button type="secondary" size="mini">
+								<Flex align="center" justify="between" gap="6">
+									<Text size="12" color="secondary"> {{ rs.title }} </Text>
+									<Text size="12" color="primary"> {{ capitilize(rs.selected.replace('_', ' ')) }} </Text>
+								</Flex>
+							</Button>
+
+							<template #popup>
+								<DropdownItem v-for="item in rs.items" @click="handleRollupSettingsSelect(rs, item)" :style="{minWidth: '50px'}">
+									<Flex align="center" justify="between" gap="12" wide>
+										<Icon :name="item === rs.selected ? 'check' : ''" size="12" color="brand" />
+										<Flex align="center" justify="start" wide>
+											{{ capitilize(item.replace('_', ' ')) }}
+										</Flex>
+									</Flex>
+								</DropdownItem>
+							</template>
+						</Dropdown>
+					</Flex>
+
 
 					<Button @click="handleOpenChartModal" type="secondary" size="mini">
 						<Icon name="expand" size="12" color="tertiary" />
@@ -555,14 +669,16 @@ onBeforeMount(() => {
 							</DropdownItem>
 						</template>
 					</Dropdown>
-
 				</Flex>
 			</Flex>
 		</Flex>
 
-		<SquareSizeChart v-if="series.name === 'square_size'" />
-        <LineChart v-else-if="chartView === 'line'" :series="series" />
-		<BarChart v-else-if="chartView === 'bar'" :series="series" />
+		<template v-if="series?.page">
+			<BarplotStakedChart v-if="series?.page === 'rollups'" :series="series" />
+			<SquareSizeChart v-else-if="series?.name === 'square_size'" />
+			<LineChart v-else-if="chartView === 'line'" :series="series" />
+			<BarChart v-else-if="chartView === 'bar'" :series="series" />
+		</template>
 	</Flex>
 </template>
 

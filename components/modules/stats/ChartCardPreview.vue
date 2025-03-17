@@ -481,8 +481,12 @@ watch(
 	padding: 16px;
 }
 
-.link:hover {
-	fill: var(--txt-secondary)
+.link {
+    transition: fill 0.3s ease;
+
+    &:hover {
+        fill: var(--txt-secondary)
+    }
 }
 
 .header {
