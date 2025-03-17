@@ -170,6 +170,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.style("display", "inline")
 		.style("cursor", "grab")
 		.attr("transform", "translate(0, 0)")
+		.style("pointer-events", "all")
 
 	handle
 		.append("rect")
@@ -245,25 +246,80 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.attr("r", 1)
 		.attr("fill", "var(--op-50)")
 
+	function snapToBar(position) {
+		const bandWidth = xBand.step()
+		const offset = position - margin.left
+		const barIndex = Math.round(offset / bandWidth)
+		return margin.left + barIndex * bandWidth
+	}
+
+	const leftDragBehavior = d3.drag().on("drag", function (event) {
+		const selection = d3.brushSelection(gb.node())
+		if (selection) {
+			const [, x1] = selection
+			const newX0 = snapToBar(Math.min(Math.max(event.x, margin.left), x1 - xBand.step()))
+			gb.call(brush.move, [newX0, x1])
+		}
+	})
+
+	const rightDragBehavior = d3.drag().on("drag", function (event) {
+		const selection = d3.brushSelection(gb.node())
+		if (selection) {
+			const [x0] = selection
+			const newX1 = snapToBar(Math.max(Math.min(event.x, width - margin.right), x0 + xBand.step()))
+			gb.call(brush.move, [x0, newX1])
+		}
+	})
+
 	const handleDragBehavior = d3
 		.drag()
 		.on("start", function () {
 			d3.select(this).style("cursor", "grabbing")
+			this._lastX = event.x
+			this._accumulator = 0
+			this._startX = d3.pointer(event, this)[0]
+			this._startSelection = d3.brushSelection(gb.node())
 		})
 		.on("drag", function (event) {
 			const selection = d3.brushSelection(gb.node())
-			if (selection) {
-				const dx = event.dx
+			if (selection && this._startSelection) {
 				const [x0, x1] = selection
-				const newSelection = [x0 + dx, x1 + dx]
+				const step = xBand.step()
+				const threshold = step
 
-				if (newSelection[0] >= margin.left && newSelection[1] <= width - margin.right) {
-					gb.call(brush.move, newSelection)
+				this._accumulator += event.x - this._lastX
+
+				if (Math.abs(this._accumulator) >= threshold) {
+					const isMovingRight = this._accumulator > 0
+					const isMovingLeft = this._accumulator < 0
+
+					if (isMovingRight && x1 < width - margin.right) {
+						const maxX0 = width - margin.right - (x1 - x0)
+						const newX0 = Math.min(x0 + step, maxX0)
+						const newX1 = newX0 + (x1 - x0)
+
+						gb.call(brush.move, [newX0, newX1])
+						this._lastX += step
+					} else if (isMovingLeft && x0 > margin.left) {
+						const newX0 = Math.max(x0 - step, margin.left)
+						const newX1 = newX0 + (x1 - x0)
+
+						gb.call(brush.move, [newX0, newX1])
+						this._lastX -= step
+					}
+
+					this._accumulator %= threshold
 				}
+
+				this._lastX = event.x
 			}
 		})
 		.on("end", function () {
 			d3.select(this).style("cursor", "grab")
+			delete this._lastX
+			delete this._accumulator
+			delete this._startX
+			delete this._startSelection
 		})
 
 	handle.call(handleDragBehavior)
@@ -278,51 +334,48 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		}
 	}
 
-	const leftDragBehavior = d3.drag().on("drag", function (event) {
-		const selection = d3.brushSelection(gb.node())
-		if (selection) {
-			const [x0, x1] = selection
-			const newX0 = Math.min(Math.max(x0 + event.dx, margin.left), x1 - 10)
-			gb.call(brush.move, [newX0, x1])
-		}
-	})
-
-	const rightDragBehavior = d3.drag().on("drag", function (event) {
-		const selection = d3.brushSelection(gb.node())
-		if (selection) {
-			const [x0, x1] = selection
-			const newX1 = Math.max(Math.min(x1 + event.dx, width - margin.right), x0 + 10)
-			gb.call(brush.move, [x0, newX1])
-		}
-	})
-
 	leftHandle.call(leftDragBehavior)
 	rightHandle.call(rightDragBehavior)
 
 	function brushed({ selection }) {
 		if (selection) {
-			const [x0, x1] = selection
+			let [x0, x1] = selection.map(snapToBar)
 
-			const [from, to] = selection.map(x.invert, x).map((d) => Math.floor(d?.getTime() / 1_000))
+			x0 = Math.max(x0, margin.left)
+			x1 = Math.min(x1, width - margin.right)
+
+			if (x1 - x0 < xBand.step()) {
+				if (x1 >= width - margin.right) {
+					x0 = x1 - xBand.step()
+				} else {
+					x1 = x0 + xBand.step()
+				}
+			}
+
+			if (x0 !== selection[0] || x1 !== selection[1]) {
+				gb.call(brush.move, [x0, x1])
+			}
+
+			const [from, to] = [x0, x1].map(x.invert, x).map((d) => Math.floor(d?.getTime() / 1_000))
 
 			setTimeout(() => {
 				emit("onUpdate", { from, to })
 			}, 300)
 
 			clip.attr("x", x0).attr("width", x1 - x0)
-
-			svg.property("value", selection.map(x.invert, x).map(d3.utcDay.round))
-			svg.dispatch("input")
-
-			updateHandlePosition(selection)
+			updateHandlePosition([x0, x1])
 		}
 	}
 
-	function brushended({ selection, sourceEvent }) {
-		console.log("brushended", selection, sourceEvent)
+	function brushended({ selection }) {
 		if (!selection) {
 			gb.call(brush.move, defaultSelection)
-			clip.attr("x", 0).attr("width", 0)
+			clip.attr("x", defaultSelection[0]).attr("width", defaultSelection[1] - defaultSelection[0])
+		} else {
+			const [x0, x1] = selection.map(snapToBar)
+			if (x0 !== selection[0] || x1 !== selection[1]) {
+				gb.call(brush.move, [x0, x1])
+			}
 		}
 	}
 
