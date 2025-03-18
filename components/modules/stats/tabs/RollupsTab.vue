@@ -17,7 +17,7 @@ import Popover from "@/components/ui/Popover.vue"
 import { getSeriesByGroupAndType } from "@/services/constants/stats.js"
 
 /** Services */
-import { capitilize, capitalizeAndReplaceUnderscore } from "@/services/utils"
+import { capitilize, capitalizeAndReplaceUnderscore, isMainnet } from "@/services/utils"
 
 /** API */
 import { fetchRollups, fetchRollupsDailyStats } from "@/services/api/rollup.js"

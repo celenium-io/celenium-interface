@@ -294,6 +294,15 @@ const rawNavigationActions = [
 	{
 		type: "callback",
 		icon: "arrow-narrow-right",
+		title: "Go to Faucet",
+		runText: "Open Faucet",
+		callback: () => {
+			router.push("/faucet")
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Documentation",
 		runText: "Open Documentation",
 		callback: () => {

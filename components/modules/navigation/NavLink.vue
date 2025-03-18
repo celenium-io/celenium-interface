@@ -69,7 +69,7 @@ const handleClick = () => {
 </script>
 
 <template>
-	<NuxtLink @click="handleClick" :to="link.path" :target="link.external && '_blank'">
+	<NuxtLink @click.stop="handleClick" :to="link.path" :target="link.external && '_blank'">
 		<Flex
 			align="center"
 			justify="between"
@@ -96,7 +96,7 @@ const handleClick = () => {
 
 	<template v-if="isExpanded">
 		<Flex direction="column" gap="2">
-			<NavLink v-for="l in link.children" :link="l" />
+			<NavLink v-for="l in link.children?.filter(l => l.show)" :link="l" @onClose="handleClick" />
 		</Flex>
 	</template>
 </template>
