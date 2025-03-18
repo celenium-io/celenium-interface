@@ -56,7 +56,7 @@ const buildChart = async (chart) => {
     // Map and projection
     const projection = d3.geoMercator()
         .center([0, 40]) // GPS of location to zoom on
-        .scale(150) // This is like the zoom
+        .scale(width * 0.15) // This is like the zoom
         .translate([ width / 2, height / 2 ])
     
     const countryMaxAmount = d3.max(geoMap.value, (d) => +d.amount)
@@ -76,7 +76,6 @@ const buildChart = async (chart) => {
             .attr("width", width)
             .attr("height", height)
             .attr("viewBox", [0, 0, width, height])
-        // .attr("transform", `translate(${width / 2}, ${height / 2 + 10})`)
 
     // Tooltip | We wrap the SVG with a container that has the html element above it
     const container = document.createElement("div")
@@ -364,6 +363,7 @@ const buildChart = async (chart) => {
         .scaleExtent([1, 20])
         .translateExtent([[x0, y0], [x1, y1]])
         .on("zoom", (event) => {
+            tooltip.style.opacity = 0
             zoomScale = event.transform.k
             g.attr("transform", event.transform)
             map.attr("stroke-width", 1 / zoomScale)

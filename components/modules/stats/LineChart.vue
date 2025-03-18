@@ -34,8 +34,7 @@ const tooltip = ref({
 })
 
 const buildChart = (chart, cData, pData, onEnter, onLeave) => {
-	const width = chart.getBoundingClientRect().width
-	const height = chart.getBoundingClientRect().height
+	const { width, height } = chart.getBoundingClientRect()
 	const marginTop = 6
 	const marginRight = 12
 	const marginBottom = 24
@@ -44,7 +43,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 
 	const MIN_VALUE = d3.min([...cData.data?.map(s => s.value), ...pData.data?.map(s => s.value)])
 	const MAX_VALUE = d3.max([...cData.data?.map(s => s.value), ...pData.data?.map(s => s.value)])
-
+	
 	/** Scales */
 	const x = d3.scaleUtc(
 		d3.extent(cData.data, (d) => d.date),
@@ -246,7 +245,7 @@ const buildChart = (chart, cData, pData, onEnter, onLeave) => {
 }
 
 const drawChart = () => {
-	currentData.value.color = "var(--mint)"
+	currentData.value.color = "var(--brand)"
 	prevData.value.color = "var(--txt-tertiary)"
 	buildChart(
 		chartEl.value.wrapper,

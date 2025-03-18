@@ -33,8 +33,7 @@ const tooltip = ref({
 })
 
 const buildChart = (chart, cData, pData, onEnter, onLeave) => {
-	const width = chart.getBoundingClientRect().width
-	const height = chart.getBoundingClientRect().height
+	const { width, height } = chart.getBoundingClientRect()
 	const marginTop = 12
 	const marginRight = 12
 	const marginBottom = 24
