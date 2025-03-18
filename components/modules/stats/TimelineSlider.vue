@@ -174,16 +174,18 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 	handle
 		.append("rect")
-		.attr("x", -2.5)
+		.attr("x", 0)
 		.attr("y", margin.top - 14)
-		.attr("width", 20)
 		.attr("height", 5)
 		.attr("rx", 2)
 		.attr("fill", "var(--op-30)")
 
-	handle
+	const dotsContainer = handle
 		.append("g")
-		.attr("transform", `translate(2, ${margin.top - 12.5})`)
+		.attr("transform", `translate(0, ${margin.top - 12.5})`)
+		.attr("class", "dots-container")
+
+	dotsContainer
 		.selectAll("circle")
 		.data([0, 1, 2])
 		.join("circle")
@@ -246,18 +248,20 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.attr("r", 1)
 		.attr("fill", "var(--op-50)")
 
-	function snapToBar(position) {
+	function snapToBar(position, isLeft = false) {
 		const bandWidth = xBand.step()
+		const padding = xBand.padding() * bandWidth
 		const offset = position - margin.left
 		const barIndex = Math.round(offset / bandWidth)
-		return margin.left + barIndex * bandWidth
+
+		return margin.left + barIndex * bandWidth + (isLeft ? 0 : padding)
 	}
 
 	const leftDragBehavior = d3.drag().on("drag", function (event) {
 		const selection = d3.brushSelection(gb.node())
 		if (selection) {
 			const [, x1] = selection
-			const newX0 = snapToBar(Math.min(Math.max(event.x, margin.left), x1 - xBand.step()))
+			const newX0 = snapToBar(Math.min(Math.max(event.x, margin.left), x1 - xBand.step()), true)
 			gb.call(brush.move, [newX0, x1])
 		}
 	})
@@ -327,8 +331,14 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	function updateHandlePosition(selection) {
 		if (selection) {
 			const [x0, x1] = selection
-			const handleX = x0 + (x1 - x0) / 2 - 10
-			handle.attr("transform", `translate(${handleX}, 0)`)
+			const width = x1 - x0
+
+			handle.attr("transform", `translate(${x0}, 0)`).select("rect").attr("width", width)
+
+			const dotsWidth = 12
+			const dotsX = (width - dotsWidth) / 2
+			handle.select(".dots-container").attr("transform", `translate(${dotsX}, ${margin.top - 12.5})`)
+
 			leftHandle.attr("transform", `translate(${x0}, 0)`)
 			rightHandle.attr("transform", `translate(${x1 - 5}, 0)`)
 		}
@@ -337,33 +347,37 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	leftHandle.call(leftDragBehavior)
 	rightHandle.call(rightDragBehavior)
 
-	function brushed({ selection }) {
+	function brushed({ selection, sourceEvent }) {
 		if (selection) {
-			let [x0, x1] = selection.map(snapToBar)
+			let [x0, x1] = selection
 
-			x0 = Math.max(x0, margin.left)
-			x1 = Math.min(x1, width - margin.right)
+			if (sourceEvent) {
+				const snappedX0 = snapToBar(x0, true)
+				const snappedX1 = snapToBar(x1)
 
-			if (x1 - x0 < xBand.step()) {
-				if (x1 >= width - margin.right) {
-					x0 = x1 - xBand.step()
-				} else {
-					x1 = x0 + xBand.step()
+				x0 = Math.max(snappedX0, margin.left)
+				x1 = Math.min(snappedX1, width - margin.right)
+
+				if (x1 - x0 < xBand.step()) {
+					if (x1 >= width - margin.right) {
+						x0 = x1 - xBand.step()
+					} else {
+						x1 = x0 + xBand.step()
+					}
+				}
+
+				if (Math.abs(x0 - selection[0]) > 0.1 || Math.abs(x1 - selection[1]) > 0.1) {
+					gb.call(brush.move, [x0, x1])
 				}
 			}
 
-			if (x0 !== selection[0] || x1 !== selection[1]) {
-				gb.call(brush.move, [x0, x1])
-			}
+			clip.attr("x", x0).attr("width", x1 - x0)
+			updateHandlePosition([x0, x1])
 
 			const [from, to] = [x0, x1].map(x.invert, x).map((d) => Math.floor(d?.getTime() / 1_000))
-
 			setTimeout(() => {
 				emit("onUpdate", { from, to })
 			}, 300)
-
-			clip.attr("x", x0).attr("width", x1 - x0)
-			updateHandlePosition([x0, x1])
 		}
 	}
 
