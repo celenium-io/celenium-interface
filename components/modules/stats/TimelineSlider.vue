@@ -277,23 +277,37 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 	const handleDragBehavior = d3
 		.drag()
-		.on("start", function () {
+		.on("start", function (event) {
 			d3.select(this).style("cursor", "grabbing")
-			this._lastX = event.x
+			const [x] = d3.pointer(event)
+			this._initialX = x
+			this._lastX = x
 			this._accumulator = 0
-			this._startX = d3.pointer(event, this)[0]
 			this._startSelection = d3.brushSelection(gb.node())
+			this._hasMoved = false
 		})
 		.on("drag", function (event) {
 			const selection = d3.brushSelection(gb.node())
 			if (selection && this._startSelection) {
 				const [x0, x1] = selection
+				const barWidth = xBand.bandwidth()
 				const step = xBand.step()
-				const threshold = step
+				const [currentX] = d3.pointer(event)
 
-				this._accumulator += event.x - this._lastX
+				if (!this._hasMoved) {
+					if (Math.abs(currentX - this._initialX) < barWidth) {
+						this._lastX = currentX
+						return
+					}
+					this._hasMoved = true
+					this._accumulator = 0
+					this._lastX = currentX
+					return
+				}
 
-				if (Math.abs(this._accumulator) >= threshold) {
+				this._accumulator += currentX - this._lastX
+
+				if (Math.abs(this._accumulator) >= barWidth) {
 					const isMovingRight = this._accumulator > 0
 					const isMovingLeft = this._accumulator < 0
 
@@ -312,18 +326,19 @@ const buildTimelineSlider = (chart, data, chartView) => {
 						this._lastX -= step
 					}
 
-					this._accumulator %= threshold
+					this._accumulator %= barWidth
 				}
 
-				this._lastX = event.x
+				this._lastX = currentX
 			}
 		})
 		.on("end", function () {
 			d3.select(this).style("cursor", "grab")
 			delete this._lastX
 			delete this._accumulator
-			delete this._startX
 			delete this._startSelection
+			delete this._initialX
+			delete this._hasMoved
 		})
 
 	handle.call(handleDragBehavior)
