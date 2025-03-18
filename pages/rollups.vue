@@ -5,6 +5,7 @@ import { DateTime } from "luxon"
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Checkbox from "@/components/ui/Checkbox.vue"
+import DiffChip from "@/components/modules/stats/DiffChip.vue"
 import Popover from "@/components/ui/Popover.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
@@ -330,6 +331,7 @@ watch(
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>#</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Rollup</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>DA Change</Text></th>
 								<th>
 									<Flex align="center" gap="6">
 										<Text size="12" weight="600" color="tertiary" noWrap>Category</Text>
@@ -372,6 +374,7 @@ watch(
 									</Flex>
 								</th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Paid per MB</Text></th>
+								<!-- <th><Text size="12" weight="600" color="tertiary" noWrap>DA Weekly Change</Text></th> -->
 							</tr>
 						</thead>
 
@@ -424,6 +427,16 @@ watch(
 											<Text size="12" weight="600" color="primary" mono>
 												{{ r.name }}
 											</Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/rollup/${r.slug}`">
+										<Flex align="center">
+											<DiffChip
+												:value="r.da_pct.toFixed(2)"
+												tooltip="Difference between current and previous week"
+											/>
 										</Flex>
 									</NuxtLink>
 								</td>
@@ -502,6 +515,13 @@ watch(
 										</Flex>
 									</NuxtLink>
 								</td>
+								<!-- <td>
+									<NuxtLink :to="`/rollup/${r.slug}`">
+										<Flex align="center">
+											<DiffChip :value="r.da_pct.toFixed(2)" />
+										</Flex>
+									</NuxtLink>
+								</td> -->
 							</tr>
 						</tbody>
 					</table>
