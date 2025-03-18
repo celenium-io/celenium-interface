@@ -12,8 +12,10 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import Button from "@/components/ui/Button.vue"
 
 /** Store */
+import { useAppStore } from "@/store/app"
 import { useCacheStore } from "@/store/cache"
 import { useModalsStore } from "@/store/modals"
+const appStore = useAppStore()
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 
@@ -208,6 +210,10 @@ watch(
 
 await refreshFaucetBalance()
 onMounted(() => {
+	if (useServerURL().includes('mocha') && appStore.address) {
+		address.value = appStore.address
+	}
+
 	const transferEl = document.getElementById("transferWindow")
 	document.documentElement.style.setProperty('--runner-distance', `${transferEl.clientWidth}px`)
 })

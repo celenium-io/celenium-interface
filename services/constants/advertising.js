@@ -19,11 +19,11 @@ const advertisements = [
   },
   {
 		name: 'celestials',
-		link: 'https://celestials.id/',
+		link: 'https://celestials.id/?utm_source=celenium_banner',
 		icon: 'celestials',
 		header: 'Celestials ID',
-		body: 'Platform to buy Celestia modular domains',
-		footer: 'Pick your domain',
+		body: 'Celestia Modular usernames with unique, generative artworks',
+		footer: 'Pick your id',
 		weight: 0.2,
 	},
 	{
