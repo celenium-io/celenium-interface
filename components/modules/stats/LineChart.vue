@@ -321,7 +321,7 @@ onMounted(() => {
 	</Flex>
 </template>
 
-<style module>
+<style module lang="scss">
 .wrapper {
 	height: 800px;
 

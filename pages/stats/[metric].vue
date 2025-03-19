@@ -160,7 +160,7 @@ const filters = reactive({})
 
 const setDefaultFilters = () => {
 	// filters.timeframe = selectedPeriod.value.timeframe
-	filters.periodValue = selectedPeriod.value.value
+	// filters.periodValue = selectedPeriod.value.value
 	// filters.from = parseInt(
 	// 	DateTime.now()
 	// 		.startOf("day")
@@ -168,7 +168,7 @@ const setDefaultFilters = () => {
 	// filters.to = parseInt(DateTime.now().endOf("day").ts / 1_000)
 }
 
-setDefaultFilters()
+// setDefaultFilters()
 
 const handleChangeChartView = () => {
 	if (chartView.value === "line") {
@@ -284,24 +284,11 @@ const handleUpdateDate = async (event) => {
 			}
 		}
 
-		// if (filters.timeframe === "hour") {
-		// 	const hoursDiff = Math.round(
-		// 		DateTime.fromSeconds(Math.min(to, DateTime.now().ts / 1_000)).diff(DateTime.fromSeconds(from), "hours").hours,
-		// 	)
-		// 	if (hoursDiff < filters.periodValue) {
-		// 		from = parseInt(
-		// 			DateTime.fromSeconds(Math.min(to, DateTime.now().ts / 1_000)).minus({ hours: filters.periodValue }).ts / 1_000,
-		// 		)
-		// 	}
-		// }
-
 		filters.from = from
 		filters.to = to
-		// selectedTimeframe.value = timeframes.value.find((tf) => tf.timeframe === filters.timeframe)
-		// console.log('selectedTimeframe', selectedTimeframe.value)
 		await getData()
 	} else if (event.clear) {
-		setDefaultFilters()
+		// setDefaultFilters()
 
 		await getData()
 	}
@@ -486,7 +473,7 @@ onBeforeMount(() => {
 		<LineChart v-else-if="chartView === 'line'" :series="series" />
 		<BarChart v-else-if="chartView === 'bar'" :series="series" />
 
-		<TimelineSlider :allData="allData" :chartView="chartView" @onUpdate="handleUpdateDate" />
+		<TimelineSlider :allData="allData" :chartView="chartView" :from="filters.from" :to="filters.to" @onUpdate="handleUpdateDate" />
 	</Flex>
 </template>
 

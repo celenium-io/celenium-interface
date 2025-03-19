@@ -9,6 +9,14 @@ const props = defineProps({
 		type: String,
 		default: "day",
 	},
+	from: {
+		type: [String, Number],
+		default: "",
+	},
+	to: {
+		type: [String, Number],
+		default: "",
+	},
 })
 
 const emit = defineEmits(["onUpdate"])
@@ -113,35 +121,87 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		svg.append("g")
 			.attr("fill", "var(--txt-tertiary)")
 			.attr("class", "bar")
-			.selectAll("rect")
+			.selectAll("path")
 			.data(data)
-			.join("rect")
-			.attr("x", (d) => width - xBand(new Date(d.time).toISOString()) - xBand.bandwidth())
-			.attr("y", height - axisBottomHeight)
-			.attr("height", 0)
-			.attr("width", xBand.bandwidth())
+			.join("path")
+			.attr("d", (d) => {
+				const barX = width - xBand(new Date(d.time).toISOString()) - xBand.bandwidth()
+				const barWidth = xBand.bandwidth()
+
+				return `
+					M ${barX},${height - axisBottomHeight}
+					L ${barX},${height - axisBottomHeight}
+					L ${barX + barWidth},${height - axisBottomHeight} 
+					L ${barX + barWidth},${height - axisBottomHeight}
+				`
+			})
 			.transition()
 			.duration(1000)
-			.attr("y", (d) => y(d.value))
-			.attr("height", (d) => height - y(d.value) - axisBottomHeight)
+			.attr("d", (d) => {
+				const barX = width - xBand(new Date(d.time).toISOString()) - xBand.bandwidth()
+				const barY = y(d.value)
+				const barWidth = xBand.bandwidth()
+				const barHeight = height - y(d.value) - axisBottomHeight
+				const radius = Math.min(2, barWidth / 2, barHeight / 2)
+
+				if (barHeight < 1) {
+					return `M ${barX},${height - axisBottomHeight} h ${barWidth}`
+				}
+
+				return `
+					M ${barX},${barY + barHeight}
+					L ${barX},${barY + radius}
+					Q ${barX},${barY} ${barX + radius},${barY}
+					L ${barX + barWidth - radius},${barY}
+					Q ${barX + barWidth},${barY} ${barX + barWidth},${barY + radius}
+					L ${barX + barWidth},${barY + barHeight}
+					Z
+				`
+			})
 
 		const highlightedBars = svg
 			.append("g")
 			.attr("class", "highlighted-bars")
-			.selectAll("rect")
+			.selectAll("path")
 			.data(data)
-			.join("rect")
+			.join("path")
 			.attr("class", "bar highlighted")
 			.attr("fill", "var(--mint)")
-			.attr("x", (d) => width - xBand(new Date(d.time).toISOString()) - xBand.bandwidth())
-			.attr("y", height - axisBottomHeight)
-			.attr("height", 0)
-			.attr("width", xBand.bandwidth())
+			.attr("d", (d) => {
+				const barX = width - xBand(new Date(d.time).toISOString()) - xBand.bandwidth()
+				const barWidth = xBand.bandwidth()
+
+				return `
+					M ${barX},${height - axisBottomHeight}
+					L ${barX},${height - axisBottomHeight}
+					L ${barX + barWidth},${height - axisBottomHeight}
+					L ${barX + barWidth},${height - axisBottomHeight}
+				`
+			})
 			.attr("clip-path", "url(#clip)")
 			.transition()
 			.duration(1000)
-			.attr("y", (d) => y(d.value))
-			.attr("height", (d) => height - y(d.value) - axisBottomHeight)
+			.attr("d", (d) => {
+				const barX = width - xBand(new Date(d.time).toISOString()) - xBand.bandwidth()
+				const barY = y(d.value)
+				const barWidth = xBand.bandwidth()
+				const barHeight = height - y(d.value) - axisBottomHeight
+				const radius = Math.min(2, barWidth / 2, barHeight / 2)
+
+				if (barHeight < 1) {
+					return `M ${barX},${height - axisBottomHeight} h ${barWidth}`
+				}
+
+				return `
+					M ${barX},${barY + barHeight}
+					L ${barX},${barY + radius}
+					Q ${barX},${barY} ${barX + radius},${barY}
+					L ${barX + barWidth - radius},${barY}
+					Q ${barX + barWidth},${barY} ${barX + barWidth},${barY + radius}
+					L ${barX + barWidth},${barY + barHeight}
+					Z
+				`
+			})
 	}
 
 	const brush = d3.brushX().extent([
