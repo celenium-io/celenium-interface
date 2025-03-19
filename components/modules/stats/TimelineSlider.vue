@@ -20,18 +20,22 @@ const props = defineProps({
 })
 
 const emit = defineEmits(["onUpdate"])
+const margin = { top: 14, right: 12, bottom: 4, left: 12 }
+const height = 75
+const axisBottomHeight = 20
 
 const chartEl = ref()
 let currentChart = null
+let brush = null
 
 const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#55c9ab", "#142f28"])).domain([0, 5])
 
+const isInternalUpdate = ref(false)
+
+const MIN_HANDLE_WIDTH = 20
+
 const buildTimelineSlider = (chart, data, chartView) => {
 	const width = chart.getBoundingClientRect().width
-
-	const margin = { top: 14, right: 12, bottom: 4, left: 12 }
-	const height = 75
-	const axisBottomHeight = 20
 
 	const x = d3
 		.scaleUtc()
@@ -83,7 +87,14 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.attr("width", 0)
 		.attr("height", height)
 
-	const defaultSelection = [x.range()[0], x.range()[1]]
+	let defaultSelection = [x.range()[0], x.range()[1]]
+
+	if (props.from && props.to) {
+		defaultSelection = [
+			Math.max(margin.left, x(new Date(props.from * 1000))),
+			Math.min(width - margin.right, x(new Date(props.to * 1000))),
+		]
+	}
 
 	if (chartView === "line") {
 		svg.append("path")
@@ -204,7 +215,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			})
 	}
 
-	const brush = d3.brushX().extent([
+	brush = d3.brushX().extent([
 		[margin.left, margin.top - 4],
 		[width - margin.right, height - axisBottomHeight],
 	])
@@ -406,12 +417,19 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	function updateHandlePosition(selection) {
 		if (selection) {
 			const [x0, x1] = selection
-			const width = x1 - x0
+			const brushWidth = x1 - x0
+			const handleWidth = Math.max(MIN_HANDLE_WIDTH, brushWidth)
 
-			handle.attr("transform", `translate(${x0}, 0)`).select("rect").attr("width", width)
+			const handleX = x0 + (brushWidth - handleWidth) / 2
+
+			handle
+				.attr("transform", `translate(${handleX}, 0)`)
+				.select("rect")
+				.attr("width", handleWidth)
+				.attr("y", margin.top - 14)
 
 			const dotsWidth = 12
-			const dotsX = (width - dotsWidth) / 2
+			const dotsX = (handleWidth - dotsWidth) / 2
 			handle.select(".dots-container").attr("transform", `translate(${dotsX}, ${margin.top - 12.5})`)
 
 			leftHandle.attr("transform", `translate(${x0}, 0)`)
@@ -433,11 +451,11 @@ const buildTimelineSlider = (chart, data, chartView) => {
 				x0 = Math.max(snappedX0, margin.left)
 				x1 = Math.min(snappedX1, width - margin.right)
 
-				if (x1 - x0 < xBand.step()) {
+				if (x1 - x0 < Math.max(xBand.step(), 20)) {
 					if (x1 >= width - margin.right) {
-						x0 = x1 - xBand.step()
+						x0 = x1 - Math.max(xBand.step(), 20)
 					} else {
-						x1 = x0 + xBand.step()
+						x1 = x0 + Math.max(xBand.step(), 20)
 					}
 				}
 
@@ -451,6 +469,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 			const [from, to] = [x0, x1].map(x.invert, x).map((d) => Math.floor(d?.getTime() / 1_000))
 			setTimeout(() => {
+				isInternalUpdate.value = true
 				emit("onUpdate", { from, to })
 			}, 300)
 		}
@@ -461,7 +480,12 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			gb.call(brush.move, defaultSelection)
 			clip.attr("x", defaultSelection[0]).attr("width", defaultSelection[1] - defaultSelection[0])
 		} else {
-			const [x0, x1] = selection.map(snapToBar)
+			const snappedX0 = snapToBar(selection[0], true)
+			const snappedX1 = snapToBar(selection[1])
+
+			const x0 = Math.max(snappedX0, margin.left)
+			const x1 = Math.max(x0 + xBand.step(), Math.min(snappedX1, width - margin.right))
+
 			if (x0 !== selection[0] || x1 !== selection[1]) {
 				gb.call(brush.move, [x0, x1])
 			}
@@ -512,6 +536,18 @@ watch(
 	},
 	{ deep: true },
 )
+
+watch([() => props.from, () => props.to], ([newFrom, newTo], [oldFrom, oldTo]) => {
+	if (newFrom === oldFrom && newTo === oldTo) return
+	if (!props.allData?.length) return
+
+	if (isInternalUpdate.value) {
+		isInternalUpdate.value = false
+		return
+	}
+
+	createChart()
+})
 
 onMounted(() => {
 	createChart()

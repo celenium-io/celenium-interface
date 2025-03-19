@@ -98,24 +98,11 @@ useHead({
 	],
 })
 
-const periods = ref(STATS_PERIODS)
-const selectedPeriod = ref(periods.value[2])
+const selectedPeriod = ref({})
 
-const selectedTimeframe = ref(
-	STATS_TIMEFRAMES.find((tf) => tf.timeframe === (series.value.name === "tvs" ? "day" : selectedPeriod.value.timeframe)),
-)
+const selectedTimeframe = ref(STATS_TIMEFRAMES.find((tf) => tf.timeframe === "day"))
 const timeframes = computed(() => {
 	let res = [...STATS_TIMEFRAMES]
-
-	// for (const tf of STATS_TIMEFRAMES) {
-	// 	const pointCount =
-	// 		Math.floor(DateTime.fromSeconds(filters.to).diff(DateTime.fromSeconds(filters.from), `${tf.timeframe}s`)[`${tf.timeframe}s`]) +
-	// 		1
-
-	// 	if (pointCount > 1 && pointCount < 100) {
-	// 		res.push(tf)
-	// 	}
-	// }
 
 	if (series.value.name === "tvs") {
 		res = res.filter((tf) => tf.timeframe === "day" || tf.timeframe === "month")
@@ -138,21 +125,17 @@ const timeframesStyles = computed(() => {
 })
 
 const currentData = ref([])
-// const prevData = ref([])
 
 const allData = ref([])
 const loadedAllData = ref(false)
 const currentChartName = ref(null)
 
 const chartView = ref("line")
-// const loadPrevData = ref(true)
-// const loadLastValue = ref(true)
+
 const updateUserSettings = () => {
 	settingsStore.chart = {
 		...settingsStore.chart,
 		view: chartView.value,
-		// loadPrevData: loadPrevData.value,
-		// loadLastValue: loadLastValue.value,
 	}
 }
 
@@ -183,9 +166,7 @@ const isLoading = ref(false)
 const fetchData = async () => {
 	loadedAllData.value = false
 	let data = []
-
-	console.trace("fetchData", series.value.name)
-
+	console.log("fetchData", selectedTimeframe.value)
 	if (series.value.name === "tvs") {
 		data = (
 			await fetchTVS({
@@ -227,6 +208,14 @@ const getData = async () => {
 	}
 
 	data = allData.value
+
+	if (data.length > 0 && !filters.from && !filters.to) {
+		const firstDate = new Date(data[data.length - 1].time)
+		const lastDate = new Date(data[0].time)
+
+		filters.from = Math.floor(firstDate.getTime() / 1000)
+		filters.to = Math.floor(lastDate.getTime() / 1000)
+	}
 
 	currentData.value = data
 		.filter((d) => {
@@ -275,7 +264,7 @@ const handleUpdateDate = async (event) => {
 			if (daysDiff < 7) {
 				filters.timeframe = "hour"
 				filters.periodValue = Math.round(DateTime.fromSeconds(to).diff(DateTime.fromSeconds(from), "hours").hours)
-			} else if (daysDiff < 50) {
+			} else if (daysDiff > 7 && daysDiff < 50) {
 				filters.timeframe = "day"
 				filters.periodValue = daysDiff
 			} else {
@@ -288,8 +277,6 @@ const handleUpdateDate = async (event) => {
 		filters.to = to
 		await getData()
 	} else if (event.clear) {
-		// setDefaultFilters()
-
 		await getData()
 	}
 }
@@ -297,10 +284,11 @@ const handleUpdateDate = async (event) => {
 const handleTimeframeUpdate = (tf) => {
 	console.log("handleTimeframeUpdate", tf)
 	selectedTimeframe.value = tf
+	filters.from = null
+	filters.to = null
 }
 
 const handleCSVDownload = async () => {
-	// let data = [...series.value.currentData, ...series.value.prevData]
 	let data = [...series.value.currentData]
 
 	let csvHeaders = "timestamp,value\n"
@@ -340,11 +328,15 @@ const handleOpenChartModal = () => {
 	modalsStore.open("chart")
 }
 
+const isInternalUpdate = ref(false)
+
 watch(
 	() => selectedTimeframe.value,
-	async () => {
-		if (!isLoading.value) {
+	async (newValue, oldValue) => {
+		if (!isLoading.value && !isInternalUpdate.value) {
 			allData.value = []
+			filters.from = null
+			filters.to = null
 			await getData()
 		}
 	},
@@ -360,13 +352,11 @@ watch(
 onBeforeMount(() => {
 	const settings = JSON.parse(localStorage.getItem("settings"))
 	chartView.value = settings?.chart?.view || "line"
-	// loadPrevData.value = settings?.chart?.loadPrevData
-	// loadLastValue.value = settings?.chart?.loadLastValue
 })
 </script>
 
 <template>
-	<Flex direction="column" gap="32" wide :class="$style.wrapper">
+	<Flex direction="column" gap="32" wide :class="[$style.wrapper, isLoading && $style.disabled]">
 		<Flex direction="column" gap="16">
 			<Flex align="end" justify="between" :class="$style.breadcrumbs">
 				<Breadcrumbs

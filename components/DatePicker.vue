@@ -107,6 +107,8 @@ const days = computed(() => {
 	return resDays
 })
 
+
+console.log('@', props.period);
 const periods = ref(STATS_PERIODS)
 const selectedPeriod = ref(props.period.value ? props.period : {})
 const selectedRange = ref("")
