@@ -19,6 +19,7 @@ export const useEnumStore = defineStore("enums", () => {
 		if (data) {
 			enums.value.messageTypes = data.message_type
 			enums.value.rollupCategories = data.categories
+			enums.value.rollupTypes = data.rollup_type
 		}
 	}
 

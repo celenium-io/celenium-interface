@@ -65,15 +65,26 @@ const getRollupsDailyStats = async () => {
 
 const categories = computed(() => {
 	let res = []
-	if (enumStore.enums.rollupCategories.length) {
+	if (enumStore.enums?.rollupCategories?.length) {
 		res = enumStore.enums.rollupCategories.slice(1)
 		res.push('other')
 	}
 	
 	return res	
 })
-const getCategoryDisplayName = (category) => {
-	switch (category) {
+const types = computed(() => {
+	let res = []
+	if (enumStore.enums?.rollupTypes?.length) {
+		res = enumStore.enums.rollupTypes
+	}
+	
+	return res	
+})
+const providers = ref([])
+const stacks = ref([])
+
+const getDisplayName = (name) => {
+	switch (name) {
 		case 'nft':
 			return 'NFT'
 
@@ -81,52 +92,96 @@ const getCategoryDisplayName = (category) => {
 			return 'Other'
 
 		default:
-			return capitilize(category)
+			return capitilize(name)
 	}
+}
+
+const popovers = reactive({
+	categories: false,
+	types: false,
+	providers: false,
+	stacks: false,
+})
+const keyMap = {
+	categories: 'category',
+	types: 'type',
+	providers: 'provider',
+	stacks: 'stack',
 }
 
 const filters = reactive({
 	categories: categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	types: types.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	providers: {},
+	stacks: {},
 })
-const filterRollupByCategories = () => {
-	let categories = Object.entries(filters.categories)
-						.filter(([key, value]) => value === true)
-						.map(([key]) => key === 'other' ? 'uncategorized' : key)
-	
-	filteredRollups.value = categories.length > 0 ? series.value?.data.filter(el => categories.includes(el.category)) : series.value?.data
-	filteredRollupsDailyStats.value = categories.length > 0 ? rollupsDailyStats.value?.filter(el => categories.includes(el.category)) : rollupsDailyStats.value
-}
+const isFilterActive = computed(() => {
+	return Object.values(filters).some((f) => Object.values(f).some((v) => v))
+})
 const savedFiltersBeforeChanges = ref(null)
-const isCategoriesPopoverOpen = ref(false)
-const handleOpenCategoriesPopover = () => {
-	isCategoriesPopoverOpen.value = true
+const filterRollups = () => {
+    const activeFilters = Object.entries(filters).reduce((acc, [filterName, filterValues]) => {
+        const activeKeys = Object.entries(filterValues)
+            .filter(([_, value]) => value === true)
+            .map(([key]) => (key === 'other' ? 'uncategorized' : key))
 
-	if (Object.keys(filters.categories).find((f) => filters.categories[f])) {
-		savedFiltersBeforeChanges.value = { ...filters.categories }
+        if (activeKeys.length > 0) {
+            acc[filterName] = activeKeys
+        }
+        return acc
+    }, {})
+
+    const applyFilters = (data) => {
+        if (Object.keys(activeFilters).length === 0) return data
+
+        return data.filter((el) =>
+            Object.entries(activeFilters).every(([filterName, values]) =>
+                values.includes(el[keyMap[filterName]])
+            )
+        )
+    }
+
+    filteredRollups.value = applyFilters(series.value?.data || [])
+    filteredRollupsDailyStats.value = applyFilters(rollupsDailyStats.value || [])
+}
+
+const handleOpenPopover = (name) => {
+	popovers[name] = true
+
+	if (Object.keys(filters[name]).find((f) => filters[name][f])) {
+		savedFiltersBeforeChanges.value = { ...filters[name] }
 	}
 }
-const onCategoriesPopoverClose = () => {
-	isCategoriesPopoverOpen.value = false
-
+const onPopoverClose = (name) => {
+	popovers[name] = false
+	
 	if (savedFiltersBeforeChanges.value) {
-		filters.categories = savedFiltersBeforeChanges.value
+		filters[name] = savedFiltersBeforeChanges.value
 		savedFiltersBeforeChanges.value = null
 	} else {
-		resetFilters("categories")
+		resetFilters(name)
 	}
 }
-const handleApplyCategoriesFilters = () => {
+const handleApplyFilters = (name) => {
 	savedFiltersBeforeChanges.value = null
-	isCategoriesPopoverOpen.value = false
+	popovers[name] = false
 
-	filterRollupByCategories()
+	filterRollups()
 }
-const resetFilters = (target) => {
-	Object.keys(filters[target]).forEach((f) => {
-		filters[target][f] = false
-	})
+const resetFilters = (name) => {
+	if (name) {
+		Object.keys(filters[name]).forEach((f) => {
+			filters[name][f] = false
+		})
+	} else {
+		Object.keys(filters).forEach((f) => {
+			Object.keys(filters[f]).forEach((k) => {
+				filters[f][k] = false
+			})
+		})
+	}
 
-	filterRollupByCategories()
+	filterRollups()
 }
 
 const route = useRoute()
@@ -145,7 +200,7 @@ onMounted(async () => {
 	switch (activeSection.value) {
 		case 'overview':
 			await getRollups()
-			filterRollupByCategories()
+			// filterRollups()
 
 			break
 		case 'daily_stats':
@@ -166,12 +221,14 @@ watch(
 			case 'overview':
 				if (!series.value?.data?.length && !isLoading.value) {
 					await getRollups()
+					filterRollups()
 				}
 
 				break
 			case 'daily_stats':
 				if (!rollupsDailyStats.value.length && !isLoading.value) {
 					await getRollupsDailyStats()
+					filterRollups()
 				}
 
 				break
@@ -182,17 +239,43 @@ watch(
 )
 
 watch(
+	() => series.value?.data?.length,
+	() => {
+		if (series.value?.data?.length) {
+			series.value.data.forEach((d) => {
+				if (d.stack) {
+					stacks.value.push(d.stack)
+				}
+				if (d.provider) {
+					providers.value.push(d.provider)
+				}
+			})
+			stacks.value = [...new Set(stacks.value)]
+			providers.value = [...new Set(providers.value)]
+
+			filters.stacks = stacks.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+			filters.providers = providers.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+		}
+	}
+)
+watch(
 	() => categories.value,
 	() => {
 		filters.categories = categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+	}
+)
+watch(
+	() => types.value,
+	() => {
+		filters.types = types.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
 	}
 )
 </script>
 
 <template>
     <Flex align="center" direction="column" gap="12" wide :class="$style.wrapper">
-		<Flex align="center" justify="between" wide :class="$style.segment">
-			<Flex align="center" gap="12">
+		<Flex align="start" justify="between" wide :class="$style.segment">
+			<Flex align="center" gap="12" :style="{minWidth: '200px'}">
 				<Text
 					v-for="s in sections"
 					@click="activeSection = s"
@@ -204,43 +287,54 @@ watch(
 				</Text>
 			</Flex>
 
-			<Flex align="center" gap="12">
-				<Popover :open="isCategoriesPopoverOpen" @on-close="onCategoriesPopoverClose" width="200">
-					<Button @click="handleOpenCategoriesPopover" type="secondary" size="mini">
-						<Icon name="plus-circle" size="12" color="tertiary" />
-						<Text color="secondary">Category</Text>
+			<Flex align="center" justify="end" wide gap="12" wrap="wrap">
+				<Popover
+					v-for="p in Object.keys(popovers)"
+					:open="popovers[p]"
+					@on-close="onPopoverClose(p)"
+					width="200"
+				>
+					<Button @click="handleOpenPopover(p)" type="secondary" size="mini">
+						<template v-if="!Object.keys(filters[p]).find((item) => filters[p][item])">
+							<Icon name="plus-circle" size="12" color="tertiary" />
+							<Text color="secondary"> {{ capitilize(keyMap[p]) }} </Text>
+						</template>
 
-						<template v-if="Object.keys(filters.categories).find((c) => filters.categories[c])">
-							<div :class="$style.vertical_divider" />
-
-							<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
-								{{ Object.keys(filters.categories)
-									.filter((c) => filters.categories[c])
-									.map(c => getCategoryDisplayName(c))
-									.join(", ")
+						<template v-else>
+							<Text size="12" weight="600" color="primary">
+								{{ Object.keys(filters[p]).filter((item) => filters[p][item]).length < 3
+									? Object.keys(filters[p])
+										.filter((item) => filters[p][item])
+										.map(item => getDisplayName(item))
+										.join(", ")
+									: `${Object.keys(filters[p])
+										.filter((item) => filters[p][item])
+										.slice(0, 2)
+										.map(item => getDisplayName(item))
+										.join(", ")} and ${Object.keys(filters[p]).filter((item) => filters[p][item]).length - 2} more`
 								}}
 							</Text>
 
-							<Icon @click.stop="resetFilters('categories', true)" name="close-circle" size="12" color="secondary" />
+							<Icon @click.stop="resetFilters(p)" name="close-circle" size="12" color="secondary" />
 						</template>
 					</Button>
 
 					<template #content>
 						<Flex direction="column" gap="12">
-							<Text size="12" weight="500" color="secondary">Filter by Category</Text>
+							<Text size="12" weight="500" color="secondary"> {{ `Filter by ${capitilize(keyMap[p])}` }} </Text>
 
 							<Flex direction="column" gap="8" :class="$style.filters_list">
 								<Checkbox
-									v-for="c in Object.keys(filters.categories)"
-									v-model="filters.categories[c]"
+									v-for="item in Object.keys(filters[p])"
+									v-model="filters[p][item]"
 								>
 									<Text size="12" weight="500" color="primary">
-										{{ getCategoryDisplayName(c) }}
+										{{ getDisplayName(item) }}
 									</Text>
 								</Checkbox>
 							</Flex>
 
-							<Button @click="handleApplyCategoriesFilters" type="secondary" size="mini" wide>Apply</Button>
+							<Button @click="handleApplyFilters(p)" type="secondary" size="mini" wide>Apply</Button>
 						</Flex>
 					</template>
 				</Popover>
@@ -248,7 +342,7 @@ watch(
 		</Flex>
 
 		<Flex v-if="activeSection === 'overview'" align="center" direction="column" gap="12" wide>
-			<RollupsBubbleChart v-if="!isLoading" :data="filteredRollups" />
+			<RollupsBubbleChart v-if="!isLoading" @clearFilters="resetFilters" :data="filteredRollups" />
 
 			<template v-if="!isLoading">
 				<Flex align="center" justify="between" wide :class="$style.segment">
@@ -281,7 +375,7 @@ watch(
 			</template>
 		</Flex>
 
-		<RollupsActivity v-else-if="activeSection === 'daily_stats' && !isLoading" :rollups="filteredRollupsDailyStats" />
+		<RollupsActivity v-else-if="activeSection === 'daily_stats' && !isLoading" @clearFilters="resetFilters" :rollups="filteredRollupsDailyStats" :isFilterActive="isFilterActive" />
     </Flex>
 </template>
 
@@ -311,7 +405,7 @@ watch(
 
 .chart_card {
 	max-width: 480px;
-	max-height: 200px;
+	height: 200px;
 }
 
 @media (max-width: 900px) {
