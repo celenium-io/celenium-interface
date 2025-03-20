@@ -15,22 +15,9 @@ const props = defineProps({
 
 // TO DO: Fetch data if series.currentData is null
 const currentData = computed(() => {
-	console.log("currentData", props.series.currentData)
 	return { data: props.series.currentData }
 })
-// const prevData = computed(() => {
-// 	let data = []
-// 	props.series.prevData?.forEach((d, index) => {
-// 		if (currentData.value?.data[index]) {
-// 			data.push({
-// 				date: currentData.value?.data[index].date,
-// 				realDate: d.date,
-// 				value: d.value,
-// 			})
-// 		}
-// 	})
-// 	return { data: data }
-// })
+
 
 const chartEl = ref()
 const tooltip = ref({
@@ -40,8 +27,6 @@ const tooltip = ref({
 
 const buildChart = (chart, cData, onEnter, onLeave) => {
 	const width = chart.getBoundingClientRect().width
-
-	console.log("buildTimelineSlider_chart", width, chart)
 
 	const height = chart.getBoundingClientRect().height
 	const marginTop = 6
@@ -146,14 +131,6 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 		.style("opacity", 0)
 		.style("transition", "all 0.2s ease")
 
-	// const pFocus = svg
-	// 	.append('g')
-	// 	.append('circle')
-	// 		.style("fill", pData.color)
-	// 		.attr('r', 4)
-	// 		.style("opacity", 0)
-	// 		.style("transition", "all 0.2s ease" )
-
 	const focusLine = svg
 		.append("g")
 		.append("line")
@@ -187,26 +164,11 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 			color: cData.color,
 		}
 		tooltip.value.data.splice(1, 1)
-		// if (pData.data.length) {
-		// 	let selectedPData = pData.data[idx]
-
-		// 	pFocus
-		// 		.attr("cx", x(selectedPData.date))
-		// 		.attr("cy", y(selectedPData.value))
-		// 		.style("opacity", 1)
-
-		// 	tooltip.value.data[1] = {
-		// 		date: formatDate(selectedPData.realDate),
-		// 		value: formatValue(selectedPData.value),
-		// 		color: pData.color,
-		// 	}
-		// }
 	}
 
 	function onPointerleft() {
 		onLeave()
 		cFocus.style("opacity", 0)
-		// pFocus.style("opacity", 0)
 		focusLine.style("opacity", 0)
 	}
 
@@ -220,19 +182,10 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 		.attr("stroke-linejoin", "round")
 		.attr("d", line(cData.data.filter((item) => item.value !== null)))
 
-	// const pPath = svg.append("path")
-	// 	.attr("fill", "none")
-	// 	.attr("stroke", pData.color)
-	// 	.attr("stroke-width", 2)
-	// 	.attr("stroke-linecap", "round")
-	// 	.attr("stroke-linejoin", "round")
-	// 	.attr("d", line(pData.data?.filter((item) => item.value !== null)))
-
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
 
 	const cTotalLength = cPath.node().getTotalLength()
-	// const pTotalLength = pPath.node().getTotalLength();
 
 	cPath
 		.attr("stroke-dasharray", `${cTotalLength} ${cTotalLength}`)
@@ -241,22 +194,13 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 		.duration(1_000)
 		.ease(d3.easeLinear)
 		.attr("stroke-dashoffset", 0)
-
-	// pPath.attr("stroke-dasharray", `${pTotalLength} ${pTotalLength}`)
-	// 	.attr("stroke-dashoffset", pTotalLength)
-	// 	.transition()
-	// 	.duration(1_000)
-	// 	.ease(d3.easeLinear)
-	// 	.attr("stroke-dashoffset", 0)
 }
 
 const drawChart = () => {
 	currentData.value.color = "var(--mint)"
-	// prevData.value.color = "var(--txt-tertiary)"
 	buildChart(
 		chartEl.value.wrapper,
 		currentData.value,
-		// prevData.value,
 		() => (tooltip.value.show = true),
 		() => (tooltip.value.show = false),
 	)
