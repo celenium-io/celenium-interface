@@ -35,6 +35,10 @@ const isInternalUpdate = ref(false)
 
 const MIN_HANDLE_WIDTH = 20
 
+const formatTooltipDate = (date) => {
+	return DateTime.fromJSDate(date).toFormat("dd LLL yyyy")
+}
+
 const buildTimelineSlider = (chart, data, chartView) => {
 	const width = chart.getBoundingClientRect().width
 
@@ -230,6 +234,8 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	gb.selectAll(".handle").remove()
 
 	gb.select(".overlay").on("mousedown.brush", function () {
+		leftTooltip.transition().duration(200).style("opacity", 1)
+		rightTooltip.transition().duration(200).style("opacity", 1)
 		brush.on("brush", brushed)
 	})
 
@@ -321,6 +327,68 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.attr("cx", 1)
 		.attr("r", 1)
 		.attr("fill", "var(--op-50)")
+
+	const leftTooltip = leftHandle.append("g").attr("class", "tooltip").style("opacity", 0).style("pointer-events", "none")
+
+	leftTooltip
+		.append("rect")
+		.attr("rx", 3)
+		.attr("ry", 3)
+		.attr("fill", "var(--bg-primary)")
+		.attr("stroke", "var(--op-10)")
+		.attr("stroke-width", 1)
+		.attr("y", 0)
+		.attr("height", 22)
+
+	leftTooltip.append("text").attr("fill", "var(--txt-primary)").attr("y", 44).style("font-size", "12px")
+
+	const rightTooltip = rightHandle.append("g").attr("class", "tooltip").style("opacity", 0).style("pointer-events", "none")
+
+	rightTooltip
+		.append("rect")
+		.attr("rx", 3)
+		.attr("ry", 3)
+		.attr("fill", "var(--bg-primary)")
+		.attr("stroke", "var(--op-10)")
+		.attr("stroke-width", 1)
+		.attr("y", 30)
+		.attr("height", 22)
+
+	rightTooltip.append("text").attr("fill", "var(--txt-primary)").attr("y", 44).style("font-size", "12px")
+
+	handle
+		.on("mouseenter", function () {
+			leftTooltip.transition().duration(200).style("opacity", 1)
+			rightTooltip.transition().duration(200).style("opacity", 1)
+		})
+		.on("mouseleave", function () {
+			leftTooltip.transition().duration(200).style("opacity", 0)
+			rightTooltip.transition().duration(200).style("opacity", 0)
+		})
+		.on("mousedown", function () {
+			leftTooltip.transition().duration(200).style("opacity", 1)
+			rightTooltip.transition().duration(200).style("opacity", 1)
+		})
+
+		leftHandle
+		.on("mouseenter", function () {
+			leftTooltip.transition().duration(200).style("opacity", 1)
+			rightTooltip.transition().duration(200).style("opacity", 1)
+		})
+		.on("mouseleave", function () {
+			leftTooltip.transition().duration(200).style("opacity", 0)
+			rightTooltip.transition().duration(200).style("opacity", 0)
+		})
+
+	rightHandle
+		.on("mouseenter", function () {
+			leftTooltip.transition().duration(200).style("opacity", 1)
+			rightTooltip.transition().duration(200).style("opacity", 1)
+		})
+		.on("mouseleave", function () {
+			leftTooltip.transition().duration(200).style("opacity", 0)
+			rightTooltip.transition().duration(200).style("opacity", 0)
+		})
 
 	function snapToBar(position, isLeft = false) {
 		const bandWidth = xBand.step()
@@ -443,6 +511,40 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 				leftHandle.attr("transform", `translate(${x0}, 0)`)
 				rightHandle.attr("transform", `translate(${x1 - 5}, 0)`)
+
+				const leftDate = formatTooltipDate(x.invert(x0))
+				const rightDate = formatTooltipDate(x.invert(x1))
+
+				leftTooltip.select("text").text(leftDate).attr("text-anchor", "start").attr("y", 32).attr("dominant-baseline", "middle")
+
+				rightTooltip.select("text").text(rightDate).attr("text-anchor", "start").attr("y", 32).attr("dominant-baseline", "middle")
+
+				const leftTextWidth = leftTooltip.select("text").node().getBBox().width
+				const rightTextWidth = rightTooltip.select("text").node().getBBox().width
+				const padding = 8
+				const leftPadding = 24
+
+				const leftTooltipX = x0 < leftTextWidth + padding * 2 ? padding : -leftTextWidth - leftPadding
+
+				const rightTooltipX = x1 + rightTextWidth + padding * 2 > width ? -rightTextWidth - leftPadding : padding
+
+				leftTooltip
+					.select("rect")
+					.attr("width", leftTextWidth + padding * 2)
+					.attr("x", leftTooltipX)
+					.attr("y", 20)
+					.attr("height", 24)
+
+				rightTooltip
+					.select("rect")
+					.attr("width", rightTextWidth + padding * 2)
+					.attr("x", rightTooltipX)
+					.attr("y", 20)
+					.attr("height", 24)
+
+				leftTooltip.select("text").attr("x", leftTooltipX + padding)
+
+				rightTooltip.select("text").attr("x", rightTooltipX + padding)
 			}
 		}
 	}
@@ -479,6 +581,9 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			}
 
 			if (!isNaN(x0) && !isNaN(x1)) {
+				leftTooltip.style("opacity", 1)
+				rightTooltip.style("opacity", 1)
+
 				clip.attr("x", x0).attr("width", x1 - x0)
 				updateHandlePosition([x0, x1])
 
@@ -515,13 +620,22 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 	brush.on("brush", brushed).on("end", brushended)
 
+	d3.select("body").on("mouseup.brush", function () {
+		leftTooltip.transition().duration(200).style("opacity", 0)
+		rightTooltip.transition().duration(200).style("opacity", 0)
+	})
+
 	updateHandlePosition(defaultSelection)
 
-	gb.select(".selection").on("mousedown.brush", function (event) {
-		if (!event.target.classList.contains("handle")) {
-			event.stopPropagation()
-		}
-	})
+	gb.select(".selection")
+		.on("mouseenter", function () {
+			leftTooltip.transition().duration(200).style("opacity", 1)
+			rightTooltip.transition().duration(200).style("opacity", 1)
+		})
+		.on("mouseleave", function () {
+			leftTooltip.transition().duration(200).style("opacity", 0)
+			rightTooltip.transition().duration(200).style("opacity", 0)
+		})
 
 	return svg.node()
 }
