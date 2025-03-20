@@ -1,5 +1,5 @@
 /** Services */
-import { nodeStatsURL, tvlServiceURL, useServerURL } from "@/services/config"
+import { nodeStatsURL, quoteServiceURL, tvlServiceURL, useServerURL } from "@/services/config"
 
 export const fetchGeneralStats = async ({ name }) => {
 	try {
@@ -87,7 +87,7 @@ export const fetchTVS = async ({ period, from, to }) => {
 
 export const fetchPrice = async () => {
 	try {
-		const url = new URL(`${useServerURL()}/stats/price/current`)
+		const url = new URL(`${quoteServiceURL}/price/current`)
 
 		const data = await $fetch(url.href)
 		return data
@@ -98,7 +98,7 @@ export const fetchPrice = async () => {
 
 export const fetchPriceSeries = async ({ from }) => {
 	try {
-		const url = new URL(`${useServerURL()}/stats/price/series/1d`)
+		const url = new URL(`${quoteServiceURL}/price/series/1d`)
 
 		if (from) url.searchParams.append("from", from)
 
