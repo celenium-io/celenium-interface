@@ -141,18 +141,6 @@ const updateUserSettings = () => {
 
 const filters = reactive({})
 
-const setDefaultFilters = () => {
-	// filters.timeframe = selectedPeriod.value.timeframe
-	// filters.periodValue = selectedPeriod.value.value
-	// filters.from = parseInt(
-	// 	DateTime.now()
-	// 		.startOf("day")
-	// )
-	// filters.to = parseInt(DateTime.now().endOf("day").ts / 1_000)
-}
-
-// setDefaultFilters()
-
 const handleChangeChartView = () => {
 	if (chartView.value === "line") {
 		chartView.value = "bar"
@@ -166,7 +154,7 @@ const isLoading = ref(false)
 const fetchData = async () => {
 	loadedAllData.value = false
 	let data = []
-	console.log("fetchData", selectedTimeframe.value)
+
 	if (series.value.name === "tvs") {
 		data = (
 			await fetchTVS({
@@ -244,6 +232,16 @@ const handleClose = () => {
 	isOpen.value = false
 }
 
+const handleDatePickerUpdate = async (event) => {
+	selectedTimeframe.value = STATS_TIMEFRAMES.find((tf) => tf.timeframe === "day")
+	await handleUpdateDate(event)
+}
+
+const handleTimelineUpdate = async (event) => {
+	await handleUpdateDate(event)
+	// selectedPeriod.value = {}
+}
+
 const handleUpdateDate = async (event) => {
 	isLoading.value = true
 
@@ -251,11 +249,9 @@ const handleUpdateDate = async (event) => {
 		let from = event.from
 		let to = event.to
 
-		// Убедимся, что from всегда начало дня, а to - конец дня
 		from = DateTime.fromSeconds(from).startOf("day").toSeconds()
 		to = DateTime.fromSeconds(to).endOf("day").toSeconds()
 
-		// Добавляем проверку на изменение значений
 		if (filters.from === from && filters.to === to) {
 			isLoading.value = false
 			return
@@ -264,20 +260,6 @@ const handleUpdateDate = async (event) => {
 		filters.from = from
 		filters.to = to
 
-		const daysDiff = Math.round(DateTime.fromSeconds(to).diff(DateTime.fromSeconds(from), "days").days)
-
-		const matchingPeriod = STATS_PERIODS.find((period) => {
-			if (period.timeframe === "day") {
-				return period.value === daysDiff
-			}
-			return false
-		})
-
-		selectedPeriod.value = matchingPeriod || {}
-
-		await getData()
-	} else if (event.clear) {
-		selectedPeriod.value = {}
 		await getData()
 	}
 
@@ -285,7 +267,6 @@ const handleUpdateDate = async (event) => {
 }
 
 const handleTimeframeUpdate = (tf) => {
-	console.log("handleTimeframeUpdate", tf)
 	selectedTimeframe.value = tf
 	filters.from = null
 	filters.to = null
@@ -338,8 +319,8 @@ watch(
 	async (newValue, oldValue) => {
 		if (!isLoading.value && !isInternalUpdate.value) {
 			allData.value = []
-			filters.from = null
-			filters.to = null
+			// filters.from = null
+			// filters.to = null
 			await getData()
 		}
 	},
@@ -377,7 +358,7 @@ onBeforeMount(() => {
 
 				<Flex align="center" gap="8" :class="series.name === 'square_size' && $style.disabled">
 					<DatePicker
-						@on-update="handleUpdateDate"
+						@on-update="handleDatePickerUpdate"
 						:period="selectedPeriod"
 						:from="filters.from"
 						:to="filters.to"
@@ -466,7 +447,7 @@ onBeforeMount(() => {
 		<LineChart v-else-if="chartView === 'line'" :series="series" />
 		<BarChart v-else-if="chartView === 'bar'" :series="series" />
 
-		<TimelineSlider :allData="allData" :chartView="chartView" :from="filters.from" :to="filters.to" @onUpdate="handleUpdateDate" />
+		<TimelineSlider :allData="allData" :chartView="chartView" :from="filters.from" :to="filters.to" @onUpdate="handleTimelineUpdate" />
 	</Flex>
 </template>
 

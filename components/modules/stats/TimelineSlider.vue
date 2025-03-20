@@ -91,10 +91,12 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	let defaultSelection = [x.range()[0], x.range()[1]]
 
 	if (props.from && props.to) {
-		defaultSelection = [
-			Math.max(margin.left, x(new Date(props.from * 1000))),
-			Math.min(width - margin.right, x(new Date(props.to * 1000))),
-		]
+		const x0 = Math.max(margin.left, x(new Date(props.from * 1000)))
+		const x1 = Math.min(width - margin.right, x(new Date(props.to * 1000)))
+
+		if (!isNaN(x0) && !isNaN(x1)) {
+			defaultSelection = [x0, x1]
+		}
 	}
 
 	if (chartView === "line") {
@@ -418,23 +420,30 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	function updateHandlePosition(selection) {
 		if (selection) {
 			const [x0, x1] = selection
+
+			if (isNaN(x0) || isNaN(x1)) {
+				return
+			}
+
 			const brushWidth = x1 - x0
 			const handleWidth = Math.max(MIN_HANDLE_WIDTH, brushWidth)
 
 			const handleX = x0 + (brushWidth - handleWidth) / 2
 
-			handle
-				.attr("transform", `translate(${handleX}, 0)`)
-				.select("rect")
-				.attr("width", handleWidth)
-				.attr("y", margin.top - 14)
+			if (!isNaN(handleX) && !isNaN(handleWidth)) {
+				handle
+					.attr("transform", `translate(${handleX}, 0)`)
+					.select("rect")
+					.attr("width", handleWidth)
+					.attr("y", margin.top - 14)
 
-			const dotsWidth = 12
-			const dotsX = (handleWidth - dotsWidth) / 2
-			handle.select(".dots-container").attr("transform", `translate(${dotsX}, ${margin.top - 12.5})`)
+				const dotsWidth = 12
+				const dotsX = (handleWidth - dotsWidth) / 2
+				handle.select(".dots-container").attr("transform", `translate(${dotsX}, ${margin.top - 12.5})`)
 
-			leftHandle.attr("transform", `translate(${x0}, 0)`)
-			rightHandle.attr("transform", `translate(${x1 - 5}, 0)`)
+				leftHandle.attr("transform", `translate(${x0}, 0)`)
+				rightHandle.attr("transform", `translate(${x1 - 5}, 0)`)
+			}
 		}
 	}
 
@@ -444,6 +453,10 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	function brushed({ selection, sourceEvent }) {
 		if (selection) {
 			let [x0, x1] = selection
+
+			if (isNaN(x0) || isNaN(x1)) {
+				return
+			}
 
 			if (sourceEvent) {
 				const snappedX0 = snapToBar(x0, true)
@@ -465,19 +478,21 @@ const buildTimelineSlider = (chart, data, chartView) => {
 				}
 			}
 
-			clip.attr("x", x0).attr("width", x1 - x0)
-			updateHandlePosition([x0, x1])
+			if (!isNaN(x0) && !isNaN(x1)) {
+				clip.attr("x", x0).attr("width", x1 - x0)
+				updateHandlePosition([x0, x1])
 
-			const [from, to] = [x0, x1].map(x.invert, x).map((d) => {
-				const date = DateTime.fromJSDate(d)
-				return Math.floor(date.startOf("day").toSeconds())
-			})
+				const [from, to] = [x0, x1].map(x.invert, x).map((d) => {
+					const date = DateTime.fromJSDate(d)
+					return Math.floor(date.startOf("day").toSeconds())
+				})
 
-			isInternalUpdate.value = true
-			emit("onUpdate", { from, to })
-			setTimeout(() => {
-				isInternalUpdate.value = false
-			}, 100)
+				isInternalUpdate.value = true
+				emit("onUpdate", { from, to })
+				setTimeout(() => {
+					isInternalUpdate.value = false
+				}, 100)
+			}
 		}
 	}
 
