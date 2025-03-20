@@ -838,7 +838,7 @@ onBeforeUnmount(() => {
 	</Flex>
 </template>
 
-<style module>
+<style module lang="scss">
 .header {
 	height: 40px;
 
