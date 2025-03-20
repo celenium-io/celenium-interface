@@ -354,7 +354,6 @@ const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 	const onPointermoved = (event) => {
 		onEnter()
 
-		// const idx = bisect(data, x.invert(d3.pointer(event)[0]))
 		const idx = bisect(data, x.invert(d3.pointer(event)[0] - barWidth / 2))
 		
 		const elements = document.querySelectorAll(`[metric="${metric}"]`)

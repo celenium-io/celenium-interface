@@ -210,7 +210,7 @@ watch(
 			}
 
 			if (cacheStore.current.validator) {
-				address.value = cacheStore.current.validator.address
+				address.value = cacheStore.current.validator.address?.hash
 			}
 
 			nextTick(() => {

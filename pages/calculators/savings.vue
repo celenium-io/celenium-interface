@@ -304,414 +304,424 @@ useHead({
 </script>
 
 <template>
-	<Flex gap="40" wide justify="between" :class="$style.wrapper">
-		<Flex direction="column" gap="32" :class="$style.left">
-			<Flex direction="column" gap="16">
-				<Flex align="center" gap="8" :class="$style.title_badge">
-					<Icon name="calculator" size="12" color="brand" />
-					<Text size="12" weight="600" color="brand">Cost Saving Calculator</Text>
+	<Flex gap="12" wide direction="column" :class="$style.wrapper">
+		<Breadcrumbs
+			:items="[
+				{ link: '/', name: 'Explore' },
+				{ link: '/calculators/savings', name: 'Saving Calculator' },
+			]"
+			:class="$style.breadcrumbs"
+		/>
+
+		<Flex justify="between" gap="40">
+			<Flex direction="column" gap="32" :class="$style.left">
+				<Flex direction="column" gap="16">
+					<Flex align="center" gap="8" :class="$style.title_badge">
+						<Icon name="calculator" size="12" color="brand" />
+						<Text size="12" weight="600" color="brand">Cost Saving Calculator</Text>
+					</Flex>
+
+					<Flex direction="column" gap="6">
+						<Text size="20" weight="600" color="primary">Rollup Estimation Cost</Text>
+						<Text size="14" weight="500" color="tertiary" style="line-height: 22px">
+							Discover the potential cost benefits of building on Celestia, modular blockchain network.
+						</Text>
+					</Flex>
 				</Flex>
 
-				<Flex direction="column" gap="6">
-					<Text size="20" weight="600" color="primary">Rollup Estimation Cost</Text>
-					<Text size="14" weight="500" color="tertiary" style="line-height: 22px">
-						Discover the potential cost benefits of building on Celestia, modular blockchain network.
+				<!-- Rollup Stack Selector -->
+				<Flex direction="column" gap="10">
+					<Tooltip side="top" position="start">
+						<Flex align="center" gap="6">
+							<Text size="13" weight="600" color="primary"> Rollup Stack </Text>
+							<Icon name="info" size="12" color="support" />
+						</Flex>
+
+						<template #content> Rollup underlying technology (SDK). </template>
+					</Tooltip>
+
+					<Flex wide align="center" gap="8" :class="$style.items">
+						<Flex
+							v-for="(stack, idx) in rollupStacks"
+							@click="selectedRollupStack = idx"
+							wide
+							align="center"
+							gap="10"
+							justify="between"
+							:class="[$style.item, stack.disabled && $style.disabled]"
+						>
+							<Flex align="center" gap="12">
+								<img :src="`/img/calc/${stack.img}`" />
+
+								<Flex direction="column" gap="6">
+									<Text size="13" weight="600" color="primary"> {{ stack.name }} </Text>
+
+									<Text v-if="!stack.disabled" size="12" weight="500" color="tertiary">
+										${{ comma(getAvgCallDataCostByStack(stack.name)) }}
+									</Text>
+									<Text v-else size="12" weight="500" color="tertiary">Unavailable</Text>
+								</Flex>
+							</Flex>
+
+							<Transition name="fastfade" mode="out-in">
+								<Icon v-if="selectedRollupStack === idx" name="check-circle" size="16" color="brand" />
+								<Text
+									v-else-if="rollupStacks[idx].price && !stack.disabled"
+									size="10"
+									weight="700"
+									color="brand"
+									:class="[
+										$style.diff_badge,
+										percentDiff(rollupStacks[selectedRollupStack].price, rollupStacks[idx].price).pos
+											? $style.green
+											: $style.red,
+									]"
+									>{{ percentDiff(rollupStacks[selectedRollupStack].price, rollupStacks[idx].price).pos ? "-" : "+"
+									}}{{ percentDiff(rollupStacks[selectedRollupStack].price, rollupStacks[idx].price).val.toFixed(2) }}%
+								</Text>
+							</Transition>
+						</Flex>
+					</Flex>
+				</Flex>
+
+				<!-- Transaction stack Selector -->
+				<Flex direction="column" gap="10">
+					<Tooltip side="top" position="start">
+						<Flex align="center" gap="6">
+							<Text size="13" weight="600" color="primary"> Transaction Type </Text>
+							<Icon name="info" size="12" color="support" />
+						</Flex>
+
+						<template #content> Type of transaction used to calculate the total size of posted data. </template>
+					</Tooltip>
+
+					<Flex wide align="center" gap="8" :class="$style.items">
+						<Flex
+							v-for="(stack, idx) in txStack"
+							@click="selectedTxStack = idx"
+							wide
+							align="center"
+							gap="10"
+							justify="between"
+							:class="$style.item"
+						>
+							<Flex align="center" gap="12">
+								<img :src="`/icons/${stack.img}`" />
+
+								<Flex direction="column" gap="6">
+									<Text size="13" weight="600" color="primary">{{ stack.name }}</Text>
+									<Text size="12" weight="500" color="tertiary"> {{ stack.description }} </Text>
+								</Flex>
+							</Flex>
+
+							<Transition name="fastfade">
+								<Icon v-if="selectedTxStack === idx" name="check-circle" size="16" color="brand" />
+							</Transition>
+						</Flex>
+					</Flex>
+				</Flex>
+
+				<!-- Txs count -->
+				<Flex direction="column" gap="16">
+					<Flex align="center" justify="between">
+						<Tooltip side="top" position="start">
+							<Flex align="center" gap="6">
+								<Text size="13" weight="600" color="primary"> Expected transactions </Text>
+								<Icon name="info" size="12" color="support" />
+							</Flex>
+
+							<template #content> Total number of posted transactions. </template>
+						</Tooltip>
+
+						<!-- <Text size="13" weight="600" color="primary"> Expected transactions </Text> -->
+
+						<template v-if="editMode !== 'txs'">
+							<Text @click="handleEnableTxsEditMode" size="13" weight="600" color="primary"> {{ comma(txs) }} </Text>
+						</template>
+						<template v-else>
+							<Flex align="center" gap="6">
+								<Icon name="edit" size="12" color="tertiary" />
+								<input
+									ref="txsInputEl"
+									v-model="txs"
+									@input="handleTxsInput"
+									@blur="handleTxsBlur"
+									:class="$style.txs_input"
+									:style="{ width: `${txs.toString().split('').length}ch` }"
+								/>
+								<Icon @click="editMode = null" name="check-circle" size="12" color="brand" />
+							</Flex>
+						</template>
+					</Flex>
+
+					<input
+						v-model="txs"
+						type="range"
+						min="1000000"
+						max="1000000000"
+						step="1000000"
+						:class="$style.tx_range"
+						:style="{
+							background: `linear-gradient(to right, var(--brand) ${(txs * 100) / 1_000_000_000}%, var(--op-5) ${
+								(txs * 100) / 1_000_000_000
+							}%)`,
+						}"
+					/>
+				</Flex>
+
+				<Flex direction="column" gap="24">
+					<Text size="14" weight="600" color="tertiary" height="160">
+						Using <Text color="secondary">L2</Text> the expected cost ~<Text color="secondary"
+							>${{ comma(expectedCostL2, ",", 0) }}</Text
+						>, with Celestia ~<Text color="brand">${{ comma(expectedCostCelestia, ",", 0) }}</Text> for
+						<Text color="secondary">{{ abbreviate(txs) }}</Text> transactions
+					</Text>
+
+					<Flex gap="48" :class="[$style.results, editMode && $style.editing]">
+						<Flex direction="column" gap="24">
+							<Flex direction="column" gap="12">
+								<Text size="32" weight="600" :color="savingsUsingCelestia ? 'brand' : 'secondary'" tabular mono>
+									${{ comma(savingsUsingCelestia, ",", 0) }}
+								</Text>
+								<Text size="14" weight="600" color="tertiary"> You'll save using Celestia </Text>
+							</Flex>
+
+							<Flex direction="column" gap="12">
+								<Text size="24" weight="600" color="primary" tabular mono> ${{ tiaPerMb.toFixed(5) }} </Text>
+								<Text size="14" weight="600" color="tertiary"> Price per Mb in Celestia </Text>
+							</Flex>
+						</Flex>
+
+						<Flex direction="column" gap="24">
+							<Flex direction="column" gap="12">
+								<Text
+									size="32"
+									weight="600"
+									:color="payLessPercentCelestia > 50 ? (payLessPercentCelestia ? 'brand' : 'secondary') : 'secondary'"
+									tabular
+									mono
+								>
+									~{{ payLessPercentCelestia.toFixed(2) }}%
+								</Text>
+								<Text size="14" weight="600" color="tertiary"> You'll pay % less </Text>
+							</Flex>
+
+							<Flex direction="column" gap="12">
+								<Text size="24" weight="600" color="primary" tabular mono>
+									${{ comma(additionalSettlementCost, ",", 0) }}
+								</Text>
+								<Text size="14" weight="600" color="tertiary"> Settlement Cost </Text>
+							</Flex>
+						</Flex>
+					</Flex>
+				</Flex>
+
+				<Flex direction="column" gap="12">
+					<div :class="$style.divider" />
+
+					<Text size="13" weight="600" color="support" height="160" style="max-width: 500px">
+						This estimation assumes a constant <Text color="tertiary">$TIA</Text> price. It should only be used as an estimation and
+						reference to compare what-if scenarios.
 					</Text>
 				</Flex>
 			</Flex>
 
-			<!-- Rollup Stack Selector -->
-			<Flex direction="column" gap="10">
-				<Tooltip side="top" position="start">
-					<Flex align="center" gap="6">
-						<Text size="13" weight="600" color="primary"> Rollup Stack </Text>
-						<Icon name="info" size="12" color="support" />
-					</Flex>
-
-					<template #content> Rollup underlying technology (SDK). </template>
-				</Tooltip>
-
-				<Flex wide align="center" gap="8" :class="$style.items">
-					<Flex
-						v-for="(stack, idx) in rollupStacks"
-						@click="selectedRollupStack = idx"
-						wide
-						align="center"
-						gap="10"
-						justify="between"
-						:class="[$style.item, stack.disabled && $style.disabled]"
-					>
-						<Flex align="center" gap="12">
-							<img :src="`/img/calc/${stack.img}`" />
-
-							<Flex direction="column" gap="6">
-								<Text size="13" weight="600" color="primary"> {{ stack.name }} </Text>
-
-								<Text v-if="!stack.disabled" size="12" weight="500" color="tertiary">
-									${{ comma(getAvgCallDataCostByStack(stack.name)) }}
-								</Text>
-								<Text v-else size="12" weight="500" color="tertiary">Unavailable</Text>
+			<Flex wide direction="column" gap="24" :class="$style.right">
+				<Flex direction="column" gap="10">
+					<Tooltip side="top" position="start" wide>
+						<Flex wide align="center" justify="between">
+							<Flex align="center" gap="6">
+								<Text size="13" weight="600" color="primary">Constants</Text>
+								<Icon name="info" size="12" color="support" />
 							</Flex>
+
+							<Text v-if="isModified" @click="handleReset" color="brand" size="12" weight="600" style="cursor: pointer"
+								>Reset</Text
+							>
 						</Flex>
 
-						<Transition name="fastfade" mode="out-in">
-							<Icon v-if="selectedRollupStack === idx" name="check-circle" size="16" color="brand" />
-							<Text
-								v-else-if="rollupStacks[idx].price && !stack.disabled"
-								size="10"
-								weight="700"
-								color="brand"
-								:class="[
-									$style.diff_badge,
-									percentDiff(rollupStacks[selectedRollupStack].price, rollupStacks[idx].price).pos
-										? $style.green
-										: $style.red,
-								]"
-								>{{ percentDiff(rollupStacks[selectedRollupStack].price, rollupStacks[idx].price).pos ? "-" : "+"
-								}}{{ percentDiff(rollupStacks[selectedRollupStack].price, rollupStacks[idx].price).val.toFixed(2) }}%
-							</Text>
-						</Transition>
-					</Flex>
-				</Flex>
-			</Flex>
-
-			<!-- Transaction stack Selector -->
-			<Flex direction="column" gap="10">
-				<Tooltip side="top" position="start">
-					<Flex align="center" gap="6">
-						<Text size="13" weight="600" color="primary"> Transaction Type </Text>
-						<Icon name="info" size="12" color="support" />
-					</Flex>
-
-					<template #content> Type of transaction used to calculate the total size of posted data. </template>
-				</Tooltip>
-
-				<Flex wide align="center" gap="8" :class="$style.items">
-					<Flex
-						v-for="(stack, idx) in txStack"
-						@click="selectedTxStack = idx"
-						wide
-						align="center"
-						gap="10"
-						justify="between"
-						:class="$style.item"
-					>
-						<Flex align="center" gap="12">
-							<img :src="`/icons/${stack.img}`" />
-
-							<Flex direction="column" gap="6">
-								<Text size="13" weight="600" color="primary">{{ stack.name }}</Text>
-								<Text size="12" weight="500" color="tertiary"> {{ stack.description }} </Text>
+						<template #content>
+							<Flex align="start" direction="column" gap="8">
+								<Text> Variables used to calculate the savings of Celestia's usage. </Text>
+								<Flex align="center" gap="16">
+									<Flex align="center" gap="6">
+										<div :class="$style.dot" style="background: var(--brand)" />
+										<Text weight="600" color="secondary"> Editable variables </Text>
+									</Flex>
+									<Flex align="center" gap="6">
+										<div :class="$style.dot" style="background: var(--txt-secondary)" />
+										<Text weight="600" color="secondary"> Static </Text>
+									</Flex>
+								</Flex>
 							</Flex>
-						</Flex>
-
-						<Transition name="fastfade">
-							<Icon v-if="selectedTxStack === idx" name="check-circle" size="16" color="brand" />
-						</Transition>
-					</Flex>
-				</Flex>
-			</Flex>
-
-			<!-- Txs count -->
-			<Flex direction="column" gap="16">
-				<Flex align="center" justify="between">
-					<Tooltip side="top" position="start">
-						<Flex align="center" gap="6">
-							<Text size="13" weight="600" color="primary"> Expected transactions </Text>
-							<Icon name="info" size="12" color="support" />
-						</Flex>
-
-						<template #content> Total number of posted transactions. </template>
+						</template>
 					</Tooltip>
 
-					<!-- <Text size="13" weight="600" color="primary"> Expected transactions </Text> -->
+					<Flex direction="column" gap="20" :class="$style.card">
+						<Flex>
+							<Flex direction="column" gap="16" style="flex: 1">
+								<Flex direction="column" gap="8">
+									<Text size="12" weight="600" color="secondary"> TIA Price </Text>
 
-					<template v-if="editMode !== 'txs'">
-						<Text @click="handleEnableTxsEditMode" size="13" weight="600" color="primary"> {{ comma(txs) }} </Text>
-					</template>
-					<template v-else>
-						<Flex align="center" gap="6">
-							<Icon name="edit" size="12" color="tertiary" />
-							<input
-								ref="txsInputEl"
-								v-model="txs"
-								@input="handleTxsInput"
-								@blur="handleTxsBlur"
-								:class="$style.txs_input"
-								:style="{ width: `${txs.toString().split('').length}ch` }"
-							/>
-							<Icon @click="editMode = null" name="check-circle" size="12" color="brand" />
-						</Flex>
-					</template>
-				</Flex>
-
-				<input
-					v-model="txs"
-					type="range"
-					min="1000000"
-					max="1000000000"
-					step="1000000"
-					:class="$style.tx_range"
-					:style="{
-						background: `linear-gradient(to right, var(--brand) ${(txs * 100) / 1_000_000_000}%, var(--op-5) ${
-							(txs * 100) / 1_000_000_000
-						}%)`,
-					}"
-				/>
-			</Flex>
-
-			<Flex direction="column" gap="24">
-				<Text size="14" weight="600" color="tertiary" height="160">
-					Using <Text color="secondary">L2</Text> the expected cost ~<Text color="secondary"
-						>${{ comma(expectedCostL2, ",", 0) }}</Text
-					>, with Celestia ~<Text color="brand">${{ comma(expectedCostCelestia, ",", 0) }}</Text> for
-					<Text color="secondary">{{ abbreviate(txs) }}</Text> transactions
-				</Text>
-
-				<Flex gap="48" :class="[$style.results, editMode && $style.editing]">
-					<Flex direction="column" gap="24">
-						<Flex direction="column" gap="12">
-							<Text size="32" weight="600" :color="savingsUsingCelestia ? 'brand' : 'secondary'" tabular mono>
-								${{ comma(savingsUsingCelestia, ",", 0) }}
-							</Text>
-							<Text size="14" weight="600" color="tertiary"> You'll save using Celestia </Text>
-						</Flex>
-
-						<Flex direction="column" gap="12">
-							<Text size="24" weight="600" color="primary" tabular mono> ${{ tiaPerMb.toFixed(5) }} </Text>
-							<Text size="14" weight="600" color="tertiary"> Price per Mb in Celestia </Text>
-						</Flex>
-					</Flex>
-
-					<Flex direction="column" gap="24">
-						<Flex direction="column" gap="12">
-							<Text
-								size="32"
-								weight="600"
-								:color="payLessPercentCelestia > 50 ? (payLessPercentCelestia ? 'brand' : 'secondary') : 'secondary'"
-								tabular
-								mono
-							>
-								~{{ payLessPercentCelestia.toFixed(2) }}%
-							</Text>
-							<Text size="14" weight="600" color="tertiary"> You'll pay % less </Text>
-						</Flex>
-
-						<Flex direction="column" gap="12">
-							<Text size="24" weight="600" color="primary" tabular mono>
-								${{ comma(additionalSettlementCost, ",", 0) }}
-							</Text>
-							<Text size="14" weight="600" color="tertiary"> Settlement Cost </Text>
-						</Flex>
-					</Flex>
-				</Flex>
-			</Flex>
-
-			<Flex direction="column" gap="12">
-				<div :class="$style.divider" />
-
-				<Text size="13" weight="600" color="support" height="160" style="max-width: 500px">
-					This estimation assumes a constant <Text color="tertiary">$TIA</Text> price. It should only be used as an estimation and
-					reference to compare what-if scenarios.
-				</Text>
-			</Flex>
-		</Flex>
-
-		<Flex wide direction="column" gap="24" :class="$style.right">
-			<Flex direction="column" gap="10">
-				<Tooltip side="top" position="start" wide>
-					<Flex wide align="center" justify="between">
-						<Flex align="center" gap="6">
-							<Text size="13" weight="600" color="primary">Constants</Text>
-							<Icon name="info" size="12" color="support" />
-						</Flex>
-
-						<Text v-if="isModified" @click="handleReset" color="brand" size="12" weight="600" style="cursor: pointer"
-							>Reset</Text
-						>
-					</Flex>
-
-					<template #content>
-						<Flex align="start" direction="column" gap="8">
-							<Text> Variables used to calculate the savings of Celestia's usage. </Text>
-							<Flex align="center" gap="16">
-								<Flex align="center" gap="6">
-									<div :class="$style.dot" style="background: var(--brand)" />
-									<Text weight="600" color="secondary"> Editable variables </Text>
+									<template v-if="editMode !== 'tia'">
+										<Text @click="handleEnableTiaPriceEditMode" size="14" weight="600" color="brand">
+											${{ tiaPrice }}
+										</Text>
+									</template>
+									<template v-else>
+										<Flex align="center" gap="6">
+											<Icon name="edit" size="12" color="tertiary" />
+											<input
+												ref="tiaInputEl"
+												v-model="tiaPrice"
+												@input="handleTiaPriceInput"
+												@blur="handleTiaPriceBlur"
+												:class="$style.constant_input"
+												:style="{ width: `${tiaPrice.toString().split('').length}ch` }"
+											/>
+											<Icon @click="editMode = null" name="check-circle" size="12" color="brand" />
+										</Flex>
+									</template>
 								</Flex>
-								<Flex align="center" gap="6">
-									<div :class="$style.dot" style="background: var(--txt-secondary)" />
-									<Text weight="600" color="secondary"> Static </Text>
+
+								<Flex direction="column" gap="8">
+									<Text size="12" weight="600" color="secondary"> Average Gas </Text>
+									<Text size="14" weight="600" color="primary" mono> {{ comma(averageGas) }} </Text>
+								</Flex>
+							</Flex>
+
+							<Flex direction="column" gap="16" style="flex: 1">
+								<Flex direction="column" gap="8">
+									<Text size="12" weight="600" color="secondary"> Price per gas </Text>
+
+									<template v-if="editMode !== 'pricePerGas'">
+										<Text @click="handleEnablePricePerGasEditMode" size="14" weight="600" color="brand">
+											{{ pricePerGas }} UTIA
+										</Text>
+									</template>
+									<template v-else>
+										<Flex align="center" gap="6">
+											<Icon name="edit" size="12" color="tertiary" />
+											<input
+												ref="pricePerGasInputEl"
+												v-model="pricePerGas"
+												@input="handlePricePerGasInput"
+												@blur="handlePricePerGasBlur"
+												:class="$style.constant_input"
+												:style="{ width: `${pricePerGas.toString().split('').length}ch` }"
+											/>
+											<Icon @click="editMode = null" name="check-circle" size="12" color="brand" />
+										</Flex>
+									</template>
 								</Flex>
 							</Flex>
 						</Flex>
-					</template>
-				</Tooltip>
+					</Flex>
 
-				<Flex direction="column" gap="20" :class="$style.card">
-					<Flex>
-						<Flex direction="column" gap="16" style="flex: 1">
-							<Flex direction="column" gap="8">
-								<Text size="12" weight="600" color="secondary"> TIA Price </Text>
+					<Flex direction="column" gap="20" :class="$style.card">
+						<Flex>
+							<Flex direction="column" gap="16" style="flex: 1">
+								<Flex direction="column" gap="8">
+									<Text size="12" weight="600" color="secondary"> Avg batch size </Text>
 
-								<template v-if="editMode !== 'tia'">
-									<Text @click="handleEnableTiaPriceEditMode" size="14" weight="600" color="brand">
-										${{ tiaPrice }}
-									</Text>
-								</template>
-								<template v-else>
-									<Flex align="center" gap="6">
-										<Icon name="edit" size="12" color="tertiary" />
-										<input
-											ref="tiaInputEl"
-											v-model="tiaPrice"
-											@input="handleTiaPriceInput"
-											@blur="handleTiaPriceBlur"
-											:class="$style.constant_input"
-											:style="{ width: `${tiaPrice.toString().split('').length}ch` }"
-										/>
-										<Icon @click="editMode = null" name="check-circle" size="12" color="brand" />
-									</Flex>
-								</template>
+									<template v-if="editMode !== 'batchSize'">
+										<Text @click="handleEnableBatchSizeEditMode" size="14" weight="600" color="brand">
+											{{ formatBytes(batchSize) }} / block
+										</Text>
+									</template>
+									<template v-else>
+										<Flex align="center" gap="6">
+											<Icon name="edit" size="12" color="tertiary" />
+											<input
+												ref="batchSizeInputEl"
+												v-model="batchSize"
+												@input="handleBatchSizeInput"
+												@blur="handleBatchSizeBlur"
+												:class="$style.constant_input"
+												:style="{ width: `${batchSize.toString().split('').length}ch` }"
+											/>
+											<Icon @click="editMode = null" name="check-circle" size="12" color="brand" />
+										</Flex>
+									</template>
+								</Flex>
 							</Flex>
-
-							<Flex direction="column" gap="8">
-								<Text size="12" weight="600" color="secondary"> Average Gas </Text>
-								<Text size="14" weight="600" color="primary" mono> {{ comma(averageGas) }} </Text>
-							</Flex>
-						</Flex>
-
-						<Flex direction="column" gap="16" style="flex: 1">
-							<Flex direction="column" gap="8">
-								<Text size="12" weight="600" color="secondary"> Price per gas </Text>
-
-								<template v-if="editMode !== 'pricePerGas'">
-									<Text @click="handleEnablePricePerGasEditMode" size="14" weight="600" color="brand">
-										{{ pricePerGas }} UTIA
-									</Text>
-								</template>
-								<template v-else>
-									<Flex align="center" gap="6">
-										<Icon name="edit" size="12" color="tertiary" />
-										<input
-											ref="pricePerGasInputEl"
-											v-model="pricePerGas"
-											@input="handlePricePerGasInput"
-											@blur="handlePricePerGasBlur"
-											:class="$style.constant_input"
-											:style="{ width: `${pricePerGas.toString().split('').length}ch` }"
-										/>
-										<Icon @click="editMode = null" name="check-circle" size="12" color="brand" />
-									</Flex>
-								</template>
+							<Flex direction="column" gap="16" style="flex: 1">
+								<Flex direction="column" gap="8">
+									<Text size="12" weight="600" color="secondary"> Avg num of shares</Text>
+									<Text size="14" weight="600" color="primary" mono> 215 </Text>
+								</Flex>
 							</Flex>
 						</Flex>
 					</Flex>
-				</Flex>
 
-				<Flex direction="column" gap="20" :class="$style.card">
-					<Flex>
-						<Flex direction="column" gap="16" style="flex: 1">
-							<Flex direction="column" gap="8">
-								<Text size="12" weight="600" color="secondary"> Avg batch size </Text>
-
-								<template v-if="editMode !== 'batchSize'">
-									<Text @click="handleEnableBatchSizeEditMode" size="14" weight="600" color="brand">
-										{{ formatBytes(batchSize) }} / block
-									</Text>
-								</template>
-								<template v-else>
-									<Flex align="center" gap="6">
-										<Icon name="edit" size="12" color="tertiary" />
-										<input
-											ref="batchSizeInputEl"
-											v-model="batchSize"
-											@input="handleBatchSizeInput"
-											@blur="handleBatchSizeBlur"
-											:class="$style.constant_input"
-											:style="{ width: `${batchSize.toString().split('').length}ch` }"
-										/>
-										<Icon @click="editMode = null" name="check-circle" size="12" color="brand" />
-									</Flex>
-								</template>
-							</Flex>
-						</Flex>
-						<Flex direction="column" gap="16" style="flex: 1">
-							<Flex direction="column" gap="8">
-								<Text size="12" weight="600" color="secondary"> Avg num of shares</Text>
-								<Text size="14" weight="600" color="primary" mono> 215 </Text>
-							</Flex>
-						</Flex>
+					<Flex @click="useEIP = !useEIP" align="center" gap="6" :class="[$style.card, $style.clickable]">
+						<Icon :name="useEIP ? 'check-circle' : 'close-circle'" size="12" :color="useEIP ? 'brand' : 'secondary'" />
+						<Text size="13" weight="600" color="primary"> Use EIP-4844 </Text>
 					</Flex>
 				</Flex>
 
-				<Flex @click="useEIP = !useEIP" align="center" gap="6" :class="[$style.card, $style.clickable]">
-					<Icon :name="useEIP ? 'check-circle' : 'close-circle'" size="12" :color="useEIP ? 'brand' : 'secondary'" />
-					<Text size="13" weight="600" color="primary"> Use EIP-4844 </Text>
-				</Flex>
+				<!-- <Flex direction="column" gap="20" :class="$style.card">
+					<Flex @click="showComparisonBlock = !showComparisonBlock" align="center" gap="8" :class="$style.head">
+						<Text size="13" weight="600" color="primary">Transaction stack comparison</Text>
+						<Icon
+							name="chevron"
+							size="12"
+							color="secondary"
+							:style="{ transform: `rotate(${showComparisonBlock ? '0' : '-90'}deg)` }"
+						/>
+					</Flex>
+
+					<Flex v-if="showComparisonBlock" direction="column" gap="16">
+						<Flex direction="column" gap="10">
+							<Flex gap="4">
+								<div v-for="idx in 40" :class="$style.bar" />
+							</Flex>
+
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="secondary">ERC20 Transfer</Text>
+								<Text size="12" weight="600" color="brand">120 Bytes</Text>
+							</Flex>
+						</Flex>
+						<Flex direction="column" gap="10">
+							<Flex gap="4">
+								<div v-for="idx in 40" :class="$style.bar" />
+							</Flex>
+
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="secondary">ERC20 Transfer</Text>
+								<Text size="12" weight="600" color="primary">120 Bytes</Text>
+							</Flex>
+						</Flex>
+						<Flex direction="column" gap="10">
+							<Flex gap="4">
+								<div v-for="idx in 40" :class="$style.bar" />
+							</Flex>
+
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="secondary">ERC20 Transfer</Text>
+								<Text size="12" weight="600" color="primary">120 Bytes</Text>
+							</Flex>
+						</Flex>
+					</Flex>
+				</Flex> -->
+
+				<NuxtLink to="https://api-plans.celenium.io" target="_blank">
+					<Flex v-if="!hideCeleniumAPIBlock" direction="column" gap="12" :class="$style.ad">
+						<Flex direction="column" gap="8">
+							<Flex align="center" gap="6">
+								<Icon name="slash" size="14" color="brand" />
+								<Text size="13" weight="600" color="primary">Build with Celenium API</Text>
+							</Flex>
+
+							<Text size="13" weight="600" color="tertiary" height="140">
+								Unlock the power of Celestia: Scalable, Secure and Modular Blockchain.
+							</Text>
+						</Flex>
+
+						<Text size="13" weight="600" color="brand">Get started -></Text>
+					</Flex>
+				</NuxtLink>
 			</Flex>
-
-			<!-- <Flex direction="column" gap="20" :class="$style.card">
-				<Flex @click="showComparisonBlock = !showComparisonBlock" align="center" gap="8" :class="$style.head">
-					<Text size="13" weight="600" color="primary">Transaction stack comparison</Text>
-					<Icon
-						name="chevron"
-						size="12"
-						color="secondary"
-						:style="{ transform: `rotate(${showComparisonBlock ? '0' : '-90'}deg)` }"
-					/>
-				</Flex>
-
-				<Flex v-if="showComparisonBlock" direction="column" gap="16">
-					<Flex direction="column" gap="10">
-						<Flex gap="4">
-							<div v-for="idx in 40" :class="$style.bar" />
-						</Flex>
-
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="secondary">ERC20 Transfer</Text>
-							<Text size="12" weight="600" color="brand">120 Bytes</Text>
-						</Flex>
-					</Flex>
-					<Flex direction="column" gap="10">
-						<Flex gap="4">
-							<div v-for="idx in 40" :class="$style.bar" />
-						</Flex>
-
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="secondary">ERC20 Transfer</Text>
-							<Text size="12" weight="600" color="primary">120 Bytes</Text>
-						</Flex>
-					</Flex>
-					<Flex direction="column" gap="10">
-						<Flex gap="4">
-							<div v-for="idx in 40" :class="$style.bar" />
-						</Flex>
-
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="secondary">ERC20 Transfer</Text>
-							<Text size="12" weight="600" color="primary">120 Bytes</Text>
-						</Flex>
-					</Flex>
-				</Flex>
-			</Flex> -->
-
-			<NuxtLink to="https://api-plans.celenium.io" target="_blank">
-				<Flex v-if="!hideCeleniumAPIBlock" direction="column" gap="12" :class="$style.ad">
-					<Flex direction="column" gap="8">
-						<Flex align="center" gap="6">
-							<Icon name="slash" size="14" color="brand" />
-							<Text size="13" weight="600" color="primary">Build with Celenium API</Text>
-						</Flex>
-
-						<Text size="13" weight="600" color="tertiary" height="140">
-							Unlock the power of Celestia: Scalable, Secure and Modular Blockchain.
-						</Text>
-					</Flex>
-
-					<Text size="13" weight="600" color="brand">Get started -></Text>
-				</Flex>
-			</NuxtLink>
 		</Flex>
 	</Flex>
 </template>
@@ -719,6 +729,10 @@ useHead({
 <style module>
 .wrapper {
 	padding: 20px 24px 60px 24px;
+}
+
+.breadcrumbs {
+	margin-bottom: 16px;
 }
 
 .left {

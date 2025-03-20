@@ -1,7 +1,6 @@
 <script setup>
 /** Vendor */
 import * as d3 from "d3"
-import { DateTime } from "luxon"
 
 /** Services */
 import { abbreviate, formatBytes } from "@/services/utils"
@@ -9,6 +8,7 @@ import { abbreviate, formatBytes } from "@/services/utils"
 /** API */
 import { fetchRollups } from "@/services/api/rollup.js"
 
+const emit = defineEmits(["clearFilters"])
 const props = defineProps({
 	data: {
 		type: Array,
@@ -344,7 +344,11 @@ onMounted(async () => {
         rollups.value = prepareRollupsData(props.data)
     }
 
-	buildChart(chartEl.value.wrapper, rollups.value)
+    if (rollups.value?.length) {
+        nextTick(() => {
+            buildChart(chartEl.value.wrapper, rollups.value)
+        })
+    }
 })
 
 watch(
@@ -352,7 +356,11 @@ watch(
 	() => {
         rollups.value = prepareRollupsData(props.data)
 
-        buildChart(chartEl.value.wrapper, rollups.value)
+        if (rollups.value.length) {
+            nextTick(() => {
+                buildChart(chartEl.value.wrapper, rollups.value)
+            })
+        }
 	}
 )
 
@@ -399,7 +407,13 @@ watch(
             </div>
         </Transition>
         
-        <Flex ref="chartEl" :class="$style.chart" />
+        <Flex v-if="rollups?.length" ref="chartEl" :class="$style.chart" />
+        <Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+            <Text size="13" weight="600" color="secondary" align="center"> No rollups to display </Text>
+            <Text size="12" weight="500" height="160" color="tertiary" align="center">
+                Try to change the filters or <Text @click="emit('clearFilters')" size="12" color="secondary" :style="{cursor: 'pointer', textDecoration: 'underline'}">clear</Text> them
+            </Text>
+        </Flex>
     </Flex>
 </template>
 
@@ -449,6 +463,13 @@ watch(
 		height: 1px;
 		background: var(--op-5);
 	}
+}
+
+.empty {
+    width: 992px;
+    height: 400px;
+
+    margin-top: 24px;
 }
 
 @media (max-width: 1050px) {

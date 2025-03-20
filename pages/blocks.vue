@@ -8,7 +8,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { tia, comma, space, formatBytes } from "@/services/utils"
+import { comma, space, formatBytes } from "@/services/utils"
 
 /** API */
 import { fetchBlocks, fetchBlocksCount } from "@/services/api/block"

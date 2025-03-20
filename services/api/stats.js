@@ -1,7 +1,7 @@
 /** Services */
-import { tvlServiceURL, useServerURL } from "@/services/config"
+import { nodeStatsURL, tvlServiceURL, useServerURL } from "@/services/config"
 
-export const fetch24hDiffs = async ({ name }) => {
+export const fetchGeneralStats = async ({ name }) => {
 	try {
 		const data = await $fetch(`${useServerURL()}/stats/${name}`)
 		return data
@@ -149,6 +149,20 @@ export const fetchNamespaceSeries = async ({ id, name, timeframe, from }) => {
 	}
 }
 
+export const fetchRollupsSeries = async ({ timeframe, from, to }) => {
+	try {
+		const url = new URL(`${useServerURL()}/rollup/stats/series/${timeframe}`)
+
+		if (from) url.searchParams.append("from", from)
+		if (to) url.searchParams.append("to", to)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchRollupSeries = async ({ id, name, timeframe, from, to }) => {
 	try {
 		const url = new URL(`${useServerURL()}/rollup/${id}/stats/${name}/${timeframe}`)
@@ -169,6 +183,20 @@ export const fetchSquareSize = async (from) => {
 
 		if (from) url.searchParams.append("from", from)
 			
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchNodeStats = async ({ name, from, to }) => {
+	try {
+		const url = new URL(`${nodeStatsURL}/stats/${name}`)
+
+		if (from) url.searchParams.append("from", from)
+		if (to) url.searchParams.append("to", to)
+
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
