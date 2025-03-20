@@ -251,34 +251,37 @@ const handleUpdateDate = async (event) => {
 		let from = event.from
 		let to = event.to
 
-		let daysDiff = Math.round(DateTime.fromSeconds(to).diff(DateTime.fromSeconds(from), "days").days)
-		if (series.value.name === "tvs") {
-			if (daysDiff < 50) {
-				filters.timeframe = "day"
-				filters.periodValue = daysDiff
-			} else {
-				filters.timeframe = "month"
-				filters.periodValue = Math.ceil(daysDiff / 30)
-			}
-		} else {
-			if (daysDiff < 7) {
-				filters.timeframe = "hour"
-				filters.periodValue = Math.round(DateTime.fromSeconds(to).diff(DateTime.fromSeconds(from), "hours").hours)
-			} else if (daysDiff > 7 && daysDiff < 50) {
-				filters.timeframe = "day"
-				filters.periodValue = daysDiff
-			} else {
-				filters.timeframe = "week"
-				filters.periodValue = Math.ceil(daysDiff / 7)
-			}
+		// Убедимся, что from всегда начало дня, а to - конец дня
+		from = DateTime.fromSeconds(from).startOf("day").toSeconds()
+		to = DateTime.fromSeconds(to).endOf("day").toSeconds()
+
+		// Добавляем проверку на изменение значений
+		if (filters.from === from && filters.to === to) {
+			isLoading.value = false
+			return
 		}
 
 		filters.from = from
 		filters.to = to
+
+		const daysDiff = Math.round(DateTime.fromSeconds(to).diff(DateTime.fromSeconds(from), "days").days)
+
+		const matchingPeriod = STATS_PERIODS.find((period) => {
+			if (period.timeframe === "day") {
+				return period.value === daysDiff
+			}
+			return false
+		})
+
+		selectedPeriod.value = matchingPeriod || {}
+
 		await getData()
 	} else if (event.clear) {
+		selectedPeriod.value = {}
 		await getData()
 	}
+
+	isLoading.value = false
 }
 
 const handleTimeframeUpdate = (tf) => {

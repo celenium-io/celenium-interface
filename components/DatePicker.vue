@@ -107,8 +107,7 @@ const days = computed(() => {
 	return resDays
 })
 
-
-console.log('@', props.period);
+console.log("@", props.period)
 const periods = ref(STATS_PERIODS)
 const selectedPeriod = ref(props.period.value ? props.period : {})
 const selectedRange = ref("")
@@ -214,7 +213,10 @@ const handleApply = () => {
 	} else {
 		endDate.value = endDate.value?.ts ? endDate.value?.endOf("day") : startDate.value?.endOf("day")
 
-		emit("onUpdate", { from: parseInt(startDate.value.ts / 1_000), to: parseInt(endDate.value.ts / 1_000) })
+		emit("onUpdate", {
+			from: parseInt(startDate.value.startOf("day").toSeconds()),
+			to: parseInt(endDate.value.endOf("day").toSeconds()),
+		})
 	}
 }
 
@@ -250,7 +252,17 @@ const handleYearChange = (v) => {
 watch(
 	() => props.from,
 	() => {
-		updateSelectedRange(DateTime.fromSeconds(parseInt(props.from)), DateTime.fromSeconds(parseInt(props.to)))
+		startDate.value = props.from ? DateTime.fromSeconds(parseInt(props.from)).startOf("day") : {}
+		endDate.value = props.to ? DateTime.fromSeconds(parseInt(props.to)).endOf("day") : {}
+		updateSelectedRange(startDate.value, endDate.value)
+	},
+)
+
+watch(
+	() => props.to,
+	() => {
+		endDate.value = props.to ? DateTime.fromSeconds(parseInt(props.to)).endOf("day") : {}
+		updateSelectedRange(startDate.value, endDate.value)
 	},
 )
 </script>

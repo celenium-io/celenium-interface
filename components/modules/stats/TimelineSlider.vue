@@ -1,5 +1,6 @@
 <script setup>
 import * as d3 from "d3"
+import { DateTime } from "luxon"
 
 const props = defineProps({
 	allData: {
@@ -467,11 +468,16 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			clip.attr("x", x0).attr("width", x1 - x0)
 			updateHandlePosition([x0, x1])
 
-			const [from, to] = [x0, x1].map(x.invert, x).map((d) => Math.floor(d?.getTime() / 1_000))
+			const [from, to] = [x0, x1].map(x.invert, x).map((d) => {
+				const date = DateTime.fromJSDate(d)
+				return Math.floor(date.startOf("day").toSeconds())
+			})
+
+			isInternalUpdate.value = true
+			emit("onUpdate", { from, to })
 			setTimeout(() => {
-				isInternalUpdate.value = true
-				emit("onUpdate", { from, to })
-			}, 300)
+				isInternalUpdate.value = false
+			}, 100)
 		}
 	}
 
