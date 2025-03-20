@@ -146,5 +146,9 @@ export const defaultEnums = {
 		"gaming",
 		"nft",
 		"social"
+	],
+	rollup_type: [
+		"sovereign",
+		"settled"
 	]
 }

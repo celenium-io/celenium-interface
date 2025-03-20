@@ -200,10 +200,10 @@ onMounted(async () => {
 	switch (activeSection.value) {
 		case 'overview':
 			await getRollups()
-			// filterRollups()
 
 			break
 		case 'daily_stats':
+			await getRollups()
 			await getRollupsDailyStats()
 
 			break

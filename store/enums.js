@@ -11,6 +11,7 @@ export const useEnumStore = defineStore("enums", () => {
 	const enums = ref({
 		messageTypes: defaultEnums.message_type,
 		rollupCategories: defaultEnums.categories,
+		rollupTypes: defaultEnums.rollup_type,
 	})
 
 	const init = async () => {
