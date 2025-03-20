@@ -447,7 +447,7 @@ onBeforeMount(() => {
 		<LineChart v-else-if="chartView === 'line'" :series="series" />
 		<BarChart v-else-if="chartView === 'bar'" :series="series" />
 
-		<TimelineSlider :allData="allData" :chartView="chartView" :from="filters.from" :to="filters.to" @onUpdate="handleTimelineUpdate" />
+		<TimelineSlider v-if="series.name !== 'square_size'" :allData="allData" :chartView="chartView" :from="filters.from" :to="filters.to" @onUpdate="handleTimelineUpdate" />
 	</Flex>
 </template>
 
