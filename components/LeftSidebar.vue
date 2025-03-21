@@ -51,17 +51,17 @@ const mainLinks = reactive([
 			{
 				name: "Active",
 				path: "/validators?status=active&page=1",
-				queryParam: {status: "active"},
+				queryParam: { status: "active" },
 			},
 			{
 				name: "Jailed",
 				path: "/validators?status=jailed&page=1",
-				queryParam: {status: "jailed"},
+				queryParam: { status: "jailed" },
 			},
 			{
 				name: "Inactive",
 				path: "/validators?status=inactive&page=1",
-				queryParam: {status: "inactive"},
+				queryParam: { status: "inactive" },
 			},
 		],
 	},
@@ -73,17 +73,17 @@ const mainLinks = reactive([
 			{
 				name: "General",
 				path: "/stats?tab=general",
-				queryParam: {tab: "general"},
+				queryParam: { tab: "general" },
 			},
 			{
 				name: "Blocks",
 				path: "/stats?tab=blocks",
-				queryParam: {tab: "blocks"},
+				queryParam: { tab: "blocks" },
 			},
 			{
 				name: "Rollups",
 				path: "/stats?tab=rollups",
-				queryParam: {tab: "rollups"},
+				queryParam: { tab: "rollups" },
 			},
 		],
 	},
@@ -290,6 +290,7 @@ const handleNavigate = (url) => {
 					<DropdownItem @click="handleNavigate('https://celenium.io')">Mainnet</DropdownItem>
 					<DropdownItem @click="handleNavigate('https://mocha-4.celenium.io')">Mocha-4</DropdownItem>
 					<DropdownItem @click="handleNavigate('https://arabica.celenium.io')">Arabica</DropdownItem>
+					<DropdownItem @click="handleNavigate('https://mammoth.celenium.io')">Mammoth</DropdownItem>
 				</template>
 			</Dropdown>
 		</Flex>
