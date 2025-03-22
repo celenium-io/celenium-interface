@@ -42,16 +42,16 @@ if (!series.value.page) {
 }
 
 const metricName = computed(() => {
-	if (series.value.page === "tvs") return series.value.title
+	if (series.value?.page === "tvs") return series.value.title
 	return capitalizeAndReplaceUnderscore(series.value?.page)
 })
 
-// defineOgImage({
-// 	title: "Rollup",
-// 	rollup: rollup.value,
-// 	component: "RollupImage",
-// 	cacheKey: `${rollup.value?.name}`,
-// })
+defineOgImage({
+	title: "Statistics",
+	series: series.value,
+	component: "StatsMetricImage",
+	cacheKey: `${series.value?.page}`,
+})
 
 useHead({
 	title: `Celestia ${metricName.value} Statistics - Celestia Explorer`,
