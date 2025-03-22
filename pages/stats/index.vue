@@ -34,7 +34,7 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io/stats`,
+			content: "https://celenium.io/stats",
 		},
 		{
 			property: "og:image",

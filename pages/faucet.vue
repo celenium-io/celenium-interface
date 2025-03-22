@@ -26,13 +26,13 @@ useHead({
 	link: [
 		{
 			rel: "canonical",
-			href: `https://celenium.io${route.path}`,
+			href: "https://celenium.io/faucet",
 		},
 	],
 	meta: [
 		{
 			name: "description",
-			content: `Get free testnet TIA for the Celestia Mocha Testnet using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!`,
+			content: "Get free testnet TIA for the Celestia Mocha Testnet using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!",
 		},
 		{
 			property: "og:title",
@@ -40,15 +40,15 @@ useHead({
 		},
 		{
 			property: "og:description",
-			content: `Get free testnet TIA for the Celestia Mocha Testnet using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!`,
+			content: "Get free testnet TIA for the Celestia Mocha Testnet using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!",
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io${route.path}`,
+			content: "https://celenium.io/faucet",
 		},
 		{
 			property: "og:image",
-			content: `https://celenium.io${route.path}__og_image__/og.png`,
+			content: "/img/seo/faucet.png",
 		},
 		{
 			name: "twitter:title",
@@ -56,11 +56,15 @@ useHead({
 		},
 		{
 			name: "twitter:description",
-			content: `Get free testnet TIA for the Celestia Mocha Testnet using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!`,
+			content: "Get free testnet TIA for the Celestia Mocha Testnet using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!",
 		},
 		{
 			name: "twitter:card",
 			content: "summary_large_image",
+		},
+		{
+			name: "twitter:image",
+			content: "https://celenium.io/img/seo/faucet.png",
 		},
 	],
 })
