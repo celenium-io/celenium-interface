@@ -20,7 +20,7 @@ const bgStyles = computed(() => {
 </script>
 
 <template>
-	<div class="w-full h-full" :style="{ padding: '80px 130px', fontFamily: 'IBM+Plex+Mono' }">
+	<div class="w-full h-full" :style="{ padding: '80px 140px', fontFamily: 'IBM+Plex+Mono' }">
 		<img src="/img/stats_bg.png" v-bind="bgStyles" />
 
 		<div :style="{ height: '100%', display: 'flex', flexDirection: 'column', gap: '80px' }">
