@@ -14,8 +14,6 @@ const bgStyles = computed(() => {
 			position: "absolute",
 			top: "0",
 			left: "0",
-			filter: "grayscale(1)",
-			opacity: "0.05",
 		},
 	}
 })
