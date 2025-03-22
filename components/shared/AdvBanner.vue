@@ -17,11 +17,15 @@ const props = defineProps({
 	},
 })
 
+const router = useRouter()
+
 const adv = ref({})
 const isDisplayed = ref(true)
 
 const handleClick = () => {
-	if (adv.value.link) {
+	if (adv.value.internalLink) {
+		router.push(adv.value.internalLink)
+	} else if (adv.value.link) {
 		window.open(adv.value.link, '_blank')
 	} else if (adv.value.modal) {
 		modalsStore.open(adv.value.modal)

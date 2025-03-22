@@ -10,7 +10,6 @@ import Button from "@/components/ui/Button.vue"
 
 /** API */
 import { search } from "@/services/api/search"
-import { fetchAddressByHash } from "@/services/api/address"
 
 /** Services */
 import amp from "@/services/amp"

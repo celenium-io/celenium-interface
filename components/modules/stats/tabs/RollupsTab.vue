@@ -17,7 +17,7 @@ import Popover from "@/components/ui/Popover.vue"
 import { getSeriesByGroupAndType } from "@/services/constants/stats.js"
 
 /** Services */
-import { capitilize, capitalizeAndReplaceUnderscore } from "@/services/utils"
+import { capitilize, capitalizeAndReplaceUnderscore, isMainnet } from "@/services/utils"
 
 /** API */
 import { fetchRollups, fetchRollupsDailyStats } from "@/services/api/rollup.js"
@@ -266,7 +266,7 @@ watch(
 				</Flex>
 			</template>
 
-			<template v-if="!isLoading">
+			<template v-if="!isLoading && isMainnet()">
 				<Flex align="center" justify="between" wide :class="$style.segment">
 					<Text size="16" weight="600" color="primary" justify="start">Economics</Text>
 				</Flex>

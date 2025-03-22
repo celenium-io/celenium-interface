@@ -280,7 +280,7 @@ onMounted(() => {
 									<NuxtLink :to="`/validator/${v.id}`">
 										<Flex align="center" gap="6">
 											<Text size="13" weight="600" color="primary" mono>
-												{{ v.moniker ? v.moniker : splitAddress(v.address) }}
+												{{ v.moniker ? v.moniker : splitAddress(v.address?.hash) }}
 											</Text>
 										</Flex>
 									</NuxtLink>

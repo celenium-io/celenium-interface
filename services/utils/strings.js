@@ -10,8 +10,10 @@ export const capitilize = (s) => {
 }
 
 export function capitalizeAndReplaceUnderscore(s) {
-    let words = s.split('_');
-    let capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
+    if (!s) return ''
+
+    let words = s.split('_')
+    let capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     
-    return capitalizedWords.join(' ');
+    return capitalizedWords.join(' ')
 }

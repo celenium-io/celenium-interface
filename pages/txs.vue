@@ -30,7 +30,7 @@ useHead({
 	link: [
 		{
 			rel: "canonical",
-			href: "https://celenium.io/transactions",
+			href: "https://celenium.io/txs",
 		},
 	],
 	meta: [
@@ -48,7 +48,7 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io/transactions`,
+			content: `https://celenium.io/txs`,
 		},
 		{
 			property: "og:image",
