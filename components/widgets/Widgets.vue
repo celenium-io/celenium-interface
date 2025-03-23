@@ -21,10 +21,10 @@ onBeforeMount(() => {
 </script>
 
 <template>
-	<Flex direction="column" gap="20" :class="$style.wrapper">
+	<Flex direction="column" gap="20">
 		<BlocksFeed v-if="getNetworkName() === 'Mammoth'" />
 
-		<Flex gap="20">
+		<Flex gap="20" :class="$style.wrapper">
 			<Flex direction="column" gap="20" wide :class="$style.column">
 				<BlockWidget />
 				<BlobsWidget />
