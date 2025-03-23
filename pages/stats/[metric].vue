@@ -46,12 +46,12 @@ const metricName = computed(() => {
 	return capitalizeAndReplaceUnderscore(series.value?.page)
 })
 
-// defineOgImage({
-// 	title: "Rollup",
-// 	rollup: rollup.value,
-// 	component: "RollupImage",
-// 	cacheKey: `${rollup.value?.name}`,
-// })
+defineOgImage({
+	title: "Statistics",
+	series: series.value,
+	component: "StatsMetricImage",
+	cacheKey: `${series.value?.page}`,
+})
 
 useHead({
 	title: `Celestia ${metricName.value} Statistics - Celestia Explorer`,
