@@ -21,8 +21,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(["onUpdate"])
-const margin = { top: 14, right: 12, bottom: 4, left: 12 }
-const height = 75
+const margin = { top: 54, right: 12, bottom: 4, left: 12 }
+const height = 115
 const axisBottomHeight = 20
 
 const chartEl = ref()
@@ -61,7 +61,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	const y = d3
 		.scaleLinear()
 		.domain([0, d3.max(data, (d) => +d.value)])
-		.range([height - 4 - axisBottomHeight, margin.bottom + 10])
+		.range([height - 4 - axisBottomHeight, margin.top + 10])
 
 	const svg = d3
 		.select(chart)
@@ -144,19 +144,6 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			.join("path")
 			.attr("d", (d) => {
 				const barX = width - xBand(new Date(d.time).toISOString()) - xBand.bandwidth()
-				const barWidth = xBand.bandwidth()
-
-				return `
-					M ${barX},${height - axisBottomHeight}
-					L ${barX},${height - axisBottomHeight}
-					L ${barX + barWidth},${height - axisBottomHeight} 
-					L ${barX + barWidth},${height - axisBottomHeight}
-				`
-			})
-			.transition()
-			.duration(1000)
-			.attr("d", (d) => {
-				const barX = width - xBand(new Date(d.time).toISOString()) - xBand.bandwidth()
 				const barY = y(d.value)
 				const barWidth = xBand.bandwidth()
 				const barHeight = height - y(d.value) - axisBottomHeight
@@ -183,7 +170,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			.selectAll("path")
 			.data(data)
 			.join("path")
-			.attr("class", "bar highlighted")
+			.attr("class", "bar highlighted test")
 			.attr("fill", "var(--mint)")
 			.attr("d", (d) => {
 				const barX = width - xBand(new Date(d.time).toISOString()) - xBand.bandwidth()
@@ -223,7 +210,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	}
 
 	brush = d3.brushX().extent([
-		[margin.left, margin.top - 4],
+		[margin.left, margin.top - 5],
 		[width - margin.right, height - axisBottomHeight],
 	])
 
@@ -234,8 +221,6 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	gb.selectAll(".handle").remove()
 
 	gb.select(".overlay").on("mousedown.brush", function () {
-		leftTooltip.transition().duration(200).style("opacity", 1)
-		rightTooltip.transition().duration(200).style("opacity", 1)
 		brush.on("brush", brushed)
 	})
 
@@ -283,8 +268,8 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 	leftHandle
 		.append("rect")
-		.attr("y", 20)
-		.attr("x", margin.top - 16.5)
+		.attr("y", margin.top + 5)
+		.attr("x", margin.top - 56.5)
 		.attr("height", 25)
 		.attr("width", 5)
 		.attr("ry", 2)
@@ -292,7 +277,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 	leftHandle
 		.append("g")
-		.attr("transform", `translate(${margin.top - 15}, 25)`)
+		.attr("transform", `translate(${margin.top - 55}, ${margin.top + 10})`)
 		.selectAll("circle")
 		.data([0, 1, 2])
 		.join("circle")
@@ -310,8 +295,8 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 	rightHandle
 		.append("rect")
-		.attr("y", 20)
-		.attr("x", margin.top - 11.5)
+		.attr("y", margin.top + 5)
+		.attr("x", margin.top - 51.5)
 		.attr("height", 25)
 		.attr("width", 5)
 		.attr("ry", 2)
@@ -319,7 +304,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 	rightHandle
 		.append("g")
-		.attr("transform", `translate(${margin.top - 10}, 25)`)
+		.attr("transform", `translate(${margin.top - 50}, ${margin.top + 10})`)
 		.selectAll("circle")
 		.data([0, 1, 2])
 		.join("circle")
@@ -328,66 +313,51 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.attr("r", 1)
 		.attr("fill", "var(--op-50)")
 
-	const leftTooltip = leftHandle.append("g").attr("class", "tooltip").style("opacity", 0).style("pointer-events", "none")
+	const tooltip = handle.append("g").attr("class", "tooltip").style("opacity", 0).style("pointer-events", "none")
 
-	leftTooltip
+	tooltip
 		.append("rect")
 		.attr("rx", 3)
 		.attr("ry", 3)
 		.attr("fill", "var(--bg-primary)")
 		.attr("stroke", "var(--op-10)")
 		.attr("stroke-width", 1)
-		.attr("y", 0)
-		.attr("height", 22)
+		.attr("y", margin.top - 45)
+		.attr("height", 24)
 
-	leftTooltip.append("text").attr("fill", "var(--txt-primary)").attr("y", 44).style("font-size", "12px")
-
-	const rightTooltip = rightHandle.append("g").attr("class", "tooltip").style("opacity", 0).style("pointer-events", "none")
-
-	rightTooltip
-		.append("rect")
-		.attr("rx", 3)
-		.attr("ry", 3)
-		.attr("fill", "var(--bg-primary)")
-		.attr("stroke", "var(--op-10)")
-		.attr("stroke-width", 1)
-		.attr("y", 30)
-		.attr("height", 22)
-
-	rightTooltip.append("text").attr("fill", "var(--txt-primary)").attr("y", 44).style("font-size", "12px")
+	tooltip
+		.append("text")
+		.attr("fill", "var(--txt-primary)")
+		.attr("y", margin.top - 33)
+		.attr("text-anchor", "middle")
+		.attr("dominant-baseline", "middle")
+		.style("font-size", "12px")
 
 	handle
 		.on("mouseenter", function () {
-			leftTooltip.transition().duration(200).style("opacity", 1)
-			rightTooltip.transition().duration(200).style("opacity", 1)
+			tooltip.transition().duration(200).style("opacity", 1)
 		})
 		.on("mouseleave", function () {
-			leftTooltip.transition().duration(200).style("opacity", 0)
-			rightTooltip.transition().duration(200).style("opacity", 0)
+			tooltip.transition().duration(200).style("opacity", 0)
 		})
 		.on("mousedown", function () {
-			leftTooltip.transition().duration(200).style("opacity", 1)
-			rightTooltip.transition().duration(200).style("opacity", 1)
+			tooltip.transition().duration(200).style("opacity", 1)
 		})
 
-		leftHandle
+	leftHandle
 		.on("mouseenter", function () {
-			leftTooltip.transition().duration(200).style("opacity", 1)
-			rightTooltip.transition().duration(200).style("opacity", 1)
+			tooltip.transition().duration(200).style("opacity", 1)
 		})
 		.on("mouseleave", function () {
-			leftTooltip.transition().duration(200).style("opacity", 0)
-			rightTooltip.transition().duration(200).style("opacity", 0)
+			tooltip.transition().duration(200).style("opacity", 0)
 		})
 
 	rightHandle
 		.on("mouseenter", function () {
-			leftTooltip.transition().duration(200).style("opacity", 1)
-			rightTooltip.transition().duration(200).style("opacity", 1)
+			tooltip.transition().duration(200).style("opacity", 1)
 		})
 		.on("mouseleave", function () {
-			leftTooltip.transition().duration(200).style("opacity", 0)
-			rightTooltip.transition().duration(200).style("opacity", 0)
+			tooltip.transition().duration(200).style("opacity", 0)
 		})
 
 	function snapToBar(position, isLeft = false) {
@@ -514,37 +484,47 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 				const leftDate = formatTooltipDate(x.invert(x0))
 				const rightDate = formatTooltipDate(x.invert(x1))
+				const tooltipText = `${leftDate} - ${rightDate}`
 
-				leftTooltip.select("text").text(leftDate).attr("text-anchor", "start").attr("y", 32).attr("dominant-baseline", "middle")
+				tooltip
+					.select("text")
+					.text(tooltipText)
+					.attr("x", handleWidth / 2)
 
-				rightTooltip.select("text").text(rightDate).attr("text-anchor", "start").attr("y", 32).attr("dominant-baseline", "middle")
-
-				const leftTextWidth = leftTooltip.select("text").node().getBBox().width
-				const rightTextWidth = rightTooltip.select("text").node().getBBox().width
+				const textWidth = tooltip.select("text").node().getBBox().width
 				const padding = 8
-				const leftPadding = 24
+				const tooltipWidth = textWidth + padding * 2
 
-				const leftTooltipX = x0 < leftTextWidth + padding * 2 ? padding : -leftTextWidth - leftPadding
+				// Проверяем, выходит ли тултип за пределы графика
+				const handleCenterX = handleX + handleWidth / 2
+				const tooltipHalfWidth = tooltipWidth / 2
 
-				const rightTooltipX = x1 + rightTextWidth + padding * 2 > width ? -rightTextWidth - leftPadding : padding
+				let tooltipX = (handleWidth - tooltipWidth) / 2 // центральное положение по умолчанию
 
-				leftTooltip
-					.select("rect")
-					.attr("width", leftTextWidth + padding * 2)
-					.attr("x", leftTooltipX)
-					.attr("y", 20)
-					.attr("height", 24)
+				// Проверяем левый край
+				if (handleCenterX - tooltipHalfWidth < margin.left) {
+					tooltipX = -handleX + margin.left
+					tooltip
+						.select("text")
+						.attr("x", handleX - margin.left + tooltipHalfWidth)
+						.attr("text-anchor", "middle")
+				}
+				// Проверяем правый край
+				else if (handleCenterX + tooltipHalfWidth > width - margin.right) {
+					tooltipX = width - margin.right - handleX - tooltipWidth
+					tooltip
+						.select("text")
+						.attr("x", width - margin.right - handleX - tooltipHalfWidth)
+						.attr("text-anchor", "middle")
+				} else {
+					// Возвращаем к центральному положению
+					tooltip
+						.select("text")
+						.attr("x", handleWidth / 2)
+						.attr("text-anchor", "middle")
+				}
 
-				rightTooltip
-					.select("rect")
-					.attr("width", rightTextWidth + padding * 2)
-					.attr("x", rightTooltipX)
-					.attr("y", 20)
-					.attr("height", 24)
-
-				leftTooltip.select("text").attr("x", leftTooltipX + padding)
-
-				rightTooltip.select("text").attr("x", rightTooltipX + padding)
+				tooltip.select("rect").attr("width", tooltipWidth).attr("x", tooltipX)
 			}
 		}
 	}
@@ -581,8 +561,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			}
 
 			if (!isNaN(x0) && !isNaN(x1)) {
-				leftTooltip.style("opacity", 1)
-				rightTooltip.style("opacity", 1)
+				tooltip.style("opacity", 1)
 
 				clip.attr("x", x0).attr("width", x1 - x0)
 				updateHandlePosition([x0, x1])
@@ -621,20 +600,17 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	brush.on("brush", brushed).on("end", brushended)
 
 	d3.select("body").on("mouseup.brush", function () {
-		leftTooltip.transition().duration(200).style("opacity", 0)
-		rightTooltip.transition().duration(200).style("opacity", 0)
+		tooltip.transition().duration(200).style("opacity", 0)
 	})
 
 	updateHandlePosition(defaultSelection)
 
 	gb.select(".selection")
 		.on("mouseenter", function () {
-			leftTooltip.transition().duration(200).style("opacity", 1)
-			rightTooltip.transition().duration(200).style("opacity", 1)
+			tooltip.transition().duration(200).style("opacity", 1)
 		})
 		.on("mouseleave", function () {
-			leftTooltip.transition().duration(200).style("opacity", 0)
-			rightTooltip.transition().duration(200).style("opacity", 0)
+			tooltip.transition().duration(200).style("opacity", 0)
 		})
 
 	return svg.node()
@@ -704,10 +680,10 @@ onUnmounted(() => {
 <style lang="scss" scoped module>
 .wrapper {
 	height: 100%;
-	padding: 16px;
+	padding: 0 16px 16px 16px;
 }
 .chart_wrapper {
-	height: 86px;
+	height: 126px;
 	position: relative;
 }
 

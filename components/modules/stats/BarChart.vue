@@ -176,6 +176,8 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 		.attr("y", (d) => y(d.value) - marginAxisX)
 		.attr("width", xBand.bandwidth())
 		.attr("height", 0)
+		.attr("rx", 2)
+		.attr("ry", 2)
 		.attr("fill", (d) => d.color)
 		.transition()
 		.duration(1_000)
