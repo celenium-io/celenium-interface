@@ -70,7 +70,7 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 					return `${truncateDecimalPart(value, 4)} UTIA`
 				}
 
-				return `${tia(value, 2)} TIA`
+				return `${abbreviate(tia(value, 2))} TIA`
 			case "seconds":
 				return `${truncateDecimalPart(value / 1_000, 3)}s`
 			case "usd":
@@ -176,8 +176,6 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 		.attr("y", (d) => y(d.value) - marginAxisX)
 		.attr("width", xBand.bandwidth())
 		.attr("height", 0)
-		.attr("rx", 2)
-		.attr("ry", 2)
 		.attr("fill", (d) => d.color)
 		.transition()
 		.duration(1_000)

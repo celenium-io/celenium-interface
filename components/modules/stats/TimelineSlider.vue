@@ -142,26 +142,15 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			.selectAll("path")
 			.data(data)
 			.join("path")
+			.transition()
+			.duration(1000)
 			.attr("d", (d) => {
 				const barX = width - xBand(new Date(d.time).toISOString()) - xBand.bandwidth()
 				const barY = y(d.value)
 				const barWidth = xBand.bandwidth()
 				const barHeight = height - y(d.value) - axisBottomHeight
-				const radius = Math.min(2, barWidth / 2, barHeight / 2)
 
-				if (barHeight < 1) {
-					return `M ${barX},${height - axisBottomHeight} h ${barWidth}`
-				}
-
-				return `
-					M ${barX},${barY + barHeight}
-					L ${barX},${barY + radius}
-					Q ${barX},${barY} ${barX + radius},${barY}
-					L ${barX + barWidth - radius},${barY}
-					Q ${barX + barWidth},${barY} ${barX + barWidth},${barY + radius}
-					L ${barX + barWidth},${barY + barHeight}
-					Z
-				`
+				return roundedRect(barX, barY, barWidth, barHeight, [2, 2, 0, 0])
 			})
 
 		const highlightedBars = svg
@@ -170,19 +159,8 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			.selectAll("path")
 			.data(data)
 			.join("path")
-			.attr("class", "bar highlighted test")
+			.attr("class", "bar highlighted")
 			.attr("fill", "var(--mint)")
-			.attr("d", (d) => {
-				const barX = width - xBand(new Date(d.time).toISOString()) - xBand.bandwidth()
-				const barWidth = xBand.bandwidth()
-
-				return `
-					M ${barX},${height - axisBottomHeight}
-					L ${barX},${height - axisBottomHeight}
-					L ${barX + barWidth},${height - axisBottomHeight}
-					L ${barX + barWidth},${height - axisBottomHeight}
-				`
-			})
 			.attr("clip-path", "url(#clip)")
 			.transition()
 			.duration(1000)
@@ -191,21 +169,8 @@ const buildTimelineSlider = (chart, data, chartView) => {
 				const barY = y(d.value)
 				const barWidth = xBand.bandwidth()
 				const barHeight = height - y(d.value) - axisBottomHeight
-				const radius = Math.min(2, barWidth / 2, barHeight / 2)
 
-				if (barHeight < 1) {
-					return `M ${barX},${height - axisBottomHeight} h ${barWidth}`
-				}
-
-				return `
-					M ${barX},${barY + barHeight}
-					L ${barX},${barY + radius}
-					Q ${barX},${barY} ${barX + radius},${barY}
-					L ${barX + barWidth - radius},${barY}
-					Q ${barX + barWidth},${barY} ${barX + barWidth},${barY + radius}
-					L ${barX + barWidth},${barY + barHeight}
-					Z
-				`
+				return roundedRect(barX, barY, barWidth, barHeight, [2, 2, 0, 0])
 			})
 	}
 
@@ -403,11 +368,9 @@ const buildTimelineSlider = (chart, data, chartView) => {
 				const step = xBand.step()
 				const [currentX] = d3.pointer(event)
 
-				// Вычисляем смещение относительно начальной позиции
 				const totalDelta = currentX - this._initialX
 				const barWidth = xBand.bandwidth()
 
-				// Определяем количество шагов для перемещения
 				const stepsToMove = Math.floor(Math.abs(totalDelta) / (barWidth * 0.1))
 
 				if (stepsToMove > 0) {
@@ -482,7 +445,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 				const handleCenterX = handleX + handleWidth / 2
 				const tooltipHalfWidth = tooltipWidth / 2
 
-				let tooltipX = (handleWidth - tooltipWidth) / 2 // центральное положение по умолчанию
+				let tooltipX = (handleWidth - tooltipWidth) / 2
 
 				if (handleCenterX - tooltipHalfWidth < margin.left) {
 					tooltipX = -handleX + margin.left
@@ -646,6 +609,24 @@ onMounted(() => {
 onUnmounted(() => {
 	clearChart()
 })
+
+function roundedRect(x, y, width, height, radius) {
+	if (height < 1) return `M${x},${y} h${width}`
+
+	const [tl, tr, br, bl] = Array.isArray(radius) ? radius : [radius, radius, radius, radius]
+
+	return `
+		M${x + tl},${y}
+		h${width - tl - tr}
+		q${tr},0 ${tr},${tr}
+		v${height - tr - br}
+		q0,${br} ${-br},${br}
+		h${-(width - br - bl)}
+		q${-bl},0 ${-bl},${-bl}
+		v${-(height - bl - tl)}
+		q0,${-tl} ${tl},${-tl}
+	`
+}
 </script>
 
 <template>
