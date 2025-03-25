@@ -52,6 +52,8 @@ const maxSize = computed(() => Math.max(...blocks.value?.map((b) => b.stats.byte
 const avgBlockTime = ref(0)
 
 const calculateHeight = (size) => {
+	if (!size) return 2
+	
 	return Math.max((size / maxSize.value) * 100, 1)
 }
 
@@ -94,7 +96,7 @@ onBeforeUnmount(() => {
 						:class="[$style.bar, b.stats.blobs_count && $style.bar_blob]"
 						:style="{
 							width: `${barWidth}px`,
-							height: `${calculateHeight(b.stats.bytes_in_block)}%`,
+							height: `${calculateHeight(b.stats?.bytes_in_block)}%`,
 							marginLeft: index !== 0 ? `${marginBar}px` : '0px',
 							animationDelay: `${index * 15}ms`,
 						}"
