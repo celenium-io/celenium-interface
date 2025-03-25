@@ -3,13 +3,14 @@
 import { executeFaucet, faucetAddress, fetchBalance } from "@/services/api/faucet"
 
 /** Services */
-import { splitAddress, tia } from "@/services/utils"
+import { capitilize, comma, splitAddress, tia } from "@/services/utils"
 import { Server, useServerURL } from "@/services/config"
 
 /** UI */
+import Button from "@/components/ui/Button.vue"
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Input from "@/components/ui/Input.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
-import Button from "@/components/ui/Button.vue"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -32,7 +33,7 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: "Get free testnet TIA for the Celestia Mocha Testnet using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!",
+			content: "Get free testnet TIA for the Celestia Testnets using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!",
 		},
 		{
 			property: "og:title",
@@ -40,7 +41,7 @@ useHead({
 		},
 		{
 			property: "og:description",
-			content: "Get free testnet TIA for the Celestia Mocha Testnet using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!",
+			content: "Get free testnet TIA for the Celestia Testnets using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!",
 		},
 		{
 			property: "og:url",
@@ -56,7 +57,7 @@ useHead({
 		},
 		{
 			name: "twitter:description",
-			content: "Get free testnet TIA for the Celestia Mocha Testnet using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!",
+			content: "Get free testnet TIA for the Celestia Testnets using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!",
 		},
 		{
 			name: "twitter:card",
@@ -72,9 +73,12 @@ useHead({
 const isLoading = ref(false)
 const address = ref("")
 const account = ref()
+const network = ref("mocha")
+
 const fetchAccount = async() => {
 	try {
-		const url = new URL(`${Server.API.mocha}/address/${address.value}`)
+		account.value = null
+		const url = new URL(`${Server.API[network.value]}/address/${address.value}`)
 		const { data, error } = await useFetch(url.href)
 		if (error.value) {
 			fillValidation("error", "Invalid address")
@@ -110,7 +114,7 @@ const fillValidation = (type, title) => {
 
 const faucetBalance = ref(0)
 const refreshFaucetBalance = async () => {
-	const { data } = await fetchBalance()
+	const { data } = await fetchBalance(network.value)
 	faucetBalance.value = data.value || faucetBalance.value
 }
 
@@ -134,7 +138,7 @@ const handleExecute = async () => {
 	executionResult.value = {}
 
 	try {
-		const { data, error } = await executeFaucet(address.value)
+		const { data, error } = await executeFaucet(network.value, address.value)
 
 		if (error?.value?.data) {
 			fillExecutionResult("error",
@@ -158,26 +162,38 @@ const handleExecute = async () => {
 }
 
 const handleReturnTokensClick = () => {
-	if (useServerURL().includes('mocha')) {
+	if (
+		(useServerURL().includes("mocha") && network.value === "mocha")
+		|| (useServerURL().includes("arabica") && network.value === "arabica")
+	) {
 		cacheStore.current.address = { hash: faucetAddress }
 		modalsStore.open("send")
 	} else {
-		window.open(`https://mocha.celenium.io/address/${faucetAddress}`, "_blank")
+		window.open(`https://${network.value}.celenium.io/address/${faucetAddress}`, "_blank")
 	}
 }
+
+const handleChangeNetwork = () => {
+	if (network.value === 'mocha') {
+		network.value = 'arabica'
+	} else {
+		network.value = 'mocha'
+	}
+}
+
 const openedQuestion = ref(0)
 const handleOpenQuestion = (idx) => {
-	const elements = document.querySelectorAll('[class*=answer]')
+	const elements = document.querySelectorAll("[class*=answer]")
 	elements.forEach(el => {
 		el.style.height = "0px"
-		el.style.marginBottom = '0px'
+		el.style.marginBottom = "0px"
 	})
 
 	const element = document.getElementById(idx)
 	if (openedQuestion.value !== idx) {
 		openedQuestion.value = idx
 		element.style.height = `${element.scrollHeight}px`
-		element.style.marginBottom = '8px'
+		element.style.marginBottom = "8px"
 	} else {
 		openedQuestion.value = null
 	}
@@ -211,10 +227,17 @@ watch(
 		}, 500);
 	},
 )
+watch(
+	() => network.value,
+	async () => {
+		address.value = ""
+		await refreshFaucetBalance()
+	}
+)
 
 await refreshFaucetBalance()
 onMounted(() => {
-	if (useServerURL().includes('mocha') && appStore.address) {
+	if ((useServerURL().includes('mocha') || useServerURL().includes('arabica')) && appStore.address) {
 		address.value = appStore.address
 	}
 
@@ -242,47 +265,66 @@ onMounted(() => {
 			<Text size="14" weight="400" color="tertiary" style="line-height: 22px">
 				Faucet is only available for
 				<Text weight="600">Mocha</Text>
-				network.
+				and
+				<Text weight="600">Arabica</Text>
+				networks.
 			</Text>
 		</Flex>
 
 		<Flex direction="column" justify="between" gap="24" wide :style="{maxWidth: '650px', marginTop: '24px'}">
-			<Flex direction="column" gap="48" wide :style="{maxWidth: '100%'}">
-				<Flex align="center" gap="6" wide>
-					<Input
-						v-model="address"
-						label="Address"
-						placeholder="celestia16etnwjxg6dsjuavjpr9tk822czfeylfm9f7x5g"
-						ref="inputEl"
-						:class="$style.input"
-					>
-						<template #rightText>
-							<Tooltip v-if="validation.title" side="top">
-								<Icon
-									:name="validation.type === 'warning' ? 'danger' : 'close-circle'"
-									:color="validation.type === 'warning' ? 'yellow' : 'red'"
-									size="12"
-								/>
+			<Flex direction="column" gap="48" wide>
+				<Flex direction="column" gap="16" wide>
+					<Flex align="center" justify="start" gap="16" wide>
+						<Text align="center" size="12" color="secondary" weight="600">Network</Text>
+						<Flex
+							@click="handleChangeNetwork"
+							align="center"
+							gap="12"
+							:class="$style.network_selector"
+							:style="{
+								background: `linear-gradient(to ${network === 'mocha' ? 'right' : 'left'}, var(--op-3) 50%, transparent 50%)`,
+							}"
+						>
+							<Text align="center" size="12" :color="network === 'mocha' ? 'primary' : 'tertiary'" weight="600">Mocha</Text>
+							<Text align="center" size="12" :color="network === 'arabica' ? 'primary' : 'tertiary'">Arabica</Text>
+						</Flex>
+					</Flex>
+					<Flex align="center" gap="6" wide>
+						<Input
+							v-model="address"
+							label="Address"
+							placeholder="celestia16etnwjxg6dsjuavjpr9tk822czfeylfm9f7x5g"
+							ref="inputEl"
+							:class="$style.input"
+						>
+							<template #rightText>
+								<Tooltip v-if="validation.title" side="top">
+									<Icon
+										:name="validation.type === 'warning' ? 'danger' : 'close-circle'"
+										:color="validation.type === 'warning' ? 'yellow' : 'red'"
+										size="12"
+									/>
 
-								<template #content>
-									<Text size="12" weight="600" color="secondary"> {{ validation.title }} </Text>
-								</template>
-							</Tooltip>
+									<template #content>
+										<Text size="12" weight="600" color="secondary"> {{ validation.title }} </Text>
+									</template>
+								</Tooltip>
 
-							<Icon v-else-if="address" name="check-circle" size="12" color="green" />
-						</template>
-					</Input>
+								<Icon v-else-if="address && account?.hash" name="check-circle" size="12" color="green" />
+							</template>
+						</Input>
 
-					<Button
-						@click="handleExecute"
-						type="white"
-						size="small"
-						:class="$style.button"
-						:loading="isLoading"
-						:disabled="validation.type === 'error' || !address"
-					>
-						Recieve 0.5 TIA
-					</Button>
+						<Button
+							@click="handleExecute"
+							type="white"
+							size="small"
+							:class="$style.button"
+							:loading="isLoading"
+							:disabled="validation.type === 'error' || !address"
+						>
+							Recieve 0.5 TIA
+						</Button>
+					</Flex>
 				</Flex>
 				
 				<Flex direction="column" gap="4">
@@ -298,7 +340,7 @@ onMounted(() => {
 										</Text>
 
 										<Text size="13" weight="400" color="secondary">
-											{{ tia(faucetBalance, 2) }} TIA
+											{{ comma(tia(faucetBalance, 2)) }} TIA
 										</Text>
 									</Flex>
 
@@ -330,8 +372,8 @@ onMounted(() => {
 									</Flex>
 
 									<Text size="12" weight="500" color="tertiary">
-										{{ account?.hash
-											? splitAddress(account.hash)
+										{{ (account?.hash || (address && validation.type !== 'error'))
+											? splitAddress(account?.hash || address)
 											: 'celestia ••• celestia'
 										}}
 									</Text>
@@ -354,7 +396,7 @@ onMounted(() => {
 					</Flex>
 
 					<Flex v-if="executionResult?.status" align="center" justify="end" gap="6" wide :style="{padding: '0 8px', opacity: '0.7'}">
-						<a v-if="executionResult.status === 'success'" :href="`https://mocha.celenium.io/tx/${executionResult.message}`" target="_blank">
+						<a v-if="executionResult.status === 'success'" :href="`https://${network}.celenium.io/tx/${executionResult.message}`" target="_blank">
 							<Flex align="center" gap="4">
 								<Text size="12" color="green">View Tx</Text>
 								<Icon name="arrow-narrow-up-right" size="12" color="green" />
@@ -453,7 +495,7 @@ onMounted(() => {
 							<Text size="13" weight="500" color="tertiary" height="160">
 								If you haven't received your tokens:<br>
 								&nbsp;&nbsp;• Double-check that you entered <b>the correct Celestia address</b>.<br>
-								&nbsp;&nbsp;• Ensure you are using <b>the Mocha network</b>.<br>
+								&nbsp;&nbsp;• Ensure you are using <b>one of supported networks</b>.<br>
 								&nbsp;&nbsp;• If the issue persists, contact support.
 							</Text>
 						</Flex>
@@ -471,7 +513,7 @@ onMounted(() => {
 
 						<Flex id="5" :class="[$style.answer, openedQuestion === 5 && $style.answer_extended]">
 							<Text size="13" weight="500" color="tertiary" height="160">
-								No, testnet tokens are only for testing on the Celestia Mocha network. They cannot be transferred or used on the Celestia mainnet.
+								No, testnet tokens are only for testing on the Celestia testnets. They cannot be transferred or used on the Celestia mainnet.
 							</Text>
 						</Flex>
 
@@ -529,6 +571,30 @@ onMounted(() => {
 
 .breadcrumbs {
 	margin-bottom: 16px;
+}
+
+.network_selector {
+	padding: 8px 8px;
+	box-shadow: inset 0 0 0 1px var(--op-10);
+	border-radius: 5px;
+	cursor: pointer;
+	transition: all 1s ease-in-out;
+}
+
+.network_selector1 {
+	height: 32px;
+
+	cursor: pointer;
+	border-radius: 6px;
+	background: var(--op-5);
+
+	padding: 0 8px;
+
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: var(--op-8);
+	}
 }
 
 .input {
