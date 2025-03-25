@@ -189,12 +189,12 @@ export function getInsightsByGroup(group) {
 }
 
 export const STATS_PERIODS = [
-	{
-		title: 'Last 24 hours',
-		shortTitle: '24h',
-		value: 24,
-		timeframe: 'hour',
-	},
+	// {
+	// 	title: 'Last 24 hours',
+	// 	shortTitle: '24h',
+	// 	value: 24,
+	// 	timeframe: 'hour',
+	// },
 	{
 		title: 'Last 7 days',
 		shortTitle: '7d',
@@ -210,12 +210,6 @@ export const STATS_PERIODS = [
 ]
 
 export const STATS_TIMEFRAMES = [
-	{
-		title: '1 hour',
-		shortTitle: '1H',
-		interval: { hours: 1 },
-		timeframe: 'hour',
-	},
 	{
 		title: '1 day',
 		shortTitle: '1D',
