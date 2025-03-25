@@ -3,18 +3,20 @@ export const Server = {
 		mainnet: "https://api.celenium.io/v1",
 		mocha: "https://api-mocha-4.celenium.io/v1",
 		arabica: "https://api-arabica-11.celenium.io/v1",
+		mammoth: "https://api-mammoth.celenium.io/v1",
 		dev: "https://api-dev.celenium.io/v1",
 	},
 	WSS: {
 		mainnet: "wss://api.celenium.io/v1/ws",
 		mocha: "wss://api-mocha-4.celenium.io/v1/ws",
 		arabica: "wss://api-arabica-11.celenium.io/v1/ws",
+		mammoth: "wss://api-mammoth.celenium.io/v1/ws",
 		dev: "wss://api-dev.celenium.io/v1/ws",
 	},
 	BLOBSTREAM: {
 		mainnet: "https://api-blobstream.celenium.io/v1",
 		testnet: "https://api-blobstream-testnet.celenium.io/v1",
-	}
+	},
 }
 
 export const useServerURL = () => {
@@ -32,6 +34,9 @@ export const useServerURL = () => {
 
 		case "arabica.celenium.io":
 			return Server.API.arabica
+
+		case "mammoth.celenium.io":
+			return Server.API.mammoth
 
 		case "dev.celenium.io":
 			return Server.API.dev
@@ -57,6 +62,9 @@ export const useSocketURL = () => {
 		case "arabica.celenium.io":
 			return Server.WSS.arabica
 
+		case "mammoth.celenium.io":
+			return Server.WSS.mammoth
+
 		case "dev.celenium.io":
 			return Server.WSS.dev
 
@@ -76,6 +84,9 @@ export const useBlobstreamURL = () => {
 			return Server.BLOBSTREAM.testnet
 
 		case "arabica.celenium.io":
+			return Server.BLOBSTREAM.testnet
+
+		case "mammoth.celenium.io":
 			return Server.BLOBSTREAM.testnet
 
 		default:
@@ -98,6 +109,9 @@ export const getStartChainDate = () => {
 
 		case "arabica.celenium.io":
 			return "2024-01-02T12:18:46.936662Z"
+
+		case "mammoth.celenium.io":
+			return "2025-03-20T12:00:00.936662Z"
 
 		case "dev.celenium.io":
 			return "2024-01-02T12:18:46.936662Z"

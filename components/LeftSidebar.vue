@@ -51,17 +51,17 @@ const mainLinks = reactive([
 			{
 				name: "Active",
 				path: "/validators?status=active&page=1",
-				queryParam: {status: "active"},
+				queryParam: { status: "active" },
 			},
 			{
 				name: "Jailed",
 				path: "/validators?status=jailed&page=1",
-				queryParam: {status: "jailed"},
+				queryParam: { status: "jailed" },
 			},
 			{
 				name: "Inactive",
 				path: "/validators?status=inactive&page=1",
-				queryParam: {status: "inactive"},
+				queryParam: { status: "inactive" },
 			},
 		],
 	},
@@ -73,17 +73,17 @@ const mainLinks = reactive([
 			{
 				name: "General",
 				path: "/stats?tab=general",
-				queryParam: {tab: "general"},
+				queryParam: { tab: "general" },
 			},
 			{
 				name: "Blocks",
 				path: "/stats?tab=blocks",
-				queryParam: {tab: "blocks"},
+				queryParam: { tab: "blocks" },
 			},
 			{
 				name: "Rollups",
 				path: "/stats?tab=rollups",
-				queryParam: {tab: "rollups"},
+				queryParam: { tab: "rollups" },
 			},
 		],
 	},
@@ -277,10 +277,17 @@ const handleNavigate = (url) => {
 
 				<template #popup>
 					<DropdownTitle>
-						<Flex gap="8">
+						<Flex v-if="head.synced" gap="8">
 							<Icon name="check" size="12" color="brand" />
 							<Flex direction="column" gap="6">
-								<Text color="secondary">Head {{ head.synced ? "" : "not" }} Synced </Text>
+								<Text color="secondary">Head Synced </Text>
+								<Text color="tertiary">{{ head.chain_id }}</Text>
+							</Flex>
+						</Flex>
+						<Flex v-else gap="8">
+							<Icon name="close" size="12" color="red" />
+							<Flex direction="column" gap="6">
+								<Text color="secondary">Head not Synced </Text>
 								<Text color="tertiary">{{ head.chain_id }}</Text>
 							</Flex>
 						</Flex>
@@ -290,6 +297,7 @@ const handleNavigate = (url) => {
 					<DropdownItem @click="handleNavigate('https://celenium.io')">Mainnet</DropdownItem>
 					<DropdownItem @click="handleNavigate('https://mocha-4.celenium.io')">Mocha-4</DropdownItem>
 					<DropdownItem @click="handleNavigate('https://arabica.celenium.io')">Arabica</DropdownItem>
+					<!-- <DropdownItem @click="handleNavigate('https://mammoth.celenium.io')">Mammoth</DropdownItem> -->
 				</template>
 			</Dropdown>
 		</Flex>

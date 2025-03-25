@@ -2,11 +2,15 @@
 /** Components */
 import AdvBanner from "@/components/shared/AdvBanner.vue"
 
+/** Services */
+import { getNetworkName } from "@/services/utils/general"
 </script>
 
 <template>
 	<Flex direction="column">
 		<Flex justify="center" :class="$style.wrapper">
+			<img v-if="getNetworkName() === 'Mammoth'" src="/img/mammoth.jpeg" :class="$style.mammoth_bg" />
+
 			<LeftSidebar :class="$style.sidebar" />
 
 			<Flex direction="column" align="center" :class="$style.content">
@@ -28,7 +32,23 @@ import AdvBanner from "@/components/shared/AdvBanner.vue"
 
 <style module>
 .wrapper {
+	position: relative;
+
 	min-height: calc(100vh);
+}
+
+.mammoth_bg {
+	width: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+
+	z-index: -1;
+
+	filter: grayscale(0.5);
+	opacity: 0.3;
+	-webkit-mask-image: -webkit-gradient(linear, left 0%, left bottom, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
 }
 
 .content {
