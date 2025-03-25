@@ -1,5 +1,5 @@
 /** Services */
-import { tvlServiceURL, useServerURL } from "@/services/config"
+import { githubServiceURL, tvlServiceURL, useServerURL } from "@/services/config"
 
 export const fetchRollups = async ({ categories, type, limit, offset, sort, sort_by }) => {
 	try {
@@ -202,6 +202,33 @@ export const fetchRollupTVL = async ({ slug, period, from, to }) => {
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
 		
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchRollupGithubSummaryBySlug = async (slug) => {
+	try {
+		const url = new URL(`${githubServiceURL}/${slug}`)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchRollupGithubReposBySlug = async ({ slug, limit, offset, sort_by, sort }) => {
+	try {
+		const url = new URL(`${githubServiceURL}/${slug}/repos`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+		if (sort_by) url.searchParams.append("sort_by", sort_by)
+		if (sort) url.searchParams.append("sort", sort)
+	
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {

@@ -111,3 +111,4 @@ export const blockscoutURL = "https://celestia-l2-router.k8s-dev.blockscout.com/
 export const nodeStatsURL = "https://node-stats.celenium.io/v1"
 export const faucetURL = "https://api-faucet.celenium.io/v1"
 export const tvlServiceURL = "https://tvl.celenium.io/v1"
+export const githubServiceURL = "https://github.celenium.io/v1"

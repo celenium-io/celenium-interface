@@ -11,6 +11,10 @@ const props = defineProps({
 		type: Object,
 		required: true,
 	},
+	disableTooltip: {
+		type: Boolean,
+		default: false,
+	},
 })
 
 // TO DO: Fetch data if series.currentData is null
@@ -34,6 +38,8 @@ const tooltip = ref({
 })
 
 const buildChart = (chart, cData, pData, onEnter, onLeave) => {
+	console.log('cData', cData);
+	
 	const { width, height } = chart.getBoundingClientRect()
 	const marginTop = 6
 	const marginRight = 12
