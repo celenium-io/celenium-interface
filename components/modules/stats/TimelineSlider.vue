@@ -366,7 +366,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		const offset = position - margin.left
 		const barIndex = Math.round(offset / bandWidth)
 
-		return margin.left + barIndex * bandWidth + (isLeft ? 0 : padding)
+		return margin.left + barIndex * bandWidth + padding / 2
 	}
 
 	const leftDragBehavior = d3.drag().on("drag", function (event) {
@@ -394,34 +394,24 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			const [x] = d3.pointer(event)
 			this._initialX = x
 			this._lastX = x
-			this._accumulator = 0
 			this._startSelection = d3.brushSelection(gb.node())
-			this._hasMoved = false
 		})
 		.on("drag", function (event) {
 			const selection = d3.brushSelection(gb.node())
 			if (selection && this._startSelection) {
 				const [x0, x1] = selection
-				const barWidth = xBand.bandwidth()
 				const step = xBand.step()
 				const [currentX] = d3.pointer(event)
 
-				if (!this._hasMoved) {
-					if (Math.abs(currentX - this._initialX) < barWidth) {
-						this._lastX = currentX
-						return
-					}
-					this._hasMoved = true
-					this._accumulator = 0
-					this._lastX = currentX
-					return
-				}
+				// Вычисляем смещение относительно начальной позиции
+				const totalDelta = currentX - this._initialX
+				const barWidth = xBand.bandwidth()
 
-				this._accumulator += currentX - this._lastX
+				// Определяем количество шагов для перемещения
+				const stepsToMove = Math.floor(Math.abs(totalDelta) / (barWidth * 0.1))
 
-				if (Math.abs(this._accumulator) >= barWidth) {
-					const isMovingRight = this._accumulator > 0
-					const isMovingLeft = this._accumulator < 0
+				if (stepsToMove > 0) {
+					const isMovingRight = totalDelta > 0
 
 					if (isMovingRight && x1 < width - margin.right) {
 						const maxX0 = width - margin.right - (x1 - x0)
@@ -429,28 +419,22 @@ const buildTimelineSlider = (chart, data, chartView) => {
 						const newX1 = newX0 + (x1 - x0)
 
 						gb.call(brush.move, [newX0, newX1])
-						this._lastX += step
-					} else if (isMovingLeft && x0 > margin.left) {
+						this._initialX = currentX
+					} else if (!isMovingRight && x0 > margin.left) {
 						const newX0 = Math.max(x0 - step, margin.left)
 						const newX1 = newX0 + (x1 - x0)
 
 						gb.call(brush.move, [newX0, newX1])
-						this._lastX -= step
+						this._initialX = currentX
 					}
-
-					this._accumulator %= barWidth
 				}
-
-				this._lastX = currentX
 			}
 		})
 		.on("end", function () {
 			d3.select(this).style("cursor", "grab")
-			delete this._lastX
-			delete this._accumulator
-			delete this._startSelection
 			delete this._initialX
-			delete this._hasMoved
+			delete this._lastX
+			delete this._startSelection
 		})
 
 	handle.call(handleDragBehavior)
@@ -495,29 +479,24 @@ const buildTimelineSlider = (chart, data, chartView) => {
 				const padding = 8
 				const tooltipWidth = textWidth + padding * 2
 
-				// Проверяем, выходит ли тултип за пределы графика
 				const handleCenterX = handleX + handleWidth / 2
 				const tooltipHalfWidth = tooltipWidth / 2
 
 				let tooltipX = (handleWidth - tooltipWidth) / 2 // центральное положение по умолчанию
 
-				// Проверяем левый край
 				if (handleCenterX - tooltipHalfWidth < margin.left) {
 					tooltipX = -handleX + margin.left
 					tooltip
 						.select("text")
 						.attr("x", handleX - margin.left + tooltipHalfWidth)
 						.attr("text-anchor", "middle")
-				}
-				// Проверяем правый край
-				else if (handleCenterX + tooltipHalfWidth > width - margin.right) {
+				} else if (handleCenterX + tooltipHalfWidth > width - margin.right) {
 					tooltipX = width - margin.right - handleX - tooltipWidth
 					tooltip
 						.select("text")
 						.attr("x", width - margin.right - handleX - tooltipHalfWidth)
 						.attr("text-anchor", "middle")
 				} else {
-					// Возвращаем к центральному положению
 					tooltip
 						.select("text")
 						.attr("x", handleWidth / 2)
