@@ -54,7 +54,7 @@ const avgBlockTime = ref(0)
 const calculateHeight = (size) => {
 	if (!size) return 2
 	
-	return Math.max((size / maxSize.value) * 100, 1)
+	return Math.max((size / maxSize.value) * 100, 2)
 }
 
 const chartBlocksEl = ref(null)
