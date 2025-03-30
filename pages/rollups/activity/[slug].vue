@@ -1,13 +1,15 @@
 <script setup>
 /** Vendor */
+import * as d3 from "d3"
 import { DateTime } from "luxon"
 
 /** API */
-import { fetchRollupBySlug, fetchRollupGithubReposBySlug, fetchRollupGithubSummaryBySlug } from "@/services/api/rollup"
+import { fetchRollupOrgBySlug, fetchRollupOrgCommitsBySlug, fetchRollupOrgReposBySlug } from "@/services/api/rollup"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import LineChart from "@/components/modules/stats/LineChart.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
 import { comma } from "@/services/utils"
@@ -22,7 +24,7 @@ const router = useRouter()
 // Pagination
 const limit = 10
 const page = ref(1)
-const pages = computed(() => Math.ceil(activitySummary.value?.repos / limit))
+const pages = computed(() => Math.ceil(org.value?.repos / limit))
 const handlePrev = () => {
 	if (page.value === 1) return
 	page.value -= 1
@@ -33,9 +35,11 @@ const handleNext = () => {
 }
 
 // Fetch data
-const rollup = ref()
-const activitySummary = ref({})
+const org = ref({})
+const rollup = ref({})
 const repos = ref([])
+const commits = ref([])
+const totalCommits = computed(() => commits.value.reduce((acc, c) => acc + c.amount, 0))
 const data = [
     {
         "date": "2025-02-21T00:00:00.000Z",
@@ -162,9 +166,10 @@ const data = [
         "value": 58402
     }
 ]
+const chartEl = ref(null)
 
 const getRollupRepos = async (slug) => {
-	const data = await fetchRollupGithubReposBySlug({
+	const data = await fetchRollupOrgReposBySlug({
 		slug: slug,
 		limit: limit,
 		offset: (page.value - 1) * limit,
@@ -176,18 +181,21 @@ const getRollupRepos = async (slug) => {
 }
 const fetchData = async () => {
 	const slug = route.params.slug
-	const [rollupData, summaryData, reposData] = await Promise.all([
-		fetchRollupBySlug(slug),
-		fetchRollupGithubSummaryBySlug(slug),
+	const [summaryData, reposData, commitsData] = await Promise.all([
+		fetchRollupOrgBySlug(slug),
 		getRollupRepos(slug),
+		fetchRollupOrgCommitsBySlug({ slug }),
 	])
 
-	if (!rollupData?.data?.value || !summaryData) {
+	if (!summaryData) {
 		router.push("/rollups/activity")
 	} else {
-		rollup.value = rollupData.data.value
-		activitySummary.value = summaryData
+		org.value = summaryData		
+		rollup.value = summaryData.rollup
 		repos.value = reposData
+		commits.value = commitsData
+		console.log('commitsData', commitsData);
+		
 	}
 }
 await fetchData()
@@ -243,12 +251,70 @@ useHead({
 	],
 })
 
+const buildChart = (chart, data) => {
+	const { width, height } = chart.getBoundingClientRect()
+	const margin = { top: 4, bottom: 4 }
+
+	const MAX_VALUE = d3.max(data?.map(d => d.amount))
+	
+	/** Scales */
+	const x = d3.scaleUtc(
+		d3.extent(data, (d => new Date(d.time))),
+		[0, width],
+	)
+	const y = d3.scaleLinear([0, MAX_VALUE], [height - margin.bottom, margin.top])
+
+	const line = d3
+		.line()
+		.x(d => x(new Date(d.time)))
+		.y(d => y(d.amount))
+		.curve(d3.curveCatmullRom)
+
+	/** SVG Container */
+	const svg = d3
+		.create("svg")
+		.attr("width", width)
+		.attr("height", height)
+		.attr("viewBox", [0, 0, width, height])
+		.attr("preserveAspectRatio", "none")
+		.attr("style", "max-width: 100%;")
+		.attr("id", "chart")
+		.style("-webkit-tap-highlight-color", "transparent")
+
+	/** Chart Lines */
+	const cPath = svg.append("path")
+		.attr("fill", "none")
+		.attr("stroke", "var(--brand)")
+		.attr("stroke-width", 2)
+		.attr("stroke-linecap", "round")
+		.attr("stroke-linejoin", "round")
+		.attr("d", line(data))
+
+	if (chart.children[0]) chart.children[0].remove()
+	chart.append(svg.node())
+
+	const cTotalLength = cPath.node().getTotalLength();
+
+	cPath.attr("stroke-dasharray", `${cTotalLength} ${cTotalLength}`)
+		.attr("stroke-dashoffset", cTotalLength)
+		.transition()
+		.duration(1_000)
+		.ease(d3.easeLinear)
+		.attr("stroke-dashoffset", 0);
+}
+
 watch(
 	() => page.value,
 	async () => {
 		repos.value = await getRollupRepos(rollup.value.slug)
 	},
 )
+
+onMounted(() => {
+	if (chartEl.value) {
+		buildChart(chartEl.value?.wrapper, commits.value.reverse())
+	}
+})
 </script>
 
 <template>
@@ -272,14 +338,14 @@ watch(
 			<Flex align="start" justify="between" gap="32">
 				<Flex direction="column" gap="32" :class="$style.left">
 					<Flex direction="column" gap="16">
-						<Flex align="center" justify="between" gap="16" wide :class="$style.card">
-							<Flex align="center" gap="16">
-								<Flex v-if="rollup.logo" align="center" justify="center" :class="$style.avatar_container">
+						<Flex align="start" justify="between" gap="16" wide :class="$style.card">
+							<Flex gap="16">
+								<Flex v-if="rollup.logo" :class="$style.avatar_container">
 									<img :src="rollup.logo" :class="$style.avatar_image" />
 								</Flex>
 								<Flex direction="column" gap="8">
 									<Text size="13" color="primary"> {{ rollup.name }} </Text>
-									<Text size="12" color="tertiary"> {{ rollup.category }} </Text>
+									<Text size="12" color="tertiary"> {{ org.description }} </Text>
 								</Flex>
 							</Flex>
 
@@ -294,18 +360,18 @@ watch(
 								<Text size="13" color="secondary"> Total Blobs </Text>
 								<Flex align="center" gap="8">
 									<Icon name="blob" size="18" color="secondary" />
-									<Text size="18" weight="600" color="primary"> {{ comma(123321123) }} </Text>
+									<Text size="18" weight="600" color="primary"> {{ comma(rollup.blobs_count) }} </Text>
 								</Flex>
 							</Flex>
-							<Flex align="center" :class="$style.card" wide>
-								<LineChart :series="{currentData: data}" />
-								<Flex direction="column" gap="16" :class="$style.card" wide>
+							<Flex align="center" gap="12" :class="$style.card" wide>
+								<Flex direction="column" gap="16" :class="$style.overlay">
 									<Text size="13" color="secondary"> Total Commits  </Text>
 									<Flex align="center" gap="6">
 										<Icon name="commit" size="18" color="secondary" />
-										<Text size="18" weight="600" color="primary"> {{ comma(123321123) }} </Text>
+										<Text size="18" weight="600" color="primary"> {{ comma(totalCommits) }} </Text>
 									</Flex>
 								</Flex>
+								<Flex ref="chartEl" :class="$style.chart" wide />
 							</Flex>
 						</Flex>
 
@@ -313,7 +379,7 @@ watch(
 							<Flex justify="between" :class="$style.header">
 								<Flex align="center" gap="8">
 									<Icon name="github" size="16" color="secondary" />
-									<Text size="14" weight="600" color="primary"> {{ `Repositories - ${activitySummary.repos}` }} </Text>
+									<Text size="14" weight="600" color="primary"> {{ `Repositories - ${org.repos}` }} </Text>
 								</Flex>
 
 								<Flex align="center" gap="6">
@@ -366,11 +432,18 @@ watch(
 												</td>
 												<td>
 													<NuxtLink :to="r.url" target="_blank">
-														<Flex align="start" justify="center" direction="column" gap="4">
-															<Text size="13" weight="600" color="primary"> {{ comma(r.commits) }} </Text>
+														<Tooltip side="top">
+															<Flex align="start" justify="center" direction="column" gap="4">
+																<Text size="13" weight="600" color="primary"> {{ comma(r.commits) }} </Text>
 
-															<Text size="12" weight="600" color="tertiary"> {{ `+${comma(r.commits)}` }} </Text>
-														</Flex>
+																<Text v-if="r.commits_weekly" size="12" weight="600" color="tertiary"> {{ `+${comma(r.commits_weekly)}` }} </Text>
+															</Flex>
+
+															<template #content>
+																<Text size="12" weight="600" color="secondary"> {{ comma(r.commits_weekly) }} </Text>
+																<Text size="12" color="secondary"> {{ `${r.commits_weekly === 1 ? ' commit' : ' commits'} in the last week` }} </Text>
+															</template>
+														</Tooltip>
 													</NuxtLink>
 												</td>
 												<td>
@@ -393,9 +466,9 @@ watch(
 				</Flex>
 
 				<Flex direction="column" gap="32" :class="$style.right" wide>
-					<Flex direction="column" gap="16" :class="$style.card">
+					<Flex direction="column" gap="12" :class="$style.card">
 						<Text size="12" color="secondary" weight="600"> Activity Rank </Text>
-						<Icon name="laurel" size="24" color="legendary" />
+						<Icon name="laurel" size="32" color="legendary" />
 						<Flex direction="column" gap="8">
 							<Text size="14" weight="600" :class="$style.summary_rate"> 10 Excelent </Text>
 							<Text size="13" color="tertiary"> 99.16% </Text>
@@ -452,16 +525,18 @@ watch(
 }
 
 .card {
+	position: relative;
 	border-radius: 6px;
 	background: var(--card-background);
-
 	padding: 16px;
 }
 
 .avatar_container {
 	position: relative;
 	width: 36px;
+	min-width: 36px;
 	height: 36px;
+	min-height: 36px;
 	overflow: hidden;
 	border-radius: 20%;
 }
@@ -470,6 +545,29 @@ watch(
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+}
+
+.overlay {
+	position: absolute;
+	top: -2;
+	left: 0;
+	width: 50%;
+	min-height: 79px;
+	height: 100%;
+	border-radius: 6px;
+	background: linear-gradient(to right, var(--card-background), transparent);
+	padding: 16px;
+	z-index: 2;
+}
+
+.chart {
+	position: absolute;
+	top: 0;
+	left: 0;
+	position: relative;
+	flex: 1;
+	min-height: 47px;
+	width: 100%;
 }
 
 .disabled {

@@ -335,6 +335,8 @@ const buildChart = (chart, data, color) => {
 const drawChart = async () => {
 	await getSeries()
 
+	console.log('currentData.value', currentData.value);
+	
 	buildChart(chartEl.value.wrapper, currentData.value, "var(--brand)")
 	buildChart(chartElPrev.value.wrapper, prevData.value, "var(--txt-tertiary)")
 }

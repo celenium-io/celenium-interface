@@ -3,14 +3,10 @@
 import { DateTime } from "luxon"
 
 /** UI */
-// import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { capitilize, comma, formatBytes, shortHex } from "@/services/utils"
-
-/** API */
-import { fetchNetworks, fetchCommitments, fetchCommitmentsByNetwork } from "@/services/api/blobstream";
+import { comma, formatBytes } from "@/services/utils"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -30,8 +26,6 @@ const props = defineProps({
 		default: false,
 	},
 })
-
-const isLoading = ref(false)
 
 const blocks = computed(() => appStore.latestBlocks.slice(0, 80).sort((a, b) => a.height - b.height))
 

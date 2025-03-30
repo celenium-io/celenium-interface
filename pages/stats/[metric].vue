@@ -12,7 +12,7 @@ import SquareSizeChart from "@/components/modules/stats/SquareSizeChart.vue"
 /** Services */
 import { getStartChainDate } from "@/services/config"
 import { exportSVGToPNG, exportToCSV } from "@/services/utils/export"
-import { capitilize, capitalizeAndReplaceUnderscore } from "@/services/utils"
+import { capitilize, capitalizeAndReplace } from "@/services/utils"
 
 /** API */
 import { fetchSeries, fetchRollupsSeries, fetchSeriesCumulative, fetchTVS } from "@/services/api/stats"
@@ -49,7 +49,7 @@ if (!series.value?.page) {
 			metricName.value = "Rollup Distribution"
 			break;
 		default:
-			metricName.value = capitalizeAndReplaceUnderscore(series.value?.page)
+			metricName.value = capitalizeAndReplace(series.value?.page, "_")
 			break;
 	}
 }

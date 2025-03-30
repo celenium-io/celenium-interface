@@ -17,7 +17,7 @@ import Popover from "@/components/ui/Popover.vue"
 import { getSeriesByGroupAndType } from "@/services/constants/stats.js"
 
 /** Services */
-import { capitilize, capitalizeAndReplaceUnderscore, isMainnet } from "@/services/utils"
+import { capitilize, capitalizeAndReplace, isMainnet } from "@/services/utils"
 
 /** API */
 import { fetchRollups, fetchRollupsDailyStats } from "@/services/api/rollup.js"
@@ -283,7 +283,7 @@ watch(
 					weight="600"
 					:class="[$style.section, s === activeSection && $style.active]"
 				>
-					{{ capitalizeAndReplaceUnderscore(s) }}
+					{{ capitalizeAndReplace(s, "_") }}
 				</Text>
 			</Flex>
 

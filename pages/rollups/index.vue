@@ -276,7 +276,7 @@ watch(
 			<Breadcrumbs
 				:items="[
 					{ link: '/', name: 'Explore' },
-					{ link: '/rollups', name: `Rollups Leaderboard` },
+					{ link: '/rollups', name: `Rollups` },
 				]"
 			/>
 
@@ -289,7 +289,7 @@ watch(
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
 					<Icon name="rollup" size="16" color="secondary" />
-					<Text size="14" weight="600" color="primary">Rollups Leaderboard</Text>
+					<Text size="14" weight="600" color="primary">Rollups</Text>
 				</Flex>
 
 				<!-- Pagination -->
