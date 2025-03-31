@@ -6,9 +6,13 @@ const props = defineProps({
 	allData: {
 		required: true,
 	},
+	selectedTimeframe: {
+		type: Object,
+		required: true,
+	},
 	chartView: {
 		type: String,
-		default: "day",
+		default: "line",
 	},
 	from: {
 		type: [String, Number],
@@ -29,14 +33,24 @@ const chartEl = ref()
 let currentChart = null
 let brush = null
 
-const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#55c9ab", "#142f28"])).domain([0, 5])
+const from = reactive({
+	index: 0,
+	date: 0,
+	ts: 0,
+})
 
-const isInternalUpdate = ref(false)
+const to = reactive({
+	index: 0,
+	date: 0,
+	ts: 0,
+})
+
+const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#55c9ab", "#142f28"])).domain([0, 5])
 
 const MIN_HANDLE_WIDTH = 20
 
 const formatTooltipDate = (date) => {
-	return DateTime.fromJSDate(date).toFormat("dd LLL yyyy")
+	return DateTime.fromJSDate(date instanceof Date ? date : new Date(date)).toFormat("dd LLL yyyy")
 }
 
 const buildTimelineSlider = (chart, data, chartView) => {
@@ -61,7 +75,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	const y = d3
 		.scaleLinear()
 		.domain([0, d3.max(data, (d) => +d.value)])
-		.range([height - 4 - axisBottomHeight, margin.top + 10])
+		.range([height - 4 - axisBottomHeight, margin.top])
 
 	const svg = d3
 		.select(chart)
@@ -101,6 +115,24 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		if (!isNaN(x0) && !isNaN(x1)) {
 			defaultSelection = [x0, x1]
 		}
+	}
+
+	function roundedRect(x, y, width, height, radius) {
+		if (height < 1) return `M${x},${y} h${width}`
+
+		const [tl, tr, br, bl] = Array.isArray(radius) ? radius : [radius, radius, radius, radius]
+
+		return `
+		M${x + tl},${y}
+		h${width - tl - tr}
+		q${tr},0 ${tr},${tr}
+		v${height - tr - br}
+		q0,${br} ${-br},${br}
+		h${-(width - br - bl)}
+		q${-bl},0 ${-bl},${-bl}
+		v${-(height - bl - tl)}
+		q0,${-tl} ${tl},${-tl}
+	`
 	}
 
 	if (chartView === "line") {
@@ -145,7 +177,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			.transition()
 			.duration(1000)
 			.attr("d", (d) => {
-				const barX = width - xBand(new Date(d.time).toISOString()) - xBand.bandwidth()
+				const barX = xBand(new Date(d.time).toISOString())
 				const barY = y(d.value)
 				const barWidth = xBand.bandwidth()
 				const barHeight = height - y(d.value) - axisBottomHeight
@@ -165,7 +197,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			.transition()
 			.duration(1000)
 			.attr("d", (d) => {
-				const barX = width - xBand(new Date(d.time).toISOString()) - xBand.bandwidth()
+				const barX = xBand(new Date(d.time).toISOString())
 				const barY = y(d.value)
 				const barWidth = xBand.bandwidth()
 				const barHeight = height - y(d.value) - axisBottomHeight
@@ -190,9 +222,6 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	})
 
 	clip.attr("x", defaultSelection[0]).attr("width", defaultSelection[1] - defaultSelection[0])
-
-	const [from, to] = defaultSelection.map(x.invert, x).map((d) => Math.floor(d?.getTime() / 1_000))
-	emit("onUpdate", { from, to })
 
 	const handle = gb
 		.append("g")
@@ -325,79 +354,137 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			tooltip.transition().duration(200).style("opacity", 0)
 		})
 
-	function snapToBar(position, isLeft = false) {
-		const bandWidth = xBand.step()
-		const padding = xBand.padding() * bandWidth
-		const offset = position - margin.left
-		const barIndex = Math.round(offset / bandWidth)
+	const getBarIndexFromX = (eventX, isLeft = false) => {
+		const invertedX = x.invert(eventX)
+		// const padding = (xBand.padding() * xBand.step()) / 2
+		if (isLeft) {
+			return d3.bisectLeft(
+				data.map((d) => new Date(d.time)),
+				invertedX,
+			)
+		}
+		return d3.bisectRight(
+			data.map((d) => new Date(d.time)),
+			invertedX,
+		)
+	}
 
-		return margin.left + barIndex * bandWidth + padding / 2
+	const getXFromBarIndex = (barIndex, isLeft = false) => {
+		const padding = (xBand.padding() * xBand.step()) / 2
+
+		// +1 because bisectRight returns the index of the next element
+		return margin.left + (barIndex + (isLeft ? 0 : 1)) * xBand.step() + padding
 	}
 
 	const leftDragBehavior = d3.drag().on("drag", function (event) {
 		const selection = d3.brushSelection(gb.node())
-		if (selection) {
-			const [, x1] = selection
-			const newX0 = snapToBar(Math.min(Math.max(event.x, margin.left), x1 - xBand.step()), true)
+		if (!selection) return
+
+		const [, x1] = selection
+		const barIndex = Math.min(to.index - 1, getBarIndexFromX(event.x, true))
+		const newX0 = getXFromBarIndex(barIndex, true)
+
+		if (x1 - newX0 >= xBand.step()) {
 			gb.call(brush.move, [newX0, x1])
+			setFromTo(data, barIndex, to.index)
 		}
 	})
 
 	const rightDragBehavior = d3.drag().on("drag", function (event) {
 		const selection = d3.brushSelection(gb.node())
-		if (selection) {
-			const [x0] = selection
-			const newX1 = snapToBar(Math.max(Math.min(event.x, width - margin.right), x0 + xBand.step()))
+		if (!selection) return
+
+		const [x0] = selection
+		const barIndex = Math.max(from.index + 1, getBarIndexFromX(event.x, false))
+		const newX1 = getXFromBarIndex(barIndex, false)
+
+		if (newX1 - x0 >= xBand.step()) {
 			gb.call(brush.move, [x0, newX1])
+			setFromTo(data, from.index, barIndex)
 		}
 	})
+
+	let accumulatedDelta = 0
 
 	const handleDragBehavior = d3
 		.drag()
 		.on("start", function (event) {
 			d3.select(this).style("cursor", "grabbing")
-			const [x] = d3.pointer(event)
-			this._initialX = x
-			this._lastX = x
+			this._lastX = d3.pointer(event)[0]
 			this._startSelection = d3.brushSelection(gb.node())
 		})
 		.on("drag", function (event) {
 			const selection = d3.brushSelection(gb.node())
-			if (selection && this._startSelection) {
-				const [x0, x1] = selection
-				const step = xBand.step()
-				const [currentX] = d3.pointer(event)
+			if (!selection || !this._startSelection) return
 
-				const totalDelta = currentX - this._initialX
-				const barWidth = xBand.bandwidth()
+			let [x0, x1] = selection
+			const delta = d3.pointer(event)[0] - this._lastX
+			const barWidth = xBand.step()
+			const totalBars = data.length
+			const dynamicStep = Math.max(1, Math.floor(totalBars * 0.01))
+			const chartMinX = margin.left
+			const chartMaxX = width - margin.right
+			const minBrushWidth = barWidth
 
-				const stepsToMove = Math.floor(Math.abs(totalDelta) / (barWidth * 0.1))
+			accumulatedDelta += delta
+			if (Math.abs(accumulatedDelta) < barWidth * dynamicStep) return
 
-				if (stepsToMove > 0) {
-					const isMovingRight = totalDelta > 0
+			if (chartView === "line") {
+				const selectionWidth = x1 - x0
+				let newX0 = x0 + delta
+				let newX1 = newX0 + selectionWidth
 
-					if (isMovingRight && x1 < width - margin.right) {
-						const maxX0 = width - margin.right - (x1 - x0)
-						const newX0 = Math.min(x0 + step, maxX0)
-						const newX1 = newX0 + (x1 - x0)
-
-						gb.call(brush.move, [newX0, newX1])
-						this._initialX = currentX
-					} else if (!isMovingRight && x0 > margin.left) {
-						const newX0 = Math.max(x0 - step, margin.left)
-						const newX1 = newX0 + (x1 - x0)
-
-						gb.call(brush.move, [newX0, newX1])
-						this._initialX = currentX
-					}
+				if (newX1 > chartMaxX) {
+					newX1 = chartMaxX
+					newX0 = chartMaxX - selectionWidth
 				}
+				if (newX0 < chartMinX) {
+					newX0 = chartMinX
+					newX1 = chartMinX + selectionWidth
+				}
+				if (newX1 - newX0 < minBrushWidth) return
+
+				const fromDate = x.invert(newX0)
+				const toDate = x.invert(newX1)
+
+				const fromIndex = d3.bisectLeft(
+					data.map((d) => new Date(d.time)),
+					fromDate,
+				)
+				const toIndex = d3.bisectRight(
+					data.map((d) => new Date(d.time)),
+					toDate,
+				)
+
+				setFromTo(data, fromIndex, toIndex)
+				gb.call(brush.move, [newX0, newX1])
+			} else {
+				const stepDirection = delta > 0 ? dynamicStep : -dynamicStep
+				const selectionWidth = to.index - from.index
+
+				let newFromIndex = Math.max(0, Math.min(from.index + stepDirection, totalBars - 1))
+				let newToIndex = newFromIndex + selectionWidth
+
+				if (newToIndex >= totalBars) {
+					newToIndex = totalBars - 1
+					newFromIndex = Math.max(0, newToIndex - selectionWidth)
+				}
+				if (newFromIndex <= 0) {
+					newFromIndex = 0
+					newToIndex = Math.min(totalBars - 1, newFromIndex + selectionWidth)
+				}
+				if (newToIndex - newFromIndex < 1) return
+
+				setFromTo(data, newFromIndex, newToIndex)
+				gb.call(brush.move, [getXFromBarIndex(newFromIndex, true), getXFromBarIndex(newToIndex, false)])
 			}
+
+			accumulatedDelta = 0
+			this._lastX = d3.pointer(event)[0]
 		})
 		.on("end", function () {
 			d3.select(this).style("cursor", "grab")
-			delete this._initialX
-			delete this._lastX
-			delete this._startSelection
+			accumulatedDelta = 0
 		})
 
 	handle.call(handleDragBehavior)
@@ -429,9 +516,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 				leftHandle.attr("transform", `translate(${x0}, 0)`)
 				rightHandle.attr("transform", `translate(${x1 - 5}, 0)`)
 
-				const leftDate = formatTooltipDate(x.invert(x0))
-				const rightDate = formatTooltipDate(x.invert(x1))
-				const tooltipText = `${leftDate} - ${rightDate}`
+				const tooltipText = `${formatTooltipDate(from.date)} - ${formatTooltipDate(to.date)}`
 
 				tooltip
 					.select("text")
@@ -474,69 +559,27 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	leftHandle.call(leftDragBehavior)
 	rightHandle.call(rightDragBehavior)
 
-	function brushed({ selection, sourceEvent }) {
-		if (selection) {
-			let [x0, x1] = selection
+	function brushed({ selection }) {
+		if (!selection) return
 
-			if (isNaN(x0) || isNaN(x1)) {
-				return
-			}
+		const [x0, x1] = selection
+		if (isNaN(x0) || isNaN(x1)) return
 
-			if (sourceEvent) {
-				const snappedX0 = snapToBar(x0, true)
-				const snappedX1 = snapToBar(x1)
-
-				x0 = Math.max(snappedX0, margin.left)
-				x1 = Math.min(snappedX1, width - margin.right)
-
-				if (x1 - x0 < Math.max(xBand.step(), 20)) {
-					if (x1 >= width - margin.right) {
-						x0 = x1 - Math.max(xBand.step(), 20)
-					} else {
-						x1 = x0 + Math.max(xBand.step(), 20)
-					}
-				}
-
-				if (Math.abs(x0 - selection[0]) > 0.1 || Math.abs(x1 - selection[1]) > 0.1) {
-					gb.call(brush.move, [x0, x1])
-				}
-			}
-
-			if (!isNaN(x0) && !isNaN(x1)) {
-				tooltip.style("opacity", 1)
-
-				clip.attr("x", x0).attr("width", x1 - x0)
-				updateHandlePosition([x0, x1])
-
-				const [from, to] = [x0, x1].map(x.invert, x).map((d) => {
-					const date = DateTime.fromJSDate(d)
-					return Math.floor(date.startOf("day").toSeconds())
-				})
-
-				isInternalUpdate.value = true
-				emit("onUpdate", { from, to })
-				setTimeout(() => {
-					isInternalUpdate.value = false
-				}, 100)
-			}
-		}
+		tooltip.style("opacity", 1)
+		clip.attr("x", x0).attr("width", x1 - x0)
+		updateHandlePosition([x0, x1])
 	}
 
 	function brushended({ selection }) {
 		if (!selection) {
 			gb.call(brush.move, defaultSelection)
 			clip.attr("x", defaultSelection[0]).attr("width", defaultSelection[1] - defaultSelection[0])
-		} else {
-			const snappedX0 = snapToBar(selection[0], true)
-			const snappedX1 = snapToBar(selection[1])
-
-			const x0 = Math.max(snappedX0, margin.left)
-			const x1 = Math.max(x0 + xBand.step(), Math.min(snappedX1, width - margin.right))
-
-			if (x0 !== selection[0] || x1 !== selection[1]) {
-				gb.call(brush.move, [x0, x1])
-			}
+			return
 		}
+
+		queueMicrotask(() => {
+			emit("onUpdate", { from: from.ts, to: to.ts })
+		})
 	}
 
 	brush.on("brush", brushed).on("end", brushended)
@@ -564,10 +607,43 @@ const clearChart = () => {
 	}
 }
 
+const setFromTo = (data, fromIndex, toIndex) => {
+	const { timeframe } = props.selectedTimeframe
+	const fromDate = new Date(data[fromIndex]?.time)
+	const toDate = new Date(data[toIndex]?.time)
+	const now = new Date()
+
+	from.index = fromIndex
+	to.index = toIndex
+
+	const ts = (date) => Math.floor(date.getTime() / 1000)
+
+	const getEndDate = {
+		month: () => {
+			const endDate = new Date(toDate.getFullYear(), toDate.getMonth() + 1, 0)
+			return endDate > now ? now : endDate
+		},
+		week: () => {
+			const endDate = new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate() + (7 - toDate.getDay()))
+			return endDate > now ? now : endDate
+		},
+		default: () => (toDate > now ? now : toDate),
+	}
+
+	from.date = fromDate
+	to.date = getEndDate[timeframe]?.() || getEndDate.default()
+
+	from.ts = ts(from.date)
+	to.ts = ts(to.date)
+}
+
 const createChart = () => {
 	if (chartEl.value?.wrapper && props.allData) {
 		clearChart()
-		currentChart = buildTimelineSlider(chartEl.value.wrapper, props.allData, props.chartView)
+		const reversedData = props.allData?.slice().reverse()
+		setFromTo(reversedData, 0, reversedData.length - 1)
+
+		buildTimelineSlider(chartEl.value.wrapper, reversedData, props.chartView)
 	}
 }
 
@@ -590,18 +666,6 @@ watch(
 	{ deep: true },
 )
 
-watch([() => props.from, () => props.to], ([newFrom, newTo], [oldFrom, oldTo]) => {
-	if (newFrom === oldFrom && newTo === oldTo) return
-	if (!props.allData?.length) return
-
-	if (isInternalUpdate.value) {
-		isInternalUpdate.value = false
-		return
-	}
-
-	createChart()
-})
-
 onMounted(() => {
 	createChart()
 })
@@ -609,24 +673,6 @@ onMounted(() => {
 onUnmounted(() => {
 	clearChart()
 })
-
-function roundedRect(x, y, width, height, radius) {
-	if (height < 1) return `M${x},${y} h${width}`
-
-	const [tl, tr, br, bl] = Array.isArray(radius) ? radius : [radius, radius, radius, radius]
-
-	return `
-		M${x + tl},${y}
-		h${width - tl - tr}
-		q${tr},0 ${tr},${tr}
-		v${height - tr - br}
-		q0,${br} ${-br},${br}
-		h${-(width - br - bl)}
-		q${-bl},0 ${-bl},${-bl}
-		v${-(height - bl - tl)}
-		q0,${-tl} ${tl},${-tl}
-	`
-}
 </script>
 
 <template>
