@@ -19,19 +19,20 @@ export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
 
 	const init = async () => {
 		const savedRanking = JSON.parse(localStorage.getItem("rollups_ranking"))
-		if (DateTime.now().diff(DateTime.fromSeconds(savedRanking?.last_update || rollups_ranking.value.last_update), "hours").hours < 1) {
+		if (DateTime.now().diff(DateTime.fromMillis(savedRanking?.last_update || rollups_ranking.value.last_update), "hours").hours < 1) {
 			rollups_ranking.value = savedRanking
 			initialized.value = true
 			return
 		}
 		
 		const limit = 100
-		const params = { limit, side: "server" }
-		const rollupsData = await fetchRollups(params);
-		const orgsData = await fetchRollupOrgs(params);
-		const dailyStatsData = await fetchRollupsDailyStats(params);
-		const orgsState = await fetchRollupOrgsState(params);
-
+		const params = { limit }
+		const [rollupsData, orgsData, dailyStatsData, orgsState] = await Promise.all([
+			fetchRollups(params),
+			fetchRollupOrgs(params),
+			fetchRollupsDailyStats(params),
+			fetchRollupOrgsState(params)
+		])
 		let maxDailyBlobsCount = 0
 		let maxAvgPfbSize = 0
 		let maxWeeklyCommits = 0
@@ -47,11 +48,11 @@ export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
 			return acc
 		}, {})
 
-		for (const od of orgsData?.data?.value) {
+		for (const od of orgsData) {
 			let slug = od.rollup?.slug
 			if (!slug) continue
 
-			let repos = await fetchRollupOrgReposBySlug({ slug, limit, side: "server" })
+			let repos = await fetchRollupOrgReposBySlug({ slug, limit })
 			repos = sortArrayOfObjects(repos?.data?.value, "last_pushed_at", false)
 			const summCommits = repos.reduce((acc, r) => acc + r.commits_weekly, 0)
 			maxWeeklyCommits = Math.max(maxWeeklyCommits, summCommits)
@@ -62,7 +63,7 @@ export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
 			rollupsRanking.value[slug].commits_weekly = summCommits
 		}
 
-		rollupsData?.data?.value.forEach(r => {
+		rollupsData.forEach(r => {
 			let slug = r.slug
 			if (!rollupsRanking.value[slug]) {
 				rollupsRanking.value[slug] = {}

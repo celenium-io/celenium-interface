@@ -194,8 +194,6 @@ const fetchData = async () => {
 		rollup.value = summaryData.rollup
 		repos.value = reposData
 		commits.value = commitsData
-		console.log('commitsData', commitsData);
-		
 	}
 }
 await fetchData()

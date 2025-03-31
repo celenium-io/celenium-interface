@@ -1,7 +1,7 @@
 /** Services */
 import { githubServiceURL, tvlServiceURL, useServerURL } from "@/services/config"
 
-export const fetchRollups = async ({ categories, type, limit, offset, sort, sort_by, side = "client" }) => {
+export const fetchRollups = async ({ categories, type, limit, offset, sort, sort_by }) => {
 	try {
 		const url = new URL(`${useServerURL()}/rollup`)
 
@@ -12,11 +12,11 @@ export const fetchRollups = async ({ categories, type, limit, offset, sort, sort
 		if (sort) url.searchParams.append("sort", sort)
 		if (sort_by) url.searchParams.append("sort_by", sort_by)
 
-		if (side === "server") {
-			return useFetch(encodeURI(url.href), {
-				key: "rollups",
-			})
-		}
+		// if (side === "server") {
+		// 	return useFetch(encodeURI(url.href), {
+		// 		key: "rollups",
+		// 	})
+		// }
 	
 		const data = await $fetch(url.href)
 		return data
@@ -215,18 +215,18 @@ export const fetchRollupTVL = async ({ slug, period, from, to }) => {
 	}
 }
 
-export const fetchRollupOrgs = async ({ limit, offset, side }) => {
+export const fetchRollupOrgs = async ({ limit, offset }) => {
 	try {
 		const url = new URL(`${githubServiceURL}/org`)
 
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 	
-		if (side === "server") {
-			return useFetch(encodeURI(url.href), {
-				key: "rollup_orgs",
-			})
-		}
+		// if (side === "server") {
+		// 	return useFetch(encodeURI(url.href), {
+		// 		key: "rollup_orgs",
+		// 	})
+		// }
 
 		const data = await $fetch(url.href)
 		return data
@@ -235,15 +235,15 @@ export const fetchRollupOrgs = async ({ limit, offset, side }) => {
 	}
 }
 
-export const fetchRollupOrgsState = async (side) => {
+export const fetchRollupOrgsState = async () => {
 	try {
 		const url = new URL(`${githubServiceURL}/state`)
 
-		if (side === "server") {
-			return useFetch(encodeURI(url.href), {
-				key: "rollup_orgs_state",
-			})
-		}
+		// if (side === "server") {
+		// 	return useFetch(encodeURI(url.href), {
+		// 		key: "rollup_orgs_state",
+		// 	})
+		// }
 
 		const data = await $fetch(url.href)
 		return data
@@ -263,7 +263,7 @@ export const fetchRollupOrgBySlug = async (slug) => {
 	}
 }
 
-export const fetchRollupOrgReposBySlug = async ({ slug, limit, offset, sort_by, sort, side }) => {
+export const fetchRollupOrgReposBySlug = async ({ slug, limit, offset, sort_by, sort }) => {
 	try {
 		const url = new URL(`${githubServiceURL}/org/${slug}/repos`)
 
@@ -272,11 +272,11 @@ export const fetchRollupOrgReposBySlug = async ({ slug, limit, offset, sort_by, 
 		if (sort_by) url.searchParams.append("sort_by", sort_by)
 		if (sort) url.searchParams.append("sort", sort)
 		
-		if (side === "server") {
-			return useFetch(encodeURI(url.href), {
-				key: "rollup_orgs_repos_by_slug",
-			})
-		}
+		// if (side === "server") {
+		// 	return useFetch(encodeURI(url.href), {
+		// 		key: "rollup_orgs_repos_by_slug",
+		// 	})
+		// }
 
 		const data = await $fetch(url.href)
 		return data

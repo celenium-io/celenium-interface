@@ -588,7 +588,7 @@ watch(
 
 				<Flex v-else-if="isRefetching" align="center" justify="center" gap="8" wide :class="$style.empty">
 					<Spinner size="14" />
-					<Text size="13" weight="500" color="secondary"> Loading rollups </Text>
+					<Text size="13" weight="500" color="secondary"> Loading rollups activity.. </Text>
 				</Flex>
 
 				<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
