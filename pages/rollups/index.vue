@@ -151,7 +151,9 @@ const onPopoverClose = (name) => {
 		filters[name] = savedFiltersBeforeChanges.value
 		savedFiltersBeforeChanges.value = null
 	} else {
-		resetFilters(name)
+		if (Object.keys(filters[name]).find((f) => filters[name][f])) {
+			resetFilters(name)
+		}
 	}
 }
 const handleApplyFilters = (name) => {
@@ -276,7 +278,7 @@ watch(
 			<Breadcrumbs
 				:items="[
 					{ link: '/', name: 'Explore' },
-					{ link: '/rollups', name: `Rollups` },
+					{ link: '/rollups', name: 'Rollups Leaderboard' },
 				]"
 			/>
 
