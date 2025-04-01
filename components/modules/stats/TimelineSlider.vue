@@ -410,7 +410,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.drag()
 		.on("start", function (event) {
 			d3.select(this).style("cursor", "grabbing")
-			this._lastX = d3.pointer(event)[0]
+			this._lastX = event.x
 			this._startSelection = d3.brushSelection(gb.node())
 		})
 		.on("drag", function (event) {
@@ -418,7 +418,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			if (!selection || !this._startSelection) return
 
 			let [x0, x1] = selection
-			const delta = d3.pointer(event)[0] - this._lastX
+			const delta = event.x - this._lastX
 			const barWidth = xBand.step()
 			const totalBars = data.length
 			const dynamicStep = Math.max(1, Math.floor(totalBars * 0.01))
@@ -430,34 +430,27 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			if (Math.abs(accumulatedDelta) < barWidth * dynamicStep) return
 
 			if (chartView === "line") {
-				const selectionWidth = x1 - x0
 				let newX0 = x0 + delta
-				let newX1 = newX0 + selectionWidth
+				let newX1 = x1 + delta
+				const selectionWidth = x1 - x0
 
 				if (newX1 > chartMaxX) {
 					newX1 = chartMaxX
-					newX0 = chartMaxX - selectionWidth
+					newX0 = Math.max(chartMinX, newX1 - selectionWidth)
 				}
 				if (newX0 < chartMinX) {
 					newX0 = chartMinX
-					newX1 = chartMinX + selectionWidth
+					newX1 = Math.min(chartMaxX, newX0 + selectionWidth)
 				}
-				if (newX1 - newX0 < minBrushWidth) return
+				if (newX1 - newX0 < minBrushWidth) return 
 
-				const fromDate = x.invert(newX0)
-				const toDate = x.invert(newX1)
-
-				const fromIndex = d3.bisectLeft(
-					data.map((d) => new Date(d.time)),
-					fromDate,
-				)
-				const toIndex = d3.bisectRight(
-					data.map((d) => new Date(d.time)),
-					toDate,
-				)
+				const fromIndex = getBarIndexFromX(newX0)
+				const toIndex = Math.min(getBarIndexFromX(newX1), data.length - 1)
 
 				setFromTo(data, fromIndex, toIndex)
 				gb.call(brush.move, [newX0, newX1])
+
+				this._lastX = event.x
 			} else {
 				const stepDirection = delta > 0 ? dynamicStep : -dynamicStep
 				const selectionWidth = to.index - from.index
@@ -480,7 +473,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			}
 
 			accumulatedDelta = 0
-			this._lastX = d3.pointer(event)[0]
+			this._lastX = event.x
 		})
 		.on("end", function () {
 			d3.select(this).style("cursor", "grab")
