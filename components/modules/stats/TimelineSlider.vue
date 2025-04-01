@@ -30,7 +30,7 @@ const height = 115
 const axisBottomHeight = 20
 
 const chartEl = ref()
-let currentChart = null
+
 let brush = null
 
 const from = reactive({
@@ -55,6 +55,7 @@ const formatTooltipDate = (date) => {
 
 const buildTimelineSlider = (chart, data, chartView) => {
 	const width = chart.getBoundingClientRect().width
+
 
 	const x = d3
 		.scaleUtc()
@@ -106,14 +107,21 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.attr("width", 0)
 		.attr("height", height)
 
-	let defaultSelection = [x.range()[0], x.range()[1]]
+	const defaultFrom = computed(() => { 
+		return x.range()[0]
+	})
+
+	const defaultTo = computed(() => {
+		return x.range()[1]
+	})
 
 	if (props.from && props.to) {
 		const x0 = Math.max(margin.left, x(new Date(props.from * 1000)))
 		const x1 = Math.min(width - margin.right, x(new Date(props.to * 1000)))
 
 		if (!isNaN(x0) && !isNaN(x1)) {
-			defaultSelection = [x0, x1]
+			defaultFrom.value = x0
+			defaultTo.value = x1
 		}
 	}
 
@@ -211,7 +219,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		[width - margin.right, height - axisBottomHeight],
 	])
 
-	const gb = svg.append("g").call(brush).call(brush.move, defaultSelection)
+	const gb = svg.append("g").call(brush).call(brush.move, [defaultFrom.value, defaultTo.value])
 
 	gb.select(".selection").attr("fill", "var(--op-30)").attr("stroke", "var(--op-30)").style("pointer-events", "none")
 
@@ -221,7 +229,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		brush.on("brush", brushed)
 	})
 
-	clip.attr("x", defaultSelection[0]).attr("width", defaultSelection[1] - defaultSelection[0])
+	clip.attr("x", defaultFrom.value).attr("width", defaultTo.value - defaultFrom.value)
 
 	const handle = gb
 		.append("g")
@@ -356,7 +364,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 	const getBarIndexFromX = (eventX, isLeft = false) => {
 		const invertedX = x.invert(eventX)
-		// const padding = (xBand.padding() * xBand.step()) / 2
+
 		if (isLeft) {
 			return d3.bisectLeft(
 				data.map((d) => new Date(d.time)),
@@ -442,7 +450,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 					newX0 = chartMinX
 					newX1 = Math.min(chartMaxX, newX0 + selectionWidth)
 				}
-				if (newX1 - newX0 < minBrushWidth) return 
+				if (newX1 - newX0 < minBrushWidth) return
 
 				const fromIndex = getBarIndexFromX(newX0)
 				const toIndex = Math.min(getBarIndexFromX(newX1), data.length - 1)
@@ -565,8 +573,8 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 	function brushended({ selection }) {
 		if (!selection) {
-			gb.call(brush.move, defaultSelection)
-			clip.attr("x", defaultSelection[0]).attr("width", defaultSelection[1] - defaultSelection[0])
+			gb.call(brush.move, [defaultFrom.value, defaultTo.value])
+			clip.attr("x", defaultFrom.value).attr("width", defaultTo.value - defaultFrom.value)
 			return
 		}
 
@@ -581,7 +589,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		tooltip.transition().duration(200).style("opacity", 0)
 	})
 
-	updateHandlePosition(defaultSelection)
+	updateHandlePosition([defaultFrom.value, defaultTo.value])
 
 	gb.select(".selection")
 		.on("mouseenter", function () {
