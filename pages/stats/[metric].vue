@@ -250,7 +250,7 @@ const handleUpdateDate = async (event) => {
 		let to = event.to
 
 		from = DateTime.fromSeconds(from).startOf("day").toSeconds()
-		to = DateTime.fromSeconds(to).endOf("day").toSeconds()
+		to = Math.floor(DateTime.fromSeconds(to).endOf("day").toSeconds())
 
 		if (filters.from === from && filters.to === to) {
 			isLoading.value = false
@@ -447,7 +447,14 @@ onBeforeMount(() => {
 		<LineChart v-else-if="chartView === 'line'" :series="series" />
 		<BarChart v-else-if="chartView === 'bar'" :series="series" />
 
-		<TimelineSlider v-if="series.name !== 'square_size'" :allData="allData" :chartView="chartView" :from="filters.from" :to="filters.to" @onUpdate="handleTimelineUpdate" />
+		<TimelineSlider
+			v-if="series.name !== 'square_size'"
+			:allData="allData"
+			:chartView="chartView"
+			:from="filters.from"
+			:to="filters.to"
+			:selectedTimeframe="selectedTimeframe" 
+			@onUpdate="handleTimelineUpdate" />
 	</Flex>
 </template>
 
