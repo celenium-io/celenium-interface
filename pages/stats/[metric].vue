@@ -218,6 +218,7 @@ const getData = async () => {
 
 	series.value.currentData = [...currentData.value]
 
+	filters.timeframe = selectedTimeframe.value
 	series.value.timeframe = filters.timeframe
 	isLoading.value = false
 }
@@ -455,7 +456,8 @@ onBeforeMount(() => {
 			:from="filters.from"
 			:to="filters.to"
 			:selectedTimeframe="selectedTimeframe" 
-			@onUpdate="handleTimelineUpdate" />
+			@onUpdate="handleTimelineUpdate"
+		/>
 	</Flex>
 </template>
 
