@@ -167,6 +167,9 @@ const fetchData = async () => {
 		data = await fetchSeries({
 			table: series.value.name,
 			period: selectedTimeframe.value.timeframe,
+			from: selectedTimeframe.value.timeframe === "hour"
+				? parseInt(DateTime.now().minus({ days: 7 }).ts / 1_000)
+				: null
 		})
 	} else {
 		data = (
@@ -316,11 +319,9 @@ const isInternalUpdate = ref(false)
 
 watch(
 	() => selectedTimeframe.value,
-	async (newValue, oldValue) => {
+	async () => {
 		if (!isLoading.value && !isInternalUpdate.value) {
 			allData.value = []
-			// filters.from = null
-			// filters.to = null
 			await getData()
 		}
 	},

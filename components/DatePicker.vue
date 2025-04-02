@@ -133,8 +133,8 @@ const updateSelectedRange = (from, to) => {
 }
 updateSelectedRange(startDate.value, endDate.value)
 
-const isNextMonthAvailable = true // computed(() => !(month.value === currentDate.value.month && year.value === currentDate.value.year))
-const isPrevMonthAvailable = true // computed(() => limitMinDate.value ? limitMinDate.value.ts < days.value[0][0].ts : true)
+const isNextMonthAvailable = true
+const isPrevMonthAvailable = true
 const isDayAvailable = (d) => {
 	if (d.startOf("day").ts > currentDate.value.startOf("day").ts) {
 		return false
@@ -156,6 +156,8 @@ const handleSelectPeriod = (period) => {
 		startDate.value = DateTime.now()
 			.minus({
 				days: period.timeframe === "day" ? period.value - 1 : 0,
+				months: period.timeframe === "month" ? period.value : 0,
+				years: period.timeframe === "year" ? period.value : 0,
 			})
 			.startOf("day")
 		endDate.value = DateTime.now().endOf("day")
@@ -195,9 +197,11 @@ const isInSelectedPeriod = (d) => {
 
 const isOpen = ref(false)
 const handleOpen = () => {
-	let to = DateTime.fromSeconds(parseInt(props.to))
-	month.value = to.c.month
-	year.value = to.c.year
+	if (props.to) {
+		let to = DateTime.fromSeconds(parseInt(props.to))
+		month.value = to.c.month
+		year.value = to.c.year
+	}
 
 	isOpen.value = true
 }
