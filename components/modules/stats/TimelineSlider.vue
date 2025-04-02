@@ -30,8 +30,17 @@ const height = 115
 const axisBottomHeight = 20
 
 const chartEl = ref()
-
+const isInternalUpdate = ref(false)
 let brush = null
+let gb = null
+let clip = null
+let x = null
+let xBand = null
+let y = null
+let width = 0
+let tooltip = null
+let defaultFrom = 0
+let defaultTo = 0
 
 const from = reactive({
 	index: 0,
@@ -53,27 +62,67 @@ const formatTooltipDate = (date) => {
 	return DateTime.fromJSDate(date instanceof Date ? date : new Date(date)).toFormat("dd LLL yyyy")
 }
 
+const initBrush = (svg, data) => {
+	brush = d3.brushX().extent([
+		[margin.left, margin.top - 5],
+		[width - margin.right, height - axisBottomHeight],
+	])
+
+	gb = svg.append("g").call(brush).call(brush.move, [defaultFrom, defaultTo])
+
+	gb.select(".selection").attr("fill", "var(--op-30)").attr("stroke", "var(--op-30)").style("pointer-events", "none")
+
+	gb.selectAll(".handle").remove()
+
+	gb.select(".overlay").on("mousedown.brush", function () {
+		brush.on("brush", brushed)
+	})
+
+	initHandles(gb)
+
+	brush.on("brush", brushed).on("end", brushended)
+
+	brushed({ selection: [defaultFrom, defaultTo] })
+
+	return gb
+}
+
+const roundedRect = (x, y, width, height, radius) => {
+	if (height < 1) return `M${x},${y} h${width}`
+
+	const [tl, tr, br, bl] = Array.isArray(radius) ? radius : [radius, radius, radius, radius]
+
+	return `
+		M${x + tl},${y}
+		h${width - tl - tr}
+		q${tr},0 ${tr},${tr}
+		v${height - tr - br}
+		q0,${br} ${-br},${br}
+		h${-(width - br - bl)}
+		q${-bl},0 ${-bl},${-bl}
+		v${-(height - bl - tl)}
+		q0,${-tl} ${tl},${-tl}
+	`
+}
+
+let currentData = []
+
 const buildTimelineSlider = (chart, data, chartView) => {
-	const width = chart.getBoundingClientRect().width
+	currentData = data
+	width = chart.getBoundingClientRect().width
 
-
-	const x = d3
+	x = d3
 		.scaleUtc()
 		.domain(d3.extent(data, (d) => new Date(d.time)))
 		.range([margin.left, width - margin.right])
 
-	const xBand = d3
+	xBand = d3
 		.scaleBand()
 		.domain(data.map((d) => new Date(d.time).toISOString()))
 		.range([margin.left, width - margin.right])
 		.padding(0.1)
 
-	const scaleX = d3
-		.scaleUtc()
-		.domain(d3.extent(data, (d) => new Date(d.time)))
-		.range([margin.left, width - margin.right])
-
-	const y = d3
+	y = d3
 		.scaleLinear()
 		.domain([0, d3.max(data, (d) => +d.value)])
 		.range([height - 4 - axisBottomHeight, margin.top])
@@ -90,14 +139,14 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	svg.append("g")
 		.attr("transform", `translate(0, ${height - axisBottomHeight} )`)
 		.attr("color", "var(--op-20)")
-		.call(d3.axisBottom(scaleX).ticks(Math.min(data.length, 6)).tickFormat(d3.timeFormat("%b %d")))
+		.call(d3.axisBottom(x).ticks(Math.min(data.length, 6)).tickFormat(d3.timeFormat("%b %d")))
 		.selectAll(".tick line")
 		.filter(function (d) {
 			return d === 0
 		})
 		.remove()
 
-	const clip = svg
+	clip = svg
 		.append("defs")
 		.append("clipPath")
 		.attr("id", "clip")
@@ -107,131 +156,203 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.attr("width", 0)
 		.attr("height", height)
 
-	const defaultFrom = computed(() => { 
-		return x.range()[0]
-	})
-
-	const defaultTo = computed(() => {
-		return x.range()[1]
-	})
+	defaultFrom = x.range()[0]
+	defaultTo = x.range()[1]
 
 	if (props.from && props.to) {
 		const x0 = Math.max(margin.left, x(new Date(props.from * 1000)))
 		const x1 = Math.min(width - margin.right, x(new Date(props.to * 1000)))
 
 		if (!isNaN(x0) && !isNaN(x1)) {
-			defaultFrom.value = x0
-			defaultTo.value = x1
+			defaultFrom = x0
+			defaultTo = x1
 		}
 	}
 
-	function roundedRect(x, y, width, height, radius) {
-		if (height < 1) return `M${x},${y} h${width}`
-
-		const [tl, tr, br, bl] = Array.isArray(radius) ? radius : [radius, radius, radius, radius]
-
-		return `
-		M${x + tl},${y}
-		h${width - tl - tr}
-		q${tr},0 ${tr},${tr}
-		v${height - tr - br}
-		q0,${br} ${-br},${br}
-		h${-(width - br - bl)}
-		q${-bl},0 ${-bl},${-bl}
-		v${-(height - bl - tl)}
-		q0,${-tl} ${tl},${-tl}
-	`
-	}
-
 	if (chartView === "line") {
-		svg.append("path")
-			.datum(data)
-			.attr("fill", "none")
-			.attr("stroke", "var(--op-50)")
-			.attr("stroke-width", 1)
-			.attr("class", "line")
-			.attr(
-				"d",
-				d3
-					.line()
-					.x((d) => x(new Date(d.time)))
-					.y((d) => y(d.value))
-					.curve(d3.curveCatmullRom),
-			)
-
-		const highlightedLine = svg
-			.append("path")
-			.datum(data)
-			.attr("fill", "none")
-			.attr("stroke", (d, i) => color(i))
-			.attr("stroke-width", 2)
-			.attr("class", "line")
-			.attr("clip-path", "url(#clip)")
-			.attr(
-				"d",
-				d3
-					.line()
-					.x((d) => x(new Date(d.time)))
-					.y((d) => y(d.value))
-					.curve(d3.curveCatmullRom),
-			)
+		renderLineChart(svg, data)
 	} else {
-		svg.append("g")
-			.attr("fill", "var(--txt-tertiary)")
-			.attr("class", "bar")
-			.selectAll("path")
-			.data(data)
-			.join("path")
-			.transition()
-			.duration(1000)
-			.attr("d", (d) => {
-				const barX = xBand(new Date(d.time).toISOString())
-				const barY = y(d.value)
-				const barWidth = xBand.bandwidth()
-				const barHeight = height - y(d.value) - axisBottomHeight
-
-				return roundedRect(barX, barY, barWidth, barHeight, [2, 2, 0, 0])
-			})
-
-		const highlightedBars = svg
-			.append("g")
-			.attr("class", "highlighted-bars")
-			.selectAll("path")
-			.data(data)
-			.join("path")
-			.attr("class", "bar highlighted")
-			.attr("fill", "var(--mint)")
-			.attr("clip-path", "url(#clip)")
-			.transition()
-			.duration(1000)
-			.attr("d", (d) => {
-				const barX = xBand(new Date(d.time).toISOString())
-				const barY = y(d.value)
-				const barWidth = xBand.bandwidth()
-				const barHeight = height - y(d.value) - axisBottomHeight
-
-				return roundedRect(barX, barY, barWidth, barHeight, [2, 2, 0, 0])
-			})
+		renderBarChart(svg, data)
 	}
 
-	brush = d3.brushX().extent([
-		[margin.left, margin.top - 5],
-		[width - margin.right, height - axisBottomHeight],
-	])
+	initBrush(svg, data)
 
-	const gb = svg.append("g").call(brush).call(brush.move, [defaultFrom.value, defaultTo.value])
+	return svg.node()
+}
 
-	gb.select(".selection").attr("fill", "var(--op-30)").attr("stroke", "var(--op-30)").style("pointer-events", "none")
+const brushed = ({ selection }) => {
+	if (!selection) return
 
-	gb.selectAll(".handle").remove()
+	const [x0, x1] = selection
+	if (isNaN(x0) || isNaN(x1)) return
 
-	gb.select(".overlay").on("mousedown.brush", function () {
-		brush.on("brush", brushed)
+	tooltip.style("opacity", 1)
+	clip.attr("x", x0).attr("width", x1 - x0)
+	updateHandlePosition([x0, x1])
+}
+
+const brushended = ({ selection }) => {
+	if (!selection) {
+		gb.call(brush.move, [defaultFrom, defaultTo])
+		clip.attr("x", defaultFrom).attr("width", defaultTo - defaultFrom)
+		return
+	}
+
+	isInternalUpdate.value = true
+
+	queueMicrotask(() => {
+		emit("onUpdate", { from: from.ts, to: to.ts })
+		queueMicrotask(() => {
+			isInternalUpdate.value = false
+		})
 	})
+}
 
-	clip.attr("x", defaultFrom.value).attr("width", defaultTo.value - defaultFrom.value)
+const renderLineChart = (svg, data) => {
+	svg.append("path")
+		.datum(data)
+		.attr("fill", "none")
+		.attr("stroke", "var(--op-50)")
+		.attr("stroke-width", 1)
+		.attr("class", "line")
+		.attr(
+			"d",
+			d3
+				.line()
+				.x((d) => x(new Date(d.time)))
+				.y((d) => y(d.value))
+				.curve(d3.curveCatmullRom),
+		)
 
-	const handle = gb
+	const highlightedLine = svg
+		.append("path")
+		.datum(data)
+		.attr("fill", "none")
+		.attr("stroke", (d, i) => color(i))
+		.attr("stroke-width", 2)
+		.attr("class", "line")
+		.attr("clip-path", "url(#clip)")
+		.attr(
+			"d",
+			d3
+				.line()
+				.x((d) => x(new Date(d.time)))
+				.y((d) => y(d.value))
+				.curve(d3.curveCatmullRom),
+		)
+}
+
+const renderBarChart = (svg, data) => {
+	svg.append("g")
+		.attr("fill", "var(--txt-tertiary)")
+		.attr("class", "bar")
+		.selectAll("path")
+		.data(data)
+		.join("path")
+		.transition()
+		.duration(1000)
+		.attr("d", (d) => {
+			const barX = xBand(new Date(d.time).toISOString())
+			const barY = y(d.value)
+			const barWidth = xBand.bandwidth()
+			const barHeight = height - y(d.value) - axisBottomHeight
+
+			return roundedRect(barX, barY, barWidth, barHeight, [2, 2, 0, 0])
+		})
+
+	const highlightedBars = svg
+		.append("g")
+		.attr("class", "highlighted-bars")
+		.selectAll("path")
+		.data(data)
+		.join("path")
+		.attr("class", "bar highlighted")
+		.attr("fill", "var(--mint)")
+		.attr("clip-path", "url(#clip)")
+		.transition()
+		.duration(1000)
+		.attr("d", (d) => {
+			const barX = xBand(new Date(d.time).toISOString())
+			const barY = y(d.value)
+			const barWidth = xBand.bandwidth()
+			const barHeight = height - y(d.value) - axisBottomHeight
+
+			return roundedRect(barX, barY, barWidth, barHeight, [2, 2, 0, 0])
+		})
+}
+
+let handle = null
+let leftHandle = null
+let rightHandle = null
+
+const updateHandlePosition = (selection) => {
+	if (selection) {
+		const [x0, x1] = selection
+
+		if (isNaN(x0) || isNaN(x1)) {
+			return
+		}
+
+		const brushWidth = x1 - x0
+		const handleWidth = Math.max(MIN_HANDLE_WIDTH, brushWidth)
+		const handleX = x0 + (brushWidth - handleWidth) / 2
+
+		if (!isNaN(handleX) && !isNaN(handleWidth)) {
+			handle
+				.attr("transform", `translate(${handleX}, 0)`)
+				.select("rect")
+				.attr("width", handleWidth)
+				.attr("y", margin.top - 14)
+
+			const dotsWidth = 12
+			const dotsX = (handleWidth - dotsWidth) / 2
+			handle.select(".dots-container").attr("transform", `translate(${dotsX}, ${margin.top - 12.5})`)
+
+			leftHandle.attr("transform", `translate(${x0}, 0)`)
+			rightHandle.attr("transform", `translate(${x1 - 5}, 0)`)
+
+			const tooltipText = `${formatTooltipDate(from.date)} - ${formatTooltipDate(to.date)}`
+
+			tooltip
+				.select("text")
+				.text(tooltipText)
+				.attr("x", handleWidth / 2)
+
+			const textWidth = tooltip.select("text").node().getBBox().width
+			const padding = 8
+			const tooltipWidth = textWidth + padding * 2
+
+			const handleCenterX = handleX + handleWidth / 2
+			const tooltipHalfWidth = tooltipWidth / 2
+
+			let tooltipX = (handleWidth - tooltipWidth) / 2
+
+			if (handleCenterX - tooltipHalfWidth < margin.left) {
+				tooltipX = -handleX + margin.left
+				tooltip
+					.select("text")
+					.attr("x", handleX - margin.left + tooltipHalfWidth)
+					.attr("text-anchor", "middle")
+			} else if (handleCenterX + tooltipHalfWidth > width - margin.right) {
+				tooltipX = width - margin.right - handleX - tooltipWidth
+				tooltip
+					.select("text")
+					.attr("x", width - margin.right - handleX - tooltipHalfWidth)
+					.attr("text-anchor", "middle")
+			} else {
+				tooltip
+					.select("text")
+					.attr("x", handleWidth / 2)
+					.attr("text-anchor", "middle")
+			}
+
+			tooltip.select("rect").attr("width", tooltipWidth).attr("x", tooltipX)
+		}
+	}
+}
+
+const initHandles = (gb) => {
+	handle = gb
 		.append("g")
 		.attr("class", "brush-handle")
 		.style("display", "inline")
@@ -261,7 +382,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.attr("r", 1)
 		.attr("fill", "var(--op-50)")
 
-	const leftHandle = gb
+	leftHandle = gb
 		.append("g")
 		.attr("class", "brush-handle left")
 		.style("display", "inline")
@@ -288,7 +409,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.attr("r", 1)
 		.attr("fill", "var(--op-50)")
 
-	const rightHandle = gb
+	rightHandle = gb
 		.append("g")
 		.attr("class", "brush-handle right")
 		.style("display", "inline")
@@ -315,7 +436,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.attr("r", 1)
 		.attr("fill", "var(--op-50)")
 
-	const tooltip = handle.append("g").attr("class", "tooltip").style("opacity", 0).style("pointer-events", "none")
+	tooltip = handle.append("g").attr("class", "tooltip").style("opacity", 0).style("pointer-events", "none")
 
 	tooltip
 		.append("rect")
@@ -367,20 +488,18 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 		if (isLeft) {
 			return d3.bisectLeft(
-				data.map((d) => new Date(d.time)),
+				currentData.map((d) => new Date(d.time)),
 				invertedX,
 			)
 		}
 		return d3.bisectRight(
-			data.map((d) => new Date(d.time)),
+			currentData.map((d) => new Date(d.time)),
 			invertedX,
 		)
 	}
 
 	const getXFromBarIndex = (barIndex, isLeft = false) => {
 		const padding = (xBand.padding() * xBand.step()) / 2
-
-		// +1 because bisectRight returns the index of the next element
 		return margin.left + (barIndex + (isLeft ? 0 : 1)) * xBand.step() + padding
 	}
 
@@ -391,10 +510,9 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		const [, x1] = selection
 		const barIndex = Math.min(to.index - 1, getBarIndexFromX(event.x, true))
 		const newX0 = getXFromBarIndex(barIndex, true)
-
 		if (x1 - newX0 >= xBand.step()) {
+			setFromTo(currentData, barIndex, to.index)
 			gb.call(brush.move, [newX0, x1])
-			setFromTo(data, barIndex, to.index)
 		}
 	})
 
@@ -408,7 +526,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 		if (newX1 - x0 >= xBand.step()) {
 			gb.call(brush.move, [x0, newX1])
-			setFromTo(data, from.index, barIndex)
+			setFromTo(currentData, from.index, barIndex)
 		}
 	})
 
@@ -428,7 +546,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			let [x0, x1] = selection
 			const delta = event.x - this._lastX
 			const barWidth = xBand.step()
-			const totalBars = data.length
+			const totalBars = currentData.length
 			const dynamicStep = Math.max(1, Math.floor(totalBars * 0.01))
 			const chartMinX = margin.left
 			const chartMaxX = width - margin.right
@@ -437,7 +555,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 			accumulatedDelta += delta
 			if (Math.abs(accumulatedDelta) < barWidth * dynamicStep) return
 
-			if (chartView === "line") {
+			if (props.chartView === "line") {
 				let newX0 = x0 + delta
 				let newX1 = x1 + delta
 				const selectionWidth = x1 - x0
@@ -453,9 +571,9 @@ const buildTimelineSlider = (chart, data, chartView) => {
 				if (newX1 - newX0 < minBrushWidth) return
 
 				const fromIndex = getBarIndexFromX(newX0)
-				const toIndex = Math.min(getBarIndexFromX(newX1), data.length - 1)
+				const toIndex = Math.min(getBarIndexFromX(newX1), currentData.length - 1)
 
-				setFromTo(data, fromIndex, toIndex)
+				setFromTo(currentData, fromIndex, toIndex)
 				gb.call(brush.move, [newX0, newX1])
 
 				this._lastX = event.x
@@ -476,7 +594,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 				}
 				if (newToIndex - newFromIndex < 1) return
 
-				setFromTo(data, newFromIndex, newToIndex)
+				setFromTo(currentData, newFromIndex, newToIndex)
 				gb.call(brush.move, [getXFromBarIndex(newFromIndex, true), getXFromBarIndex(newToIndex, false)])
 			}
 
@@ -490,106 +608,10 @@ const buildTimelineSlider = (chart, data, chartView) => {
 
 	handle.call(handleDragBehavior)
 
-	function updateHandlePosition(selection) {
-		if (selection) {
-			const [x0, x1] = selection
-
-			if (isNaN(x0) || isNaN(x1)) {
-				return
-			}
-
-			const brushWidth = x1 - x0
-			const handleWidth = Math.max(MIN_HANDLE_WIDTH, brushWidth)
-
-			const handleX = x0 + (brushWidth - handleWidth) / 2
-
-			if (!isNaN(handleX) && !isNaN(handleWidth)) {
-				handle
-					.attr("transform", `translate(${handleX}, 0)`)
-					.select("rect")
-					.attr("width", handleWidth)
-					.attr("y", margin.top - 14)
-
-				const dotsWidth = 12
-				const dotsX = (handleWidth - dotsWidth) / 2
-				handle.select(".dots-container").attr("transform", `translate(${dotsX}, ${margin.top - 12.5})`)
-
-				leftHandle.attr("transform", `translate(${x0}, 0)`)
-				rightHandle.attr("transform", `translate(${x1 - 5}, 0)`)
-
-				const tooltipText = `${formatTooltipDate(from.date)} - ${formatTooltipDate(to.date)}`
-
-				tooltip
-					.select("text")
-					.text(tooltipText)
-					.attr("x", handleWidth / 2)
-
-				const textWidth = tooltip.select("text").node().getBBox().width
-				const padding = 8
-				const tooltipWidth = textWidth + padding * 2
-
-				const handleCenterX = handleX + handleWidth / 2
-				const tooltipHalfWidth = tooltipWidth / 2
-
-				let tooltipX = (handleWidth - tooltipWidth) / 2
-
-				if (handleCenterX - tooltipHalfWidth < margin.left) {
-					tooltipX = -handleX + margin.left
-					tooltip
-						.select("text")
-						.attr("x", handleX - margin.left + tooltipHalfWidth)
-						.attr("text-anchor", "middle")
-				} else if (handleCenterX + tooltipHalfWidth > width - margin.right) {
-					tooltipX = width - margin.right - handleX - tooltipWidth
-					tooltip
-						.select("text")
-						.attr("x", width - margin.right - handleX - tooltipHalfWidth)
-						.attr("text-anchor", "middle")
-				} else {
-					tooltip
-						.select("text")
-						.attr("x", handleWidth / 2)
-						.attr("text-anchor", "middle")
-				}
-
-				tooltip.select("rect").attr("width", tooltipWidth).attr("x", tooltipX)
-			}
-		}
-	}
-
 	leftHandle.call(leftDragBehavior)
 	rightHandle.call(rightDragBehavior)
 
-	function brushed({ selection }) {
-		if (!selection) return
-
-		const [x0, x1] = selection
-		if (isNaN(x0) || isNaN(x1)) return
-
-		tooltip.style("opacity", 1)
-		clip.attr("x", x0).attr("width", x1 - x0)
-		updateHandlePosition([x0, x1])
-	}
-
-	function brushended({ selection }) {
-		if (!selection) {
-			gb.call(brush.move, [defaultFrom.value, defaultTo.value])
-			clip.attr("x", defaultFrom.value).attr("width", defaultTo.value - defaultFrom.value)
-			return
-		}
-
-		queueMicrotask(() => {
-			emit("onUpdate", { from: from.ts, to: to.ts })
-		})
-	}
-
-	brush.on("brush", brushed).on("end", brushended)
-
-	d3.select("body").on("mouseup.brush", function () {
-		tooltip.transition().duration(200).style("opacity", 0)
-	})
-
-	updateHandlePosition([defaultFrom.value, defaultTo.value])
+	updateHandlePosition([defaultFrom, defaultTo])
 
 	gb.select(".selection")
 		.on("mouseenter", function () {
@@ -598,13 +620,24 @@ const buildTimelineSlider = (chart, data, chartView) => {
 		.on("mouseleave", function () {
 			tooltip.transition().duration(200).style("opacity", 0)
 		})
-
-	return svg.node()
 }
 
 const clearChart = () => {
 	if (chartEl.value?.wrapper) {
 		d3.select(chartEl.value.wrapper).selectAll("*").remove()
+		brush = null
+		gb = null
+		clip = null
+		x = null
+		xBand = null
+		y = null
+		tooltip = null
+		defaultFrom = 0
+		defaultTo = 0
+		currentData = []
+		handle = null
+		leftHandle = null
+		rightHandle = null
 	}
 }
 
@@ -642,6 +675,7 @@ const createChart = () => {
 	if (chartEl.value?.wrapper && props.allData) {
 		clearChart()
 		const reversedData = props.allData?.slice().reverse()
+
 		setFromTo(reversedData, 0, reversedData.length - 1)
 
 		buildTimelineSlider(chartEl.value.wrapper, reversedData, props.chartView)
@@ -666,6 +700,14 @@ watch(
 	},
 	{ deep: true },
 )
+
+watch([() => props.from, () => props.to], ([newFrom, newTo], [oldFrom, oldTo]) => {
+	if (newFrom === oldFrom && newTo === oldTo) return
+	if (!props.allData?.length) return
+	if (isInternalUpdate.value) return
+
+	createChart()
+})
 
 onMounted(() => {
 	createChart()

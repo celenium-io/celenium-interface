@@ -250,7 +250,7 @@ const handleUpdateDate = async (event) => {
 		let to = event.to
 
 		from = DateTime.fromSeconds(from).startOf("day").toSeconds()
-		to = DateTime.fromSeconds(to).endOf("day").toSeconds()
+		to = Math.floor(DateTime.fromSeconds(to).endOf("day").toSeconds())
 
 		if (filters.from === from && filters.to === to) {
 			isLoading.value = false
