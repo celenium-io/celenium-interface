@@ -9,7 +9,7 @@ import { getNetworkName } from "@/services/utils/general"
 <template>
 	<Flex direction="column">
 		<Flex justify="center" :class="$style.wrapper">
-			<img v-if="getNetworkName() === 'Mammoth'" src="/img/mammoth.jpeg" :class="$style.mammoth_bg" />
+			<img src="/img/mammoth.jpeg" :class="$style.mammoth_bg" />
 
 			<LeftSidebar :class="$style.sidebar" />
 
