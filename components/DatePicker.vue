@@ -122,6 +122,8 @@ const updateSelectedRange = (from, to) => {
 			} else {
 				selectedRange.value = `${from.toFormat("dd LLL yyyy")} - ${to.toFormat("dd LLL yyyy")}`
 			}
+			month.value = to.c.month
+			year.value = to.c.year
 		} else {
 			selectedRange.value = from.toFormat("dd LLL")
 		}
@@ -193,6 +195,10 @@ const isInSelectedPeriod = (d) => {
 
 const isOpen = ref(false)
 const handleOpen = () => {
+	let to = DateTime.fromSeconds(parseInt(props.to))
+	month.value = to.c.month
+	year.value = to.c.year
+
 	isOpen.value = true
 }
 const handleClose = () => {
