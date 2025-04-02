@@ -177,10 +177,10 @@ const fetchData = async () => {
 		).reverse()
 	}
 
-	allData.value = data
+	allData.value = data.map((d) => ({ ...d, date: new Date(d.time), timestamp: new Date(d.time).getTime() / 1_000 }))
+
 	currentChartName.value = series.value.name
 	loadedAllData.value = true
-
 	return allData.value
 }
 
@@ -453,8 +453,9 @@ onBeforeMount(() => {
 			:chartView="chartView"
 			:from="filters.from"
 			:to="filters.to"
-			:selectedTimeframe="selectedTimeframe" 
-			@onUpdate="handleTimelineUpdate" />
+			:selectedTimeframe="selectedTimeframe"
+			@onUpdate="handleTimelineUpdate"
+		/>
 	</Flex>
 </template>
 
