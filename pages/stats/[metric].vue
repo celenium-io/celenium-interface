@@ -264,8 +264,11 @@ const handleUpdateDate = async (event) => {
 
 		filters.from = from
 		filters.to = to
-		if (Math.abs(DateTime.fromSeconds(from).diff(DateTime.fromSeconds(to), 'days').days) < 8) {
-			selectedTimeframe.value = STATS_TIMEFRAMES.find((tf) => tf.timeframe === "hour")
+		
+		if (event.source !== 'timeline') {
+			if (Math.abs(DateTime.fromSeconds(from).diff(DateTime.fromSeconds(to), 'days').days) < 8) {
+				selectedTimeframe.value = STATS_TIMEFRAMES.find((tf) => tf.timeframe === "hour")
+			}
 		}
 
 		await getData()

@@ -31,6 +31,7 @@ const axisBottomHeight = 20
 
 const chartEl = ref()
 const isInternalUpdate = ref(false)
+const rightDragStarted = ref(false)
 let brush = null
 let gb = null
 let clip = null
@@ -188,11 +189,55 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	return svg.node()
 }
 
-const brushed = ({ selection }) => {
+const brushed = ({ selection, sourceEvent }) => {
+	console.log("brushed", selection, sourceEvent)
 	if (!selection) return
 
-	const [x0, x1] = selection
+	let [x0, x1] = selection
 	if (isNaN(x0) || isNaN(x1)) return
+
+	if (sourceEvent) {
+		const currentX = sourceEvent.offsetX - margin.left
+		const prevSelection = gb.node().__brush.selection
+		const prevX0 = prevSelection[0]
+		const prevX1 = prevSelection[1]
+		const padding = (xBand.padding() * xBand.step()) / 2
+
+		// Определяем направление движения
+		if (Math.abs(currentX - prevX0) < Math.abs(currentX - prevX1)) {
+			// Двигается левый край
+			// console.log("left")
+			// const leftIndex = getBarIndexFromX(currentX, true)
+			// x0 = margin.left + leftIndex * xBand.step() + padding
+			// if (x1 - x0 < xBand.step()) {
+			// 	x0 = x1 - xBand.step()
+			// }
+			// setStartEndFromIndex(currentData, leftIndex, to.index)
+		} else {
+			// Двигается правый край
+			console.log("right")
+			const rightIndex = getBarIndexFromX(currentX, false)
+			const leftIndex = getBarIndexFromX(currentX, true)
+
+			// Если курсор на баре (индексы различаются), берем левый индекс
+			const actualIndex = leftIndex !== rightIndex ? leftIndex : rightIndex
+
+			// Вычисляем x0 только если это первое движение
+			if (!rightDragStarted.value) {
+				console.log("first")
+				x0 = margin.left + actualIndex * xBand.step() - padding
+				rightDragStarted.value = true
+			}
+
+			x1 = margin.left + (actualIndex + 1) * xBand.step() - padding
+			if (x1 - x0 < xBand.step()) {
+				x1 = x0 + xBand.step()
+			}
+			setStartEndFromIndex(currentData, from.index, actualIndex)
+		}
+
+		gb.call(brush.move, [x0, x1])
+	}
 
 	clip.attr("x", x0).attr("width", x1 - x0)
 	updateHandlePosition([x0, x1])
@@ -205,10 +250,12 @@ const brushended = ({ selection }) => {
 		return
 	}
 
+	rightDragStarted.value = false // Сбрасываем флаг при окончании движения
+
 	isInternalUpdate.value = true
 
 	queueMicrotask(() => {
-		emit("onUpdate", { from: from.ts, to: to.ts })
+		emit("onUpdate", { from: from.ts, to: to.ts, source: "timeline" })
 		queueMicrotask(() => {
 			isInternalUpdate.value = false
 		})
@@ -301,7 +348,7 @@ const updateHandlePosition = (selection) => {
 		}
 
 		const brushWidth = x1 - x0
-		const handleWidth = Math.max(MIN_HANDLE_WIDTH, brushWidth)
+		const handleWidth = brushWidth
 		const handleX = x0 + (brushWidth - handleWidth) / 2
 
 		if (!isNaN(handleX) && !isNaN(handleWidth)) {
@@ -313,7 +360,7 @@ const updateHandlePosition = (selection) => {
 
 			const dotsWidth = 12
 			const dotsX = (handleWidth - dotsWidth) / 2
-			handle.select(".dots-container").attr("transform", `translate(${dotsX}, ${margin.top - 12.5})`)
+			// handle.select(".dots-container").attr("transform", `translate(${dotsX}, ${margin.top - 12.5})`)
 
 			leftHandle.attr("transform", `translate(${x0}, 0)`)
 			rightHandle.attr("transform", `translate(${x1 - 5}, 0)`)
@@ -358,6 +405,21 @@ const updateHandlePosition = (selection) => {
 	}
 }
 
+const getBarIndexFromX = (eventX, isLeft = false) => {
+	const invertedX = x.invert(eventX)
+
+	if (isLeft) {
+		return d3.bisectLeft(
+			currentData.map((d) => new Date(d.time)),
+			invertedX,
+		)
+	}
+	return d3.bisectRight(
+		currentData.map((d) => new Date(d.time)),
+		invertedX,
+	)
+}
+
 const initHandles = (gb) => {
 	handle = gb
 		.append("g")
@@ -380,14 +442,14 @@ const initHandles = (gb) => {
 		.attr("transform", `translate(0, ${margin.top - 12.5})`)
 		.attr("class", "dots-container")
 
-	dotsContainer
-		.selectAll("circle")
-		.data([0, 1, 2])
-		.join("circle")
-		.attr("cx", (d) => d * 6)
-		.attr("cy", 1)
-		.attr("r", 1)
-		.attr("fill", "var(--op-50)")
+	// dotsContainer
+	// 	.selectAll("circle")
+	// 	.data([0, 1, 2])
+	// 	.join("circle")
+	// 	.attr("cx", (d) => d * 6)
+	// 	.attr("cy", 1)
+	// 	.attr("r", 1)
+	// 	.attr("fill", "var(--op-50)")
 
 	leftHandle = gb
 		.append("g")
@@ -490,20 +552,20 @@ const initHandles = (gb) => {
 			tooltip.transition().duration(200).style("opacity", 0)
 		})
 
-	const getBarIndexFromX = (eventX, isLeft = false) => {
-		const invertedX = x.invert(eventX)
+	// const getBarIndexFromX = (eventX, isLeft = false) => {
+	// 	const invertedX = x.invert(eventX)
 
-		if (isLeft) {
-			return d3.bisectLeft(
-				currentData.map((d) => new Date(d.time)),
-				invertedX,
-			)
-		}
-		return d3.bisectRight(
-			currentData.map((d) => new Date(d.time)),
-			invertedX,
-		)
-	}
+	// 	if (isLeft) {
+	// 		return d3.bisectLeft(
+	// 			currentData.map((d) => new Date(d.time)),
+	// 			invertedX,
+	// 		)
+	// 	}
+	// 	return d3.bisectRight(
+	// 		currentData.map((d) => new Date(d.time)),
+	// 		invertedX,
+	// 	)
+	// }
 
 	const leftDragBehavior = d3.drag().on("drag", function (event) {
 		const selection = d3.brushSelection(gb.node())
@@ -644,7 +706,6 @@ const clearChart = () => {
 }
 
 const setStartEndFromTimestamp = (data, fromTimestamp, toTimestamp) => {
-	// Находим индексы ближайших дат
 	const fromIndex = data.findIndex((d) => {
 		const timestamp = Math.floor(new Date(d.time).getTime() / 1000)
 		return timestamp >= fromTimestamp
@@ -656,21 +717,19 @@ const setStartEndFromTimestamp = (data, fromTimestamp, toTimestamp) => {
 			return timestamp > toTimestamp
 		}) - 1
 
-	// Если toIndex получился -2 (не нашли большую дату), берем последний индекс
 	const finalToIndex = toIndex === -2 ? data.length - 1 : toIndex
 
-	// Проверяем валидность индексов
 	const validFromIndex = fromIndex >= 0 ? fromIndex : 0
 	const validToIndex = finalToIndex >= 0 ? finalToIndex : data.length - 1
 
-	console.log("setStartEndFromTimestamp", {
-		fromTimestamp,
-		toTimestamp,
-		fromIndex: validFromIndex,
-		toIndex: validToIndex,
-		fromDate: new Date(data[validFromIndex]?.time),
-		toDate: new Date(data[validToIndex]?.time),
-	})
+	// console.log("setStartEndFromTimestamp", {
+	// 	fromTimestamp,
+	// 	toTimestamp,
+	// 	fromIndex: validFromIndex,
+	// 	toIndex: validToIndex,
+	// 	fromDate: new Date(data[validFromIndex]?.time),
+	// 	toDate: new Date(data[validToIndex]?.time),
+	// })
 
 	setStartEndFromIndex(data, validFromIndex, validToIndex)
 }
@@ -701,7 +760,6 @@ const setStartEndFromIndex = (data, startIndex, endIndex) => {
 	from.date = startDate
 	to.date = getEndDate[timeframe]?.() || getEndDate.default()
 
-	console.log("!", data[from.index], data[to.index])
 	from.ts = ts(from.date)
 	to.ts = ts(to.date)
 
