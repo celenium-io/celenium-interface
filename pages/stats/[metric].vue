@@ -167,6 +167,9 @@ const fetchData = async () => {
 		data = await fetchSeries({
 			table: series.value.name,
 			period: selectedTimeframe.value.timeframe,
+			from: selectedTimeframe.value.timeframe === "hour"
+				? parseInt(DateTime.now().minus({ days: 7 }).ts / 1_000)
+				: null
 		})
 	} else {
 		data = (
@@ -215,6 +218,7 @@ const getData = async () => {
 
 	series.value.currentData = [...currentData.value]
 
+	filters.timeframe = selectedTimeframe.value
 	series.value.timeframe = filters.timeframe
 	isLoading.value = false
 }
@@ -316,11 +320,9 @@ const isInternalUpdate = ref(false)
 
 watch(
 	() => selectedTimeframe.value,
-	async (newValue, oldValue) => {
+	async () => {
 		if (!isLoading.value && !isInternalUpdate.value) {
 			allData.value = []
-			// filters.from = null
-			// filters.to = null
 			await getData()
 		}
 	},
@@ -453,7 +455,7 @@ onBeforeMount(() => {
 			:chartView="chartView"
 			:from="filters.from"
 			:to="filters.to"
-			:selectedTimeframe="selectedTimeframe"
+			:selectedTimeframe="selectedTimeframe" 
 			@onUpdate="handleTimelineUpdate"
 		/>
 	</Flex>
