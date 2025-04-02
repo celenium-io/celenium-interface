@@ -93,7 +93,7 @@ const categories = computed(() => {
 		res.push('other')
 	}
 	
-	return res	
+	return res
 })
 const types = computed(() => {
 	let res = []
@@ -101,7 +101,15 @@ const types = computed(() => {
 		res = enumStore.enums.rollupTypes
 	}
 	
-	return res	
+	return res
+})
+const tags = computed(() => {
+	let res = []
+	if (enumStore.enums?.rollupTags?.length) {
+		res = enumStore.enums.rollupTags
+	}
+	
+	return res
 })
 
 const providers = ref([])
@@ -121,18 +129,21 @@ const getDisplayName = (name) => {
 const popovers = reactive({
 	categories: false,
 	types: false,
+	tags: false,
 	// providers: false,
 	// stacks: false,
 })
 const keyMap = {
 	categories: 'category',
 	types: 'type',
+	tags: 'tag',
 	// providers: 'provider',
 	// stacks: 'stack',
 }
 const filters = reactive({
 	categories: categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	types: types.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	tags: tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	// providers: {},
 	// stacks: {},
 })
@@ -205,6 +216,11 @@ const getRollups = async () => {
 			Object.keys(filters.types)
 				.filter((f) => filters.types[f])
 				.join(","),
+		tags:
+			Object.keys(filters.tags).find((f) => filters.tags[f]) &&
+			Object.keys(filters.tags)
+				.filter((f) => filters.tags[f])
+				.join(","),
 		limit: limit.value,
 		offset: (page.value - 1) * 20,
 		sort: sort.dir,
@@ -259,6 +275,12 @@ watch(
 	() => types.value,
 	() => {
 		filters.types = types.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+	}
+)
+watch(
+	() => tags.value,
+	() => {
+		filters.tags = tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
 	}
 )
 

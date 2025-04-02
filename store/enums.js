@@ -12,6 +12,7 @@ export const useEnumStore = defineStore("enums", () => {
 		messageTypes: defaultEnums.message_type,
 		rollupCategories: defaultEnums.categories,
 		rollupTypes: defaultEnums.rollup_type,
+		rollupTags: defaultEnums.tags,
 	})
 
 	const init = async () => {
@@ -21,6 +22,7 @@ export const useEnumStore = defineStore("enums", () => {
 			enums.value.messageTypes = data.message_type
 			enums.value.rollupCategories = data.categories
 			enums.value.rollupTypes = data.rollup_type
+			enums.value.rollupTags = data.tags?.filter(t => t)
 		}
 	}
 

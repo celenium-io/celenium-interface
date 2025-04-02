@@ -1,12 +1,13 @@
 /** Services */
 import { githubServiceURL, tvlServiceURL, useServerURL } from "@/services/config"
 
-export const fetchRollups = async ({ categories, type, limit, offset, sort, sort_by }) => {
+export const fetchRollups = async ({ categories, type, tags, limit, offset, sort, sort_by }) => {
 	try {
 		const url = new URL(`${useServerURL()}/rollup`)
 
 		if (categories) url.searchParams.append("category", categories)
 		if (type) url.searchParams.append("type", type)
+		if (tags) url.searchParams.append("tags", tags)
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 		if (sort) url.searchParams.append("sort", sort)

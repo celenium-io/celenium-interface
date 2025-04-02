@@ -150,5 +150,14 @@ export const defaultEnums = {
 	rollup_type: [
 		"sovereign",
 		"settled"
+	],
+	tags: [
+		"ZK",
+		"AI"
+	],
+	celestials_statuses: [
+		"NOT_VERIFIED",
+		"VERIFIED",
+		"PRIMARY"
 	]
 }
