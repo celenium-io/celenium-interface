@@ -71,12 +71,7 @@ const initBrush = (svg, data) => {
 		[width - margin.right, height - axisBottomHeight],
 	])
 
-	defaultRange = {
-		from: getXFromBarIndex(0, true),
-		to: getXFromBarIndex(data.length - 1, false),
-	}
-
-	gb = svg.append("g").call(brush).call(brush.move, [defaultRange.from, defaultRange.to])
+	gb = svg.append("g").call(brush)
 
 	gb.select(".selection").attr("fill", "var(--op-30)").attr("stroke", "var(--op-30)").style("pointer-events", "none")
 
@@ -86,13 +81,15 @@ const initBrush = (svg, data) => {
 		brush.on("brush", brushed)
 	})
 
-	setStartEndFromIndex(data, 0, data.length - 1)
-
 	initHandles(gb)
 
 	brush.on("brush", brushed).on("end", brushended)
 
-	brushed({ selection: [defaultRange.from, defaultRange.to] })
+	setStartEndFromTimestamp(data, props.from, props.to)
+	const x0 = getXFromBarIndex(from.index, true)
+	const x1 = getXFromBarIndex(to.index, false)
+	gb.call(brush.move, [x0, x1])
+	brushed({ selection: [x0, x1] })
 
 	return gb
 }
@@ -197,7 +194,6 @@ const brushed = ({ selection }) => {
 	const [x0, x1] = selection
 	if (isNaN(x0) || isNaN(x1)) return
 
-	tooltip.style("opacity", 1)
 	clip.attr("x", x0).attr("width", x1 - x0)
 	updateHandlePosition([x0, x1])
 }
@@ -527,7 +523,7 @@ const initHandles = (gb) => {
 		if (!selection) return
 
 		const [x0] = selection
-		const barIndex = Math.max(from.index + 1, getBarIndexFromX(event.x, false))
+		const barIndex = Math.min(Math.max(from.index + 1, getBarIndexFromX(event.x, false)), currentData.length - 1)
 		const newX1 = getXFromBarIndex(barIndex, false)
 
 		if (newX1 - x0 >= xBand.step()) {
@@ -647,12 +643,36 @@ const clearChart = () => {
 	}
 }
 
-
 const setStartEndFromTimestamp = (data, fromTimestamp, toTimestamp) => {
-	const fromIndex = data.findIndex((d) => d.timestamp === fromTimestamp)
-	const toIndex = data.findIndex((d) => d.timestamp === toTimestamp)
+	// Находим индексы ближайших дат
+	const fromIndex = data.findIndex((d) => {
+		const timestamp = Math.floor(new Date(d.time).getTime() / 1000)
+		return timestamp >= fromTimestamp
+	})
 
-	setStartEndFromIndex(data, fromIndex, toIndex)
+	const toIndex =
+		data.findIndex((d) => {
+			const timestamp = Math.floor(new Date(d.time).getTime() / 1000)
+			return timestamp > toTimestamp
+		}) - 1
+
+	// Если toIndex получился -2 (не нашли большую дату), берем последний индекс
+	const finalToIndex = toIndex === -2 ? data.length - 1 : toIndex
+
+	// Проверяем валидность индексов
+	const validFromIndex = fromIndex >= 0 ? fromIndex : 0
+	const validToIndex = finalToIndex >= 0 ? finalToIndex : data.length - 1
+
+	console.log("setStartEndFromTimestamp", {
+		fromTimestamp,
+		toTimestamp,
+		fromIndex: validFromIndex,
+		toIndex: validToIndex,
+		fromDate: new Date(data[validFromIndex]?.time),
+		toDate: new Date(data[validToIndex]?.time),
+	})
+
+	setStartEndFromIndex(data, validFromIndex, validToIndex)
 }
 
 const setStartEndFromIndex = (data, startIndex, endIndex) => {
@@ -681,8 +701,11 @@ const setStartEndFromIndex = (data, startIndex, endIndex) => {
 	from.date = startDate
 	to.date = getEndDate[timeframe]?.() || getEndDate.default()
 
+	console.log("!", data[from.index], data[to.index])
 	from.ts = ts(from.date)
 	to.ts = ts(to.date)
+
+	// gb.call(brush.move, [getXFromBarIndex(from.index, true), getXFromBarIndex(to.index, false)])
 }
 
 const getXFromBarIndex = (barIndex, isLeft = false) => {

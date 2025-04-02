@@ -164,11 +164,12 @@ const fetchData = async () => {
 			return { time: v.time, value: v.close }
 		})
 	} else if (series.value.aggregate !== "cumulative") {
+		let from = filters?.to ? DateTime.fromSeconds(+filters?.to) : DateTime.now()
 		data = await fetchSeries({
 			table: series.value.name,
 			period: selectedTimeframe.value.timeframe,
 			from: selectedTimeframe.value.timeframe === "hour"
-				? parseInt(DateTime.now().minus({ days: 7 }).ts / 1_000)
+				? parseInt(from.minus({ days: 7 }).ts / 1_000)
 				: null
 		})
 	} else {
@@ -263,6 +264,9 @@ const handleUpdateDate = async (event) => {
 
 		filters.from = from
 		filters.to = to
+		if (Math.abs(DateTime.fromSeconds(from).diff(DateTime.fromSeconds(to), 'days').days) < 8) {
+			selectedTimeframe.value = STATS_TIMEFRAMES.find((tf) => tf.timeframe === "hour")
+		}
 
 		await getData()
 	}
