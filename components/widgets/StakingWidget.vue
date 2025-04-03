@@ -20,12 +20,12 @@ const wrapperEl = ref(null)
 const wrapperWidth = ref(0)
 const barWidth = computed(() => Math.round(wrapperWidth.value - 32))
 
-const totalSupply = computed(() => lastHead.value.total_supply / 1_000_000)
+const totalSupply = computed(() => lastHead.value?.total_supply / 1_000_000)
 const totalSupplyUSD = computed(() => totalSupply.value * currentPrice.value?.close)
-const totalVotingPower = computed(() => lastHead.value.total_voting_power)
+const totalVotingPower = computed(() => lastHead.value?.total_voting_power)
 const totalVotingPowerUSD = computed(() => totalVotingPower.value * currentPrice.value?.close)
 
-const bondedShare = computed(() => shareOfTotal(lastHead?.value.total_voting_power * 1_000_000, lastHead?.value.total_supply, 2))
+const bondedShare = computed(() => shareOfTotal(lastHead.value?.total_voting_power * 1_000_000, lastHead.value?.total_supply, 2))
 
 const isRefetching = ref(true)
 const totalValidators = ref(0)

@@ -10,7 +10,7 @@ import NavLink from "@/components/modules/navigation/NavLink.vue"
 /** Utils */
 import { getNetworkName } from "@/services/utils/general"
 import { StatusMap } from "@/services/constants/node"
-import { isMobile } from "@/services/utils"
+import { isMainnet, isMobile } from "@/services/utils"
 
 /** Store */
 import { useAppStore } from "~/store/app"
@@ -52,16 +52,19 @@ const mainLinks = reactive([
 				name: "Active",
 				path: "/validators?status=active&page=1",
 				queryParam: { status: "active" },
+				show: true,
 			},
 			{
 				name: "Jailed",
 				path: "/validators?status=jailed&page=1",
 				queryParam: { status: "jailed" },
+				show: true,
 			},
 			{
 				name: "Inactive",
 				path: "/validators?status=inactive&page=1",
 				queryParam: { status: "inactive" },
+				show: true,
 			},
 		],
 	},
@@ -74,16 +77,25 @@ const mainLinks = reactive([
 				name: "General",
 				path: "/stats?tab=general",
 				queryParam: { tab: "general" },
+				show: true,
 			},
 			{
 				name: "Blocks",
 				path: "/stats?tab=blocks",
 				queryParam: { tab: "blocks" },
+				show: true,
 			},
 			{
 				name: "Rollups",
 				path: "/stats?tab=rollups",
 				queryParam: { tab: "rollups" },
+				show: true,
+			},
+			{
+				name: "Ecosystem",
+				path: "/stats?tab=ecosystem",
+				queryParam: {tab: "ecosystem"},
+				show: isMainnet(),
 			},
 		],
 	},
@@ -99,11 +111,13 @@ const modularLinks = reactive([
 			{
 				name: "Cost Savings",
 				path: "/calculators/savings",
+				show: true,
 			},
 			{
 				name: "Register rollup",
 				path: "https://forms.gle/nimJyQJG4Lb4BTcG7",
 				external: true,
+				show: true,
 			},
 		],
 	},
@@ -115,6 +129,7 @@ const modularLinks = reactive([
 			{
 				name: "Treemap View",
 				path: "/namespaces/treemap",
+				show: true,
 			},
 		],
 	},
@@ -127,6 +142,11 @@ const modularLinks = reactive([
 
 const isToolsLinkCollapsed = ref(false)
 const toolsLinks = reactive([
+	{
+		icon: "drop",
+		name: "Faucet",
+		path: "/faucet",
+	},
 	{
 		icon: "blob",
 		name: "Blobstream",
@@ -164,6 +184,10 @@ const newLinks = reactive([
 const handleNavigate = (url) => {
 	window.location.replace(url)
 }
+
+const handleOnClose = () => {
+	appStore.showSidebar = false
+}
 </script>
 
 <template>
@@ -194,7 +218,7 @@ const handleNavigate = (url) => {
 			</Flex>
 
 			<Flex direction="column" gap="2">
-				<NavLink v-for="link in mainLinks" :link="link" @onClose="appStore.showSidebar = false" />
+				<NavLink v-for="link in mainLinks" :link="link" @onClose="handleOnClose" />
 			</Flex>
 
 			<Flex direction="column" gap="2">
@@ -209,7 +233,7 @@ const handleNavigate = (url) => {
 				</Flex>
 
 				<Flex v-if="!isModularLinksCollapsed" direction="column" gap="2">
-					<NavLink v-for="link in modularLinks" :link="link" @onClose="appStore.showSidebar = false" />
+					<NavLink v-for="link in modularLinks" :link="link" @onClose="handleOnClose" />
 				</Flex>
 			</Flex>
 
@@ -225,7 +249,7 @@ const handleNavigate = (url) => {
 				</Flex>
 
 				<Flex v-if="!isToolsLinkCollapsed" direction="column" gap="2">
-					<NavLink v-for="link in toolsLinks" :link="link" @onClose="appStore.showSidebar = false" />
+					<NavLink v-for="link in toolsLinks" :link="link" @onClose="handleOnClose" />
 				</Flex>
 			</Flex>
 
@@ -359,9 +383,9 @@ const handleNavigate = (url) => {
 
 .group_title {
 	border-radius: 5px;
-	cursor: default;
+	cursor: pointer;
 
-	padding: 4px 6px;
+	padding: 6px 6px;
 	margin: 0 2px;
 
 	transition: all 0.2s ease;
