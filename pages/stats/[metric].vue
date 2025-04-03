@@ -164,9 +164,13 @@ const fetchData = async () => {
 			return { time: v.time, value: v.close }
 		})
 	} else if (series.value.aggregate !== "cumulative") {
+		let from = filters?.to ? DateTime.fromSeconds(+filters?.to) : DateTime.now()
 		data = await fetchSeries({
 			table: series.value.name,
 			period: selectedTimeframe.value.timeframe,
+			from: selectedTimeframe.value.timeframe === "hour"
+				? parseInt(from.minus({ days: 7 }).ts / 1_000)
+				: null
 		})
 	} else {
 		data = (
@@ -177,10 +181,10 @@ const fetchData = async () => {
 		).reverse()
 	}
 
-	allData.value = data
+	allData.value = data.map((d) => ({ ...d, date: new Date(d.time), timestamp: new Date(d.time).getTime() / 1_000 }))
+
 	currentChartName.value = series.value.name
 	loadedAllData.value = true
-
 	return allData.value
 }
 
@@ -215,6 +219,7 @@ const getData = async () => {
 
 	series.value.currentData = [...currentData.value]
 
+	filters.timeframe = selectedTimeframe.value
 	series.value.timeframe = filters.timeframe
 	isLoading.value = false
 }
@@ -259,6 +264,12 @@ const handleUpdateDate = async (event) => {
 
 		filters.from = from
 		filters.to = to
+		
+		if (event.source !== 'timeline') {
+			if (Math.abs(DateTime.fromSeconds(from).diff(DateTime.fromSeconds(to), 'days').days) < 8) {
+				selectedTimeframe.value = STATS_TIMEFRAMES.find((tf) => tf.timeframe === "hour")
+			}
+		}
 
 		await getData()
 	}
@@ -316,11 +327,9 @@ const isInternalUpdate = ref(false)
 
 watch(
 	() => selectedTimeframe.value,
-	async (newValue, oldValue) => {
+	async () => {
 		if (!isLoading.value && !isInternalUpdate.value) {
 			allData.value = []
-			// filters.from = null
-			// filters.to = null
 			await getData()
 		}
 	},
@@ -454,7 +463,8 @@ onBeforeMount(() => {
 			:from="filters.from"
 			:to="filters.to"
 			:selectedTimeframe="selectedTimeframe" 
-			@onUpdate="handleTimelineUpdate" />
+			@onUpdate="handleTimelineUpdate"
+		/>
 	</Flex>
 </template>
 

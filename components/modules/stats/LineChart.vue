@@ -49,8 +49,8 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 		.curve(d3.curveCatmullRom)
 
 	function formatDate(date) {
-		if (props.series.timeframe === "hour") {
-			return DateTime.fromJSDate(date).toFormat("LLL dd, HH:mm")
+		if (props.series?.timeframe?.timeframe === "hour") {
+			return DateTime.fromJSDate(date).toFormat("HH:mm, LLL dd, yyyy")
 		}
 
 		return DateTime.fromJSDate(date).toFormat("LLL dd, yyyy")
@@ -104,8 +104,8 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 		.call(
 			d3
 				.axisBottom(x)
-				.ticks(6)
-				.tickFormat(d3.timeFormat(props.series.timeframe === "hour" ? "%H:%M" : "%b %d")),
+				.ticks(Math.min(cData.data.length, 6))
+				.tickFormat(d3.timeFormat(["hour", "day"].includes(props.series.timeframe.timeframe) ? "%b %d" : "%b"))
 		)
 
 	svg.append("g")

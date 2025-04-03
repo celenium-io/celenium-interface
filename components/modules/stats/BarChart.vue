@@ -57,6 +57,10 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 	const y = d3.scaleLinear([MIN_VALUE, MAX_VALUE], [height - marginBottom, marginTop])
 
 	function formatDate(date) {
+		if (props.series?.timeframe?.timeframe === "hour") {
+			return DateTime.fromJSDate(date).toFormat("HH:mm, LLL dd, yyyy")
+		}
+
 		return DateTime.fromJSDate(date).toFormat("LLL dd, yyyy")
 	}
 
@@ -105,7 +109,12 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 	svg.append("g")
 		.attr("transform", `translate(0, ${height - marginAxisX})`)
 		.attr("color", "var(--op-20)")
-		.call(d3.axisBottom(scaleX).ticks(Math.min(cData.data.length, 6)).tickFormat(d3.timeFormat("%b %d")))
+		.call(
+			d3
+				.axisBottom(scaleX)
+				.ticks(Math.min(cData.data.length, 6))
+				.tickFormat(d3.timeFormat(["hour", "day"].includes(props.series.timeframe.timeframe) ? "%b %d" : "%b"))
+		)
 		.selectAll(".tick line")
 		.filter(function (d) {
 			return d === 0
