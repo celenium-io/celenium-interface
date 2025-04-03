@@ -731,13 +731,13 @@ watch(
 	{ deep: true },
 )
 
-watch([() => props.from, () => props.to], ([newFrom, newTo], [oldFrom, oldTo]) => {
-	if (newFrom === oldFrom && newTo === oldTo) return
-	if (!props.allData?.length) return
-	if (isInternalUpdate.value) return
+// watch([() => props.from, () => props.to], ([newFrom, newTo], [oldFrom, oldTo]) => {
+// 	if (newFrom === oldFrom && newTo === oldTo) return
+// 	if (!props.allData?.length) return
+// 	if (isInternalUpdate.value) return
 
-	createChart()
-})
+// 	createChart()
+// })
 
 onMounted(() => {
 	createChart()

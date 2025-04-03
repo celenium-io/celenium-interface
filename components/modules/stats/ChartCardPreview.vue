@@ -152,7 +152,7 @@ const buildChart = (chart, data, color) => {
 	const MIN_VALUE = Math.min(Math.min(...prevData.value.map((s) => s.value)), Math.min(...currentData.value.map((s) => s.value)))
 
 	function formatDate(date) {
-		if (props.period.timeframe === 'hour') {
+		if (props.period.timeframe === 'hour' && props.series.aggregate !== 'cumulative') {
 			return DateTime.fromJSDate(date).toFormat("LLL dd HH:mm")
 		}
 

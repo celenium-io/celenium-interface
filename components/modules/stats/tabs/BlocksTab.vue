@@ -11,7 +11,6 @@ import { getSeriesByGroupAndType, STATS_PERIODS } from "@/services/constants/sta
 const series = computed(() => getSeriesByGroupAndType('Blocks'))
 const periods = ref(STATS_PERIODS)
 const selectedPeriod = ref(periods.value[0])
-
 </script>
 
 <template>
