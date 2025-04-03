@@ -208,7 +208,6 @@ const drawChart = () => {
 watch(
 	() => [currentData.value],
 	() => {
-		console.log('props.series', props.series);
 		if (chartEl?.value?.wrapper) {
 			drawChart()
 		}

@@ -62,7 +62,7 @@ const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#55c9ab", "#1
 const MIN_HANDLE_WIDTH = 20
 
 const formatTooltipDate = (date) => {
-	console.log("formatTooltipDate", date)
+	// console.log("formatTooltipDate", date)
 	return DateTime.fromJSDate(date instanceof Date ? date : new Date(date)).toFormat("dd LLL yyyy")
 }
 
@@ -190,7 +190,7 @@ const buildTimelineSlider = (chart, data, chartView) => {
 }
 
 const brushed = ({ selection, sourceEvent }) => {
-	console.log("brushed", selection, sourceEvent)
+	// console.log("brushed", selection, sourceEvent)
 	if (!selection) return
 
 	let [x0, x1] = selection
@@ -215,7 +215,7 @@ const brushed = ({ selection, sourceEvent }) => {
 			// setStartEndFromIndex(currentData, leftIndex, to.index)
 		} else {
 			// Двигается правый край
-			console.log("right")
+			// console.log("right")
 			const rightIndex = getBarIndexFromX(currentX, false)
 			const leftIndex = getBarIndexFromX(currentX, true)
 
@@ -224,12 +224,12 @@ const brushed = ({ selection, sourceEvent }) => {
 
 			// Вычисляем x0 только если это первое движение
 			if (!rightDragStarted.value) {
-				console.log("first")
-				x0 = margin.left + actualIndex * xBand.step() - padding
+				// console.log("first")
+				x0 = margin.left + actualIndex * xBand.step() + padding
 				rightDragStarted.value = true
 			}
 
-			x1 = margin.left + (actualIndex + 1) * xBand.step() - padding
+			x1 = margin.left + (actualIndex + 1) * xBand.step() + padding
 			if (x1 - x0 < xBand.step()) {
 				x1 = x0 + xBand.step()
 			}
@@ -688,7 +688,7 @@ const initHandles = (gb) => {
 
 const clearChart = () => {
 	if (chartEl.value?.wrapper) {
-		console.log("clearChart")
+		// console.log("clearChart")
 		d3.select(chartEl.value.wrapper).selectAll("*").remove()
 		brush = null
 		gb = null
