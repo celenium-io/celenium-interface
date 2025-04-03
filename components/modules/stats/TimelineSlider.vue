@@ -31,7 +31,7 @@ const axisBottomHeight = 20
 
 const chartEl = ref()
 const isInternalUpdate = ref(false)
-const rightDragStarted = ref(false)
+
 let brush = null
 let gb = null
 let clip = null
@@ -59,10 +59,7 @@ const to = reactive({
 
 const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#55c9ab", "#142f28"])).domain([0, 5])
 
-const MIN_HANDLE_WIDTH = 20
-
 const formatTooltipDate = (date) => {
-	// console.log("formatTooltipDate", date)
 	return DateTime.fromJSDate(date instanceof Date ? date : new Date(date)).toFormat("dd LLL yyyy")
 }
 
@@ -189,8 +186,14 @@ const buildTimelineSlider = (chart, data, chartView) => {
 	return svg.node()
 }
 
+const leftDragStarted = ref(false)
+let fixedX0 = null
+let fixedX0Index = null
+
+let fixedX1 = null
+let fixedX1Index = null
+
 const brushed = ({ selection, sourceEvent }) => {
-	// console.log("brushed", selection, sourceEvent)
 	if (!selection) return
 
 	let [x0, x1] = selection
@@ -198,49 +201,41 @@ const brushed = ({ selection, sourceEvent }) => {
 
 	if (sourceEvent) {
 		const currentX = sourceEvent.offsetX - margin.left
-		const prevSelection = gb.node().__brush.selection
-		const prevX0 = prevSelection[0]
-		const prevX1 = prevSelection[1]
+
 		const padding = (xBand.padding() * xBand.step()) / 2
+		const currentIndex = Math.max(0, Math.floor(currentX / xBand.step()))
 
-		// Определяем направление движения
-		if (Math.abs(currentX - prevX0) < Math.abs(currentX - prevX1)) {
-			// Двигается левый край
-			// console.log("left")
-			// const leftIndex = getBarIndexFromX(currentX, true)
-			// x0 = margin.left + leftIndex * xBand.step() + padding
-			// if (x1 - x0 < xBand.step()) {
-			// 	x0 = x1 - xBand.step()
-			// }
-			// setStartEndFromIndex(currentData, leftIndex, to.index)
-		} else {
-			// Двигается правый край
-			// console.log("right")
-			const rightIndex = getBarIndexFromX(currentX, false)
-			const leftIndex = getBarIndexFromX(currentX, true)
+		if (fixedX1Index === null || fixedX0Index === null) {
+			fixedX1Index = Math.floor(currentX / xBand.step())
+			fixedX0Index = Math.floor(currentX / xBand.step())
 
-			// Если курсор на баре (индексы различаются), берем левый индекс
-			const actualIndex = leftIndex !== rightIndex ? leftIndex : rightIndex
-
-			// Вычисляем x0 только если это первое движение
-			if (!rightDragStarted.value) {
-				// console.log("first")
-				x0 = margin.left + actualIndex * xBand.step() + padding
-				rightDragStarted.value = true
-			}
-
-			x1 = margin.left + (actualIndex + 1) * xBand.step() + padding
-			if (x1 - x0 < xBand.step()) {
-				x1 = x0 + xBand.step()
-			}
-			setStartEndFromIndex(currentData, from.index, actualIndex)
+			fixedX0 = xBand(new Date(currentData[fixedX0Index].time).toISOString()) - padding
+			fixedX1 = xBand(new Date(currentData[currentIndex].time).toISOString()) - padding + xBand.step()
 		}
+		console.log("init", { fixedX0Index, fixedX1Index, currentIndex })
 
-		gb.call(brush.move, [x0, x1])
+		if (fixedX0Index - currentIndex > 0) {
+			fixedX0 = xBand(new Date(currentData[currentIndex].time).toISOString()) - padding
+			setStartEndFromIndex(currentData, currentIndex, fixedX1Index)
+		} else if (fixedX0Index - currentIndex < 0) {
+
+			fixedX1 = xBand(new Date(currentData[currentIndex].time).toISOString()) - padding + xBand.step()
+			setStartEndFromIndex(currentData, fixedX0Index, currentIndex)
+		} else {
+			fixedX0 = xBand(new Date(currentData[currentIndex].time).toISOString()) - padding
+			fixedX1 = xBand(new Date(currentData[currentIndex].time).toISOString()) - padding + xBand.step()
+			setStartEndFromIndex(currentData, currentIndex, currentIndex)
+		}
+		const newX0 = fixedX0
+		const newX1 = fixedX1
+		gb.call(brush.move, [newX0, newX1])
+
+		clip.attr("x", newX0).attr("width", newX1 - newX0)
+		updateHandlePosition([newX0, newX1])
+	} else {
+		updateHandlePosition([x0, x1])
+		clip.attr("x", x0).attr("width", x1 - x0)
 	}
-
-	clip.attr("x", x0).attr("width", x1 - x0)
-	updateHandlePosition([x0, x1])
 }
 
 const brushended = ({ selection }) => {
@@ -250,7 +245,13 @@ const brushended = ({ selection }) => {
 		return
 	}
 
-	rightDragStarted.value = false // Сбрасываем флаг при окончании движения
+	leftDragStarted.value = false
+
+	fixedX0Index = null
+	fixedX0 = null
+
+	fixedX1Index = null
+	fixedX1 = null
 
 	isInternalUpdate.value = true
 
@@ -437,20 +438,6 @@ const initHandles = (gb) => {
 		.attr("rx", 2)
 		.attr("fill", "var(--op-30)")
 
-	const dotsContainer = handle
-		.append("g")
-		.attr("transform", `translate(0, ${margin.top - 12.5})`)
-		.attr("class", "dots-container")
-
-	// dotsContainer
-	// 	.selectAll("circle")
-	// 	.data([0, 1, 2])
-	// 	.join("circle")
-	// 	.attr("cx", (d) => d * 6)
-	// 	.attr("cy", 1)
-	// 	.attr("r", 1)
-	// 	.attr("fill", "var(--op-50)")
-
 	leftHandle = gb
 		.append("g")
 		.attr("class", "brush-handle left")
@@ -552,21 +539,6 @@ const initHandles = (gb) => {
 			tooltip.transition().duration(200).style("opacity", 0)
 		})
 
-	// const getBarIndexFromX = (eventX, isLeft = false) => {
-	// 	const invertedX = x.invert(eventX)
-
-	// 	if (isLeft) {
-	// 		return d3.bisectLeft(
-	// 			currentData.map((d) => new Date(d.time)),
-	// 			invertedX,
-	// 		)
-	// 	}
-	// 	return d3.bisectRight(
-	// 		currentData.map((d) => new Date(d.time)),
-	// 		invertedX,
-	// 	)
-	// }
-
 	const leftDragBehavior = d3.drag().on("drag", function (event) {
 		const selection = d3.brushSelection(gb.node())
 		if (!selection) return
@@ -607,60 +579,32 @@ const initHandles = (gb) => {
 			const selection = d3.brushSelection(gb.node())
 			if (!selection || !this._startSelection) return
 
-			let [x0, x1] = selection
 			const delta = event.x - this._lastX
 			const barWidth = xBand.step()
 			const totalBars = currentData.length
-			const dynamicStep = Math.max(1, Math.floor(totalBars * 0.01))
-			const chartMinX = margin.left
-			const chartMaxX = width - margin.right
-			const minBrushWidth = barWidth
-
+			const dynamicStep = 0.25 * Math.pow(barWidth, 1.1)
 			accumulatedDelta += delta
+
 			if (Math.abs(accumulatedDelta) < barWidth * dynamicStep) return
 
-			if (props.chartView === "line") {
-				let newX0 = x0 + delta
-				let newX1 = x1 + delta
-				const selectionWidth = x1 - x0
+			const stepDirection = delta > 0 ? 1 : -1
+			const selectionWidth = to.index - from.index
 
-				if (newX1 > chartMaxX) {
-					newX1 = chartMaxX
-					newX0 = Math.max(chartMinX, newX1 - selectionWidth)
-				}
-				if (newX0 < chartMinX) {
-					newX0 = chartMinX
-					newX1 = Math.min(chartMaxX, newX0 + selectionWidth)
-				}
-				if (newX1 - newX0 < minBrushWidth) return
+			let newFromIndex = Math.max(0, Math.min(from.index + stepDirection, totalBars - 1))
+			let newToIndex = newFromIndex + selectionWidth
 
-				const fromIndex = getBarIndexFromX(newX0)
-				const toIndex = Math.min(getBarIndexFromX(newX1), currentData.length - 1)
-
-				setStartEndFromIndex(currentData, fromIndex, toIndex)
-				gb.call(brush.move, [newX0, newX1])
-
-				this._lastX = event.x
-			} else {
-				const stepDirection = delta > 0 ? dynamicStep : -dynamicStep
-				const selectionWidth = to.index - from.index
-
-				let newFromIndex = Math.max(0, Math.min(from.index + stepDirection, totalBars - 1))
-				let newToIndex = newFromIndex + selectionWidth
-
-				if (newToIndex >= totalBars) {
-					newToIndex = totalBars - 1
-					newFromIndex = Math.max(0, newToIndex - selectionWidth)
-				}
-				if (newFromIndex <= 0) {
-					newFromIndex = 0
-					newToIndex = Math.min(totalBars - 1, newFromIndex + selectionWidth)
-				}
-				if (newToIndex - newFromIndex < 1) return
-
-				setStartEndFromIndex(currentData, newFromIndex, newToIndex)
-				gb.call(brush.move, [getXFromBarIndex(newFromIndex, true), getXFromBarIndex(newToIndex, false)])
+			if (newToIndex >= totalBars) {
+				newToIndex = totalBars - 1
+				newFromIndex = Math.max(0, newToIndex - selectionWidth)
 			}
+			if (newFromIndex <= 0) {
+				newFromIndex = 0
+				newToIndex = Math.min(totalBars - 1, newFromIndex + selectionWidth)
+			}
+			if (newToIndex - newFromIndex < 1) return
+
+			setStartEndFromIndex(currentData, newFromIndex, newToIndex)
+			gb.call(brush.move, [getXFromBarIndex(newFromIndex, true), getXFromBarIndex(newToIndex, false)])
 
 			accumulatedDelta = 0
 			this._lastX = event.x
@@ -688,7 +632,6 @@ const initHandles = (gb) => {
 
 const clearChart = () => {
 	if (chartEl.value?.wrapper) {
-		// console.log("clearChart")
 		d3.select(chartEl.value.wrapper).selectAll("*").remove()
 		brush = null
 		gb = null
@@ -722,15 +665,6 @@ const setStartEndFromTimestamp = (data, fromTimestamp, toTimestamp) => {
 	const validFromIndex = fromIndex >= 0 ? fromIndex : 0
 	const validToIndex = finalToIndex >= 0 ? finalToIndex : data.length - 1
 
-	// console.log("setStartEndFromTimestamp", {
-	// 	fromTimestamp,
-	// 	toTimestamp,
-	// 	fromIndex: validFromIndex,
-	// 	toIndex: validToIndex,
-	// 	fromDate: new Date(data[validFromIndex]?.time),
-	// 	toDate: new Date(data[validToIndex]?.time),
-	// })
-
 	setStartEndFromIndex(data, validFromIndex, validToIndex)
 }
 
@@ -762,8 +696,6 @@ const setStartEndFromIndex = (data, startIndex, endIndex) => {
 
 	from.ts = ts(from.date)
 	to.ts = ts(to.date)
-
-	// gb.call(brush.move, [getXFromBarIndex(from.index, true), getXFromBarIndex(to.index, false)])
 }
 
 const getXFromBarIndex = (barIndex, isLeft = false) => {
