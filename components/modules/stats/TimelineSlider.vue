@@ -212,7 +212,6 @@ const brushed = ({ selection, sourceEvent }) => {
 			fixedX0 = xBand(new Date(currentData[fixedX0Index].time).toISOString()) - padding
 			fixedX1 = xBand(new Date(currentData[currentIndex].time).toISOString()) - padding + xBand.step()
 		}
-		console.log("init", { fixedX0Index, fixedX1Index, currentIndex })
 
 		if (fixedX0Index - currentIndex > 0) {
 			fixedX0 = xBand(new Date(currentData[currentIndex].time).toISOString()) - padding
