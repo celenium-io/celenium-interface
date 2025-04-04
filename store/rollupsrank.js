@@ -53,7 +53,7 @@ export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
 			if (!slug) continue
 
 			let repos = await fetchRollupOrgReposBySlug({ slug, limit })
-			repos = sortArrayOfObjects(repos?.data?.value, "last_pushed_at", false)
+			repos = sortArrayOfObjects(repos, "last_pushed_at", false)
 			const summCommits = repos.reduce((acc, r) => acc + r.commits_weekly, 0)
 			maxWeeklyCommits = Math.max(maxWeeklyCommits, summCommits)
 			if (!rollupsRanking.value[slug]) {

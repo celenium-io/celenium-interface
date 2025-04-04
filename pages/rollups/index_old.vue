@@ -7,24 +7,20 @@ import Button from "@/components/ui/Button.vue"
 import Checkbox from "@/components/ui/Checkbox.vue"
 import DiffChip from "@/components/modules/stats/DiffChip.vue"
 import Popover from "@/components/ui/Popover.vue"
-import Spinner from "@/components/ui/Spinner.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Components */
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { capitilize, comma, formatBytes, roundTo, truncateDecimalPart } from "@/services/utils"
-import { getLastActivityCategory, getRankCategory } from "@/services/constants/rollups"
+import { formatBytes, comma, truncateDecimalPart, capitilize } from "@/services/utils"
 
 /** API */
-import { fetchRollups, fetchRollupsDailyStats } from "@/services/api/rollup"
+import { fetchRollups } from "@/services/api/rollup"
 
 /** Stores */
 import { useEnumStore } from "@/store/enums"
-import { useRollupsRankingStore } from "@/store/rollupsrank"
 const enumStore = useEnumStore()
-const rollupRankingStore = useRollupsRankingStore()
 
 useHead({
 	title: "Rollups - Celestia Explorer",
@@ -77,10 +73,8 @@ useHead({
 const route = useRoute()
 const router = useRouter()
 
-const isRefetching = ref(true)
+const isRefetching = ref(false)
 const rollups = ref([])
-const processedRollups = ref([])
-const rollupsRanking = computed(() => rollupRankingStore?.rollups_ranking?.ranking)
 
 const utiaPerMB = (rollup) => {
 	let totalRollupMB = rollup.size / (1024 * 1024)
@@ -89,7 +83,7 @@ const utiaPerMB = (rollup) => {
 }
 
 const sort = reactive({
-	by: "stats.ranking.rank",
+	by: "size",
 	dir: "desc",
 })
 const categories = computed(() => {
@@ -99,7 +93,7 @@ const categories = computed(() => {
 		res.push('other')
 	}
 	
-	return res	
+	return res
 })
 const types = computed(() => {
 	let res = []
@@ -107,7 +101,15 @@ const types = computed(() => {
 		res = enumStore.enums.rollupTypes
 	}
 	
-	return res	
+	return res
+})
+const tags = computed(() => {
+	let res = []
+	if (enumStore.enums?.rollupTags?.length) {
+		res = enumStore.enums.rollupTags
+	}
+	
+	return res
 })
 
 const providers = ref([])
@@ -127,18 +129,21 @@ const getDisplayName = (name) => {
 const popovers = reactive({
 	categories: false,
 	types: false,
+	tags: false,
 	// providers: false,
 	// stacks: false,
 })
 const keyMap = {
 	categories: 'category',
 	types: 'type',
+	tags: 'tag',
 	// providers: 'provider',
 	// stacks: 'stack',
 }
 const filters = reactive({
 	categories: categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	types: types.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	tags: tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	// providers: {},
 	// stacks: {},
 })
@@ -157,7 +162,9 @@ const onPopoverClose = (name) => {
 		filters[name] = savedFiltersBeforeChanges.value
 		savedFiltersBeforeChanges.value = null
 	} else {
-		resetFilters(name)
+		if (Object.keys(filters[name]).find((f) => filters[name][f])) {
+			resetFilters(name)
+		}
 	}
 }
 const handleApplyFilters = (name) => {
@@ -190,56 +197,43 @@ const resetFilters = (name) => {
 	}
 }
 
-const pages = ref(1)
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
 const handleNextCondition = ref(false)
-const limit = ref(100)
+const limit = ref(20)
 
 const getRollups = async () => {
-	const data = await fetchRollups({
-		limit: limit.value,
-		// offset: (page.value - 1) * 20,
-		// sort: sort.dir,
-		// sort_by: sort.by,
-	})
-
-	rollups.value = data
-		.map(r => ({
-				...r,
-				stats: rollupsRanking.value[r.slug],
-				rounded_rank: roundTo(rollupsRanking.value[r.slug]?.ranking?.rank / 10, 0),
-				rank_category: getRankCategory(roundTo(rollupsRanking.value[r.slug]?.ranking?.rank / 10, 0))
-			}))
-	
-	pages.value = roundTo(rollups.value?.length / 20, 0, "ceil")
-	if (page.value > pages.value) {
-		page.value = pages.value
-		router.replace({ query: { page: page.value } })
-	}
-}
-const processRollups = () => {
 	isRefetching.value = true
 
-	rollups.value = rollups.value
-		.sort((a, b) => {
-			const getValue = (obj, path) => path.split('.').reduce((o, key) => o?.[key], obj) ?? 0;
+	const data = await fetchRollups({
+		categories:
+			Object.keys(filters.categories).find((f) => filters.categories[f]) &&
+			Object.keys(filters.categories)
+				.filter((f) => filters.categories[f])
+				.map(c => c === 'other' ? 'uncategorized' : c)
+				.join(","),
+		type:
+			Object.keys(filters.types).find((f) => filters.types[f]) &&
+			Object.keys(filters.types)
+				.filter((f) => filters.types[f])
+				.join(","),
+		tags:
+			Object.keys(filters.tags).find((f) => filters.tags[f]) &&
+			Object.keys(filters.tags)
+				.filter((f) => filters.tags[f])
+				.join(","),
+		limit: limit.value,
+		offset: (page.value - 1) * 20,
+		sort: sort.dir,
+		sort_by: sort.by,
+	})
 
-			const valueA = getValue(a, sort.by);
-			const valueB = getValue(b, sort.by);
-
-			return sort.dir === "asc" ? valueA - valueB : valueB - valueA;
-		})
-		.map((r, i) => ({ ...r, index: i + 1 }))
-		
-	
-	processedRollups.value = rollups.value.slice((page.value - 1) * 20, Math.min((page.value) * 20, rollups.value?.length))
+	rollups.value = data.map((r, i) => ({...r, index: ((page.value - 1) * 20) + i + 1}))
+	handleNextCondition.value = rollups.value?.length < limit.value
 
 	isRefetching.value = false
 }
-if (rollupRankingStore.initialized) {
-	await getRollups()
-	processRollups()
-}
+
+getRollups()
 
 const handleSort = (by) => {
 	switch (sort.dir) {
@@ -257,7 +251,7 @@ const handleSort = (by) => {
 	if (page.value !== 1) {
 		page.value = 1
 	} else {
-		processRollups()
+		getRollups()
 	}
 }
 
@@ -271,33 +265,31 @@ const handleNext = () => {
 	page.value += 1
 }
 
-// watch(
-// 	() => categories.value,
-// 	() => {
-// 		filters.categories = categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
-// 	}
-// )
-// watch(
-// 	() => types.value,
-// 	() => {
-// 		filters.types = types.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
-// 	}
-// )
+watch(
+	() => categories.value,
+	() => {
+		filters.categories = categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+	}
+)
+watch(
+	() => types.value,
+	() => {
+		filters.types = types.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+	}
+)
+watch(
+	() => tags.value,
+	() => {
+		filters.tags = tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+	}
+)
 
 watch(
 	() => page.value,
-	() => {
-		processRollups()
-		router.replace({ query: { page: page.value } })
-	},
-)
-watch(
-	() => rollupRankingStore.initialized,
 	async () => {
-		if (rollupRankingStore.initialized) {
-			await getRollups()
-			processRollups()
-		}
+		getRollups()
+
+		router.replace({ query: { page: page.value } })
 	},
 )
 </script>
@@ -308,8 +300,7 @@ watch(
 			<Breadcrumbs
 				:items="[
 					{ link: '/', name: 'Explore' },
-					{ link: '/rollups', name: 'Rollups' },
-					{ link: route.fullPath, name: 'Activity' },
+					{ link: '/rollups', name: 'Rollups Leaderboard' },
 				]"
 			/>
 
@@ -322,7 +313,7 @@ watch(
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
 					<Icon name="rollup" size="16" color="secondary" />
-					<Text size="14" weight="600" color="primary">Rollups Activity</Text>
+					<Text size="14" weight="600" color="primary">Rollups</Text>
 				</Flex>
 
 				<!-- Pagination -->
@@ -338,13 +329,13 @@ watch(
 						<Text size="12" weight="600" color="primary">Page {{ comma(page) }} </Text>
 					</Button>
 
-					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="handleNextCondition">
 						<Icon name="arrow-right" size="12" color="primary" />
 					</Button>
 				</Flex>
 			</Flex>
 
-			<!-- <Flex align="center" justify="between" wrap="wrap" gap="8" :class="$style.settings">
+			<Flex align="center" justify="between" wrap="wrap" gap="8" :class="$style.settings">
 				<Flex wrap="wrap" align="center" gap="8">
 					<Popover
 						v-for="p in Object.keys(popovers)"
@@ -397,26 +388,19 @@ watch(
 						</template>
 					</Popover>
 				</Flex>
-			</Flex> -->
+			</Flex>
 
 			<Flex direction="column" gap="16" wide :class="[$style.table, isRefetching && $style.disabled]">
-				<div v-if="processedRollups?.length" :class="$style.table_scroller">
+				<div v-if="rollups?.length" :class="$style.table_scroller">
 					<table>
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>#</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Rollup</Text></th>
-								<th @click="handleSort('stats.ranking.rank')" :class="$style.sortable">
+								<th><Text size="12" weight="600" color="tertiary" noWrap>DA Change</Text></th>
+								<th>
 									<Flex align="center" gap="6">
-										<Icon name="laurel" size="12" color="tertiary" />
-										<Text size="12" weight="600" color="tertiary" noWrap>Activity Rank</Text>
-										<Icon
-											v-if="sort.by === 'stats.ranking.rank'"
-											name="chevron"
-											size="12"
-											color="secondary"
-											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
-										/>
+										<Text size="12" weight="600" color="tertiary" noWrap>Category</Text>
 									</Flex>
 								</th>
 								<th @click="handleSort('size')" :class="$style.sortable">
@@ -431,11 +415,11 @@ watch(
 										/>
 									</Flex>
 								</th>
-								<th @click="handleSort('stats.day_blobs_count')" :class="$style.sortable">
+								<th @click="handleSort('blobs_count')" :class="$style.sortable">
 									<Flex align="center" gap="6">
-										<Text size="12" weight="600" color="tertiary" noWrap>Today Blobs</Text>
+										<Text size="12" weight="600" color="tertiary" noWrap>Blobs</Text>
 										<Icon
-											v-if="sort.by === 'stats.day_blobs_count'"
+											v-if="sort.by === 'blobs_count'"
 											name="chevron"
 											size="12"
 											color="secondary"
@@ -443,11 +427,11 @@ watch(
 										/>
 									</Flex>
 								</th>
-								<th @click="handleSort('stats.commits_weekly')" :class="$style.sortable">
+								<th @click="handleSort('fee')" :class="$style.sortable">
 									<Flex align="center" gap="6">
-										<Text size="12" weight="600" color="tertiary" noWrap>Commits</Text>
+										<Text size="12" weight="600" color="tertiary" noWrap>Blob Fees Paid</Text>
 										<Icon
-											v-if="sort.by === 'stats.commits_weekly'"
+											v-if="sort.by === 'fee'"
 											name="chevron"
 											size="12"
 											color="secondary"
@@ -455,83 +439,94 @@ watch(
 										/>
 									</Flex>
 								</th>
-								<th @click="handleSort('stats.avg_pfb_size')" :class="$style.sortable">
-									<Flex align="center" gap="6">
-										<Text size="12" weight="600" color="tertiary" noWrap>Avg PFB Size</Text>
-										<Icon
-											v-if="sort.by === 'stats.avg_pfb_size'"
-											name="chevron"
-											size="12"
-											color="secondary"
-											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
-										/>
-									</Flex>
-								</th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Latest Activity</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Paid per MB</Text></th>
 							</tr>
 						</thead>
 
 						<tbody>
-							<tr v-for="r in processedRollups">
+							<tr v-for="r in rollups">
 								<td>
-									<NuxtLink :to="`/rollups/activity/${r?.slug}`">
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
 											<Text size="13" weight="600" color="primary">{{ r.index }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td style="width: 1px">
-									<NuxtLink :to="`/rollups/activity/${r?.slug}`">
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center" gap="8">
-											<Flex v-if="r?.logo" align="center" :class="$style.avatar_wrapper">
+											<Flex v-if="r.logo" align="center" :class="$style.avatar_wrapper">
 												<div :class="$style.avatar_container">
-													<img :src="r?.logo" :class="$style.avatar_image" />
+													<img :src="r.logo" :class="$style.avatar_image" />
 												</div>
+
+												<Tooltip :class="$style.status_dot_wrapper">
+													<div
+														:class="$style.status_dot"
+														:style="{
+															background: `${Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 1
+																			? ''
+																			: Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 7
+																				? 'var(--light-orange)'
+																				: 'var(--red)'
+																		}`
+														}"
+													/>
+
+													<template #content>
+														<Flex align="end" gap="8">
+															<Text size="12" weight="600" color="tertiary"> {{
+																`Was active 
+																${Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 1
+																	? 'less than a day ago'
+																	: Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 7
+																		? 'more than a day ago'
+																		: 'more than a week ago'
+																}`
+															}} </Text>
+														</Flex>
+													</template>
+												</Tooltip>
 											</Flex>
 											
-											<Flex direction="column" gap="4">
-												<Text size="12" weight="600" color="primary" mono>
-													{{ r?.name }}
-												</Text>
-												<Text size="12" weight="600" color="tertiary">
-													{{ getDisplayName(r?.category) }}
-												</Text>
-											</Flex>
-										</Flex>
-									</NuxtLink>
-								</td>
-								<td>
-									<NuxtLink :to="`/rollups/activity/${r?.slug}`">
-										<Flex justify="center" direction="column" gap="4">
-											<Text size="12" weight="600" :color="r?.rank_category?.color" mono>
-												{{ r?.rank_category?.name }}
+											<Text size="12" weight="600" color="primary" mono>
+												{{ r.name }}
 											</Text>
-											<Flex align="center" gap="4">
-												<Text size="12" weight="600" color="secondary">
-													{{ `${r?.rounded_rank}/10` }}
-												</Text>
-												<Text size="12" weight="600" color="tertiary">
-													{{ `${r?.stats?.ranking?.rank}%` }}
-												</Text>
-											</Flex>
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td>
-									<NuxtLink :to="`/rollups/activity/${r?.slug}`">
+									<NuxtLink :to="`/rollup/${r.slug}`">
+										<Flex align="center">
+											<DiffChip
+												:value="r.da_pct.toFixed(2)"
+												tooltip="Difference between current and previous week"
+											/>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/rollup/${r.slug}`">
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary"> {{ getDisplayName(r.category) }} </Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="start" justify="center" direction="column" gap="4">
 											<Tooltip position="start" delay="400">
 												<Flex direction="column" gap="4">
-													<Text size="13" weight="600" color="primary">{{ formatBytes(r?.size) }}</Text>
+													<Text size="13" weight="600" color="primary">{{ formatBytes(r.size) }}</Text>
 
-													<Text size="12" weight="600" color="tertiary">{{ truncateDecimalPart(r?.size_pct * 100, 2) }}%</Text>
+													<Text size="12" weight="600" color="tertiary">{{ truncateDecimalPart(r.size_pct * 100, 2) }}%</Text>
 												</Flex>
 
 												<template #content>
 													<Flex align="end" gap="8">
 														<Text size="12" weight="600" color="tertiary">Share of total size</Text>
 
-														<Text size="12" weight="600" color="primary">{{ truncateDecimalPart(r?.size_pct * 100, 2) }}%</Text>
+														<Text size="12" weight="600" color="primary">{{ truncateDecimalPart(r.size_pct * 100, 2) }}%</Text>
 													</Flex>
 												</template>
 											</Tooltip>
@@ -539,18 +534,13 @@ watch(
 									</NuxtLink>
 								</td>
 								<td>
-									<NuxtLink :to="`/rollups/activity/${r?.slug}`">
-										<Flex align="center">
-											<Text size="13" weight="600" color="primary">{{ comma(r?.stats?.day_blobs_count) }}</Text>
-										</Flex>
-									</NuxtLink>
-								</td>
-								<td>
-									<NuxtLink :to="`/rollups/activity/${r?.slug}`">
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="start" justify="center" direction="column" gap="4">
-											<Tooltip position="start" delay="400" :disabled="true">
+											<Tooltip position="start" delay="400">
 												<Flex direction="column" gap="4">
-													<Text size="13" weight="600" color="primary">{{ comma(r?.stats?.commits_weekly) }}</Text>
+													<Text size="13" weight="600" color="primary">{{ comma(r.blobs_count) }}</Text>
+
+													<Text size="12" weight="600" color="tertiary">{{ truncateDecimalPart(r.blobs_count_pct * 100, 2) }}%</Text>
 												</Flex>
 
 												<template #content>
@@ -565,19 +555,28 @@ watch(
 									</NuxtLink>
 								</td>
 								<td>
-									<NuxtLink :to="`/rollups/activity/${r?.slug}`">
-										<Flex align="center">
-											<Text size="13" weight="600" color="primary">{{ formatBytes(r?.stats?.avg_pfb_size) }}</Text>
+									<NuxtLink :to="`/rollup/${r.slug}`">
+										<Flex align="start" justify="center" direction="column" gap="4">
+											<AmountInCurrency :amount="{ value: r.fee }" />
+
+											<Tooltip position="start" delay="400">
+												<Text size="12" weight="600" color="tertiary">{{ truncateDecimalPart(r.fee_pct * 100, 2) }}%</Text>
+
+												<template #content>
+													<Flex align="end" gap="8">
+														<Text size="12" weight="600" color="tertiary">Share of total fee paid</Text>
+
+														<Text size="12" weight="600" color="primary">{{ truncateDecimalPart(r.fee_pct * 100, 2) }}%</Text>
+													</Flex>
+												</template>
+											</Tooltip>
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td>
-									<NuxtLink :to="`/rollups/activity/${r?.slug}`">
-										<Flex align="center" gap="4">
-											<Icon name="clock-forward-2" size="13" :color="getLastActivityCategory(DateTime.fromISO(r?.last_message_time))" />
-											<Text size="13" weight="600" color="primary">
-												{{ DateTime.fromISO(r?.last_message_time).toRelative({ locale: "en" }) }}
-											</Text>
+									<NuxtLink :to="`/rollup/${r.slug}`">
+										<Flex align="center">
+											<AmountInCurrency :amount="{ value: utiaPerMB(r) }" />
 										</Flex>
 									</NuxtLink>
 								</td>
@@ -586,11 +585,6 @@ watch(
 					</table>
 				</div>
 
-				<Flex v-else-if="isRefetching" align="center" justify="center" gap="8" wide :class="$style.empty">
-					<Spinner size="14" />
-					<Text size="13" weight="500" color="secondary"> Loading rollups activity.. </Text>
-				</Flex>
-
 				<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 					<Text size="13" weight="600" color="secondary" align="center"> No rollups found </Text>
 					<Text size="12" weight="500" height="160" color="tertiary" align="center">
@@ -598,7 +592,8 @@ watch(
 					</Text>
 				</Flex>
 			</Flex>
-			<!-- <Flex justify="end" :class="$style.footer">
+			<Flex justify="end" :class="$style.footer">
+				<!-- Pagination -->
 				<Flex align="center" gap="6">
 					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 						<Icon name="arrow-left-stop" size="12" color="primary" />
@@ -615,7 +610,7 @@ watch(
 						<Icon name="arrow-right" size="12" color="primary" />
 					</Button>
 				</Flex>
-			</Flex> -->
+			</Flex>
 		</Flex>
 	</Flex>
 </template>

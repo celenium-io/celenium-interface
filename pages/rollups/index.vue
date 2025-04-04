@@ -7,20 +7,24 @@ import Button from "@/components/ui/Button.vue"
 import Checkbox from "@/components/ui/Checkbox.vue"
 import DiffChip from "@/components/modules/stats/DiffChip.vue"
 import Popover from "@/components/ui/Popover.vue"
+import Spinner from "@/components/ui/Spinner.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Components */
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { formatBytes, comma, truncateDecimalPart, capitilize } from "@/services/utils"
+import { capitalizeAndReplace, capitilize, comma, formatBytes, roundTo, truncateDecimalPart } from "@/services/utils"
+import { getLastActivityCategory, getRankCategory } from "@/services/constants/rollups"
 
 /** API */
 import { fetchRollups } from "@/services/api/rollup"
 
 /** Stores */
 import { useEnumStore } from "@/store/enums"
+import { useRollupsRankingStore } from "@/store/rollupsrank"
 const enumStore = useEnumStore()
+const rollupRankingStore = useRollupsRankingStore()
 
 useHead({
 	title: "Rollups - Celestia Explorer",
@@ -73,8 +77,11 @@ useHead({
 const route = useRoute()
 const router = useRouter()
 
-const isRefetching = ref(false)
+const isRefetching = ref(true)
 const rollups = ref([])
+const filteredRollups = ref([])
+const processedRollups = ref([])
+const rollupsRanking = computed(() => rollupRankingStore?.rollups_ranking?.ranking)
 
 const utiaPerMB = (rollup) => {
 	let totalRollupMB = rollup.size / (1024 * 1024)
@@ -82,18 +89,76 @@ const utiaPerMB = (rollup) => {
 	return rollup.fee / totalRollupMB
 }
 
+const isConfigurePopoverOpen = ref(false)
+const config = reactive({
+	columns: {
+		activity: {
+			show: true,
+			sortPath: "stats.ranking.rank",
+		},
+		da_change: {
+			show: true,
+		},
+		size: {
+			show: true,
+			sortPath: "size",
+		},
+		blobs: {
+			show: true,
+			sortPath: "blobs_count",
+		},
+		blobs_fee_paid: {
+			show: true,
+			sortPath: "fee",
+		},
+		paid_per_mb: {
+			show: true,
+		},
+		today_blobs: {
+			show: false,
+			sortPath: "stats.day_blobs_count",
+		},
+		commits: {
+			show: false,
+			sortPath: "stats.commits_weekly",
+		},
+		avg_pfb_size: {
+			show: false,
+			sortPath: "stats.avg_pfb_size",
+		},
+		latest_activity: {
+			show: true,
+			sortPath: "last_message_time",
+		},
+	},
+})
+const getColumnName = (name) => {
+	switch (name) {
+		case "activity":
+			return "Activity Rank"
+		case "da_change":
+			return "DA Change"
+		case "paid_per_mb":
+			return "Paid per MB"
+		case "avg_pfb_size":
+			return "Avg PFB Size"
+		default:
+			return capitalizeAndReplace(name, '_')
+	}
+}
+
 const sort = reactive({
-	by: "size",
+	by: "stats.ranking.rank",
 	dir: "desc",
 })
+
 const categories = computed(() => {
 	let res = []
 	if (enumStore.enums.rollupCategories.length) {
-		res = enumStore.enums.rollupCategories.slice(1)
-		res.push('other')
+		res = enumStore.enums.rollupCategories
 	}
 	
-	return res
+	return res	
 })
 const types = computed(() => {
 	let res = []
@@ -101,7 +166,7 @@ const types = computed(() => {
 		res = enumStore.enums.rollupTypes
 	}
 	
-	return res
+	return res	
 })
 const tags = computed(() => {
 	let res = []
@@ -162,9 +227,7 @@ const onPopoverClose = (name) => {
 		filters[name] = savedFiltersBeforeChanges.value
 		savedFiltersBeforeChanges.value = null
 	} else {
-		if (Object.keys(filters[name]).find((f) => filters[name][f])) {
-			resetFilters(name)
-		}
+		resetFilters(name)
 	}
 }
 const handleApplyFilters = (name) => {
@@ -174,7 +237,7 @@ const handleApplyFilters = (name) => {
 	if (page.value !== 1) {
 		page.value = 1
 	} else {
-		getRollups()
+		processRollups()
 	}
 }
 const resetFilters = (name) => {
@@ -193,47 +256,83 @@ const resetFilters = (name) => {
 	if (page.value !== 1) {
 		page.value = 1
 	} else {
-		getRollups()
+		processRollups()
 	}
 }
 
-const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const handleNextCondition = ref(false)
-const limit = ref(20)
+const pages = ref(1)
+const page = ref(route.query.page > 0 ? parseInt(route.query.page) : 1)
+const itemsPerPage = 20
+const limit = ref(100)
 
 const getRollups = async () => {
-	isRefetching.value = true
-
 	const data = await fetchRollups({
-		categories:
-			Object.keys(filters.categories).find((f) => filters.categories[f]) &&
-			Object.keys(filters.categories)
-				.filter((f) => filters.categories[f])
-				.map(c => c === 'other' ? 'uncategorized' : c)
-				.join(","),
-		type:
-			Object.keys(filters.types).find((f) => filters.types[f]) &&
-			Object.keys(filters.types)
-				.filter((f) => filters.types[f])
-				.join(","),
-		tags:
-			Object.keys(filters.tags).find((f) => filters.tags[f]) &&
-			Object.keys(filters.tags)
-				.filter((f) => filters.tags[f])
-				.join(","),
 		limit: limit.value,
-		offset: (page.value - 1) * 20,
-		sort: sort.dir,
-		sort_by: sort.by,
+		// offset: (page.value - 1) * 20,
+		// sort: sort.dir,
+		// sort_by: sort.by,
 	})
 
-	rollups.value = data.map((r, i) => ({...r, index: ((page.value - 1) * 20) + i + 1}))
-	handleNextCondition.value = rollups.value?.length < limit.value
+	rollups.value = data
+		.map(r => ({
+			...r,
+			stats: rollupsRanking.value[r.slug],
+			rounded_rank: roundTo(rollupsRanking.value[r.slug]?.ranking?.rank / 10, 0),
+			rank_category: getRankCategory(roundTo(rollupsRanking.value[r.slug]?.ranking?.rank / 10, 0))
+		}))
+	
+	pages.value = roundTo(rollups.value?.length / itemsPerPage, 0, "ceil")
+	if (page.value > pages.value) {
+		page.value = pages.value
+		router.replace({ query: { page: page.value } })
+	}
+}
+const processRollups = () => {
+	isRefetching.value = true
+
+	const selected = Object.keys(filters).reduce((acc, key) => {
+        acc[key] = Object.keys(filters[key]).filter(k => filters[key][k])
+        return acc
+    }, {})
+
+    filteredRollups.value = rollups.value.filter(r => {
+        return Object.keys(selected).every(key => {
+            if (selected[key].length === 0) return true
+            
+            if (Array.isArray(r[key])) {
+                return r[key].some(item => selected[key].includes(item))
+            } else {
+                return selected[key].includes(r[keyMap[key]])
+            }
+        })
+    })
+
+	filteredRollups.value = filteredRollups.value
+		.sort((a, b) => {
+			const getValue = (obj, path) => path.split('.').reduce((o, key) => o?.[key], obj) ?? 0
+
+			let valueA = getValue(a, sort.by)
+			let valueB = getValue(b, sort.by)
+
+			if (typeof valueA === "string" && Date.parse(valueA)) {
+				valueA = new Date(valueA).getTime()
+				valueB = new Date(valueB).getTime()
+			}
+			
+			return sort.dir === "asc" ? valueA - valueB : valueB - valueA
+		})
+		.map((r, i) => ({ ...r, index: i + 1 }))
+		
+	
+		pages.value = roundTo(filteredRollups.value?.length / itemsPerPage, 0, "ceil")
+		processedRollups.value = filteredRollups.value.slice((page.value - 1) * itemsPerPage, Math.min((page.value) * itemsPerPage, rollups.value?.length))
 
 	isRefetching.value = false
 }
-
-getRollups()
+if (rollupRankingStore.initialized) {
+	await getRollups()
+	processRollups()
+}
 
 const handleSort = (by) => {
 	switch (sort.dir) {
@@ -251,7 +350,7 @@ const handleSort = (by) => {
 	if (page.value !== 1) {
 		page.value = 1
 	} else {
-		getRollups()
+		processRollups()
 	}
 }
 
@@ -286,12 +385,35 @@ watch(
 
 watch(
 	() => page.value,
-	async () => {
-		getRollups()
-
+	() => {
+		processRollups()
 		router.replace({ query: { page: page.value } })
 	},
 )
+watch(
+	() => rollupRankingStore.initialized,
+	async () => {
+		if (rollupRankingStore.initialized) {
+			await getRollups()
+			processRollups()
+		}
+	},
+)
+watch(
+	() => config,
+	() => {
+		localStorage.setItem("page:rollups:config:columns", JSON.stringify(config.columns))
+	},
+	{
+		deep: true,
+	},
+)
+
+onBeforeMount(() => {
+	if (localStorage.getItem("page:rollups:config:columns")) {
+		config.columns = JSON.parse(localStorage.getItem("page:rollups:config:columns"))
+	}
+})
 </script>
 
 <template>
@@ -313,7 +435,7 @@ watch(
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
 					<Icon name="rollup" size="16" color="secondary" />
-					<Text size="14" weight="600" color="primary">Rollups</Text>
+					<Text size="14" weight="600" color="primary">Rollups Activity</Text>
 				</Flex>
 
 				<!-- Pagination -->
@@ -329,7 +451,7 @@ watch(
 						<Text size="12" weight="600" color="primary">Page {{ comma(page) }} </Text>
 					</Button>
 
-					<Button @click="handleNext" type="secondary" size="mini" :disabled="handleNextCondition">
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
 						<Icon name="arrow-right" size="12" color="primary" />
 					</Button>
 				</Flex>
@@ -388,114 +510,116 @@ watch(
 						</template>
 					</Popover>
 				</Flex>
+
+				<Popover :open="isConfigurePopoverOpen" @on-close="isConfigurePopoverOpen = false" width="150" side="right">
+					<Button @click="isConfigurePopoverOpen = true" type="secondary" size="mini">
+						<Icon name="settings" size="12" color="tertiary" />
+						Configure
+					</Button>
+
+					<template #content>
+						<Flex direction="column" gap="12">
+							<Text size="12" weight="500" color="secondary">Fixed columns</Text>
+
+							<Flex direction="column" gap="8">
+								<Checkbox :checked="true" :disabled="true">
+									<Text size="12" weight="500" color="primary">Rollup</Text>
+								</Checkbox>
+							</Flex>
+
+							<div :class="$style.horizontal_divider" />
+
+							<Text size="12" weight="500" color="secondary">Editable columns</Text>
+
+							<Flex direction="column" gap="8">
+								<Checkbox v-for="key in Object.keys(config.columns)" v-model="config.columns[key].show">
+									<Text size="12" weight="500" color="primary"> {{ getColumnName(key) }} </Text>
+								</Checkbox>
+							</Flex>
+						</Flex>
+					</template>
+				</Popover>
 			</Flex>
 
 			<Flex direction="column" gap="16" wide :class="[$style.table, isRefetching && $style.disabled]">
-				<div v-if="rollups?.length" :class="$style.table_scroller">
+				<div v-if="processedRollups?.length" :class="$style.table_scroller">
 					<table>
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>#</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Rollup</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>DA Change</Text></th>
-								<th>
-									<Flex align="center" gap="6">
-										<Text size="12" weight="600" color="tertiary" noWrap>Category</Text>
-									</Flex>
-								</th>
-								<th @click="handleSort('size')" :class="$style.sortable">
-									<Flex align="center" gap="6">
-										<Text size="12" weight="600" color="tertiary" noWrap>Size</Text>
+								<th
+									v-for="column in Object.keys(config.columns).filter((c) => config.columns[c].show)"
+									@click="handleSort(config.columns[column].sortPath)"
+									:class="config.columns[column].sortPath && $style.sortable"
+								>
+									<Flex v-if="config.columns[column].sortPath" align="center" gap="6">
+										<Icon v-if="column === 'activity'" name="laurel" size="12" color="tertiary" />
+										<Text size="12" weight="600" color="tertiary" noWrap>
+											{{ getColumnName(column) }}
+										</Text>
 										<Icon
-											v-if="sort.by === 'size'"
+											v-if="sort.by === config.columns[column].sortPath"
 											name="chevron"
 											size="12"
 											color="secondary"
 											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
 										/>
 									</Flex>
+									<Text v-else size="12" weight="600" color="tertiary" noWrap>
+										{{ getColumnName(column) }}
+									</Text>
 								</th>
-								<th @click="handleSort('blobs_count')" :class="$style.sortable">
-									<Flex align="center" gap="6">
-										<Text size="12" weight="600" color="tertiary" noWrap>Blobs</Text>
-										<Icon
-											v-if="sort.by === 'blobs_count'"
-											name="chevron"
-											size="12"
-											color="secondary"
-											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
-										/>
-									</Flex>
-								</th>
-								<th @click="handleSort('fee')" :class="$style.sortable">
-									<Flex align="center" gap="6">
-										<Text size="12" weight="600" color="tertiary" noWrap>Blob Fees Paid</Text>
-										<Icon
-											v-if="sort.by === 'fee'"
-											name="chevron"
-											size="12"
-											color="secondary"
-											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
-										/>
-									</Flex>
-								</th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Paid per MB</Text></th>
 							</tr>
 						</thead>
 
 						<tbody>
-							<tr v-for="r in rollups">
+							<tr v-for="r in processedRollups">
 								<td>
-									<NuxtLink :to="`/rollup/${r.slug}`">
+									<NuxtLink :to="`/rollup/${r?.slug}`">
 										<Flex align="center">
 											<Text size="13" weight="600" color="primary">{{ r.index }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td style="width: 1px">
-									<NuxtLink :to="`/rollup/${r.slug}`">
+									<NuxtLink :to="`/rollup/${r?.slug}`">
 										<Flex align="center" gap="8">
-											<Flex v-if="r.logo" align="center" :class="$style.avatar_wrapper">
+											<Flex v-if="r?.logo" align="center" :class="$style.avatar_wrapper">
 												<div :class="$style.avatar_container">
-													<img :src="r.logo" :class="$style.avatar_image" />
+													<img :src="r?.logo" :class="$style.avatar_image" />
 												</div>
-
-												<Tooltip :class="$style.status_dot_wrapper">
-													<div
-														:class="$style.status_dot"
-														:style="{
-															background: `${Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 1
-																			? ''
-																			: Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 7
-																				? 'var(--light-orange)'
-																				: 'var(--red)'
-																		}`
-														}"
-													/>
-
-													<template #content>
-														<Flex align="end" gap="8">
-															<Text size="12" weight="600" color="tertiary"> {{
-																`Was active 
-																${Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 1
-																	? 'less than a day ago'
-																	: Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 7
-																		? 'more than a day ago'
-																		: 'more than a week ago'
-																}`
-															}} </Text>
-														</Flex>
-													</template>
-												</Tooltip>
 											</Flex>
 											
-											<Text size="12" weight="600" color="primary" mono>
-												{{ r.name }}
-											</Text>
+											<Flex direction="column" gap="4">
+												<Text size="12" weight="600" color="primary" mono>
+													{{ r?.name }}
+												</Text>
+												<Text size="12" weight="600" color="tertiary">
+													{{ getDisplayName(r?.category) }}
+												</Text>
+											</Flex>
 										</Flex>
 									</NuxtLink>
 								</td>
-								<td>
+								<td v-if="config.columns.activity.show">
+									<NuxtLink :to="`/rollup/${r?.slug}`">
+										<Flex justify="center" direction="column" gap="4">
+											<Text size="12" weight="600" :color="r?.rank_category?.color" mono>
+												{{ r?.rank_category?.name }}
+											</Text>
+											<Flex align="center" gap="4">
+												<Text size="12" weight="600" color="secondary">
+													{{ `${r?.rounded_rank}/10` }}
+												</Text>
+												<Text size="12" weight="600" color="tertiary">
+													{{ `${r?.stats?.ranking?.rank}%` }}
+												</Text>
+											</Flex>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td v-if="config.columns.da_change.show">
 									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
 											<DiffChip
@@ -505,35 +629,28 @@ watch(
 										</Flex>
 									</NuxtLink>
 								</td>
-								<td>
-									<NuxtLink :to="`/rollup/${r.slug}`">
-										<Flex align="center">
-											<Text size="13" weight="600" color="primary"> {{ getDisplayName(r.category) }} </Text>
-										</Flex>
-									</NuxtLink>
-								</td>
-								<td>
-									<NuxtLink :to="`/rollup/${r.slug}`">
+								<td v-if="config.columns.size.show">
+									<NuxtLink :to="`/rollup/${r?.slug}`">
 										<Flex align="start" justify="center" direction="column" gap="4">
 											<Tooltip position="start" delay="400">
 												<Flex direction="column" gap="4">
-													<Text size="13" weight="600" color="primary">{{ formatBytes(r.size) }}</Text>
+													<Text size="13" weight="600" color="primary">{{ formatBytes(r?.size) }}</Text>
 
-													<Text size="12" weight="600" color="tertiary">{{ truncateDecimalPart(r.size_pct * 100, 2) }}%</Text>
+													<Text size="12" weight="600" color="tertiary">{{ truncateDecimalPart(r?.size_pct * 100, 2) }}%</Text>
 												</Flex>
 
 												<template #content>
 													<Flex align="end" gap="8">
 														<Text size="12" weight="600" color="tertiary">Share of total size</Text>
 
-														<Text size="12" weight="600" color="primary">{{ truncateDecimalPart(r.size_pct * 100, 2) }}%</Text>
+														<Text size="12" weight="600" color="primary">{{ truncateDecimalPart(r?.size_pct * 100, 2) }}%</Text>
 													</Flex>
 												</template>
 											</Tooltip>
 										</Flex>
 									</NuxtLink>
 								</td>
-								<td>
+								<td v-if="config.columns.blobs.show">
 									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="start" justify="center" direction="column" gap="4">
 											<Tooltip position="start" delay="400">
@@ -554,7 +671,7 @@ watch(
 										</Flex>
 									</NuxtLink>
 								</td>
-								<td>
+								<td v-if="config.columns.blobs_fee_paid.show">
 									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="start" justify="center" direction="column" gap="4">
 											<AmountInCurrency :amount="{ value: r.fee }" />
@@ -573,10 +690,53 @@ watch(
 										</Flex>
 									</NuxtLink>
 								</td>
-								<td>
+								<td v-if="config.columns.paid_per_mb.show">
 									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
 											<AmountInCurrency :amount="{ value: utiaPerMB(r) }" />
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td v-if="config.columns.today_blobs.show">
+									<NuxtLink :to="`/rollup/${r?.slug}`">
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary">{{ comma(r?.stats?.day_blobs_count) }}</Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td v-if="config.columns.commits.show">
+									<NuxtLink :to="`/rollup/${r?.slug}`">
+										<Flex align="start" justify="center" direction="column" gap="4">
+											<Tooltip position="start" delay="400" :disabled="true">
+												<Flex direction="column" gap="4">
+													<Text size="13" weight="600" color="primary">{{ comma(r?.stats?.commits_weekly) }}</Text>
+												</Flex>
+
+												<template #content>
+													<Flex align="end" gap="8">
+														<Text size="12" weight="600" color="tertiary">Share of total blobs count</Text>
+
+														<Text size="12" weight="600" color="primary">{{ truncateDecimalPart(r.blobs_count_pct * 100, 2) }}%</Text>
+													</Flex>
+												</template>
+											</Tooltip>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td v-if="config.columns.avg_pfb_size.show">
+									<NuxtLink :to="`/rollup/${r?.slug}`">
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary">{{ formatBytes(r?.stats?.avg_pfb_size) }}</Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td v-if="config.columns.latest_activity.show">
+									<NuxtLink :to="`/rollup/${r?.slug}`">
+										<Flex align="center" gap="4">
+											<Icon name="clock-forward-2" size="13" :color="getLastActivityCategory(DateTime.fromISO(r?.last_message_time))" />
+											<Text size="13" weight="600" color="primary">
+												{{ DateTime.fromISO(r?.last_message_time).toRelative({ locale: "en" }) }}
+											</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
@@ -585,6 +745,11 @@ watch(
 					</table>
 				</div>
 
+				<Flex v-else-if="isRefetching" align="center" justify="center" gap="8" wide :class="$style.empty">
+					<Spinner size="14" />
+					<Text size="13" weight="500" color="secondary"> Loading rollups activity.. </Text>
+				</Flex>
+
 				<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 					<Text size="13" weight="600" color="secondary" align="center"> No rollups found </Text>
 					<Text size="12" weight="500" height="160" color="tertiary" align="center">
@@ -592,8 +757,7 @@ watch(
 					</Text>
 				</Flex>
 			</Flex>
-			<Flex justify="end" :class="$style.footer">
-				<!-- Pagination -->
+			<!-- <Flex justify="end" :class="$style.footer">
 				<Flex align="center" gap="6">
 					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 						<Icon name="arrow-left-stop" size="12" color="primary" />
@@ -610,7 +774,7 @@ watch(
 						<Icon name="arrow-right" size="12" color="primary" />
 					</Button>
 				</Flex>
-			</Flex>
+			</Flex> -->
 		</Flex>
 	</Flex>
 </template>
@@ -793,6 +957,12 @@ watch(
 	box-shadow: inset 0 0 0 1px var(--op-10);
 
 	padding: 4px 6px;
+}
+
+.horizontal_divider {
+	width: 100%;
+	height: 1px;
+	background: var(--op-5);
 }
 
 .empty {
