@@ -153,7 +153,7 @@ const buildChart = (chart, data, color) => {
 
 	function formatDate(date) {
 		if (props.period.timeframe === 'hour' && props.series.aggregate !== 'cumulative') {
-			return DateTime.fromJSDate(date).toFormat("LLL dd HH:mm")
+			return DateTime.fromJSDate(date).toFormat("HH:mm, LLL dd")
 		}
 
 		return DateTime.fromJSDate(date).toFormat("LLL dd")
