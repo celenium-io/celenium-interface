@@ -25,7 +25,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(["onUpdate"])
-const margin = { top: 54, right: 12, bottom: 4, left: 12 }
+const margin = { top: 54, right: 12, bottom: 4, left: 36 }
 const height = 115
 const axisBottomHeight = 20
 
@@ -60,6 +60,10 @@ const to = reactive({
 const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#55c9ab", "#142f28"])).domain([0, 5])
 
 const formatTooltipDate = (date) => {
+	if (props.selectedTimeframe.timeframe === "hour") {
+		return DateTime.fromJSDate(date instanceof Date ? date : new Date(date)).toFormat("HH:mm, dd LLL")
+	}
+
 	return DateTime.fromJSDate(date instanceof Date ? date : new Date(date)).toFormat("dd LLL yyyy")
 }
 

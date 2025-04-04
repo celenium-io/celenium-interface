@@ -28,7 +28,7 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 	const marginTop = 12
 	const marginRight = 12
 	const marginBottom = 24
-	const marginLeft = 12
+	const marginLeft = 36
 	const marginAxisX = 24
 
 	const MIN_VALUE = d3.min([...cData.data.map((s) => s.value)])
