@@ -3,7 +3,7 @@
 import { DateTime } from "luxon"
 
 /** Services */
-import { formatBytes } from "@/services/utils"
+import { comma, formatBytes } from "@/services/utils"
 
 defineOptions({
 	inheritAttrs: false,
@@ -53,7 +53,7 @@ const bgStyles = computed(() => {
 				</div>
 				<div :style="{ display: 'flex', gap: '12px' }">
 					<span :style="{ fontSize: '40px', color: 'rgba(255,255,255, 0.3)' }">Blobs: </span>
-					<span :style="{ fontSize: '40px', color: 'rgba(255,255,255, 0.6)' }">{{ rollup.blobs_count }} </span>
+					<span :style="{ fontSize: '40px', color: 'rgba(255,255,255, 0.6)' }">{{ comma(rollup.blobs_count) }} </span>
 				</div>
 			</div>
 		</div>
