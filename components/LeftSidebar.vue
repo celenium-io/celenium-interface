@@ -95,7 +95,7 @@ const mainLinks = reactive([
 				name: "Ecosystem",
 				path: "/stats?tab=ecosystem",
 				queryParam: {tab: "ecosystem"},
-				show: isMainnet(),
+				show: false,
 			},
 		],
 	},
