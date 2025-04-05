@@ -4,6 +4,7 @@ import { DateTime } from "luxon"
 
 /** Services */
 import { capitalizeAndReplace, roundTo, sortArrayOfObjects } from "@/services/utils"
+import { rankCoefficients } from "@/services/constants/rollups"
 
 /** API */
 import { fetchRollupOrgs, fetchRollupOrgsState, fetchRollupOrgReposBySlug, fetchRollups, fetchRollupsDailyStats } from "@/services/api/rollup"
@@ -79,13 +80,6 @@ export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
 			const diff = maxTime.diff(lastTime, timeframe)[timeframe]
 			return Math.exp(-( diff / t ))
 		}
-		const coefficients = {
-			day_blobs_count: 0.2,
-			avg_pfb_size: 0.3,
-			last_message_time: 0.3,
-			commits_weekly: 0.2,
-			last_pushed_at: 0.2,
-		}
 		const calculateRanking = (r) => {
 			let ranking = {
 				rank: 0,
@@ -96,19 +90,19 @@ export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
 				last_pushed_at: 0,
 			}
 			if (r.commits_weekly) {
-				ranking.commits_weekly = roundTo(quantitative(r.commits_weekly, maxWeeklyCommits) * coefficients.commits_weekly * 100)
+				ranking.commits_weekly = roundTo(quantitative(r.commits_weekly, maxWeeklyCommits) * rankCoefficients.commits_weekly * 100)
 			}
 			if (r.day_blobs_count) {
-				ranking.day_blobs_count = roundTo(quantitative(r.day_blobs_count, maxDailyBlobsCount) * coefficients.day_blobs_count * 100)
+				ranking.day_blobs_count = roundTo(quantitative(r.day_blobs_count, maxDailyBlobsCount) * rankCoefficients.day_blobs_count * 100)
 			}
 			if (r.avg_pfb_size) {
-				ranking.avg_pfb_size = roundTo(quantitative(r.avg_pfb_size, maxAvgPfbSize) * coefficients.avg_pfb_size * 100)
+				ranking.avg_pfb_size = roundTo(quantitative(r.avg_pfb_size, maxAvgPfbSize) * rankCoefficients.avg_pfb_size * 100)
 			}
 			if (r.last_message_time) {
-				ranking.last_message_time = roundTo(timeBased(DateTime.now(), DateTime.fromISO(r.last_message_time), 12, "hours")  * coefficients.last_message_time * 100)
+				ranking.last_message_time = roundTo(timeBased(DateTime.now(), DateTime.fromISO(r.last_message_time), 12, "hours")  * rankCoefficients.last_message_time * 100)
 			}
 			if (r.last_pushed_at) {
-				ranking.last_pushed_at = roundTo(timeBased(DateTime.fromISO(orgsState), DateTime.fromISO(r.last_pushed_at), 4, "weeks")  * coefficients.last_pushed_at * 100)
+				ranking.last_pushed_at = roundTo(timeBased(DateTime.fromISO(orgsState), DateTime.fromISO(r.last_pushed_at), 4, "weeks")  * rankCoefficients.last_pushed_at * 100)
 			}
 
 			ranking.rank = roundTo(Object.values(ranking).reduce((acc, val) => acc + val, 0))
@@ -126,6 +120,7 @@ export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
 		rollups_ranking.value = {
 			ranking: rollupsRanking.value,
 			top_rollup: {
+				slug: maxRankEntry.slug,
 				name: capitalizeAndReplace(maxRankEntry.slug, "-"),
 				rank: maxRankEntry.rank
 			},

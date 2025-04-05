@@ -4,6 +4,14 @@ import { DateTime } from "luxon"
 /** Services */
 import { roundTo } from "@/services/utils"
 
+export const rankCoefficients = {
+	day_blobs_count: 0.2,
+	avg_pfb_size: 0.3,
+	last_message_time: 0.3,
+	commits_weekly: 0.2,
+	last_pushed_at: 0.2,
+}
+
 export const rankCategories = [
 	{ min: 10, max: 10, name: "Legendary", color: "legendary" },
 	{ min: 9, max: 9, name: "Epic", color: "epic" },
@@ -13,8 +21,16 @@ export const rankCategories = [
 ]
 
 export const getRankCategory = (rank) => {
-	const category = rankCategories.find(({ min, max }) => rank >= min && rank <= max) || { name: "Uncategorized", color: "tertiary" }
+	const category = rankCategories.find(({ min, max }) => rank >= min && rank <= max) || { name: "Unknown", color: "tertiary" }
+
 	return { name: category.name, color: category.color }
+}
+
+export const getMetricCategory = (metric, score) => {
+	const metricValue = rankCoefficients[metric]
+	let rank = roundTo(score / metricValue * 10, 0)
+
+	return {...getRankCategory(rank), rank: score / metricValue}
 }
 
 export const lastActivityCategories = [
@@ -26,5 +42,6 @@ export const lastActivityCategories = [
 
 export const getLastActivityCategory = (date) => {
 	const diff = roundTo(DateTime.now().diff(date, "hours").hours, 0, "floor")
+
 	return lastActivityCategories.find(({ min, max }) => diff >= min && diff <= max).color
 }

@@ -4,19 +4,19 @@ import * as d3 from "d3"
 import { DateTime } from "luxon"
 
 /** API */
-import { fetchRollupOrgBySlug, fetchRollupOrgCommitsBySlug, fetchRollupOrgReposBySlug } from "@/services/api/rollup"
+import { fetchRollupBySlug, fetchRollupOrgBySlug, fetchRollupOrgCommitsBySlug, fetchRollupOrgReposBySlug } from "@/services/api/rollup"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
-import LineChart from "@/components/modules/stats/LineChart.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { comma } from "@/services/utils"
+import { comma, roundTo, sortArrayOfObjects } from "@/services/utils"
+import { getMetricCategory, getRankCategory } from "@/services/constants/rollups"
 
-/** Store */
-import { useCacheStore } from "@/store/cache"
-const cacheStore = useCacheStore()
+/** Stores */
+import { useRollupsRankingStore } from "@/store/rollupsrank"
+const rollupRankingStore = useRollupsRankingStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -35,137 +35,68 @@ const handleNext = () => {
 }
 
 // Fetch data
+const isRefetching = ref(false)
 const org = ref({})
 const rollup = ref({})
 const repos = ref([])
 const commits = ref([])
 const totalCommits = computed(() => commits.value.reduce((acc, c) => acc + c.amount, 0))
-const data = [
-    {
-        "date": "2025-02-21T00:00:00.000Z",
-        "value": 72125
-    },
-    {
-        "date": "2025-02-22T00:00:00.000Z",
-        "value": 73490
-    },
-    {
-        "date": "2025-02-23T00:00:00.000Z",
-        "value": 68515
-    },
-    {
-        "date": "2025-02-24T00:00:00.000Z",
-        "value": 72858
-    },
-    {
-        "date": "2025-02-25T00:00:00.000Z",
-        "value": 73825
-    },
-    {
-        "date": "2025-02-26T00:00:00.000Z",
-        "value": 75003
-    },
-    {
-        "date": "2025-02-27T00:00:00.000Z",
-        "value": 66946
-    },
-    {
-        "date": "2025-02-28T00:00:00.000Z",
-        "value": 71084
-    },
-    {
-        "date": "2025-03-01T00:00:00.000Z",
-        "value": 68139
-    },
-    {
-        "date": "2025-03-02T00:00:00.000Z",
-        "value": 67415
-    },
-    {
-        "date": "2025-03-03T00:00:00.000Z",
-        "value": 66403
-    },
-    {
-        "date": "2025-03-04T00:00:00.000Z",
-        "value": 69332
-    },
-    {
-        "date": "2025-03-05T00:00:00.000Z",
-        "value": 65414
-    },
-    {
-        "date": "2025-03-06T00:00:00.000Z",
-        "value": 67747
-    },
-    {
-        "date": "2025-03-07T00:00:00.000Z",
-        "value": 65392
-    },
-    {
-        "date": "2025-03-08T00:00:00.000Z",
-        "value": 57701
-    },
-    {
-        "date": "2025-03-09T00:00:00.000Z",
-        "value": 55457
-    },
-    {
-        "date": "2025-03-10T00:00:00.000Z",
-        "value": 69260
-    },
-    {
-        "date": "2025-03-11T00:00:00.000Z",
-        "value": 88441
-    },
-    {
-        "date": "2025-03-12T00:00:00.000Z",
-        "value": 67874
-    },
-    {
-        "date": "2025-03-13T00:00:00.000Z",
-        "value": 65886
-    },
-    {
-        "date": "2025-03-14T00:00:00.000Z",
-        "value": 63179
-    },
-    {
-        "date": "2025-03-15T00:00:00.000Z",
-        "value": 67614
-    },
-    {
-        "date": "2025-03-16T00:00:00.000Z",
-        "value": 68948
-    },
-    {
-        "date": "2025-03-17T00:00:00.000Z",
-        "value": 67885
-    },
-    {
-        "date": "2025-03-18T00:00:00.000Z",
-        "value": 70194
-    },
-    {
-        "date": "2025-03-19T00:00:00.000Z",
-        "value": 64429
-    },
-    {
-        "date": "2025-03-20T00:00:00.000Z",
-        "value": 63225
-    },
-    {
-        "date": "2025-03-21T00:00:00.000Z",
-        "value": 64367
-    },
-    {
-        "date": "2025-03-22T00:00:00.000Z",
-        "value": 63376
-    },
-    {
-        "date": "2025-03-23T00:00:00.000Z",
-        "value": 58402
-    }
-]
+const rollupRanking = computed(() => {
+	if (!rollupRankingStore?.initialized) return null
+
+	const rollupRaw = rollupRankingStore?.rollups_ranking?.ranking?.[route.params.slug]
+	if (!rollupRaw) return null
+
+	const rawRanking = rollupRaw.ranking
+	const ranking = {}
+	let description = []
+
+	for (const [key, value] of Object.entries(rawRanking)) {
+		if (key === "rank") continue
+
+		const category = getMetricCategory(key, value / 100)
+		ranking[key] = { category, score: value }
+
+		description.push({
+			text: getMetricDescription(key),
+			category,
+			score: value,
+		})
+	}
+
+	ranking.rank = {
+		category: getRankCategory(roundTo(rawRanking.rank / 10, 0)),
+		score: rawRanking.rank,
+	}
+
+	description = sortArrayOfObjects(description, "category.rank", false).slice(0, 3)
+	description[0].text += ", "
+	description[1].text += " and "
+	description[2].text += "."
+
+	return {
+		...rollupRaw,
+		ranking,
+		description,
+		updated: rollupRankingStore?.rollups_ranking?.last_update,
+	}
+})
+const getMetricDescription = (metric) => {
+	switch (metric) {
+		case "avg_pfb_size":
+			return "average blob size rate"
+		case "commits_weekly":
+			return "commit rate"
+		case "day_blobs_count":
+			return "blob sending rate"
+		case "last_message_time":
+			return "last message period"
+		case "last_pushed_at":
+			return "last commit period"
+		default:
+			return ""
+	}
+}
 const chartEl = ref(null)
 
 const getRollupRepos = async (slug) => {
@@ -180,21 +111,22 @@ const getRollupRepos = async (slug) => {
 	return data
 }
 const fetchData = async () => {
+	isRefetching.value = true
+
 	const slug = route.params.slug
-	const [summaryData, reposData, commitsData] = await Promise.all([
+	const [rollupData, summaryData, reposData, commitsData] = await Promise.all([
+		fetchRollupBySlug(slug),
 		fetchRollupOrgBySlug(slug),
 		getRollupRepos(slug),
 		fetchRollupOrgCommitsBySlug({ slug }),
 	])
 
-	if (!summaryData) {
-		router.push("/rollups/activity")
-	} else {
-		org.value = summaryData		
-		rollup.value = summaryData.rollup
-		repos.value = reposData
-		commits.value = commitsData
-	}
+	org.value = summaryData		
+	rollup.value = rollupData?.data?.value
+	repos.value = reposData
+	commits.value = commitsData
+
+	isRefetching.value = false
 }
 await fetchData()
 
@@ -309,7 +241,7 @@ watch(
 )
 
 onMounted(() => {
-	if (chartEl.value) {
+	if (chartEl.value && commits.value.length) {
 		buildChart(chartEl.value?.wrapper, commits.value.reverse())
 	}
 })
@@ -323,7 +255,6 @@ onMounted(() => {
 					:items="[
 						{ link: '/', name: 'Explore' },
 						{ link: '/rollups', name: 'Rollups' },
-						{ link: '/rollups/activity', name: 'Activity' },
 						{ link: route.fullPath, name: rollup.name },
 					]"
 				/>
@@ -342,13 +273,13 @@ onMounted(() => {
 									<img :src="rollup.logo" :class="$style.avatar_image" />
 								</Flex>
 								<Flex direction="column" gap="8">
-									<Text size="13" color="primary"> {{ rollup.name }} </Text>
-									<Text size="12" color="tertiary"> {{ org.description }} </Text>
+									<Text size="13" color="primary"> {{ rollup?.name }} </Text>
+									<Text size="12" color="tertiary" :style="{ lineHeight: '1.2' }"> {{ org?.description || rollup?.description }} </Text>
 								</Flex>
 							</Flex>
 
-							<Button :link="`/rollup/${rollup.slug}`" target="_blank" type="secondary" size="mini">
-								Explore more about {{ rollup.name }}
+							<Button :link="`/rollup/${rollup.slug}`" type="secondary" size="mini">
+								More about {{ rollup.name }}
 								<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
 							</Button>
 						</Flex>
@@ -464,23 +395,25 @@ onMounted(() => {
 				</Flex>
 
 				<Flex direction="column" gap="32" :class="$style.right" wide>
-					<Flex direction="column" gap="12" :class="$style.card">
+					<Flex v-if="rollupRanking?.ranking?.rank?.category?.name" direction="column" gap="12" :class="$style.card">
 						<Text size="12" color="secondary" weight="600"> Activity Rank </Text>
-						<Icon name="laurel" size="32" color="legendary" />
-						<Flex direction="column" gap="8">
-							<Text size="14" weight="600" :class="$style.summary_rate"> 10 Excelent </Text>
-							<Text size="13" color="tertiary"> 99.16% </Text>
+						<Icon name="laurel" size="32" :color="rollupRanking?.ranking?.rank?.category?.color" />
+						<Flex direction="column" gap="6">
+							<Text size="16" weight="600" :class="[$style.summary_rate, $style[rollupRanking?.ranking?.rank?.category?.name?.toLowerCase()]]">
+								{{ `${roundTo(rollupRanking?.ranking?.rank?.score / 10, 0)} ${rollupRanking?.ranking?.rank?.category?.name}` }}
+							</Text>
+							<Text size="12" color="tertiary"> {{ rollupRanking?.ranking?.rank?.score }}% </Text>
 						</Flex>
 
 						<Text size="13" color="primary" weight="600" :style="{ lineHeight: '1.4' }">
 							{{ rollup.name }}
-							<Text color="secondary">shows the</Text>
-							<Text color="legendary"> excelent </Text>
-							<Text color="secondary">commit rate,</Text>
-							<Text color="legendary"> excelent </Text>
-							<Text color="secondary">blob sending rate and</Text>
-							<Text color="epic"> good </Text>
-							<Text color="secondary">last commit period.</Text>
+							<Text weight="500" color="secondary">shows the </Text>
+							<span v-for="d in rollupRanking?.description">
+								<Text :class="[$style.summary_rate, $style[d.category.name.toLowerCase()]]">
+									{{ d.category.name.toLowerCase() + ' ' }}
+								</Text>
+								<Text weight="500" color="secondary"> {{ d.text }} </Text>
+							</span>
 						</Text>
 
 						<div :class="$style.divider" />
@@ -490,14 +423,35 @@ onMounted(() => {
 								<Icon name="clock-forward-2" size="12" color="secondary" />
 								<Text size="12" color="tertiary">
 									Updated
-									<Text color="secondary" weight="600"> 3 </Text>
-									days ago.
+									<Text color="secondary" weight="600"> {{ DateTime.fromMillis(rollupRanking?.updated).toRelative({ locale: "en", style: "short" }) }} </Text>
 								</Text>
 							</Flex>
 
 							<Flex align="center" gap="4">
 								<Icon name="info" size="12" color="blue" />
 								<Text size="12" color="secondary" weight="600">How it works?</Text>
+							</Flex>
+						</Flex>
+					</Flex>
+					<Flex v-else direction="column" gap="12" :class="$style.card" :style="{ height: '220px' }">
+						<Text size="12" color="secondary" weight="600"> Activity Rank </Text>
+						<Icon name="laurel" size="32" color="tertiary" loading />
+						<Flex direction="column" gap="6" :style="{ flex: 1 }">
+							<Skeleton w="60" h="12" :style="{ marginTop: '4px' }" />
+							<Skeleton w="80" h="10" :style="{ marginTop: '4px' }" />
+
+							<Flex align="center" justify="center" direction="column" gap="8" :style="{ marginTop: '12px' }">
+								<Flex align="center" gap="12">
+									<Skeleton w="100" h="6" />
+									<Skeleton w="80" h="6" />
+									<Skeleton w="60" h="6" />
+								</Flex>
+
+								<Flex align="center" gap="12">
+									<Skeleton w="80" h="6" />
+									<Skeleton w="60" h="6" />
+									<Skeleton w="100" h="6" />
+								</Flex>
 							</Flex>
 						</Flex>
 					</Flex>
@@ -674,9 +628,42 @@ onMounted(() => {
 }
 
 .summary_rate {
-	background-image: linear-gradient(var(--light-orange), var(--legendary));
     color: transparent;
     background-clip: text;
+}
+.legendary {
+	background-image: linear-gradient(var(--light-orange), var(--legendary));
+}
+.epic {
+	background-image: linear-gradient(var(--purple), var(--epic));
+}
+.good {
+	background-image: linear-gradient(var(--blue), var(--rare));
+}
+.poor {
+	background-image: linear-gradient(var(--txt-primary), var(--txt-tertiary));
+}
+.bad {
+	background-image: linear-gradient(var(--txt-tertiary), var(--txt-tertiary));
+}
+
+.laurel_loading {
+	animation: skeleton 1s ease infinite;
+	background: var(--op-10);
+}
+
+@keyframes skeleton {
+	0% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0.5;
+	}
+
+	100% {
+		opacity: 1;
+	}
 }
 .divider {
 	width: 100%;

@@ -14,7 +14,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { capitalizeAndReplace, capitilize, comma, formatBytes, roundTo, truncateDecimalPart } from "@/services/utils"
+import { capitalizeAndReplace, capitilize, comma, formatBytes, roundTo, sortArrayOfObjects, truncateDecimalPart } from "@/services/utils"
 import { getLastActivityCategory, getRankCategory } from "@/services/constants/rollups"
 
 /** API */
@@ -307,25 +307,11 @@ const processRollups = () => {
         })
     })
 
-	filteredRollups.value = filteredRollups.value
-		.sort((a, b) => {
-			const getValue = (obj, path) => path.split('.').reduce((o, key) => o?.[key], obj) ?? 0
-
-			let valueA = getValue(a, sort.by)
-			let valueB = getValue(b, sort.by)
-
-			if (typeof valueA === "string" && Date.parse(valueA)) {
-				valueA = new Date(valueA).getTime()
-				valueB = new Date(valueB).getTime()
-			}
-			
-			return sort.dir === "asc" ? valueA - valueB : valueB - valueA
-		})
+	filteredRollups.value = sortArrayOfObjects(filteredRollups.value, sort.by, sort.dir === "asc")
 		.map((r, i) => ({ ...r, index: i + 1 }))
-		
-	
-		pages.value = roundTo(filteredRollups.value?.length / itemsPerPage, 0, "ceil")
-		processedRollups.value = filteredRollups.value.slice((page.value - 1) * itemsPerPage, Math.min((page.value) * itemsPerPage, rollups.value?.length))
+
+	pages.value = roundTo(filteredRollups.value?.length / itemsPerPage, 0, "ceil")
+	processedRollups.value = filteredRollups.value.slice((page.value - 1) * itemsPerPage, Math.min((page.value) * itemsPerPage, rollups.value?.length))
 
 	isRefetching.value = false
 }
@@ -435,7 +421,7 @@ onBeforeMount(() => {
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
 					<Icon name="rollup" size="16" color="secondary" />
-					<Text size="14" weight="600" color="primary">Rollups Activity</Text>
+					<Text size="14" weight="600" color="primary">Rollups Leaderboard</Text>
 				</Flex>
 
 				<!-- Pagination -->

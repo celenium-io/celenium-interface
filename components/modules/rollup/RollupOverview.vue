@@ -15,8 +15,9 @@ import BlobsTable from "./tables/BlobsTable.vue"
 import NamespacesTable from "./tables/NamespacesTable.vue"
 
 /** Services */
-import { capitilize, comma, formatBytes, truncateDecimalPart } from "@/services/utils"
+import { capitilize, comma, formatBytes, roundTo, truncateDecimalPart } from "@/services/utils"
 import { exportToCSV } from "@/services/utils/export"
+import { getRankCategory } from "@/services/constants/rollups"
 
 /** API */
 import { fetchRollupBlobs, fetchRollupExportData, fetchRollupNamespaces } from "@/services/api/rollup"
@@ -24,9 +25,10 @@ import { fetchRollupBlobs, fetchRollupExportData, fetchRollupNamespaces } from "
 /** Store */
 import { useCacheStore } from "@/store/cache"
 import { useNotificationsStore } from "@/store/notifications"
-import { capitalize } from "vue"
+import { useRollupsRankingStore } from "@/store/rollupsrank"
 const cacheStore = useCacheStore()
 const notificationsStore = useNotificationsStore()
+const rollupRankingStore = useRollupsRankingStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -55,6 +57,18 @@ const isRefetching = ref(false)
 const namespaces = ref([])
 const blobs = ref([])
 
+const rollupRanking = computed(() => {
+	if (!rollupRankingStore?.initialized) return null
+	
+	let rollup_ranking = rollupRankingStore?.rollups_ranking?.ranking[Object.keys(rollupRankingStore?.rollups_ranking?.ranking).find(key => key === props.rollup.slug)]
+	rollup_ranking.rank = {
+		category: getRankCategory(roundTo(rollup_ranking?.ranking?.rank / 10, 0)),
+		score: rollup_ranking?.ranking?.rank,
+	}
+
+	return rollup_ranking
+})
+
 const tagNames = ref(['stack', 'type', 'vm', 'provider', 'category'])
 const tags = computed(() => tagNames.value.reduce((res, tagName) => {
 	if (props.rollup[tagName]) {
@@ -68,7 +82,7 @@ const tags = computed(() => tagNames.value.reduce((res, tagName) => {
 				tag.value = getCategoryDisplayName(props.rollup[tagName])
 				break
 			default:
-				tag.value = capitalize(props.rollup[tagName])
+				tag.value = capitilize(props.rollup[tagName])
 				break
 		}
 
@@ -153,6 +167,8 @@ onMounted(() => {
 			tab: activeTab.value,
 		},
 	})
+
+	console.log('rollupRanking.value', rollupRanking.value);
 })
 
 /** Refetch Blobs/Messages on new page */
@@ -256,6 +272,12 @@ const handleCSVDownload = async (value) => {
 			</Flex>
 
 			<Flex align="center" gap="12">
+				<Button :link="`/rollup/rank/${rollup.slug}`" type="secondary" size="mini">
+					<Icon name="laurel" size="12" color="secondary" />
+
+					<Text>Activity Rank</Text>
+				</Button>
+
 				<Button link="/stats?tab=rollups&section=daily_stats" type="secondary" size="mini">
 					<Icon name="line-chart" size="12" color="secondary" />
 
@@ -287,19 +309,40 @@ const handleCSVDownload = async (value) => {
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">
 				<Flex direction="column" gap="24" :class="$style.main">
-					<Flex align="center" gap="12" :class="$style.key_value">
-						<Flex v-if="rollup.logo" align="center" justify="center" :class="$style.avatar_container">
-							<img :src="rollup.logo" :class="$style.avatar_image" />
+					<Flex align="center" justify="between" gap="40" :class="$style.key_value">
+						<Flex align="center" gap="12">
+							<Flex v-if="rollup.logo" align="center" justify="center" :class="$style.avatar_container">
+								<img :src="rollup.logo" :class="$style.avatar_image" />
+							</Flex>
+
+							<Flex direction="column" gap="8">
+								<Text size="12" weight="600" color="secondary">Rollup</Text>
+
+								<Flex align="center" gap="10">
+									<Text size="13" weight="600" color="primary">{{ rollup.name }} </Text>
+
+									<CopyButton :text="rollup.name" />
+								</Flex>
+							</Flex>
 						</Flex>
 
-						<Flex direction="column" gap="8" :class="$style.key_value">
-							<Text size="12" weight="600" color="secondary">Rollup</Text>
+						<Flex align="start" :style="{ height: '100%' }">
+							<Tooltip position="end" :disabled="!rollupRanking?.rank?.category?.color">
+								<Icon name="laurel" size="24" :color="rollupRanking?.rank?.category?.color || 'tertiary'" :loading="!rollupRanking?.rank?.category?.color" />
 
-							<Flex align="center" gap="10">
-								<Text size="13" weight="600" color="primary">{{ rollup.name }} </Text>
-
-								<CopyButton :text="rollup.name" />
-							</Flex>
+								<template #content>
+									<Flex direction="column" gap="8">
+										<Flex align="center" justify="between" gap="8">
+											<Text size="12" weight="500" color="tertiary">Activity Rank:</Text>
+											<Text size="12" weight="600" :color="rollupRanking?.rank?.category?.color"> {{ rollupRanking?.rank?.category?.name }} </Text>
+										</Flex>
+										<Flex align="center" justify="between" gap="8">
+											<Text size="12" weight="500" color="tertiary">Score:</Text>
+											<Text size="12" weight="600" color="secondary"> {{ rollupRanking?.rank?.score }}% </Text>
+										</Flex>
+									</Flex>
+								</template>
+							</Tooltip>
 						</Flex>
 					</Flex>
 					<Flex align="center" gap="6">
