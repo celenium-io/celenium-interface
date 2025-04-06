@@ -40,7 +40,7 @@ const org = ref({})
 const rollup = ref({})
 const repos = ref([])
 const commits = ref([])
-const totalCommits = computed(() => commits.value.reduce((acc, c) => acc + c.amount, 0))
+const totalCommits = computed(() => commits.value?.reduce((acc, c) => acc + c.amount, 0))
 const rollupRanking = computed(() => {
 	if (!rollupRankingStore?.initialized) return null
 
@@ -121,7 +121,7 @@ const fetchData = async () => {
 		fetchRollupOrgCommitsBySlug({ slug }),
 	])
 
-	org.value = summaryData		
+	org.value = summaryData
 	rollup.value = rollupData?.data?.value
 	repos.value = reposData
 	commits.value = commitsData
@@ -254,7 +254,7 @@ onMounted(() => {
 				<Breadcrumbs
 					:items="[
 						{ link: '/', name: 'Explore' },
-						{ link: '/rollups', name: 'Rollups' },
+						{ link: '/rollups', name: 'Rollups Leaderboard' },
 						{ link: route.fullPath, name: rollup.name },
 					]"
 				/>
@@ -264,7 +264,7 @@ onMounted(() => {
 				</Button>
 			</Flex>
 
-			<Flex align="start" justify="between" gap="32">
+			<Flex align="start" justify="between" gap="32" :class="$style.area">
 				<Flex direction="column" gap="32" :class="$style.left">
 					<Flex direction="column" gap="16">
 						<Flex align="start" justify="between" gap="16" wide :class="$style.card">
@@ -308,7 +308,7 @@ onMounted(() => {
 							<Flex justify="between" :class="$style.header">
 								<Flex align="center" gap="8">
 									<Icon name="github" size="16" color="secondary" />
-									<Text size="14" weight="600" color="primary"> {{ `Repositories - ${org.repos}` }} </Text>
+									<Text size="14" weight="600" color="primary"> {{ `Repositories - ${org?.repos || 0}` }} </Text>
 								</Flex>
 
 								<Flex align="center" gap="6">
@@ -323,14 +323,14 @@ onMounted(() => {
 										<Text size="12" weight="600" color="primary">Page {{ page }} </Text>
 									</Button>
 
-									<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
+									<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages || repos?.length === 0">
 										<Icon name="arrow-right" size="12" color="primary" />
 									</Button>
 								</Flex>
 							</Flex>
 
 							<Flex direction="column" gap="16" wide :class="[$style.table, isRefetching && $style.disabled]">
-								<div :class="$style.table_scroller">
+								<div v-if="repos?.length" :class="$style.table_scroller">
 									<table>
 										<thead>
 											<tr>
@@ -348,7 +348,7 @@ onMounted(() => {
 														<Flex align="start" justify="center" direction="column" gap="4">
 															<Text size="13" weight="600" color="primary"> {{ r.name }} </Text>
 
-															<Text size="12" weight="600" color="tertiary"> {{ r.description || 'No description' }} </Text>
+															<Text size="12" weight="600" color="tertiary" :class="$style.description"> {{ r.description || 'No description' }} </Text>
 														</Flex>
 													</NuxtLink>
 												</td>
@@ -389,6 +389,12 @@ onMounted(() => {
 										</tbody>
 									</table>
 								</div>
+								<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+									<Text size="13" weight="600" color="secondary" align="center"> No repositories found </Text>
+									<Text size="12" weight="500" height="160" color="tertiary" align="center">
+										This rollup probably doesn't have an associated github account
+									</Text>
+								</Flex>
 							</Flex>
 						</Flex>
 					</Flex>
@@ -397,25 +403,28 @@ onMounted(() => {
 				<Flex direction="column" gap="32" :class="$style.right" wide>
 					<Flex v-if="rollupRanking?.ranking?.rank?.category?.name" direction="column" gap="12" :class="$style.card">
 						<Text size="12" color="secondary" weight="600"> Activity Rank </Text>
-						<Icon name="laurel" size="32" :color="rollupRanking?.ranking?.rank?.category?.color" />
-						<Flex direction="column" gap="6">
-							<Text size="16" weight="600" :class="[$style.summary_rate, $style[rollupRanking?.ranking?.rank?.category?.name?.toLowerCase()]]">
-								{{ `${roundTo(rollupRanking?.ranking?.rank?.score / 10, 0)} ${rollupRanking?.ranking?.rank?.category?.name}` }}
+						<Flex direction="column" gap="12" :class="$style.rank_description">
+							<Flex direction="column" gap="12" :style="{ flex: 1 }">
+								<Icon name="laurel" size="32" :color="rollupRanking?.ranking?.rank?.category?.color" />
+								<Flex direction="column" gap="6">
+									<Text size="16" weight="600" :class="[$style.summary_rate, $style[rollupRanking?.ranking?.rank?.category?.name?.toLowerCase()]]" :style="{ textWrap: 'nowrap' }">
+										{{ `${roundTo(rollupRanking?.ranking?.rank?.score / 10, 0)} ${rollupRanking?.ranking?.rank?.category?.name}` }}
+									</Text>
+									<Text size="12" color="tertiary"> {{ rollupRanking?.ranking?.rank?.score }}% </Text>
+								</Flex>
+							</Flex>
+
+							<Text size="13" color="primary" weight="600" :style="{ lineHeight: '1.4' }">
+								{{ rollup.name }}
+								<Text weight="500" color="secondary">shows the </Text>
+								<span v-for="d in rollupRanking?.description">
+									<Text :class="[$style.summary_rate, $style[d.category.name.toLowerCase()]]">
+										{{ d.category.name.toLowerCase() + ' ' }}
+									</Text>
+									<Text weight="500" color="secondary"> {{ d.text }} </Text>
+								</span>
 							</Text>
-							<Text size="12" color="tertiary"> {{ rollupRanking?.ranking?.rank?.score }}% </Text>
 						</Flex>
-
-						<Text size="13" color="primary" weight="600" :style="{ lineHeight: '1.4' }">
-							{{ rollup.name }}
-							<Text weight="500" color="secondary">shows the </Text>
-							<span v-for="d in rollupRanking?.description">
-								<Text :class="[$style.summary_rate, $style[d.category.name.toLowerCase()]]">
-									{{ d.category.name.toLowerCase() + ' ' }}
-								</Text>
-								<Text weight="500" color="secondary"> {{ d.text }} </Text>
-							</span>
-						</Text>
-
 						<div :class="$style.divider" />
 
 						<Flex align="center" justify="between" gap="2" wide>
@@ -604,16 +613,16 @@ onMounted(() => {
 
 			&:first-child {
 				padding: 0 24px 0 16px;
-				width: 300px;
+				/* width: 300px; */
 				
-				span {
+				/* span {
 					&:last-child {
 						width: 300px;
 						overflow: hidden;
 						text-overflow: ellipsis;
 						white-space: nowrap;
 					}
-				}
+				} */
 			}
 
 			& > a {
@@ -625,6 +634,16 @@ onMounted(() => {
 			}
 		}
 	}
+}
+
+.description {
+	width: 300px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.empty {
+	padding: 16px 0;
 }
 
 .summary_rate {
@@ -665,6 +684,7 @@ onMounted(() => {
 		opacity: 1;
 	}
 }
+
 .divider {
 	width: 100%;
 	height: 2px;
@@ -673,9 +693,40 @@ onMounted(() => {
 	border-radius: 50px;
 }
 
+@media (max-width: 1000px) {
+	.area {
+		flex-direction: column-reverse;
+	}
+
+	.left {
+		min-width: initial;
+		max-width: initial;
+	}
+
+	.right {
+		min-width: initial;
+		max-width: initial;
+	}
+
+	.rank_description {
+		flex-direction: row;
+		gap: 48px;
+	}
+}
+
+@media (max-width: 600px) {
+	.description {
+		max-width: 200px;
+	}
+}
+@media (max-width: 540px) {
+	.description {
+		max-width: 180px;
+	}
+}
 @media (max-width: 500px) {
-	.wrapper {
-		padding: 32px 12px;
+	.description {
+		max-width: 160px;
 	}
 }
 </style>

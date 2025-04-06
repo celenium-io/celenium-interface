@@ -167,8 +167,6 @@ onMounted(() => {
 			tab: activeTab.value,
 		},
 	})
-
-	console.log('rollupRanking.value', rollupRanking.value);
 })
 
 /** Refetch Blobs/Messages on new page */
