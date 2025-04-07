@@ -80,6 +80,14 @@ const types = computed(() => {
 	
 	return res	
 })
+const tags = computed(() => {
+	let res = []
+	if (enumStore.enums?.rollupTags?.length) {
+		res = enumStore.enums.rollupTags
+	}
+	
+	return res
+})
 const providers = ref([])
 const stacks = ref([])
 
@@ -101,12 +109,14 @@ const popovers = reactive({
 	types: false,
 	providers: false,
 	stacks: false,
+	tags: false,
 })
 const keyMap = {
 	categories: 'category',
 	types: 'type',
 	providers: 'provider',
 	stacks: 'stack',
+	tags: 'tags',
 }
 
 const filters = reactive({
@@ -114,6 +124,7 @@ const filters = reactive({
 	types: types.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	providers: {},
 	stacks: {},
+	tags: tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 })
 const isFilterActive = computed(() => {
 	return Object.values(filters).some((f) => Object.values(f).some((v) => v))
@@ -135,9 +146,15 @@ const filterRollups = () => {
         if (Object.keys(activeFilters).length === 0) return data
 
         return data.filter((el) =>
-            Object.entries(activeFilters).every(([filterName, values]) =>
-                values.includes(el[keyMap[filterName]])
-            )
+            Object.entries(activeFilters).every(([filterName, values]) => {
+				const elValue = el[keyMap[filterName]];
+
+				if (Array.isArray(elValue)) {
+					return values.some(value => elValue.includes(value));
+				} else {
+					return values.includes(elValue);
+				}
+			})
         )
     }
 
@@ -270,6 +287,13 @@ watch(
 		filters.types = types.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
 	}
 )
+watch(
+	() => tags.value,
+	() => {
+		filters.tags = tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+	}
+)
+
 </script>
 
 <template>

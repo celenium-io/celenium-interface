@@ -321,6 +321,8 @@ if (rollupRankingStore.initialized) {
 }
 
 const handleSort = (by) => {
+	if (!by) return
+	
 	switch (sort.dir) {
 		case "desc":
 			if (sort.by == by) sort.dir = "asc"
@@ -733,7 +735,7 @@ onBeforeMount(() => {
 
 				<Flex v-else-if="isRefetching" align="center" justify="center" gap="8" wide :class="$style.empty">
 					<Spinner size="14" />
-					<Text size="13" weight="500" color="secondary"> Loading rollups activity.. </Text>
+					<Text size="13" weight="500" color="secondary"> Loading rollups.. </Text>
 				</Flex>
 
 				<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
@@ -743,24 +745,6 @@ onBeforeMount(() => {
 					</Text>
 				</Flex>
 			</Flex>
-			<!-- <Flex justify="end" :class="$style.footer">
-				<Flex align="center" gap="6">
-					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
-						<Icon name="arrow-left-stop" size="12" color="primary" />
-					</Button>
-					<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
-						<Icon name="arrow-left" size="12" color="primary" />
-					</Button>
-
-					<Button type="secondary" size="mini" disabled>
-						<Text size="12" weight="600" color="primary">Page {{ comma(page) }} </Text>
-					</Button>
-
-					<Button @click="handleNext" type="secondary" size="mini" :disabled="handleNextCondition">
-						<Icon name="arrow-right" size="12" color="primary" />
-					</Button>
-				</Flex>
-			</Flex> -->
 		</Flex>
 	</Flex>
 </template>
