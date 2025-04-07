@@ -3,12 +3,11 @@
 import { executeFaucet, faucetAddress, fetchBalance } from "@/services/api/faucet"
 
 /** Services */
-import { capitilize, comma, splitAddress, tia } from "@/services/utils"
+import { comma, splitAddress, tia } from "@/services/utils"
 import { Server, useServerURL } from "@/services/config"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
-import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Input from "@/components/ui/Input.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
@@ -19,8 +18,6 @@ import { useModalsStore } from "@/store/modals"
 const appStore = useAppStore()
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
-
-const route = useRoute()
 
 useHead({
 	title: `Celestia Faucet - Celenium`,
@@ -322,7 +319,7 @@ onMounted(() => {
 							:loading="isLoading"
 							:disabled="validation.type === 'error' || !address"
 						>
-							Recieve 0.5 TIA
+							Recieve 1 TIA
 						</Button>
 					</Flex>
 				</Flex>
@@ -456,7 +453,7 @@ onMounted(() => {
 
 						<Flex id="2" :class="[$style.answer, openedQuestion === 2 && $style.answer_extended]">
 							<Text size="13" weight="500" color="tertiary" height="160">
-								You can request testnet tokens by entering your Celestia testnet address, and clicking the "Received 0.5 TIA" button. Tokens will be sent to your wallet within a few moments.
+								You can request testnet tokens by entering your Celestia testnet address, and clicking the "Received 1 TIA" button. Tokens will be sent to your wallet within a few moments.
 							</Text>
 						</Flex>
 
@@ -474,7 +471,7 @@ onMounted(() => {
 						<Flex id="3" :class="[$style.answer, openedQuestion === 3 && $style.answer_extended]">
 							<Text size="13" weight="500" color="tertiary" height="160">
 								To ensure fair distribution and prevent abuse, the faucet has the following limitations:<br>
-								&nbsp;&nbsp;• You can receive <b>0.5 TIA per request</b>.<br>
+								&nbsp;&nbsp;• You can receive <b>1 TIA per request</b>.<br>
 								&nbsp;&nbsp;• You can request tokens <b>only once per hour</b> per <b>IP address or wallet address</b>.<br>
 								&nbsp;&nbsp;• If you reach the limit, you will need to wait before requesting again.
 							</Text>
