@@ -7,7 +7,7 @@ import { DateTime } from "luxon"
 import DiffChip from "@/components/modules/stats/DiffChip.vue"
 
 /** Services */
-import { abbreviate, comma, formatBytes, tia } from "@/services/utils"
+import { abbreviate, comma, formatBytes, tia, truncateDecimalPart } from "@/services/utils"
 
 /** API */
 import { fetchSeries, fetchSeriesCumulative, fetchTVS } from "@/services/api/stats"
@@ -36,6 +36,11 @@ const diff = computed(() => {
 })
 const chartEl = ref()
 const chartElPrev = ref()
+const tooltipEl = ref()
+const tooltip = ref({
+	data: [],
+	show: false,
+})
 
 const getSeries = async () => {
 	let data = []
@@ -59,7 +64,7 @@ const getSeries = async () => {
 			period: 'day',
 			from: parseInt(
 				baseTime.minus({
-					months: 2,
+					days: 60,
 				}).ts / 1_000)
 		})
 	} else if (props.series.name === "tvs") {
@@ -77,8 +82,13 @@ const getSeries = async () => {
 		})).reverse()
 	}
 	
-	prevData.value = data.slice(0, props.period.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
-	currentData.value = data.slice(props.period.value, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+	if (props.series.aggregate === 'cumulative') {
+		prevData.value = data.slice(0, 30).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+		currentData.value = data.slice(30, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+	} else {
+		prevData.value = data.slice(0, props.period.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+		currentData.value = data.slice(props.period.value, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+	}
 
 	if (props.series.name === 'block_time') {
 		prevData.value = prevData.value
@@ -98,8 +108,8 @@ const getSeries = async () => {
 	}
 
 	if (props.series.name === 'tvs') {
-		currentTotal.value = currentData.value[currentData.value.length - 1].value // Math.max(...currentData.value.map(d => d.value))
-		prevTotal.value = prevData.value[prevData.value.length - 1].value // Math.max(...prevTotal.value.map(d => d.value))
+		currentTotal.value = currentData.value[currentData.value.length - 1].value
+		prevTotal.value = prevData.value[prevData.value.length - 1].value
 	} else if (props.series.aggregate !== 'cumulative') {
 		currentTotal.value = currentData.value.reduce((sum, el) => {
 			return sum + +el.value;
@@ -118,12 +128,21 @@ const getSeries = async () => {
 		currentTotal.value = currentTotal.value / currentData.value.length
 	}
 
+	let pData = []
+	prevData.value?.forEach((d, index) => {
+		pData.push({
+			date: currentData.value[index]?.date,
+			realDate: d.date,
+			value: d.value,
+		})
+	})
+	prevData.value = pData
+
 	dataLoaded.value = true
 }
 
 const buildChart = (chart, data, color) => {
-	const width = chart.getBoundingClientRect().width
-	const height = chart.getBoundingClientRect().height
+	const { width, height } = chart.getBoundingClientRect()
 	const marginTop = 8
 	const marginRight = 12
 	const marginBottom = 24
@@ -131,6 +150,33 @@ const buildChart = (chart, data, color) => {
 
 	const MAX_VALUE = Math.max(Math.max(...prevData.value.map((s) => s.value)), Math.max(...currentData.value.map((s) => s.value)))
 	const MIN_VALUE = Math.min(Math.min(...prevData.value.map((s) => s.value)), Math.min(...currentData.value.map((s) => s.value)))
+
+	function formatDate(date) {
+		if (props.period.timeframe === 'hour' && props.series.aggregate !== 'cumulative') {
+			return DateTime.fromJSDate(date).toFormat("HH:mm, LLL dd")
+		}
+
+		return DateTime.fromJSDate(date).toFormat("LLL dd")
+	}
+
+	function formatValue(value) {
+		switch (props.series.units) {
+			case 'bytes':
+				return formatBytes(value)
+			case 'utia':
+				if (props.series.name === 'gas_price') {
+					return `${truncateDecimalPart(value, 4)} UTIA`
+				}
+
+				return `${tia(value, 2)} TIA`
+			case 'seconds':
+				return `${truncateDecimalPart(value / 1_000, 3)}s`
+			case 'usd':
+				return `${abbreviate(value)} $`
+			default:
+				return comma(value)
+		}
+	}
 
 	/** Scale */
 	const x = d3.scaleUtc(
@@ -153,7 +199,89 @@ const buildChart = (chart, data, color) => {
 		.attr("preserveAspectRatio", "none")
 		.attr("style", "max-width: 100%;")
 		.style("-webkit-tap-highlight-color", "transparent")
-		// .on("touchstart", (event) => event.preventDefault())
+		.on("pointerenter pointermove", onPointerMoved)
+		.on("pointerleave", onPointerleft)
+		.on("touchstart", (event) => event.preventDefault())
+	
+	// This allows to find the closest X index of the mouse:
+	const bisect = d3.bisector(function(d) { return d.date; }).center
+
+	const cFocus = svg
+		.append('g')
+		.append('circle')
+			.style("fill", "var(--brand)")
+			.attr('r', 4)
+			.style("opacity", 0)
+			.style("transition", "all 0.2s ease" )
+
+	const pFocus = svg
+		.append('g')
+		.append('circle')
+			.style("fill", "var(--txt-tertiary)")
+			.attr('r', 4)
+			.style("opacity", 0)
+			.style("transition", "all 0.2s ease" )
+
+	const focusLine = svg
+		.append('g')
+		.append('line')
+			.style("stroke-width", 2)
+			.style("stroke", "var(--op-15)")
+			.style("fill", "none")
+			.style("opacity", 0)
+
+	function onPointerMoved(event) {
+		tooltip.value.show = true
+		
+		cFocus.style("opacity", 1)
+		focusLine.style("opacity", 1)
+
+		// Recover coordinate we need
+		let idx = bisect(currentData.value, x.invert(d3.pointer(event)[0]))
+		let selectedCData = currentData.value[idx]
+		cFocus
+			.attr("cx", x(selectedCData.date))
+			.attr("cy", y(selectedCData.value))
+		focusLine
+			.attr("x1", x(selectedCData.date))
+			.attr("y1", 0)
+			.attr("x2", x(selectedCData.date))
+			.attr("y2", height)
+		
+		let tooltipWidth = tooltipEl.value?.wrapper ? tooltipEl.value?.wrapper?.getBoundingClientRect()?.width : 100
+		let xPosition = x(selectedCData.date)
+		tooltip.value.x = (xPosition + tooltipWidth) > width + 5 ? xPosition - tooltipWidth - 15 : xPosition + 15
+		tooltip.value.y = Math.min(y(selectedCData.value), height - 100)
+		
+		tooltip.value.data[0] = {
+			date: formatDate(selectedCData.date),
+			value: formatValue(selectedCData.value),
+			color: "var(--brand)",
+		}
+		tooltip.value.data.splice(1, 1)
+		if (prevData.value.length) {
+			let selectedPData = prevData.value[idx]
+
+			pFocus
+				.attr("cx", x(selectedPData.date))
+				.attr("cy", y(selectedPData.value))
+				.style("opacity", 1)
+			
+			tooltip.value.data[1] = {
+				date: formatDate(selectedPData.realDate),
+				value: formatValue(selectedPData.value),
+				color: "var(--txt-tertiary)",
+			}
+		}
+
+	}
+
+	function onPointerleft() {
+		tooltip.value.show = false
+		cFocus.style("opacity", 0)
+		pFocus.style("opacity", 0)
+		focusLine.style("opacity", 0)
+	}
 
 	/** Default Horizontal Lines  */
 	svg.append("path")
@@ -207,7 +335,7 @@ const buildChart = (chart, data, color) => {
 const drawChart = async () => {
 	await getSeries()
 
-	buildChart(chartEl.value.wrapper, currentData.value, "var(--mint)")
+	buildChart(chartEl.value.wrapper, currentData.value, "var(--brand)")
 	buildChart(chartElPrev.value.wrapper, prevData.value, "var(--txt-tertiary)")
 }
 
@@ -221,7 +349,6 @@ watch(
 		await drawChart()
 	},
 )
-
 </script>
 
 <template>
@@ -276,15 +403,53 @@ watch(
 		</Flex>
 
 		<Flex :class="$style.chart_wrapper">
+			<Transition name="fastfade">
+				<div v-if="tooltip.show" :class="$style.tooltip_wrapper">
+					<Flex
+						ref="tooltipEl"
+						align="center"
+						direction="column"
+						:style="{ transform: `translate(${tooltip.x}px, ${tooltip.y}px)` }"
+						gap="12"
+						:class="$style.tooltip"
+					>
+						<Flex
+							v-for="(d, index) in tooltip.data"
+							align="start"
+							direction="column"
+							wide
+							gap="8"
+						>
+							<Flex align="center" justify="between" gap="12" wide>
+								<Text size="12" weight="600" color="primary"> {{ d.value }} </Text>
+									
+
+								<Flex align="center" justify="end" gap="6">
+									<Text size="12" weight="500" color="tertiary">
+										{{ d.date }}
+									</Text>
+
+									<div
+										:class="$style.legend"
+										:style="{
+											background: d.color
+										}"
+									/>
+								</Flex>
+							</Flex>
+
+							<div v-if="index !== tooltip.data.length - 1" :class="$style.horizontal_divider" />
+						</Flex>
+					</Flex>
+				</div>
+			</Transition>
+
 			<Flex ref="chartElPrev" wide :class="$style.chart" />
 			<Flex ref="chartEl" wide :class="$style.chart" />
 
 			<Flex align="center" justify="between" :class="$style.axis">
 				<Text v-if="series.aggregate === 'cumulative'" size="11" weight="600" color="tertiary">
-					{{ DateTime.now().minus({
-							months: 2,
-						}).toFormat("LLL dd")
-					}}
+					{{ DateTime.fromJSDate(currentData[0]?.date).toFormat("LLL dd") }}
 				</Text>
 				<Text v-else size="11" weight="600" color="tertiary">
 					{{ DateTime.now().minus({
@@ -346,10 +511,41 @@ watch(
 	bottom: 0;
 	left: 0;
 	right: 0;
+}
 
-	/* border-top: 2px solid var(--op-5);
+.tooltip_wrapper {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 
-	padding-top: 8px; */
+	& .tooltip {
+		min-width: 100px;
+		pointer-events: none;
+		position: absolute;
+		z-index: 10;
+
+		background: var(--card-background);
+		border-radius: 6px;
+		box-shadow: inset 0 0 0 1px var(--op-5), 0 14px 34px rgba(0, 0, 0, 15%), 0 4px 14px rgba(0, 0, 0, 5%);
+
+		padding: 10px;
+
+		transition: all 0.2s ease;
+	}
+
+	& .legend {
+		height: 8px;
+		width: 8px;
+		border-radius: 50%;
+	}
+
+	& .horizontal_divider {
+		width: 100%;
+		height: 1px;
+		background: var(--op-5);
+	}
 }
 
 @media (max-width: 1000px) {

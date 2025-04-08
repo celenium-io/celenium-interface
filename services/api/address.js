@@ -387,3 +387,18 @@ export const fetchVestingPeriods = ({ id, limit, offset }) => {
 		console.error(error)
 	}
 }
+
+export const fetchCelestials = ({ hash, limit, offset }) => {
+	try {
+		const url = new URL(`${useServerURL()}/address/${hash}/celestials`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+
+		return useFetch(url.href, {
+			key: "address_celestials",
+		})
+	} catch (error) {
+		console.error(error)
+	}
+}

@@ -14,7 +14,7 @@ import InsightCard from "@/components/modules/stats/InsightCard.vue"
 import { getInsightsByGroup, getSeriesByGroupAndType, STATS_PERIODS } from "@/services/constants/stats.js"
 
 /** API */
-import { fetch24hDiffs } from "@/services/api/stats.js"
+import { fetchGeneralStats } from "@/services/api/stats.js"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -62,7 +62,7 @@ const insights = computed(() => getInsightsByGroup('General'))
 const get24hDiffs = async () => {
     isLoading.value = true
 
-	const data = await fetch24hDiffs({ name: 'changes_24h' })
+	const data = await fetchGeneralStats({ name: 'changes_24h' })
 	diffs24h.value = data
 
     isLoading.value = false
