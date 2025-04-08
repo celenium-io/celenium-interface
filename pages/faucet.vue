@@ -276,14 +276,15 @@ onMounted(() => {
 						<Flex
 							@click="handleChangeNetwork"
 							align="center"
-							gap="12"
+							justify="between"
 							:class="$style.network_selector"
 							:style="{
 								background: `linear-gradient(to ${network === 'mocha' ? 'right' : 'left'}, var(--op-3) 50%, transparent 50%)`,
+								width: '110px'
 							}"
 						>
-							<Text align="center" size="12" :color="network === 'mocha' ? 'primary' : 'tertiary'" weight="600">Mocha</Text>
-							<Text align="center" size="12" :color="network === 'arabica' ? 'primary' : 'tertiary'">Arabica</Text>
+							<Text align="center" size="12" weight="600" :color="network === 'mocha' ? 'primary' : 'tertiary'">Mocha</Text>
+							<Text align="center" size="12" weight="600" :color="network === 'arabica' ? 'primary' : 'tertiary'">Arabica</Text>
 						</Flex>
 					</Flex>
 					<Flex align="center" gap="6" wide>
@@ -571,27 +572,11 @@ onMounted(() => {
 }
 
 .network_selector {
-	padding: 8px 8px;
+	padding: 8px;
 	box-shadow: inset 0 0 0 1px var(--op-10);
 	border-radius: 5px;
 	cursor: pointer;
 	transition: all 1s ease-in-out;
-}
-
-.network_selector1 {
-	height: 32px;
-
-	cursor: pointer;
-	border-radius: 6px;
-	background: var(--op-5);
-
-	padding: 0 8px;
-
-	transition: all 0.2s ease;
-
-	&:hover {
-		background: var(--op-8);
-	}
 }
 
 .input {

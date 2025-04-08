@@ -579,6 +579,7 @@ const initHandles = (gb) => {
 			this._startSelection = d3.brushSelection(gb.node())
 		})
 		.on("drag", function (event) {
+			tooltip.transition().duration(200).style("opacity", 1)
 			const selection = d3.brushSelection(gb.node())
 			if (!selection || !this._startSelection) return
 
@@ -614,6 +615,7 @@ const initHandles = (gb) => {
 		})
 		.on("end", function () {
 			d3.select(this).style("cursor", "grab")
+			tooltip.transition().duration(200).style("opacity", 0)
 			accumulatedDelta = 0
 		})
 
