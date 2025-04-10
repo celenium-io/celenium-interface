@@ -153,12 +153,12 @@ const init = async (fromCache = false) => {
 	// })
 	// l2BlockscoutUrl.value = data?.value?.l2BlockscoutUrl
 }
-init()
+await init()
 
 watch(
 	() => cacheStore.current.blob,
-	() => {
-		init(true)
+	async () => {
+		await init(true)
 
 		router.replace({
 			query: {
