@@ -122,7 +122,6 @@ const init = async (fromCache = false) => {
 		commitment: commitment.replaceAll(" ", "+"),
 		metadata: true,
 	})
-	// metadata.value = rawMetadata.value
 
 	const rawBlob = await fetchBlobByMetadata({
 		hash: hash.replaceAll(" ", "+"),
@@ -134,8 +133,8 @@ const init = async (fromCache = false) => {
 		router.push("/")
 		return
 	} else {
-		metadata.value = rawMetadata
-		blob.value = rawBlob
+		metadata.value = rawMetadata.data.value
+		blob.value = rawBlob.data.value
 		hex.value = Buffer.from(blob.value.data, "base64")
 			.toString("hex")
 			.match(/../g)
