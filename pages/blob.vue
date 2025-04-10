@@ -115,26 +115,25 @@ const init = async (fromCache = false) => {
 		router.push("/")
 		return
 	}
-
-	const { data: rawMetadata } = await fetchBlobMetadata({
+	
+	const rawMetadata = await fetchBlobMetadata({
 		hash: hash.replaceAll(" ", "+"),
 		height: parseInt(height),
 		commitment: commitment.replaceAll(" ", "+"),
 		metadata: true,
 	})
-	metadata.value = rawMetadata.value
-
-	const { data: rawBlob } = await fetchBlobByMetadata({
+	const rawBlob = await fetchBlobByMetadata({
 		hash: hash.replaceAll(" ", "+"),
 		height: parseInt(height),
 		commitment: commitment.replaceAll(" ", "+"),
 	})
 
-	if (!rawBlob.value || !rawMetadata.value) {
+	if (!rawBlob.data.value || !rawMetadata.data.value) {
 		router.push("/")
 		return
 	} else {
-		blob.value = rawBlob.value
+		metadata.value = rawMetadata.data?.value
+		blob.value = rawBlob.data?.value
 		hex.value = Buffer.from(blob.value.data, "base64")
 			.toString("hex")
 			.match(/../g)
@@ -334,14 +333,14 @@ const handleCopy = (text) => {
 							/>
 						</Flex>
 
-						<Text v-if="cards.raw" size="13" color="secondary" height="140" class="selectable" :class="$style.raw_content">
+						<Text v-if="cards?.raw" size="13" color="secondary" height="140" class="selectable" :class="$style.raw_content">
 							{{ blob.data }}
 						</Text>
 					</Flex>
 				</Flex>
 
 				<Flex direction="column" gap="16" :class="$style.right">
-					<Flex v-if="metadata.commitment" direction="column" gap="16" :class="$style.card">
+					<Flex v-if="metadata?.commitment" direction="column" gap="16" :class="$style.card">
 						<Flex @click="cards.metadata = !cards.metadata" align="center" justify="between" :class="$style.header">
 							<Text size="13" weight="600" color="primary">Blob Metadata</Text>
 							<Icon
@@ -352,9 +351,9 @@ const handleCopy = (text) => {
 							/>
 						</Flex>
 
-						<Flex v-if="cards.metadata" direction="column" gap="24" :class="$style.data">
+						<Flex v-if="cards?.metadata" direction="column" gap="24" :class="$style.data">
 							<Flex direction="column" gap="16">
-								<NuxtLink :to="`/namespace/${metadata.namespace.namespace_id}`" target="_blank">
+								<NuxtLink :to="`/namespace/${metadata?.namespace?.namespace_id}`" target="_blank">
 									<Flex justify="between" :class="$style.namespace">
 										<Flex direction="column" gap="8">
 											<Text size="12" weight="600" color="secondary">Namespace</Text>
