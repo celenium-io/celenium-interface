@@ -204,6 +204,7 @@ export const fetchBlobByMetadata = async ({ hash, height, commitment, metadata =
 				commitment,
 				metadata,
 			},
+			key: `blob_by_metadata_${hash}_${height}_${commitment}`,
 		})
 		return data
 	} catch (error) {
@@ -222,6 +223,7 @@ export const fetchBlobMetadata = async ({ hash, height, commitment }) => {
 				height,
 				commitment,
 			},
+			key: `blob_metadata_${hash}_${height}_${commitment}`,
 		})
 		
 		return data
