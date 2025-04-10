@@ -196,8 +196,8 @@ export const fetchBlobByMetadata = async ({ hash, height, commitment, metadata =
 	try {
 		const url = new URL(`${useServerURL()}/blob`)
 
-		const data = await $fetch(encodeURI(url.href), {
-			method: "POST",
+		const data = await useFetch(encodeURI(url.href), {
+			method: "post",
 			body: {
 				hash,
 				height,
@@ -205,19 +205,7 @@ export const fetchBlobByMetadata = async ({ hash, height, commitment, metadata =
 				metadata,
 			},
 		})
-
 		return data
-
-		// return useFetch(encodeURI(url.href), {
-		// 	method: "post",
-		// 	body: {
-		// 		hash,
-		// 		height,
-		// 		commitment,
-		// 		metadata,
-		// 	},
-		// 	key: `blob_by_metadata_${hash}_${height}_${commitment}`,
-		// })
 	} catch (error) {
 		console.error(error)
 	}
@@ -227,16 +215,15 @@ export const fetchBlobMetadata = async ({ hash, height, commitment }) => {
 	try {
 		const url = new URL(`${useServerURL()}/blob/metadata`)
 
-		const data = $fetch(encodeURI(url.href), {
+		const data = await useFetch(encodeURI(url.href), {
 			method: "post",
 			body: {
 				hash,
 				height,
 				commitment,
 			},
-			// key: `blob_metadata_${hash}_${height}_${commitment}`,
 		})
-
+		
 		return data
 	} catch (error) {
 		console.error(error)
@@ -247,16 +234,15 @@ export const fetchBlobProof = async ({ hash, height, commitment }) => {
 	try {
 		const url = new URL(`${useServerURL()}/blob/proofs`)
 
-		const data = $fetch(encodeURI(url.href), {
+		const data = await useFetch(encodeURI(url.href), {
 			method: "post",
 			body: {
 				hash,
 				height,
 				commitment,
 			},
-			// key: `blob_proof_${hash}_${height}_${commitment}`,
 		})
-
+		
 		return data
 	} catch (error) {
 		console.error(error)

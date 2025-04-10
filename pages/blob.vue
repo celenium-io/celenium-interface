@@ -147,12 +147,12 @@ const init = async (fromCache = false) => {
 			}, [])
 	}
 
-	const { data } = await fetchBlobBlockscoutData({
-		height: height,
-		namespace: hash,
-		commitment: commitment,
-	})
-	l2BlockscoutUrl.value = data?.value?.l2BlockscoutUrl
+	// const { data } = await fetchBlobBlockscoutData({
+	// 	height: height,
+	// 	namespace: hash,
+	// 	commitment: commitment,
+	// })
+	// l2BlockscoutUrl.value = data?.value?.l2BlockscoutUrl
 }
 init()
 
