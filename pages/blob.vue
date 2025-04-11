@@ -100,6 +100,7 @@ cacheStore.current.blob = {
 }
 
 const init = async (fromCache = false) => {
+	return
 	const { hash, height, commitment } = fromCache ? cacheStore.current.blob : route.query
 	if (!hash || !height || !commitment) {
 		router.push("/")
