@@ -265,7 +265,7 @@ const handleCopy = (text) => {
 		<ClientOnly>
 			<Flex v-if="currTab === 'viewer'" gap="16">
 				<template v-if="innerWidth >= 1020">
-					<Flex direction="column" gap="16" :class="$style.left">
+					<!-- <Flex direction="column" gap="16" :class="$style.left">
 						<HexViewer
 							v-if="blob"
 							:blob="blob"
@@ -276,9 +276,9 @@ const handleCopy = (text) => {
 							@onSelect="handleBytesSelect"
 							@onCursorSelect="handleSelectCursor"
 						/>
-					</Flex>
+					</Flex> -->
 
-					<!-- <Flex direction="column" gap="16" :class="$style.right">
+					<Flex direction="column" gap="16" :class="$style.right">
 						<DataInspector :bytes="bytes" :range="range" :cursor="cursor" />
 
 						<Tooltip>
@@ -307,7 +307,7 @@ const handleCopy = (text) => {
 								</Flex>
 							</template>
 						</Tooltip>
-					</Flex> -->
+					</Flex>
 				</template>
 				<template v-else>
 					<Text size="13" weight="500" color="tertiary"
