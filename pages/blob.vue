@@ -99,16 +99,6 @@ cacheStore.current.blob = {
 	height,
 }
 
-onMounted(() => {
-	if (!supportedContentTypeForPreview.includes(blob.value?.content_type)) cards.value.preview = false
-
-	innerWidth.value = window.innerWidth
-	if (innerWidth.value <= 1020) {
-		currTab.value = "metadata"
-		cards.value.raw = false
-	}
-})
-
 const init = async (fromCache = false) => {
 	const { hash, height, commitment } = fromCache ? cacheStore.current.blob : route.query
 	if (!hash || !height || !commitment) {
@@ -128,7 +118,7 @@ const init = async (fromCache = false) => {
 		height: parseInt(height),
 		commitment: commitment.replaceAll(" ", "+"),
 	})
-	
+
 	if (!rawBlob || !rawMetadata) {
 		router.push("/")
 		return
@@ -146,14 +136,25 @@ const init = async (fromCache = false) => {
 			}, [])
 	}
 
-	// const { data } = await fetchBlobBlockscoutData({
-	// 	height: height,
-	// 	namespace: hash,
-	// 	commitment: commitment,
-	// })
-	// l2BlockscoutUrl.value = data?.value?.l2BlockscoutUrl
+	const { data } = await fetchBlobBlockscoutData({
+		height: height,
+		namespace: hash,
+		commitment: commitment,
+	})
+	l2BlockscoutUrl.value = data?.value?.l2BlockscoutUrl
 }
-await init()
+
+onMounted(async () => {
+	init()
+
+	if (!supportedContentTypeForPreview.includes(blob.value?.content_type)) cards.value.preview = false
+
+	innerWidth.value = window.innerWidth
+	if (innerWidth.value <= 1020) {
+		currTab.value = "metadata"
+		cards.value.raw = false
+	}
+})
 
 watch(
 	() => cacheStore.current.blob,
@@ -206,7 +207,7 @@ const handleViewProof = async () => {
 	} else {
 		cacheStore.current.proof = data.value
 	}
-	
+
 	cacheStore.current._target = "proof"
 	modalsStore.open("rawData")
 }
@@ -448,13 +449,7 @@ const handleCopy = (text) => {
 
 							<Flex direction="column" gap="8">
 								<Text size="12" weight="600" color="tertiary"> Commitment </Text>
-								<Text
-									size="12"
-									weight="600"
-									color="secondary"
-									selectable
-									style="text-overflow: ellipsis; overflow: hidden"
-								>
+								<Text size="12" weight="600" color="secondary" selectable style="text-overflow: ellipsis; overflow: hidden">
 									{{ blob.commitment }}
 								</Text>
 							</Flex>
@@ -476,12 +471,7 @@ const handleCopy = (text) => {
 										<Flex align="center" justify="center" :class="$style.avatar_container">
 											<img :src="metadata.rollup.logo" :class="$style.avatar_image" />
 										</Flex>
-										<Text
-											size="12"
-											weight="600"
-											color="secondary"
-											style="text-overflow: ellipsis; overflow: hidden"
-										>
+										<Text size="12" weight="600" color="secondary" style="text-overflow: ellipsis; overflow: hidden">
 											{{ metadata.rollup.name }}
 										</Text>
 									</Flex>
