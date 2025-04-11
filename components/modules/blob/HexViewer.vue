@@ -161,8 +161,7 @@ const decode = (byte) => {
 
 <template>
 	<Flex direction="column" gap="16" :class="$style.wrapper">
-		HexViewer
-		<!-- <Flex ref="viewerEl" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" @pointerleave="onPointerLeave" justify="between">
+		<Flex ref="viewerEl" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" @pointerleave="onPointerLeave" justify="between">
 			<Flex gap="6">
 				<Flex direction="column" :class="$style.row_labels">
 					<Text v-for="(i, idx) in 40" size="12" weight="600" color="support" mono :class="$style.row_label">
@@ -222,7 +221,7 @@ const decode = (byte) => {
 					:class="$style.thumb"
 				/>
 			</div>
-		</Flex> -->
+		</Flex>
 	</Flex>
 </template>
 
