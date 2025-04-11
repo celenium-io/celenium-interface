@@ -93,11 +93,11 @@ const handleBytesSelect = (selection) => {
 const metadata = ref({})
 
 const { hash, height, commitment } = route.query
-// cacheStore.current.blob = {
-// 	commitment,
-// 	hash,
-// 	height,
-// }
+cacheStore.current.blob = {
+	commitment,
+	hash,
+	height,
+}
 
 const init = async (fromCache = false) => {
 	const { hash, height, commitment } = fromCache ? cacheStore.current.blob : route.query
@@ -228,7 +228,7 @@ const handleCopy = (text) => {
 
 <template>
 	<Flex wide direction="column" gap="16" :class="$style.wrapper">
-		<Flex align="center" justify="between">
+		<!-- <Flex align="center" justify="between">
 			<Flex align="center" gap="8">
 				<Flex @click="currTab = 'viewer'" align="center" gap="6" :class="[$style.tab, currTab === 'viewer' && $style.active]">
 					<Text size="12" weight="600" color="secondary" mono>01</Text>
@@ -260,7 +260,7 @@ const handleCopy = (text) => {
 					<Icon name="settings" size="12" color="secondary" />
 				</Button>
 			</Flex>
-		</Flex>
+		</Flex> -->
 
 		<ClientOnly>
 			<Flex v-if="currTab === 'viewer'" gap="16">
