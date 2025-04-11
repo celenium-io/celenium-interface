@@ -280,7 +280,7 @@ const handleCopy = (text) => {
 					</Flex>
 
 					<Flex direction="column" gap="16" :class="$style.right">
-						<!-- <DataInspector :bytes="bytes" :range="range" :cursor="cursor" /> -->
+						<DataInspector :bytes="bytes" :range="range" :cursor="cursor" />
 
 						<Tooltip>
 							<Flex align="center" gap="6" style="padding: 0 16px">
