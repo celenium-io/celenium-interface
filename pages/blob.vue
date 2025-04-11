@@ -264,56 +264,54 @@ const handleCopy = (text) => {
 
 		<ClientOnly>
 			<Flex v-if="currTab === 'viewer'" gap="16">
-				<template v-if="innerWidth >= 1020">
-					<!-- <Flex direction="column" gap="16" :class="$style.left">
-						<HexViewer
-							v-if="blob"
-							:blob="blob"
-							:bytes="bytes"
-							:hex="hex"
-							:cursor="cursor"
-							:range="range"
-							@onSelect="handleBytesSelect"
-							@onCursorSelect="handleSelectCursor"
-						/>
-					</Flex> -->
+				<!-- <template v-if="innerWidth >= 1020"> -->
+				<Flex direction="column" gap="16" :class="$style.left">
+					<HexViewer
+						v-if="blob"
+						:blob="blob"
+						:bytes="bytes"
+						:hex="hex"
+						:cursor="cursor"
+						:range="range"
+						@onSelect="handleBytesSelect"
+						@onCursorSelect="handleSelectCursor"
+					/>
+				</Flex>
 
-					<Flex direction="column" gap="16" :class="$style.right">
-						<DataInspector :bytes="bytes" :range="range" :cursor="cursor" />
+				<Flex direction="column" gap="16" :class="$style.right">
+					<DataInspector :bytes="bytes" :range="range" :cursor="cursor" />
 
-						<Tooltip>
-							<Flex align="center" gap="6" style="padding: 0 16px">
-								<Icon name="info" size="12" color="support" />
-								<Text size="12" weight="500" color="support">This page supports several keybinds</Text>
-							</Flex>
+					<Tooltip>
+						<Flex align="center" gap="6" style="padding: 0 16px">
+							<Icon name="info" size="12" color="support" />
+							<Text size="12" weight="500" color="support">This page supports several keybinds</Text>
+						</Flex>
 
-							<template #content>
-								<Flex direction="column" gap="8" align="center">
-									<Flex align="center" gap="6">
-										<Text color="tertiary">Clear selection - </Text> <Text mono>Esc</Text>
-									</Flex>
-									<Flex align="center" gap="6">
-										<Text color="tertiary">Jump to start - </Text> <Text mono>PageUp</Text>
-									</Flex>
-									<Flex align="center" gap="6">
-										<Text color="tertiary">Jump to end - </Text> <Text mono>PageDown</Text>
-									</Flex>
-									<Flex align="center" gap="6">
-										<Text color="tertiary">Move cursor - </Text> <Text mono>Arrow Keys</Text>
-									</Flex>
-									<Flex align="center" gap="6">
-										<Text color="tertiary">Move viewport - </Text> <Text mono>Cmd+ArrowUp/Down</Text>
-									</Flex>
+						<template #content>
+							<Flex direction="column" gap="8" align="center">
+								<Flex align="center" gap="6"> <Text color="tertiary">Clear selection - </Text> <Text mono>Esc</Text> </Flex>
+								<Flex align="center" gap="6">
+									<Text color="tertiary">Jump to start - </Text> <Text mono>PageUp</Text>
 								</Flex>
-							</template>
-						</Tooltip>
-					</Flex>
-				</template>
+								<Flex align="center" gap="6">
+									<Text color="tertiary">Jump to end - </Text> <Text mono>PageDown</Text>
+								</Flex>
+								<Flex align="center" gap="6">
+									<Text color="tertiary">Move cursor - </Text> <Text mono>Arrow Keys</Text>
+								</Flex>
+								<Flex align="center" gap="6">
+									<Text color="tertiary">Move viewport - </Text> <Text mono>Cmd+ArrowUp/Down</Text>
+								</Flex>
+							</Flex>
+						</template>
+					</Tooltip>
+				</Flex>
+				<!-- </template>
 				<template v-else>
 					<Text size="13" weight="500" color="tertiary"
 						>Hex viewer is not available on your screen, use a desktop or tablet.</Text
 					>
-				</template>
+				</template> -->
 			</Flex>
 
 			<Flex v-else-if="currTab === 'metadata' && blob" gap="16" :class="$style.metadata">
