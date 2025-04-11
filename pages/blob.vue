@@ -93,14 +93,13 @@ const handleBytesSelect = (selection) => {
 const metadata = ref({})
 
 const { hash, height, commitment } = route.query
-cacheStore.current.blob = {
-	commitment,
-	hash,
-	height,
-}
+// cacheStore.current.blob = {
+// 	commitment,
+// 	hash,
+// 	height,
+// }
 
 const init = async (fromCache = false) => {
-	return
 	const { hash, height, commitment } = fromCache ? cacheStore.current.blob : route.query
 	if (!hash || !height || !commitment) {
 		router.push("/")
@@ -263,22 +262,20 @@ const handleCopy = (text) => {
 			</Flex>
 		</Flex>
 
-		<ClientOnly>
+		<!-- <ClientOnly>
 			<Flex v-if="currTab === 'viewer'" gap="16">
 				<template v-if="innerWidth >= 1020">
 					<Flex direction="column" gap="16" :class="$style.left">
-						<ClientOnly>
-							<HexViewer
-								v-if="blob"
-								:blob="blob"
-								:bytes="bytes"
-								:hex="hex"
-								:cursor="cursor"
-								:range="range"
-								@onSelect="handleBytesSelect"
-								@onCursorSelect="handleSelectCursor"
-							/>
-						</ClientOnly>
+						<HexViewer
+							v-if="blob"
+							:blob="blob"
+							:bytes="bytes"
+							:hex="hex"
+							:cursor="cursor"
+							:range="range"
+							@onSelect="handleBytesSelect"
+							@onCursorSelect="handleSelectCursor"
+						/>
 					</Flex>
 
 					<Flex direction="column" gap="16" :class="$style.right">
@@ -509,7 +506,7 @@ const handleCopy = (text) => {
 					</Flex>
 				</Flex>
 			</Flex>
-		</ClientOnly>
+		</ClientOnly> -->
 	</Flex>
 </template>
 
