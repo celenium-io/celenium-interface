@@ -228,7 +228,7 @@ const handleCopy = (text) => {
 
 <template>
 	<Flex wide direction="column" gap="16" :class="$style.wrapper">
-		<!-- <Flex align="center" justify="between">
+		<Flex align="center" justify="between">
 			<Flex align="center" gap="8">
 				<Flex @click="currTab = 'viewer'" align="center" gap="6" :class="[$style.tab, currTab === 'viewer' && $style.active]">
 					<Text size="12" weight="600" color="secondary" mono>01</Text>
@@ -260,12 +260,12 @@ const handleCopy = (text) => {
 					<Icon name="settings" size="12" color="secondary" />
 				</Button>
 			</Flex>
-		</Flex> -->
+		</Flex>
 
 		<ClientOnly>
 			<Flex v-if="currTab === 'viewer'" gap="16">
 				<template v-if="innerWidth >= 1020">
-					<Flex direction="column" gap="16" :class="$style.left">
+					<!-- <Flex direction="column" gap="16" :class="$style.left">
 						<HexViewer
 							v-if="blob"
 							:blob="blob"
@@ -307,7 +307,7 @@ const handleCopy = (text) => {
 								</Flex>
 							</template>
 						</Tooltip>
-					</Flex>
+					</Flex> -->
 				</template>
 				<template v-else>
 					<Text size="13" weight="500" color="tertiary"
