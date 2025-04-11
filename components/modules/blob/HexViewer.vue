@@ -1,6 +1,6 @@
 <script setup>
 /** Vendor */
-import iconv from "iconv-lite"
+// import iconv from "iconv-lite"
 
 /** Store */
 import { useSettingsStore } from "@/store/settings"
@@ -150,6 +150,7 @@ const onPointerLeave = () => {
 }
 
 const decode = (byte) => {
+	return ""
 	const charCode = parseInt(`0x${byte}`, 16)
 	if (charCode >= 0 && charCode <= 31) {
 		return "."
