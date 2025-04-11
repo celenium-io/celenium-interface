@@ -278,7 +278,7 @@ const handleCopy = (text) => {
 						/>
 					</Flex>
 
-					<!-- <Flex direction="column" gap="16" :class="$style.right">
+					<Flex direction="column" gap="16" :class="$style.right">
 						<DataInspector :bytes="bytes" :range="range" :cursor="cursor" />
 
 						<Tooltip>
@@ -307,7 +307,7 @@ const handleCopy = (text) => {
 								</Flex>
 							</template>
 						</Tooltip>
-					</Flex> -->
+					</Flex>
 				</template>
 				<template v-else>
 					<Text size="13" weight="500" color="tertiary"
