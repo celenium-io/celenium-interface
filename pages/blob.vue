@@ -262,7 +262,7 @@ const handleCopy = (text) => {
 			</Flex>
 		</Flex>
 
-		<!-- <ClientOnly>
+		<ClientOnly>
 			<Flex v-if="currTab === 'viewer'" gap="16">
 				<template v-if="innerWidth >= 1020">
 					<Flex direction="column" gap="16" :class="$style.left">
@@ -506,7 +506,7 @@ const handleCopy = (text) => {
 					</Flex>
 				</Flex>
 			</Flex>
-		</ClientOnly> -->
+		</ClientOnly>
 	</Flex>
 </template>
 
