@@ -1,7 +1,4 @@
 <script setup>
-/** Vendor */
-// import iconv from "iconv-lite"
-
 /** Store */
 import { useSettingsStore } from "@/store/settings"
 const settingsStore = useSettingsStore()
@@ -150,12 +147,11 @@ const onPointerLeave = () => {
 }
 
 const decode = (byte) => {
-	return ""
 	const charCode = parseInt(`0x${byte}`, 16)
-	if (charCode >= 0 && charCode <= 31) {
+	if ((charCode >= 0 && charCode <= 31) || (charCode >= 127 && charCode <= 159)) {
 		return "."
 	} else {
-		return iconv.decode(new Uint8Array([charCode]), settingsStore.hex.characterSet)
+		return String.fromCharCode.apply(null, new Uint8Array([charCode]))
 	}
 }
 </script>
