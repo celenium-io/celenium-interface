@@ -11,7 +11,6 @@ export const fetchNamespaces = async ({ limit, offset, sort, sort_by }) => {
 		if (sort_by) url.searchParams.append("sort_by", sort_by)
 
 		const data = await useFetch(url.href)
-		console.log("fetchNamespaces", data.data.value)
 		return data
 	} catch (error) {
 		console.error(error)
@@ -34,7 +33,6 @@ export const fetchNamespaceByID = async (id) => {
 		const url = new URL(`${useServerURL()}/namespace/${id}`)
 
 		const data = await useFetch(encodeURI(url.href))
-		console.log("fetchNamespaceByID", data.data.value)
 		return data
 	} catch (error) {
 		console.error(error)
@@ -60,7 +58,6 @@ export const fetchNamespaceMessagesById = async ({ id, version, limit, offset })
 		if (offset) url.searchParams.append("offset", offset)
 
 		const data = await useFetch(encodeURI(url.href))
-		console.log("fetchNamespaceMessagesById", data.data.value)
 		return data
 	} catch (error) {
 		console.error(error)
@@ -77,7 +74,6 @@ export const fetchNamespaceBlobs = async ({ id, version, limit, offset }) => {
 		if (offset) url.searchParams.append("offset", offset)
 
 		const data = await useFetch(encodeURI(url.href))
-		console.log("fetchNamespaceBlobs", data.data.value)
 		return data
 	} catch (error) {
 		console.error(error)
@@ -91,7 +87,6 @@ export const fetchNamespaceRollups = async ({ id, version, limit }) => {
 		if (limit) url.searchParams.append("limit", limit)
 
 		const data = await useFetch(encodeURI(url.href))
-		console.log("fetchNamespaceRollups", data.data.value)
 		return data
 	} catch (error) {
 		console.error(error)
