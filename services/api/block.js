@@ -74,14 +74,37 @@ export const fetchLatestBlocks = async ({ limit }) => {
 	}
 }
 
+// export const fetchAvgBlockTime = async ({ from }) => {
+// 	try {
+// 		const url = new URL(`${useServerURL()}/stats/summary/block_stats/avg?column=block_time`)
+
+// 		url.searchParams.append("from", from)
+
+// 		const data = await useFetch(url.href)
+// 		return data
+// 	} catch (error) {
+// 		console.error(error)
+// 	}
+// }
+
+// export const fetchBlockByHeight = async (height) => {
+// 	try {
+// 		const data = await useFetch(`${useServerURL()}/block/${height}?stats=true`)
+// 		return data
+// 	} catch (error) {
+// 		console.error(error)
+// 	}
+// }
+
 export const fetchAvgBlockTime = async ({ from }) => {
 	try {
 		const url = new URL(`${useServerURL()}/stats/summary/block_stats/avg?column=block_time`)
 
 		url.searchParams.append("from", from)
 
-		const data = await useFetch(url.href)
-		return data
+		return useFetch(url.href, {
+			key: "avg_block_time",
+		})
 	} catch (error) {
 		console.error(error)
 	}
@@ -89,8 +112,9 @@ export const fetchAvgBlockTime = async ({ from }) => {
 
 export const fetchBlockByHeight = async (height) => {
 	try {
-		const data = await useFetch(`${useServerURL()}/block/${height}?stats=true`)
-		return data
+		return useFetch(`${useServerURL()}/block/${height}?stats=true`, {
+			key: "block",
+		})
 	} catch (error) {
 		console.error(error)
 	}

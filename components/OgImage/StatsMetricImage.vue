@@ -14,15 +14,13 @@ const bgStyles = computed(() => {
 			position: "absolute",
 			top: "0",
 			left: "0",
-			filter: "grayscale(1)",
-			opacity: "0.05",
 		},
 	}
 })
 </script>
 
 <template>
-	<div class="w-full h-full" :style="{ background: '#111111', padding: '100px 120px', fontFamily: 'IBM+Plex+Mono' }">
+	<div class="w-full h-full" :style="{ padding: '80px 140px', fontFamily: 'IBM+Plex+Mono' }">
 		<img src="/img/stats_bg.png" v-bind="bgStyles" />
 
 		<div :style="{ height: '100%', display: 'flex', flexDirection: 'column', gap: '80px' }">

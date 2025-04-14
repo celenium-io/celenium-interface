@@ -2,18 +2,11 @@
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
-/** Services */
-import { truncate } from "@/services/utils"
+/** Store */
+import { useAppStore } from "@/store/app"
+const appStore = useAppStore()
 
-/** API */
-import { fetchGasPrice } from "@/services/api/gas"
-
-const gasPrice = ref({})
-
-onMounted(async () => {
-	const data = await fetchGasPrice()
-	gasPrice.value = data
-})
+const gasPrice = computed(() => appStore.gas)
 </script>
 
 <template>

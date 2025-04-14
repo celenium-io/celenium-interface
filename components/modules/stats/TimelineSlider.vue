@@ -25,7 +25,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(["onUpdate"])
-const margin = { top: 54, right: 12, bottom: 4, left: 12 }
+const margin = { top: 54, right: 12, bottom: 4, left: 36 }
 const height = 115
 const axisBottomHeight = 20
 
@@ -60,6 +60,10 @@ const to = reactive({
 const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#55c9ab", "#142f28"])).domain([0, 5])
 
 const formatTooltipDate = (date) => {
+	if (props.selectedTimeframe.timeframe === "hour") {
+		return DateTime.fromJSDate(date instanceof Date ? date : new Date(date)).toFormat("HH:mm, dd LLL")
+	}
+
 	return DateTime.fromJSDate(date instanceof Date ? date : new Date(date)).toFormat("dd LLL yyyy")
 }
 
@@ -575,6 +579,7 @@ const initHandles = (gb) => {
 			this._startSelection = d3.brushSelection(gb.node())
 		})
 		.on("drag", function (event) {
+			tooltip.transition().duration(200).style("opacity", 1)
 			const selection = d3.brushSelection(gb.node())
 			if (!selection || !this._startSelection) return
 
@@ -610,6 +615,7 @@ const initHandles = (gb) => {
 		})
 		.on("end", function () {
 			d3.select(this).style("cursor", "grab")
+			tooltip.transition().duration(200).style("opacity", 0)
 			accumulatedDelta = 0
 		})
 
@@ -731,13 +737,13 @@ watch(
 	{ deep: true },
 )
 
-watch([() => props.from, () => props.to], ([newFrom, newTo], [oldFrom, oldTo]) => {
-	if (newFrom === oldFrom && newTo === oldTo) return
-	if (!props.allData?.length) return
-	if (isInternalUpdate.value) return
+// watch([() => props.from, () => props.to], ([newFrom, newTo], [oldFrom, oldTo]) => {
+// 	if (newFrom === oldFrom && newTo === oldTo) return
+// 	if (!props.allData?.length) return
+// 	if (isInternalUpdate.value) return
 
-	createChart()
-})
+// 	createChart()
+// })
 
 onMounted(() => {
 	createChart()
