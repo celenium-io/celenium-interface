@@ -99,34 +99,26 @@ cacheStore.current.blob = {
 	height,
 }
 
-onMounted(() => {
-	if (!supportedContentTypeForPreview.includes(blob.value?.content_type)) cards.value.preview = false
-
-	innerWidth.value = window.innerWidth
-	if (innerWidth.value <= 1020) {
-		currTab.value = "metadata"
-		cards.value.raw = false
-	}
-})
-
 const init = async (fromCache = false) => {
 	const { hash, height, commitment } = fromCache ? cacheStore.current.blob : route.query
 	if (!hash || !height || !commitment) {
 		router.push("/")
 		return
 	}
-	
-	const rawMetadata = await fetchBlobMetadata({
-		hash: hash.replaceAll(" ", "+"),
-		height: parseInt(height),
-		commitment: commitment.replaceAll(" ", "+"),
-		metadata: true,
-	})
-	const rawBlob = await fetchBlobByMetadata({
-		hash: hash.replaceAll(" ", "+"),
-		height: parseInt(height),
-		commitment: commitment.replaceAll(" ", "+"),
-	})
+
+	const [rawMetadata, rawBlob] = await Promise.all([
+		fetchBlobMetadata({
+			hash: hash.replaceAll(" ", "+"),
+			height: parseInt(height),
+			commitment: commitment.replaceAll(" ", "+"),
+			metadata: true,
+		}),
+		fetchBlobByMetadata({
+			hash: hash.replaceAll(" ", "+"),
+			height: parseInt(height),
+			commitment: commitment.replaceAll(" ", "+"),
+		}),
+	])
 
 	if (!rawBlob.data.value || !rawMetadata.data.value) {
 		router.push("/")
@@ -152,12 +144,23 @@ const init = async (fromCache = false) => {
 	})
 	l2BlockscoutUrl.value = data?.value?.l2BlockscoutUrl
 }
+
 init()
+
+onMounted(async () => {
+	if (!supportedContentTypeForPreview.includes(blob.value?.content_type)) cards.value.preview = false
+
+	innerWidth.value = window.innerWidth
+	if (innerWidth.value <= 1020) {
+		currTab.value = "metadata"
+		cards.value.raw = false
+	}
+})
 
 watch(
 	() => cacheStore.current.blob,
-	() => {
-		init(true)
+	async () => {
+		await init(true)
 
 		router.replace({
 			query: {
@@ -205,7 +208,7 @@ const handleViewProof = async () => {
 	} else {
 		cacheStore.current.proof = data.value
 	}
-	
+
 	cacheStore.current._target = "proof"
 	modalsStore.open("rawData")
 }
@@ -264,18 +267,16 @@ const handleCopy = (text) => {
 			<Flex v-if="currTab === 'viewer'" gap="16">
 				<template v-if="innerWidth >= 1020">
 					<Flex direction="column" gap="16" :class="$style.left">
-						<ClientOnly>
-							<HexViewer
-								v-if="blob"
-								:blob="blob"
-								:bytes="bytes"
-								:hex="hex"
-								:cursor="cursor"
-								:range="range"
-								@onSelect="handleBytesSelect"
-								@onCursorSelect="handleSelectCursor"
-							/>
-						</ClientOnly>
+						<HexViewer
+							v-if="blob"
+							:blob="blob"
+							:bytes="bytes"
+							:hex="hex"
+							:cursor="cursor"
+							:range="range"
+							@onSelect="handleBytesSelect"
+							@onCursorSelect="handleSelectCursor"
+						/>
 					</Flex>
 
 					<Flex direction="column" gap="16" :class="$style.right">
@@ -447,13 +448,7 @@ const handleCopy = (text) => {
 
 							<Flex direction="column" gap="8">
 								<Text size="12" weight="600" color="tertiary"> Commitment </Text>
-								<Text
-									size="12"
-									weight="600"
-									color="secondary"
-									selectable
-									style="text-overflow: ellipsis; overflow: hidden"
-								>
+								<Text size="12" weight="600" color="secondary" selectable style="text-overflow: ellipsis; overflow: hidden">
 									{{ blob.commitment }}
 								</Text>
 							</Flex>
@@ -475,12 +470,7 @@ const handleCopy = (text) => {
 										<Flex align="center" justify="center" :class="$style.avatar_container">
 											<img :src="metadata.rollup.logo" :class="$style.avatar_image" />
 										</Flex>
-										<Text
-											size="12"
-											weight="600"
-											color="secondary"
-											style="text-overflow: ellipsis; overflow: hidden"
-										>
+										<Text size="12" weight="600" color="secondary" style="text-overflow: ellipsis; overflow: hidden">
 											{{ metadata.rollup.name }}
 										</Text>
 									</Flex>

@@ -1,7 +1,6 @@
 <script setup>
 /** Vendor */
 import { DateTime } from "luxon"
-import iconv from "iconv-lite"
 
 /** Store */
 import { useSettingsStore } from "@/store/settings"
@@ -63,7 +62,7 @@ const hexToUint8Array = (hex) => {
 }
 
 const decode = (bytes) => {
-	return iconv.decode(new Uint8Array(bytes.map((b) => parseInt(`0x${b}`, 16))), "IBM437")
+	return bytes.map((b) => String.fromCharCode(null, new Uint8Array([parseInt(`0x${b}`, 16)]))).join("")
 }
 </script>
 
