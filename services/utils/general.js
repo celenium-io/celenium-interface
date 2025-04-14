@@ -94,7 +94,11 @@ export const isMobile = () => {
 		userAgent = navigator.userAgent
 	}
 
-	return REGEX_MOBILE1.test(userAgent) || REGEX_MOBILE2.test(userAgent.slice(0, 4)) || (typeof window !== "undefined" && window.innerWidth < 1300)
+	return (
+		REGEX_MOBILE1.test(userAgent) ||
+		REGEX_MOBILE2.test(userAgent.slice(0, 4)) ||
+		(typeof window !== "undefined" && window.innerWidth < 1300)
+	)
 }
 
 export const getNetworkName = () => {
@@ -112,6 +116,9 @@ export const getNetworkName = () => {
 
 		case "arabica.celenium.io":
 			return "Arabica"
+
+		case "mammoth.celenium.io":
+			return "Mammoth"
 
 		case "dev.celenium.io":
 			return "Development"

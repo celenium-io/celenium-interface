@@ -164,13 +164,16 @@ const fetchData = async () => {
 			return { time: v.time, value: v.close }
 		})
 	} else if (series.value.aggregate !== "cumulative") {
-		let from = filters?.to ? DateTime.fromSeconds(+filters?.to) : DateTime.now()
+		let to = filters?.to ? DateTime.fromSeconds(+filters?.to) : DateTime.now()
 		data = await fetchSeries({
 			table: series.value.name,
 			period: selectedTimeframe.value.timeframe,
 			from: selectedTimeframe.value.timeframe === "hour"
-				? parseInt(from.minus({ days: 7 }).ts / 1_000)
-				: null
+				? parseInt(to.minus({ days: 7 }).ts / 1_000)
+				: null,
+			to: selectedTimeframe.value.timeframe === "hour"
+				? parseInt(to.ts / 1_000)
+				: null,
 		})
 	} else {
 		data = (
@@ -188,17 +191,17 @@ const fetchData = async () => {
 	return allData.value
 }
 
-const getData = async () => {
+const getData = async (fetch = true) => {
 	isLoading.value = true
 
 	let data = []
 
 	const isSameRequest = currentChartName.value === series.value.name && loadedAllData.value && allData.value.length > 0
 
-	if (!isSameRequest) {
+	if (fetch) {
 		await fetchData()
 	}
-
+	
 	data = allData.value
 
 	if (data.length > 0 && !filters.from && !filters.to) {
@@ -254,8 +257,10 @@ const handleUpdateDate = async (event) => {
 		let from = event.from
 		let to = event.to
 
-		from = DateTime.fromSeconds(from).startOf("day").toSeconds()
-		to = Math.floor(DateTime.fromSeconds(to).endOf("day").toSeconds())
+		if (selectedTimeframe.value.timeframe !== "hour") {
+			from = DateTime.fromSeconds(from).startOf("day").toSeconds()
+			to = Math.floor(DateTime.fromSeconds(to).endOf("day").toSeconds())
+		}
 
 		if (filters.from === from && filters.to === to) {
 			isLoading.value = false
@@ -269,9 +274,11 @@ const handleUpdateDate = async (event) => {
 			if (Math.abs(DateTime.fromSeconds(from).diff(DateTime.fromSeconds(to), 'days').days) < 8) {
 				selectedTimeframe.value = STATS_TIMEFRAMES.find((tf) => tf.timeframe === "hour")
 			}
-		}
 
-		await getData()
+			await getData()
+		} else {
+			await getData(false)
+		}
 	}
 
 	isLoading.value = false

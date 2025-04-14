@@ -261,6 +261,7 @@ const handleYearChange = (v) => {
 watch(
 	() => props.from,
 	() => {
+		selectedPeriod.value = {}
 		startDate.value = props.from ? DateTime.fromSeconds(parseInt(props.from)).startOf("day") : {}
 		endDate.value = props.to ? DateTime.fromSeconds(parseInt(props.to)).endOf("day") : {}
 		updateSelectedRange(startDate.value, endDate.value)
@@ -270,6 +271,7 @@ watch(
 watch(
 	() => props.to,
 	() => {
+		selectedPeriod.value = {}
 		endDate.value = props.to ? DateTime.fromSeconds(parseInt(props.to)).endOf("day") : {}
 		updateSelectedRange(startDate.value, endDate.value)
 	},

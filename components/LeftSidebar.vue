@@ -51,19 +51,19 @@ const mainLinks = reactive([
 			{
 				name: "Active",
 				path: "/validators?status=active&page=1",
-				queryParam: {status: "active"},
+				queryParam: { status: "active" },
 				show: true,
 			},
 			{
 				name: "Jailed",
 				path: "/validators?status=jailed&page=1",
-				queryParam: {status: "jailed"},
+				queryParam: { status: "jailed" },
 				show: true,
 			},
 			{
 				name: "Inactive",
 				path: "/validators?status=inactive&page=1",
-				queryParam: {status: "inactive"},
+				queryParam: { status: "inactive" },
 				show: true,
 			},
 		],
@@ -76,26 +76,26 @@ const mainLinks = reactive([
 			{
 				name: "General",
 				path: "/stats?tab=general",
-				queryParam: {tab: "general"},
+				queryParam: { tab: "general" },
 				show: true,
 			},
 			{
 				name: "Blocks",
 				path: "/stats?tab=blocks",
-				queryParam: {tab: "blocks"},
+				queryParam: { tab: "blocks" },
 				show: true,
 			},
 			{
 				name: "Rollups",
 				path: "/stats?tab=rollups",
-				queryParam: {tab: "rollups"},
+				queryParam: { tab: "rollups" },
 				show: true,
 			},
 			{
 				name: "Ecosystem",
 				path: "/stats?tab=ecosystem",
 				queryParam: {tab: "ecosystem"},
-				show: isMainnet(),
+				show: false,
 			},
 		],
 	},
@@ -196,7 +196,8 @@ const handleOnClose = () => {
 			<Flex justify="between" align="center">
 				<NuxtLink to="/" :class="$style.logo">
 					<Flex align="center" gap="8">
-						<Icon name="logo" size="16" color="tertiary" :class="$style.logo_symbol" />
+						<Icon v-if="getNetworkName() !== 'Mammoth'" name="logo" size="16" color="tertiary" :class="$style.logo_symbol" />
+						<Text v-else size="16" style="filter: grayscale(1)">🦣</Text>
 
 						<svg width="86" height="14" viewBox="0 0 96 16" xmlns="http://www.w3.org/2000/svg" :class="$style.logo_name">
 							<path
@@ -301,10 +302,17 @@ const handleOnClose = () => {
 
 				<template #popup>
 					<DropdownTitle>
-						<Flex gap="8">
+						<Flex v-if="head.synced" gap="8">
 							<Icon name="check" size="12" color="brand" />
 							<Flex direction="column" gap="6">
-								<Text color="secondary">Head {{ head.synced ? "" : "not" }} Synced </Text>
+								<Text color="secondary">Head Synced </Text>
+								<Text color="tertiary">{{ head.chain_id }}</Text>
+							</Flex>
+						</Flex>
+						<Flex v-else gap="8">
+							<Icon name="close" size="12" color="red" />
+							<Flex direction="column" gap="6">
+								<Text color="secondary">Head not Synced </Text>
 								<Text color="tertiary">{{ head.chain_id }}</Text>
 							</Flex>
 						</Flex>
@@ -314,6 +322,7 @@ const handleOnClose = () => {
 					<DropdownItem @click="handleNavigate('https://celenium.io')">Mainnet</DropdownItem>
 					<DropdownItem @click="handleNavigate('https://mocha-4.celenium.io')">Mocha-4</DropdownItem>
 					<DropdownItem @click="handleNavigate('https://arabica.celenium.io')">Arabica</DropdownItem>
+					<!-- <DropdownItem @click="handleNavigate('https://mammoth.celenium.io')">Mammoth</DropdownItem> -->
 				</template>
 			</Dropdown>
 		</Flex>
