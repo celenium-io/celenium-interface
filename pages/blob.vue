@@ -106,25 +106,26 @@ const init = async (fromCache = false) => {
 		return
 	}
 
-	const rawMetadata = await fetchBlobMetadata({
-		hash: hash.replaceAll(" ", "+"),
-		height: parseInt(height),
-		commitment: commitment.replaceAll(" ", "+"),
-		metadata: true,
-	})
+	const [rawMetadata, rawBlob] = await Promise.all([
+		fetchBlobMetadata({
+			hash: hash.replaceAll(" ", "+"),
+			height: parseInt(height),
+			commitment: commitment.replaceAll(" ", "+"),
+			metadata: true,
+		}),
+		fetchBlobByMetadata({
+			hash: hash.replaceAll(" ", "+"),
+			height: parseInt(height),
+			commitment: commitment.replaceAll(" ", "+"),
+		}),
+	])
 
-	const rawBlob = await fetchBlobByMetadata({
-		hash: hash.replaceAll(" ", "+"),
-		height: parseInt(height),
-		commitment: commitment.replaceAll(" ", "+"),
-	})
-
-	if (!rawBlob || !rawMetadata) {
+	if (!rawBlob.data.value || !rawMetadata.data.value) {
 		router.push("/")
 		return
 	} else {
-		metadata.value = rawMetadata.data.value
-		blob.value = rawBlob.data.value
+		metadata.value = rawMetadata.data?.value
+		blob.value = rawBlob.data?.value
 		hex.value = Buffer.from(blob.value.data, "base64")
 			.toString("hex")
 			.match(/../g)
@@ -144,9 +145,9 @@ const init = async (fromCache = false) => {
 	l2BlockscoutUrl.value = data?.value?.l2BlockscoutUrl
 }
 
-onMounted(async () => {
-	init()
+init()
 
+onMounted(async () => {
 	if (!supportedContentTypeForPreview.includes(blob.value?.content_type)) cards.value.preview = false
 
 	innerWidth.value = window.innerWidth
