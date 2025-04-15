@@ -327,26 +327,26 @@ const handleCSVDownload = async (value) => {
 							v-if="rollup.compression?.includes('Ethereum')"
 							:src="`/img/badges/settled/eth.png`"
 							alt="Rollup badge"
-							style="width: 60px"
+							:class="$style.badge"
 						/>
 						<img
 							v-else-if="rollup.compression?.includes('Base')"
 							:src="`/img/badges/settled/base.png`"
 							alt="Rollup badge"
-							style="width: 60px"
+							:class="$style.badge"
 						/>
 						<img
 							v-else-if="rollup.compression?.includes('Arbitrum')"
 							:src="`/img/badges/settled/arb.png`"
 							alt="Rollup badge"
-							style="width: 60px"
+							:class="$style.badge"
 						/>
 
 						<img
 							v-if="rollup.provider"
 							:src="`/img/badges/provider/${rollup.provider.toLowerCase()}.png`"
 							alt="Rollup badge"
-							style="width: 60px"
+							:class="$style.badge"
 						/>
 					</Flex>
 
@@ -684,6 +684,10 @@ const handleCSVDownload = async (value) => {
 		overflow: hidden;
 		-webkit-line-clamp: 3;
 		-webkit-box-orient: vertical;
+	}
+
+	.badge {
+		width: 60px;
 	}
 
 	.tag_badge {
