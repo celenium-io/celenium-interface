@@ -55,7 +55,7 @@ const props = defineProps({
 	},
 })
 
-const emit = defineEmits(["onClose"])
+const emit = defineEmits(["onClose", "onOpen"])
 
 const trigger = ref(null)
 const dropdown = ref(null)
@@ -70,6 +70,7 @@ watch(
 )
 
 const toggleDropdown = (event) => {
+	emit("onOpen")
 	if (event) event.stopPropagation()
 	if (props.disabled) return
 	isOpen.value = !isOpen.value

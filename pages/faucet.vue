@@ -3,11 +3,12 @@
 import { executeFaucet, faucetAddress, fetchBalance } from "@/services/api/faucet"
 
 /** Services */
-import { comma, splitAddress, tia } from "@/services/utils"
+import { capitilize, comma, splitAddress, tia } from "@/services/utils"
 import { Server, useServerURL } from "@/services/config"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Input from "@/components/ui/Input.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
@@ -72,6 +73,7 @@ const address = ref("")
 const account = ref()
 const network = ref("mocha")
 
+const isNetworkSelectorOpen = ref(false)
 const fetchAccount = async() => {
 	try {
 		account.value = null
@@ -162,6 +164,7 @@ const handleReturnTokensClick = () => {
 	if (
 		(useServerURL().includes("mocha") && network.value === "mocha")
 		|| (useServerURL().includes("arabica") && network.value === "arabica")
+		|| (useServerURL().includes("mammoth") && network.value === "mammoth")
 	) {
 		cacheStore.current.address = { hash: faucetAddress }
 		modalsStore.open("send")
@@ -170,12 +173,8 @@ const handleReturnTokensClick = () => {
 	}
 }
 
-const handleChangeNetwork = () => {
-	if (network.value === 'mocha') {
-		network.value = 'arabica'
-	} else {
-		network.value = 'mocha'
-	}
+const handleChangeNetwork = (net) => {
+	network.value = net
 }
 
 const openedQuestion = ref(0)
@@ -272,20 +271,37 @@ onMounted(() => {
 			<Flex direction="column" gap="48" wide>
 				<Flex direction="column" gap="16" wide>
 					<Flex align="center" justify="start" gap="16" wide>
-						<Text align="center" size="12" color="secondary" weight="600">Network</Text>
-						<Flex
-							@click="handleChangeNetwork"
-							align="center"
-							justify="between"
+						<Dropdown
+							@onOpen="isNetworkSelectorOpen = true"
+							@onClose="isNetworkSelectorOpen = false"
+							position="end"
 							:class="$style.network_selector"
-							:style="{
-								background: `linear-gradient(to ${network === 'mocha' ? 'right' : 'left'}, var(--op-3) 50%, transparent 50%)`,
-								width: '110px'
-							}"
 						>
-							<Text align="center" size="12" weight="600" :color="network === 'mocha' ? 'primary' : 'tertiary'">Mocha</Text>
-							<Text align="center" size="12" weight="600" :color="network === 'arabica' ? 'primary' : 'tertiary'">Arabica</Text>
-						</Flex>
+							<Flex align="center" gap="8" justify="between">
+								<Flex align="center" gap="8">
+									<Icon name="globe" size="14" color="tertiary" />
+
+									<Text size="13" weight="600" color="secondary">
+										{{ capitilize(network) }}
+									</Text>
+								</Flex>
+								<Icon
+									name="chevron"
+									size="14"
+									color="secondary"
+									:style="{
+										transform: `rotate(${isNetworkSelectorOpen ? '180' : '0'}deg)`,
+										transition: 'all 0.2s ease'
+									}"
+								/>
+							</Flex>
+
+							<template #popup>
+								<DropdownItem @click="handleChangeNetwork('mocha')">Mocha</DropdownItem>
+								<DropdownItem @click="handleChangeNetwork('arabica')">Arabica</DropdownItem>
+								<DropdownItem @click="handleChangeNetwork('mammoth')">Mammoth</DropdownItem>
+							</template>
+						</Dropdown>
 					</Flex>
 					<Flex align="center" gap="6" wide>
 						<Input
