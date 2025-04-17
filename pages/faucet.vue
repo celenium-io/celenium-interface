@@ -259,11 +259,7 @@ onMounted(() => {
 			</Flex>
 
 			<Text size="14" weight="400" color="tertiary" style="line-height: 22px">
-				Faucet is only available for
-				<Text weight="600">Mocha</Text>
-				and
-				<Text weight="600">Arabica</Text>
-				networks.
+				Faucet is available for all Celestia test networks.
 			</Text>
 		</Flex>
 
@@ -447,7 +443,10 @@ onMounted(() => {
 								name="chevron"
 								size="16"
 								color="tertiary"
-								:style="`transform: rotate(${openedQuestion === 1 ? '180deg' : '0deg'})`"
+								:style="{
+									transform: `rotate(${openedQuestion === 1 ? '180deg' : '0deg'})`,
+									transition: 'all 0.2s ease'
+								}"
 							/>
 						</Flex>
 
@@ -464,7 +463,10 @@ onMounted(() => {
 								name="chevron"
 								size="16"
 								color="tertiary"
-								:style="`transform: rotate(${openedQuestion === 2 ? '180deg' : '0deg'})`"
+								:style="{
+									transform: `rotate(${openedQuestion === 2 ? '180deg' : '0deg'})`,
+									transition: 'all 0.2s ease'
+								}"
 							/>
 						</Flex>
 
@@ -481,7 +483,10 @@ onMounted(() => {
 								name="chevron"
 								size="16"
 								color="tertiary"
-								:style="`transform: rotate(${openedQuestion === 3 ? '180deg' : '0deg'})`"
+								:style="{
+									transform: `rotate(${openedQuestion === 3 ? '180deg' : '0deg'})`,
+									transition: 'all 0.2s ease'
+								}"
 							/>
 						</Flex>
 
@@ -501,7 +506,10 @@ onMounted(() => {
 								name="chevron"
 								size="16"
 								color="tertiary"
-								:style="`transform: rotate(${openedQuestion === 4 ? '180deg' : '0deg'})`"
+								:style="{
+									transform: `rotate(${openedQuestion === 4 ? '180deg' : '0deg'})`,
+									transition: 'all 0.2s ease'
+								}"
 							/>
 						</Flex>
 
@@ -521,7 +529,10 @@ onMounted(() => {
 								name="chevron"
 								size="16"
 								color="tertiary"
-								:style="`transform: rotate(${openedQuestion === 5 ? '180deg' : '0deg'})`"
+								:style="{
+									transform: `rotate(${openedQuestion === 5 ? '180deg' : '0deg'})`,
+									transition: 'all 0.2s ease'
+								}"
 							/>
 						</Flex>
 
@@ -538,7 +549,10 @@ onMounted(() => {
 								name="chevron"
 								size="16"
 								color="tertiary"
-								:style="`transform: rotate(${openedQuestion === 6 ? '180deg' : '0deg'})`"
+								:style="{
+									transform: `rotate(${openedQuestion === 6 ? '180deg' : '0deg'})`,
+									transition: 'all 0.2s ease'
+								}"
 							/>
 						</Flex>
 
@@ -555,7 +569,10 @@ onMounted(() => {
 								name="chevron"
 								size="16"
 								color="tertiary"
-								:style="`transform: rotate(${openedQuestion === 7 ? '180deg' : '0deg'})`"
+								:style="{
+									transform: `rotate(${openedQuestion === 7 ? '180deg' : '0deg'})`,
+									transition: 'all 0.2s ease'
+								}"
 							/>
 						</Flex>
 
