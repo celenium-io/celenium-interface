@@ -55,6 +55,9 @@ const isRefetching = ref(false)
 const namespaces = ref([])
 const blobs = ref([])
 
+const rollupColor = ref()
+const rollupColorAlpha = ref()
+
 const tagNames = ref(["stack", "type", "vm", "provider", "category"])
 const tags = computed(() =>
 	tagNames.value.reduce((res, tagName) => {
@@ -149,12 +152,25 @@ const getNamespaces = async () => {
 if (activeTab.value === "Blobs") await getBlobs()
 if (activeTab.value === "Namespaces") await getNamespaces()
 
-onMounted(() => {
+onMounted(async () => {
 	router.replace({
 		query: {
 			tab: activeTab.value,
 		},
 	})
+
+	/** Rollup Primary Color */
+	const image = new Image()
+	image.crossOrigin = "anonymous"
+	image.onload = () => {
+		const context = document.createElement("canvas").getContext("2d")
+		context.drawImage(image, 0, 0, 1, 1)
+		const i = context.getImageData(0, 0, 1, 1).data
+
+		rollupColor.value = `rgba(${i[0]},${i[1]},${i[2]},${i[3]})`
+		rollupColorAlpha.value = `rgba(${i[0]},${i[1]},${i[2]},0)`
+	}
+	image.src = `${props.rollup.logo}?query=bg`
 })
 
 /** Refetch Blobs/Messages on new page */
@@ -289,7 +305,17 @@ const handleCSVDownload = async (value) => {
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">
 				<Flex direction="column" gap="24" :class="$style.main">
-					<Flex justify="between" gap="20" :class="$style.key_value">
+					<div
+						:style="{ background: `linear-gradient(90deg, ${rollupColorAlpha}, ${rollupColor}, ${rollupColorAlpha})` }"
+						:class="$style.line"
+					/>
+					<div :style="{ background: `linear-gradient(${rollupColor}, ${rollupColorAlpha})` }" :class="$style.bg" />
+
+					<Flex direction="column" gap="20" :class="$style.key_value">
+						<Flex v-if="rollup.logo" align="center" justify="center" :class="$style.logo_container">
+							<img id="logo" :src="rollup.logo" :class="$style.rollup_logo" />
+						</Flex>
+
 						<Flex direction="column" gap="16" :class="$style.key_value">
 							<Flex direction="column" gap="8">
 								<Text size="14" weight="600" color="primary">{{ rollup.name }} </Text>
@@ -316,28 +342,12 @@ const handleCSVDownload = async (value) => {
 								</Flex>
 							</Flex>
 						</Flex>
-
-						<Flex v-if="rollup.logo" align="center" justify="center" :class="$style.logo_container">
-							<img :src="rollup.logo" :class="$style.rollup_logo" />
-						</Flex>
 					</Flex>
 
-					<Flex v-if="rollup.provider || rollup.compression" gap="24" style="margin-bottom: 16px">
+					<Flex v-if="rollup.provider || rollup.settled_on" gap="24" style="margin-bottom: 16px">
 						<img
-							v-if="rollup.compression?.includes('Ethereum')"
-							:src="`/img/badges/settled/eth.png`"
-							alt="Rollup badge"
-							:class="$style.badge"
-						/>
-						<img
-							v-else-if="rollup.compression?.includes('Base')"
-							:src="`/img/badges/settled/base.png`"
-							alt="Rollup badge"
-							:class="$style.badge"
-						/>
-						<img
-							v-else-if="rollup.compression?.includes('Arbitrum')"
-							:src="`/img/badges/settled/arb.png`"
+							v-if="rollup.settled_on"
+							:src="`/img/badges/settled/${rollup.settled_on.toLowerCase()}.png`"
 							alt="Rollup badge"
 							:class="$style.badge"
 						/>
@@ -348,6 +358,82 @@ const handleCSVDownload = async (value) => {
 							alt="Rollup badge"
 							:class="$style.badge"
 						/>
+					</Flex>
+
+					<Flex align="center" justify="start" gap="16" wrap="wrap">
+						<Tooltip v-if="rollup.website" position="start" delay="300">
+							<a :href="rollup.website" target="_blank">
+								<Icon name="globe" size="14" color="secondary" />
+							</a>
+
+							<template #content>
+								{{ rollup.website }}
+							</template>
+						</Tooltip>
+
+						<Tooltip v-if="rollup.twitter" position="start" delay="300">
+							<a :href="rollup.twitter" target="_blank">
+								<Icon name="twitter" size="14" color="secondary" />
+							</a>
+
+							<template #content>
+								{{ rollup.twitter }}
+							</template>
+						</Tooltip>
+
+						<Tooltip v-if="rollup.github" position="start" delay="300">
+							<a :href="rollup.github" target="_blank">
+								<Icon name="github" size="14" color="secondary" />
+							</a>
+
+							<template #content>
+								{{ rollup.github }}
+							</template>
+						</Tooltip>
+
+						<Tooltip v-if="rollup.defi_lama" position="start" delay="300">
+							<a :href="`https://defillama.com/chain/${rollup.defi_lama}`" target="_blank">
+								<Icon name="lama" size="14" color="secondary" />
+							</a>
+
+							<template #content>
+								{{ `https://defillama.com/chain/${rollup.defi_lama}` }}
+							</template>
+						</Tooltip>
+
+						<Tooltip v-if="rollup.l2_beat" position="start" delay="300">
+							<a :href="rollup.l2_beat" target="_blank">
+								<Icon name="l2beat" size="14" color="secondary" />
+							</a>
+
+							<template #content>
+								{{ rollup.l2_beat }}
+							</template>
+						</Tooltip>
+
+						<Tooltip v-if="rollup.explorer" position="start" delay="300">
+							<a :href="rollup.explorer" target="_blank">
+								<Icon name="search" size="14" color="secondary" />
+							</a>
+
+							<template #content>
+								{{ `Explorer: ${rollup.explorer}` }}
+							</template>
+						</Tooltip>
+					</Flex>
+
+					<Flex v-if="relatedLinks.length" direction="column" gap="6">
+						<Text size="12" weight="600" color="secondary">Related Links</Text>
+
+						<Flex align="center" direction="column" gap="2">
+							<Flex v-for="link in relatedLinks" align="center" justify="start" wide>
+								<a :href="link" target="_blank">
+									<Text size="12" height="140" weight="600" color="tertiary" mono selectable :class="$style.link">
+										{{ link }}
+									</Text>
+								</a>
+							</Flex>
+						</Flex>
 					</Flex>
 
 					<Flex direction="column" gap="16">
@@ -454,97 +540,6 @@ const handleCSVDownload = async (value) => {
 							</Tooltip>
 						</Flex>
 					</Flex>
-
-					<Flex direction="column" gap="12">
-						<Text size="12" weight="600" color="secondary">Links</Text>
-
-						<Flex align="center" justify="start" gap="8" wrap="wrap">
-							<Tooltip v-if="rollup.website" position="start" delay="300">
-								<Button :link="rollup.website" target="_blank" type="tertiary" size="mini">
-									<Icon name="globe" size="14" color="secondary" />
-									Website
-								</Button>
-
-								<template #content>
-									{{ rollup.website }}
-								</template>
-							</Tooltip>
-
-							<Tooltip v-if="rollup.twitter" position="start" delay="300">
-								<Button :link="rollup.twitter" target="_blank" type="tertiary" size="mini">
-									<Icon name="twitter" size="14" color="secondary" />
-									Twitter
-								</Button>
-
-								<template #content>
-									{{ rollup.twitter }}
-								</template>
-							</Tooltip>
-
-							<Tooltip v-if="rollup.github" position="start" delay="300">
-								<Button :link="rollup.github" target="_blank" type="tertiary" size="mini">
-									<Icon name="github" size="14" color="secondary" />
-									Github
-								</Button>
-
-								<template #content>
-									{{ rollup.github }}
-								</template>
-							</Tooltip>
-
-							<Tooltip v-if="rollup.defi_lama" position="start" delay="300">
-								<Button
-									:link="`https://defillama.com/chain/${rollup.defi_lama}`"
-									target="_blank"
-									type="tertiary"
-									size="mini"
-								>
-									<Icon name="lama" size="14" color="secondary" />
-									DefiLlama
-								</Button>
-
-								<template #content>
-									{{ `https://defillama.com/chain/${rollup.defi_lama}` }}
-								</template>
-							</Tooltip>
-
-							<Tooltip v-if="rollup.l2_beat" position="start" delay="300">
-								<Button :link="rollup.l2_beat" target="_blank" type="tertiary" size="mini">
-									<Icon name="l2beat" size="14" color="secondary" />
-									L2BEAT
-								</Button>
-
-								<template #content>
-									{{ rollup.l2_beat }}
-								</template>
-							</Tooltip>
-
-							<Tooltip v-if="rollup.explorer" position="start" delay="300">
-								<Button :link="rollup.explorer" target="_blank" type="tertiary" size="mini">
-									<Icon name="search" size="14" color="secondary" />
-									Search
-								</Button>
-
-								<template #content>
-									{{ `Explorer: ${rollup.explorer}` }}
-								</template>
-							</Tooltip>
-						</Flex>
-					</Flex>
-
-					<Flex v-if="relatedLinks.length" direction="column" gap="6">
-						<Text size="12" weight="600" color="secondary">Other Links</Text>
-
-						<Flex align="center" direction="column" gap="2">
-							<Flex v-for="link in relatedLinks" align="center" justify="start" wide>
-								<a :href="link" target="_blank">
-									<Text size="12" height="140" weight="600" color="tertiary" mono selectable :class="$style.link">
-										{{ link }}
-									</Text>
-								</a>
-							</Flex>
-						</Flex>
-					</Flex>
 				</Flex>
 			</Flex>
 
@@ -649,11 +644,38 @@ const handleCSVDownload = async (value) => {
 	background: var(--card-background);
 
 	.main {
+		position: relative;
+
+		overflow: hidden;
+
 		padding: 16px;
 
 		& .key_value {
 			max-width: 100%;
 		}
+	}
+
+	.line {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 1px;
+
+		opacity: 0.8;
+	}
+
+	.bg {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 80px;
+		transform: translateY(-50%);
+
+		opacity: 0.4;
+		border-radius: 50%;
+		filter: blur(20px);
 	}
 
 	.logo_container {
@@ -688,6 +710,9 @@ const handleCSVDownload = async (value) => {
 
 	.badge {
 		width: 60px;
+
+		user-select: none;
+		-webkit-user-drag: none;
 	}
 
 	.tag_badge {
