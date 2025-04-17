@@ -540,13 +540,6 @@ onBeforeMount(() => {
 												:style="{ fill: `${chartView === 'line' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
 											/>
 
-										<Icon
-											name="bar-chart"
-											size="14"
-											:style="{ fill: `${chartView === 'bar' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
-										/>
-									</Flex>
-								</Flex>
 											<Icon
 												name="bar-chart"
 												size="14"
