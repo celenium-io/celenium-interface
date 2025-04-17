@@ -584,7 +584,6 @@ watch(
 		}
 	},
 )
-
 watch(
 	() => page.value,
 	() => {
@@ -627,7 +626,12 @@ watch(
 		}
 	},
 )
-
+watch(
+	() => msgTypes.value,
+	() => {
+		filters.message_type = msgTypes.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+	}
+)
 watch(
 	() => showEnded.value,
 	() => {
