@@ -13,5 +13,5 @@ export function capitalizeAndReplace(s, symbol) {
     let words = s.split(symbol);
     let capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
     
-    return capitalizedWords.join(' ');
+    return capitalizedWords.join(' ')
 }

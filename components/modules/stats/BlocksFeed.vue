@@ -8,6 +8,9 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 /** Services */
 import { comma, formatBytes } from "@/services/utils"
 
+/** API */
+import { fetchAvgBlockTime } from "@/services/api/block"
+
 /** Store */
 import { useAppStore } from "@/store/app"
 const appStore = useAppStore()
@@ -31,8 +34,8 @@ const blocks = computed(() => appStore.latestBlocks.slice(0, 80).sort((a, b) => 
 
 const timeline = computed(() => {
 	let time = []
-	blocks.value.forEach(b => {
-		time.push(DateTime.fromISO(b.time).toFormat('h:mm'))
+	blocks.value.forEach((b) => {
+		time.push(DateTime.fromISO(b.time).toFormat("h:mm"))
 	})
 	time = new Set(time)
 
@@ -45,24 +48,29 @@ const timeline = computed(() => {
 })
 
 const maxSize = computed(() => Math.max(...blocks.value?.map((b) => b.stats.bytes_in_block)))
-const avgBlockTime = ref(12)
+const avgBlockTime = ref(0)
 
 const calculateHeight = (size) => {
-	return Math.max((size / maxSize.value) * 100, 1)
+	if (!size) return 2
+	
+	return Math.max((size / maxSize.value) * 100, 2)
 }
 
 const chartBlocksEl = ref(null)
 const chartWidth = ref()
 
-const barWidth = computed(() => Math.max(Math.round((chartWidth.value / 80 - 4)), 4))
+const barWidth = computed(() => Math.max(Math.round(chartWidth.value / 80 - 4), 4))
 const marginBar = computed(() => (chartWidth.value - barWidth.value * 80) / 79)
 
 const debouncedRedraw = () => {
 	chartWidth.value = chartBlocksEl.value?.wrapper?.offsetWidth
 }
 
-onMounted(() => {
+onMounted(async () => {
 	chartWidth.value = chartBlocksEl.value?.wrapper?.offsetWidth
+
+	const { data } = await fetchAvgBlockTime({ from: parseInt(DateTime.now().minus({ hours: 3 }).ts / 1_000) })
+	avgBlockTime.value = data.value / 1_000
 
 	window.addEventListener("resize", debouncedRedraw)
 })
@@ -70,7 +78,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
 	window.removeEventListener("resize", debouncedRedraw)
 })
-
 </script>
 
 <template>
@@ -78,17 +85,17 @@ onBeforeUnmount(() => {
 		<Flex align="center" justify="between">
 			<Text size="13" weight="600" height="110" color="primary"> Blocks Feed </Text>
 
-			<Text size="13" weight="600" height="110" color="tertiary"> {{ `~${avgBlockTime}s` }} </Text>
+			<Text size="13" weight="600" height="110" color="primary"> {{ `~${Math.ceil(avgBlockTime)}s` }} </Text>
 		</Flex>
 
 		<Flex ref="chartBlocksEl" align="end" :class="$style.chart">
-			<Tooltip v-for="(b, index) in blocks" position="start" :style="{max_width: '100%', width: '100%', height: '100%'}">
+			<Tooltip v-for="(b, index) in blocks" position="start" :style="{ max_width: '100%', width: '100%', height: '100%' }">
 				<Flex align="end" :class="$style.bar_wrapper">
 					<Flex
 						:class="[$style.bar, b.stats.blobs_count && $style.bar_blob]"
 						:style="{
 							width: `${barWidth}px`,
-							height: `${calculateHeight(b.stats.bytes_in_block)}%`,
+							height: `${calculateHeight(b.stats?.bytes_in_block)}%`,
 							marginLeft: index !== 0 ? `${marginBar}px` : '0px',
 							animationDelay: `${index * 15}ms`,
 						}"
@@ -102,7 +109,7 @@ onBeforeUnmount(() => {
 
 							<Text size="12" color="primary"> {{ comma(b.height) }} </Text>
 						</Flex>
-						
+
 						<Flex align="center" justify="between" wide>
 							<Text size="12" color="secondary"> Size </Text>
 
@@ -175,7 +182,7 @@ onBeforeUnmount(() => {
 }
 
 .time::after {
-	content: '';
+	content: "";
 	position: absolute;
 	top: 50%;
 	left: 50%;

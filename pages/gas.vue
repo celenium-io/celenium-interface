@@ -49,41 +49,45 @@ useHead({
 	link: [
 		{
 			rel: "canonical",
-			href: `https://celenium.io${route.path}`,
+			href: "https://celenium.io/gas",
 		},
 	],
 	meta: [
 		{
 			name: "description",
-			content: `Gas Tracker for Celestia Blockchain. Gas price, efficiency, etc.`,
+			content: "Gas Tracker for Celestia Blockchain. Gas price, efficiency, etc.",
 		},
 		{
 			property: "og:title",
-			content: `Celestia Gas Tracker - Celenium`,
+			content: "Celestia Gas Tracker - Celenium",
 		},
 		{
 			property: "og:description",
-			content: `Gas Tracker for Celestia Blockchain. Gas price, efficiency, etc.`,
+			content: "Gas Tracker for Celestia Blockchain. Gas price, efficiency, etc.",
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io${route.path}`,
+			content: "https://celenium.io/gas",
 		},
 		{
 			property: "og:image",
-			content: `https://celenium.io${route.path}__og_image__/og.png`,
+			content: "/img/seo/gas.png",
 		},
 		{
 			name: "twitter:title",
-			content: `Celestia Gas Tracker - Celenium`,
+			content: "Celestia Gas Tracker - Celenium",
 		},
 		{
 			name: "twitter:description",
-			content: `Gas Tracker for Celestia Blockchain. Gas price, efficiency, etc.`,
+			content: "Gas Tracker for Celestia Blockchain. Gas price, efficiency, etc.",
 		},
 		{
 			name: "twitter:card",
 			content: "summary_large_image",
+		},
+		{
+			name: "twitter:image",
+			content: "https://celenium.io/img/seo/gas.png",
 		},
 	],
 })

@@ -34,7 +34,7 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io/addresses`,
+			content: "https://celenium.io/stats",
 		},
 		{
 			property: "og:image",
@@ -77,7 +77,7 @@ const tabs = ref([
 	},
 	{
 		name: "ecosystem",
-		visible: isMainnet(),
+		visible: false,
 	},
 ])
 const activeTab = ref(route.query.tab && tabs.value.filter(t => t.visible).map(t => t.name).includes(route.query.tab) ? route.query.tab : tabs.value[0].name)

@@ -3,19 +3,19 @@ import { faucetURL } from "@/services/config"
 
 export const faucetAddress = "celestia16etnwjxg6dsjuavjpr9tk822czfeylfm9f7x5g"
 
-export const fetchBalance = async () => {
+export const fetchBalance = async (network) => {
 	try {
-		const data = await useFetch(`${faucetURL}/balance`)
+		const data = await useFetch(`${faucetURL[network]}/balance`)
 		return data
 	} catch (error) {
 		console.error(error)
 	}
 }
 
-export const executeFaucet = async (address) => {
+export const executeFaucet = async (network, address) => {
 	try {
 		
-		const data = await useFetch(`${faucetURL}/faucet`, {
+		const data = await useFetch(`${faucetURL[network]}/faucet`, {
 			method: "post",
 			body: {
 				address,

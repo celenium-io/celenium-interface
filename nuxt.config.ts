@@ -5,7 +5,7 @@ import topLevelAwait from "vite-plugin-top-level-await"
 import path from "path"
 
 export default defineNuxtConfig({
-	modules: ["nuxt-simple-sitemap", "@pinia/nuxt", "nuxt-og-image"],
+	modules: ["@pinia/nuxt", "nuxt-og-image", "@nuxtjs/sitemap"],
 
 	site: {
 		url: "https://celenium.io",
@@ -147,4 +147,6 @@ export default defineNuxtConfig({
 			plugins: () => [wasm(), topLevelAwait()],
 		},
 	},
+
+	compatibilityDate: "2025-04-02",
 })

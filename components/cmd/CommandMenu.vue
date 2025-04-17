@@ -1463,7 +1463,7 @@ const runBounce = () => {
 	</Transition>
 </template>
 
-<style module>
+<style module lang="scss">
 .wrapper {
 	position: fixed;
 	top: 0;

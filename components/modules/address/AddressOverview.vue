@@ -805,13 +805,15 @@ const handleOpenQRModal = () => {
 						</Flex>
 
 						<Flex v-if="!collapseCelestials" direction="column" gap="12" :class="$style.key_value">
-							<Flex v-for="c in celestials" align="center" gap="8">
-								<Flex v-if="c.image_url" align="center" justify="center" :class="$style.cel_image_container">
-									<img :src="c.image_url" :class="$style.cel_image" />
-								</Flex>
+							<NuxtLink v-for="c in celestials" :to="`https://celestials.id/id/${c.name}?utm_source=celenium_address_page`" target="_blank" :class="$style.link">
+								<Flex align="center" gap="8">
+									<Flex v-if="c.image_url" align="center" justify="center" :class="$style.cel_image_container">
+										<img :src="c.image_url" :class="$style.cel_image" />
+									</Flex>
 
-								<Text size="12" weight="600" color="tertiary"> {{ c.name }} </Text>
-							</Flex>
+									<Text size="12" weight="600" color="tertiary"> {{ c.name }} </Text>
+								</Flex>
+							</NuxtLink>
 						</Flex>
 					</Flex>
 
@@ -1297,6 +1299,18 @@ const handleOpenQRModal = () => {
 		opacity: 1;
 
 		transform: scale(1.2);
+	}
+}
+
+.link {
+	&:hover {
+		span {
+			color: var(--txt-primary);
+		}
+
+		img {
+			filter: brightness(1.2)
+		}
 	}
 }
 
