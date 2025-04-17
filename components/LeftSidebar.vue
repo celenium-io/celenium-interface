@@ -322,7 +322,7 @@ const handleOnClose = () => {
 					<DropdownItem @click="handleNavigate('https://celenium.io')">Mainnet</DropdownItem>
 					<DropdownItem @click="handleNavigate('https://mocha-4.celenium.io')">Mocha-4</DropdownItem>
 					<DropdownItem @click="handleNavigate('https://arabica.celenium.io')">Arabica</DropdownItem>
-					<!-- <DropdownItem @click="handleNavigate('https://mammoth.celenium.io')">Mammoth</DropdownItem> -->
+					<DropdownItem @click="handleNavigate('https://mammoth.celenium.io')">Mammoth</DropdownItem>
 				</template>
 			</Dropdown>
 		</Flex>

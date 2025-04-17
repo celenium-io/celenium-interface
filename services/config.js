@@ -128,4 +128,5 @@ export const quoteServiceURL = "https://quote.celenium.io/v1"
 export const faucetURL = {
 	mocha: "https://api-faucet.celenium.io/v1",
 	arabica: "https://api-arabica-faucet.celenium.io/v1",
+	mammoth: "https://api-mammoth-faucet.celenium.io/v1",
 }
