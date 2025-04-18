@@ -43,7 +43,6 @@ export const useServerURL = () => {
 
 		default:
 			return Server.API.mainnet
-			return Server.API.mainnet
 	}
 }
 
@@ -70,7 +69,6 @@ export const useSocketURL = () => {
 			return Server.WSS.dev
 
 		default:
-			return Server.WSS.mainnet
 			return Server.WSS.mainnet
 	}
 }

@@ -281,8 +281,6 @@ const getData = async (fetch = true) => {
 
 	let data = []
 
-	const isSameRequest = currentChartName.value === series.value.name && loadedAllData.value && allData.value.length > 0
-
 	if (fetch) {
 		await fetchData()
 	}
@@ -311,6 +309,8 @@ const getData = async (fetch = true) => {
 		filters.timeframe = selectedTimeframe.value
 		series.value.timeframe = filters.timeframe
 	} else {
+		data = allData.value
+		
 		series.value.data = data.map(d => ({
 			...d, 
 			items: d.items.map(item => ({
@@ -628,10 +628,6 @@ onBeforeMount(() => {
 			</Flex>
 		</Flex>
 
-		<SquareSizeChart v-if="series.name === 'square_size'" />
-        <LineChart v-else-if="chartView === 'line'" :series="series" />
-		<BarChart v-else-if="chartView === 'bar'" :series="series" />
-
 		<template v-if="series?.page">
 			<BarplotStakedChart v-if="series?.page === 'rollups'" :series="series" />
 			<SquareSizeChart v-else-if="series?.name === 'square_size'" />
@@ -640,7 +636,7 @@ onBeforeMount(() => {
 		</template>
 
 		<TimelineSlider
-			v-if="series.name !== 'square_size' && series?.page !== 'rollups'"
+			v-if="series?.name !== 'square_size' && series?.page !== 'rollups'"
 			:allData="allData"
 			:chartView="chartView"
 			:from="filters.from"
