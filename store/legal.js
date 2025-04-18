@@ -30,7 +30,7 @@ export const useLegalStore = defineStore("legal", () => {
 		legal.value.accepted = true
 	}
 
-	return { acceptLegal, init, isAccepted, legal }
+	return { legal, acceptLegal, init, isAccepted }
 })
 
 if (import.meta.hot) {

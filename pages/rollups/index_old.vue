@@ -5,6 +5,7 @@ import { DateTime } from "luxon"
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Checkbox from "@/components/ui/Checkbox.vue"
+import DiffChip from "@/components/modules/stats/DiffChip.vue"
 import Popover from "@/components/ui/Popover.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
@@ -15,7 +16,7 @@ import AmountInCurrency from "@/components/AmountInCurrency.vue"
 import { formatBytes, comma, truncateDecimalPart, capitilize } from "@/services/utils"
 
 /** API */
-import { fetchRollups, fetchRollupsCount } from "@/services/api/rollup"
+import { fetchRollups } from "@/services/api/rollup"
 
 /** Stores */
 import { useEnumStore } from "@/store/enums"
@@ -74,7 +75,6 @@ const router = useRouter()
 
 const isRefetching = ref(false)
 const rollups = ref([])
-const count = ref(0)
 
 const utiaPerMB = (rollup) => {
 	let totalRollupMB = rollup.size / (1024 * 1024)
@@ -93,10 +93,29 @@ const categories = computed(() => {
 		res.push('other')
 	}
 	
-	return res	
+	return res
 })
-const getCategoryDisplayName = (category) => {
-	switch (category) {
+const types = computed(() => {
+	let res = []
+	if (enumStore.enums.rollupTypes.length) {
+		res = enumStore.enums.rollupTypes
+	}
+	
+	return res
+})
+const tags = computed(() => {
+	let res = []
+	if (enumStore.enums?.rollupTags?.length) {
+		res = enumStore.enums.rollupTags
+	}
+	
+	return res
+})
+
+const providers = ref([])
+const stacks = ref([])
+const getDisplayName = (name) => {
+	switch (name) {
 		case 'nft':
 			return 'NFT'
 
@@ -104,36 +123,53 @@ const getCategoryDisplayName = (category) => {
 			return 'Other'
 
 		default:
-			return capitilize(category)
+			return capitilize(name)
 	}
 }
-
+const popovers = reactive({
+	categories: false,
+	types: false,
+	tags: false,
+	// providers: false,
+	// stacks: false,
+})
+const keyMap = {
+	categories: 'category',
+	types: 'type',
+	tags: 'tag',
+	// providers: 'provider',
+	// stacks: 'stack',
+}
 const filters = reactive({
 	categories: categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	types: types.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	tags: tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	// providers: {},
+	// stacks: {},
 })
 const savedFiltersBeforeChanges = ref(null)
+const handleOpenPopover = (name) => {
+	popovers[name] = true
 
-const isCategoriesPopoverOpen = ref(false)
-const handleOpenCategoriesPopover = () => {
-	isCategoriesPopoverOpen.value = true
-
-	if (Object.keys(filters.categories).find((f) => filters.categories[f])) {
-		savedFiltersBeforeChanges.value = { ...filters.categories }
+	if (Object.keys(filters[name]).find((f) => filters[name][f])) {
+		savedFiltersBeforeChanges.value = { ...filters[name] }
 	}
 }
-const onCategoriesPopoverClose = () => {
-	isCategoriesPopoverOpen.value = false
-
+const onPopoverClose = (name) => {
+	popovers[name] = false
+	
 	if (savedFiltersBeforeChanges.value) {
-		filters.categories = savedFiltersBeforeChanges.value
+		filters[name] = savedFiltersBeforeChanges.value
 		savedFiltersBeforeChanges.value = null
 	} else {
-		resetFilters("categories")
+		if (Object.keys(filters[name]).find((f) => filters[name][f])) {
+			resetFilters(name)
+		}
 	}
 }
-const handleApplyCategoriesFilters = () => {
+const handleApplyFilters = (name) => {
 	savedFiltersBeforeChanges.value = null
-	isCategoriesPopoverOpen.value = false
+	popovers[name] = false
 
 	if (page.value !== 1) {
 		page.value = 1
@@ -141,11 +177,18 @@ const handleApplyCategoriesFilters = () => {
 		getRollups()
 	}
 }
-
-const resetFilters = (target) => {
-	Object.keys(filters[target]).forEach((f) => {
-		filters[target][f] = false
-	})
+const resetFilters = (name) => {
+	if (name) {
+		Object.keys(filters[name]).forEach((f) => {
+			filters[name][f] = false
+		})
+	} else {
+		Object.keys(filters).forEach((f) => {
+			Object.keys(filters[f]).forEach((k) => {
+				filters[f][k] = false
+			})
+		})
+	}
 
 	if (page.value !== 1) {
 		page.value = 1
@@ -153,16 +196,10 @@ const resetFilters = (target) => {
 		getRollups()
 	}
 }
-
-const getRollupsCount = async () => {
-	const { data: rollupsCount } = await fetchRollupsCount()
-	count.value = rollupsCount.value
-}
-
-await getRollupsCount()
 
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = computed(() => Math.ceil(count.value / 20))
+const handleNextCondition = ref(false)
+const limit = ref(20)
 
 const getRollups = async () => {
 	isRefetching.value = true
@@ -174,12 +211,24 @@ const getRollups = async () => {
 				.filter((f) => filters.categories[f])
 				.map(c => c === 'other' ? 'uncategorized' : c)
 				.join(","),
-		limit: 20,
+		type:
+			Object.keys(filters.types).find((f) => filters.types[f]) &&
+			Object.keys(filters.types)
+				.filter((f) => filters.types[f])
+				.join(","),
+		tags:
+			Object.keys(filters.tags).find((f) => filters.tags[f]) &&
+			Object.keys(filters.tags)
+				.filter((f) => filters.tags[f])
+				.join(","),
+		limit: limit.value,
 		offset: (page.value - 1) * 20,
 		sort: sort.dir,
 		sort_by: sort.by,
 	})
+
 	rollups.value = data.map((r, i) => ({...r, index: ((page.value - 1) * 20) + i + 1}))
+	handleNextCondition.value = rollups.value?.length < limit.value
 
 	isRefetching.value = false
 }
@@ -213,8 +262,6 @@ const handlePrev = () => {
 }
 
 const handleNext = () => {
-	if (page.value === pages.value) return
-
 	page.value += 1
 }
 
@@ -222,6 +269,18 @@ watch(
 	() => categories.value,
 	() => {
 		filters.categories = categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+	}
+)
+watch(
+	() => types.value,
+	() => {
+		filters.types = types.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+	}
+)
+watch(
+	() => tags.value,
+	() => {
+		filters.tags = tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
 	}
 )
 
@@ -241,7 +300,7 @@ watch(
 			<Breadcrumbs
 				:items="[
 					{ link: '/', name: 'Explore' },
-					{ link: '/rollups', name: `Rollups Leaderboard` },
+					{ link: '/rollups', name: 'Rollups Leaderboard' },
 				]"
 			/>
 
@@ -254,11 +313,11 @@ watch(
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
 					<Icon name="rollup" size="16" color="secondary" />
-					<Text size="14" weight="600" color="primary">Rollups Leaderboard</Text>
+					<Text size="14" weight="600" color="primary">Rollups</Text>
 				</Flex>
 
 				<!-- Pagination -->
-				<Flex v-if="pages" align="center" gap="6">
+				<Flex align="center" gap="6">
 					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 						<Icon name="arrow-left-stop" size="12" color="primary" />
 					</Button>
@@ -267,56 +326,64 @@ watch(
 					</Button>
 
 					<Button type="secondary" size="mini" disabled>
-						<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
+						<Text size="12" weight="600" color="primary">Page {{ comma(page) }} </Text>
 					</Button>
 
-					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="handleNextCondition">
 						<Icon name="arrow-right" size="12" color="primary" />
-					</Button>
-					<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages">
-						<Icon name="arrow-right-stop" size="12" color="primary" />
 					</Button>
 				</Flex>
 			</Flex>
 
 			<Flex align="center" justify="between" wrap="wrap" gap="8" :class="$style.settings">
 				<Flex wrap="wrap" align="center" gap="8">
-					<Popover :open="isCategoriesPopoverOpen" @on-close="onCategoriesPopoverClose" width="200">
-						<Button @click="handleOpenCategoriesPopover" type="secondary" size="mini">
+					<Popover
+						v-for="p in Object.keys(popovers)"
+						:open="popovers[p]"
+						@on-close="onPopoverClose(p)"
+						width="200"
+					>
+						<Button @click="handleOpenPopover(p)" type="secondary" size="mini">
 							<Icon name="plus-circle" size="12" color="tertiary" />
-							<Text color="secondary">Category</Text>
+							<Text color="secondary"> {{ capitilize(keyMap[p]) }} </Text>
 
-							<template v-if="Object.keys(filters.categories).find((c) => filters.categories[c])">
+							<template v-if="Object.keys(filters[p]).find((item) => filters[p][item])">
 								<div :class="$style.vertical_divider" />
 
-								<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
-									{{ Object.keys(filters.categories)
-										.filter((c) => filters.categories[c])
-										.map(c => getCategoryDisplayName(c))
-										.join(", ")
+								<Text size="12" weight="600" color="primary">
+									{{ Object.keys(filters[p]).filter((item) => filters[p][item]).length < 3
+										? Object.keys(filters[p])
+											.filter((item) => filters[p][item])
+											.map(item => getDisplayName(item))
+											.join(", ")
+										: `${Object.keys(filters[p])
+											.filter((item) => filters[p][item])
+											.slice(0, 2)
+											.map(item => getDisplayName(item))
+											.join(", ")} and ${Object.keys(filters[p]).filter((item) => filters[p][item]).length - 2} more`
 									}}
 								</Text>
 
-								<Icon @click.stop="resetFilters('categories', true)" name="close-circle" size="12" color="secondary" />
+								<Icon @click.stop="resetFilters(p)" name="close-circle" size="12" color="secondary" />
 							</template>
 						</Button>
 
 						<template #content>
 							<Flex direction="column" gap="12">
-								<Text size="12" weight="500" color="secondary">Filter by Category</Text>
+								<Text size="12" weight="500" color="secondary"> {{ `Filter by ${capitilize(keyMap[p])}` }} </Text>
 
 								<Flex direction="column" gap="8" :class="$style.filters_list">
 									<Checkbox
-										v-for="c in Object.keys(filters.categories)"
-										v-model="filters.categories[c]"
+										v-for="item in Object.keys(filters[p])"
+										v-model="filters[p][item]"
 									>
 										<Text size="12" weight="500" color="primary">
-											{{ getCategoryDisplayName(c) }}
+											{{ getDisplayName(item) }}
 										</Text>
 									</Checkbox>
 								</Flex>
 
-								<Button @click="handleApplyCategoriesFilters" type="secondary" size="mini" wide>Apply</Button>
+								<Button @click="handleApplyFilters(p)" type="secondary" size="mini" wide>Apply</Button>
 							</Flex>
 						</template>
 					</Popover>
@@ -330,6 +397,7 @@ watch(
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>#</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Rollup</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>DA Change</Text></th>
 								<th>
 									<Flex align="center" gap="6">
 										<Text size="12" weight="600" color="tertiary" noWrap>Category</Text>
@@ -430,7 +498,17 @@ watch(
 								<td>
 									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
-											<Text size="13" weight="600" color="primary"> {{ getCategoryDisplayName(r.category) }} </Text>
+											<DiffChip
+												:value="r.da_pct.toFixed(2)"
+												tooltip="Difference between current and previous week"
+											/>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/rollup/${r.slug}`">
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary"> {{ getDisplayName(r.category) }} </Text>
 										</Flex>
 									</NuxtLink>
 								</td>
@@ -516,7 +594,7 @@ watch(
 			</Flex>
 			<Flex justify="end" :class="$style.footer">
 				<!-- Pagination -->
-				<Flex v-if="pages" align="center" gap="6">
+				<Flex align="center" gap="6">
 					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 						<Icon name="arrow-left-stop" size="12" color="primary" />
 					</Button>
@@ -525,14 +603,11 @@ watch(
 					</Button>
 
 					<Button type="secondary" size="mini" disabled>
-						<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
+						<Text size="12" weight="600" color="primary">Page {{ comma(page) }} </Text>
 					</Button>
 
-					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="handleNextCondition">
 						<Icon name="arrow-right" size="12" color="primary" />
-					</Button>
-					<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages">
-						<Icon name="arrow-right-stop" size="12" color="primary" />
 					</Button>
 				</Flex>
 			</Flex>

@@ -66,6 +66,9 @@ $textColors: (
 	"red": "--red",
 	"yellow": "--yellow",
 	"purple": "--purple",
+	"legendary": "--legendary",
+	"epic": "--epic",
+	"rare": "--rare",
 );
 
 @each $key, $value in $textColors {

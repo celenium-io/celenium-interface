@@ -45,6 +45,9 @@ $grayscale: (
 	--mint: #18d2a5;
 	--neutral-mint: #109373;
 	--dark-mint: #1e473d;
+	--legendary: #ff5a17;
+	--epic: #7448E7;
+	--rare: #007AFF;
 
 	/* Grayscale */
 	@each $gray, $value in $grayscale {
@@ -116,6 +119,9 @@ $grayscale: (
 	--mint: #18d2a5;
 	--neutral-mint: #109373;
 	--dark-mint: #1e473d;
+	--legendary: #ff5a17;
+	--epic: #7448E7;
+	--rare: #007AFF;
 
 	/* Grayscale */
 	@each $gray, $value in $grayscale {
@@ -178,6 +184,9 @@ $grayscale: (
 	--mint: #18d2a5;
 	--neutral-mint: #109373;
 	--dark-mint: #c4f9eb;
+	--legendary: #ff5a17;
+	--epic: #7448E7;
+	--rare: #007AFF;
 
 	/* Grayscale */
 	@each $gray, $value in $grayscale {

@@ -9,11 +9,9 @@ export const capitilize = (s) => {
 	return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
-export function capitalizeAndReplaceUnderscore(s) {
-    if (!s) return ""
-
-    let words = s.split('_')
-    let capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+export function capitalizeAndReplace(s, symbol) {
+    let words = s.split(symbol);
+    let capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
     
     return capitalizedWords.join(' ')
 }

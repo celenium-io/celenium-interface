@@ -2,6 +2,7 @@
 import { computed } from "vue"
 
 import icons from "@/assets/icons.json"
+import { load } from "protobufjs"
 
 const props = defineProps({
 	name: { type: String, required: true, default: "warning" },
@@ -9,6 +10,7 @@ const props = defineProps({
 	color: { type: String, default: null },
 	rotate: { type: [String, Number], default: 0 },
 	fill: { type: Boolean, default: false },
+	loading: { type: Boolean, default: false },
 })
 
 const styles = computed(() => {
@@ -37,7 +39,7 @@ const isSplitted = () => {
 </script>
 
 <template>
-	<svg viewBox="0 0 24 24" :width="size" :height="size" :style="styles" :class="classes" role="img">
+	<svg viewBox="0 0 24 24" :width="size" :height="size" :style="styles" :class="[classes, loading && $style.loading]" role="img">
 		<path v-if="!isSplitted(name)" :d="getIcon(name)" />
 		<template v-else>
 			<path v-if="!Array.isArray(getIcon(name))" :d="getIcon(name)" :style="{ opacity: path.opacity }" />
@@ -53,3 +55,23 @@ const isSplitted = () => {
 		</template>
 	</svg>
 </template>
+
+<style module>
+.loading {
+	animation: skeleton 1s ease-in-out infinite;
+}
+
+@keyframes skeleton {
+	0% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0.5;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+</style>

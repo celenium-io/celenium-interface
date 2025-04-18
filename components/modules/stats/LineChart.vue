@@ -11,6 +11,10 @@ const props = defineProps({
 		type: Object,
 		required: true,
 	},
+	disableTooltip: {
+		type: Boolean,
+		default: false,
+	},
 })
 
 // TO DO: Fetch data if series.currentData is null

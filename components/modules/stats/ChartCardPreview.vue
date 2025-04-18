@@ -49,6 +49,11 @@ const getSeries = async () => {
 		baseTime.minus({
 			days: props.period.timeframe === "day" ? props.period.value * 2 + 1 : 0,
 			hours: props.period.timeframe === "hour" ? props.period.value * 2 + 1 : 0,
+			months: props.period.timeframe === "month"
+				? props.period.value * 2
+				: props.period.timeframe === "year"
+					? props.period.value * 24
+					: 0,
 		}).ts / 1_000
 	)
 	let to = parseInt(
@@ -76,19 +81,44 @@ const getSeries = async () => {
 	} else {
 		data = (await fetchSeries({
 			table: props.series.name,
-			period: props.period.timeframe,
+			period: props.period.timeframe === "year" ? "month" : props.period.timeframe,
 			from: from,
 			to: to,
 		})).reverse()
 	}
 	
+	const parseData = (slice) =>
+		slice.map((s) => ({
+		date: DateTime.fromISO(s.time).toJSDate(),
+		value: parseFloat(s.value),
+	}))
+
+	const dataLength = data.length
+	let prev = []
+	let current = []
+	const periodLength = props.period.timeframe === "year" ? 12 : props.period.value
+	const timeframe = props.period.timeframe
+
 	if (props.series.aggregate === 'cumulative') {
-		prevData.value = data.slice(0, 30).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
-		currentData.value = data.slice(30, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+		current = parseData(data.slice(-30))
+		prev = parseData(data.slice(0, dataLength - 30))
 	} else {
-		prevData.value = data.slice(0, props.period.value).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
-		currentData.value = data.slice(props.period.value, data.length).map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+		current = parseData(data.slice(-periodLength))
+		prev = parseData(data.slice(0, dataLength - periodLength))
+
+		if (prev.length < current.length) {
+			const missing = current.length - prev.length
+			const extra = current.slice(0, missing).map((d) => ({
+				date: DateTime.fromJSDate(d.date).minus({ [`${timeframe}s`]: periodLength }).toJSDate(),
+				value: 0,
+			}))
+
+			prev = [...extra, ...prev]
+		}
 	}
+
+	currentData.value = current
+	prevData.value = prev
 
 	if (props.series.name === 'block_time') {
 		prevData.value = prevData.value
@@ -481,8 +511,12 @@ watch(
 	padding: 16px;
 }
 
-.link:hover {
-	fill: var(--txt-secondary)
+.link {
+    transition: fill 0.3s ease;
+
+    &:hover {
+        fill: var(--txt-secondary)
+    }
 }
 
 .header {

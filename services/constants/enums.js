@@ -146,5 +146,18 @@ export const defaultEnums = {
 		"gaming",
 		"nft",
 		"social"
+	],
+	rollup_type: [
+		"sovereign",
+		"settled"
+	],
+	tags: [
+		"ZK",
+		"AI"
+	],
+	celestials_statuses: [
+		"NOT_VERIFIED",
+		"VERIFIED",
+		"PRIMARY"
 	]
 }
