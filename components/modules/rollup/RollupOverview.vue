@@ -69,36 +69,41 @@ const rollupRanking = computed(() => {
 	return rollup_ranking
 })
 
-const tagNames = ref(['stack', 'type', 'vm', 'provider', 'category'])
-const tags = computed(() => tagNames.value.reduce((res, tagName) => {
-	if (props.rollup[tagName]) {
-		let tag = {}
-		tag.name = tagName === 'vm' ? 'VM' : capitilize(tagName)
-		switch (tagName) {
-			case 'vm':
-				tag.value = props.rollup[tagName].toUpperCase()
-				break
-			case 'category':
-				tag.value = getCategoryDisplayName(props.rollup[tagName])
-				break
-			default:
-				tag.value = capitilize(props.rollup[tagName])
-				break
+const rollupColor = ref()
+const rollupColorAlpha = ref()
+
+const tagNames = ref(["stack", "type", "vm", "provider", "category"])
+const tags = computed(() =>
+	tagNames.value.reduce((res, tagName) => {
+		if (props.rollup[tagName]) {
+			let tag = {}
+			tag.name = tagName === "vm" ? "VM" : capitilize(tagName)
+			switch (tagName) {
+				case "vm":
+					tag.value = props.rollup[tagName].toUpperCase()
+					break
+				case "category":
+					tag.value = getCategoryDisplayName(props.rollup[tagName])
+					break
+				default:
+					tag.value = capitalize(props.rollup[tagName])
+					break
+			}
+
+			res.push(tag)
 		}
 
-		res.push(tag)
-	}
-
-	return res
-}, []))
+		return res
+	}, []),
+)
 
 const getCategoryDisplayName = (category) => {
 	switch (category) {
-		case 'nft':
-			return 'NFT'
+		case "nft":
+			return "NFT"
 
-		case 'uncategorized':
-			return 'Other'
+		case "uncategorized":
+			return "Other"
 
 		default:
 			return capitilize(category)
@@ -130,7 +135,7 @@ const getBlobs = async () => {
 		id: props.rollup.id,
 		offset: (page.value - 1) * 10,
 		limit: 10,
-		sort_by: 'time',
+		sort_by: "time",
 	})
 
 	if (data.value?.length) {
@@ -161,12 +166,25 @@ const getNamespaces = async () => {
 if (activeTab.value === "Blobs") await getBlobs()
 if (activeTab.value === "Namespaces") await getNamespaces()
 
-onMounted(() => {
+onMounted(async () => {
 	router.replace({
 		query: {
 			tab: activeTab.value,
 		},
 	})
+
+	/** Rollup Primary Color */
+	const image = new Image()
+	image.crossOrigin = "anonymous"
+	image.onload = () => {
+		const context = document.createElement("canvas").getContext("2d")
+		context.drawImage(image, 0, 0, 1, 1)
+		const i = context.getImageData(0, 0, 1, 1).data
+
+		rollupColor.value = `rgba(${i[0]},${i[1]},${i[2]},${i[3]})`
+		rollupColorAlpha.value = `rgba(${i[0]},${i[1]},${i[2]},0)`
+	}
+	image.src = `${props.rollup.logo}?query=bg`
 })
 
 /** Refetch Blobs/Messages on new page */
@@ -307,64 +325,123 @@ const handleCSVDownload = async (value) => {
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">
 				<Flex direction="column" gap="24" :class="$style.main">
-					<Flex align="center" justify="between" gap="40" :class="$style.key_value">
-						<Flex align="center" gap="12">
-							<Flex v-if="rollup.logo" align="center" justify="center" :class="$style.avatar_container">
-								<img :src="rollup.logo" :class="$style.avatar_image" />
+					<div
+						:style="{ background: `linear-gradient(90deg, ${rollupColorAlpha}, ${rollupColor}, ${rollupColorAlpha})` }"
+						:class="$style.line"
+					/>
+					<div :style="{ background: `linear-gradient(${rollupColor}, ${rollupColorAlpha})` }" :class="$style.bg" />
+
+					<Flex direction="column" gap="20" :class="$style.key_value">
+						<Flex v-if="rollup.logo" align="center" justify="center" :class="$style.logo_container">
+							<img id="logo" :src="rollup.logo" :class="$style.rollup_logo" />
+						</Flex>
+
+						<Flex direction="column" gap="16" :class="$style.key_value">
+							<Flex direction="column" gap="8">
+								<Text size="14" weight="600" color="primary">{{ rollup.name }} </Text>
+
+								<Tooltip position="start" textAlign="start" delay="300">
+									<Text size="12" weight="500" color="tertiary" height="140" :class="$style.description">
+										{{ rollup.description }}
+									</Text>
+
+									<template #content>
+										<div style="max-width: 340px">
+											<Text height="140">
+												{{ rollup.description }}
+											</Text>
+										</div>
+									</template>
+								</Tooltip>
 							</Flex>
 
-							<Flex direction="column" gap="8">
-								<Text size="12" weight="600" color="secondary">Rollup</Text>
-
-								<Flex align="center" gap="10">
-									<Text size="13" weight="600" color="primary">{{ rollup.name }} </Text>
-
-									<CopyButton :text="rollup.name" />
+							<Flex align="center" gap="6" wrap="wrap">
+								<Flex v-for="(t, i) in tags" align="center" gap="6" :class="$style.tag_badge">
+									<Text size="12" weight="600" color="tertiary"> {{ t.name }}</Text>
+									<Text size="12" weight="600" color="secondary">{{ t.value }} </Text>
 								</Flex>
 							</Flex>
 						</Flex>
-
-						<Flex align="start" :style="{ height: '100%' }">
-							<Tooltip position="end" :disabled="!rollupRanking?.rank?.category?.color">
-								<Icon name="laurel" size="24" :color="rollupRanking?.rank?.category?.color || 'tertiary'" :loading="!rollupRanking?.rank?.category?.color" />
-
-								<template #content>
-									<Flex direction="column" gap="8">
-										<Flex align="center" justify="between" gap="8">
-											<Text size="12" weight="500" color="tertiary">Activity Rank:</Text>
-											<Text size="12" weight="600" :color="rollupRanking?.rank?.category?.color"> {{ rollupRanking?.rank?.category?.name }} </Text>
-										</Flex>
-										<Flex align="center" justify="between" gap="8">
-											<Text size="12" weight="500" color="tertiary">Score:</Text>
-											<Text size="12" weight="600" color="secondary"> {{ rollupRanking?.rank?.score }}% </Text>
-										</Flex>
-									</Flex>
-								</template>
-							</Tooltip>
-						</Flex>
 					</Flex>
-					<Flex align="center" gap="6">
-						<Tooltip v-for="(t, i) in tags" :style="{cursor: 'default'}">
-							<Flex align="center" gap="6">
-								<Text size="12" color="tertiary"> {{ t.value }} </Text>
 
-								<div v-if="i !== tags.length - 1" :class="$style.dot" />
-							</Flex>
+					<Flex v-if="rollup.provider || rollup.settled_on" gap="24" style="margin-bottom: 16px">
+						<img
+							v-if="rollup.settled_on"
+							:src="`/img/badges/settled/${rollup.settled_on.toLowerCase()}.png`"
+							alt="Rollup badge"
+							:class="$style.badge"
+						/>
+
+						<img
+							v-if="rollup.provider"
+							:src="`/img/badges/provider/${rollup.provider.toLowerCase()}.png`"
+							alt="Rollup badge"
+							:class="$style.badge"
+						/>
+					</Flex>
+
+					<Flex align="center" justify="start" gap="16" wrap="wrap">
+						<Tooltip v-if="rollup.website" position="start" delay="300">
+							<a :href="rollup.website" target="_blank">
+								<Icon name="globe" size="14" color="secondary" />
+							</a>
 
 							<template #content>
-								<Text size="12" color="tertiary"> {{ t.name }} </Text>
+								{{ rollup.website }}
+							</template>
+						</Tooltip>
+
+						<Tooltip v-if="rollup.twitter" position="start" delay="300">
+							<a :href="rollup.twitter" target="_blank">
+								<Icon name="twitter" size="14" color="secondary" />
+							</a>
+
+							<template #content>
+								{{ rollup.twitter }}
+							</template>
+						</Tooltip>
+
+						<Tooltip v-if="rollup.github" position="start" delay="300">
+							<a :href="rollup.github" target="_blank">
+								<Icon name="github" size="14" color="secondary" />
+							</a>
+
+							<template #content>
+								{{ rollup.github }}
+							</template>
+						</Tooltip>
+
+						<Tooltip v-if="rollup.defi_lama" position="start" delay="300">
+							<a :href="`https://defillama.com/chain/${rollup.defi_lama}`" target="_blank">
+								<Icon name="lama" size="14" color="secondary" />
+							</a>
+
+							<template #content>
+								{{ `https://defillama.com/chain/${rollup.defi_lama}` }}
+							</template>
+						</Tooltip>
+
+						<Tooltip v-if="rollup.l2_beat" position="start" delay="300">
+							<a :href="rollup.l2_beat" target="_blank">
+								<Icon name="l2beat" size="14" color="secondary" />
+							</a>
+
+							<template #content>
+								{{ rollup.l2_beat }}
+							</template>
+						</Tooltip>
+
+						<Tooltip v-if="rollup.explorer" position="start" delay="300">
+							<a :href="rollup.explorer" target="_blank">
+								<Icon name="search" size="14" color="secondary" />
+							</a>
+
+							<template #content>
+								{{ `Explorer: ${rollup.explorer}` }}
 							</template>
 						</Tooltip>
 					</Flex>
-					<Flex direction="column" gap="6">
-						<Text size="12" weight="600" color="secondary">Description</Text>
 
-						<Flex align="center" gap="6">
-							<Text size="12" height="140" weight="600" color="tertiary" mono selectable :class="$style.memo">
-								{{ rollup.description }}
-							</Text>
-						</Flex>
-					</Flex>
 					<Flex v-if="relatedLinks.length" direction="column" gap="6">
 						<Text size="12" weight="600" color="secondary">Related Links</Text>
 
@@ -378,67 +455,6 @@ const handleCSVDownload = async (value) => {
 							</Flex>
 						</Flex>
 					</Flex>
-					<Flex align="center" justify="start" gap="12">
-						<Tooltip v-if="rollup.website" position="start" delay="500">
-							<a :href="rollup.website" target="_blank">
-								<Icon name="globe" size="14" color="secondary" :class="$style.btn" />
-							</a>
-
-							<template #content>
-								{{ rollup.website }}
-							</template>
-						</Tooltip>
-
-						<Tooltip v-if="rollup.twitter" position="start" delay="500">
-							<a :href="rollup.twitter" target="_blank">
-								<Icon name="twitter" size="14" color="secondary" :class="$style.btn" />
-							</a>
-
-							<template #content>
-								{{ rollup.twitter }}
-							</template>
-						</Tooltip>
-
-						<Tooltip v-if="rollup.github" position="start" delay="500">
-							<a :href="rollup.github" target="_blank">
-								<Icon name="github" size="14" color="secondary" :class="$style.btn" />
-							</a>
-
-							<template #content>
-								{{ rollup.github }}
-							</template>
-						</Tooltip>
-
-						<Tooltip v-if="rollup.defi_lama" position="start" delay="500">
-							<a :href="`https://defillama.com/chain/${rollup.defi_lama}`" target="_blank">
-								<Icon name="lama" size="14" color="secondary" :class="$style.btn" />
-							</a>
-
-							<template #content>
-								{{ `https://defillama.com/chain/${rollup.defi_lama}` }}
-							</template>
-						</Tooltip>
-
-						<Tooltip v-if="rollup.l2_beat" position="start" delay="500">
-							<a :href="rollup.l2_beat" target="_blank">
-								<Icon name="l2beat" size="14" color="secondary" :class="$style.btn" />
-							</a>
-
-							<template #content>
-								{{ rollup.l2_beat }}
-							</template>
-						</Tooltip>
-
-						<Tooltip v-if="rollup.explorer" position="start" delay="500">
-							<a :href="rollup.explorer" target="_blank">
-								<Icon name="search" size="14" color="secondary" :class="$style.btn" />
-							</a>
-
-							<template #content>
-								{{ `Explorer: ${rollup.explorer}` }}
-							</template>
-						</Tooltip>
-					</Flex>
 
 					<Flex direction="column" gap="16">
 						<Text size="12" weight="600" color="secondary">Details</Text>
@@ -450,14 +466,18 @@ const handleCSVDownload = async (value) => {
 								<Flex align="center" gap="4">
 									<Text size="12" weight="600" color="secondary"> {{ formatBytes(rollup.size) }} </Text>
 
-									<Text size="12" weight="600" color="tertiary">{{ `(${truncateDecimalPart(rollup.size_pct * 100, 2)}%)` }}</Text>
+									<Text size="12" weight="600" color="tertiary">{{
+										`(${truncateDecimalPart(rollup.size_pct * 100, 2)}%)`
+									}}</Text>
 								</Flex>
 
 								<template #content>
 									<Flex align="end" gap="8">
 										<Text size="12" weight="600" color="tertiary">Share of total size</Text>
 
-										<Text size="12" weight="600" color="primary">{{ `(${truncateDecimalPart(rollup.size_pct * 100, 2)}%)` }}</Text>
+										<Text size="12" weight="600" color="primary">{{
+											`(${truncateDecimalPart(rollup.size_pct * 100, 2)}%)`
+										}}</Text>
 									</Flex>
 								</template>
 							</Tooltip>
@@ -470,14 +490,18 @@ const handleCSVDownload = async (value) => {
 								<Flex align="center" gap="4">
 									<Text size="12" weight="600" color="secondary"> {{ comma(rollup.blobs_count) }} </Text>
 
-									<Text size="12" weight="600" color="tertiary">{{ `(${truncateDecimalPart(rollup.blobs_count_pct * 100, 2)}%)` }}</Text>
+									<Text size="12" weight="600" color="tertiary">{{
+										`(${truncateDecimalPart(rollup.blobs_count_pct * 100, 2)}%)`
+									}}</Text>
 								</Flex>
 
 								<template #content>
 									<Flex align="end" gap="8">
 										<Text size="12" weight="600" color="tertiary">Share of total blobs count</Text>
 
-										<Text size="12" weight="600" color="primary">{{ `(${truncateDecimalPart(rollup.blobs_count_pct * 100, 2)}%)` }}</Text>
+										<Text size="12" weight="600" color="primary">{{
+											`(${truncateDecimalPart(rollup.blobs_count_pct * 100, 2)}%)`
+										}}</Text>
 									</Flex>
 								</template>
 							</Tooltip>
@@ -493,14 +517,18 @@ const handleCSVDownload = async (value) => {
 										:styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }"
 									/>
 
-									<Text size="12" weight="600" color="tertiary">{{ `(${truncateDecimalPart(rollup.fee_pct * 100, 2)}%)` }}</Text>
+									<Text size="12" weight="600" color="tertiary">{{
+										`(${truncateDecimalPart(rollup.fee_pct * 100, 2)}%)`
+									}}</Text>
 								</Flex>
 
 								<template #content>
 									<Flex align="end" gap="8">
 										<Text size="12" weight="600" color="tertiary">Share of total fee paid</Text>
 
-										<Text size="12" weight="600" color="primary">{{ `(${truncateDecimalPart(rollup.fee_pct * 100, 2)}%)` }}</Text>
+										<Text size="12" weight="600" color="primary">{{
+											`(${truncateDecimalPart(rollup.fee_pct * 100, 2)}%)`
+										}}</Text>
 									</Flex>
 								</template>
 							</Tooltip>
@@ -636,30 +664,82 @@ const handleCSVDownload = async (value) => {
 	background: var(--card-background);
 
 	.main {
+		position: relative;
+
+		overflow: hidden;
+
 		padding: 16px;
 
 		& .key_value {
 			max-width: 100%;
 		}
 	}
-	.avatar_container {
+
+	.line {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 1px;
+
+		opacity: 0.8;
+	}
+
+	.bg {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 80px;
+		transform: translateY(-50%);
+
+		opacity: 0.4;
+		border-radius: 50%;
+		filter: blur(20px);
+	}
+
+	.logo_container {
 		position: relative;
-		width: 50px;
-		height: 50px;
+		min-width: 40px;
+		width: 40px;
+		min-height: 40px;
+		height: 40px;
+
 		overflow: hidden;
 		border-radius: 50%;
 	}
 
-	.avatar_image {
+	.rollup_logo {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+
+		user-select: none;
+		-webkit-user-drag: none;
 	}
 
-	.memo {
-		max-width: 352px;
+	.description {
+		display: -webkit-box;
+		max-width: 320px;
+
 		text-overflow: ellipsis;
 		overflow: hidden;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+	}
+
+	.badge {
+		width: 60px;
+
+		user-select: none;
+		-webkit-user-drag: none;
+	}
+
+	.tag_badge {
+		border-radius: 6px;
+		background: var(--op-5);
+
+		padding: 6px;
 	}
 
 	.link {
@@ -672,16 +752,12 @@ const handleCSVDownload = async (value) => {
 		color: var(--txt-secondary);
 	}
 
-	.btn:hover {
-		fill: var(--txt-primary);
-	}
-
 	.dot {
 		width: 4px;
 		height: 4px;
 
 		border-radius: 50%;
-		background: var(--op-10);
+		background: var(--op-15);
 	}
 }
 
