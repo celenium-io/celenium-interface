@@ -86,7 +86,7 @@ const tags = computed(() =>
 					tag.value = getCategoryDisplayName(props.rollup[tagName])
 					break
 				default:
-					tag.value = capitalize(props.rollup[tagName])
+					tag.value = capitilize(props.rollup[tagName])
 					break
 			}
 
@@ -332,8 +332,28 @@ const handleCSVDownload = async (value) => {
 					<div :style="{ background: `linear-gradient(${rollupColor}, ${rollupColorAlpha})` }" :class="$style.bg" />
 
 					<Flex direction="column" gap="20" :class="$style.key_value">
-						<Flex v-if="rollup.logo" align="center" justify="center" :class="$style.logo_container">
-							<img id="logo" :src="rollup.logo" :class="$style.rollup_logo" />
+						<Flex align="center" justify="between" gap=24 wide>
+							<Flex v-if="rollup.logo" align="center" justify="center" :class="$style.logo_container">
+								<img id="logo" :src="rollup.logo" :class="$style.rollup_logo" />
+							</Flex>
+
+							<Flex align="start" :style="{ height: '100%' }">
+								<Tooltip position="end" :disabled="!rollupRanking?.rank?.category?.color">
+									<Icon name="laurel" size="24" :color="rollupRanking?.rank?.category?.color || 'tertiary'" :loading="!rollupRanking?.rank?.category?.color" />
+									<template #content>
+										<Flex direction="column" gap="8">
+											<Flex align="center" justify="between" gap="8">
+												<Text size="12" weight="500" color="tertiary">Activity Rank:</Text>
+												<Text size="12" weight="600" :color="rollupRanking?.rank?.category?.color"> {{ rollupRanking?.rank?.category?.name }} </Text>
+											</Flex>
+											<Flex align="center" justify="between" gap="8">
+												<Text size="12" weight="500" color="tertiary">Score:</Text>
+												<Text size="12" weight="600" color="secondary"> {{ rollupRanking?.rank?.score }}% </Text>
+											</Flex>
+										</Flex>
+									</template>
+								</Tooltip>
+							</Flex>
 						</Flex>
 
 						<Flex direction="column" gap="16" :class="$style.key_value">
