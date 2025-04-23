@@ -111,7 +111,7 @@ export const getStartChainDate = () => {
 			return "2024-01-02T12:18:46.936662Z"
 
 		case "mammoth.celenium.io":
-			return "2025-03-20T12:00:00.936662Z"
+			return "2025-04-09T14:16:23.868211567Z"
 
 		case "dev.celenium.io":
 			return "2024-01-02T12:18:46.936662Z"
