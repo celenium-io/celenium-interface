@@ -41,7 +41,7 @@ switch (hostname) {
 		break
 	
 	default:
-		appStore.network = arabica
+		appStore.network = mammoth
 		break
 }
 
