@@ -62,8 +62,8 @@ onMounted(async () => {
 	while (weeks.value.length > 24) {
 		weeks.value.shift()
 	}
-
-	totalSize.time = DateTime.fromISO(weeks.value[0][0].time)
+	
+	totalSize.time = Object.values(weeks.value[0]).find(Boolean).time
 })
 
 const calculateOpacity = (val) => {

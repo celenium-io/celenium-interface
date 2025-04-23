@@ -6,7 +6,7 @@ import { Dropdown, DropdownTitle, DropdownItem, DropdownDivider } from "@/compon
 /** Services */
 import amp from "@/services/amp"
 import { disconnect } from "~/services/wallet"
-import { arabica, mocha, mainnet } from "@/services/chains"
+import { arabica, mainnet, mammoth, mocha } from "@/services/chains"
 
 /** Store */
 import { useAppStore } from "@/store/app"
@@ -30,9 +30,16 @@ switch (hostname) {
 	case "mocha-4.celenium.io":
 		appStore.network = mocha
 		break
+	
+	case "mammoth.celenium.io":
+		appStore.network = mammoth
+		break
 
 	// case "arabica.celenium.io":
-	// case "localhost":
+	case "localhost":
+		appStore.network = mammoth
+		break
+	
 	default:
 		appStore.network = arabica
 		break
