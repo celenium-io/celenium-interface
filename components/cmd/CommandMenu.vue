@@ -18,7 +18,7 @@ import FeeCalculator from "./custom/FeeCalculator.vue"
 
 /** Services */
 import amp from "@/services/amp"
-import { isMac, isPrefersDarkScheme } from "@/services/utils/general"
+import { isMac, isPrefersDarkScheme, getNetworkName } from "@/services/utils/general"
 import { capitilize } from "@/services/utils/strings"
 
 /** API */
@@ -808,13 +808,24 @@ const rawOtherActions = [
 		subtitle: "Command",
 		runText: "Toggle",
 		callback: () => {
-			showPromoBackground.value = !showPromoBackground.value
+			if (getNetworkName() !== "Mammoth") {
+				notificationsStore.create({
+					notification: {
+						type: "info",
+						icon: "info",
+						title: `Available for the mammoth network only`,
+						autoDestroy: true,
+					},
+				})
+				return
+			}
 
+			showPromoBackground.value = !showPromoBackground.value
 			notificationsStore.create({
 				notification: {
 					type: "info",
 					icon: "info",
-					title: `Promo background ${appStore.showPromoBackground ? "enabled" : "disabled"}`,
+					title: `Promo background ${showPromoBackground.value ? "enabled" : "disabled"}`,
 					autoDestroy: true,
 				},
 			})
