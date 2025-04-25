@@ -77,7 +77,8 @@ const tabs = ref([
 	},
 	{
 		name: "ecosystem",
-		visible: false,
+		visible: true,
+		// visible: isMainnet(),
 	},
 ])
 const activeTab = ref(route.query.tab && tabs.value.filter(t => t.visible).map(t => t.name).includes(route.query.tab) ? route.query.tab : tabs.value[0].name)

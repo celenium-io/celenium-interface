@@ -234,7 +234,7 @@ watch(
 
 await refreshFaucetBalance()
 onMounted(() => {
-	if ((useServerURL().includes('mocha') || useServerURL().includes('arabica')) && appStore.address) {
+	if ((useServerURL().includes('mocha') || useServerURL().includes('arabica') || useServerURL().includes('mammoth')) && appStore.address) {
 		address.value = appStore.address
 	}
 
