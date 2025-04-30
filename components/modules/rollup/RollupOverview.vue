@@ -15,7 +15,7 @@ import BlobsTable from "./tables/BlobsTable.vue"
 import NamespacesTable from "./tables/NamespacesTable.vue"
 
 /** Services */
-import { capitilize, comma, formatBytes, roundTo, truncateDecimalPart } from "@/services/utils"
+import { capitilize, comma, formatBytes, isMainnet, roundTo, truncateDecimalPart } from "@/services/utils"
 import { exportToCSV } from "@/services/utils/export"
 import { getRankCategory } from "@/services/constants/rollups"
 
@@ -58,7 +58,7 @@ const namespaces = ref([])
 const blobs = ref([])
 
 const rollupRanking = computed(() => {
-	if (!rollupRankingStore?.initialized) return null
+	if (!rollupRankingStore?.initialized || !isMainnet()) return null
 	
 	let rollup_ranking = rollupRankingStore?.rollups_ranking?.ranking[Object.keys(rollupRankingStore?.rollups_ranking?.ranking).find(key => key === props.rollup.slug)]
 	rollup_ranking.rank = {
@@ -288,7 +288,7 @@ const handleCSVDownload = async (value) => {
 			</Flex>
 
 			<Flex align="center" gap="12">
-				<Button :link="`/rollup/rank/${rollup.slug}`" type="secondary" size="mini">
+				<Button v-if="isMainnet()" :link="`/rollup/rank/${rollup.slug}`" type="secondary" size="mini">
 					<Icon name="laurel" size="12" color="secondary" />
 
 					<Text>Activity Rank</Text>
@@ -337,7 +337,7 @@ const handleCSVDownload = async (value) => {
 								<img id="logo" :src="rollup.logo" :class="$style.rollup_logo" />
 							</Flex>
 
-							<Flex align="start" :style="{ height: '100%' }">
+							<Flex v-if="!!rollupRanking" align="start" :style="{ height: '100%' }">
 								<Tooltip position="end" :disabled="!rollupRanking?.rank?.category?.color">
 									<Icon name="laurel" size="24" :color="rollupRanking?.rank?.category?.color || 'tertiary'" :loading="!rollupRanking?.rank?.category?.color" />
 									<template #content>

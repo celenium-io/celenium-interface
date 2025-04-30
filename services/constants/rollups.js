@@ -13,11 +13,11 @@ export const rankCoefficients = {
 }
 
 export const rankCategories = [
-	{ min: 10, max: 10, name: "Legendary", color: "legendary" },
-	{ min: 9, max: 9, name: "Epic", color: "epic" },
-	{ min: 7, max: 8, name: "Good", color: "rare" },
-	{ min: 4, max: 6, name: "Poor", color: "primary" },
-	{ min: 0, max: 3, name: "Bad", color: "tertiary" },
+	{ min: 9, max: 10, name: "Legendary", color: "legendary" },
+	{ min: 6, max: 8, name: "Epic", color: "epic" },
+	{ min: 3, max: 5, name: "Good", color: "rare" },
+	{ min: 1, max: 2, name: "Poor", color: "primary" },
+	{ min: 0, max: 1, name: "Bad", color: "tertiary" },
 ]
 
 export const getRankCategory = (rank) => {

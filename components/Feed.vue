@@ -3,7 +3,7 @@
 import { DateTime } from "luxon"
 
 /** Services */
-import { abbreviate, comma, formatBytes, roundTo } from "@/services/utils"
+import { abbreviate, comma, formatBytes, isMainnet, roundTo } from "@/services/utils"
 import { getRankCategory } from "@/services/constants/rollups"
 
 /** UI */
@@ -64,36 +64,38 @@ onMounted(async () => {
 <template>
 	<Flex tag="section" justify="center" wide :class="$style.wrapper">
 		<Flex align="center" justify="between" gap="24" wide :class="$style.container">
-			<Flex align="center" gap="12" :class="$style.stats">
-				<NuxtLink :to="`/rollup/rank/${topRollup?.slug}`">
-					<Tooltip>
-						<Flex align="center" gap="6" :class="$style.stat">
-							<Icon v-if="topRollup?.name" name="laurel" size="14" :color="topRollup?.rank?.color" :style="{marginTop: '1px'}" />
-							<Icon v-else name="laurel" size="14" color="tertiary" :class="$style.icon" :style="{marginTop: '1px'}" />
-							<Flex align="center" gap="4">
-								<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Top Rollup:</Text>
+			<Flex align="center" gap="8" :class="$style.stats">
+				<template v-if="isMainnet()">
+					<NuxtLink :to="`/rollup/rank/${topRollup?.slug}`">
+						<Tooltip>
+							<Flex align="center" gap="6" :class="$style.stat">
+								<Icon v-if="topRollup?.name" name="laurel" size="14" :color="topRollup?.rank?.color" :style="{marginTop: '1px'}" />
+								<Icon v-else name="laurel" size="14" color="tertiary" :class="$style.icon" :style="{marginTop: '1px'}" />
+								<Flex align="center" gap="4">
+									<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Top Rollup:</Text>
 
-								<Text v-if="topRollup?.name" size="12" weight="600" color="secondary" noWrap :class="$style.value"> {{ topRollup?.name }} </Text>
-								<Skeleton v-else w="40" h="12" />
-							</Flex>
-						</Flex>
-
-						<template #content>
-							<Flex direction="column" gap="8">
-								<Flex align="center" justify="between" gap="8">
-									<Text size="12" weight="500" color="tertiary">Rank:</Text>
-									<Text size="12" weight="600" :color="topRollup?.rank?.color"> {{ topRollup?.rank?.name }} </Text>
-								</Flex>
-								<Flex align="center" justify="between" gap="8">
-									<Text size="12" weight="500" color="tertiary">Score:</Text>
-									<Text size="12" weight="600" color="secondary"> {{ topRollup?.rank?.score }}% </Text>
+									<Text v-if="topRollup?.name" size="12" weight="600" color="secondary" noWrap :class="$style.value"> {{ topRollup?.name }} </Text>
+									<Skeleton v-else w="40" h="12" />
 								</Flex>
 							</Flex>
-						</template>
-					</Tooltip>
-				</NuxtLink>
 
-				<div :class="$style.dot" />
+							<template #content>
+								<Flex direction="column" gap="8">
+									<Flex align="center" justify="between" gap="8">
+										<Text size="12" weight="500" color="tertiary">Rank:</Text>
+										<Text size="12" weight="600" :color="topRollup?.rank?.color"> {{ topRollup?.rank?.name }} </Text>
+									</Flex>
+									<Flex align="center" justify="between" gap="8">
+										<Text size="12" weight="500" color="tertiary">Score:</Text>
+										<Text size="12" weight="600" color="secondary"> {{ topRollup?.rank?.score }}% </Text>
+									</Flex>
+								</Flex>
+							</template>
+						</Tooltip>
+					</NuxtLink>
+
+					<div :class="$style.dot" />
+				</template>
 
 				<Tooltip>
 					<Flex align="center" gap="6" :class="$style.stat">
@@ -212,18 +214,20 @@ onMounted(async () => {
 <style module>
 .wrapper {
 	height: 32px;
+	max-width: var(--base-width);
 
 	border-top: 1px solid var(--op-5);
 	border-bottom: 1px solid var(--op-5);
-
 	background: var(--feed-background);
 }
 
 .container {
 	max-width: var(--base-width);
 	height: 100%;
+	overflow: hidden;
+	overflow-x: scroll;
 
-	margin: 0 24px;
+	margin: 0 12px;
 
 	&::-webkit-scrollbar {
 		display: none;

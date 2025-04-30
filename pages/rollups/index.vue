@@ -14,7 +14,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { capitalizeAndReplace, capitilize, comma, formatBytes, roundTo, sortArrayOfObjects, truncateDecimalPart } from "@/services/utils"
+import { capitalizeAndReplace, capitilize, comma, formatBytes, isMainnet, roundTo, sortArrayOfObjects, truncateDecimalPart } from "@/services/utils"
 import { getLastActivityCategory, getRankCategory } from "@/services/constants/rollups"
 
 /** API */
@@ -92,10 +92,15 @@ const utiaPerMB = (rollup) => {
 const isConfigurePopoverOpen = ref(false)
 const config = reactive({
 	columns: {
-		activity: {
-			show: true,
-			sortPath: "stats.ranking.rank",
-		},
+		...(isMainnet()
+			? {
+				activity: {
+						show: true,
+						sortPath: "stats.ranking.rank",
+					}
+			}
+			: {}
+		),
 		da_change: {
 			show: true,
 		},
@@ -118,10 +123,15 @@ const config = reactive({
 			show: false,
 			sortPath: "stats.day_blobs_count",
 		},
-		commits: {
-			show: false,
-			sortPath: "stats.commits_weekly",
-		},
+		...(isMainnet()
+			? {
+				commits: {
+					show: false,
+					sortPath: "stats.commits_weekly",
+				},
+			}
+			: {}
+		),
 		avg_pfb_size: {
 			show: false,
 			sortPath: "stats.avg_pfb_size",
@@ -132,6 +142,7 @@ const config = reactive({
 		},
 	},
 })
+
 const getColumnName = (name) => {
 	switch (name) {
 		case "activity":
@@ -148,7 +159,7 @@ const getColumnName = (name) => {
 }
 
 const sort = reactive({
-	by: "stats.ranking.rank",
+	by: isMainnet() ? "stats.ranking.rank" : "size",
 	dir: "desc",
 })
 
@@ -273,13 +284,15 @@ const getRollups = async () => {
 		// sort_by: sort.by,
 	})
 
-	rollups.value = data
-		.map(r => ({
-			...r,
-			stats: rollupsRanking.value[r.slug],
-			rounded_rank: roundTo(rollupsRanking.value[r.slug]?.ranking?.rank / 10, 0),
-			rank_category: getRankCategory(roundTo(rollupsRanking.value[r.slug]?.ranking?.rank / 10, 0))
-		}))
+	rollups.value = isMainnet()
+		? data
+			.map(r => ({
+				...r,
+				stats: rollupsRanking.value[r.slug],
+				rounded_rank: roundTo(rollupsRanking.value[r.slug]?.ranking?.rank / 10, 0),
+				rank_category: getRankCategory(roundTo(rollupsRanking.value[r.slug]?.ranking?.rank / 10, 0))
+			}))
+		: data
 	
 	pages.value = roundTo(rollups.value?.length / itemsPerPage, 0, "ceil")
 	if (page.value > pages.value) {
@@ -590,7 +603,7 @@ onBeforeMount(() => {
 										</Flex>
 									</NuxtLink>
 								</td>
-								<td v-if="config.columns.activity.show">
+								<td v-if="config.columns.activity?.show">
 									<NuxtLink :to="`/rollup/${r?.slug}`">
 										<Flex justify="center" direction="column" gap="4">
 											<Text size="12" weight="600" :color="r?.rank_category?.color" mono>
@@ -692,7 +705,7 @@ onBeforeMount(() => {
 										</Flex>
 									</NuxtLink>
 								</td>
-								<td v-if="config.columns.commits.show">
+								<td v-if="config.columns.commits?.show">
 									<NuxtLink :to="`/rollup/${r?.slug}`">
 										<Flex align="start" justify="center" direction="column" gap="4">
 											<Tooltip position="start" delay="400" :disabled="true">

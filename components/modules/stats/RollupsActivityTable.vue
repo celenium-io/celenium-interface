@@ -22,7 +22,7 @@ const sort = reactive({
 	dir: "desc",
 })
 
-const sortedRollups = computed(() => props.rollups)
+const sortedRollups = ref(props.rollups)
 
 const handleSort = (by) => {
 	switch (sort.dir) {
@@ -32,13 +32,12 @@ const handleSort = (by) => {
 
 		case "asc":
 			sort.dir = "desc"
-
 			break
 	}
 
 	sort.by = by
 
-	sortedRollups.value = sortArrayOfObjects(sortedRollups.value, by, sort.dir === 'desc' ? false : true)
+    sortedRollups.value = sortArrayOfObjects(sortedRollups.value, by, sort.dir === 'desc' ? false : true)
 }
 </script>
 

@@ -37,7 +37,7 @@ switch (hostname) {
 
 	// case "arabica.celenium.io":
 	case "localhost":
-		appStore.network = mammoth
+		appStore.network = arabica
 		break
 	
 	default:

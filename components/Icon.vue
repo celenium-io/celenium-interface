@@ -10,15 +10,24 @@ const props = defineProps({
 	color: { type: String, default: null },
 	rotate: { type: [String, Number], default: 0 },
 	fill: { type: Boolean, default: false },
-	loading: { type: Boolean, default: false },
+	scale: { type: [String, Number], default: 1 },
 })
 
 const styles = computed(() => {
-	return {
-		minWidth: `${props.size}px`,
-		minHeight: `${props.size}px`,
-		transform: props.rotate ? `rotate(${props.rotate}deg)` : null,
+	const s = {
+		minWidth:     `${props.size}px`,
+		minHeight:    `${props.size}px`,
+		transformBox: "view-box",
+		transformOrigin: "center center",
+		transform: "",
 	}
+
+	const ops = []
+	if (props.rotate) ops.push(`rotate(${props.rotate}deg)`)
+	if (props.scale != 1) ops.push(`scale(${props.scale})`)
+	if (ops.length)  s.transform = ops.join(" ")
+
+	return s
 })
 
 const classes = computed(() => {

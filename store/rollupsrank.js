@@ -3,7 +3,7 @@ import { defineStore, acceptHMRUpdate } from "pinia"
 import { DateTime } from "luxon"
 
 /** Services */
-import { capitalizeAndReplace, roundTo, sortArrayOfObjects } from "@/services/utils"
+import { capitalizeAndReplace, isMainnet, roundTo, sortArrayOfObjects } from "@/services/utils"
 import { rankCoefficients } from "@/services/constants/rollups"
 
 /** API */
@@ -19,6 +19,11 @@ export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
 	const initialized = ref(false)
 
 	const init = async () => {
+		if (!isMainnet()) {
+			initialized.value = true
+			return
+		}
+
 		const savedRanking = JSON.parse(localStorage.getItem("rollups_ranking"))
 		if (DateTime.now().diff(DateTime.fromMillis(savedRanking?.last_update || rollups_ranking.value.last_update), "hours").hours < 1) {
 			rollups_ranking.value = savedRanking
@@ -53,15 +58,12 @@ export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
 			let slug = od.rollup?.slug
 			if (!slug) continue
 
-			let repos = await fetchRollupOrgReposBySlug({ slug, limit })
-			repos = sortArrayOfObjects(repos, "last_pushed_at", false)
-			const summCommits = repos.reduce((acc, r) => acc + r.commits_weekly, 0)
-			maxWeeklyCommits = Math.max(maxWeeklyCommits, summCommits)
+			maxWeeklyCommits = Math.max(maxWeeklyCommits, od.commits_weekly)
 			if (!rollupsRanking.value[slug]) {
 				rollupsRanking.value[slug] = {}
 			}
-			rollupsRanking.value[slug].last_pushed_at = repos[0]?.last_pushed_at
-			rollupsRanking.value[slug].commits_weekly = summCommits
+			rollupsRanking.value[slug].last_pushed_at = od.last_pushed_at
+			rollupsRanking.value[slug].commits_weekly = od.commits_weekly
 		}
 
 		rollupsData.forEach(r => {
@@ -114,7 +116,9 @@ export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
 		})
 
 		const maxRankEntry = Object.entries(rollupsRanking.value).reduce((maxEntry, [key, value]) => {
-			return value.ranking.rank > maxEntry.rank ? { slug: key, rank: value.ranking.rank } : maxEntry
+			return value.ranking.rank > maxEntry.rank
+				? { slug: key, rank: value.ranking.rank }
+				: maxEntry
 		}, { slug: null, rank: 0 })
 
 		rollups_ranking.value = {

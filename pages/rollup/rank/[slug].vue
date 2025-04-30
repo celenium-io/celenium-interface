@@ -11,15 +11,23 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { comma, roundTo, sortArrayOfObjects } from "@/services/utils"
+import { comma, isMainnet, roundTo, sortArrayOfObjects } from "@/services/utils"
 import { getMetricCategory, getRankCategory } from "@/services/constants/rollups"
 
 /** Stores */
+import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals"
 import { useRollupsRankingStore } from "@/store/rollupsrank"
+const cacheStore = useCacheStore()
+const modalsStore = useModalsStore()
 const rollupRankingStore = useRollupsRankingStore()
 
 const route = useRoute()
 const router = useRouter()
+
+if (!isMainnet()) {
+	router.push("/")
+}
 
 // Pagination
 const limit = 10
@@ -233,6 +241,12 @@ const buildChart = (chart, data) => {
 		.attr("stroke-dashoffset", 0);
 }
 
+const handleHowItWorksClick = () => {
+	cacheStore.selectedRollupRank = rollupRanking.value
+	cacheStore.selectedRollup = rollup.value
+	modalsStore.open("rollupRank")
+}
+
 watch(
 	() => page.value,
 	async () => {
@@ -241,7 +255,7 @@ watch(
 )
 
 onMounted(() => {
-	if (chartEl.value && commits.value.length) {
+	if (chartEl.value && commits.value?.length) {
 		buildChart(chartEl.value?.wrapper, commits.value.reverse())
 	}
 })
@@ -436,7 +450,7 @@ onMounted(() => {
 								</Text>
 							</Flex>
 
-							<Flex align="center" gap="4">
+							<Flex @click="handleHowItWorksClick" align="center" gap="4" :class="$style.how_it_works">
 								<Icon name="info" size="12" color="blue" />
 								<Text size="12" color="secondary" weight="600">How it works?</Text>
 							</Flex>
@@ -691,6 +705,14 @@ onMounted(() => {
 
 	background: var(--op-5);
 	border-radius: 50px;
+}
+
+.how_it_works {
+	cursor: pointer;
+
+	&:hover * {
+		color: var(--txt-primary);
+	}
 }
 
 @media (max-width: 1000px) {
