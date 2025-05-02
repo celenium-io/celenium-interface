@@ -3,8 +3,7 @@
 import Modal from "@/components/ui/Modal.vue"
 
 /** Services */
-import { capitalizeAndReplace, roundTo } from "@/services/utils"
-import { rankCoefficients } from "@/services/constants/rollups"
+import { roundTo } from "@/services/utils"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
@@ -82,7 +81,7 @@ watch(
 		<Flex direction="column" gap="24" wide>
 			<Text size="14" weight="600" color="primary">Rollups Activity Rank Calculation</Text>
 
-			<Flex direction="column" gap="16" wide>
+			<Flex direction="column" gap="16" wide :class="$style.wrapper">
 				<Text size="12" color="secondary" :style="{ lineHeight: '1.4' }">
 					This score reflects a rollup’s overall activity by aggregating its key performance indicators.
 				</Text>
@@ -93,7 +92,7 @@ watch(
 					<Flex align="center" justify="center" :class="$style.formula_wrapper">
 						<Flex align="center" justify="center">
 							<Icon name="laurel" size="18" color="tertiary" :style="{ paddingBottom: '2px' }" />
-							<math display="block" :style="{ color: 'var(--txt-tertiary)' }">
+							<math>
 								<mrow>
 									<mo>=</mo>
 									<msub><mi>M</mi><mn>1</mn></msub>
@@ -135,66 +134,87 @@ watch(
 					We use two metric categories: Quantitative Metrics and Time-Based Metrics
 				</Text>
 
-				<Flex direction="column" gap="8">
+				<Flex direction="column" gap="8" wide>
 					<Text size="13" weight="600" color="secondary">Here are the formulas for each metric type.</Text>
 
-					<Flex align="center" justify="center" direction="column" gap="16" :class="$style.formula_wrapper">
-						<math display="block" :style="{ color: 'var(--txt-tertiary)' }">
-							<mrow>
-								<mi>quantitative</mi>
-								<mo>(</mo>
-								<mi>value</mi><mo>,</mo><mi>maxValue</mi>
-								<mo>)</mo>
-								<mo>=</mo>
-								<mi>min</mi>
-								<mo>(</mo>
-								<mfrac>
-									<mi>value</mi>
-									<mi>maxValue</mi>
-								</mfrac>
-								<mo>,</mo><mn>1</mn>
-								<mo>)</mo>
-							</mrow>
-						</math>
-						<math display="block" :style="{ color: 'var(--txt-tertiary)' }">
-							<mrow>
-								<mi>timeBased</mi>
-								<mo>(</mo>
-								<mi>maxTime</mi><mo>,</mo><mi>lastTime</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>timeframe</mi>
-								<mo>)</mo>
-								<mo>=</mo>
-								<mi>exp</mi>
-								<mo>(</mo>
-								<mo>−</mo>
-								<mfrac>
-									<mi>diff</mi>
-									<mi>t</mi>
-								</mfrac>
-								<mo>)</mo>
-							</mrow>
-						</math>
+					<Flex align="center" justify="center" direction="column" gap="16" wide :class="$style.formula_wrapper">
+						<Flex align="center" justify="center" :class="$style.quantitative_metric">
+							<Flex :class="$style.part_1">
+								<math>
+									<mrow>
+										<mi>quantitative</mi>
+										<mo>(</mo>
+										<mi>value</mi><mo>,</mo><mi>maxValue</mi>
+										<mo>)</mo>
+									</mrow>
+								</math>
+							</Flex>
+							<Flex :class="$style.part_2">
+								<math>
+									<mrow>
+										<mo>=</mo>
+										<mi>min</mi>
+										<mo>(</mo>
+										<mfrac>
+											<mi>value</mi>
+											<mi>maxValue</mi>
+										</mfrac>
+										<mo>,</mo><mn>1</mn>
+										<mo>)</mo>
+									</mrow>
+								</math>
+							</Flex>
+						</Flex>
+
+						<div :class="$style.divider" />
+
+						<Flex align="center" justify="center" :class="$style.time_based_metric">
+							<Flex :class="$style.part_1">
+								<math>
+									<mrow>
+										<mi>timeBased</mi>
+										<mo>(</mo>
+										<mi>maxTime</mi><mo>,</mo><mi>lastTime</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>timeframe</mi>
+										<mo>)</mo>
+									</mrow>
+								</math>
+							</Flex>
+							<Flex :class="$style.part_2">
+								<math>
+									<mrow>
+										<mo>=</mo>
+										<mi>exp</mi>
+										<mo>(</mo>
+										<mo>−</mo>
+										<mfrac>
+											<mi>diff</mi>
+											<mi>t</mi>
+										</mfrac>
+										<mo>)</mo>
+									</mrow>
+								</math>
+							</Flex>
+						</Flex>
 					</Flex>
 
 					<Text size="12" color="secondary" :style="{ lineHeight: '1.4' }">
 						Where:
 						<ul>
 							<li>
-								<math :class="$style.inline_formula_wrapper">
-									<mrow>
+								<div :class="$style.inline_formula_wrapper">
 										<mi>diff</mi>
 										<mo>=</mo>
 										<mi>maxTime</mi>
 										<mo>-</mo>
 										<mi>lastTime</mi>
-									</mrow>
-								</math>
+								</div>
 								in the chosen <mi :class="$style.inline_formula_wrapper">timeframe</mi>.
 							</li>
 							<li>
 								<mi :class="$style.inline_formula_wrapper" :style="{ padding: '1px 4px' }">t</mi>
 								 is the <strong>decay period</strong> (time constant) that controls how quickly the metric fades: 
 								 after a time span of 
-								 <mi :class="$style.inline_formula_wrapper">t</mi>
+								 <mi :class="$style.inline_formula_wrapper" :style="{ padding: '1px 4px' }">t</mi>
 								 , the value drops to 
 								 <msup :class="$style.inline_formula_wrapper"><mi>e</mi><mo>−1</mo></msup>
 							</li>
@@ -260,20 +280,34 @@ watch(
 				</table>
 
 				<Flex align="center" justify="center" :class="$style.formula_wrapper">
-					<Flex align="center" justify="center" gap="4">
-						<math display="block" :style="{ color: 'var(--txt-tertiary)' }">
-							<mrow>
-								<template v-for="(m, i) in metrics" :key="m.key">
-									<mn> {{ m.metricValue }} </mn>
-									<mo>⋅</mo>
-									<mn> {{ m.coefficient }} </mn>
-									<mo v-if="i < metrics.length - 1">+</mo>
-								</template>
-								<mo>=</mo>
-								<mn :style="{ color: `var(--${rank.ranking.rank.category.color})`, fontWeight: '800'}"> {{ rank.ranking.rank.score }} </mn>
-							</mrow>
-						</math>
-						<Icon name="laurel" size="20" :color="rank.ranking.rank.category.color" />
+					<Flex align="center" justify="center" :class="$style.rank_calculation">
+						<Flex :class="$style.part_1">
+							<math>
+								<mrow>
+									<template v-for="(m, i) in metrics.slice(0, 4)" :key="m.key">
+										<mn> {{ m.metricValue }} </mn>
+										<mo>⋅</mo>
+										<mn> {{ m.coefficient }} </mn>
+										<mo v-if="i < metrics.slice(0, 4).length - 1">+</mo>
+									</template>
+								</mrow>
+							</math>
+						</Flex>
+						<Flex align="center" gap="6" :class="$style.part_2">
+							<math>
+								<mrow>
+									<template v-for="(m, i) in metrics.slice(4)" :key="m.key">
+										<mo>+ </mo>
+										<mn> {{ m.metricValue }} </mn>
+										<mo>⋅</mo>
+										<mn> {{ m.coefficient }} </mn>
+									</template>
+									<mo>=</mo>
+									<mn :style="{ color: `var(--${rank.ranking.rank.category.color})`, fontWeight: '800'}"> {{ rank.ranking.rank.score }} </mn>
+								</mrow>
+							</math>
+							<Icon name="laurel" size="20" :color="rank.ranking.rank.category.color" />
+						</Flex>
 					</Flex>
 				</Flex>
 			</Flex>
@@ -283,72 +317,71 @@ watch(
 
 <style module>
 .formula_wrapper{
-	/* width: 80%; */
 	padding: 10px;
 	background-color: var(--op-5);
 	border-radius: 6px;
 }
 
 .inline_formula_wrapper {
+	display: inline-block;
 	padding: 4px;
 	background-color: var(--op-5);
 	border-radius: 6px;
 	color: var(--txt-secondary);
 }
 
+math {
+	display: block;
+	color: var(--txt-tertiary);
+}
+
+.divider {
+	width: 100%;
+	height: 1px;
+
+	background: var(--op-5);
+
+	margin: -12px;
+	opacity: 0;
+}
+
 .table_metric {
-  width: 100%;
-  border-collapse: collapse;
+	width: 100%;
+	border-collapse: collapse;
 
-  /* Remove all default borders and set padding */
-  & th,
-  & td {
-    border: none;
-    padding: 10px 12px;
-  }
+	& th,
+	& td {
+		border: none;
+		padding: 10px 12px;
+	}
 
-  /* Draw only internal horizontal borders */
-  & tbody tr + tr th,
-  & tbody tr + tr td {
-    border-top: 1px solid var(--op-5);
-  }
+	& tbody tr + tr th,
+	& tbody tr + tr td {
+		border-top: 1px solid var(--op-5);
+	}
 
-  /* Draw only internal vertical borders */
-  & th + th,
-  & td + td {
-    border-left: 1px solid var(--op-5);
-  }
+	& th + th,
+	& td + td {
+		border-left: 1px solid var(--op-5);
+	}
 
-  /* Header styling */
-  & thead {
-    background: var(--gray-1);
-	border-bottom: 1px solid var(--op-5);
-  }
-  & thead th {
-    text-align: center;
-    /* padding-top: 16px; */
-    padding-bottom: 8px;
-  }
+	& thead {
+		border-bottom: 1px solid var(--op-5);
+	}
+	& thead th {
+		text-align: center;
+		padding-bottom: 8px;
+	}
 
-  /* Body row styling */
-  & tbody tr {
-    transition: all 0.05s ease;
-    &:nth-child(even) {
-      background: var(--gray-0);
-    }
-    &:hover {
-      background: var(--gray-2);
-    }
-  }
-
-  /* First column indent */
-  & tbody td:first-child {
-    padding-left: 16px;
-  }
+	& tbody td:first-child {
+		padding-left: 16px;
+	}
 }
 
 .avatar_container {
 	position: relative;
+	min-width: 20px;
+	min-height: 20px;
 	width: 20px;
 	height: 20px;
 	overflow: hidden;
@@ -359,5 +392,62 @@ watch(
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+}
+
+@media (max-width: 550px) {
+	.rank_calculation {
+		width: 100%;
+		flex-direction: column;
+		align-items: start;
+		gap: 8px;
+
+		& .part_1 {
+			width: 100%;
+			justify-items: start;
+		}
+		& .part_2 {
+			width: 100%;
+			align-items: center;
+			justify-content: end;
+		}
+	}
+}
+
+@media (max-width: 520px) {
+	.time_based_metric {
+		width: 100%;
+		flex-direction: column;
+		gap: 8px;
+
+		& .part_1 {
+			width: 100%;
+			justify-items: start;
+		}
+		& .part_2 {
+			width: 100%;
+			justify-content: end;
+		}
+	}
+
+	.divider {
+		margin: -4px;
+		opacity: 1;
+	}
+}
+@media (max-width: 450px) {
+	.quantitative_metric {
+		width: 100%;
+		flex-direction: column;
+		gap: 8px;
+
+		& .part_1 {
+			width: 100%;
+			justify-items: start;
+		}
+		& .part_2 {
+			width: 100%;
+			justify-content: end;
+		}
+	}
 }
 </style>

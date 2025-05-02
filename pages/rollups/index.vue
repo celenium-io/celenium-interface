@@ -736,7 +736,7 @@ onBeforeMount(() => {
 										<Flex align="center" gap="4">
 											<Icon name="clock-forward-2" size="13" :color="getLastActivityCategory(DateTime.fromISO(r?.last_message_time))" />
 											<Text size="13" weight="600" color="primary">
-												{{ DateTime.fromISO(r?.last_message_time).toRelative({ locale: "en" }) }}
+												{{ DateTime.fromISO(r?.last_message_time).toRelative({ locale: "en", style: "short" }) }}
 											</Text>
 										</Flex>
 									</NuxtLink>

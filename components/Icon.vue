@@ -2,7 +2,6 @@
 import { computed } from "vue"
 
 import icons from "@/assets/icons.json"
-import { load } from "protobufjs"
 
 const props = defineProps({
 	name: { type: String, required: true, default: "warning" },
@@ -11,6 +10,7 @@ const props = defineProps({
 	rotate: { type: [String, Number], default: 0 },
 	fill: { type: Boolean, default: false },
 	scale: { type: [String, Number], default: 1 },
+	loading: { type: Boolean, default: false },
 })
 
 const styles = computed(() => {
