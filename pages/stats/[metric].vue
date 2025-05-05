@@ -106,7 +106,7 @@ useHead({
 	],
 })
 
-const selectedPeriod = ref({})
+const selectedPeriod = ref(STATS_PERIODS[2])
 
 const selectedTimeframe = ref(STATS_TIMEFRAMES.find((tf) => tf.timeframe === "day"))
 const timeframes = computed(() => {
@@ -197,14 +197,6 @@ const updateUserSettings = () => {
 
 const filters = reactive({})
 const setDefaultFilters = () => {
-	filters.timeframe = selectedPeriod.value.timeframe
-	filters.periodValue = selectedPeriod.value.value
-	filters.from = parseInt(DateTime.now().startOf('day').minus({
-		days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - 1 : 0,
-		hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
-	}).ts  / 1_000)
-	filters.to = parseInt(DateTime.now().endOf('day').ts  / 1_000)
-
 	if (series.value.page === "rollups") {
 		if (route.query.aggregate && rollupsSetting.value[0].items.includes(route.query.aggregate)) {
 			series.value.metric = route.query.aggregate
