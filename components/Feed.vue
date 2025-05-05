@@ -3,7 +3,8 @@
 import { DateTime } from "luxon"
 
 /** Services */
-import { comma, formatBytes, abbreviate } from "@/services/utils"
+import { abbreviate, comma, formatBytes, isMainnet, roundTo } from "@/services/utils"
+import { getRankCategory } from "@/services/constants/rollups"
 
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
@@ -13,7 +14,9 @@ import { fetchPriceSeries } from "@/services/api/stats"
 
 /** Store */
 import { useAppStore } from "@/store/app"
+import { useRollupsRankingStore } from "@/store/rollupsrank"
 const appStore = useAppStore()
+const rollupRankingStore = useRollupsRankingStore()
 
 const head = computed(() => appStore.lastHead)
 const currentPrice = computed(() => appStore.currentPrice)
@@ -22,6 +25,18 @@ const totalSupply = computed(() => head.value.total_supply / 1_000_000)
 const totalSupplyUSD = computed(() => totalSupply.value * currentPrice.value?.close)
 const totalFees = computed(() => head.value.total_fee / 1_000_000)
 const totalFeesUSD = computed(() => totalFees.value * currentPrice.value?.close)
+const topRollup = computed(() => {
+	let rankCategory = getRankCategory(roundTo(rollupRankingStore?.rollups_ranking?.top_rollup?.rank / 10, 0))
+	return {
+		slug: rollupRankingStore?.rollups_ranking?.top_rollup?.slug,
+		name: rollupRankingStore?.rollups_ranking?.top_rollup?.name,
+		rank: {
+			name: rankCategory?.name,
+			score: rollupRankingStore?.rollups_ranking?.top_rollup?.rank,
+			color: rankCategory?.color,
+		}
+	}
+})
 
 const series = ref([])
 const price = reactive({
@@ -49,14 +64,46 @@ onMounted(async () => {
 <template>
 	<Flex tag="section" justify="center" wide :class="$style.wrapper">
 		<Flex align="center" justify="between" gap="24" wide :class="$style.container">
-			<Flex align="center" gap="20" :class="$style.stats">
+			<Flex align="center" gap="8" :class="$style.stats">
+				<template v-if="isMainnet()">
+					<NuxtLink :to="`/rollup/rank/${topRollup?.slug}`">
+						<Tooltip>
+							<Flex align="center" gap="6" :class="$style.stat">
+								<Icon v-if="topRollup?.name" name="laurel" size="14" :color="topRollup?.rank?.color" :style="{marginTop: '1px'}" />
+								<Icon v-else name="laurel" size="14" color="tertiary" :class="$style.icon" :style="{marginTop: '1px'}" />
+								<Flex align="center" gap="4">
+									<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Top Rollup:</Text>
+
+									<Text v-if="topRollup?.name" size="12" weight="600" color="secondary" noWrap :class="$style.value"> {{ topRollup?.name }} </Text>
+									<Skeleton v-else w="40" h="12" />
+								</Flex>
+							</Flex>
+
+							<template #content>
+								<Flex direction="column" gap="8">
+									<Flex align="center" justify="between" gap="8">
+										<Text size="12" weight="500" color="tertiary">Rank:</Text>
+										<Text size="12" weight="600" :color="topRollup?.rank?.color"> {{ topRollup?.rank?.name }} </Text>
+									</Flex>
+									<Flex align="center" justify="between" gap="8">
+										<Text size="12" weight="500" color="tertiary">Score:</Text>
+										<Text size="12" weight="600" color="secondary"> {{ topRollup?.rank?.score }}% </Text>
+									</Flex>
+								</Flex>
+							</template>
+						</Tooltip>
+					</NuxtLink>
+
+					<div :class="$style.dot" />
+				</template>
+
 				<Tooltip>
 					<Flex align="center" gap="6" :class="$style.stat">
 						<Icon name="tx" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Txs:</Text>
 
-							<Text v-if="head" size="12" weight="600" noWrap :class="$style.value">{{ abbreviate(head.total_tx) }}</Text>
+							<Text v-if="head.total_tx" size="12" weight="600" noWrap :class="$style.value">{{ abbreviate(head.total_tx) }}</Text>
 							<Skeleton v-else w="40" h="12" />
 						</Flex>
 					</Flex>
@@ -74,10 +121,10 @@ onMounted(async () => {
 						<Flex align="center" gap="4">
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Supply:</Text>
 
-							<Text v-if="head" size="12" weight="600" noWrap :class="$style.value">
+							<Text v-if="head.total_supply" size="12" weight="600" noWrap :class="$style.value">
 								{{ abbreviate(totalSupply, 2) }} TIA
 							</Text>
-							<Skeleton v-else w="55" h="12" />
+							<Skeleton v-else w="40" h="12" />
 						</Flex>
 					</Flex>
 
@@ -92,10 +139,10 @@ onMounted(async () => {
 						<Flex align="center" gap="4">
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Blobs Size:</Text>
 
-							<Text v-if="head" size="12" weight="600" noWrap :class="$style.value">{{
+							<Text v-if="head.total_blobs_size" size="12" weight="600" noWrap :class="$style.value">{{
 								formatBytes(head.total_blobs_size)
 							}}</Text>
-							<Skeleton v-else w="60" h="12" />
+							<Skeleton v-else w="40" h="12" />
 						</Flex>
 					</Flex>
 
@@ -110,10 +157,10 @@ onMounted(async () => {
 						<Flex align="center" gap="4">
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Fees:</Text>
 
-							<Text v-if="head" size="12" weight="600" noWrap :class="$style.value">
+							<Text v-if="head.total_fee" size="12" weight="600" noWrap :class="$style.value">
 								{{ abbreviate(parseInt(totalFees)) }} TIA
 							</Text>
-							<Skeleton v-else w="55" h="12" />
+							<Skeleton v-else w="40" h="12" />
 						</Flex>
 					</Flex>
 
@@ -132,7 +179,7 @@ onMounted(async () => {
 						<Skeleton v-else w="36" h="12" />
 					</Flex>
 
-					<Flex v-if="!isNaN(price.diff)" align="center" gap="4">
+					<Flex v-if="price.diff" align="center" gap="4">
 						<Icon v-if="price.side === 'rise'" name="arrow-circle-right-up" size="12" color="neutral-green" />
 						<Icon v-else-if="price.side === 'fall'" name="arrow-circle-right-down" size="12" color="red" />
 
@@ -167,18 +214,20 @@ onMounted(async () => {
 <style module>
 .wrapper {
 	height: 32px;
+	max-width: var(--base-width);
 
 	border-top: 1px solid var(--op-5);
 	border-bottom: 1px solid var(--op-5);
-
 	background: var(--feed-background);
 }
 
 .container {
 	max-width: var(--base-width);
 	height: 100%;
+	overflow: hidden;
+	overflow-x: scroll;
 
-	margin: 0 24px;
+	margin: 0 12px;
 
 	&::-webkit-scrollbar {
 		display: none;
@@ -199,7 +248,7 @@ onMounted(async () => {
 }
 
 .value {
-	color: var(--op-40);
+	color: var(--txt-secondary);
 }
 
 .stat:hover {
@@ -212,7 +261,7 @@ onMounted(async () => {
 	}
 
 	.value {
-		color: var(--txt-secondary);
+		color: var(--txt-primary);
 	}
 }
 

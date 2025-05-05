@@ -132,7 +132,8 @@ export const getNetworkName = () => {
 }
 
 export const isMainnet = () => {
-	return getNetworkName() === "Mainnet"
+	return true
+	// return getNetworkName() === "Mainnet"
 }
 
 export const isMac = () => {
@@ -166,16 +167,43 @@ export function base64ToHex(base64) {
 	return hex
 }
 
-export function sortArrayOfObjects(arr, param, asc = true) {
+// export function sortArrayOfObjects(arr, param, asc = true) {
+// 	if (!arr || !arr?.length) return []
+
+// 	return arr.sort((a, b) => {
+// 		if (a[param] > b[param]) {
+// 			return asc ? 1 : -1
+// 		} else if (a[param] < b[param]) {
+// 			return asc ? -1 : 1
+// 		}
+
+// 		return 0
+// 	})
+// }
+
+export function sortArrayOfObjects(arr, path, asc = true) {
 	if (!arr || !arr?.length) return []
 
 	return arr.sort((a, b) => {
-		if (a[param] > b[param]) {
-			return asc ? 1 : -1
-		} else if (a[param] < b[param]) {
-			return asc ? -1 : 1
+		const getValue = (obj, path) => path.split('.').reduce((o, key) => o?.[key], obj) ?? 0
+
+		let valueA = getValue(a, path)
+		let valueB = getValue(b, path)
+
+		const dateA = Date.parse(valueA)
+		const dateB = Date.parse(valueB)
+
+		const bothAreDates =
+			typeof valueA === "string" &&
+			typeof valueB === "string" &&
+			!isNaN(dateA) &&
+			!isNaN(dateB)
+
+		if (bothAreDates) {
+			valueA = dateA
+			valueB = dateB
 		}
 
-		return 0
+		return asc ? valueA - valueB : valueB - valueA
 	})
 }

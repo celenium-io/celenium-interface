@@ -1,16 +1,9 @@
 <script setup>
 /** Vendor */
 import * as d3 from "d3"
-import { DateTime } from "luxon"
-
-/** Stats Components */
-import DiffChip from "@/components/modules/stats/DiffChip.vue"
 
 /** Services */
 import { abbreviate, capitilize, comma, formatBytes } from "@/services/utils"
-
-/** API */
-import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
 
 const props = defineProps({
 	series: {
@@ -52,12 +45,12 @@ const prepareRollupsData = () => {
     let totalShare = 0
     resData.value.forEach((el, i) => {
         let share = +(el.value / total.value * 100).toFixed(0)
-        totalShare += share
         if (i < length - 1 || length === 1) {
             el.share = share
         } else {
             el.share = 100 - totalShare
         }
+        totalShare += share
     })
 
     let startlength = resData.value.length
@@ -79,12 +72,7 @@ const color = d3.scaleSequential(d3.piecewise(d3.interpolateRgb, ["#55c9ab", "#1
         .domain([0, 5])
 
 const buildChart = (chart, data) => {
-	const height = chart.getBoundingClientRect().height
-	const width = chart.getBoundingClientRect().width
-	const marginTop = 6
-	const marginRight = 12
-	const marginBottom = 24
-	const marginLeft = 12
+	const { width, height } = chart.getBoundingClientRect()
     radius.value = Math.min(width, height) / 2
     innerRadius.value = props.dounut ? radius.value * 0.6 : 0
 
@@ -160,48 +148,52 @@ const buildChart = (chart, data) => {
 }
 
 const init = () => {
-    prepareRollupsData()
+    if (props.data?.length) {
+        prepareRollupsData()
 
-    buildChart(chartEl.value.wrapper, resData.value)
+        nextTick(() => {
+            buildChart(chartEl.value.wrapper, resData.value)
+        })
 
-    /** Add listeners for legend items */
-    nextTick(() => {
-        const legend = d3.selectAll(`.legend-item-${props.series.name}`)
-        legend._groups[0].forEach((item, index) => {
-            item.addEventListener('pointerenter', () => {
-                const arc = d3.arc()
-                    .outerRadius(radius.value - 10)
-                    .innerRadius(innerRadius.value)
-                const arcEl = d3.select(`.arc-${props.series.name}-${index} path`)
-                arcEl.classed("dimmed", false)
-                    .transition()
-                    .duration(200)
-                    .attr("d", d3.arc()
-                        .outerRadius(radius.value - 5)
-                        .innerRadius(innerRadius.value))
-                    .attr("transform", d => {
-                        const [x, y] = arc.centroid(d);
-                        const dist = 0.05
-                        return `translate(${x * dist}, ${y * dist})`
-                    })
-
-                d3.selectAll(`.legend-item-${props.series.name}`).classed("dimmed", true)
-                item.classList.remove("dimmed")
-            })
-
-            item.addEventListener('pointerleave', () => {
-                const arc = d3.select(`.arc-${props.series.name}-${index} path`)
-                arc.transition()
-                    .duration(200)
-                    .attr("d", d3.arc()
+        /** Add listeners for legend items */
+        nextTick(() => {
+            const legend = d3.selectAll(`.legend-item-${props.series.name}`)
+            legend._groups[0].forEach((item, index) => {
+                item.addEventListener('pointerenter', () => {
+                    const arc = d3.arc()
                         .outerRadius(radius.value - 10)
-                        .innerRadius(innerRadius.value))
-                    .attr("transform", "translate(0, 0)")
-                
-                d3.selectAll(`.legend-item-${props.series.name}`).classed("dimmed", false)
+                        .innerRadius(innerRadius.value)
+                    const arcEl = d3.select(`.arc-${props.series.name}-${index} path`)
+                    arcEl.classed("dimmed", false)
+                        .transition()
+                        .duration(200)
+                        .attr("d", d3.arc()
+                            .outerRadius(radius.value - 5)
+                            .innerRadius(innerRadius.value))
+                        .attr("transform", d => {
+                            const [x, y] = arc.centroid(d);
+                            const dist = 0.05
+                            return `translate(${x * dist}, ${y * dist})`
+                        })
+
+                    d3.selectAll(`.legend-item-${props.series.name}`).classed("dimmed", true)
+                    item.classList.remove("dimmed")
+                })
+
+                item.addEventListener('pointerleave', () => {
+                    const arc = d3.select(`.arc-${props.series.name}-${index} path`)
+                    arc.transition()
+                        .duration(200)
+                        .attr("d", d3.arc()
+                            .outerRadius(radius.value - 10)
+                            .innerRadius(innerRadius.value))
+                        .attr("transform", "translate(0, 0)")
+                    
+                    d3.selectAll(`.legend-item-${props.series.name}`).classed("dimmed", false)
+                })
             })
         })
-    })
+    }
 }
 
 const handleNavigate = (el) => {
@@ -223,9 +215,15 @@ watch(
 </script>
 
 <template>
-	<Flex direction="column" justify="start" gap="8" wide :class="$style.wrapper">
-        <Flex align="center" justify="start" wide>
+	<Flex v-if="props.data?.length" direction="column" justify="start" gap="8" wide :class="$style.wrapper">
+        <Flex align="center" justify="between" wide>
             <Text size="14" weight="600" color="secondary"> {{ `By ${series.title}` }} </Text>
+
+            <NuxtLink v-if="series.page" :to="`/stats/${series.page}${series.aggregate ? '?aggregate=' + series.aggregate : ''}`">
+                <Flex align="center">
+                    <Icon name="bar-chart" size="16" color="tertiary" :class="$style.link" />
+                </Flex>
+            </NuxtLink>
         </Flex>
 
 		<Flex align="center" justify="between" wide>
@@ -280,6 +278,11 @@ watch(
             </Flex>
 		</Flex>
 	</Flex>
+    <Flex v-else wide :class="$style.wrapper">
+        <Flex align="center" justify="center" direction="column" gap="8" wide :class="$style.wrapper">
+            <Text size="13" weight="600" color="secondary" align="center"> No data to display </Text>
+        </Flex>
+    </Flex>
 </template>
 
 <style module>
@@ -291,6 +294,14 @@ watch(
 	border-radius: 12px;
 
 	padding: 16px;
+}
+
+.link {
+    transition: fill 0.3s ease;
+
+    &:hover {
+        fill: var(--txt-secondary)
+    }
 }
 
 .legend_wrapper {

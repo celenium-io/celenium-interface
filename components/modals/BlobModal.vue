@@ -165,7 +165,7 @@ const handlePreviewContent = () => {
 	} else {
 		if (!showPreviewText.value) {
 			showPreviewText.value = true
-			contentPreviewText.value = atob(blob.value.data)
+			contentPreviewText.value = blob.value.data
 		} else {
 			showPreviewText.value = false
 			contentPreviewText.value = ""

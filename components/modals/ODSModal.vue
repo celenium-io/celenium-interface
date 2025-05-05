@@ -8,7 +8,7 @@ import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
 import amp from "@/services/amp"
-import { capitalizeAndReplaceUnderscore, comma, getNamespaceIDFromBase64, shortHex } from "@/services/utils";
+import { capitalizeAndReplace, comma, getNamespaceIDFromBase64, shortHex } from "@/services/utils";
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
@@ -248,7 +248,7 @@ watch(
 						<Flex align="start" justify="start" direction="column" gap="4" wide>
 							<Text size="12" weight="600" color="primary">{{ getNamespaceName(item) }}</Text>
 
-							<Text size="11" weight="500" color="tertiary">{{ capitalizeAndReplaceUnderscore(item.type) }}</Text>
+							<Text size="11" weight="500" color="tertiary">{{ capitalizeAndReplace(item.type, "_") }}</Text>
 						</Flex>
 					</Flex>
 				</Flex>
