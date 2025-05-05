@@ -4,12 +4,14 @@ import AdvBanner from "@/components/shared/AdvBanner.vue"
 
 /** Services */
 import { getNetworkName } from "@/services/utils/general"
+
+const showPromoBackground = useCookie("showPromoBackground", { default: () => true })
 </script>
 
 <template>
 	<Flex direction="column">
 		<Flex justify="center" :class="$style.wrapper">
-			<img v-if="getNetworkName() === 'Mammoth'" src="/img/mammoth.jpeg" :class="$style.mammoth_bg" />
+			<img v-if="getNetworkName() === 'Mammoth' && showPromoBackground" src="/img/mammoth.jpeg" :class="$style.mammoth_bg" />
 
 			<LeftSidebar :class="$style.sidebar" />
 
