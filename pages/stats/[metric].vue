@@ -393,7 +393,7 @@ const handleCSVDownload = async () => {
 		})
 		csvRow = csvData.join("\n")
 	} else {
-		data = loadPrevData.value ? [...series.value.currentData, ...series.value.prevData] : [...series.value.currentData]
+		data = [...series.value.currentData]
 		csvHeaders = "timestamp,value\n"
 		csvRow = data.map(d => `${DateTime.fromJSDate(d.date).ts},${d.value}`).join("\n")
 	}
@@ -449,17 +449,6 @@ watch(
 	() => {
 		updateUserSettings()
 	},
-)
-
-watch(
-	() => rollupsSetting.value[0].selected,
-	() => {
-		router.replace({
-			query: {
-				aggregate: rollupsSetting.value[0].selected,
-			},
-		})
-	}
 )
 
 watch(
@@ -538,16 +527,6 @@ onBeforeMount(() => {
 												:style="{ fill: `${chartView === 'bar' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
 											/>
 										</Flex>
-									</Flex>
-
-									<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
-										<Text size="12" :color="loadPrevData ? 'secondary' : 'tertiary'">Previous period</Text>
-										<Toggle v-model="loadPrevData" color="var(--neutral-mint)" />
-									</Flex>
-
-									<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
-										<Text size="12" :color="loadLastValue ? 'secondary' : 'tertiary'">Show last value</Text>
-										<Toggle v-model="loadLastValue" color="var(--neutral-mint)" />
 									</Flex>
 
 									<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
