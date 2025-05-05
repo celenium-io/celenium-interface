@@ -17,11 +17,11 @@ const props = defineProps({
 const bgStyles = computed(() => {
 	return {
 		style: {
-			position: "absolute",
-			top: "0",
-			right: "0",
-			bottom: "0",
-			left: "0",
+			// position: "absolute",
+			// top: "0",
+			// right: "0",
+			// bottom: "0",
+			// left: "0",
 			filter: "grayscale(1)",
 			opacity: "0.05",
 		},
@@ -32,8 +32,8 @@ const messages = computed(() => [...new Set(props.tx.message_types)])
 </script>
 
 <template>
-	<div class="w-full h-full" :style="{ background: '#111111', padding: '100px 120px', fontFamily: 'IBM+Plex+Mono' }">
-		<img src="/img/bg.png" v-bind="bgStyles" />
+	<div class="w-full h-full" :style="{ background: '#111111', padding: '100px 120px', fontFamily: 'IBM+Plex+Mono', overflow: 'hidden'  }">
+		<img src="/img/bg.png" v-bind="bgStyles" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" />
 
 		<div :style="{ height: '100%', display: 'flex', flexDirection: 'column', gap: '40px' }">
 			<div :style="{ display: 'flex', alignItems: 'center', gap: '24px' }">
