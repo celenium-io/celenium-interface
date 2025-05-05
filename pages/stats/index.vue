@@ -77,7 +77,7 @@ const tabs = ref([
 	},
 	{
 		name: "ecosystem",
-		visible: true,
+		visible: false,
 		// visible: isMainnet(),
 	},
 ])
