@@ -64,7 +64,7 @@ onMounted(async () => {
 <template>
 	<Flex tag="section" justify="center" wide :class="$style.wrapper">
 		<Flex align="center" justify="between" gap="24" wide :class="$style.container">
-			<Flex align="center" gap="8" :class="$style.stats">
+			<Flex align="center" gap="12" :class="$style.stats">
 				<template v-if="isMainnet()">
 					<NuxtLink :to="`/rollup/rank/${topRollup?.slug}`">
 						<Tooltip>
@@ -101,7 +101,7 @@ onMounted(async () => {
 					<Flex align="center" gap="6" :class="$style.stat">
 						<Icon name="tx" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
-							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Txs:</Text>
+							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Txs:</Text>
 
 							<Text v-if="head.total_tx" size="12" weight="600" noWrap :class="$style.value">{{ abbreviate(head.total_tx) }}</Text>
 							<Skeleton v-else w="40" h="12" />
@@ -109,7 +109,10 @@ onMounted(async () => {
 					</Flex>
 
 					<template #content>
-						{{ comma(head.total_tx) }}
+						<Flex align="center" justify="between" gap="8">
+							<Text size="12" weight="500" color="tertiary">Total Txs:</Text>
+							<Text size="12" weight="600" color="secondary"> {{ comma(head.total_tx) }} </Text>
+						</Flex>
 					</template>
 				</Tooltip>
 
@@ -119,7 +122,7 @@ onMounted(async () => {
 					<Flex align="center" gap="6" :class="$style.stat">
 						<Icon name="coins" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
-							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Supply:</Text>
+							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Supply:</Text>
 
 							<Text v-if="head.total_supply" size="12" weight="600" noWrap :class="$style.value">
 								{{ abbreviate(totalSupply, 2) }} TIA
@@ -128,7 +131,12 @@ onMounted(async () => {
 						</Flex>
 					</Flex>
 
-					<template #content> {{ abbreviate(totalSupplyUSD, 2) }} USD </template>
+					<template #content>
+						<Flex align="center" justify="between" gap="8">
+							<Text size="12" weight="500" color="tertiary">Total Supply:</Text>
+							<Text size="12" weight="600" color="secondary"> {{ abbreviate(totalSupplyUSD, 2) }} USD </Text>
+						</Flex>
+					</template>
 				</Tooltip>
 
 				<div :class="$style.dot" />
@@ -137,7 +145,7 @@ onMounted(async () => {
 					<Flex align="center" gap="6" :class="$style.stat">
 						<Icon name="namespace" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
-							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Blobs Size:</Text>
+							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Blobs Size:</Text>
 
 							<Text v-if="head.total_blobs_size" size="12" weight="600" noWrap :class="$style.value">{{
 								formatBytes(head.total_blobs_size)
@@ -146,7 +154,12 @@ onMounted(async () => {
 						</Flex>
 					</Flex>
 
-					<template #content> {{ comma(head.total_blobs_size) }} Bytes</template>
+					<template #content>
+						<Flex align="center" justify="between" gap="8">
+							<Text size="12" weight="500" color="tertiary">Total Blobs Size:</Text>
+							<Text size="12" weight="600" color="secondary"> {{ comma(head.total_blobs_size) }} Bytes </Text>
+						</Flex>
+					</template>
 				</Tooltip>
 
 				<div :class="$style.dot" />
@@ -155,7 +168,7 @@ onMounted(async () => {
 					<Flex align="center" gap="6" :class="$style.stat">
 						<Icon name="tag" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
-							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Total Fees:</Text>
+							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Fees:</Text>
 
 							<Text v-if="head.total_fee" size="12" weight="600" noWrap :class="$style.value">
 								{{ abbreviate(parseInt(totalFees)) }} TIA
@@ -164,7 +177,12 @@ onMounted(async () => {
 						</Flex>
 					</Flex>
 
-					<template #content> {{ abbreviate(totalFeesUSD) }} USD </template>
+					<template #content>
+						<Flex align="center" justify="between" gap="8">
+							<Text size="12" weight="500" color="tertiary">Total Fees:</Text>
+							<Text size="12" weight="600" color="secondary"> {{ abbreviate(totalFeesUSD) }} USD </Text>
+						</Flex>
+					</template>
 				</Tooltip>
 			</Flex>
 
