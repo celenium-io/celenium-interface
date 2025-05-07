@@ -15,7 +15,7 @@ import BlobsTable from "./tables/BlobsTable.vue"
 import NamespacesTable from "./tables/NamespacesTable.vue"
 
 /** Services */
-import { capitilize, comma, formatBytes, isMainnet, roundTo, truncateDecimalPart } from "@/services/utils"
+import { capitilize, comma, formatBytes, hexToRgba, isMainnet, roundTo, truncateDecimalPart } from "@/services/utils"
 import { exportToCSV } from "@/services/utils/export"
 import { getRankCategory } from "@/services/constants/rollups"
 
@@ -173,18 +173,8 @@ onMounted(async () => {
 		},
 	})
 
-	/** Rollup Primary Color */
-	const image = new Image()
-	image.crossOrigin = "anonymous"
-	image.onload = () => {
-		const context = document.createElement("canvas").getContext("2d")
-		context.drawImage(image, 0, 0, 1, 1)
-		const i = context.getImageData(0, 0, 1, 1).data
-
-		rollupColor.value = `rgba(${i[0]},${i[1]},${i[2]},${i[3]})`
-		rollupColorAlpha.value = `rgba(${i[0]},${i[1]},${i[2]},0)`
-	}
-	image.src = `${props.rollup.logo}?query=bg`
+	rollupColor.value = hexToRgba(props.rollup.color, 1)
+	rollupColorAlpha.value = hexToRgba(props.rollup.color, 0)
 })
 
 /** Refetch Blobs/Messages on new page */

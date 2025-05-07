@@ -206,3 +206,23 @@ export function sortArrayOfObjects(arr, path, asc = true) {
 		return asc ? valueA - valueB : valueB - valueA
 	})
 }
+
+export function hexToRgba(hex, alpha = 255) {
+	let h = hex.replace(/^#/, '')
+
+	if (h.length === 3) {
+		h = h.split('').map(c => c + c).join('')
+	}
+
+	const int = parseInt(h, 16)
+	const r = (int >> 16) & 255
+	const g = (int >> 8) & 255
+	const b = int & 255
+
+	let a = alpha
+	if (alpha > 1) {
+		a = Math.max(0, Math.min(255, alpha)) / 255
+	}
+
+	return `rgba(${r}, ${g}, ${b}, ${a})`
+}
