@@ -20,6 +20,7 @@ import APIModal from "./APIModal.vue"
 import LightNodeModal from "./LightNodeModal.vue"
 import LightNodeSettingsModal from "./LightNodeSettingsModal.vue"
 import ConnectModal from "./ConnectModal.vue"
+import RollupRankModal from "./RollupRankModal.vue"
 
 /** Store */
 import { useModalsStore } from "@/store/modals"
@@ -48,4 +49,5 @@ const modalsStore = useModalsStore()
 	<LightNodeSettingsModal :show="modalsStore.modals.lightNodeSettings" @onClose="modalsStore.close('lightNodeSettings')" />
 	<ConnectModal :show="modalsStore.modals.connect" @onClose="modalsStore.close('connect')" />
 	<ChartModal :show="modalsStore.modals.chart" @onClose="modalsStore.close('chart')" />
+	<RollupRankModal :show="modalsStore.modals.rollupRank" @onClose="modalsStore.close('rollupRank')" />
 </template>

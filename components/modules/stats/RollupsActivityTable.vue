@@ -5,10 +5,15 @@ import { abbreviate, formatBytes, comma, sortArrayOfObjects } from "@/services/u
 /** Components */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
+const emit = defineEmits(['clearFilters'])
 const props = defineProps({
     rollups: {
         type: Array,
         required: true,
+    },
+    isFilterActive: {
+        type: Boolean,
+        default: false,
     },
 })
 
@@ -27,13 +32,12 @@ const handleSort = (by) => {
 
 		case "asc":
 			sort.dir = "desc"
-
 			break
 	}
 
 	sort.by = by
 
-	sortedRollups.value = sortArrayOfObjects(sortedRollups.value, by, sort.dir === 'desc' ? false : true)
+    sortedRollups.value = sortArrayOfObjects(sortedRollups.value, by, sort.dir === 'desc' ? false : true)
 }
 </script>
 
@@ -225,8 +229,11 @@ const handleSort = (by) => {
 
         <Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
             <Text size="13" weight="600" color="secondary" align="center"> No activity </Text>
-            <Text size="12" weight="500" height="160" color="tertiary" align="center">
+            <Text v-if="!isFilterActive" size="12" weight="500" height="160" color="tertiary" align="center">
                 There has been no rollup activity in the last 24 hours
+            </Text>
+            <Text v-else size="12" weight="500" height="160" color="tertiary" align="center">
+                Try to change the filters or <Text @click="emit('clearFilters')" size="12" color="secondary" :style="{cursor: 'pointer', textDecoration: 'underline'}">clear</Text> them
             </Text>
         </Flex>
     </Flex>

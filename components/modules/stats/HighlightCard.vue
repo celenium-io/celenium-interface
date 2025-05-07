@@ -12,8 +12,6 @@ const props = defineProps({
 	},
 })
 
-const isLoading = ref(false)
-
 const value = computed(() => {
 	if (props.highlight.name === 'blocks') return comma(props.highlight.value)
 	
@@ -49,7 +47,7 @@ const value = computed(() => {
             <Flex align="start">
                 <Icon v-if="highlight.name === 'blocks'" name="block" size="20" color="tertiary" />
 
-				<DiffChip v-else :value="highlight.diff.toFixed(1)" />
+				<DiffChip v-else :value="highlight.diff.toFixed(1)" tooltip="Difference between the last and the previous 24 hours" />
             </Flex>
         </Flex>
     </Flex>

@@ -3,7 +3,7 @@
 import { executeFaucet, faucetAddress, fetchBalance } from "@/services/api/faucet"
 
 /** Services */
-import { capitilize, comma, splitAddress, tia } from "@/services/utils"
+import { capitilize, comma, getNetworkName, splitAddress, tia } from "@/services/utils"
 import { Server, useServerURL } from "@/services/config"
 
 /** UI */
@@ -71,7 +71,8 @@ useHead({
 const isLoading = ref(false)
 const address = ref("")
 const account = ref()
-const network = ref("mocha")
+const networks = ["Mocha", "Arabica", "Mammoth"]
+const network = ref(networks.find(n => n === getNetworkName()) || networks[0].toLowerCase())
 
 const isNetworkSelectorOpen = ref(false)
 const fetchAccount = async() => {
@@ -233,7 +234,7 @@ watch(
 
 await refreshFaucetBalance()
 onMounted(() => {
-	if ((useServerURL().includes('mocha') || useServerURL().includes('arabica')) && appStore.address) {
+	if ((useServerURL().includes('mocha') || useServerURL().includes('arabica') || useServerURL().includes('mammoth')) && appStore.address) {
 		address.value = appStore.address
 	}
 
@@ -293,9 +294,12 @@ onMounted(() => {
 							</Flex>
 
 							<template #popup>
-								<DropdownItem @click="handleChangeNetwork('mocha')">Mocha</DropdownItem>
-								<DropdownItem @click="handleChangeNetwork('arabica')">Arabica</DropdownItem>
-								<DropdownItem @click="handleChangeNetwork('mammoth')">Mammoth</DropdownItem>
+								<DropdownItem
+									v-for="net in networks"
+									@click="handleChangeNetwork(net.toLowerCase())"
+								>
+									{{ net }}
+								</DropdownItem>
 							</template>
 						</Dropdown>
 					</Flex>

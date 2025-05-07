@@ -1,16 +1,6 @@
 <script setup>
 /** Vendor */
 import * as d3 from "d3"
-import { DateTime } from "luxon"
-
-/** Stats Components */
-import DiffChip from "@/components/modules/stats/DiffChip.vue"
-
-/** Services */
-import { abbreviate, capitilize, comma, formatBytes } from "@/services/utils"
-
-/** API */
-import { fetchSeries, fetchSeriesCumulative } from "@/services/api/stats"
 
 const props = defineProps({
 	series: {

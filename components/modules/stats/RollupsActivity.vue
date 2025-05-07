@@ -4,10 +4,15 @@ import RollupsActivityGraph from "~/components/modules/stats/RollupsActivityGrap
 import RollupsActivityTable from "~/components/modules/stats/RollupsActivityTable.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
+const emit = defineEmits(['clearFilters'])
 const props = defineProps({
     rollups: {
         type: Array,
         required: true,
+    },
+    isFilterActive: {
+        type: Boolean,
+        default: false,
     },
 })
 
@@ -67,8 +72,8 @@ const handleSelectView = () => {
             </Tooltip>
         </Flex>
         <Transition name="fastfade" mode="out-in">
-            <RollupsActivityTable v-if="selectedView === 'table'" :rollups="processedRollups" />
-            <RollupsActivityGraph v-else-if="selectedView === 'graph'" :rollups="processedRollups" />
+            <RollupsActivityTable v-if="selectedView === 'table'" @clearFilters="emit('clearFilters')" :rollups="processedRollups" :isFilterActive="isFilterActive" />
+            <RollupsActivityGraph v-else-if="selectedView === 'graph'" @clearFilters="emit('clearFilters')" :rollups="processedRollups" :isFilterActive="isFilterActive" />
         </Transition>
     </Flex>
 </template>

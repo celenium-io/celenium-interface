@@ -30,13 +30,20 @@ switch (hostname) {
 	case "mocha-4.celenium.io":
 		appStore.network = mocha
 		break
+	
+	case "mammoth.celenium.io":
+		appStore.network = mammoth
+		break
 
 	case "mammoth.celenium.io":
  		appStore.network = mammoth
  		break
 
 	// case "arabica.celenium.io":
-	// case "localhost":
+	case "localhost":
+		appStore.network = arabica
+		break
+	
 	default:
 		appStore.network = arabica
 		break

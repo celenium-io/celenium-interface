@@ -111,7 +111,7 @@ export const getStartChainDate = () => {
 			return "2024-01-02T12:18:46.936662Z"
 
 		case "mammoth.celenium.io":
-			return "2025-03-20T12:00:00.936662Z"
+			return "2025-04-09T14:16:23.868211567Z"
 
 		case "dev.celenium.io":
 			return "2024-01-02T12:18:46.936662Z"
@@ -124,6 +124,7 @@ export const getStartChainDate = () => {
 export const blockscoutURL = "https://celestia-l2-router.k8s-dev.blockscout.com/api/v1/celestia/l2BatchMetadata"
 export const nodeStatsURL = "https://node-stats.celenium.io/v1"
 export const tvlServiceURL = "https://tvl.celenium.io/v1"
+export const githubServiceURL = "https://github.celenium.io/v1"
 export const quoteServiceURL = "https://quote.celenium.io/v1"
 export const faucetURL = {
 	mocha: "https://api-faucet.celenium.io/v1",
