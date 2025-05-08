@@ -72,7 +72,7 @@ const isLoading = ref(false)
 const address = ref("")
 const account = ref()
 const networks = ["Mocha", "Arabica", "Mammoth"]
-const network = ref(networks.find(n => n === getNetworkName()) || networks[0].toLowerCase())
+const network = ref((networks.find(n => n === getNetworkName()) || networks[0]).toLowerCase())
 
 const isNetworkSelectorOpen = ref(false)
 const fetchAccount = async() => {
