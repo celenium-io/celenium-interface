@@ -193,6 +193,8 @@ watch(
 						</Flex>
 					</template>
 				</Tooltip>
+
+				<Button type="tertiary" size="mini"> <Icon name="sidebar" size="14" color="primary" /> </Button>
 			</Flex>
 		</Flex>
 
@@ -308,7 +310,10 @@ watch(
 								</td>
 								<td>
 									<Flex align="center" gap="4">
-										<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 2 }" :styles="{ amount: { size: '13' } }" />
+										<AmountInCurrency
+											:amount="{ value: block.stats.fee, decimal: 2 }"
+											:styles="{ amount: { size: '13' } }"
+										/>
 									</Flex>
 								</td>
 							</tr>
@@ -377,9 +382,7 @@ watch(
 								</NuxtLink>
 
 								<Flex align="center" gap="6">
-									<Text size="12" weight="600" color="tertiary">{{
-										shortHex(preview.block.proposer.cons_address)
-									}}</Text>
+									<Text size="12" weight="600" color="tertiary">{{ shortHex(preview.block.proposer.cons_address) }}</Text>
 
 									<CopyButton :text="preview.block.proposer.cons_address" size="10" />
 								</Flex>
@@ -460,7 +463,6 @@ watch(
 						</Text>
 					</Flex>
 
-
 					<Flex direction="column" gap="12">
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Blobs</Text>
@@ -480,13 +482,24 @@ watch(
 							Loading blobs..
 						</Text>
 						<Flex v-else-if="preview.block.stats.blobs_count" direction="column" gap="8">
-							<NuxtLink v-for="b in preview.blobs" :to="`/blob?commitment=${b.commitment}&hash=${b.namespace.hash}&height=${b.height}`" target="_blank">
+							<NuxtLink
+								v-for="b in preview.blobs"
+								:to="`/blob?commitment=${b.commitment}&hash=${b.namespace.hash}&height=${b.height}`"
+								target="_blank"
+							>
 								<Outline wide height="32" padding="8" radius="6">
 									<Flex align="center" justify="between" wide>
 										<Flex align="center" gap="8">
 											<Icon name="blob" size="12" color="secondary" />
 
-											<Text size="13" weight="600" color="primary" mono class="overflow_ellipsis" style="max-width: 250px">
+											<Text
+												size="13"
+												weight="600"
+												color="primary"
+												mono
+												class="overflow_ellipsis"
+												style="max-width: 250px"
+											>
 												{{ shortHex(b.commitment) }}
 											</Text>
 										</Flex>
@@ -496,9 +509,7 @@ watch(
 								</Outline>
 							</NuxtLink>
 						</Flex>
-						<Text v-else size="12" weight="600" color="tertiary" align="center" :class="$style.empty_state">
-							No blobs
-						</Text>
+						<Text v-else size="12" weight="600" color="tertiary" align="center" :class="$style.empty_state"> No blobs </Text>
 					</Flex>
 
 					<!-- <Flex direction="column" gap="12">
@@ -558,7 +569,10 @@ watch(
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Total Fees </Text>
-							<AmountInCurrency :amount="{ value: preview.block.stats.fee, decimal: 6 }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
+							<AmountInCurrency
+								:amount="{ value: preview.block.stats.fee, decimal: 6 }"
+								:styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }"
+							/>
 						</Flex>
 					</Flex>
 				</Flex>
@@ -679,7 +693,7 @@ watch(
 
 			white-space: nowrap;
 			overflow: hidden;
-      		text-overflow: ellipsis;
+			text-overflow: ellipsis;
 
 			border-right: 2px solid transparent;
 
