@@ -159,7 +159,9 @@ onBeforeUnmount(() => {
 						{{
 							(status === STATUS_MAP.Queuing && comma(height - latestBlock?.height - 1)) ||
 							(status === STATUS_MAP.Arriving && comma(height)) ||
-							(status === STATUS_MAP.Arrived && endDt - startDt > 1_000 ? comma(height) : `${endDt - startDt}ms`)
+							(status === STATUS_MAP.Arrived && endDt - startDt >= 1_000 && comma(height)) ||
+							(status === STATUS_MAP.Arrived && endDt - startDt > 0 && endDt - startDt < 1_000 && `${endDt - startDt}ms`) ||
+							(status === STATUS_MAP.Arrived && endDt - startDt < 0 && `~1ms`)
 						}}
 					</Text>
 					<Text v-if="status === STATUS_MAP.Queuing" size="12" weight="600" color="secondary">Blocks In Line</Text>
