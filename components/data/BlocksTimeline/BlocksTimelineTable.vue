@@ -193,8 +193,6 @@ watch(
 						</Flex>
 					</template>
 				</Tooltip>
-
-				<Button type="tertiary" size="mini"> <Icon name="sidebar" size="14" color="primary" /> </Button>
 			</Flex>
 		</Flex>
 
