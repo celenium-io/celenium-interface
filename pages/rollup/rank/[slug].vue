@@ -673,10 +673,10 @@ onMounted(() => {
 .good {
 	background-image: linear-gradient(var(--blue), var(--rare));
 }
-.poor {
+.normal {
 	background-image: linear-gradient(var(--txt-primary), var(--txt-tertiary));
 }
-.bad {
+.offline {
 	background-image: linear-gradient(var(--txt-tertiary), var(--txt-tertiary));
 }
 
