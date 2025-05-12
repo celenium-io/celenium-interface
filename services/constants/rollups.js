@@ -8,8 +8,8 @@ export const rankCoefficients = {
 	day_blobs_count: 0.2,
 	avg_pfb_size: 0.3,
 	last_message_time: 0.3,
-	commits_weekly: 0.2,
-	last_pushed_at: 0.2,
+	commits_weekly: 0.1,
+	last_pushed_at: 0.1,
 }
 
 export const rankCategories = [
