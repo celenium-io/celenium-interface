@@ -65,6 +65,8 @@ const rollupRanking = computed(() => {
 		const category = getMetricCategory(key, value / 100)
 		ranking[key] = { category, score: value }
 
+		if (category.name.toLowerCase() === "offline") continue
+
 		description.push({
 			text: getMetricDescription(key),
 			category,
@@ -77,11 +79,20 @@ const rollupRanking = computed(() => {
 		score: rawRanking.rank,
 	}
 
-	description = sortArrayOfObjects(description, "category.rank", false).slice(0, 3)
-	description[0].text += ", "
-	description[1].text += " and "
-	description[2].text += "."
-
+	if (description.length) {
+		description = sortArrayOfObjects(description, "category.rank", false).slice(0, Math.min(3, description.length))
+		if (description[2]?.text) {
+			description[0].text += ", "
+			description[1].text += " and "
+			description[2].text += "."
+		} else if (description[1]?.text) {
+			description[0].text += " and "
+			description[1].text += "."
+		} else {
+			description[0].text += "."
+		}
+	}
+	
 	return {
 		...rollupRaw,
 		ranking,
@@ -428,7 +439,7 @@ onMounted(() => {
 								</Flex>
 							</Flex>
 
-							<Text size="13" color="primary" weight="600" :style="{ lineHeight: '1.4' }">
+							<Text v-if="rollupRanking?.description.length" size="13" color="primary" weight="600" :style="{ lineHeight: '1.4' }">
 								{{ rollup.name }}
 								<Text weight="500" color="secondary">shows the </Text>
 								<span v-for="d in rollupRanking?.description">
@@ -437,6 +448,10 @@ onMounted(() => {
 									</Text>
 									<Text weight="500" color="secondary"> {{ d.text }} </Text>
 								</span>
+							</Text>
+							<Text v-else size="13" color="primary" weight="600" :style="{ lineHeight: '1.4' }">
+								{{ rollup.name }}
+								<Text weight="500" color="secondary"> is possible offline. </Text>
 							</Text>
 						</Flex>
 						<div :class="$style.divider" />
