@@ -28,7 +28,6 @@ defineOgImage({
 	component: "TxImage",
 	cacheKey: `${tx.value?.hash}`,
 })
-console.log("useRequestURL()", useRequestURL())
 
 useHead({
 	title: `Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash.toUpperCase().slice(-4)} - Celestia Explorer`,
