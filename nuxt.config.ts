@@ -126,7 +126,6 @@ export default defineNuxtConfig({
 
 	ogImage: {
 		fonts: ["Inter:400", "Inter:600", "IBM+Plex+Mono:400"],
-		zeroRuntime: true,
 	},
 
 	devtools: {

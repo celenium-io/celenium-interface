@@ -31,7 +31,7 @@ const messages = computed(() => [...new Set(props.tx.message_types)])
 		<img src="/img/bg.png" width="1200" height="600" class="absolute" v-bind="bgStyles" />
 
 		<div :style="{ height: '100%', display: 'flex', flexDirection: 'column', gap: '40px' }">
-			<div class="flex flex-row" :style="{ gap: '24px' }">
+			<div class="flex flex-row items-center" :style="{ gap: '24px' }">
 				<div class="flex items-center flex-nowrap">
 					<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.9)' }"> tx </span>
 					<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.3)' }">('</span>
@@ -41,7 +41,7 @@ const messages = computed(() => [...new Set(props.tx.message_types)])
 					<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.3)' }">')</span>
 				</div>
 
-				<!-- <svg
+				<svg
 					v-if="tx.status === 'success'"
 					width="60"
 					height="60"
@@ -63,7 +63,7 @@ const messages = computed(() => [...new Set(props.tx.message_types)])
 						fill="#eb5757"
 						fill-opacity="0.8"
 					/>
-				</svg> -->
+				</svg>
 			</div>
 
 			<div :style="{ display: 'flex' }">
