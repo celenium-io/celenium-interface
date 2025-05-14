@@ -34,7 +34,6 @@ useHead({
 	link: [
 		{
 			rel: "canonical",
-			// href: `https://celenium.io${route.path}`,
 			href: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 	],
@@ -60,12 +59,6 @@ useHead({
 		{
 			property: "og:url",
 			content: `${useRequestURL().origin}${useRequestURL().pathname}`,
-			// content: `https://celenium.io${route.path}`,
-		},
-		{
-			property: "og:image",
-			content: `${useRequestURL().origin}${useRequestURL().pathname}__og_image__/og.png`,
-			// content: `https://celenium.io${route.path}__og_image__/og.png`,
 		},
 		{
 			name: "twitter:title",
