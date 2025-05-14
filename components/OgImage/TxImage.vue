@@ -27,8 +27,8 @@ const messages = computed(() => [...new Set(props.tx.message_types)])
 </script>
 
 <template>
-	<div class="w-full h-full" :style="{ background: '#111111', padding: '100px 120px', fontFamily: 'IBM+Plex+Mono', overflow: 'hidden' }">
-		<img src="/img/bg.png" class="absolute inset-0" v-bind="bgStyles" />
+	<div class="w-full h-full" :style="{ background: '#111111', padding: '100px', fontFamily: 'IBM+Plex+Mono', overflow: 'hidden' }">
+		<img src="/img/bg.png" width="1200" height="600" class="absolute" v-bind="bgStyles" />
 
 		<div :style="{ height: '100%', display: 'flex', flexDirection: 'column', gap: '40px' }">
 			<div class="flex flex-row" :style="{ gap: '24px' }">
