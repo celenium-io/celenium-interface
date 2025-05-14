@@ -8,7 +8,7 @@ export default defineNuxtConfig({
 	modules: ["@pinia/nuxt", "nuxt-og-image", "@nuxtjs/sitemap"],
 
 	site: {
-		url: "https://celenium.io",
+		url: "https://fix-og-images.celenium-interface.pages.dev",
 	},
 
 	sitemap: {
