@@ -59,6 +59,9 @@ dependencies:
   luxon:
     specifier: 3.4.3
     version: 3.4.3
+  nuxt-site-config:
+    specifier: ^3.1.9
+    version: 3.1.9(vue@3.5.13)
   pinia:
     specifier: 3.0.2
     version: 3.0.2(vue@3.5.13)
@@ -1288,7 +1291,6 @@ packages:
       untyped: 2.0.0
     transitivePeerDependencies:
       - magicast
-    dev: true
 
   /@nuxt/schema@3.16.2:
     resolution: {integrity: sha512-2HZPM372kuI/uw9VU/hOoYuzv803oZAtyoEKC5dQCQTKAQ293AjypF3WljMXUSReFS/hcbBSgGzYUPHr3Qo+pg==}
@@ -1709,7 +1711,6 @@ packages:
 
   /@polka/url@1.0.0-next.29:
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
-    dev: true
 
   /@poppinss/colors@4.1.4:
     resolution: {integrity: sha512-FA+nTU8p6OcSH4tLDY5JilGYr1bVWHpNmcLr7xmMEdbWmKHa+3QZ+DqefrXKmdjO/brHTnQZo20lLSjaO7ydog==}
@@ -4631,7 +4632,6 @@ packages:
 
   /exsolve@1.0.5:
     resolution: {integrity: sha512-pz5dvkYYKQ1AHVrgOzBKWeP4u4FRb3a6DNK2ucr0OoNwYIU4QWsJ+NM36LLzORT+z845MzKHHhpXiUF5nvQoJg==}
-    dev: true
 
   /externality@1.0.2:
     resolution: {integrity: sha512-LyExtJWKxtgVzmgtEHyQtLFpw1KFhQphF9nTG8TpAIVkiI/xQ3FJh75tRFLYl4hkn7BNIIdLJInuDAavX35pMw==}
@@ -4692,7 +4692,6 @@ packages:
         optional: true
     dependencies:
       picomatch: 4.0.2
-    dev: true
 
   /fetch-cookie@3.0.1:
     resolution: {integrity: sha512-ZGXe8Y5Z/1FWqQ9q/CrJhkUD73DyBU9VF0hBQmEO/wPHe4A9PKTjplFDLeFX8aOsYypZUcX5Ji/eByn3VCVO3Q==}
@@ -5077,7 +5076,6 @@ packages:
   /ignore@7.0.4:
     resolution: {integrity: sha512-gJzzk+PQNznz8ysRrC0aOkBNVRBDtE1n53IqyqEf3PXrYwomFs5q4pGMizBMJF+ykh03insJ27hB8gSrD2Hn8A==}
     engines: {node: '>= 4'}
-    dev: true
 
   /image-meta@0.2.1:
     resolution: {integrity: sha512-K6acvFaelNxx8wc2VjbIzXKDVB0Khs0QT35U6NkGfTdCmjLNcO2945m7RFNR9/RPVFm48hq7QPzK8uGH18HCGw==}
@@ -5730,7 +5728,6 @@ packages:
   /mrmime@2.0.1:
     resolution: {integrity: sha512-Y3wQdFg2Va6etvQ5I82yUhGdsKrcYox6p7FfL1LbK2J4V01F9TGlepTIhnK24t7koZibmg82KGglhA1XK5IsLQ==}
     engines: {node: '>=10'}
-    dev: true
 
   /ms@2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
@@ -6031,7 +6028,7 @@ packages:
   /nuxt-site-config-kit@3.1.9(vue@3.5.13):
     resolution: {integrity: sha512-bcmpajYJgkNzA0jTq6CmmhKF2wHZUUKeVx/CIGI8lwWuAD81EBUZN0T4iKvVDo54g9UBrUUl8/5GhD65YBBG0A==}
     dependencies:
-      '@nuxt/kit': 3.16.2
+      '@nuxt/kit': 3.17.3(magicast@0.3.5)
       pkg-types: 2.1.0
       site-config-stack: 3.1.9(vue@3.5.13)
       std-env: 3.9.0
@@ -6039,12 +6036,11 @@ packages:
     transitivePeerDependencies:
       - magicast
       - vue
-    dev: true
 
   /nuxt-site-config@3.1.9(vue@3.5.13):
     resolution: {integrity: sha512-YB69GX0st8drv1d5xypweseiEWeR22tfGdyVH3U4R+mpUSz8paBx48ArKC6MgV22DKItoQm51LVoapF5pl5bEQ==}
     dependencies:
-      '@nuxt/kit': 3.16.2
+      '@nuxt/kit': 3.17.3(magicast@0.3.5)
       nuxt-site-config-kit: 3.1.9(vue@3.5.13)
       pathe: 2.0.3
       pkg-types: 2.1.0
@@ -6054,7 +6050,6 @@ packages:
     transitivePeerDependencies:
       - magicast
       - vue
-    dev: true
 
   /nuxt@3.16.2(sass@1.66.1)(vite@6.2.6):
     resolution: {integrity: sha512-yjIC/C4HW8Pd+m0ACGliEF0HnimXYGYvUzjOsTiLQKkDDt2T+djyZ+pCl9BfhQBA8rYmnsym2jUI+ubjv1iClw==}
@@ -7267,7 +7262,6 @@ packages:
     resolution: {integrity: sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA==}
     engines: {node: '>=10'}
     hasBin: true
-    dev: true
 
   /send@1.2.0:
     resolution: {integrity: sha512-uaW0WwXKpL9blXE2o0bRhoL2EGXIrZxQ2ZQ4mgcfoBxdFmQold+qWsD2jLrfZ0trjKL6vOw0j//eAwcALFjKSw==}
@@ -7427,7 +7421,6 @@ packages:
       '@polka/url': 1.0.0-next.29
       mrmime: 2.0.1
       totalist: 3.0.1
-    dev: true
 
   /sisteransi@1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
@@ -7440,7 +7433,6 @@ packages:
     dependencies:
       ufo: 1.6.1
       vue: 3.5.13
-    dev: true
 
   /slash@5.1.0:
     resolution: {integrity: sha512-ZA6oR3T/pEyuqwMgAKT0/hAv8oAXckzbkmR0UkUosQ+Mc4RxGoJkRmwHgHufaenlyAgE1Mxgpdcrf75y6XcnDg==}
@@ -7766,7 +7758,6 @@ packages:
     dependencies:
       fdir: 6.4.4(picomatch@4.0.2)
       picomatch: 4.0.2
-    dev: true
 
   /to-regex-range@5.0.1:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
@@ -7782,7 +7773,6 @@ packages:
   /totalist@3.0.1:
     resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}
     engines: {node: '>=6'}
-    dev: true
 
   /tough-cookie@4.1.4:
     resolution: {integrity: sha512-Loo5UUvLD9ScZ6jh8beX1T6sO1w2/MpCRpEP7V280GKMVUQ0Jzar2U3UJPsrdbziLEMMhu3Ujnq//rhiFuIeag==}
@@ -7933,7 +7923,6 @@ packages:
       tinyglobby: 0.2.13
       unplugin: 2.3.2
       unplugin-utils: 0.2.4
-    dev: true
 
   /universalify@0.2.0:
     resolution: {integrity: sha512-CJ1QgKmNg3CwvAv/kOFmtnEN05f0D/cn9QntgNOQlQF9dgvVTHj3t+8JPdjqawCHk7V/KA+fbUqzZ9XWhcqPUg==}
@@ -8308,7 +8297,7 @@ packages:
       vue: ^3.5.0
     dependencies:
       estree-walker: 3.0.3
-      exsolve: 1.0.4
+      exsolve: 1.0.5
       magic-string: 0.30.17
       pathe: 2.0.3
       source-map-js: 1.2.1
