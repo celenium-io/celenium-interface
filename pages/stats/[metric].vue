@@ -55,12 +55,6 @@ if (!series.value?.page) {
 	}
 }
 
-defineOgImageComponent("StatsMetricImage", {
-	title: "Statistics",
-	series: series.value,
-	cacheKey: `${series.value?.page}`,
-})
-
 useHead({
 	title: `Celestia ${metricName.value} Statistics - Celestia Explorer`,
 	link: [
@@ -88,7 +82,7 @@ useHead({
 		},
 		{
 			property: "og:image",
-			content: `https://celenium.io${route.path}__og_image__/og.png`,
+			content: "/img/seo/stats.png",
 		},
 		{
 			name: "twitter:title",
@@ -101,6 +95,10 @@ useHead({
 		{
 			name: "twitter:card",
 			content: "summary_large_image",
+		},
+		{
+			name: "twitter:image",
+			content: "https://celenium.io/img/seo/stats.png",
 		},
 	],
 })
