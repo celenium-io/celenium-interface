@@ -138,10 +138,9 @@ const fetchData = async () => {
 }
 await fetchData()
 
-defineOgImage({
+defineOgImageComponent("RollupImage", {
 	title: "Rollup",
 	rollup: rollup.value,
-	component: "RollupImage",
 	cacheKey: `${rollup.value?.name}`,
 })
 

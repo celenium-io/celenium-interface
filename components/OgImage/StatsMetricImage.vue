@@ -23,7 +23,7 @@ const bgStyles = computed(() => {
 		<img src="/img/stats_bg.png" width="1200" height="600" class="absolute" v-bind="bgStyles" />
 
 		<div :style="{ height: '100%', display: 'flex', flexDirection: 'column', gap: '80px' }">
-			<div :style="{ display: 'flex', alignItems: 'center' }">
+			<div class="flex flex-row items-center">
 				<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.9)' }">stats</span>
 				<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.3)' }">('</span>
 				<span :style="{ fontSize: '50px', color: '#FF8351' }">

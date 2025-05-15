@@ -29,11 +29,11 @@ const bgStyles = computed(() => {
 			<div :style="{ display: 'flex', alignItems: 'center' }">
 				<span :style="{ fontSize: '60px', color: 'rgba(255,255,255, 0.9)' }">validator</span>
 				<span :style="{ fontSize: '60px', color: 'rgba(255,255,255, 0.3)' }">('</span>
-				<span :style="{ fontSize: '40px', color: '#FF8351' }"> celestiavaloper•••{{ validator.address.slice(-4) }} </span>
+				<span :style="{ fontSize: '40px', color: '#FF8351' }"> celestiavaloper•••{{ validator.address.hash.slice(-4) }} </span>
 				<span :style="{ fontSize: '60px', color: 'rgba(255,255,255, 0.3)' }">')</span>
 			</div>
 
-			<span :style="{ fontSize: '46px', color: 'rgba(255,255,255, 0.9)' }">
+			<span v-if="validator.moniker" :style="{ fontSize: '46px', color: 'rgba(255,255,255, 0.9)' }">
 				{{ validator.moniker }}
 			</span>
 

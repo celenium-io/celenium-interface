@@ -26,10 +26,9 @@ if (!rawRollup.value) {
 	cacheStore.current.rollup = rollup.value
 }
 
-defineOgImage({
+defineOgImageComponent("RollupImage", {
 	title: "Rollup",
 	rollup: rollup.value,
-	component: "RollupImage",
 	cacheKey: `${rollup.value?.name}`,
 })
 

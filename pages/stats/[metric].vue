@@ -55,10 +55,9 @@ if (!series.value?.page) {
 	}
 }
 
-defineOgImage({
+defineOgImageComponent("StatsMetricImage", {
 	title: "Statistics",
 	series: series.value,
-	component: "StatsMetricImage",
 	cacheKey: `${series.value?.page}`,
 })
 

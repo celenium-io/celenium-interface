@@ -25,11 +25,10 @@ if (!rawValidator.value) {
 	cacheStore.current.validator = validator.value
 }
 
-defineOgImage({
+defineOgImageComponent("ValidatorImage", {
 	title: "Validator",
 	validator: validator.value,
-	component: "ValidatorImage",
-	cacheKey: `${validator.value?.moniker}`,
+	cacheKey: `${validator.value?.moniker || validator.value.address.hash}`,
 })
 
 useHead({
