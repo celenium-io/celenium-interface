@@ -24,10 +24,9 @@ if (!rawAddress.value) {
 	cacheStore.current.address = address.value
 }
 
-defineOgImage({
+defineOgImageComponent("AddressImage", {
 	title: "Address",
 	address: address.value,
-	component: "AddressImage",
 	cacheKey: `${address.value?.hash.slice(-4)}-${address.value?.balance.spendable}-${address.value?.first_height}-${
 		address.value?.last_height
 	}`,
@@ -38,7 +37,7 @@ useHead({
 	link: [
 		{
 			rel: "canonical",
-			href: `https://celenium.io${route.path}`,
+			href: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 	],
 	meta: [
@@ -56,11 +55,7 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io${route.path}`,
-		},
-		{
-			property: "og:image",
-			content: `https://celenium.io${route.path}__og_image__/og.png`,
+			content: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 		{
 			name: "twitter:title",
