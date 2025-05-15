@@ -8,10 +8,6 @@ import path from "path"
 export default defineNuxtConfig({
 	modules: ["nuxt-site-config", "@pinia/nuxt", "nuxt-og-image", "@nuxtjs/sitemap"],
 
-	// site: {
-	// 	url: [process.env.CF_PAGES_URL, "https://celenium.io"],
-	// },
-
 	hooks: {
 		"site-config:resolve": () => {
 			updateSiteConfig({
