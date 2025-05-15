@@ -11,17 +11,16 @@ const props = defineProps({
 const bgStyles = computed(() => {
 	return {
 		style: {
-			position: "absolute",
-			top: "0",
-			left: "0",
+			filter: "grayscale(1)",
+			opacity: "0.05",
 		},
 	}
 })
 </script>
 
 <template>
-	<div class="w-full h-full" :style="{ padding: '80px 140px', fontFamily: 'IBM+Plex+Mono' }">
-		<img src="/img/stats_bg.png" v-bind="bgStyles" />
+	<div class="w-full h-full" :style="{ background: '#111111', padding: '80px', fontFamily: 'IBM+Plex+Mono', overflow: 'hidden' }">
+		<img src="/img/stats_bg.png" width="1200" height="600" class="absolute" v-bind="bgStyles" />
 
 		<div :style="{ height: '100%', display: 'flex', flexDirection: 'column', gap: '80px' }">
 			<div :style="{ display: 'flex', alignItems: 'center' }">
