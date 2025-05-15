@@ -74,7 +74,7 @@ const getBlobMetadata = async () => {
 		notFound.value = true
 	}
 
-	isLoading.value = false
+	// isLoading.value = false
 }
 
 watch(
@@ -113,6 +113,8 @@ watch(
 			showPreviewText.value = false
 			contentPreviewText.value = ""
 		}
+
+		isLoading.value = false
 	},
 )
 
@@ -165,7 +167,7 @@ const handlePreviewContent = () => {
 	} else {
 		if (!showPreviewText.value) {
 			showPreviewText.value = true
-			contentPreviewText.value = blob.value.data
+			contentPreviewText.value = atob(blob.value.data)
 		} else {
 			showPreviewText.value = false
 			contentPreviewText.value = ""

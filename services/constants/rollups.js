@@ -8,16 +8,16 @@ export const rankCoefficients = {
 	day_blobs_count: 0.2,
 	avg_pfb_size: 0.3,
 	last_message_time: 0.3,
-	commits_weekly: 0.2,
-	last_pushed_at: 0.2,
+	commits_weekly: 0.1,
+	last_pushed_at: 0.1,
 }
 
 export const rankCategories = [
 	{ min: 9, max: 10, name: "Legendary", color: "legendary" },
 	{ min: 6, max: 8, name: "Epic", color: "epic" },
 	{ min: 3, max: 5, name: "Good", color: "rare" },
-	{ min: 1, max: 2, name: "Poor", color: "primary" },
-	{ min: 0, max: 1, name: "Bad", color: "tertiary" },
+	{ min: 1, max: 2, name: "Normal", color: "primary" },
+	{ min: 0, max: 1, name: "Offline", color: "tertiary" },
 ]
 
 export const getRankCategory = (rank) => {
