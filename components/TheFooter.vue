@@ -101,58 +101,67 @@ const handleChangeTheme = (target) => {
 						<Flex direction="column" gap="12">
 							<Text size="13" weight="500" color="tertiary">General</Text>
 							<NuxtLink to="/">
-								<Text size="13" weight="500" color="secondary">Browse</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Browse</Text>
 							</NuxtLink>
 							<NuxtLink to="/txs">
-								<Text size="13" weight="500" color="secondary">Transactions</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Transactions</Text>
 							</NuxtLink>
 							<NuxtLink to="/blocks">
-								<Text size="13" weight="500" color="secondary">Blocks</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Blocks</Text>
 							</NuxtLink>
 							<NuxtLink to="/addresses">
-								<Text size="13" weight="500" color="secondary">Addresses</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Addresses</Text>
 							</NuxtLink>
 						</Flex>
 
 						<Flex direction="column" gap="12">
 							<Text size="13" weight="500" color="tertiary">Modular</Text>
 							<NuxtLink to="/rollups">
-								<Text size="13" weight="500" color="secondary">Rollups</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Rollups</Text>
 							</NuxtLink>
 							<NuxtLink to="/namespaces">
-								<Text size="13" weight="500" color="secondary">Namespaces</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Namespaces</Text>
 							</NuxtLink>
 							<NuxtLink to="/validators">
-								<Text size="13" weight="500" color="secondary">Validators</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Validators</Text>
 							</NuxtLink>
 						</Flex>
 
 						<Flex direction="column" gap="12">
 							<Text size="13" weight="500" color="tertiary">Tools</Text>
+							<NuxtLink to="https://terminal.celenium.io">
+								<Flex align="center" gap="6">
+									<Text size="13" weight="500" color="secondary" :class="$style.link_text">Terminal</Text>
+									<Icon name="arrow-narrow-up-right-circle" size="12" color="tertiary" />
+								</Flex>
+							</NuxtLink>
+							<NuxtLink to="/faucet">
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Faucet</Text>
+							</NuxtLink>
 							<NuxtLink to="/blobstream">
-								<Text size="13" weight="500" color="secondary">Blobstream</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Blobstream</Text>
 							</NuxtLink>
 							<NuxtLink to="/calculators/savings">
-								<Text size="13" weight="500" color="secondary">Cost Savings</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Cost Savings</Text>
 							</NuxtLink>
 							<NuxtLink to="/gas">
-								<Text size="13" weight="500" color="secondary">Gas Tracker</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Gas Tracker</Text>
 							</NuxtLink>
 							<NuxtLink to="/bookmarks">
-								<Text size="13" weight="500" color="secondary">Bookmarks</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Bookmarks</Text>
 							</NuxtLink>
 						</Flex>
 
 						<Flex direction="column" gap="12">
 							<Text size="13" weight="500" color="tertiary">Resources</Text>
 							<NuxtLink to="https://api-plans.celenium.io" target="_blank">
-								<Text size="13" weight="500" color="secondary">API</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">API</Text>
 							</NuxtLink>
 							<NuxtLink to="https://docs.celenium.io" target="_blank">
-								<Text size="13" weight="500" color="secondary">Documentation</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Documentation</Text>
 							</NuxtLink>
 							<NuxtLink to="https://hubble.celenium.io" target="_blank">
-								<Text size="13" weight="500" color="secondary">Hubble</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Hubble</Text>
 							</NuxtLink>
 						</Flex>
 					</Flex>
@@ -298,6 +307,14 @@ const handleChangeTheme = (target) => {
 	max-width: 1260px;
 
 	padding: 0 20px;
+}
+
+.link_text {
+	transition: all 0.2s ease;
+
+	&:hover {
+		color: var(--txt-primary);
+	}
 }
 
 @media (max-width: 1300px) {
