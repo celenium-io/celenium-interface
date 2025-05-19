@@ -143,7 +143,7 @@ const handleCopy = (target) => {
 								<Text size="12" height="140" weight="500" color="tertiary"> {{ DescriptionMap[constant.name] }} </Text>
 							</Flex>
 
-							<Text @click="handleCopy(constant.value)" size="13" weight="600" color="secondary" class="copyable">
+							<Text @click="handleCopy(constant.value)" size="13" weight="600" color="secondary" class="copyable" :class="constant.name === 'allow_messages' && $style.overflow">
 								{{ constant.value }}
 							</Text>
 						</Flex>
@@ -183,6 +183,12 @@ const handleCopy = (target) => {
 	&.hide {
 		display: none;
 	}
+}
+
+.overflow {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .name.finded {

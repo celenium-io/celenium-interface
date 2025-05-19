@@ -231,6 +231,7 @@ onMounted(async () => {
 
 <style module>
 .wrapper {
+	min-height: 32px;
 	height: 32px;
 	max-width: var(--base-width);
 

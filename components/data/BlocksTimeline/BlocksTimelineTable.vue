@@ -194,7 +194,7 @@ watch(
 						<Icon name="sidebar" size="14" color="secondary" :class="[$style.sidebar_icon, showSidebar && $style.rotate]" />
 					</Button>
 
-					<template #content> {{ showSidebar ? "Show" : "Hide" }} sidebar </template>
+					<template #content> {{ showSidebar ? "Hide" : "Show" }} sidebar </template>
 				</Tooltip>
 			</Flex>
 		</Flex>
