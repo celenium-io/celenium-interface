@@ -8,7 +8,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { comma, formatBytes, getNamespaceID, shortHex, space, tia } from "@/services/utils"
+import { comma, formatBytes, shortHex, space } from "@/services/utils"
 
 /** API */
 import { fetchBlockBlobs } from "@/services/api/block"
@@ -62,6 +62,9 @@ const handlePause = () => {
 	isPaused.value = !isPaused.value
 }
 
+const showSidebar = ref(false)
+const handleToggleSidebar = () => (showSidebar.value = !showSidebar.value)
+
 watch(
 	() => isPaused.value,
 	() => {
@@ -106,9 +109,8 @@ if (Object.keys(lastHead.value).length !== 0 && !lastHead?.value.synced) {
 watch(
 	() => preview.block,
 	async () => {
-		if (preview.block.stats.tx_count) {
+		if (preview.block.stats.tx_count && showSidebar.value) {
 			if (preview.block.stats.blobs_size) preview.isLoadingNamespaces = true
-
 			getTransactionsByBlock()
 		}
 	},
@@ -123,13 +125,6 @@ watch(
 		}
 
 		const data = await fetchBlockBlobs({ height: preview.block.height, limit: 3 })
-		// let namespaces = []
-
-		// data.forEach(blob => {
-		// 	namespaces.push(blob.namespace)
-		// });
-
-		// preview.namespaces = Array.from(new Map(namespaces.map(item => [item.id, item])).values());
 
 		preview.blobs = data
 		preview.isLoadingNamespaces = false
@@ -193,6 +188,14 @@ watch(
 						</Flex>
 					</template>
 				</Tooltip>
+
+				<Tooltip position="end">
+					<Button @click="handleToggleSidebar" type="tertiary" size="mini">
+						<Icon name="sidebar" size="14" color="secondary" :class="[$style.sidebar_icon, showSidebar && $style.rotate]" />
+					</Button>
+
+					<template #content> {{ showSidebar ? "Show" : "Hide" }} sidebar </template>
+				</Tooltip>
 			</Flex>
 		</Flex>
 
@@ -253,7 +256,13 @@ watch(
 									<Tooltip delay="500">
 										<template #default>
 											<Flex direction="column" gap="4">
-												<Text size="12" height="120" weight="600" color="primary" :class="$style.proposer_moniker">
+												<Text
+													size="12"
+													height="120"
+													weight="600"
+													color="primary"
+													:class="[$style.proposer_moniker, showSidebar && $style.fixed]"
+												>
 													{{ block.proposer.moniker }}
 												</Text>
 
@@ -308,7 +317,10 @@ watch(
 								</td>
 								<td>
 									<Flex align="center" gap="4">
-										<AmountInCurrency :amount="{ value: block.stats.fee, decimal: 2 }" :styles="{ amount: { size: '13' } }" />
+										<AmountInCurrency
+											:amount="{ value: block.stats.fee, decimal: 2 }"
+											:styles="{ amount: { size: '13' } }"
+										/>
 									</Flex>
 								</td>
 							</tr>
@@ -322,7 +334,7 @@ watch(
 				</Button>
 			</Flex>
 
-			<Flex direction="column" :class="[$style.preview]">
+			<Flex v-if="showSidebar" direction="column" :class="[$style.preview]">
 				<Flex wide direction="column" gap="12" :class="$style.top">
 					<Flex align="center" justify="between" wide>
 						<Flex align="center" gap="6">
@@ -377,9 +389,7 @@ watch(
 								</NuxtLink>
 
 								<Flex align="center" gap="6">
-									<Text size="12" weight="600" color="tertiary">{{
-										shortHex(preview.block.proposer.cons_address)
-									}}</Text>
+									<Text size="12" weight="600" color="tertiary">{{ shortHex(preview.block.proposer.cons_address) }}</Text>
 
 									<CopyButton :text="preview.block.proposer.cons_address" size="10" />
 								</Flex>
@@ -460,7 +470,6 @@ watch(
 						</Text>
 					</Flex>
 
-
 					<Flex direction="column" gap="12">
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Blobs</Text>
@@ -480,13 +489,24 @@ watch(
 							Loading blobs..
 						</Text>
 						<Flex v-else-if="preview.block.stats.blobs_count" direction="column" gap="8">
-							<NuxtLink v-for="b in preview.blobs" :to="`/blob?commitment=${b.commitment}&hash=${b.namespace.hash}&height=${b.height}`" target="_blank">
+							<NuxtLink
+								v-for="b in preview.blobs"
+								:to="`/blob?commitment=${b.commitment}&hash=${b.namespace.hash}&height=${b.height}`"
+								target="_blank"
+							>
 								<Outline wide height="32" padding="8" radius="6">
 									<Flex align="center" justify="between" wide>
 										<Flex align="center" gap="8">
 											<Icon name="blob" size="12" color="secondary" />
 
-											<Text size="13" weight="600" color="primary" mono class="overflow_ellipsis" style="max-width: 250px">
+											<Text
+												size="13"
+												weight="600"
+												color="primary"
+												mono
+												class="overflow_ellipsis"
+												style="max-width: 250px"
+											>
 												{{ shortHex(b.commitment) }}
 											</Text>
 										</Flex>
@@ -496,9 +516,7 @@ watch(
 								</Outline>
 							</NuxtLink>
 						</Flex>
-						<Text v-else size="12" weight="600" color="tertiary" align="center" :class="$style.empty_state">
-							No blobs
-						</Text>
+						<Text v-else size="12" weight="600" color="tertiary" align="center" :class="$style.empty_state"> No blobs </Text>
 					</Flex>
 
 					<!-- <Flex direction="column" gap="12">
@@ -558,7 +576,10 @@ watch(
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Total Fees </Text>
-							<AmountInCurrency :amount="{ value: preview.block.stats.fee, decimal: 6 }" :styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }" />
+							<AmountInCurrency
+								:amount="{ value: preview.block.stats.fee, decimal: 6 }"
+								:styles="{ amount: { color: 'secondary' }, currency: { color: 'secondary' } }"
+							/>
 						</Flex>
 					</Flex>
 				</Flex>
@@ -621,9 +642,11 @@ watch(
 }
 
 .table {
+	width: 100%;
+	min-width: 0;
+
 	border-radius: 4px 4px 4px 8px;
 	background: var(--card-background);
-	max-width: 604px;
 
 	& table {
 		width: 100%;
@@ -679,7 +702,7 @@ watch(
 
 			white-space: nowrap;
 			overflow: hidden;
-      		text-overflow: ellipsis;
+			text-overflow: ellipsis;
 
 			border-right: 2px solid transparent;
 
@@ -746,10 +769,12 @@ watch(
 }
 
 .proposer_moniker {
-	max-width: 150px;
-
 	text-overflow: ellipsis;
 	overflow: hidden;
+
+	&.fixed {
+		max-width: 150px;
+	}
 }
 
 .empty_state {
@@ -772,6 +797,12 @@ watch(
 	padding: 4px 6px;
 }
 
+.sidebar_icon {
+	&.rotate {
+		transform: rotate(180deg);
+	}
+}
+
 @media (max-width: 1024px) {
 	.content {
 		flex-direction: column-reverse;
@@ -788,6 +819,14 @@ watch(
 	.table {
 		flex: 1;
 		border-radius: 4px 4px 8px 8px;
+	}
+
+	.sidebar_icon {
+		transform: rotate(90deg);
+
+		&.rotate {
+			transform: rotate(270deg);
+		}
 	}
 }
 
