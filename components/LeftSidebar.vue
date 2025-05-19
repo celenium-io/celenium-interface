@@ -94,7 +94,7 @@ const mainLinks = reactive([
 			{
 				name: "Ecosystem",
 				path: "/stats?tab=ecosystem",
-				queryParam: {tab: "ecosystem"},
+				queryParam: { tab: "ecosystem" },
 				show: false,
 				// show: isMainnet(),
 			},
@@ -239,7 +239,7 @@ const handleOnClose = () => {
 				</Flex>
 			</Flex>
 
-			<Flex direction="column" gap="8">
+			<Flex direction="column" gap="2">
 				<Flex @click="isToolsLinkCollapsed = !isToolsLinkCollapsed" align="center" gap="4" :class="$style.group_title">
 					<Text size="12" weight="500" color="tertiary">Tools</Text>
 					<Icon
