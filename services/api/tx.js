@@ -34,7 +34,6 @@ export const fetchTransactions = ({ msg_type, status, from, to, limit, offset, s
 		if (sort_by) url.searchParams.append("sort_by", sort_by)
 		if (sort) url.searchParams.append("sort", sort)
 
-		// const data = await 
 		return useFetch(url.href, {
 			key: "transactions",
 		})

@@ -202,7 +202,7 @@ const handleViewRawTransaction = () => {
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Signer</Text>
-							<Flex align="center" gap="6">
+							<Flex v-if="tx.signers" align="center" gap="6">
 								<AddressBadge :account="tx.signers[0]" color="secondary" />
 
 								<CopyButton :text="tx.signers[0].hash" />

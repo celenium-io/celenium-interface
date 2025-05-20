@@ -707,7 +707,7 @@ const handleNext = () => {
 									<NuxtLink :to="`/tx/${tx.hash}`">
 										<Flex align="center">
 											<Text size="12" weight="600" color="primary" mono class="table_column_alias">
-												{{ $getDisplayName("addresses", "", tx.signers[0]) }}
+												{{ $getDisplayName("addresses", "", tx.signers ? tx.signers[0] : "") }}
 											</Text>
 										</Flex>
 									</NuxtLink>
