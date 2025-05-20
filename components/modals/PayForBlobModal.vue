@@ -10,7 +10,7 @@ import { fetchEstimatedGas } from "@/services/api/gas"
 /** Services */
 import amp from "@/services/amp"
 import { getNamespaceID } from "@/services/utils"
-import { sendPayForBlob } from "~/services/wallet"
+import { sendPayForBlob } from "@/services/wallet"
 import { prepareBlob } from "@/services/utils/encode"
 
 /** Store */
@@ -171,7 +171,7 @@ const handleContinue = async () => {
 					type: "warning",
 					icon: "danger",
 					title: `Looks like your account is fresh`,
-					description: 'Top up your balance to submit the blob',
+					description: "Top up your balance to submit the blob",
 					autoDestroy: true,
 				},
 			})

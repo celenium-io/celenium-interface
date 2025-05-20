@@ -14,7 +14,7 @@ import { search } from "@/services/api/search"
 /** Services */
 import amp from "@/services/amp"
 import { normalizeAmount, purgeNumber, comma } from "@/services/utils/amounts"
-import { SIMULATE_ADDRESS_FROM, SIMULATE_VALIDATOR, simulateMsgs, sendMsgs } from "~/services/wallet"
+import { SIMULATE_ADDRESS_FROM, SIMULATE_VALIDATOR, simulateMsgs, sendMsgs } from "@/services/wallet"
 import { MsgDelegate } from "@/services/proto/gen/staking"
 
 /** Store */
@@ -698,4 +698,3 @@ const handleContinue = async () => {
 	padding: 0 16px;
 }
 </style>
-~/services/proto/gen/msg_send

@@ -3,8 +3,8 @@
 import { DateTime } from "luxon"
 
 /** UI */
-import Tooltip from "~/components/ui/Tooltip.vue"
-import Button from "~/components/ui/Button.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
+import Button from "@/components/ui/Button.vue"
 
 /** Services */
 import { tia, splitAddress } from "@/services/utils"
@@ -18,8 +18,6 @@ import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
-
-const router = useRouter()
 
 const props = defineProps({
 	block: {
@@ -60,11 +58,11 @@ const getEvents = async () => {
 	isLoading.value = true
 
 	if (props.block) {
-		events.value = await fetchBlockEvents({ 
+		events.value = await fetchBlockEvents({
 			height: props.block.height,
 			limit: 10,
 			offset: (page.value - 1) * 10,
-		}) 
+		})
 	} else if (props.tx) {
 		events.value = await fetchTxEvents({
 			hash: props.tx.hash,
@@ -78,19 +76,19 @@ const getEvents = async () => {
 
 const handlingEventType = (type) => {
 	switch (type) {
-		case 'cosmos.authz.v1beta1.EventGrant':
-			return 'grant'
+		case "cosmos.authz.v1beta1.EventGrant":
+			return "grant"
 
-		case 'cosmos.authz.v1beta1.EventRevoke':
-			return 'revoke'
-	
+		case "cosmos.authz.v1beta1.EventRevoke":
+			return "revoke"
+
 		default:
 			return type
 	}
 }
 
 const handlingEventActionType = (type) => {
-	return type.split('.').slice(-1)[0].replace('\"','')
+	return type.split(".").slice(-1)[0].replace('"', "")
 }
 
 const handleViewRawEvent = (event) => {
@@ -100,11 +98,7 @@ const handleViewRawEvent = (event) => {
 }
 
 const page = ref(1)
-const pages = computed(() => (
-	props.block
-		? Math.ceil(props.block.stats.events_count / 10)
-		: Math.ceil(props.tx.events_count / 10))
-)
+const pages = computed(() => (props.block ? Math.ceil(props.block.stats.events_count / 10) : Math.ceil(props.tx.events_count / 10)))
 const handleNext = () => {
 	if (page.value === pages.value) return
 	page.value += 1
@@ -115,7 +109,7 @@ const handlePrev = () => {
 }
 
 onMounted(() => {
-	getEvents();
+	getEvents()
 })
 
 /** Refetch events */
@@ -130,7 +124,14 @@ watch(
 <template>
 	<Flex direction="column" justify="between" :class="$style.data">
 		<Flex direction="column" :class="[$style.inner, $style.events]">
-			<Flex v-if="events.length" v-for="(event, idx) in events" @click="handleViewRawEvent(event)" align="center" gap="12" :class="$style.event">
+			<Flex
+				v-if="events.length"
+				v-for="(event, idx) in events"
+				@click="handleViewRawEvent(event)"
+				align="center"
+				gap="12"
+				:class="$style.event"
+			>
 				<Flex
 					direction="column"
 					align="center"
@@ -338,17 +339,12 @@ watch(
 						</template>
 					</Flex>
 					<!-- Event: withdraw_rewards -->
-					<Flex
-						v-else-if="event.type === 'withdraw_rewards'"
-						align="center"
-						gap="4"
-						color="secondary"
-						:class="$style.text"
-					>
+					<Flex v-else-if="event.type === 'withdraw_rewards'" align="center" gap="4" color="secondary" :class="$style.text">
 						<Text size="12" weight="500" color="secondary">Withdrawal</Text>
 
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ tia(event.data.amount.replace("utia", "")) }} TIA</Text>
+							{{ tia(event.data.amount.replace("utia", "")) }} TIA</Text
+						>
 
 						<Text size="12" weight="500" color="secondary">from</Text>
 
@@ -365,13 +361,7 @@ watch(
 						</Tooltip>
 					</Flex>
 					<!-- Event: withdraw_commission -->
-					<Flex
-						v-else-if="event.type === 'withdraw_commission'"
-						align="center"
-						gap="4"
-						color="secondary"
-						:class="$style.text"
-					>
+					<Flex v-else-if="event.type === 'withdraw_commission'" align="center" gap="4" color="secondary" :class="$style.text">
 						<Text size="12" weight="500" color="secondary">Commission</Text>
 
 						<Text size="12" weight="500" color="primary" mono no-wrap>
@@ -641,9 +631,9 @@ watch(
 						<Text size="12" weight="500" color="secondary">was jailed for</Text>
 
 						<Tooltip :class="$style.tooltip">
-								<Text size="12" weight="500" color="primary" mono>
-									{{ event.data.reason }}
-								</Text>
+							<Text size="12" weight="500" color="primary" mono>
+								{{ event.data.reason }}
+							</Text>
 
 							<template #content>
 								{{ event.data.reason }}
@@ -651,7 +641,13 @@ watch(
 						</Tooltip>
 					</Flex>
 					<!-- Event: cancel_unbonding_delegation -->
-					<Flex v-else-if="event.type === 'cancel_unbonding_delegation'" align="center" gap="4" color="secondary" :class="$style.text">
+					<Flex
+						v-else-if="event.type === 'cancel_unbonding_delegation'"
+						align="center"
+						gap="4"
+						color="secondary"
+						:class="$style.text"
+					>
 						<Text size="12" weight="500" color="secondary">Unbonding</Text>
 
 						<Text size="12" weight="500" color="primary" mono no-wrap>
@@ -675,16 +671,22 @@ watch(
 						<Text size="12" weight="500" color="secondary">was canceled</Text>
 					</Flex>
 					<!-- Event: cosmos.authz.v1beta1.EventGrant -->
-					<Flex v-else-if="event.type === 'cosmos.authz.v1beta1.EventGrant'" align="center" gap="4" color="secondary" :class="$style.text">
+					<Flex
+						v-else-if="event.type === 'cosmos.authz.v1beta1.EventGrant'"
+						align="center"
+						gap="4"
+						color="secondary"
+						:class="$style.text"
+					>
 						<Tooltip :class="$style.tooltip">
 							<NuxtLink :to="`/address/${event.data.granter.hash}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
-									{{ splitAddress(event.data.granter.hash.replace(/"/g,'')) }}
+									{{ splitAddress(event.data.granter.hash.replace(/"/g, "")) }}
 								</Text>
 							</NuxtLink>
 
 							<template #content>
-								{{ event.data.granter.hash.replace(/"/g,'') }}
+								{{ event.data.granter.hash.replace(/"/g, "") }}
 							</template>
 						</Tooltip>
 
@@ -699,26 +701,32 @@ watch(
 						<Tooltip :class="$style.tooltip">
 							<NuxtLink :to="`/address/${event.data.grantee.hash}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
-									{{ splitAddress(event.data.grantee.hash.replace(/"/g,'')) }}
+									{{ splitAddress(event.data.grantee.hash.replace(/"/g, "")) }}
 								</Text>
 							</NuxtLink>
 
 							<template #content>
-								{{ event.data.grantee.hash.replace(/"/g,'') }}
+								{{ event.data.grantee.hash.replace(/"/g, "") }}
 							</template>
 						</Tooltip>
 					</Flex>
 					<!-- Event: cosmos.authz.v1beta1.EventRevoke -->
-					<Flex v-else-if="event.type === 'cosmos.authz.v1beta1.EventRevoke'" align="center" gap="4" color="secondary" :class="$style.text">
+					<Flex
+						v-else-if="event.type === 'cosmos.authz.v1beta1.EventRevoke'"
+						align="center"
+						gap="4"
+						color="secondary"
+						:class="$style.text"
+					>
 						<Tooltip :class="$style.tooltip">
 							<NuxtLink :to="`/address/${event.data.granter.hash}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
-									{{ splitAddress(event.data.granter.replace(/"/g,'')) }}
+									{{ splitAddress(event.data.granter.replace(/"/g, "")) }}
 								</Text>
 							</NuxtLink>
 
 							<template #content>
-								{{ event.data.granter.hash.replace(/"/g,'') }}
+								{{ event.data.granter.hash.replace(/"/g, "") }}
 							</template>
 						</Tooltip>
 
@@ -733,12 +741,12 @@ watch(
 						<Tooltip :class="$style.tooltip">
 							<NuxtLink :to="`/address/${event.data.grantee.hash}`" @click.stop>
 								<Text size="12" weight="500" color="primary" mono>
-									{{ splitAddress(event.data.grantee.hash.replace(/"/g,'')) }}
+									{{ splitAddress(event.data.grantee.hash.replace(/"/g, "")) }}
 								</Text>
 							</NuxtLink>
 
 							<template #content>
-								{{ event.data.grantee.hash.replace(/"/g,'') }}
+								{{ event.data.grantee.hash.replace(/"/g, "") }}
 							</template>
 						</Tooltip>
 					</Flex>
@@ -786,9 +794,7 @@ watch(
 
 						<Text size="12" weight="500" color="secondary">missed</Text>
 
-						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ event.data.missed_blocks }}</Text
-						>
+						<Text size="12" weight="500" color="primary" mono no-wrap> {{ event.data.missed_blocks }}</Text>
 
 						<Text size="12" weight="500" color="secondary">blocks</Text>
 					</Flex>

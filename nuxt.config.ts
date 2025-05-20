@@ -1,6 +1,7 @@
 import { nodePolyfills } from "vite-plugin-node-polyfills"
 import wasm from "vite-plugin-wasm"
 import topLevelAwait from "vite-plugin-top-level-await"
+
 import { updateSiteConfig } from "nuxt-site-config/kit"
 
 import path from "path"
@@ -21,9 +22,6 @@ export default defineNuxtConfig({
 	},
 
 	routeRules: {
-		"/node": {
-			ssr: false,
-		},
 		"/": {
 			sitemap: {
 				changefreq: "daily",

@@ -5,9 +5,6 @@ import ValidatorOverview from "@/components/modules/validator/ValidatorOverview.
 /** API */
 import { fetchValidatorByID } from "@/services/api/validator"
 
-/** UI */
-import Button from "@/components/ui/Button.vue"
-
 /** Store */
 import { useCacheStore } from "@/store/cache"
 const cacheStore = useCacheStore()

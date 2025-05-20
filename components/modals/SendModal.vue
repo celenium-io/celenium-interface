@@ -14,7 +14,7 @@ import { search } from "@/services/api/search"
 /** Services */
 import amp from "@/services/amp"
 import { normalizeAmount, purgeNumber, comma } from "@/services/utils/amounts"
-import { SIMULATE_ADDRESS_FROM, SIMULATE_ADDRESS_TO, simulateMsgs, sendMsgs } from "~/services/wallet"
+import { SIMULATE_ADDRESS_FROM, SIMULATE_ADDRESS_TO, simulateMsgs, sendMsgs } from "@/services/wallet"
 import { MsgSend } from "@/services/proto/gen/msg_send"
 
 /** Store */
@@ -162,7 +162,12 @@ watch(
 
 const calcGasFee = (target) => {
 	const gasLimit = typeof estimatedGasLimit.value === "number" ? estimatedGasLimit.value : estimatedGasLimit.value.replaceAll(" ", "")
-	return comma(((selectedGasLimit.value === 'Custom' ? Number.parseInt(customGasLimit.value.toString().replaceAll(" ", "")) : gasLimit) * appStore.gas[target.toLowerCase()]).toFixed(2))
+	return comma(
+		(
+			(selectedGasLimit.value === "Custom" ? Number.parseInt(customGasLimit.value.toString().replaceAll(" ", "")) : gasLimit) *
+			appStore.gas[target.toLowerCase()]
+		).toFixed(2),
+	)
 }
 
 const runGasLimitEstimation = async () => {
@@ -186,7 +191,7 @@ const runGasLimitEstimation = async () => {
 		[protoMsgs],
 		[{ denom: "utia", amount: "1" }],
 	)
-	
+
 	estimatedGasLimit.value = parseInt(gasUsed)
 }
 
@@ -702,4 +707,3 @@ const handleContinue = async () => {
 	padding: 0 16px;
 }
 </style>
-~/services/proto/gen/msg_send

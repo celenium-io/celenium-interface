@@ -3,7 +3,7 @@
 import ChartCardPreview from "@/components/modules/stats/ChartCardPreview.vue"
 import PieChartCard from "@/components/modules/stats/PieChartCard.vue"
 import RollupsBubbleChart from "@/components/modules/stats/RollupsBubbleChart.vue"
-import RollupsActivity from "~/components/modules/stats/RollupsActivity.vue"
+import RollupsActivity from "@/components/modules/stats/RollupsActivity.vue"
 
 /** Stats Constants */
 import { STATS_PERIODS } from "@/services/constants/stats.js"
@@ -37,17 +37,16 @@ const filteredRollupsDailyStats = ref([])
 const getRollups = async () => {
 	isLoading.value = true
 
-	series.value = getSeriesByGroupAndType('Rollups')
+	series.value = getSeriesByGroupAndType("Rollups")
 
 	fetchRollups({ limit: 100 })
-	.then((res) => {
-		series.value.data = res
-		filteredRollups.value = res
-	})
-	.finally(() => {
-		isLoading.value = false
-	})
-
+		.then((res) => {
+			series.value.data = res
+			filteredRollups.value = res
+		})
+		.finally(() => {
+			isLoading.value = false
+		})
 }
 
 const getRollupsDailyStats = async () => {
@@ -56,36 +55,36 @@ const getRollupsDailyStats = async () => {
 	const data = await fetchRollupsDailyStats({
 		limit: 100,
 	})
-	
+
 	rollupsDailyStats.value = data
 	filteredRollupsDailyStats.value = data
 
-    isLoading.value = false
+	isLoading.value = false
 }
 
 const categories = computed(() => {
 	let res = []
 	if (enumStore.enums?.rollupCategories?.length) {
 		res = enumStore.enums.rollupCategories.slice(1)
-		res.push('other')
+		res.push("other")
 	}
-	
-	return res	
+
+	return res
 })
 const types = computed(() => {
 	let res = []
 	if (enumStore.enums?.rollupTypes?.length) {
 		res = enumStore.enums.rollupTypes
 	}
-	
-	return res	
+
+	return res
 })
 const tags = computed(() => {
 	let res = []
 	if (enumStore.enums?.rollupTags?.length) {
 		res = enumStore.enums.rollupTags
 	}
-	
+
 	return res
 })
 const providers = ref([])
@@ -93,11 +92,11 @@ const stacks = ref([])
 
 const getDisplayName = (name) => {
 	switch (name) {
-		case 'nft':
-			return 'NFT'
+		case "nft":
+			return "NFT"
 
-		case 'uncategorized':
-			return 'Other'
+		case "uncategorized":
+			return "Other"
 
 		default:
 			return capitilize(name)
@@ -112,11 +111,11 @@ const popovers = reactive({
 	tags: false,
 })
 const keyMap = {
-	categories: 'category',
-	types: 'type',
-	providers: 'provider',
-	stacks: 'stack',
-	tags: 'tags',
+	categories: "category",
+	types: "type",
+	providers: "provider",
+	stacks: "stack",
+	tags: "tags",
 }
 
 const filters = reactive({
@@ -131,35 +130,35 @@ const isFilterActive = computed(() => {
 })
 const savedFiltersBeforeChanges = ref(null)
 const filterRollups = () => {
-    const activeFilters = Object.entries(filters).reduce((acc, [filterName, filterValues]) => {
-        const activeKeys = Object.entries(filterValues)
-            .filter(([_, value]) => value === true)
-            .map(([key]) => (key === 'other' ? 'uncategorized' : key))
+	const activeFilters = Object.entries(filters).reduce((acc, [filterName, filterValues]) => {
+		const activeKeys = Object.entries(filterValues)
+			.filter(([_, value]) => value === true)
+			.map(([key]) => (key === "other" ? "uncategorized" : key))
 
-        if (activeKeys.length > 0) {
-            acc[filterName] = activeKeys
-        }
-        return acc
-    }, {})
+		if (activeKeys.length > 0) {
+			acc[filterName] = activeKeys
+		}
+		return acc
+	}, {})
 
-    const applyFilters = (data) => {
-        if (Object.keys(activeFilters).length === 0) return data
+	const applyFilters = (data) => {
+		if (Object.keys(activeFilters).length === 0) return data
 
-        return data.filter((el) =>
-            Object.entries(activeFilters).every(([filterName, values]) => {
-				const elValue = el[keyMap[filterName]];
+		return data.filter((el) =>
+			Object.entries(activeFilters).every(([filterName, values]) => {
+				const elValue = el[keyMap[filterName]]
 
 				if (Array.isArray(elValue)) {
-					return values.some(value => elValue.includes(value));
+					return values.some((value) => elValue.includes(value))
 				} else {
-					return values.includes(elValue);
+					return values.includes(elValue)
 				}
-			})
-        )
-    }
+			}),
+		)
+	}
 
-    filteredRollups.value = applyFilters(series.value?.data || [])
-    filteredRollupsDailyStats.value = applyFilters(rollupsDailyStats.value || [])
+	filteredRollups.value = applyFilters(series.value?.data || [])
+	filteredRollupsDailyStats.value = applyFilters(rollupsDailyStats.value || [])
 }
 
 const handleOpenPopover = (name) => {
@@ -171,7 +170,7 @@ const handleOpenPopover = (name) => {
 }
 const onPopoverClose = (name) => {
 	popovers[name] = false
-	
+
 	if (savedFiltersBeforeChanges.value) {
 		filters[name] = savedFiltersBeforeChanges.value
 		savedFiltersBeforeChanges.value = null
@@ -203,23 +202,23 @@ const resetFilters = (name) => {
 
 const route = useRoute()
 
-const sections = ref(['overview', 'daily_stats'])
-const activeSection = ref('')
+const sections = ref(["overview", "daily_stats"])
+const activeSection = ref("")
 
 const updateSection = (section) => {
 	activeSection.value = section
-    emit('onUpdateSection', section)
+	emit("onUpdateSection", section)
 }
 
 onMounted(async () => {
 	activeSection.value = route.query.section && sections.value.includes(route.query.section) ? route.query.section : sections.value[0]
 
 	switch (activeSection.value) {
-		case 'overview':
+		case "overview":
 			await getRollups()
 
 			break
-		case 'daily_stats':
+		case "daily_stats":
 			await getRollups()
 			await getRollupsDailyStats()
 
@@ -235,14 +234,14 @@ watch(
 		updateSection(activeSection.value)
 
 		switch (activeSection.value) {
-			case 'overview':
+			case "overview":
 				if (!series.value?.data?.length && !isLoading.value) {
 					await getRollups()
 					filterRollups()
 				}
 
 				break
-			case 'daily_stats':
+			case "daily_stats":
 				if (!rollupsDailyStats.value.length && !isLoading.value) {
 					await getRollupsDailyStats()
 					filterRollups()
@@ -252,7 +251,7 @@ watch(
 			default:
 				break
 		}
-	}
+	},
 )
 
 watch(
@@ -273,33 +272,32 @@ watch(
 			filters.stacks = stacks.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
 			filters.providers = providers.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
 		}
-	}
+	},
 )
 watch(
 	() => categories.value,
 	() => {
 		filters.categories = categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
-	}
+	},
 )
 watch(
 	() => types.value,
 	() => {
 		filters.types = types.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
-	}
+	},
 )
 watch(
 	() => tags.value,
 	() => {
 		filters.tags = tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
-	}
+	},
 )
-
 </script>
 
 <template>
-    <Flex align="center" direction="column" gap="12" wide :class="$style.wrapper">
+	<Flex align="center" direction="column" gap="12" wide :class="$style.wrapper">
 		<Flex align="start" justify="between" wide :class="$style.segment">
-			<Flex align="center" gap="12" :style="{minWidth: '200px'}">
+			<Flex align="center" gap="12" :style="{ minWidth: '200px' }">
 				<Text
 					v-for="s in sections"
 					@click="activeSection = s"
@@ -312,12 +310,7 @@ watch(
 			</Flex>
 
 			<Flex align="center" justify="end" wide gap="12" wrap="wrap">
-				<Popover
-					v-for="p in Object.keys(popovers)"
-					:open="popovers[p]"
-					@on-close="onPopoverClose(p)"
-					width="200"
-				>
+				<Popover v-for="p in Object.keys(popovers)" :open="popovers[p]" @on-close="onPopoverClose(p)" width="200">
 					<Button @click="handleOpenPopover(p)" type="secondary" size="mini">
 						<template v-if="!Object.keys(filters[p]).find((item) => filters[p][item])">
 							<Icon name="plus-circle" size="12" color="tertiary" />
@@ -326,16 +319,19 @@ watch(
 
 						<template v-else>
 							<Text size="12" weight="600" color="primary">
-								{{ Object.keys(filters[p]).filter((item) => filters[p][item]).length < 3
-									? Object.keys(filters[p])
-										.filter((item) => filters[p][item])
-										.map(item => getDisplayName(item))
-										.join(", ")
-									: `${Object.keys(filters[p])
-										.filter((item) => filters[p][item])
-										.slice(0, 2)
-										.map(item => getDisplayName(item))
-										.join(", ")} and ${Object.keys(filters[p]).filter((item) => filters[p][item]).length - 2} more`
+								{{
+									Object.keys(filters[p]).filter((item) => filters[p][item]).length < 3
+										? Object.keys(filters[p])
+												.filter((item) => filters[p][item])
+												.map((item) => getDisplayName(item))
+												.join(", ")
+										: `${Object.keys(filters[p])
+												.filter((item) => filters[p][item])
+												.slice(0, 2)
+												.map((item) => getDisplayName(item))
+												.join(", ")} and ${
+												Object.keys(filters[p]).filter((item) => filters[p][item]).length - 2
+										  } more`
 								}}
 							</Text>
 
@@ -348,10 +344,7 @@ watch(
 							<Text size="12" weight="500" color="secondary"> {{ `Filter by ${capitilize(keyMap[p])}` }} </Text>
 
 							<Flex direction="column" gap="8" :class="$style.filters_list">
-								<Checkbox
-									v-for="item in Object.keys(filters[p])"
-									v-model="filters[p][item]"
-								>
+								<Checkbox v-for="item in Object.keys(filters[p])" v-model="filters[p][item]">
 									<Text size="12" weight="500" color="primary">
 										{{ getDisplayName(item) }}
 									</Text>
@@ -375,7 +368,7 @@ watch(
 
 				<Flex align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
 					<PieChartCard
-						v-for="s in series.filter(s => s.subGroup === 'top')"
+						v-for="s in series.filter((s) => s.subGroup === 'top')"
 						:series="s"
 						:data="filteredRollups"
 						dounut
@@ -390,7 +383,8 @@ watch(
 				</Flex>
 
 				<Flex align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
-					<ChartCardPreview v-for="s in series.filter(s => s.subGroup === 'economy')"
+					<ChartCardPreview
+						v-for="s in series.filter((s) => s.subGroup === 'economy')"
 						:series="s"
 						:period="STATS_PERIODS[2]"
 						:class="$style.chart_card"
@@ -399,8 +393,13 @@ watch(
 			</template>
 		</Flex>
 
-		<RollupsActivity v-else-if="activeSection === 'daily_stats' && !isLoading" @clearFilters="resetFilters" :rollups="filteredRollupsDailyStats" :isFilterActive="isFilterActive" />
-    </Flex>
+		<RollupsActivity
+			v-else-if="activeSection === 'daily_stats' && !isLoading"
+			@clearFilters="resetFilters"
+			:rollups="filteredRollupsDailyStats"
+			:isFilterActive="isFilterActive"
+		/>
+	</Flex>
 </template>
 
 <style module>

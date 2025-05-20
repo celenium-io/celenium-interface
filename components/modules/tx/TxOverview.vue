@@ -5,7 +5,7 @@ import { DateTime } from "luxon"
 /** UI */
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 import BookmarkButton from "@/components/BookmarkButton.vue"
-import Button from "~/components/ui/Button.vue"
+import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Events from "@/components/shared/tables/Events.vue"
 
@@ -40,7 +40,7 @@ const activeTab = ref(preselectedTab)
 const messages = ref([])
 
 const gasBarColor = computed(() => {
-	let percent = props.tx.gas_used * 100 / props.tx.gas_wanted
+	let percent = (props.tx.gas_used * 100) / props.tx.gas_wanted
 
 	if (percent > 100) {
 		return "var(--red)"
@@ -89,10 +89,7 @@ const handleViewRawTransaction = () => {
 			</Flex>
 
 			<Flex align="center" gap="12">
-				<BookmarkButton
-					type="transaction"
-					:id="tx.hash"
-				/>
+				<BookmarkButton type="transaction" :id="tx.hash" />
 
 				<div class="divider_v" />
 
@@ -188,7 +185,7 @@ const handleViewRawTransaction = () => {
 								:style="{
 									width: `${(tx.gas_used * 100) / tx.gas_wanted > 100 ? 100 : (tx.gas_used * 100) / tx.gas_wanted}%`,
 									background: gasBarColor,
-									boxShadow: `0 0 6px ${gasBarColor}`
+									boxShadow: `0 0 6px ${gasBarColor}`,
 								}"
 								:class="$style.gas_used"
 							/>
