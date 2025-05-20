@@ -33,7 +33,7 @@ defineOgImageComponent("NamespaceImage", {
 })
 
 useHead({
-	title: `Namespace ${getNamespaceID(namespace.value?.namespace_id)} - Celestia Explorer`,
+	title: `Namespace ${getNamespaceID(namespace.value?.namespace_id)} - Celenium`,
 	link: [
 		{
 			rel: "canonical",
@@ -47,7 +47,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: `Namespace ${getNamespaceID(namespace.value?.namespace_id)} - Celestia Explorer`,
+			content: `Namespace ${getNamespaceID(namespace.value?.namespace_id)} - Celenium`,
 		},
 		{
 			property: "og:description",
@@ -59,7 +59,7 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: `Namespace ${getNamespaceID(namespace.value?.namespace_id)} - Celestia Explorer`,
+			content: `Namespace ${getNamespaceID(namespace.value?.namespace_id)} - Celenium`,
 		},
 		{
 			name: "twitter:description",
@@ -75,12 +75,6 @@ useHead({
 onBeforeRouteLeave(() => {
 	cacheStore.current.namespace = null
 })
-
-const displayName = computed(() => {
-	const { $getDisplayName } = useNuxtApp()
-
-	return $getDisplayName("namespace", namespace.value.namespace_id)
-})
 </script>
 
 <template>
@@ -91,7 +85,7 @@ const displayName = computed(() => {
 				:items="[
 					{ link: '/', name: 'Explore' },
 					{ link: '/namespaces', name: 'Namespaces' },
-					{ link: route.fullPath, name: `${displayName}` },
+					{ link: route.fullPath, name: `${getNamespaceID(namespace.namespace_id)}` },
 				]"
 			/>
 

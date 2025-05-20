@@ -3,7 +3,7 @@
 import { DateTime } from "luxon"
 
 /** UI */
-import Button from "~/components/ui/Button.vue"
+import Button from "@/components/ui/Button.vue"
 
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
@@ -37,9 +37,9 @@ const page = ref(1)
 const itemsPerPage = 10
 const pages = computed(() => Math.ceil(props.messages.length / itemsPerPage))
 const messagesToShow = computed(() => {
-	let start = (page.value - 1) * itemsPerPage;
-	let end = start + itemsPerPage;
-	return props.messages.slice(start, end); 
+	let start = (page.value - 1) * itemsPerPage
+	let end = start + itemsPerPage
+	return props.messages.slice(start, end)
 })
 const handleNext = () => {
 	if (page.value === pages.value) return

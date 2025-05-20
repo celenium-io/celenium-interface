@@ -3,19 +3,18 @@
 import BlocksFeed from "@/components/modules/stats/BlocksFeed.vue"
 import ChartCardPreview from "@/components/modules/stats/ChartCardPreview.vue"
 import SquareSizeCard from "@/components/modules/stats/SquareSizeCard.vue"
-import SquareSizeChart from "~/components/modules/stats/SquareSizeChart.vue"
 
 /** Constants */
 import { getSeriesByGroupAndType, STATS_PERIODS } from "@/services/constants/stats.js"
 
-const series = computed(() => getSeriesByGroupAndType('Blocks'))
+const series = computed(() => getSeriesByGroupAndType("Blocks"))
 const periods = ref(STATS_PERIODS)
 const selectedPeriod = ref(periods.value[0])
 </script>
 
 <template>
-    <Flex align="center" direction="column" gap="16" wide :class="$style.wrapper">
-        <BlocksFeed />
+	<Flex align="center" direction="column" gap="16" wide :class="$style.wrapper">
+		<BlocksFeed />
 
 		<Flex align="center" direction="column" gap="12" wide>
 			<Flex align="center" justify="between" wide :class="$style.section">
@@ -23,19 +22,17 @@ const selectedPeriod = ref(periods.value[0])
 			</Flex>
 
 			<Flex align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
-                <ChartCardPreview v-for="s in series.filter(s => s.name !== 'square_size')"
-                    :series="s"
-                    :period="selectedPeriod"
-                    :class="$style.chart_card"
-                />
+				<ChartCardPreview
+					v-for="s in series.filter((s) => s.name !== 'square_size')"
+					:series="s"
+					:period="selectedPeriod"
+					:class="$style.chart_card"
+				/>
 
-                <SquareSizeCard
-                    :period="selectedPeriod"
-                    :class="$style.square_size_chart_card"
-                />
-            </Flex>
+				<SquareSizeCard :period="selectedPeriod" :class="$style.square_size_chart_card" />
+			</Flex>
 		</Flex>
-    </Flex>
+	</Flex>
 </template>
 
 <style module>

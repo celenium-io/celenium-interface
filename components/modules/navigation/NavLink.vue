@@ -8,22 +8,22 @@ const props = defineProps({
 	link: Object,
 })
 
-const isExpanded = ref(props.link.children?.some((l) => l.path === route.path) ? true : (props.link.name === 'Rollups' ? true : false))
+const isExpanded = ref(props.link.children?.some((l) => l.path === route.path))
 
 const isSubRouteActive = (link) => {
 	let res = false
 	if (link.queryParam) {
-		const queryString = route.fullPath.split('?')[1]
+		const queryString = route.fullPath.split("?")[1]
 		const params = new URLSearchParams(queryString)
-		
+
 		for (const [key, value] of params.entries()) {
 			if (link.queryParam[key] === value) {
 				res = true
-				break;
+				break
 			}
 		}
 	}
-	
+
 	return res
 }
 
@@ -34,7 +34,7 @@ const isAnyChildrenActive = computed(() => {
 		for (const link of props.link.children) {
 			if (isSubRouteActive(link)) {
 				res = true
-				break;
+				break
 			}
 		}
 	}
@@ -58,7 +58,7 @@ const isActive = computed(() => {
 			res = route.path === props.link.path
 		}
 	}
-	
+
 	return res
 })
 
@@ -74,29 +74,30 @@ const handleClick = () => {
 			align="center"
 			justify="between"
 			gap="8"
-			:class="[$style.link, (isActive && (!isAnyChildrenActive || !isExpanded)) && $style.active, (isAnyChildrenActive && isExpanded) && $style.parentActive]"
+			:class="[
+				$style.link,
+				isActive && (!isAnyChildrenActive || !isExpanded) && $style.active,
+				isAnyChildrenActive && isExpanded && $style.parentActive,
+			]"
 		>
 			<Flex align="center" gap="8">
-				<Icon :name="link.icon" size="14" color="secondary" :class="$style.link_icon" />
+				<Icon :name="link.icon" size="14" :color="!link.new ? 'secondary' : 'blue'" :class="$style.link_icon" />
 				<Text size="13" weight="600" color="secondary">{{ link.name }}</Text>
-				<Icon v-if="link.external" name="arrow-narrow-up-right" size="14" color="tertiary" />
 			</Flex>
 
-			<Flex @click.prevent.stop="isExpanded = !isExpanded" :class="$style.chevron_icon">
-				<Icon
-					v-if="link.children"
-					name="chevron"
-					size="14"
-					color="secondary"
-					:style="{ transform: `rotate(${isExpanded ? '0deg' : '-90deg'})` }"
-				/>
+			<Flex v-if="link.children" @click.prevent.stop="isExpanded = !isExpanded" :class="[$style.icon, $style.chevron]">
+				<Icon name="chevron" size="14" color="tertiary" :style="{ transform: `rotate(${isExpanded ? '0deg' : '-90deg'})` }" />
+			</Flex>
+
+			<Flex v-if="link.external" :class="$style.icon">
+				<Icon name="arrow-narrow-up-right-circle" size="14" color="tertiary" />
 			</Flex>
 		</Flex>
 	</NuxtLink>
 
 	<template v-if="isExpanded">
 		<Flex direction="column" gap="2">
-			<NavLink v-for="l in link.children?.filter(l => l.show)" :link="l" @onClose="handleClick" />
+			<NavLink v-for="l in link.children?.filter((l) => l.show)" :link="l" @onClose="handleClick" />
 		</Flex>
 	</template>
 </template>
@@ -139,20 +140,30 @@ const handleClick = () => {
 	}
 }
 
-.chevron_icon {
+.icon {
 	box-sizing: content-box;
-	border-radius: 5px;
 
 	padding: 4px;
 
-	transition: all 0.2s ease;
+	&.chevron {
+		box-sizing: content-box;
+		border-radius: 5px;
 
-	&:hover {
-		background: var(--op-10);
-	}
+		padding: 4px;
 
-	& svg {
 		transition: all 0.2s ease;
+
+		&:hover {
+			background: var(--op-10);
+
+			& svg {
+				fill: var(--txt-primary);
+			}
+		}
+
+		& svg {
+			transition: all 0.2s ease;
+		}
 	}
 }
 </style>

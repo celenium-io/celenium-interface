@@ -8,7 +8,6 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
-import { useServerURL } from "@/services/config"
 import { comma, space, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
@@ -103,7 +102,7 @@ const handleSort = async (by) => {
 											<Flex direction="column" gap="4">
 												<Flex align="center" gap="8">
 													<Text size="12" weight="600" color="primary" mono class="table_column_alias">
-														{{ $getDisplayName('namespaces', ns.namespace_id) }}
+														{{ $getDisplayName("namespaces", ns.namespace_id) }}
 													</Text>
 
 													<CopyButton :text="getNamespaceID(ns.namespace_id)" />

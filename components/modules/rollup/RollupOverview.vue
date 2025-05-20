@@ -59,8 +59,11 @@ const blobs = ref([])
 
 const rollupRanking = computed(() => {
 	if (!rollupRankingStore?.initialized || !isMainnet()) return null
-	
-	let rollup_ranking = rollupRankingStore?.rollups_ranking?.ranking[Object.keys(rollupRankingStore?.rollups_ranking?.ranking).find(key => key === props.rollup.slug)]
+
+	let rollup_ranking =
+		rollupRankingStore?.rollups_ranking?.ranking[
+			Object.keys(rollupRankingStore?.rollups_ranking?.ranking).find((key) => key === props.rollup.slug)
+		]
 	rollup_ranking.rank = {
 		category: getRankCategory(roundTo(rollup_ranking?.ranking?.rank / 10, 0)),
 		score: rollup_ranking?.ranking?.rank,
@@ -274,7 +277,9 @@ const handleCSVDownload = async (value) => {
 			<Flex align="center" gap="8">
 				<Icon name="rollup" size="14" color="primary" />
 
-				<Text size="13" weight="600" color="primary">Rollup</Text>
+				<Text as="h1" size="13" weight="600" color="primary">
+					Rollup <Text color="secondary">{{ rollup.name }}</Text>
+				</Text>
 			</Flex>
 
 			<Flex align="center" gap="12">
@@ -322,19 +327,26 @@ const handleCSVDownload = async (value) => {
 					<div :style="{ background: `linear-gradient(${rollupColor}, ${rollupColorAlpha})` }" :class="$style.bg" />
 
 					<Flex direction="column" gap="20" :class="$style.key_value">
-						<Flex align="center" justify="between" gap=24 wide>
+						<Flex align="center" justify="between" gap="24" wide>
 							<Flex v-if="rollup.logo" align="center" justify="center" :class="$style.logo_container">
 								<img id="logo" :src="rollup.logo" :class="$style.rollup_logo" />
 							</Flex>
 
 							<Flex v-if="!!rollupRanking" align="start" :style="{ height: '100%' }">
 								<Tooltip position="end" :disabled="!rollupRanking?.rank?.category?.color">
-									<Icon name="laurel" size="24" :color="rollupRanking?.rank?.category?.color || 'tertiary'" :loading="!rollupRanking?.rank?.category?.color" />
+									<Icon
+										name="laurel"
+										size="24"
+										:color="rollupRanking?.rank?.category?.color || 'tertiary'"
+										:loading="!rollupRanking?.rank?.category?.color"
+									/>
 									<template #content>
 										<Flex direction="column" gap="8">
 											<Flex align="center" justify="between" gap="8">
 												<Text size="12" weight="500" color="tertiary">Activity Rank:</Text>
-												<Text size="12" weight="600" :color="rollupRanking?.rank?.category?.color"> {{ rollupRanking?.rank?.category?.name }} </Text>
+												<Text size="12" weight="600" :color="rollupRanking?.rank?.category?.color">
+													{{ rollupRanking?.rank?.category?.name }}
+												</Text>
 											</Flex>
 											<Flex align="center" justify="between" gap="8">
 												<Text size="12" weight="500" color="tertiary">Score:</Text>
@@ -853,6 +865,16 @@ const handleCSVDownload = async (value) => {
 
 	.table {
 		border-radius: 4px 4px 8px 8px;
+	}
+}
+
+@media (max-width: 550px) {
+	.header {
+		height: initial;
+		flex-direction: column;
+		gap: 12px;
+
+		padding: 12px 0;
 	}
 }
 

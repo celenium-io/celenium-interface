@@ -295,6 +295,15 @@ const rawNavigationActions = [
 	{
 		type: "callback",
 		icon: "arrow-narrow-right",
+		title: "Go to Terminal",
+		runText: "Open Terminal",
+		callback: () => {
+			location.href = "https://terminal.celenium.io"
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Faucet",
 		runText: "Open Faucet",
 		callback: () => {

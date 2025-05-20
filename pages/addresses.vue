@@ -21,7 +21,7 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: "Addresses in the Celestia Blockchain. Hash, balance, first height, last height are shown.",
+			content: "View all addresses in the Celestia Blockchain. Hash, balance, first height, last height are shown.",
 		},
 		{
 			property: "og:title",
@@ -29,7 +29,7 @@ useHead({
 		},
 		{
 			property: "og:description",
-			content: "Addresses in the Celestia Blockchain. Hash, balance, first height, last height are shown.",
+			content: "View all addresses in the Celestia Blockchain. Hash, balance, first height, last height are shown.",
 		},
 		{
 			property: "og:url",
@@ -45,7 +45,7 @@ useHead({
 		},
 		{
 			name: "twitter:description",
-			content: "Addresses in the Celestia Blockchain. Hash, balance, first height, last height are shown.",
+			content: "View all addresses in the Celestia Blockchain. Hash, balance, first height, last height are shown.",
 		},
 		{
 			name: "twitter:card",
@@ -156,7 +156,7 @@ const handleLast = async () => {
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
 					<Icon name="address" size="16" color="secondary" />
-					<Text size="14" weight="600" color="primary">Addresses</Text>
+					<Text as="h1" size="14" weight="600" color="primary">Addresses</Text>
 				</Flex>
 
 				<Flex align="center" gap="6">

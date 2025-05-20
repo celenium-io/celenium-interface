@@ -8,8 +8,6 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 /** Services */
 import { comma, formatBytes, space, getNamespaceID } from "@/services/utils"
 
-const router = useRouter()
-
 const props = defineProps({
 	namespaces: {
 		type: Array,
@@ -42,7 +40,7 @@ const props = defineProps({
 											<Flex direction="column" gap="4">
 												<Flex align="center" gap="8">
 													<Text size="12" weight="600" color="primary" mono class="table_column_alias">
-														{{ $getDisplayName('namespaces', ns.namespace_id) }}
+														{{ $getDisplayName("namespaces", ns.namespace_id) }}
 													</Text>
 
 													<CopyButton :text="getNamespaceID(ns.namespace_id)" />

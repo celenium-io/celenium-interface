@@ -1,81 +1,87 @@
 <script setup>
-/** Components */
-import RollupsActivityGraph from "~/components/modules/stats/RollupsActivityGraph.vue"
-import RollupsActivityTable from "~/components/modules/stats/RollupsActivityTable.vue"
+/** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
-const emit = defineEmits(['clearFilters'])
+/** Components */
+import RollupsActivityGraph from "@/components/modules/stats/RollupsActivityGraph.vue"
+import RollupsActivityTable from "@/components/modules/stats/RollupsActivityTable.vue"
+
+const emit = defineEmits(["clearFilters"])
 const props = defineProps({
-    rollups: {
-        type: Array,
-        required: true,
-    },
-    isFilterActive: {
-        type: Boolean,
-        default: false,
-    },
+	rollups: {
+		type: Array,
+		required: true,
+	},
+	isFilterActive: {
+		type: Boolean,
+		default: false,
+	},
 })
 
 const processedRollups = computed(() => {
-    const arr = [...props.rollups]
-    arr.forEach(r => {
-        r.avg_pfb_size = r.avg_size * r.blobs_per_pfb
-        r.pfb_hour_count = Math.round(r.pfb_count / 24)
-    })
+	const arr = [...props.rollups]
+	arr.forEach((r) => {
+		r.avg_pfb_size = r.avg_size * r.blobs_per_pfb
+		r.pfb_hour_count = Math.round(r.pfb_count / 24)
+	})
 
-    return arr
+	return arr
 })
 
-const selectedView = ref('graph')
+const selectedView = ref("graph")
 const handleSelectView = () => {
-    selectedView.value === 'graph' ? selectedView.value = 'table' : selectedView.value = 'graph'
+	selectedView.value === "graph" ? (selectedView.value = "table") : (selectedView.value = "graph")
 }
 </script>
 
 <template>
-    <Flex wide direction="column" gap="4">
-        <Flex align="center" justify="between" :class="$style.header">
-            <Flex align="center" gap="8">
-                <Icon name="rollup" size="16" color="secondary" />
-                <Text size="14" weight="600" color="primary">Rollups Activity</Text>
-                <Text size="13" color="tertiary">(last 24h)</Text>
-            </Flex>
+	<Flex wide direction="column" gap="4">
+		<Flex align="center" justify="between" :class="$style.header">
+			<Flex align="center" gap="8">
+				<Icon name="rollup" size="16" color="secondary" />
+				<Text size="14" weight="600" color="primary">Rollups Activity</Text>
+				<Text size="13" color="tertiary">(last 24h)</Text>
+			</Flex>
 
-            <Tooltip side="top">
-                <Flex
-                    @click="handleSelectView"
-                    align="center"
-                    gap="12"
-                    :class="$style.view_selector"
-                    :style="{
-                        background: `linear-gradient(to ${selectedView === 'table' ? 'right' : 'left'}, var(--op-5) 50%, transparent 50%)`,
-                    }"
-                >
-                    <Icon
-                        name="table"
-                        size="16"
-                        :style="{ fill: `${selectedView === 'table' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
-                    />
+			<Tooltip side="top">
+				<Flex
+					@click="handleSelectView"
+					align="center"
+					gap="12"
+					:class="$style.view_selector"
+					:style="{
+						background: `linear-gradient(to ${selectedView === 'table' ? 'right' : 'left'}, var(--op-5) 50%, transparent 50%)`,
+					}"
+				>
+					<Icon name="table" size="16" :style="{ fill: `${selectedView === 'table' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }" />
 
-                    <Icon
-                        name="gantt-chart"
-                        size="16"
-                        :style="{ fill: `${selectedView === 'graph' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
-                    />
-                </Flex>
+					<Icon
+						name="gantt-chart"
+						size="16"
+						:style="{ fill: `${selectedView === 'graph' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
+					/>
+				</Flex>
 
-                <template #content>
-                    <Text size="12" color="tertiary">
-                        Changing data display view
-                    </Text>
-                </template>
-            </Tooltip>
-        </Flex>
-        <Transition name="fastfade" mode="out-in">
-            <RollupsActivityTable v-if="selectedView === 'table'" @clearFilters="emit('clearFilters')" :rollups="processedRollups" :isFilterActive="isFilterActive" />
-            <RollupsActivityGraph v-else-if="selectedView === 'graph'" @clearFilters="emit('clearFilters')" :rollups="processedRollups" :isFilterActive="isFilterActive" />
-        </Transition>
-    </Flex>
+				<template #content>
+					<Text size="12" color="tertiary"> Changing data display view </Text>
+				</template>
+			</Tooltip>
+		</Flex>
+		<Transition name="fastfade" mode="out-in">
+			<RollupsActivityTable
+				v-if="selectedView === 'table'"
+				@clearFilters="emit('clearFilters')"
+				:rollups="processedRollups"
+				:isFilterActive="isFilterActive"
+			/>
+			<RollupsActivityGraph
+				v-else-if="selectedView === 'graph'"
+				@clearFilters="emit('clearFilters')"
+				:rollups="processedRollups"
+				:isFilterActive="isFilterActive"
+			/>
+		</Transition>
+	</Flex>
 </template>
 
 <style module>
@@ -89,7 +95,7 @@ const handleSelectView = () => {
 }
 
 .view_selector {
-    max-height: 24px;
+	max-height: 24px;
 	padding: 4px 6px 4px 6px;
 	box-shadow: inset 0 0 0 1px var(--op-10);
 	border-radius: 5px;
