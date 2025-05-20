@@ -56,9 +56,6 @@ const showPromoBackground = useCookie("showPromoBackground", { default: () => tr
 .content {
 	max-width: 1040px;
 	min-width: 1040px;
-	max-height: calc(100vh);
-	overflow-y: auto;
-  	scrollbar-width: none;
 }
 
 .container {

@@ -127,9 +127,9 @@ onMounted(async () => {
 		<NuxtPage />
 
 		<div id="tooltip" />
-		<div id="modal" />
 		<div id="dropdown" />
 		<div id="popover" />
+		<div id="modal" />
 
 		<ModalsManager />
 		<Notifications />
