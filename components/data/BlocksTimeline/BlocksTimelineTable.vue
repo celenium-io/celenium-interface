@@ -798,8 +798,10 @@ watch(
 }
 
 .sidebar_icon {
+	transform: rotate(180deg);
+
 	&.rotate {
-		transform: rotate(180deg);
+		transform: rotate(0deg);
 	}
 }
 
