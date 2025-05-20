@@ -170,14 +170,14 @@ const handleViewRawTransaction = () => {
 					</Flex>
 
 					<Flex v-if="tx.memo" direction="column" gap="6">
-						<Text size="12" weight="600" color="secondary">Memo</Text>
-
 						<Flex align="center" gap="6">
+							<Text size="12" weight="600" color="secondary">Memo</Text>
 							<CopyButton :text="tx.memo" />
-							<Text size="12" height="140" weight="600" color="tertiary" mono selectable :class="$style.memo">
-								{{ tx.memo }}
-							</Text>
 						</Flex>
+						
+						<Text size="12" height="140" weight="600" color="tertiary" mono selectable :class="$style.memo">
+							{{ tx.memo }}
+						</Text>
 					</Flex>
 
 					<Flex direction="column" gap="10">
