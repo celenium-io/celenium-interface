@@ -39,7 +39,7 @@ defineOgImageComponent("BlockImage", {
 })
 
 useHead({
-	title: `Block ${comma(block.value?.height)} - Celestia Explorer`,
+	title: `Block ${comma(block.value?.height)} - Celenium`,
 	link: [
 		{
 			rel: "canonical",
@@ -53,7 +53,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: `Block ${comma(block.value?.height)} - Celestia Explorer`,
+			content: `Block ${comma(block.value?.height)} - Celenium`,
 		},
 		{
 			property: "og:description",
@@ -65,7 +65,7 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: `Block ${comma(block.value?.height)} - Celestia Explorer`,
+			content: `Block ${comma(block.value?.height)} - Celenium`,
 		},
 		{
 			name: "twitter:description",
@@ -80,7 +80,6 @@ useHead({
 
 const displayName = computed(() => {
 	const { $getDisplayName } = useNuxtApp()
-
 	return $getDisplayName("block", block.value?.height)
 })
 </script>
@@ -107,7 +106,7 @@ const displayName = computed(() => {
 
 <style module>
 .wrapper {
-	padding: 40px 24px 60px 24px;
+	padding: 20px 24px 60px 24px;
 }
 
 .breadcrumbs {

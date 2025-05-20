@@ -29,7 +29,7 @@ defineOgImageComponent("ValidatorImage", {
 })
 
 useHead({
-	title: `Validator ${validator.value?.moniker} - Celestia Explorer`,
+	title: `Validator ${validator.value?.moniker} - Celenium`,
 	link: [
 		{
 			rel: "canonical",
@@ -43,7 +43,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: `Validator ${validator.value?.moniker} - Celestia Explorer`,
+			content: `Validator ${validator.value?.moniker} - Celenium`,
 		},
 		{
 			property: "og:description",
@@ -55,7 +55,7 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: `Validator ${validator.value?.moniker} - Celestia Explorer`,
+			content: `Validator ${validator.value?.moniker} - Celenium`,
 		},
 		{
 			name: "twitter:description",
@@ -78,7 +78,7 @@ useHead({
 					:items="[
 						{ link: '/', name: 'Explore' },
 						{ link: '/validators', name: 'Validators' },
-						{ link: route.fullPath, name: validator.moniker ? validator.moniker : validator.address },
+						{ link: route.fullPath, name: validator.address.hash },
 					]"
 				/>
 			</Flex>

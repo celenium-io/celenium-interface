@@ -46,7 +46,8 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: "Rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
+			content:
+				"View all rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
 		},
 		{
 			property: "og:title",
@@ -54,7 +55,8 @@ useHead({
 		},
 		{
 			property: "og:description",
-			content: "Rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
+			content:
+				"View all rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
 		},
 		{
 			property: "og:url",
@@ -70,7 +72,8 @@ useHead({
 		},
 		{
 			name: "twitter:description",
-			content: "Rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
+			content:
+				"View all rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
 		},
 		{
 			name: "twitter:card",
@@ -444,7 +447,7 @@ onBeforeMount(() => {
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
 					<Icon name="rollup" size="16" color="secondary" />
-					<Text size="14" weight="600" color="primary">Rollups Leaderboard</Text>
+					<Text as="h1" size="14" weight="600" color="primary">Rollups Leaderboard</Text>
 				</Flex>
 
 				<!-- Pagination -->
