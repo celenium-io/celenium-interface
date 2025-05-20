@@ -85,7 +85,10 @@ const handleViewRawTransaction = () => {
 		<Flex align="center" justify="between" :class="$style.header">
 			<Flex align="center" gap="8">
 				<Icon name="tx" size="14" color="primary" />
-				<Text size="13" weight="600" color="primary">Transaction</Text>
+				<Text as="h1" size="13" weight="600" color="primary">
+					Transaction <Text color="secondary">{{ tx.hash.slice(0, 4) }} ••• {{ tx.hash.slice(-4) }}</Text>
+				</Text>
+				<CopyButton :text="tx.hash" size="12" />
 			</Flex>
 
 			<Flex align="center" gap="12">
@@ -472,6 +475,16 @@ const handleViewRawTransaction = () => {
 		min-width: 0;
 
 		border-radius: 4px;
+	}
+}
+
+@media (max-width: 550px) {
+	.header {
+		height: initial;
+		flex-direction: column;
+		gap: 12px;
+
+		padding: 12px 0;
 	}
 }
 

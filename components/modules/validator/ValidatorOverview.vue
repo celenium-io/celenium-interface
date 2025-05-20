@@ -239,7 +239,6 @@ watch(
 const handleDelegate = () => {
 	modalsStore.open("staking")
 }
-
 </script>
 
 <template>
@@ -247,7 +246,9 @@ const handleDelegate = () => {
 		<Flex align="center" justify="between" :class="$style.header">
 			<Flex align="center" gap="8">
 				<Icon name="validator" size="14" color="primary" />
-				<Text size="13" weight="600" color="primary">Validator</Text>
+				<Text as="h1" size="13" weight="600" color="primary">
+					Validator <Text color="secondary">{{ validator.moniker }}</Text>
+				</Text>
 			</Flex>
 
 			<Flex align="center" gap="12">
@@ -256,7 +257,7 @@ const handleDelegate = () => {
 					Delegate
 				</Button>
 			</Flex>
-		</Flex>		
+		</Flex>
 
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">
@@ -637,6 +638,16 @@ const handleDelegate = () => {
 
 	.table {
 		border-radius: 4px 4px 8px 8px;
+	}
+}
+
+@media (max-width: 550px) {
+	.header {
+		height: initial;
+		flex-direction: column;
+		gap: 12px;
+
+		padding: 12px 0;
 	}
 }
 

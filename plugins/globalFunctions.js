@@ -5,7 +5,6 @@ import { comma, getShortNamespaceID, shortHash, splitAddress } from "@/services/
 import { useBookmarksStore } from "@/store/bookmarks"
 
 export default defineNuxtPlugin((nuxtApp) => {
-
 	const getDisplayName = (type, id, entity) => {
 		if (entity?.hash) {
 			id = entity.hash
@@ -16,23 +15,26 @@ export default defineNuxtPlugin((nuxtApp) => {
 		if (name !== id) {
 			return name
 		}
-	
+
 		switch (type) {
-			case 'addresses':
+			case "addresses":
+			case "address":
 				if (entity?.celestials?.name) {
 					return entity.celestials.name
 				}
 				return splitAddress(id)
-			case 'blocks':
+			case "blocks":
 				return comma(id)
-			case 'namespaces':
+			case "namespaces":
+			case "namespace":
 				return getShortNamespaceID(id)
-			case 'txs':
+			case "txs":
+			case "tx":
 				return shortHash(id)
 			default:
 				return id
 		}
 	}
 
-	nuxtApp.provide('getDisplayName', getDisplayName)
+	nuxtApp.provide("getDisplayName", getDisplayName)
 })

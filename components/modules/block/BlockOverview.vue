@@ -284,28 +284,12 @@ const handleViewRawTransactions = () => {
 <template>
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
-			<Flex align="center" gap="12">
-				<Flex align="center" gap="8">
-					<Icon name="block" size="14" color="primary" />
-					<Text size="13" weight="600" color="primary">Block </Text>
-				</Flex>
-
-				<Flex align="center" gap="8">
-					<Button @click="router.push(`/block/${block.height - 1}`)" type="secondary" size="mini" :disabled="block.height === 0">
-						<Icon name="arrow-redo-right" size="16" color="secondary" :style="{ transform: 'scaleX(-1)' }" />
-						<Text :class="$style.block_nav__txt">Prev</Text>
-					</Button>
-
-					<Button
-						@click="router.push(`/block/${block.height + 1}`)"
-						type="secondary"
-						size="mini"
-						:disabled="block.height === lastBlock?.height"
-					>
-						<Text :class="$style.block_nav__txt">Next</Text>
-						<Icon name="arrow-redo-right" size="16" color="secondary" />
-					</Button>
-				</Flex>
+			<Flex align="center" gap="8">
+				<Icon name="block" size="14" color="primary" />
+				<Text as="h1" size="13" weight="600" color="primary">
+					Block <Text color="secondary">{{ comma(block.height) }} </Text>
+				</Text>
+				<CopyButton :text="block.height" size="12" />
 			</Flex>
 
 			<Flex align="center" gap="12">
@@ -333,18 +317,9 @@ const handleViewRawTransactions = () => {
 
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">
-				<Flex wide direction="column" gap="12" :class="$style.top">
+				<Flex wide direction="column" gap="8" :class="$style.top">
 					<Flex align="center" justify="between" wide>
-						<Flex align="center" gap="6">
-							<Icon name="block" size="14" color="secondary" />
-
-							<Flex tag="h1" align="center" gap="6">
-								<Text size="12" weight="600" color="secondary"> Height </Text>
-								<Text size="12" weight="600" color="primary">{{ comma(block.height) }}</Text>
-								<CopyButton :text="block.height" size="10" />
-							</Flex>
-						</Flex>
-
+						<Text size="12" weight="600" color="secondary"> Timeline </Text>
 						<Text size="12" weight="600" color="tertiary">
 							{{ DateTime.fromISO(block.time).setLocale("en").toFormat("ff") }}
 						</Text>
@@ -432,6 +407,30 @@ const handleViewRawTransactions = () => {
 							<Text size="12" weight="600" color="tertiary"> Square size </Text>
 							<Text size="12" weight="600" color="secondary"> {{ block.stats.square_size }}</Text>
 						</Flex>
+					</Flex>
+
+					<Flex align="center" gap="8">
+						<Button
+							@click="router.push(`/block/${block.height - 1}`)"
+							wide
+							type="secondary"
+							size="mini"
+							:disabled="block.height === 0"
+						>
+							<Icon name="arrow-redo-right" size="16" color="tertiary" :style="{ transform: 'scaleX(-1)' }" />
+							<Text :class="$style.block_nav__txt"><Text color="secondary">Go to</Text> {{ comma(block.height - 1) }}</Text>
+						</Button>
+
+						<Button
+							@click="router.push(`/block/${block.height + 1}`)"
+							wide
+							type="secondary"
+							size="mini"
+							:disabled="block.height === lastBlock?.height"
+						>
+							<Text :class="$style.block_nav__txt"><Text color="secondary">Go to </Text>{{ comma(block.height + 1) }}</Text>
+							<Icon name="arrow-redo-right" size="16" color="tertiary" />
+						</Button>
 					</Flex>
 				</Flex>
 			</Flex>
@@ -1026,6 +1025,16 @@ const handleViewRawTransactions = () => {
 
 	.table {
 		border-radius: 4px 4px 8px 8px;
+	}
+}
+
+@media (max-width: 550px) {
+	.header {
+		height: initial;
+		flex-direction: column;
+		gap: 12px;
+
+		padding: 12px 0;
 	}
 }
 

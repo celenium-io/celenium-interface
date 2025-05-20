@@ -500,6 +500,16 @@ const handleViewRawMessages = () => {
 	}
 }
 
+@media (max-width: 550px) {
+	.header {
+		height: initial;
+		flex-direction: column;
+		gap: 12px;
+
+		padding: 12px 0;
+	}
+}
+
 @media (max-width: 400px) {
 	.tabs_wrapper {
 		overflow-x: auto;

@@ -33,7 +33,7 @@ defineOgImageComponent("AddressImage", {
 })
 
 useHead({
-	title: `Address ${address.value?.hash} - Celestia Explorer`,
+	title: `Address ${address.value?.hash} - Celenium`,
 	link: [
 		{
 			rel: "canonical",
@@ -47,7 +47,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: `Address ${address.value?.hash} - Celestia Explorer`,
+			content: `Address ${address.value?.hash} - Celenium`,
 		},
 		{
 			property: "og:description",
@@ -59,7 +59,7 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: `Address ${address.value?.hash} - Celestia Explorer`,
+			content: `Address ${address.value?.hash} - Celenium`,
 		},
 		{
 			name: "twitter:description",
@@ -78,7 +78,6 @@ onBeforeRouteLeave(() => {
 
 const displayName = computed(() => {
 	const { $getDisplayName } = useNuxtApp()
-
 	return $getDisplayName("address", address.value.hash)
 })
 </script>
