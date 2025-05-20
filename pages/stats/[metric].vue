@@ -22,7 +22,6 @@ import { fetchSeries, fetchRollupsSeries, fetchSeriesCumulative, fetchTVS } from
 import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Popover from "@/components/ui/Popover.vue"
-import Toggle from "@/components/ui/Toggle.vue"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
@@ -38,20 +37,20 @@ const route = useRoute()
 const router = useRouter()
 
 const series = ref(getSeriesByPage(route.params.metric, route.query.aggregate))
-const metricName = ref('')
+const metricName = ref("")
 if (!series.value?.page) {
 	router.push("/stats")
 } else {
 	switch (series.value?.page) {
 		case "tvs":
 			metricName.value = series.value?.title
-			break;
+			break
 		case "rollups":
 			metricName.value = "Rollup Distribution"
-			break;
+			break
 		default:
 			metricName.value = capitalizeAndReplace(series.value?.page, "_")
-			break;
+			break
 	}
 }
 
@@ -110,7 +109,7 @@ const timeframes = computed(() => {
 	let res = [...STATS_TIMEFRAMES]
 
 	if (series.value?.name === "tvs") {
-		res = res.filter(tf => tf.timeframe === "day" || tf.timeframe === "month")
+		res = res.filter((tf) => tf.timeframe === "day" || tf.timeframe === "month")
 	}
 
 	return res
@@ -156,24 +155,24 @@ const handleRollupSettingsSelect = async (setting, value) => {
 			switch (value) {
 				case "fee":
 					series.value.units = "utia"
-					break;
+					break
 				case "size":
 					series.value.units = "bytes"
-					break;
+					break
 				default:
 					series.value.units = ""
-					break;
+					break
 			}
-			break;
+			break
 		case "top":
 			series.value.itemsCount = value
-			break;
+			break
 		case "period":
 			series.value.timeframe = value
 			await getData()
-			break;
+			break
 		default:
-			break;
+			break
 	}
 }
 
@@ -230,24 +229,16 @@ const fetchData = async () => {
 			return { time: v.time, value: v.close }
 		})
 	} else if (series.value.page === "rollups") {
-		data = (await fetchRollupsSeries({
-			timeframe: series.value.timeframe === "day"
-				? "hour"
-				: series.value.timeframe === "month"
-					? "day"
-					: "month",
-		}))
+		data = await fetchRollupsSeries({
+			timeframe: series.value.timeframe === "day" ? "hour" : series.value.timeframe === "month" ? "day" : "month",
+		})
 	} else if (series.value.aggregate !== "cumulative") {
 		let to = filters?.to ? DateTime.fromSeconds(+filters?.to) : DateTime.now()
 		data = await fetchSeries({
 			table: series.value.name,
 			period: selectedTimeframe.value.timeframe,
-			from: selectedTimeframe.value.timeframe === "hour"
-				? parseInt(to.minus({ days: 7 }).ts / 1_000)
-				: null,
-			to: selectedTimeframe.value.timeframe === "hour"
-				? parseInt(to.ts / 1_000)
-				: null,
+			from: selectedTimeframe.value.timeframe === "hour" ? parseInt(to.minus({ days: 7 }).ts / 1_000) : null,
+			to: selectedTimeframe.value.timeframe === "hour" ? parseInt(to.ts / 1_000) : null,
 		})
 	} else {
 		data = (
@@ -273,8 +264,8 @@ const getData = async (fetch = true) => {
 	if (fetch) {
 		await fetchData()
 	}
-	
-	if (series.value.page !== "rollups"){
+
+	if (series.value.page !== "rollups") {
 		data = allData.value
 
 		if (data.length > 0 && !filters.from && !filters.to) {
@@ -299,20 +290,20 @@ const getData = async (fetch = true) => {
 		series.value.timeframe = filters.timeframe
 	} else {
 		data = allData.value
-		
-		series.value.data = data.map(d => ({
-			...d, 
-			items: d.items.map(item => ({
-				...item, 
-				fee: parseFloat(item.fee)
-			}))
+
+		series.value.data = data.map((d) => ({
+			...d,
+			items: d.items.map((item) => ({
+				...item,
+				fee: parseFloat(item.fee),
+			})),
 		}))
 	}
 
 	isLoading.value = false
 }
 
-if (series.value.name !== 'square_size') {
+if (series.value.name !== "square_size") {
 	await getData()
 }
 
@@ -354,9 +345,9 @@ const handleUpdateDate = async (event) => {
 
 		filters.from = from
 		filters.to = to
-		
-		if (event.source !== 'timeline') {
-			if (Math.abs(DateTime.fromSeconds(from).diff(DateTime.fromSeconds(to), 'days').days) < 8) {
+
+		if (event.source !== "timeline") {
+			if (Math.abs(DateTime.fromSeconds(from).diff(DateTime.fromSeconds(to), "days").days) < 8) {
 				selectedTimeframe.value = STATS_TIMEFRAMES.find((tf) => tf.timeframe === "hour")
 			}
 
@@ -383,8 +374,8 @@ const handleCSVDownload = async () => {
 		data = [...series.value.data]
 		csvHeaders = "timestamp,rollup,value\n"
 		let csvData = []
-		data.forEach(d => {
-			d.items.forEach(item => {
+		data.forEach((d) => {
+			d.items.forEach((item) => {
 				csvData.push(`${DateTime.fromISO(d.time).ts},${item.name},${item[rollupsSetting.value[0].selected]}`)
 			})
 		})
@@ -392,7 +383,7 @@ const handleCSVDownload = async () => {
 	} else {
 		data = [...series.value.currentData]
 		csvHeaders = "timestamp,value\n"
-		csvRow = data.map(d => `${DateTime.fromJSDate(d.date).ts},${d.value}`).join("\n")
+		csvRow = data.map((d) => `${DateTime.fromJSDate(d.date).ts},${d.value}`).join("\n")
 	}
 
 	await exportToCSV(csvHeaders + csvRow, `${series.value.name}-${filters.from}-${filters.to}`)
@@ -456,7 +447,7 @@ watch(
 				aggregate: rollupsSetting.value[0].selected,
 			},
 		})
-	}
+	},
 )
 
 onBeforeMount(() => {
@@ -509,7 +500,9 @@ onBeforeMount(() => {
 											gap="12"
 											:class="$style.chart_selector"
 											:style="{
-												background: `linear-gradient(to ${chartView === 'line' ? 'right' : 'left'}, var(--op-5) 50%, transparent 50%)`,
+												background: `linear-gradient(to ${
+													chartView === 'line' ? 'right' : 'left'
+												}, var(--op-5) 50%, transparent 50%)`,
 											}"
 										>
 											<Icon
@@ -529,12 +522,7 @@ onBeforeMount(() => {
 									<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
 										<Text size="12" color="secondary">Group by</Text>
 
-										<Flex
-											align="center"
-											gap="12"
-											:class="$style.groupping_selector"
-											:style="timeframesStyles"
-										>
+										<Flex align="center" gap="12" :class="$style.groupping_selector" :style="timeframesStyles">
 											<Text
 												v-for="tf in timeframes"
 												@click="handleTimeframeUpdate(tf)"
@@ -556,23 +544,26 @@ onBeforeMount(() => {
 							<Button type="secondary" size="mini">
 								<Flex align="center" justify="between" gap="6">
 									<Text size="12" color="secondary"> {{ rs.title }} </Text>
-									<Text size="12" color="primary"> {{ capitilize(rs.selected.replace('_', ' ')) }} </Text>
+									<Text size="12" color="primary"> {{ capitilize(rs.selected.replace("_", " ")) }} </Text>
 								</Flex>
 							</Button>
 
 							<template #popup>
-								<DropdownItem v-for="item in rs.items" @click="handleRollupSettingsSelect(rs, item)" :style="{minWidth: '50px'}">
+								<DropdownItem
+									v-for="item in rs.items"
+									@click="handleRollupSettingsSelect(rs, item)"
+									:style="{ minWidth: '50px' }"
+								>
 									<Flex align="center" justify="between" gap="12" wide>
 										<Icon :name="item === rs.selected ? 'check' : ''" size="12" color="brand" />
 										<Flex align="center" justify="start" wide>
-											{{ capitilize(item.replace('_', ' ')) }}
+											{{ capitilize(item.replace("_", " ")) }}
 										</Flex>
 									</Flex>
 								</DropdownItem>
 							</template>
 						</Dropdown>
 					</Flex>
-
 
 					<Button @click="handleOpenChartModal" type="secondary" size="mini">
 						<Icon name="expand" size="12" color="tertiary" />
@@ -609,7 +600,7 @@ onBeforeMount(() => {
 			:chartView="chartView"
 			:from="filters.from"
 			:to="filters.to"
-			:selectedTimeframe="selectedTimeframe" 
+			:selectedTimeframe="selectedTimeframe"
 			@onUpdate="handleTimelineUpdate"
 		/>
 	</Flex>
@@ -657,7 +648,7 @@ onBeforeMount(() => {
 		flex-direction: column;
 		align-items: start;
 		gap: 12px;
-		
+
 		& .settings {
 			width: 100%;
 			justify-content: end;
