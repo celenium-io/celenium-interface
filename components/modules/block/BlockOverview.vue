@@ -18,7 +18,7 @@ import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 import Events from "@/components/shared/tables/Events.vue"
 
 /** Services */
-import { comma, formatBytes, reverseMapping, space, shortHex, tia } from "@/services/utils"
+import { comma, formatBytes, space, shortHex, tia } from "@/services/utils"
 
 /** API */
 import { fetchTransactionsByBlock } from "@/services/api/tx"
@@ -182,7 +182,11 @@ const handleApplyMessageTypeFilters = () => {
 	savedFiltersBeforeChanges.value = null
 	isMessageTypePopoverOpen.value = false
 
-	getTransactions()
+	if (page.value > 1) {
+		page.value = 1
+	} else {
+		getTransactions()
+	}
 
 	updateRouteQuery()
 }
