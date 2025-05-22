@@ -1,4 +1,9 @@
-const origins = ["https://mocha.celenium.io", "https://arabica.celenium.io", "https://mocha-4.celenium.io", "https://mammoth.celenium.io"]
+const origins = [
+	"https://mocha.celenium.io/",
+	"https://arabica.celenium.io/",
+	"https://mocha-4.celenium.io/",
+	"https://mammoth.celenium.io/",
+]
 
 export default defineNitroPlugin((nitroApp) => {
 	nitroApp.hooks.hook("site-config:init", ({ event, siteConfig }) => {
