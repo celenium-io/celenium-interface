@@ -38,13 +38,13 @@ const metrics = ref([
 	{
 		key: "commits_weekly",
 		name: "Weekly commits",
-		coefficient: 0.2,
+		coefficient: 0.1,
 		type: "Quantitative",
 	},
 	{
 		key: "last_pushed_at",
 		name: "Last pushed",
-		coefficient: 0.2,
+		coefficient: 0.1,
 		type: "Time-Based",
 	},
 ])

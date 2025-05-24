@@ -14,9 +14,6 @@ const props = defineProps({
 const bgStyles = computed(() => {
 	return {
 		style: {
-			position: "absolute",
-			top: "0",
-			left: "0",
 			filter: "grayscale(1)",
 			opacity: "0.05",
 		},
@@ -25,18 +22,18 @@ const bgStyles = computed(() => {
 </script>
 
 <template>
-	<div class="w-full h-full" :style="{ background: '#111111', padding: '100px 80px', fontFamily: 'IBM+Plex+Mono' }">
-		<img src="/img/bg.png" v-bind="bgStyles" />
+	<div class="w-full h-full" :style="{ background: '#111111', padding: '100px 50px', fontFamily: 'IBM+Plex+Mono', overflow: 'hidden' }">
+		<img src="/img/bg.png" width="1200" height="600" class="absolute" v-bind="bgStyles" />
 
 		<div :style="{ height: '100%', display: 'flex', flexDirection: 'column', gap: '50px' }">
 			<div :style="{ display: 'flex', alignItems: 'center' }">
 				<span :style="{ fontSize: '60px', color: 'rgba(255,255,255, 0.9)' }">validator</span>
 				<span :style="{ fontSize: '60px', color: 'rgba(255,255,255, 0.3)' }">('</span>
-				<span :style="{ fontSize: '40px', color: '#FF8351' }"> celestiavaloper•••{{ validator.address.slice(-4) }} </span>
+				<span :style="{ fontSize: '40px', color: '#FF8351' }"> celestiavaloper•••{{ validator.address.hash.slice(-4) }} </span>
 				<span :style="{ fontSize: '60px', color: 'rgba(255,255,255, 0.3)' }">')</span>
 			</div>
 
-			<span :style="{ fontSize: '46px', color: 'rgba(255,255,255, 0.9)' }">
+			<span v-if="validator.moniker" :style="{ fontSize: '46px', color: 'rgba(255,255,255, 0.9)' }">
 				{{ validator.moniker }}
 			</span>
 

@@ -26,10 +26,9 @@ if (!rawRollup.value) {
 	cacheStore.current.rollup = rollup.value
 }
 
-defineOgImage({
+defineOgImageComponent("RollupImage", {
 	title: "Rollup",
 	rollup: rollup.value,
-	component: "RollupImage",
 	cacheKey: `${rollup.value?.name}`,
 })
 
@@ -38,7 +37,7 @@ useHead({
 	link: [
 		{
 			rel: "canonical",
-			href: `https://celenium.io${route.path}`,
+			href: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 	],
 	meta: [
@@ -56,11 +55,7 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io${route.path}`,
-		},
-		{
-			property: "og:image",
-			content: `https://celenium.io${route.path}__og_image__/og.png`,
+			content: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 		{
 			name: "twitter:title",
