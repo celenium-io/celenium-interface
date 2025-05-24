@@ -510,7 +510,7 @@ watch(
             <template #content>
                 <Flex align="center" gap="2" :style="{ width: '200px' }">
                     <Text size="12" weight="600" color="secondary">
-                        Somewhere in..
+                        "Somewhere in ..."
                         <Text size="12" weight="400" color="secondary">
                             means that it was not possible to determine the exact location.
                         </Text>
