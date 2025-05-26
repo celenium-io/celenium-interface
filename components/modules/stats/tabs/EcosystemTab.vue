@@ -72,7 +72,7 @@ onMounted(async () => {
 <template>
     <Flex align="center" direction="column" gap="16" wide :class="$style.wrapper">
         <Flex align="start" direction="column" gap="32" wide :class="$style.section">
-			<Text size="16" weight="600" color="primary" justify="start">Light Node Distribution</Text>
+			<Text size="16" weight="600" color="primary" justify="start">Celestia Node Distribution</Text>
 
 			<GeoMap :class="$style.chart" />
 

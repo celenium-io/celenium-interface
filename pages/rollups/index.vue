@@ -102,7 +102,7 @@ const config = reactive({
 			: {}
 		),
 		da_change: {
-			show: true,
+			show: false,
 		},
 		size: {
 			show: true,
@@ -120,7 +120,7 @@ const config = reactive({
 			show: true,
 		},
 		today_blobs: {
-			show: false,
+			show: true,
 			sortPath: "stats.day_blobs_count",
 		},
 		...(isMainnet()
