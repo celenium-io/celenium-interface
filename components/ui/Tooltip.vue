@@ -24,6 +24,7 @@ const props = defineProps({
 	wide: { type: Boolean, default: null },
 	disabled: { type: Boolean, default: false },
 	delay: { type: [String, Number], default: 0 },
+	triggerWidth: { type: String, required: false, default: null },
 })
 
 const isHovered = ref(false)
@@ -158,7 +159,7 @@ const handleMouseLeave = () => {
 		@touchstart="handleMouseEnter"
 		@touchend="handleMouseLeave"
 		:class="$style.wrapper"
-		:style="{ width: wide && '100%' }"
+		:style="{ width: triggerWidth ? triggerWidth : wide }"
 	>
 		<div ref="trigger" :class="$style.trigger" :style="{ width: wide && '100%' }">
 			<slot />
