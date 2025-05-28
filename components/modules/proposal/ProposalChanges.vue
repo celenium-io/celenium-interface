@@ -1,4 +1,7 @@
 <script setup>
+/** Shared Components */
+import TablePlaceholderView from "@/components/shared/TablePlaceholderView.vue"
+
 const props = defineProps({
 	proposal: {
 		type: Object,
@@ -17,7 +20,7 @@ const props = defineProps({
 		</Flex>
 
 		<div :class="$style.content">
-			<Flex gap="16" :class="$style.changes">
+			<Flex v-if="Array.isArray(proposal.changes)" gap="16" :class="$style.changes">
 				<Flex v-for="change in proposal.changes" wide direction="column" gap="4" :class="$style.change">
 					<Flex justify="between" align="center" :class="$style.key">
 						<Text size="13" weight="600" color="primary" mono> {{ change.key }} </Text>
@@ -33,6 +36,14 @@ const props = defineProps({
 					</div>
 				</Flex>
 			</Flex>
+			<TablePlaceholderView
+				v-else
+				title="There's no changes"
+				description="This proposal does not contain any changes."
+				icon="edit"
+				subIcon="search"
+				:descriptionWidth="260"
+			/>
 		</div>
 	</Flex>
 </template>

@@ -55,6 +55,7 @@ const getVotes = async () => {
 		id: props.proposal.id,
 	})
 	votes.value = data.value
+
 	cacheStore.current.votes = votes.value
 
 	isLoading.value = false
@@ -359,7 +360,7 @@ const getVoteIconColor = (status) => {
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Changes Count</Text>
 
-							<Text size="12" weight="600" color="secondary">{{ proposal.changes.length }}</Text>
+							<Text size="12" weight="600" color="secondary">{{ proposal.changes?.length }}</Text>
 						</Flex>
 					</Flex>
 				</Flex>
