@@ -184,7 +184,8 @@ const getVoteIconColor = (status) => {
 									{{
 										DateTime.fromISO(proposal.deposit_time)
 											.diff(DateTime.fromISO(proposal.activation_time), "days")
-											.toObject().days
+											.toObject()
+											.days.toFixed(0)
 									}}
 									Days
 								</Text>
@@ -229,7 +230,7 @@ const getVoteIconColor = (status) => {
 						</Flex>
 					</Flex>
 
-					<Flex direction="column" gap="10" :class="$style.key_value">
+					<Flex v-if="proposal.status !== 'removed'" direction="column" gap="10" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Allocation of votes</Text>
 
 						<Flex align="center" gap="4" :class="[$style.voting_wrapper, $style[proposal.status]]">
@@ -357,10 +358,9 @@ const getVoteIconColor = (status) => {
 							/>
 						</Flex>
 
-						<Flex align="center" justify="between">
+						<Flex v-if="Array.isArray(proposal.changes)" align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Changes Count</Text>
-
-							<Text size="12" weight="600" color="secondary">{{ proposal.changes?.length }}</Text>
+							<Text size="12" weight="600" color="secondary">{{ proposal.changes.length }}</Text>
 						</Flex>
 					</Flex>
 				</Flex>
