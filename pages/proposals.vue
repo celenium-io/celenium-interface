@@ -5,14 +5,13 @@ import { DateTime } from "luxon"
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
-import AmountInCurrency from "@/components/AmountInCurrency.vue"
 import Badge from "@/components/ui/Badge.vue"
 
 /** Services */
-import { comma, space, formatBytes } from "@/services/utils"
+import { comma } from "@/services/utils"
 
 /** API */
-import { fetchProposals, fetchProposalById, fetchProposalsCount } from "@/services/api/proposal"
+import { fetchProposals, fetchProposalsCount } from "@/services/api/proposal"
 
 useHead({
 	title: "Governance: Celestia Proposals - Celenium",
@@ -225,7 +224,7 @@ const getProposalType = (type) => {
 												<Tooltip
 													v-if="proposal.yes"
 													wide
-													:trigger-width="`${(proposal.yes * 100) / proposal.votes_count}%`"
+													:trigger-width="`${Math.max(10, (proposal.yes * 100) / proposal.votes_count)}%`"
 												>
 													<div
 														:style="{
@@ -234,13 +233,13 @@ const getProposalType = (type) => {
 														:class="$style.voting_bar"
 													/>
 													<template #content>
-														Yes: <Text color="primary">{{ proposal.yes }}</Text>
+														Yes: <Text color="primary">{{ comma(proposal.yes) }}</Text>
 													</template>
 												</Tooltip>
 												<Tooltip
 													v-if="proposal.no"
 													wide
-													:trigger-width="`${(proposal.no * 100) / proposal.votes_count}%`"
+													:trigger-width="`${Math.max(10, (proposal.no * 100) / proposal.votes_count)}%`"
 												>
 													<div
 														:style="{
@@ -249,13 +248,16 @@ const getProposalType = (type) => {
 														:class="$style.voting_bar"
 													/>
 													<template #content>
-														No: <Text color="primary">{{ proposal.no }}</Text>
+														No: <Text color="primary">{{ comma(proposal.no) }}</Text>
 													</template>
 												</Tooltip>
 												<Tooltip
 													v-if="proposal.no_with_veto"
 													wide
-													:trigger-width="`${(proposal.no_with_veto * 100) / proposal.votes_count}%`"
+													:trigger-width="`${Math.max(
+														10,
+														(proposal.no_with_veto * 100) / proposal.votes_count,
+													)}%`"
 												>
 													<div
 														:style="{
@@ -264,13 +266,13 @@ const getProposalType = (type) => {
 														:class="$style.voting_bar"
 													/>
 													<template #content>
-														No with veto: <Text color="primary">{{ proposal.no_with_veto }}</Text>
+														No with veto: <Text color="primary">{{ comma(proposal.no_with_veto) }}</Text>
 													</template>
 												</Tooltip>
 												<Tooltip
 													v-if="proposal.abstain"
 													wide
-													:trigger-width="`${(proposal.abstain * 100) / proposal.votes_count}%`"
+													:trigger-width="`${Math.max(10, (proposal.abstain * 100) / proposal.votes_count)}%`"
 												>
 													<div
 														:style="{
@@ -279,7 +281,7 @@ const getProposalType = (type) => {
 														:class="$style.voting_bar"
 													/>
 													<template #content>
-														Abstain: <Text color="primary">{{ proposal.abstain }}</Text>
+														Abstain: <Text color="primary">{{ comma(proposal.abstain) }}</Text>
 													</template>
 												</Tooltip>
 											</Flex>
