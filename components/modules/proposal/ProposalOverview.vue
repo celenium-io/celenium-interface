@@ -8,6 +8,9 @@ import Badge from "@/components/ui/Badge.vue"
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
+/** Shared Components */
+import TablePlaceholderView from "@/components/shared/TablePlaceholderView.vue"
+
 /** Services */
 import { comma, space } from "@/services/utils"
 
@@ -392,12 +395,14 @@ const getVoteIconColor = (status) => {
 							<tbody>
 								<tr v-for="vote in votes">
 									<td>
-										<Flex align="center" gap="4">
-											<Icon :name="getVoteIcon(vote.status)" size="12" :color="getVoteIconColor(vote.status)" />
-											<Text size="13" weight="600" color="primary" style="text-transform: capitalize">
-												{{ vote.status.replaceAll("_", " ") }}
-											</Text>
-										</Flex>
+										<NuxtLink :to="`/address/${vote.voter.hash}`">
+											<Flex align="center" gap="4">
+												<Icon :name="getVoteIcon(vote.status)" size="12" :color="getVoteIconColor(vote.status)" />
+												<Text size="13" weight="600" color="primary" style="text-transform: capitalize">
+													{{ vote.status.replaceAll("_", " ") }}
+												</Text>
+											</Flex>
+										</NuxtLink>
 									</td>
 									<td>
 										<NuxtLink :to="`/address/${vote.voter.hash}`">
@@ -409,59 +414,67 @@ const getVoteIconColor = (status) => {
 										</NuxtLink>
 									</td>
 									<td>
-										<Flex justify="center" direction="column" gap="4">
-											<Text size="12" weight="600" color="primary">
-												{{ DateTime.fromISO(vote.deposit_time).toRelative({ locale: "en", style: "short" }) }}
-											</Text>
-											<Text size="12" weight="500" color="tertiary">
-												{{ DateTime.fromISO(vote.deposit_time).setLocale("en").toFormat("LLL d, t") }}
-											</Text>
-										</Flex>
+										<NuxtLink :to="`/address/${vote.voter.hash}`">
+											<Flex justify="center" direction="column" gap="4">
+												<Text size="12" weight="600" color="primary">
+													{{ DateTime.fromISO(vote.deposit_time).toRelative({ locale: "en", style: "short" }) }}
+												</Text>
+												<Text size="12" weight="500" color="tertiary">
+													{{ DateTime.fromISO(vote.deposit_time).setLocale("en").toFormat("LLL d, t") }}
+												</Text>
+											</Flex>
+										</NuxtLink>
 									</td>
 									<td>
-										<Flex v-if="vote.validator" align="center">
-											<Tooltip delay="500">
-												<template #default>
-													<Flex direction="column" gap="4">
-														<Text size="12" height="120" weight="600" color="primary">
-															{{ vote.validator.moniker }}
-														</Text>
-
-														<Flex align="center" gap="6">
-															<Text size="12" weight="600" color="tertiary" mono>
-																{{ vote.validator.cons_address.slice(0, 4) }}
+										<NuxtLink :to="`/address/${vote.voter.hash}`">
+											<Flex v-if="vote.validator" align="center">
+												<Tooltip delay="500">
+													<template #default>
+														<Flex direction="column" gap="4">
+															<Text size="12" height="120" weight="600" color="primary">
+																{{ vote.validator.moniker }}
 															</Text>
-															<Flex align="center" gap="3">
-																<div v-for="dot in 3" class="dot" />
+
+															<Flex align="center" gap="6">
+																<Text size="12" weight="600" color="tertiary" mono>
+																	{{ vote.validator.cons_address.slice(0, 4) }}
+																</Text>
+																<Flex align="center" gap="3">
+																	<div v-for="dot in 3" class="dot" />
+																</Flex>
+																<Text size="12" weight="600" color="tertiary" mono>
+																	{{
+																		vote.validator.cons_address.slice(
+																			vote.validator.cons_address.length - 4,
+																			vote.validator.cons_address.length,
+																		)
+																	}}
+																</Text>
+																<CopyButton :text="vote.validator.cons_address" size="10" />
 															</Flex>
-															<Text size="12" weight="600" color="tertiary" mono>
-																{{
-																	vote.validator.cons_address.slice(
-																		vote.validator.cons_address.length - 4,
-																		vote.validator.cons_address.length,
-																	)
-																}}
-															</Text>
-															<CopyButton :text="vote.validator.cons_address" size="10" />
 														</Flex>
-													</Flex>
-												</template>
+													</template>
 
-												<template #content> {{ space(vote.validator.cons_address) }} </template>
-											</Tooltip>
-										</Flex>
+													<template #content> {{ space(vote.validator.cons_address) }} </template>
+												</Tooltip>
+											</Flex>
+											<Text v-else size="12" weight="600" color="support">No Validator</Text>
+										</NuxtLink>
 									</td>
 								</tr>
 							</tbody>
 						</table>
 					</Flex>
 
-					<Flex v-else direction="column" align="center" justify="center" gap="8" :class="$style.empty">
-						<Text size="13" weight="600" color="secondary" align="center"> No votes </Text>
-						<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-							This proposal does not contain any votes
-						</Text>
-					</Flex>
+					<TablePlaceholderView
+						v-else
+						title="There's no votes"
+						description="This proposal does not contain any votes."
+						icon="governance"
+						subIcon="search"
+						:descriptionWidth="260"
+						style="height: 100%"
+					/>
 
 					<!-- Pagination -->
 					<Flex v-if="votes.length" align="center" gap="6" :class="$style.pagination">
@@ -709,11 +722,6 @@ const getVoteIconColor = (status) => {
 .table.disabled {
 	opacity: 0.5;
 	pointer-events: none;
-}
-
-.empty {
-	flex: 1;
-	padding: 16px 0;
 }
 
 .pagination {
