@@ -442,7 +442,7 @@ const getProposalType = (type) => {
 	}
 
 	&.removed {
-		background: rgba(var(--red-rgb), 20%);
+		background: var(--op-8);
 	}
 
 	&.applied {
