@@ -179,11 +179,11 @@ const handleMouseLeave = () => {
 .wrapper {
 	display: flex;
 	position: relative;
-	width: fit-content;
 }
 
 .trigger {
 	display: flex;
+	min-width: 0;
 }
 
 .content {
