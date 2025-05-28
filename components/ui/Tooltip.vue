@@ -159,7 +159,7 @@ const handleMouseLeave = () => {
 		@touchstart="handleMouseEnter"
 		@touchend="handleMouseLeave"
 		:class="$style.wrapper"
-		:style="{ width: triggerWidth ? triggerWidth : wide }"
+		:style="{ width: triggerWidth ? triggerWidth : wide && '100%' }"
 	>
 		<div ref="trigger" :class="$style.trigger" :style="{ width: wide && '100%' }">
 			<slot />

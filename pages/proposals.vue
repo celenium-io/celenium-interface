@@ -12,7 +12,7 @@ import Badge from "@/components/ui/Badge.vue"
 import { comma, space, formatBytes } from "@/services/utils"
 
 /** API */
-import { fetchProposals, fetchProposalsCount } from "@/services/api/proposal"
+import { fetchProposals, fetchProposalById, fetchProposalsCount } from "@/services/api/proposal"
 
 useHead({
 	title: "Governance: Celestia Proposals - Celenium",
@@ -185,8 +185,8 @@ const getProposalType = (type) => {
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Status</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Votes</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Type</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Result Time</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Block</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Result Time</Text></th>
 							</tr>
 						</thead>
 
@@ -298,18 +298,6 @@ const getProposalType = (type) => {
 									</NuxtLink>
 								</td>
 								<td>
-									<NuxtLink :to="`/proposal/${proposal.id}`">
-										<Flex justify="center" direction="column" gap="4">
-											<Text size="12" weight="600" color="primary">
-												{{ DateTime.fromISO(proposal.deposit_time).toRelative({ locale: "en", style: "short" }) }}
-											</Text>
-											<Text size="12" weight="500" color="tertiary">
-												{{ DateTime.fromISO(proposal.deposit_time).setLocale("en").toFormat("LLL d, t") }}
-											</Text>
-										</Flex>
-									</NuxtLink>
-								</td>
-								<td>
 									<NuxtLink :to="`/address/${proposal.proposer.hash}`">
 										<Flex align="center">
 											<Outline @click.prevent="router.push(`/block/${proposal.height}`)">
@@ -318,6 +306,18 @@ const getProposalType = (type) => {
 													<Text size="13" weight="600" color="primary" tabular>{{ comma(proposal.height) }}</Text>
 												</Flex>
 											</Outline>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/proposal/${proposal.id}`">
+										<Flex justify="center" direction="column" gap="4">
+											<Text size="12" weight="600" color="primary">
+												{{ DateTime.fromISO(proposal.deposit_time).toRelative({ locale: "en", style: "short" }) }}
+											</Text>
+											<Text size="12" weight="500" color="tertiary">
+												{{ DateTime.fromISO(proposal.deposit_time).setLocale("en").toFormat("LLL d, t") }}
+											</Text>
 										</Flex>
 									</NuxtLink>
 								</td>

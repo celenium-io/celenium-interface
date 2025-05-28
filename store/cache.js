@@ -8,7 +8,7 @@ export const useCacheStore = defineStore("cache", () => {
 	const selectedBlob = ref(null)
 	const selectedCommitment = ref(null)
 	const selectedRollupRank = ref(null)
-	const selectedRollup = ref (null)
+	const selectedRollup = ref(null)
 
 	const qr = reactive({
 		data: null,

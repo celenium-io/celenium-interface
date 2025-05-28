@@ -818,9 +818,9 @@ const handleViewRawTransactions = () => {
 	background: var(--card-background);
 
 	.top {
-		padding: 16px;
-
 		border-bottom: 1px solid var(--op-5);
+
+		padding: 16px;
 	}
 
 	.main {
