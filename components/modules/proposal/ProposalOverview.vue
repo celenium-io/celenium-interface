@@ -399,11 +399,13 @@ const getVoteIconColor = (status) => {
 										</Flex>
 									</td>
 									<td>
-										<Flex align="center">
-											<Text size="12" weight="600" color="primary" mono class="table_column_alias">
-												{{ $getDisplayName("addresses", vote.voter.hash) }}
-											</Text>
-										</Flex>
+										<NuxtLink :to="`/address/${vote.voter.hash}`">
+											<Flex align="center">
+												<Text size="13" weight="600" color="primary" class="table_column_alias">
+													{{ $getDisplayName("addresses", vote.voter.hash) }}
+												</Text>
+											</Flex>
+										</NuxtLink>
 									</td>
 									<td>
 										<Flex justify="center" direction="column" gap="4">
@@ -698,10 +700,6 @@ const getVoteIconColor = (status) => {
 
 			& > a {
 				display: flex;
-
-				min-height: 40px;
-
-				padding-right: 24px;
 			}
 		}
 	}
