@@ -82,7 +82,7 @@ const page = ref(route.query.page ? parseInt(route.query.page) : 1)
 const pages = computed(() => Math.ceil(count.value / 20))
 
 const { data } = await fetchProposals({ limit: 20, offset: (page.value - 1) * 20 })
-proposals.value = data.value
+proposals.value = data.value.filter((proposal) => proposal.status !== "removed")
 
 watch(
 	() => page.value,
