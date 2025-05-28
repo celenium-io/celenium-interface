@@ -3,7 +3,7 @@ import { useServerURL } from "@/services/config"
 
 export const fetchProposals = async ({ limit, offset }) => {
 	try {
-		const url = new URL(`https://api.celenium.io/v1/proposal`)
+		const url = new URL(`https://api-mocha-4.celenium.io/v1/proposal`)
 		// const url = new URL(`${useServerURL()}/proposal`)
 
 		url.searchParams.append("stats", true)
@@ -21,7 +21,7 @@ export const fetchProposals = async ({ limit, offset }) => {
 
 export const fetchProposalById = async ({ id }) => {
 	try {
-		const url = new URL(`https://api.celenium.io/v1/proposal/${id}`)
+		const url = new URL(`https://api-mocha-4.celenium.io/v1/proposal/${id}`)
 		// const url = new URL(`${useServerURL()}/proposal/${id}`)
 
 		const data = await useAsyncData(`proposal-${id}`, () => $fetch(url.href))
@@ -33,7 +33,7 @@ export const fetchProposalById = async ({ id }) => {
 
 export const fetchProposalVotes = async ({ id }) => {
 	try {
-		const url = new URL(`https://api.celenium.io/v1/proposal/${id}/votes`)
+		const url = new URL(`https://api-mocha-4.celenium.io/v1/proposal/${id}/votes`)
 		// const url = new URL(`${useServerURL()}/proposal/${id}/votes`)
 
 		const data = await useAsyncData(`proposal-${id}-votes`, () => $fetch(url.href))
