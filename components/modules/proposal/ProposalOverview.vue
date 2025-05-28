@@ -245,7 +245,11 @@ const getVoteIconColor = (status) => {
 						<Text size="12" weight="600" color="secondary">Allocation of votes</Text>
 
 						<Flex align="center" gap="4" :class="[$style.voting_wrapper, $style[proposal.status]]">
-							<Tooltip v-if="proposal.yes" wide :trigger-width="`${(proposal.yes * 100) / proposal.votes_count}%`">
+							<Tooltip
+								v-if="proposal.yes"
+								wide
+								:trigger-width="`${Math.max(5, (proposal.yes * 100) / proposal.votes_count)}%`"
+							>
 								<div
 									:style="{
 										background: 'var(--brand)',
@@ -253,10 +257,10 @@ const getVoteIconColor = (status) => {
 									:class="$style.voting_bar"
 								/>
 								<template #content>
-									Yes: <Text color="primary">{{ proposal.yes }}</Text>
+									Yes: <Text color="primary">{{ comma(proposal.yes) }}</Text>
 								</template>
 							</Tooltip>
-							<Tooltip v-if="proposal.no" wide :trigger-width="`${(proposal.no * 100) / proposal.votes_count}%`">
+							<Tooltip v-if="proposal.no" wide :trigger-width="`${Math.max(5, (proposal.no * 100) / proposal.votes_count)}%`">
 								<div
 									:style="{
 										background: 'var(--red)',
@@ -264,13 +268,13 @@ const getVoteIconColor = (status) => {
 									:class="$style.voting_bar"
 								/>
 								<template #content>
-									No: <Text color="primary">{{ proposal.no }}</Text>
+									No: <Text color="primary">{{ comma(proposal.no) }}</Text>
 								</template>
 							</Tooltip>
 							<Tooltip
 								v-if="proposal.no_with_veto"
 								wide
-								:trigger-width="`${(proposal.no_with_veto * 100) / proposal.votes_count}%`"
+								:trigger-width="`${Math.max(5, (proposal.no_with_veto * 100) / proposal.votes_count)}%`"
 							>
 								<div
 									:style="{
@@ -279,10 +283,14 @@ const getVoteIconColor = (status) => {
 									:class="$style.voting_bar"
 								/>
 								<template #content>
-									No with veto: <Text color="primary">{{ proposal.no_with_veto }}</Text>
+									No with veto: <Text color="primary">{{ comma(proposal.no_with_veto) }}</Text>
 								</template>
 							</Tooltip>
-							<Tooltip v-if="proposal.abstain" wide :trigger-width="`${(proposal.abstain * 100) / proposal.votes_count}%`">
+							<Tooltip
+								v-if="proposal.abstain"
+								wide
+								:trigger-width="`${Math.max(5, (proposal.abstain * 100) / proposal.votes_count)}%`"
+							>
 								<div
 									:style="{
 										background: 'var(--op-40)',
@@ -290,7 +298,7 @@ const getVoteIconColor = (status) => {
 									:class="$style.voting_bar"
 								/>
 								<template #content>
-									Abstain: <Text color="primary">{{ proposal.abstain }}</Text>
+									Abstain: <Text color="primary">{{ comma(proposal.abstain) }}</Text>
 								</template>
 							</Tooltip>
 						</Flex>
