@@ -11,7 +11,7 @@ import Popover from "@/components/ui/Popover.vue"
 import Toggle from "@/components/ui/Toggle.vue"
 
 /** Services */
-import { abbreviate, formatBytes, tia } from "@/services/utils"
+import { abbreviate, tia } from "@/services/utils"
 
 /** API */
 import { fetchAddressSeries } from "@/services/api/stats"
@@ -64,10 +64,10 @@ const handleClose = () => {
 }
 
 const handleChangeChartView = () => {
-	if (chartView.value === 'line') {
-		chartView.value = 'bar'
+	if (chartView.value === "line") {
+		chartView.value = "bar"
 	} else {
-		chartView.value = 'line'
+		chartView.value = "line"
 	}
 }
 
@@ -80,9 +80,9 @@ const updateUserSettings = () => {
 }
 
 /** Charts */
-const chartWrapperEl = ref()
-const txSeriesChartEl = ref()
-const feeSeriesChartEl = ref()
+const chartWrapperEl = useTemplateRef("chartWrapperEl")
+const txSeriesChartEl = useTemplateRef("txSeriesChartEl")
+const feeSeriesChartEl = useTemplateRef("feeSeriesChartEl")
 
 /** Data */
 const isLoading = ref(false)
@@ -152,15 +152,15 @@ const buildLineChart = (chartEl, data, onEnter, onLeave, metric) => {
 			tf === "month"
 				? DateTime.fromJSDate(data[idx].date).toFormat("LLL")
 				: tf === "day"
-					? DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
-					: DateTime.fromJSDate(data[idx].date).set({ minutes: 0 }).toFormat("hh:mm a")
+				? DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
+				: DateTime.fromJSDate(data[idx].date).set({ minutes: 0 }).toFormat("hh:mm a")
 
 		if (!badgeEl.value) return
 		const badgeWidth = badgeEl.value.getBoundingClientRect().width
 		if (tooltipXOffset.value - marginLeft < badgeWidth / 2) {
 			badgeOffset.value = 0
 		} else if (badgeWidth + tooltipXOffset.value > width) {
-			badgeOffset.value = Math.abs(width - (badgeWidth + tooltipXOffset.value)) + ((data.length - 1 - idx) * 2)
+			badgeOffset.value = Math.abs(width - (badgeWidth + tooltipXOffset.value)) + (data.length - 1 - idx) * 2
 		} else {
 			badgeOffset.value = badgeWidth / 2
 		}
@@ -207,44 +207,38 @@ const buildLineChart = (chartEl, data, onEnter, onLeave, metric) => {
 	let path2 = null
 	path1 = svg
 		.append("path")
-			.attr("fill", "none")
-			.attr("stroke", "var(--brand)")
-			.attr("stroke-width", 2)
-			.attr("stroke-linecap", "round")
-			.attr("stroke-linejoin", "round")
-			.attr("d", line(loadLastValue.value ? data.slice(0, data.length - 1) : data))
+		.attr("fill", "none")
+		.attr("stroke", "var(--brand)")
+		.attr("stroke-width", 2)
+		.attr("stroke-linecap", "round")
+		.attr("stroke-linejoin", "round")
+		.attr("d", line(loadLastValue.value ? data.slice(0, data.length - 1) : data))
 
 	if (loadLastValue.value) {
 		// Create pattern
 		const defs = svg.append("defs")
-		const pattern = defs.append("pattern")
+		const pattern = defs
+			.append("pattern")
 			.attr("id", "dashedPattern")
 			.attr("width", 8)
 			.attr("height", 2)
 			.attr("patternUnits", "userSpaceOnUse")
-		pattern.append("rect")
-			.attr("width", 4)
-			.attr("height", 2)
-			.attr("fill", "var(--brand)")
-		pattern.append("rect")
-			.attr("x", 8)
-			.attr("width", 4)
-			.attr("height", 2)
-			.attr("fill", "transparent")
-		
+		pattern.append("rect").attr("width", 4).attr("height", 2).attr("fill", "var(--brand)")
+		pattern.append("rect").attr("x", 8).attr("width", 4).attr("height", 2).attr("fill", "transparent")
+
 		// Last dash segment
 		path2 = svg
 			.append("path")
-				.attr("fill", "none")
-				.attr("stroke", "url(#dashedPattern)")
-				.attr("stroke-width", 2)
-				.attr("stroke-linecap", "round")
-				.attr("stroke-linejoin", "round")
-				.attr("d", line(data.slice(data.length - 2, data.length)))
+			.attr("fill", "none")
+			.attr("stroke", "url(#dashedPattern)")
+			.attr("stroke-width", 2)
+			.attr("stroke-linecap", "round")
+			.attr("stroke-linejoin", "round")
+			.attr("d", line(data.slice(data.length - 2, data.length)))
 	}
-	
+
 	const totalDuration = 1_000
-	const path1Duration = loadLastValue.value ? totalDuration / data.length * (data.length - 1) : totalDuration
+	const path1Duration = loadLastValue.value ? (totalDuration / data.length) * (data.length - 1) : totalDuration
 	const path1Length = path1.node().getTotalLength()
 
 	path1
@@ -254,11 +248,11 @@ const buildLineChart = (chartEl, data, onEnter, onLeave, metric) => {
 		.duration(path1Duration)
 		.ease(d3.easeLinear)
 		.attr("stroke-dashoffset", 0)
-	
+
 	if (loadLastValue.value) {
 		const path2Duration = totalDuration / data.length
 		const path2Length = path2.node().getTotalLength() + 1
-		
+
 		path2
 			.attr("stroke-dasharray", path2Length)
 			.attr("stroke-dashoffset", path2Length)
@@ -269,17 +263,15 @@ const buildLineChart = (chartEl, data, onEnter, onLeave, metric) => {
 			.attr("stroke-dashoffset", 0)
 	}
 
-	const point = svg.append("circle")
+	const point = svg
+		.append("circle")
 		.attr("cx", x(data[data.length - 1].date))
 		.attr("cy", y(data[data.length - 1].value))
 		.attr("fill", "var(--brand)")
 		.attr("r", 3)
 		.attr("opacity", 0)
-	
-	point.transition()
-		.delay(totalDuration)
-		.duration(200)
-		.attr("opacity", 1)
+
+	point.transition().delay(totalDuration).duration(200).attr("opacity", 1)
 
 	if (chartEl.children[0]) chartEl.children[0].remove()
 	chartEl.append(svg.node())
@@ -310,15 +302,14 @@ const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 		onEnter()
 
 		const idx = bisect(data, x.invert(d3.pointer(event)[0] - barWidth / 2))
-		
+
 		const elements = document.querySelectorAll(`[metric="${metric}"]`)
-		elements.forEach(el => {
-			if (+el.getAttribute('data-index') === idx) {
+		elements.forEach((el) => {
+			if (+el.getAttribute("data-index") === idx) {
 				el.style.filter = "brightness(1.2)"
 			} else {
 				el.style.filter = "brightness(0.6)"
 			}
-			
 		})
 
 		tooltipXOffset.value = x(data[idx].date)
@@ -342,15 +333,15 @@ const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 			tf === "month"
 				? DateTime.fromJSDate(data[idx].date).toFormat("LLL")
 				: tf === "day"
-					? DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
-					: DateTime.fromJSDate(data[idx].date).set({ minutes: 0 }).toFormat("hh:mm a")
+				? DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
+				: DateTime.fromJSDate(data[idx].date).set({ minutes: 0 }).toFormat("hh:mm a")
 
 		if (!badgeEl.value) return
 		const badgeWidth = badgeEl.value.getBoundingClientRect().width
 		if (tooltipXOffset.value - marginLeft < badgeWidth / 2) {
 			badgeOffset.value = 0
 		} else if (badgeWidth + tooltipXOffset.value > width) {
-			badgeOffset.value = Math.abs(width - (badgeWidth + tooltipXOffset.value)) + ((data.length - 1 - idx) * 2)
+			badgeOffset.value = Math.abs(width - (badgeWidth + tooltipXOffset.value)) + (data.length - 1 - idx) * 2
 		} else {
 			badgeOffset.value = (badgeWidth - barWidth) / 2
 		}
@@ -358,8 +349,8 @@ const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 	const onPointerleft = () => {
 		onLeave()
 
-		const elements = document.querySelectorAll('[data-index]')
-		elements.forEach(el => {
+		const elements = document.querySelectorAll("[data-index]")
+		elements.forEach((el) => {
 			el.style.filter = ""
 		})
 		badgeText.value = ""
@@ -406,25 +397,26 @@ const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 		.attr("patternUnits", "userSpaceOnUse")
 		.attr("patternTransform", "rotate(45)")
 		.append("rect")
-			.attr("width", 2)
-			.attr("height", 6)
-			.attr("transform", "translate(0,0)")
-			.attr("fill", "var(--brand)")
+		.attr("width", 2)
+		.attr("height", 6)
+		.attr("transform", "translate(0,0)")
+		.attr("fill", "var(--brand)")
 
-	svg.append('g')
+	svg.append("g")
 		.selectAll("g")
 		.data(data)
-		.enter().append("rect")
+		.enter()
+		.append("rect")
 		.attr("class", "bar")
-		.attr('data-index', (d, i) => i)
-		.attr('metric', metric)
-		.attr("x", d => x(new Date(d.date)))
-		.attr('y', d => y(d.value))
+		.attr("data-index", (d, i) => i)
+		.attr("metric", metric)
+		.attr("x", (d) => x(new Date(d.date)))
+		.attr("y", (d) => y(d.value))
 		.attr("width", barWidth)
-		.attr('fill', (d, i) => (loadLastValue.value && i === data.length - 1) ? `url(#diagonal-stripe)` : "var(--brand)")
+		.attr("fill", (d, i) => (loadLastValue.value && i === data.length - 1 ? `url(#diagonal-stripe)` : "var(--brand)"))
 		.transition()
 		.duration(1_000)
-		.attr('height', d => Math.max(height - marginBottom - 6 - y(d.value), 0))
+		.attr("height", (d) => Math.max(height - marginBottom - 6 - y(d.value), 0))
 
 	if (chartEl.children[0]) chartEl.children[0].remove()
 	chartEl.append(svg.node())
@@ -453,15 +445,19 @@ const getTxSeries = async () => {
 
 	const txSeriesMap = {}
 	txSeriesRawData.forEach((item) => {
-		txSeriesMap[DateTime.fromISO(item.time).toFormat(["day", "month"].includes(selectedPeriod.value.timeframe) ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
+		txSeriesMap[
+			DateTime.fromISO(item.time).toFormat(["day", "month"].includes(selectedPeriod.value.timeframe) ? "y-LL-dd" : "y-LL-dd-HH")
+		] = item.value
 	})
 
 	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
 		let dt
 		if (selectedPeriod.value.timeframe === "month") {
-			dt = DateTime.now().startOf('month').minus({
-				months: selectedPeriod.value.timeframe === "month" ? selectedPeriod.value.value - i : 0,
-			})
+			dt = DateTime.now()
+				.startOf("month")
+				.minus({
+					months: selectedPeriod.value.timeframe === "month" ? selectedPeriod.value.value - i : 0,
+				})
 		} else {
 			dt = DateTime.now().minus({
 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
@@ -470,7 +466,9 @@ const getTxSeries = async () => {
 		}
 		txSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseInt(txSeriesMap[dt.toFormat(["day", "month"].includes(selectedPeriod.value.timeframe) ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+			value:
+				parseInt(txSeriesMap[dt.toFormat(["day", "month"].includes(selectedPeriod.value.timeframe) ? "y-LL-dd" : "y-LL-dd-HH")]) ||
+				0,
 		})
 	}
 }
@@ -482,15 +480,19 @@ const getFeeSeries = async () => {
 
 	const feeSeriesMap = {}
 	feeSeriesRawData.forEach((item) => {
-		feeSeriesMap[DateTime.fromISO(item.time).toFormat(["day", "month"].includes(selectedPeriod.value.timeframe) ? "y-LL-dd" : "y-LL-dd-HH")] = item.value
+		feeSeriesMap[
+			DateTime.fromISO(item.time).toFormat(["day", "month"].includes(selectedPeriod.value.timeframe) ? "y-LL-dd" : "y-LL-dd-HH")
+		] = item.value
 	})
 
 	for (let i = 1; i < selectedPeriod.value.value + 1; i++) {
 		let dt
 		if (selectedPeriod.value.timeframe === "month") {
-			dt = DateTime.now().startOf('month').minus({
-				months: selectedPeriod.value.timeframe === "month" ? selectedPeriod.value.value - i : 0,
-			})
+			dt = DateTime.now()
+				.startOf("month")
+				.minus({
+					months: selectedPeriod.value.timeframe === "month" ? selectedPeriod.value.value - i : 0,
+				})
 		} else {
 			dt = DateTime.now().minus({
 				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value - i : 0,
@@ -499,7 +501,9 @@ const getFeeSeries = async () => {
 		}
 		feeSeries.value.push({
 			date: dt.toJSDate(),
-			value: parseInt(feeSeriesMap[dt.toFormat(["day", "month"].includes(selectedPeriod.value.timeframe) ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
+			value:
+				parseInt(feeSeriesMap[dt.toFormat(["day", "month"].includes(selectedPeriod.value.timeframe) ? "y-LL-dd" : "y-LL-dd-HH")]) ||
+				0,
 		})
 	}
 }
@@ -557,8 +561,8 @@ watch(
 		updateUserSettings()
 		if (!isLoading.value) {
 			buildCharts(false)
-		}		
-	}
+		}
+	},
 )
 
 const debouncedRedraw = useDebounceFn((e) => {
@@ -624,7 +628,9 @@ onBeforeUnmount(() => {
 									gap="12"
 									:class="$style.chart_selector"
 									:style="{
-										background: `linear-gradient(to ${chartView === 'line' ? 'right' : 'left'}, var(--op-5) 50%, transparent 50%)`,
+										background: `linear-gradient(to ${
+											chartView === 'line' ? 'right' : 'left'
+										}, var(--op-5) 50%, transparent 50%)`,
 									}"
 								>
 									<Icon
@@ -703,17 +709,24 @@ onBeforeUnmount(() => {
 									{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
 								</Text>
 
-								<Text size="12" weight="600" color="tertiary">{{ selectedPeriod.timeframe === "day" ? "Today" : "Now" }}</Text>
+								<Text size="12" weight="600" color="tertiary">{{
+									selectedPeriod.timeframe === "day" ? "Today" : "Now"
+								}}</Text>
 							</Flex>
 						</Flex>
 
 						<Transition name="fastfade">
 							<div v-if="showTxTooltip" :class="$style.tooltip_wrapper">
-								<div v-if="chartView === 'line'"
+								<div
+									v-if="chartView === 'line'"
 									:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
 									:class="$style.dot"
 								/>
-								<div v-if="chartView === 'line'" :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
+								<div
+									v-if="chartView === 'line'"
+									:style="{ transform: `translateX(${tooltipXOffset}px)` }"
+									:class="$style.line"
+								/>
 								<div
 									ref="badgeEl"
 									:style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"
@@ -754,9 +767,12 @@ onBeforeUnmount(() => {
 								color="tertiary"
 								:style="{ opacity: Math.max(...feeSeries.map((d) => d.value)) ? 1 : 0 }"
 							>
-								{{ tia(Math.max(...feeSeries.map((d) => d.value)), 0) > 1
-									? tia(Math.max(...feeSeries.map((d) => d.value)), 0)
-									: tia(Math.max(...feeSeries.map((d) => d.value)), 2) }} TIA
+								{{
+									tia(Math.max(...feeSeries.map((d) => d.value)), 0) > 1
+										? tia(Math.max(...feeSeries.map((d) => d.value)), 0)
+										: tia(Math.max(...feeSeries.map((d) => d.value)), 2)
+								}}
+								TIA
 							</Text>
 							<Skeleton v-else-if="!feeSeries.length" w="32" h="12" />
 
@@ -767,14 +783,18 @@ onBeforeUnmount(() => {
 								color="tertiary"
 								:style="{
 									opacity:
-										Math.round(Math.max(...feeSeries.map((d) => d.value)) / 2) != Math.max(...feeSeries.map((d) => d.value))
+										Math.round(Math.max(...feeSeries.map((d) => d.value)) / 2) !=
+										Math.max(...feeSeries.map((d) => d.value))
 											? 1
 											: 0,
 								}"
 							>
-								{{ tia(Math.round(Math.max(...feeSeries.map((d) => d.value)) / 2), 0) > 1
-									? tia(Math.round(Math.max(...feeSeries.map((d) => d.value)) / 2), 0)
-									: tia(Math.round(Math.max(...feeSeries.map((d) => d.value)) / 2), 2) }} TIA
+								{{
+									tia(Math.round(Math.max(...feeSeries.map((d) => d.value)) / 2), 0) > 1
+										? tia(Math.round(Math.max(...feeSeries.map((d) => d.value)) / 2), 0)
+										: tia(Math.round(Math.max(...feeSeries.map((d) => d.value)) / 2), 2)
+								}}
+								TIA
 							</Text>
 							<Skeleton v-else-if="!feeSeries.length" w="24" h="12" />
 
@@ -795,17 +815,24 @@ onBeforeUnmount(() => {
 									{{ DateTime.now().minus({ hours: selectedPeriod.value }).set({ minutes: 0 }).toFormat("hh:mm a") }}
 								</Text>
 
-								<Text size="12" weight="600" color="tertiary">{{ selectedPeriod.timeframe === "day" ? "Today" : "Now" }}</Text>
+								<Text size="12" weight="600" color="tertiary">{{
+									selectedPeriod.timeframe === "day" ? "Today" : "Now"
+								}}</Text>
 							</Flex>
 						</Flex>
 
 						<Transition name="fastfade">
 							<div v-if="showFeeTooltip" :class="$style.tooltip_wrapper">
-								<div v-if="chartView === 'line'"
+								<div
+									v-if="chartView === 'line'"
 									:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
 									:class="$style.dot"
 								/>
-								<div v-if="chartView === 'line'" :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
+								<div
+									v-if="chartView === 'line'"
+									:style="{ transform: `translateX(${tooltipXOffset}px)` }"
+									:class="$style.line"
+								/>
 								<div
 									ref="badgeEl"
 									:style="{ transform: `translateX(${tooltipXOffset - badgeOffset}px)` }"

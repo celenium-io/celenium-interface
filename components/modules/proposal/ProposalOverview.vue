@@ -3,9 +3,9 @@
 import { DateTime } from "luxon"
 
 /** UI */
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Badge from "@/components/ui/Badge.vue"
 import Button from "@/components/ui/Button.vue"
-import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
@@ -52,6 +52,7 @@ const getVotes = async () => {
 		id: props.proposal.id,
 	})
 	votes.value = data.value
+	cacheStore.current.votes = votes.value
 
 	isLoading.value = false
 }
