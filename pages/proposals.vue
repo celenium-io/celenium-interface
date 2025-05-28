@@ -427,6 +427,7 @@ const getProposalType = (type) => {
 
 .voting_wrapper {
 	width: 100px;
+	min-height: 12px;
 
 	border-radius: 50px;
 
