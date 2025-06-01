@@ -8,8 +8,9 @@ import Badge from "@/components/ui/Badge.vue"
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
-/** Shared Components */
+/** Shared & Local Components */
 import TablePlaceholderView from "@/components/shared/TablePlaceholderView.vue"
+import VotesAllocation from "./VotesAllocation.vue"
 
 /** Services */
 import { comma, space } from "@/services/utils"
@@ -241,68 +242,7 @@ const getVoteIconColor = (status) => {
 						</Flex>
 					</Flex>
 
-					<Flex v-if="proposal.status !== 'removed'" direction="column" gap="10" :class="$style.key_value">
-						<Text size="12" weight="600" color="secondary">Allocation of votes</Text>
-
-						<Flex align="center" gap="4" :class="[$style.voting_wrapper, $style[proposal.status]]">
-							<Tooltip
-								v-if="proposal.yes"
-								wide
-								:trigger-width="`${Math.max(5, (proposal.yes * 100) / proposal.votes_count)}%`"
-							>
-								<div
-									:style="{
-										background: 'var(--brand)',
-									}"
-									:class="$style.voting_bar"
-								/>
-								<template #content>
-									Yes: <Text color="primary">{{ comma(proposal.yes) }}</Text>
-								</template>
-							</Tooltip>
-							<Tooltip v-if="proposal.no" wide :trigger-width="`${Math.max(5, (proposal.no * 100) / proposal.votes_count)}%`">
-								<div
-									:style="{
-										background: 'var(--red)',
-									}"
-									:class="$style.voting_bar"
-								/>
-								<template #content>
-									No: <Text color="primary">{{ comma(proposal.no) }}</Text>
-								</template>
-							</Tooltip>
-							<Tooltip
-								v-if="proposal.no_with_veto"
-								wide
-								:trigger-width="`${Math.max(5, (proposal.no_with_veto * 100) / proposal.votes_count)}%`"
-							>
-								<div
-									:style="{
-										background: 'var(--red)',
-									}"
-									:class="$style.voting_bar"
-								/>
-								<template #content>
-									No with veto: <Text color="primary">{{ comma(proposal.no_with_veto) }}</Text>
-								</template>
-							</Tooltip>
-							<Tooltip
-								v-if="proposal.abstain"
-								wide
-								:trigger-width="`${Math.max(5, (proposal.abstain * 100) / proposal.votes_count)}%`"
-							>
-								<div
-									:style="{
-										background: 'var(--op-40)',
-									}"
-									:class="$style.voting_bar"
-								/>
-								<template #content>
-									Abstain: <Text color="primary">{{ comma(proposal.abstain) }}</Text>
-								</template>
-							</Tooltip>
-						</Flex>
-					</Flex>
+					<VotesAllocation v-if="proposal.status !== 'removed'" :proposal />
 
 					<Flex direction="column" gap="10" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Type</Text>
@@ -569,41 +509,6 @@ const getVoteIconColor = (status) => {
 	-webkit-box-orient: vertical;
 	text-overflow: ellipsis;
 	overflow: hidden;
-}
-
-.voting_wrapper {
-	width: 100%;
-
-	border-radius: 50px;
-
-	padding: 4px;
-
-	&.inactive {
-		background: var(--op-8);
-	}
-
-	&.active {
-		background: rgba(var(--blue-rgb), 20%);
-	}
-
-	&.removed {
-		background: rgba(var(--red-rgb), 20%);
-	}
-
-	&.applied {
-		background: rgba(var(--brand-rgb), 20%);
-	}
-
-	&.rejected {
-		background: rgba(var(--red-rgb), 20%);
-	}
-}
-
-.voting_bar {
-	width: 100%;
-	height: 4px;
-
-	border-radius: 50px;
 }
 
 .tabs_wrapper {

@@ -220,7 +220,7 @@ const getProposalType = (type) => {
 								<td>
 									<NuxtLink :to="`/proposal/${proposal.id}`">
 										<Flex align="center">
-											<Flex align="center" gap="4" :class="[$style.voting_wrapper, $style[proposal.status]]">
+											<Flex align="center" gap="4" :class="$style.voting_wrapper">
 												<Tooltip
 													v-if="proposal.yes"
 													wide
@@ -430,28 +430,9 @@ const getProposalType = (type) => {
 	min-height: 12px;
 
 	border-radius: 50px;
+	background: var(--op-8);
 
 	padding: 4px;
-
-	&.inactive {
-		background: var(--op-8);
-	}
-
-	&.active {
-		background: rgba(var(--blue-rgb), 20%);
-	}
-
-	&.removed {
-		background: var(--op-8);
-	}
-
-	&.applied {
-		background: rgba(var(--brand-rgb), 20%);
-	}
-
-	&.rejected {
-		background: rgba(var(--red-rgb), 20%);
-	}
 }
 
 .voting_bar {
