@@ -14,7 +14,7 @@ const votes = computed(() => enumStore.enums.voteOption)
 const props = defineProps({
 	proposal: {
 		type: Object,
-		default: [],
+		default: {},
 	},
 })
 
