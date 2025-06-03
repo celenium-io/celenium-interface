@@ -113,6 +113,14 @@ const expand = ref(false)
 					<Text color="secondary">{{ appStore.constants.gov.threshold * 100 }}%</Text> is met
 				</Text>
 			</Flex>
+
+			<Flex v-if="proposal.no_with_veto / proposal.votes_count > appStore.constants.gov.veto_threshold" align="center" gap="4">
+				<Icon name="check-circle" size="12" color="tertiary" />
+				<Text size="12" weight="500" color="tertiary">
+					The <Text color="secondary" weight="600">No With Veto</Text> vote threshold of
+					<Text color="secondary">{{ appStore.constants.gov.veto_threshold * 100 }}%</Text> is met
+				</Text>
+			</Flex>
 		</Flex>
 	</Flex>
 </template>
