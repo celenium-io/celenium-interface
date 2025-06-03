@@ -60,14 +60,14 @@ const getVoteIconColor = (status) => {
 				<table>
 					<thead>
 						<tr>
-							<th><Text size="12" weight="600" color="tertiary">Vote</Text></th>
+							<th><Text size="12" weight="600" color="tertiary">Option</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Validator</Text></th>
 						</tr>
 					</thead>
 
 					<tbody>
-						<tr v-for="vote in votes">
+						<tr v-for="vote in votes" @click="navigateTo(`/proposal/${vote.proposal_id}`)">
 							<td>
 								<NuxtLink :to="`/proposal/${vote.proposal_id}`">
 									<Flex align="center" gap="4">
@@ -79,51 +79,47 @@ const getVoteIconColor = (status) => {
 								</NuxtLink>
 							</td>
 							<td>
-								<NuxtLink :to="`/proposal/${vote.proposal_id}`">
-									<Flex justify="center" direction="column" gap="4">
-										<Text size="12" weight="600" color="primary">
-											{{ DateTime.fromISO(vote.deposit_time).toRelative({ locale: "en", style: "short" }) }}
-										</Text>
-										<Text size="12" weight="500" color="tertiary">
-											{{ DateTime.fromISO(vote.deposit_time).setLocale("en").toFormat("LLL d, t") }}
-										</Text>
-									</Flex>
-								</NuxtLink>
+								<Flex justify="center" direction="column" gap="4">
+									<Text size="12" weight="600" color="primary">
+										{{ DateTime.fromISO(vote.deposit_time).toRelative({ locale: "en", style: "short" }) }}
+									</Text>
+									<Text size="12" weight="500" color="tertiary">
+										{{ DateTime.fromISO(vote.deposit_time).setLocale("en").toFormat("LLL d, t") }}
+									</Text>
+								</Flex>
 							</td>
 							<td>
-								<NuxtLink :to="`/proposal/${vote.proposal_id}`">
-									<Flex v-if="vote.validator" align="center">
-										<Tooltip delay="500">
-											<template #default>
-												<Flex direction="column" gap="4">
-													<Text size="12" height="120" weight="600" color="primary">
-														{{ vote.validator.moniker }}
+								<Flex v-if="vote.validator" align="center">
+									<Tooltip delay="500">
+										<template #default>
+											<Flex direction="column" gap="4">
+												<Text size="12" height="120" weight="600" color="primary">
+													{{ vote.validator.moniker }}
+												</Text>
+
+												<Flex align="center" gap="6">
+													<Text size="12" weight="600" color="tertiary" mono>
+														{{ vote.validator.cons_address.slice(0, 4) }}
 													</Text>
-
-													<Flex align="center" gap="6">
-														<Text size="12" weight="600" color="tertiary" mono>
-															{{ vote.validator.cons_address.slice(0, 4) }}
-														</Text>
-														<Flex align="center" gap="3">
-															<div v-for="dot in 3" class="dot" />
-														</Flex>
-														<Text size="12" weight="600" color="tertiary" mono>
-															{{
-																vote.validator.cons_address.slice(
-																	vote.validator.cons_address.length - 4,
-																	vote.validator.cons_address.length,
-																)
-															}}
-														</Text>
-														<CopyButton :text="vote.validator.cons_address" size="10" />
+													<Flex align="center" gap="3">
+														<div v-for="dot in 3" class="dot" />
 													</Flex>
+													<Text size="12" weight="600" color="tertiary" mono>
+														{{
+															vote.validator.cons_address.slice(
+																vote.validator.cons_address.length - 4,
+																vote.validator.cons_address.length,
+															)
+														}}
+													</Text>
+													<CopyButton :text="vote.validator.cons_address" size="10" />
 												</Flex>
-											</template>
+											</Flex>
+										</template>
 
-											<template #content> {{ space(vote.validator.cons_address) }} </template>
-										</Tooltip>
-									</Flex>
-								</NuxtLink>
+										<template #content> {{ space(vote.validator.cons_address) }} </template>
+									</Tooltip>
+								</Flex>
 							</td>
 						</tr>
 					</tbody>
