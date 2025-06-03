@@ -90,7 +90,7 @@ const handleResetOptionFilter = () => {
 
 					<template v-if="optionFilter">
 						<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
-							{{ optionFilter }}
+							{{ optionFilter.replaceAll("_", " ") }}
 						</Text>
 
 						<Icon @click.stop="handleResetOptionFilter" name="close-circle" size="12" color="secondary" />
@@ -304,7 +304,7 @@ const handleResetOptionFilter = () => {
 }
 
 .filters {
-	border-bottom: 1px dashed var(--op-8);
+	border-bottom: 1px solid var(--op-5);
 
 	padding: 12px 8px 12px 8px;
 }

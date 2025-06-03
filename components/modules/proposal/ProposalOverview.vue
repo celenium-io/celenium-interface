@@ -44,13 +44,13 @@ const votesTotal = ref(0)
 const defaultFilters = {
 	option: null,
 }
-const filters = reactive({ ...defaultFilters })
-const handleUpdateFilters = (target, newFilters, withRefetch) => {
-	filters[target] = newFilters
+const { filters, setFilter, resetFilter } = useFilters(defaultFilters)
+const handleUpdateFilter = (target, newFilter, withRefetch) => {
+	setFilter(target, newFilter)
 	if (withRefetch) getVotes()
 }
 const handleResetFilters = (target, withRefetch) => {
-	filters[target] = defaultFilters[target]
+	resetFilter(target)
 	if (withRefetch) getVotes()
 }
 
@@ -354,7 +354,7 @@ const getProposalType = (type) => {
 					:page
 					:isLoadingVotes="isLoading"
 					@onRefetch="getVotes"
-					@updateFilters="handleUpdateFilters"
+					@updateFilters="handleUpdateFilter"
 					@onFiltersReset="handleResetFilters"
 					@onPrevPage="handlePrev"
 					@onNextPage="handleNext"
