@@ -8,11 +8,13 @@ import { space } from "@/services/utils"
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
+import Popover from "@/components/ui/Popover.vue"
+import Radio from "@/components/ui/Radio.vue"
 
 /** Shared Components */
 import TablePlaceholderView from "@/components/shared/TablePlaceholderView.vue"
 
-const emit = defineEmits(["onPrevPage", "onNextPage", "updatePage"])
+const emit = defineEmits(["onPrevPage", "onNextPage", "updatePage", "updateFilters", "onFiltersReset"])
 const props = defineProps({
 	proposal: {
 		type: Object,
@@ -25,6 +27,9 @@ const props = defineProps({
 	votesTotal: {
 		type: Number,
 		default: 0,
+	},
+	filters: {
+		type: Object,
 	},
 	page: {
 		type: Number,
@@ -49,15 +54,79 @@ const getVoteIconColor = (status) => {
 	if (status === "no_with_veto") return "red"
 	if (status === "abstain") return "tertiary"
 }
+
+/** Filter by vote option */
+const optionFilter = ref()
+
+const hasActiveFilters = computed(() => !!optionFilter.value)
+
+const isOptionPopoverOpen = ref(false)
+const handleOpenOptionPopover = () => {
+	isOptionPopoverOpen.value = true
+}
+const onOptionPopoverClose = () => {
+	isOptionPopoverOpen.value = false
+
+	optionFilter.value = null
+}
+const handleApplyOptionFilters = () => {
+	isOptionPopoverOpen.value = false
+
+	emit("updateFilters", "option", optionFilter.value, true)
+}
+const handleResetOptionFilter = () => {
+	emit("onFiltersReset", "option", true)
+	optionFilter.value = null
+}
 </script>
 
 <template>
 	<Flex direction="column" :class="[$style.wrapper, isLoadingVotes && $style.disabled]">
+		<Flex wrap="wrap" align="center" gap="8" :class="$style.filters">
+			<Popover :open="isOptionPopoverOpen" @on-close="onOptionPopoverClose" width="200">
+				<Button @click="handleOpenOptionPopover" type="secondary" size="mini" :disabled="!votes.length && !hasActiveFilters">
+					<Icon name="filter" size="12" :color="optionFilter ? 'brand' : 'tertiary'" />
+					<Text color="secondary">Option<template v-if="optionFilter">:</template></Text>
+
+					<template v-if="optionFilter">
+						<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
+							{{ optionFilter }}
+						</Text>
+
+						<Icon @click.stop="handleResetOptionFilter" name="close-circle" size="12" color="secondary" />
+					</template>
+				</Button>
+
+				<template #content>
+					<Flex direction="column" gap="12">
+						<Text size="12" weight="600" color="secondary">Filter by Vote Option</Text>
+
+						<Flex direction="column" gap="8">
+							<Radio v-model="optionFilter" value="yes">
+								<Text size="12" weight="500" color="primary">Yes</Text>
+							</Radio>
+							<Radio v-model="optionFilter" value="no">
+								<Text size="12" weight="500" color="primary">No</Text>
+							</Radio>
+							<Radio v-model="optionFilter" value="no_with_veto">
+								<Text size="12" weight="500" color="primary">No with veto</Text>
+							</Radio>
+							<Radio v-model="optionFilter" value="abstain">
+								<Text size="12" weight="500" color="primary">Abstain</Text>
+							</Radio>
+						</Flex>
+
+						<Button @click="handleApplyOptionFilters" type="secondary" size="mini" wide>Apply</Button>
+					</Flex>
+				</template>
+			</Popover>
+		</Flex>
+
 		<Flex v-if="votes.length" :class="$style.scroller">
 			<table>
 				<thead>
 					<tr>
-						<th><Text size="12" weight="600" color="tertiary">Vote</Text></th>
+						<th><Text size="12" weight="600" color="tertiary">Option</Text></th>
 						<th><Text size="12" weight="600" color="tertiary">Voter</Text></th>
 						<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
 						<th><Text size="12" weight="600" color="tertiary">Validator</Text></th>
@@ -203,7 +272,7 @@ const getVoteIconColor = (status) => {
 			text-align: left;
 			padding: 0;
 			padding-right: 16px;
-			padding-top: 8px;
+			padding-top: 12px;
 			padding-bottom: 8px;
 
 			&:first-child {
@@ -232,6 +301,12 @@ const getVoteIconColor = (status) => {
 			}
 		}
 	}
+}
+
+.filters {
+	border-bottom: 1px dashed var(--op-8);
+
+	padding: 12px 8px 12px 8px;
 }
 
 .scroller {

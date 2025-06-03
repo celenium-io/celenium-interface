@@ -41,6 +41,20 @@ const isLoading = ref(false)
 const votes = ref([])
 const votesTotal = ref(0)
 
+const defaultFilters = {
+	option: null,
+}
+const filters = reactive({ ...defaultFilters })
+const handleUpdateFilters = (target, newFilters, withRefetch) => {
+	filters[target] = newFilters
+	if (withRefetch) getVotes()
+}
+const handleResetFilters = (target, withRefetch) => {
+	filters[target] = defaultFilters[target]
+	if (withRefetch) getVotes()
+}
+
+/** Pagination */
 const page = ref(1)
 const handleNext = () => {
 	page.value += 1
@@ -56,6 +70,7 @@ const getVotes = async () => {
 	const { data } = await fetchProposalVotes({
 		id: props.proposal.id,
 		offset: (page.value - 1) * 10,
+		option: filters.option,
 	})
 	votes.value = data.value
 
@@ -65,7 +80,6 @@ const getVotes = async () => {
 }
 
 await getVotes()
-
 votesTotal.value = props.proposal.yes + props.proposal.no + props.proposal.no_with_veto + props.proposal.abstain
 
 onMounted(() => {
@@ -336,8 +350,12 @@ const getProposalType = (type) => {
 					:proposal
 					:votes
 					:votesTotal
+					:filters
 					:page
 					:isLoadingVotes="isLoading"
+					@onRefetch="getVotes"
+					@updateFilters="handleUpdateFilters"
+					@onFiltersReset="handleResetFilters"
 					@onPrevPage="handlePrev"
 					@onNextPage="handleNext"
 					@updatePage="(newPage) => (page = newPage)"
