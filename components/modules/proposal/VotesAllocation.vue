@@ -6,7 +6,9 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { comma } from "@/services/utils"
 
 /** Store */
+import { useAppStore } from "@/store/app"
 import { useEnumStore } from "@/store/enums"
+const appStore = useAppStore()
 const enumStore = useEnumStore()
 
 const votes = computed(() => enumStore.enums.voteOption)
@@ -29,6 +31,8 @@ const expand = ref(false)
 		</Flex>
 
 		<Flex align="center" gap="4" :class="$style.voting_wrapper">
+			<div :class="$style.threshold" />
+
 			<Tooltip v-if="proposal.yes" wide :trigger-width="`${Math.max(5, (proposal.yes * 100) / proposal.votes_count)}%`">
 				<div
 					:style="{
@@ -82,18 +86,31 @@ const expand = ref(false)
 			</Tooltip>
 		</Flex>
 
-		<Flex v-if="expand" direction="column" gap="12">
-			<Flex v-for="vote in votes" align="center" justify="between">
-				<Flex align="center" gap="6">
-					<div :class="[$style.dot, $style[vote]]" />
-					<Text size="12" weight="600" color="secondary" style="text-transform: capitalize">{{ vote.replaceAll("_", " ") }}</Text>
-					<Text size="12" weight="600" color="tertiary">{{ proposal[vote] }}</Text>
-				</Flex>
-				<Text size="12" weight="600" :color="proposal[vote] ? 'secondary' : 'tertiary'">
-					<Text v-if="Number(proposal[`${vote}_voting_power`])" color="tertiary">
-						{{ comma(proposal[`${vote}_voting_power`] / 1_000_000) }} TIA
+		<Flex v-if="expand" direction="column" gap="16">
+			<Flex direction="column" gap="12">
+				<Flex v-for="vote in votes" align="center" justify="between">
+					<Flex align="center" gap="6">
+						<div :class="[$style.dot, $style[vote]]" />
+						<Text size="12" weight="600" color="secondary" style="text-transform: capitalize">{{
+							vote.replaceAll("_", " ")
+						}}</Text>
+						<Text size="12" weight="600" color="tertiary">{{ comma(proposal[vote]) }}</Text>
+					</Flex>
+
+					<Text size="12" weight="600" :color="proposal[vote] ? 'secondary' : 'tertiary'">
+						<Text v-if="Number(proposal[`${vote}_voting_power`])" color="tertiary">
+							{{ comma(proposal[`${vote}_voting_power`] / 1_000_000) }} TIA
+						</Text>
+						{{ ((proposal[vote] * 100) / proposal.votes_count).toFixed(0) }}%
 					</Text>
-					{{ ((proposal[vote] * 100) / proposal.votes_count).toFixed(0) }}%
+				</Flex>
+			</Flex>
+
+			<Flex v-if="proposal.yes / proposal.votes_count > appStore.constants.gov.threshold" align="center" gap="4">
+				<Icon name="check-circle" size="12" color="tertiary" />
+				<Text size="12" weight="500" color="tertiary">
+					The <Text color="secondary" weight="600">Yes</Text> vote threshold of
+					<Text color="secondary">{{ appStore.constants.gov.threshold * 100 }}%</Text> is met
 				</Text>
 			</Flex>
 		</Flex>
@@ -105,12 +122,27 @@ const expand = ref(false)
 }
 
 .voting_wrapper {
+	position: relative;
 	width: 100%;
 
 	border-radius: 50px;
 	background: var(--op-8);
 
 	padding: 4px;
+}
+
+.threshold {
+	position: absolute;
+	top: 0;
+	left: 50%;
+
+	width: 4px;
+	height: 12px;
+
+	border-radius: 50px;
+	background: #fff;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+	z-index: 1;
 }
 
 .voting_bar {

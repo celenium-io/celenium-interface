@@ -3,7 +3,8 @@ import { useServerURL } from "@/services/config"
 
 export const fetchProposals = async ({ limit, offset }) => {
 	try {
-		const url = new URL(`${useServerURL()}/proposal`)
+		// const url = new URL(`${useServerURL()}/proposal`)
+		const url = new URL(`https://api.celenium.io/v1/proposal`)
 
 		url.searchParams.append("stats", true)
 		url.searchParams.append("sort", "desc")
@@ -20,7 +21,8 @@ export const fetchProposals = async ({ limit, offset }) => {
 
 export const fetchProposalById = async ({ id }) => {
 	try {
-		const url = new URL(`${useServerURL()}/proposal/${id}`)
+		// const url = new URL(`${useServerURL()}/proposal/${id}`)
+		const url = new URL(`https://api.celenium.io/v1/proposal/${id}`)
 
 		const data = await useAsyncData(`proposal-${id}`, () => $fetch(url.href))
 		return data
@@ -31,7 +33,8 @@ export const fetchProposalById = async ({ id }) => {
 
 export const fetchProposalVotes = async ({ id, limit, offset, option }) => {
 	try {
-		const url = new URL(`${useServerURL()}/proposal/${id}/votes`)
+		// const url = new URL(`${useServerURL()}/proposal/${id}/votes`)
+		const url = new URL(`https://api.celenium.io/v1/proposal/${id}/votes`)
 
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)

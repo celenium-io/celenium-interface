@@ -49,7 +49,7 @@ const getVoteIcon = (status) => {
 }
 
 const getVoteIconColor = (status) => {
-	if (status === "yes") return "green"
+	if (status === "yes") return "brand"
 	if (status === "no") return "red"
 	if (status === "no_with_veto") return "red"
 	if (status === "abstain") return "tertiary"

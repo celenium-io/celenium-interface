@@ -46,6 +46,8 @@ rollupsRankingStore.$subscribe((mutation, state) => {
 	localStorage.setItem("rollups_ranking", JSON.stringify(state.rollups_ranking))
 })
 
+appStore.initConstants()
+
 onMounted(async () => {
 	if (localStorage.bookmarks) {
 		bookmarksStore.bookmarks = JSON.parse(localStorage.bookmarks)
