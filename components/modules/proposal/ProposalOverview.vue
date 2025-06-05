@@ -13,7 +13,7 @@ import VotesAllocation from "./VotesAllocation.vue"
 import VotesTable from "./VotesTable.vue"
 
 /** Services */
-import { comma } from "@/services/utils"
+import { comma, splitAddress } from "@/services/utils"
 import { getProposalIcon, getProposalIconColor, getProposalType } from "@/services/utils/states"
 
 /** API */
@@ -206,6 +206,17 @@ const handleViewRawVotes = () => {
 						<Text size="13" weight="600" height="140" color="primary" :class="$style.proposal_title">
 							{{ proposal.title }}
 						</Text>
+
+						<Badge v-if="proposal.type === 'community_pool_spend'" style="width: fit-content">
+							<Text size="13" weight="600" color="primary">
+								{{ comma(proposal.changes.Amount[0].amount / 1_000_000) }} <Text color="tertiary">TIA</Text>
+							</Text>
+							<Text size="13" weight="600" color="tertiary"> -> </Text>
+							<Text size="13" weight="600" color="primary">
+								{{ splitAddress(proposal.changes.Recipient) }}
+							</Text>
+							<CopyButton size="12" :text="proposal.changes.Recipient" />
+						</Badge>
 					</Flex>
 
 					<VotesAllocation v-if="proposal.status !== 'removed'" :proposal />

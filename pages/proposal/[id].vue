@@ -91,8 +91,8 @@ useHead({
 
 		<Flex v-if="proposal" direction="column" gap="40">
 			<ProposalOverview :proposal />
-			<ProposalDescription :proposal />
 			<ProposalChanges :proposal />
+			<ProposalDescription :proposal />
 		</Flex>
 	</Flex>
 </template>

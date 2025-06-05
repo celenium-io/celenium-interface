@@ -8,8 +8,6 @@ const props = defineProps({
 		required: true,
 	},
 })
-
-const expanded = ref(false)
 </script>
 
 <template>
@@ -23,12 +21,8 @@ const expanded = ref(false)
 
 		<div :class="$style.content">
 			<Flex v-if="proposal.description" direction="column" gap="16">
-				<Text as="pre" size="14" height="160" weight="500" color="body" :class="[$style.description, expanded && $style.expanded]">
+				<Text as="pre" size="14" height="160" weight="500" color="body" :class="[$style.description]">
 					{{ proposal.description }}
-				</Text>
-
-				<Text @click="expanded = !expanded" size="13" weight="600" color="brand" class="clickable">
-					{{ expanded ? "Hide" : "Show full description" }}
 				</Text>
 			</Flex>
 
@@ -65,16 +59,7 @@ const expanded = ref(false)
 }
 
 .description {
-	display: -webkit-box;
-	-webkit-line-clamp: 6;
-	-webkit-box-orient: vertical;
-	text-overflow: ellipsis;
-	overflow: hidden;
 	white-space: pre-line;
-
-	&.expanded {
-		-webkit-line-clamp: initial;
-	}
 }
 
 @media (max-width: 400px) {
