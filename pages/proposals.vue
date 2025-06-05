@@ -7,6 +7,9 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 import Badge from "@/components/ui/Badge.vue"
 
+/** Shared Components */
+import TablePlaceholderView from "@/components/shared/TablePlaceholderView.vue"
+
 /** Services */
 import { comma } from "@/services/utils"
 import { getProposalIcon, getProposalIconColor, getProposalType } from "@/services/utils/states"
@@ -154,7 +157,7 @@ const handleLast = async () => {
 			</Flex>
 
 			<Flex direction="column" wide :class="[$style.table, isRefetching && $style.disabled]">
-				<div :class="$style.table_scroller">
+				<div v-if="proposals.length" :class="$style.table_scroller">
 					<table>
 						<thead>
 							<tr>
@@ -305,6 +308,14 @@ const handleLast = async () => {
 						</tbody>
 					</table>
 				</div>
+
+				<TablePlaceholderView
+					v-else
+					title="There's no proposals"
+					description="How is this possible? Apparently it's possible."
+					icon="governance"
+					subIcon="search"
+				/>
 			</Flex>
 		</Flex>
 	</Flex>

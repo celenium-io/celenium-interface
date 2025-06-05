@@ -20,8 +20,10 @@ import { fetchProposalVotes } from "@/services/api/proposal"
 /** Store */
 import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
+import { useAppStore } from "@/store/app"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
+const appStore = useAppStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -160,6 +162,13 @@ const handleViewRawVotes = () => {
 								{{ proposal.status }}
 							</Text>
 						</Flex>
+
+						<Text v-if="proposal.status === 'removed'" size="12" weight="500" color="tertiary">
+							The minimum deposit was not reached
+						</Text>
+						<Text v-else-if="proposal.status === 'rejected'" size="12" weight="500" color="tertiary">
+							The quorum was not reached
+						</Text>
 					</Flex>
 
 					<Flex direction="column" gap="10" :class="$style.key_value">
@@ -255,6 +264,23 @@ const handleViewRawVotes = () => {
 								:styles="{ amount: { color: 'secondary' }, currency: { color: 'tertiary' } }"
 							/>
 						</Flex>
+
+						<Tooltip wide side="top" position="start" :disabled="proposal.status !== 'removed'">
+							<Flex wide align="center" justify="between">
+								<Flex align="center" gap="6">
+									<Text size="12" weight="600" color="tertiary"> Required Deposit </Text>
+									<Icon v-if="proposal.status === 'removed'" name="warning" size="12" color="orange" />
+									<Icon v-else name="check-circle" size="12" color="brand" />
+								</Flex>
+
+								<AmountInCurrency
+									:amount="{ value: appStore.constants.gov.min_deposit.replace('utia', ''), decimal: 6 }"
+									:styles="{ amount: { color: 'secondary' }, currency: { color: 'tertiary' } }"
+								/>
+							</Flex>
+
+							<template #content> Not reached </template>
+						</Tooltip>
 
 						<Flex v-if="Array.isArray(proposal.changes)" align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Changes Count</Text>

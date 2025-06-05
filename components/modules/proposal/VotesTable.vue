@@ -215,7 +215,7 @@ const handleNextPage = () => {
 			icon="governance"
 			subIcon="search"
 			:descriptionWidth="260"
-			:callback="() => handleResetOptionFilter()"
+			:callback="optionFilter ? () => handleResetOptionFilter() : null"
 			callbackText="Reset Filters"
 			style="height: 100%"
 		/>
