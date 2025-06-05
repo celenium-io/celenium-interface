@@ -7,8 +7,12 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 import Badge from "@/components/ui/Badge.vue"
 
+/** Shared Components */
+import TablePlaceholderView from "@/components/shared/TablePlaceholderView.vue"
+
 /** Services */
 import { comma } from "@/services/utils"
+import { getProposalIcon, getProposalIconColor, getProposalType } from "@/services/utils/states"
 
 /** API */
 import { fetchProposals, fetchProposalsCount } from "@/services/api/proposal"
@@ -112,29 +116,6 @@ const handleLast = async () => {
 	// await getProposalsCount()
 	// page.value = pages.value
 }
-
-const getProposalIcon = (status) => {
-	if (status === "inactive") return "close-circle"
-	if (status === "active") return "zap-circle"
-	if (status === "removed") return "close-circle"
-	if (status === "applied") return "check-circle"
-	if (status === "rejected") return "close-circle"
-}
-
-const getProposalIconColor = (status) => {
-	if (status === "inactive") return "tertiary"
-	if (status === "active") return "blue"
-	if (status === "removed") return "tertiary"
-	if (status === "applied") return "brand"
-	if (status === "rejected") return "red"
-}
-
-const getProposalType = (type) => {
-	if (type === "param_changed") return "Update Param"
-	if (type === "text") return "Text"
-	if (type === "client_update") return "Update Client"
-	if (type === "community_pool_spend") return "Community Pool Spend"
-}
 </script>
 
 <template>
@@ -176,7 +157,7 @@ const getProposalType = (type) => {
 			</Flex>
 
 			<Flex direction="column" wide :class="[$style.table, isRefetching && $style.disabled]">
-				<div :class="$style.table_scroller">
+				<div v-if="proposals.length" :class="$style.table_scroller">
 					<table>
 						<thead>
 							<tr>
@@ -220,7 +201,7 @@ const getProposalType = (type) => {
 								<td>
 									<NuxtLink :to="`/proposal/${proposal.id}`">
 										<Flex align="center">
-											<Flex align="center" gap="4" :class="[$style.voting_wrapper, $style[proposal.status]]">
+											<Flex align="center" gap="4" :class="$style.voting_wrapper">
 												<Tooltip
 													v-if="proposal.yes"
 													wide
@@ -327,6 +308,14 @@ const getProposalType = (type) => {
 						</tbody>
 					</table>
 				</div>
+
+				<TablePlaceholderView
+					v-else
+					title="There's no proposals"
+					description="How is this possible? Apparently it's possible."
+					icon="governance"
+					subIcon="search"
+				/>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -430,28 +419,9 @@ const getProposalType = (type) => {
 	min-height: 12px;
 
 	border-radius: 50px;
+	background: var(--op-8);
 
 	padding: 4px;
-
-	&.inactive {
-		background: var(--op-8);
-	}
-
-	&.active {
-		background: rgba(var(--blue-rgb), 20%);
-	}
-
-	&.removed {
-		background: var(--op-8);
-	}
-
-	&.applied {
-		background: rgba(var(--brand-rgb), 20%);
-	}
-
-	&.rejected {
-		background: rgba(var(--red-rgb), 20%);
-	}
 }
 
 .voting_bar {

@@ -1,8 +1,5 @@
-export const defaultEnums = {
-	status: [
-		"success",
-		"failed"
-	],
+export const DEFAULT_ENUMS = {
+	status: ["success", "failed"],
 	message_type: [
 		"MsgUnknown",
 		"MsgSetWithdrawAddress",
@@ -77,7 +74,7 @@ export const defaultEnums = {
 		"MsgRecvPacket",
 		"MsgTimeout",
 		"MsgTimeoutOnClose",
-		"MsgAcknowledgement"
+		"MsgAcknowledgement",
 	],
 	event_type: [
 		"unknown",
@@ -138,26 +135,21 @@ export const defaultEnums = {
 		"active_proposal",
 		"inactive_proposal",
 		"ics27_packet",
-		"channel_close_confirm"
+		"channel_close_confirm",
 	],
-	categories: [
-		"uncategorized",
-		"finance",
-		"gaming",
-		"nft",
-		"social"
-	],
-	rollup_type: [
-		"sovereign",
-		"settled"
-	],
-	tags: [
-		"ZK",
-		"AI"
-	],
-	celestials_statuses: [
-		"NOT_VERIFIED",
-		"VERIFIED",
-		"PRIMARY"
-	]
+	categories: ["uncategorized", "finance", "gaming", "nft", "social"],
+	rollup_type: ["sovereign", "settled"],
+	tags: ["ZK", "AI"],
+	celestials_statuses: ["NOT_VERIFIED", "VERIFIED", "PRIMARY"],
+	proposal_status: ["inactive", "active", "removed", "applied", "rejected"],
+	vote_type: ["address", "validator"],
+	vote_option: ["yes", "no", "no_with_veto", "abstain"],
+}
+
+export const LOCAL_ENUMS_KEYS = Object.keys(DEFAULT_ENUMS)
+export const ENUMS_OVERRIDES = {
+	message_type: "messageTypes",
+	categories: "rollupCategories",
+	rollup_type: "rollupTypes",
+	tags: "rollupTags",
 }

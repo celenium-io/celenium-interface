@@ -2,9 +2,7 @@
 /** Components: Modules */
 import ProposalOverview from "@/components/modules/proposal/ProposalOverview.vue"
 import ProposalChanges from "@/components/modules/proposal/ProposalChanges.vue"
-
-/** Services */
-import { comma } from "@/services/utils"
+import ProposalDescription from "@/components/modules/proposal/ProposalDescription.vue"
 
 /** API */
 import { fetchProposalById } from "@/services/api/proposal"
@@ -94,6 +92,7 @@ useHead({
 		<Flex v-if="proposal" direction="column" gap="40">
 			<ProposalOverview :proposal />
 			<ProposalChanges :proposal />
+			<ProposalDescription :proposal />
 		</Flex>
 	</Flex>
 </template>

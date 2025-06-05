@@ -5,24 +5,28 @@ import { defineStore, acceptHMRUpdate } from "pinia"
 import { fetchEnums } from "@/services/api/main.js"
 
 /** Constants */
-import { defaultEnums } from "@/services/constants/enums.js"
+import { DEFAULT_ENUMS, LOCAL_ENUMS_KEYS, ENUMS_OVERRIDES } from "@/services/constants/enums.js"
+
+const toCamel = (target) => target.toLowerCase().replace(/[-_][a-z]/g, (group) => group.slice(-1).toUpperCase())
 
 export const useEnumStore = defineStore("enums", () => {
-	const enums = ref({
-		messageTypes: defaultEnums.message_type,
-		rollupCategories: defaultEnums.categories,
-		rollupTypes: defaultEnums.rollup_type,
-		rollupTags: defaultEnums.tags,
+	const enums = ref({})
+
+	LOCAL_ENUMS_KEYS.forEach((key) => {
+		const newKey = ENUMS_OVERRIDES[key] ? ENUMS_OVERRIDES[key] : toCamel(key)
+		enums.value[newKey] = DEFAULT_ENUMS[key]
 	})
 
 	const init = async () => {
-		let data = await fetchEnums()
+		const data = await fetchEnums()
+		if (!data) return
 
-		if (data) {
-			enums.value.messageTypes = data.message_type
-			enums.value.rollupCategories = data.categories
-			enums.value.rollupTypes = data.rollup_type
-			enums.value.rollupTags = data.tags?.filter(t => t)
+		for (const enumKey in data) {
+			if (ENUMS_OVERRIDES[enumKey]) {
+				enums.value[ENUMS_OVERRIDES[enumKey]] = data[enumKey]
+			} else {
+				enums.value[toCamel(enumKey)]
+			}
 		}
 	}
 

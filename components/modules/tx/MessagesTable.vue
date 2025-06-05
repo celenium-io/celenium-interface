@@ -36,15 +36,18 @@ const handleViewRawMessage = (message) => {
 const page = ref(1)
 const itemsPerPage = 10
 const pages = computed(() => Math.ceil(props.messages.length / itemsPerPage))
+
 const messagesToShow = computed(() => {
 	let start = (page.value - 1) * itemsPerPage
 	let end = start + itemsPerPage
 	return props.messages.slice(start, end)
 })
+
 const handleNext = () => {
 	if (page.value === pages.value) return
 	page.value += 1
 }
+
 const handlePrev = () => {
 	if (page.value === 1) return
 	page.value -= 1

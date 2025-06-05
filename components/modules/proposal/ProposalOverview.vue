@@ -1,18 +1,18 @@
 <script setup>
-/** Vendor */
-import { DateTime } from "luxon"
-
 /** UI */
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Badge from "@/components/ui/Badge.vue"
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
-/** Shared Components */
-import TablePlaceholderView from "@/components/shared/TablePlaceholderView.vue"
+/** Shared & Local Components */
+import ProposalTimeline from "./ProposalTimeline.vue"
+import VotesAllocation from "./VotesAllocation.vue"
+import VotesTable from "./VotesTable.vue"
 
 /** Services */
-import { comma, space } from "@/services/utils"
+import { comma, splitAddress } from "@/services/utils"
+import { getProposalIcon, getProposalIconColor, getProposalType } from "@/services/utils/states"
 
 /** API */
 import { fetchProposalVotes } from "@/services/api/proposal"
@@ -20,8 +20,10 @@ import { fetchProposalVotes } from "@/services/api/proposal"
 /** Store */
 import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
+import { useAppStore } from "@/store/app"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
+const appStore = useAppStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -38,7 +40,22 @@ const activeTab = ref(preselectedTab)
 
 const isLoading = ref(false)
 const votes = ref([])
+const votesTotal = ref(0)
 
+const defaultFilters = {
+	option: null,
+}
+const { filters, setFilter, resetFilter } = useFilters(defaultFilters)
+const handleUpdateFilter = (target, newFilter, withRefetch) => {
+	setFilter(target, newFilter)
+	if (withRefetch) getVotes()
+}
+const handleResetFilters = (target, withRefetch) => {
+	resetFilter(target)
+	if (withRefetch) getVotes()
+}
+
+/** Pagination */
 const page = ref(1)
 const handleNext = () => {
 	page.value += 1
@@ -53,6 +70,8 @@ const getVotes = async () => {
 
 	const { data } = await fetchProposalVotes({
 		id: props.proposal.id,
+		offset: (page.value - 1) * 10,
+		option: filters.option,
 	})
 	votes.value = data.value
 
@@ -62,6 +81,7 @@ const getVotes = async () => {
 }
 
 await getVotes()
+votesTotal.value = props.proposal.yes + props.proposal.no + props.proposal.no_with_veto + props.proposal.abstain
 
 onMounted(() => {
 	router.replace({
@@ -104,43 +124,6 @@ const handleViewRawVotes = () => {
 	cacheStore.current._target = "votes"
 	modalsStore.open("rawData")
 }
-
-const getProposalIcon = (status) => {
-	if (status === "inactive") return "close-circle"
-	if (status === "active") return "zap-circle"
-	if (status === "removed") return "close-circle"
-	if (status === "applied") return "check-circle"
-	if (status === "rejected") return "close-circle"
-}
-
-const getProposalIconColor = (status) => {
-	if (status === "inactive") return "tertiary"
-	if (status === "active") return "blue"
-	if (status === "removed") return "tertiary"
-	if (status === "applied") return "brand"
-	if (status === "rejected") return "red"
-}
-
-const getProposalType = (type) => {
-	if (type === "param_changed") return "Update Param"
-	if (type === "text") return "Text"
-	if (type === "client_update") return "Update Client"
-	if (type === "community_pool_spend") return "Community Pool Spend"
-}
-
-const getVoteIcon = (status) => {
-	if (status === "yes") return "check-circle"
-	if (status === "no") return "close-circle"
-	if (status === "no_with_veto") return "close-circle"
-	if (status === "abstain") return "close-circle"
-}
-
-const getVoteIconColor = (status) => {
-	if (status === "yes") return "green"
-	if (status === "no") return "red"
-	if (status === "no_with_veto") return "red"
-	if (status === "abstain") return "tertiary"
-}
 </script>
 
 <template>
@@ -167,43 +150,7 @@ const getVoteIconColor = (status) => {
 
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">
-				<Flex wide direction="column" gap="8" :class="$style.top">
-					<Text size="12" weight="600" color="secondary">Timeline</Text>
-
-					<Badge>
-						<Flex align="center" justify="between" wide>
-							<Text size="12" weight="600" color="secondary">
-								{{ DateTime.fromISO(proposal.activation_time).setLocale("en").toLocaleString(DateTime.DATE_MED) }}
-							</Text>
-
-							<div v-for="dot in 4" class="dot" />
-
-							<Flex align="center" gap="6">
-								<Icon name="time" size="12" color="secondary" />
-								<Text size="12" weight="600" color="primary">
-									{{
-										DateTime.fromISO(proposal.deposit_time)
-											.diff(DateTime.fromISO(proposal.activation_time), "days")
-											.toObject()
-											.days.toFixed(0)
-									}}
-									Days
-								</Text>
-							</Flex>
-
-							<div v-for="dot in 4" class="dot" />
-
-							<Text size="12" weight="600" color="secondary" align="right">
-								{{ DateTime.fromISO(proposal.deposit_time).setLocale("en").toLocaleString(DateTime.DATE_MED) }}
-							</Text>
-						</Flex>
-					</Badge>
-
-					<Flex align="center" justify="between">
-						<Text size="12" weight="600" color="tertiary">Voting Start</Text>
-						<Text size="12" weight="600" color="tertiary">Voting End</Text>
-					</Flex>
-				</Flex>
+				<ProposalTimeline :proposal />
 
 				<Flex direction="column" gap="24" :class="$style.main">
 					<Flex direction="column" gap="10" :class="$style.key_value">
@@ -215,94 +162,35 @@ const getVoteIconColor = (status) => {
 								{{ proposal.status }}
 							</Text>
 						</Flex>
+
+						<Text v-if="proposal.status === 'removed'" size="12" weight="500" color="tertiary">
+							The minimum deposit was not reached
+						</Text>
+						<Text v-else-if="proposal.status === 'rejected'" size="12" weight="500" color="tertiary">
+							The quorum was not reached
+						</Text>
 					</Flex>
 
 					<Flex direction="column" gap="10" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Proposal</Text>
 
-						<Flex direction="column" gap="4">
-							<Text size="13" weight="600" height="140" color="primary" :class="$style.proposal_title">
-								{{ proposal.title }}
+						<Text size="13" weight="600" height="140" color="primary" :class="$style.proposal_title">
+							{{ proposal.title }}
+						</Text>
+
+						<Badge v-if="proposal.type === 'community_pool_spend'" style="width: fit-content">
+							<Text size="13" weight="600" color="primary">
+								{{ comma(proposal.changes.Amount[0].amount / 1_000_000) }} <Text color="tertiary">TIA</Text>
 							</Text>
-
-							<Tooltip position="start" textAlign="start" delay="300">
-								<Text size="12" weight="500" height="140" color="tertiary" :class="$style.proposal_description">
-									{{ proposal.description }}
-								</Text>
-
-								<template #content>
-									<div style="max-width: 340px">
-										<Text height="140">
-											{{ proposal.description }}
-										</Text>
-									</div>
-								</template>
-							</Tooltip>
-						</Flex>
+							<Text size="13" weight="600" color="tertiary"> -> </Text>
+							<Text size="13" weight="600" color="primary">
+								{{ splitAddress(proposal.changes.Recipient) }}
+							</Text>
+							<CopyButton size="12" :text="proposal.changes.Recipient" />
+						</Badge>
 					</Flex>
 
-					<Flex v-if="proposal.status !== 'removed'" direction="column" gap="10" :class="$style.key_value">
-						<Text size="12" weight="600" color="secondary">Allocation of votes</Text>
-
-						<Flex align="center" gap="4" :class="[$style.voting_wrapper, $style[proposal.status]]">
-							<Tooltip
-								v-if="proposal.yes"
-								wide
-								:trigger-width="`${Math.max(5, (proposal.yes * 100) / proposal.votes_count)}%`"
-							>
-								<div
-									:style="{
-										background: 'var(--brand)',
-									}"
-									:class="$style.voting_bar"
-								/>
-								<template #content>
-									Yes: <Text color="primary">{{ comma(proposal.yes) }}</Text>
-								</template>
-							</Tooltip>
-							<Tooltip v-if="proposal.no" wide :trigger-width="`${Math.max(5, (proposal.no * 100) / proposal.votes_count)}%`">
-								<div
-									:style="{
-										background: 'var(--red)',
-									}"
-									:class="$style.voting_bar"
-								/>
-								<template #content>
-									No: <Text color="primary">{{ comma(proposal.no) }}</Text>
-								</template>
-							</Tooltip>
-							<Tooltip
-								v-if="proposal.no_with_veto"
-								wide
-								:trigger-width="`${Math.max(5, (proposal.no_with_veto * 100) / proposal.votes_count)}%`"
-							>
-								<div
-									:style="{
-										background: 'var(--red)',
-									}"
-									:class="$style.voting_bar"
-								/>
-								<template #content>
-									No with veto: <Text color="primary">{{ comma(proposal.no_with_veto) }}</Text>
-								</template>
-							</Tooltip>
-							<Tooltip
-								v-if="proposal.abstain"
-								wide
-								:trigger-width="`${Math.max(5, (proposal.abstain * 100) / proposal.votes_count)}%`"
-							>
-								<div
-									:style="{
-										background: 'var(--op-40)',
-									}"
-									:class="$style.voting_bar"
-								/>
-								<template #content>
-									Abstain: <Text color="primary">{{ comma(proposal.abstain) }}</Text>
-								</template>
-							</Tooltip>
-						</Flex>
-					</Flex>
+					<VotesAllocation v-if="proposal.status !== 'removed'" :proposal />
 
 					<Flex direction="column" gap="10" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Type</Text>
@@ -377,6 +265,23 @@ const getVoteIconColor = (status) => {
 							/>
 						</Flex>
 
+						<Tooltip wide side="top" position="start" :disabled="proposal.status !== 'removed'">
+							<Flex wide align="center" justify="between">
+								<Flex align="center" gap="6">
+									<Text size="12" weight="600" color="tertiary"> Required Deposit </Text>
+									<Icon v-if="proposal.status === 'removed'" name="warning" size="12" color="orange" />
+									<Icon v-else name="check-circle" size="12" color="brand" />
+								</Flex>
+
+								<AmountInCurrency
+									:amount="{ value: appStore.constants.gov.min_deposit.replace('utia', ''), decimal: 6 }"
+									:styles="{ amount: { color: 'secondary' }, currency: { color: 'tertiary' } }"
+								/>
+							</Flex>
+
+							<template #content> Not reached </template>
+						</Tooltip>
+
 						<Flex v-if="Array.isArray(proposal.changes)" align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Changes Count</Text>
 							<Text size="12" weight="600" color="secondary">{{ proposal.changes.length }}</Text>
@@ -396,124 +301,26 @@ const getVoteIconColor = (status) => {
 						>
 							<Icon name="check-circle" size="12" color="secondary" />
 							<Text size="13" weight="600">Votes</Text>
+							<Text size="13" weight="600" color="tertiary">{{ comma(votesTotal) }}</Text>
 						</Flex>
 					</Flex>
 				</Flex>
 
-				<Flex v-if="activeTab === 'votes'" direction="column" :class="[$style.table, isLoading && $style.disabled]">
-					<Flex v-if="votes.length" :class="$style.table_scroller">
-						<table>
-							<thead>
-								<tr>
-									<th><Text size="12" weight="600" color="tertiary">Vote</Text></th>
-									<th><Text size="12" weight="600" color="tertiary">Voter</Text></th>
-									<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
-									<th><Text size="12" weight="600" color="tertiary">Validator</Text></th>
-								</tr>
-							</thead>
-
-							<tbody>
-								<tr v-for="vote in votes">
-									<td>
-										<NuxtLink :to="`/address/${vote.voter.hash}`">
-											<Flex align="center" gap="4">
-												<Icon :name="getVoteIcon(vote.status)" size="12" :color="getVoteIconColor(vote.status)" />
-												<Text size="13" weight="600" color="primary" style="text-transform: capitalize">
-													{{ vote.status.replaceAll("_", " ") }}
-												</Text>
-											</Flex>
-										</NuxtLink>
-									</td>
-									<td>
-										<NuxtLink :to="`/address/${vote.voter.hash}`">
-											<Flex align="center">
-												<Text size="13" weight="600" color="primary" class="table_column_alias">
-													{{ $getDisplayName("addresses", vote.voter.hash) }}
-												</Text>
-											</Flex>
-										</NuxtLink>
-									</td>
-									<td>
-										<NuxtLink :to="`/address/${vote.voter.hash}`">
-											<Flex justify="center" direction="column" gap="4">
-												<Text size="12" weight="600" color="primary">
-													{{ DateTime.fromISO(vote.deposit_time).toRelative({ locale: "en", style: "short" }) }}
-												</Text>
-												<Text size="12" weight="500" color="tertiary">
-													{{ DateTime.fromISO(vote.deposit_time).setLocale("en").toFormat("LLL d, t") }}
-												</Text>
-											</Flex>
-										</NuxtLink>
-									</td>
-									<td>
-										<NuxtLink :to="`/address/${vote.voter.hash}`">
-											<Flex v-if="vote.validator" align="center">
-												<Tooltip delay="500">
-													<template #default>
-														<Flex direction="column" gap="4">
-															<Text size="12" height="120" weight="600" color="primary">
-																{{ vote.validator.moniker }}
-															</Text>
-
-															<Flex align="center" gap="6">
-																<Text size="12" weight="600" color="tertiary" mono>
-																	{{ vote.validator.cons_address.slice(0, 4) }}
-																</Text>
-																<Flex align="center" gap="3">
-																	<div v-for="dot in 3" class="dot" />
-																</Flex>
-																<Text size="12" weight="600" color="tertiary" mono>
-																	{{
-																		vote.validator.cons_address.slice(
-																			vote.validator.cons_address.length - 4,
-																			vote.validator.cons_address.length,
-																		)
-																	}}
-																</Text>
-																<CopyButton :text="vote.validator.cons_address" size="10" />
-															</Flex>
-														</Flex>
-													</template>
-
-													<template #content> {{ space(vote.validator.cons_address) }} </template>
-												</Tooltip>
-											</Flex>
-											<Text v-else size="12" weight="600" color="support">No Validator</Text>
-										</NuxtLink>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</Flex>
-
-					<TablePlaceholderView
-						v-else
-						title="There's no votes"
-						description="This proposal does not contain any votes."
-						icon="governance"
-						subIcon="search"
-						:descriptionWidth="260"
-						style="height: 100%"
-					/>
-
-					<!-- Pagination -->
-					<Flex v-if="votes.length" align="center" gap="6" :class="$style.pagination">
-						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
-							<Icon name="arrow-left-stop" size="12" color="primary" />
-						</Button>
-						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
-							<Icon name="arrow-left" size="12" color="primary" />
-						</Button>
-
-						<Button type="secondary" size="mini" disabled>
-							<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
-						</Button>
-
-						<Button @click="handleNext" type="secondary" size="mini" :disabled="votes.length !== 10">
-							<Icon name="arrow-right" size="12" color="primary" />
-						</Button>
-					</Flex>
-				</Flex>
+				<VotesTable
+					v-if="activeTab === 'votes'"
+					:proposal
+					:votes
+					:votesTotal
+					:filters
+					:page
+					:isLoadingVotes="isLoading"
+					@onRefetch="getVotes"
+					@updateFilters="handleUpdateFilter"
+					@onFiltersReset="handleResetFilters"
+					@onPrevPage="handlePrev"
+					@onNextPage="handleNext"
+					@updatePage="(newPage) => (page = newPage)"
+				/>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -535,12 +342,6 @@ const getVoteIconColor = (status) => {
 
 	border-radius: 4px 4px 4px 8px;
 	background: var(--card-background);
-
-	.top {
-		border-bottom: 1px solid var(--op-5);
-
-		padding: 16px;
-	}
 
 	.main {
 		padding: 16px;
@@ -569,41 +370,6 @@ const getVoteIconColor = (status) => {
 	-webkit-box-orient: vertical;
 	text-overflow: ellipsis;
 	overflow: hidden;
-}
-
-.voting_wrapper {
-	width: 100%;
-
-	border-radius: 50px;
-
-	padding: 4px;
-
-	&.inactive {
-		background: var(--op-8);
-	}
-
-	&.active {
-		background: rgba(var(--blue-rgb), 20%);
-	}
-
-	&.removed {
-		background: rgba(var(--red-rgb), 20%);
-	}
-
-	&.applied {
-		background: rgba(var(--brand-rgb), 20%);
-	}
-
-	&.rejected {
-		background: rgba(var(--red-rgb), 20%);
-	}
-}
-
-.voting_bar {
-	width: 100%;
-	height: 4px;
-
-	border-radius: 50px;
 }
 
 .tabs_wrapper {
@@ -637,115 +403,22 @@ const getVoteIconColor = (status) => {
 	}
 
 	&:hover {
-		& span {
+		& span:first-of-type {
 			color: var(--txt-secondary);
 		}
 	}
-}
 
-.tab.active {
-	background: var(--op-8);
+	&.active {
+		background: var(--op-8);
 
-	& span {
-		color: var(--txt-primary);
+		& span:first-of-type {
+			color: var(--txt-primary);
+		}
 	}
 }
 
 .tab.hide {
 	display: none;
-}
-
-.table_scroller {
-	min-width: 100%;
-	width: 0;
-	height: 100%;
-
-	overflow-x: auto;
-}
-
-.inner {
-	height: 100%;
-
-	border-radius: 4px 4px 8px 4px;
-	background: var(--card-background);
-}
-
-.events {
-	padding: 16px;
-}
-
-.table {
-	height: 100%;
-
-	border-radius: 4px 4px 8px 4px;
-	background: var(--card-background);
-
-	& table {
-		width: 100%;
-		height: fit-content;
-
-		border-spacing: 0px;
-
-		padding-bottom: 8px;
-
-		& tbody {
-			& tr {
-				cursor: pointer;
-
-				transition: all 0.05s ease;
-
-				&:hover {
-					background: var(--op-5);
-				}
-
-				&:active {
-					background: var(--op-8);
-				}
-			}
-		}
-
-		& tr th {
-			text-align: left;
-			padding: 0;
-			padding-right: 16px;
-			padding-top: 8px;
-			padding-bottom: 8px;
-
-			&:first-child {
-				padding-left: 16px;
-			}
-
-			& span {
-				display: flex;
-			}
-		}
-
-		& tr td {
-			padding: 0;
-			padding-right: 24px;
-			padding-top: 8px;
-			padding-bottom: 8px;
-
-			white-space: nowrap;
-
-			&:first-child {
-				padding-left: 16px;
-			}
-
-			& > a {
-				display: flex;
-			}
-		}
-	}
-}
-
-.table.disabled {
-	opacity: 0.5;
-	pointer-events: none;
-}
-
-.pagination {
-	padding: 8px 16px 16px 16px;
 }
 
 @media (max-width: 800px) {
@@ -758,10 +431,6 @@ const getVoteIconColor = (status) => {
 		min-width: 0;
 
 		border-radius: 4px;
-	}
-
-	.table {
-		border-radius: 4px 4px 8px 8px;
 	}
 }
 

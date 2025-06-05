@@ -12,7 +12,7 @@ export const fetchHead = async () => {
 
 export const fetchConstants = async () => {
 	try {
-		const data = await $fetch(`${useServerURL()}/constants`)
+		const data = await useFetch(`${useServerURL()}/constants`)
 		return data
 	} catch (error) {
 		console.error(error)
