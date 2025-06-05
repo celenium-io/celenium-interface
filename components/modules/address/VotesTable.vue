@@ -10,6 +10,7 @@ import TablePlaceholderView from "@/components/shared/TablePlaceholderView.vue"
 
 /** Services */
 import { space } from "@/services/utils"
+import { getVoteIcon, getVoteIconColor } from "@/services/utils/states"
 
 /** API */
 import { fetchVotesByAddressHash } from "@/services/api/address"
@@ -30,20 +31,6 @@ const fetchVotes = async () => {
 
 const votes = ref([])
 votes.value = await fetchVotes()
-
-const getVoteIcon = (status) => {
-	if (status === "yes") return "check-circle"
-	if (status === "no") return "close-circle"
-	if (status === "no_with_veto") return "close-circle"
-	if (status === "abstain") return "close-circle"
-}
-
-const getVoteIconColor = (status) => {
-	if (status === "yes") return "green"
-	if (status === "no") return "red"
-	if (status === "no_with_veto") return "red"
-	if (status === "abstain") return "tertiary"
-}
 </script>
 
 <template>

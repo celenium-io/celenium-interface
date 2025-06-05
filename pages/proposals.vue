@@ -9,6 +9,7 @@ import Badge from "@/components/ui/Badge.vue"
 
 /** Services */
 import { comma } from "@/services/utils"
+import { getProposalIcon, getProposalIconColor, getProposalType } from "@/services/utils/states"
 
 /** API */
 import { fetchProposals, fetchProposalsCount } from "@/services/api/proposal"
@@ -111,29 +112,6 @@ const handleNext = () => {
 const handleLast = async () => {
 	// await getProposalsCount()
 	// page.value = pages.value
-}
-
-const getProposalIcon = (status) => {
-	if (status === "inactive") return "close-circle"
-	if (status === "active") return "zap-circle"
-	if (status === "removed") return "close-circle"
-	if (status === "applied") return "check-circle"
-	if (status === "rejected") return "close-circle"
-}
-
-const getProposalIconColor = (status) => {
-	if (status === "inactive") return "tertiary"
-	if (status === "active") return "blue"
-	if (status === "removed") return "tertiary"
-	if (status === "applied") return "brand"
-	if (status === "rejected") return "red"
-}
-
-const getProposalType = (type) => {
-	if (type === "param_changed") return "Update Param"
-	if (type === "text") return "Text"
-	if (type === "client_update") return "Update Client"
-	if (type === "community_pool_spend") return "Community Pool Spend"
 }
 </script>
 

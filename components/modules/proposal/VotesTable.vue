@@ -3,7 +3,8 @@
 import { DateTime } from "luxon"
 
 /** Services */
-import { space } from "@/services/utils"
+import { space, comma } from "@/services/utils"
+import { getVoteIcon, getVoteIconColor } from "@/services/utils/states"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
@@ -41,20 +42,6 @@ const props = defineProps({
 	},
 })
 
-const getVoteIcon = (status) => {
-	if (status === "yes") return "check-circle"
-	if (status === "no") return "close-circle"
-	if (status === "no_with_veto") return "close-circle"
-	if (status === "abstain") return "close-circle"
-}
-
-const getVoteIconColor = (status) => {
-	if (status === "yes") return "brand"
-	if (status === "no") return "red"
-	if (status === "no_with_veto") return "red"
-	if (status === "abstain") return "tertiary"
-}
-
 /** Filter by vote option */
 const optionFilter = ref()
 
@@ -77,6 +64,21 @@ const handleApplyOptionFilters = () => {
 const handleResetOptionFilter = () => {
 	emit("onFiltersReset", "option", true)
 	optionFilter.value = null
+}
+
+/** Pagination */
+const totalPages = computed(() => Math.ceil(optionFilter.value ? props.proposal[optionFilter.value] / 10 : props.votesTotal / 10))
+const handlePrevPage = () => {
+	if (props.page === 1) return
+	emit("onPrevPage")
+}
+
+const isNextPageDisabled = computed(() => {
+	return totalPages.value === props.page
+})
+const handleNextPage = () => {
+	if (isNextPageDisabled.value) return
+	emit("onNextPage")
 }
 </script>
 
@@ -216,15 +218,15 @@ const handleResetOptionFilter = () => {
 			<Button @click="emit('updatePage', 1)" type="secondary" size="mini" :disabled="page === 1">
 				<Icon name="arrow-left-stop" size="12" color="primary" />
 			</Button>
-			<Button type="secondary" @click="emit('onPrevPage')" size="mini" :disabled="page === 1">
+			<Button type="secondary" @click="handlePrevPage" size="mini" :disabled="page === 1">
 				<Icon name="arrow-left" size="12" color="primary" />
 			</Button>
 
 			<Button type="secondary" size="mini" disabled>
-				<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
+				<Text size="12" weight="600" color="primary">Page {{ comma(page) }} of {{ comma(totalPages) }}</Text>
 			</Button>
 
-			<Button @click="emit('onNextPage')" type="secondary" size="mini" :disabled="Math.ceil(votesTotal / 10) === page">
+			<Button @click="handleNextPage" type="secondary" size="mini" :disabled="isNextPageDisabled">
 				<Icon name="arrow-right" size="12" color="primary" />
 			</Button>
 		</Flex>
