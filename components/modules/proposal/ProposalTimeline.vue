@@ -19,7 +19,7 @@ const props = defineProps({
 	},
 })
 
-const expand = ref(false)
+const expand = ref(true)
 
 const votingPeriod = ref(appStore.constants.gov.voting_period.replace("s", ""))
 </script>
@@ -72,7 +72,7 @@ const votingPeriod = ref(appStore.constants.gov.voting_period.replace("s", ""))
 			<Text size="12" weight="600" color="tertiary">Voting End</Text>
 		</Flex>
 
-		<template v-if="!expand">
+		<template v-if="expand">
 			<Flex direction="column" gap="16" :class="$style.timeline">
 				<Flex gap="12">
 					<div :class="$style.circle" />
