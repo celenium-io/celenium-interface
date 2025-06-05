@@ -42,7 +42,7 @@ export const useServerURL = () => {
 			return Server.API.dev
 
 		default:
-			return Server.API.dev
+			return Server.API.mocha
 	}
 }
 
