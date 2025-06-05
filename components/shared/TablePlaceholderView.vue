@@ -6,7 +6,13 @@ const props = defineProps({
 	subIcon: String,
 	subIconColor: String,
 	descriptionWidth: Number,
+	callback: Function,
+	callbackText: String,
 })
+
+const handleReset = () => {
+	props.callback()
+}
 </script>
 
 <template>
@@ -27,6 +33,10 @@ const props = defineProps({
 				:style="{ maxWidth: descriptionWidth ? `${descriptionWidth}px` : null }"
 			>
 				{{ description }}
+			</Text>
+
+			<Text v-if="callback" @click="handleReset" size="12" weight="600" color="brand" align="center" class="clickable">
+				{{ callbackText }}
 			</Text>
 		</Flex>
 	</Flex>
