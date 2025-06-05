@@ -74,7 +74,7 @@ const handlePrevPage = () => {
 }
 
 const isNextPageDisabled = computed(() => {
-	return totalPages.value === props.page
+	return totalPages.value === props.page || !totalPages.value
 })
 const handleNextPage = () => {
 	if (isNextPageDisabled.value) return
@@ -210,6 +210,8 @@ const handleNextPage = () => {
 			icon="governance"
 			subIcon="search"
 			:descriptionWidth="260"
+			:callback="() => handleResetOptionFilter()"
+			callbackText="Reset Filters"
 			style="height: 100%"
 		/>
 
@@ -223,7 +225,9 @@ const handleNextPage = () => {
 			</Button>
 
 			<Button type="secondary" size="mini" disabled>
-				<Text size="12" weight="600" color="primary">Page {{ comma(page) }} of {{ comma(totalPages) }}</Text>
+				<Text size="12" weight="600" color="primary">
+					Page {{ comma(page) }} <template v-if="totalPages">of {{ comma(totalPages) }}</template>
+				</Text>
 			</Button>
 
 			<Button @click="handleNextPage" type="secondary" size="mini" :disabled="isNextPageDisabled">
