@@ -203,25 +203,9 @@ const handleViewRawVotes = () => {
 					<Flex direction="column" gap="10" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Proposal</Text>
 
-						<Flex direction="column" gap="4">
-							<Text size="13" weight="600" height="140" color="primary" :class="$style.proposal_title">
-								{{ proposal.title }}
-							</Text>
-
-							<Tooltip position="start" textAlign="start" delay="300">
-								<Text size="12" weight="500" height="140" color="tertiary" :class="$style.proposal_description">
-									{{ proposal.description }}
-								</Text>
-
-								<template #content>
-									<div style="max-width: 340px">
-										<Text height="140">
-											{{ proposal.description }}
-										</Text>
-									</div>
-								</template>
-							</Tooltip>
-						</Flex>
+						<Text size="13" weight="600" height="140" color="primary" :class="$style.proposal_title">
+							{{ proposal.title }}
+						</Text>
 					</Flex>
 
 					<VotesAllocation v-if="proposal.status !== 'removed'" :proposal />
