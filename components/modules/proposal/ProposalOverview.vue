@@ -1,7 +1,4 @@
 <script setup>
-/** Vendor */
-import { DateTime } from "luxon"
-
 /** UI */
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Badge from "@/components/ui/Badge.vue"
@@ -9,6 +6,7 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Shared & Local Components */
+import ProposalTimeline from "./ProposalTimeline.vue"
 import VotesAllocation from "./VotesAllocation.vue"
 import VotesTable from "./VotesTable.vue"
 
@@ -150,43 +148,7 @@ const handleViewRawVotes = () => {
 
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">
-				<Flex wide direction="column" gap="8" :class="$style.top">
-					<Text size="12" weight="600" color="secondary">Timeline</Text>
-
-					<Badge>
-						<Flex align="center" justify="between" wide>
-							<Text size="12" weight="600" color="secondary">
-								{{ DateTime.fromISO(proposal.activation_time).setLocale("en").toLocaleString(DateTime.DATE_MED) }}
-							</Text>
-
-							<div v-for="dot in 4" class="dot" />
-
-							<Flex align="center" gap="6">
-								<Icon name="time" size="12" color="secondary" />
-								<Text size="12" weight="600" color="primary">
-									{{
-										DateTime.fromISO(proposal.deposit_time)
-											.diff(DateTime.fromISO(proposal.activation_time), "days")
-											.toObject()
-											.days.toFixed(0)
-									}}
-									Days
-								</Text>
-							</Flex>
-
-							<div v-for="dot in 4" class="dot" />
-
-							<Text size="12" weight="600" color="secondary" align="right">
-								{{ DateTime.fromISO(proposal.deposit_time).setLocale("en").toLocaleString(DateTime.DATE_MED) }}
-							</Text>
-						</Flex>
-					</Badge>
-
-					<Flex align="center" justify="between">
-						<Text size="12" weight="600" color="tertiary">Voting Start</Text>
-						<Text size="12" weight="600" color="tertiary">Voting End</Text>
-					</Flex>
-				</Flex>
+				<ProposalTimeline :proposal />
 
 				<Flex direction="column" gap="24" :class="$style.main">
 					<Flex direction="column" gap="10" :class="$style.key_value">
@@ -354,12 +316,6 @@ const handleViewRawVotes = () => {
 
 	border-radius: 4px 4px 4px 8px;
 	background: var(--card-background);
-
-	.top {
-		border-bottom: 1px solid var(--op-5);
-
-		padding: 16px;
-	}
 
 	.main {
 		padding: 16px;
