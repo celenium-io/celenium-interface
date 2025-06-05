@@ -105,20 +105,25 @@ const handleNextPage = () => {
 
 						<Flex direction="column" gap="8">
 							<Radio v-model="optionFilter" value="yes">
-								<Text size="12" weight="500" color="primary">Yes</Text>
+								<Text size="12" weight="600" color="primary">Yes</Text>
 							</Radio>
 							<Radio v-model="optionFilter" value="no">
-								<Text size="12" weight="500" color="primary">No</Text>
+								<Text size="12" weight="600" color="primary">No</Text>
 							</Radio>
 							<Radio v-model="optionFilter" value="no_with_veto">
-								<Text size="12" weight="500" color="primary">No with veto</Text>
+								<Text size="12" weight="600" color="primary">No with veto</Text>
 							</Radio>
 							<Radio v-model="optionFilter" value="abstain">
-								<Text size="12" weight="500" color="primary">Abstain</Text>
+								<Text size="12" weight="600" color="primary">Abstain</Text>
 							</Radio>
 						</Flex>
 
-						<Button @click="handleApplyOptionFilters" type="secondary" size="mini" wide>Apply</Button>
+						<Flex gap="8">
+							<Button @click="handleApplyOptionFilters" type="secondary" size="mini" wide :disabled="!optionFilter"
+								>Apply</Button
+							>
+							<Button v-if="optionFilter" @click="handleResetOptionFilter" type="tertiary" size="mini" wide>Reset</Button>
+						</Flex>
 					</Flex>
 				</template>
 			</Popover>

@@ -23,10 +23,11 @@ const emit = defineEmits(["update:modelValue"])
 <style module>
 .wrapper {
 	cursor: pointer;
+	user-select: none;
 
 	&:hover {
 		.circle {
-			border-color: var(--op-10);
+			border-color: var(--op-15);
 		}
 	}
 
@@ -44,7 +45,7 @@ const emit = defineEmits(["update:modelValue"])
 	outline: none;
 
 	.circle {
-		border: 1px solid var(--op-15);
+		border: 1px solid var(--op-20);
 	}
 
 	.circle.active {
@@ -57,7 +58,7 @@ const emit = defineEmits(["update:modelValue"])
 	min-height: 14px;
 
 	border-radius: 50px;
-	border: 1px solid var(--op-5);
+	border: 1px solid var(--op-10);
 	background: rgba(0, 0, 0, 5%);
 
 	transition: all 0.1s ease;
