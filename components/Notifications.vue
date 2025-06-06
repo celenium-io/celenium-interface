@@ -1,4 +1,7 @@
 <script setup>
+/** UI */
+import Button from "@/components/ui/Button.vue"
+
 /**
  * Store
  */
@@ -37,13 +40,9 @@ const handleActionCallback = (callback, notification) => {
 						<div v-if="notification.description" :class="$style.description">
 							<Text v-if="notification.description === 'privacy'">
 								Here's our
-								<NuxtLink to="/privacy-policy" :class="$style.link">
-									Privacy Policy
-								</NuxtLink>
-								and 
-								<NuxtLink to="/terms-of-use" :class="$style.link">
-									Terms of Use
-								</NuxtLink>
+								<NuxtLink to="/privacy-policy" :class="$style.link"> Privacy Policy </NuxtLink>
+								and
+								<NuxtLink to="/terms-of-use" :class="$style.link"> Terms of Use </NuxtLink>
 							</Text>
 							<Text v-else>
 								{{ notification.description }}
@@ -65,17 +64,16 @@ const handleActionCallback = (callback, notification) => {
 						</div>
 
 						<Flex v-if="notification.actions" align="center" gap="6" :class="$style.actions">
-							<Flex
-								v-for="(action, aIndex) in notification.actions"
-								:key="aIndex"
+							<Button
+								v-for="(action, actionIdx) in notification.actions"
+								:key="actionIdx"
 								@click="handleActionCallback(action.callback, notification)"
-								align="center"
-								gap="6"
-								:class="$style.action"
+								type="secondary"
+								size="mini"
 							>
-								<Icon v-if="action.icon" :name="action.icon" color="tertiary" size="12" />
-								<Text size="12" weight="600" color="secondary">{{ action.name }}</Text>
-							</Flex>
+								<Icon v-if="action.icon" :name="action.icon" color="tertiary" size="14" />
+								<Text size="12" weight="600" color="primary">{{ action.name }}</Text>
+							</Button>
 						</Flex>
 					</Flex>
 
@@ -137,7 +135,7 @@ const handleActionCallback = (callback, notification) => {
 }
 
 .general_icon.success {
-	fill: var(--green);
+	fill: var(--brand);
 }
 
 .general_icon.warning {

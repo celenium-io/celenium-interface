@@ -1,6 +1,8 @@
 import { useModalsStore } from "./modals"
 
 export const useAppStore = defineStore("app", () => {
+	const version = ref()
+
 	const modalsStore = useModalsStore()
 
 	const network = ref()
@@ -45,6 +47,7 @@ export const useAppStore = defineStore("app", () => {
 	}
 
 	return {
+		version,
 		network,
 		head,
 		gas,
