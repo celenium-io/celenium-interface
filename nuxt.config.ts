@@ -69,7 +69,7 @@ export default defineNuxtConfig({
 	runtimeConfig: {
 		public: {
 			AMP: process.env.AMP,
-			version: "1.16.0",
+			version: "1.16.0-test",
 		},
 	},
 
