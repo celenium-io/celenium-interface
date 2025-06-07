@@ -4,7 +4,7 @@ import { computed } from "vue"
 import icons from "@/assets/icons.json"
 
 const props = defineProps({
-	name: { type: String, required: true, default: "warning" },
+	name: { type: String, required: true, default: "" },
 	size: { type: [String, Number], default: "16" },
 	color: { type: String, default: null },
 	hoverColor: { type: String, required: false },
