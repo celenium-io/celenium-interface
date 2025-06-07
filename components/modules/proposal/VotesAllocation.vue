@@ -20,7 +20,7 @@ const props = defineProps({
 	},
 })
 
-const expand = ref(false)
+const expand = ref(["inactive", "active"].includes(props.proposal.status))
 </script>
 
 <template>
