@@ -19,7 +19,7 @@ const props = defineProps({
 	},
 })
 
-const expand = ref(true)
+const expand = ref(["inactive", "active"].includes(props.proposal.status))
 
 const votingPeriod = ref(appStore.constants.gov.voting_period.replace("s", ""))
 </script>
@@ -28,6 +28,7 @@ const votingPeriod = ref(appStore.constants.gov.voting_period.replace("s", ""))
 	<Flex wide direction="column" gap="8" :class="$style.wrapper">
 		<Flex @click="expand = !expand" align="center" justify="between" class="clickable">
 			<Text size="12" weight="600" color="secondary">Timeline</Text>
+
 			<Icon name="chevron" size="12" color="secondary" :style="{ transform: `rotate(${expand ? '180deg' : '0deg'})` }" />
 		</Flex>
 
