@@ -31,7 +31,7 @@ const expand = ref(false)
 		</Flex>
 
 		<Flex align="center" gap="4" :class="$style.voting_wrapper">
-			<div :class="$style.threshold" />
+			<div :style="{ left: `${appStore.constants.gov.threshold * 100}%` }" :class="$style.threshold" />
 
 			<Tooltip v-if="proposal.yes" wide :trigger-width="`${Math.max(5, (proposal.yes * 100) / proposal.votes_count)}%`">
 				<div
@@ -142,7 +142,6 @@ const expand = ref(false)
 .threshold {
 	position: absolute;
 	top: 0;
-	left: 50%;
 
 	width: 4px;
 	height: 12px;
@@ -151,6 +150,8 @@ const expand = ref(false)
 	background: #fff;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 	z-index: 1;
+
+	transform: translateX(-50%);
 }
 
 .voting_bar {
