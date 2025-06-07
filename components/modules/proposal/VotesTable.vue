@@ -100,7 +100,7 @@ watch(
 		<Flex wrap="wrap" align="center" gap="8" :class="$style.filters">
 			<Popover :open="isOptionPopoverOpen" @on-close="onOptionPopoverClose" width="200">
 				<Button @click="handleOpenOptionPopover" type="secondary" size="mini" :disabled="!votes.length && !hasActiveFilters">
-					<Icon name="filter" size="12" :color="optionFilter ? 'brand' : 'tertiary'" />
+					<Icon name="plus-circle" size="12" :color="optionFilter ? 'brand' : 'tertiary'" />
 					<Text color="secondary">Option<template v-if="optionFilter">:</template></Text>
 
 					<template v-if="optionFilter">
