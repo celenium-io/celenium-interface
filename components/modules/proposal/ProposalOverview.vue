@@ -35,7 +35,7 @@ const props = defineProps({
 	},
 })
 
-const preselectedTab = route.query.tab && ["votes"].includes(route.query.tab) ? route.query.tab : "votes"
+const preselectedTab = route.query.tab && ["validators_votes"].includes(route.query.tab) ? route.query.tab : "validators_votes"
 const activeTab = ref(preselectedTab)
 
 const isLoading = ref(false)
@@ -72,6 +72,7 @@ const getVotes = async () => {
 		id: props.proposal.id,
 		offset: (page.value - 1) * 10,
 		option: filters.option,
+		voter: (activeTab.value === "validators_votes" && "validator") || (activeTab.value === "addresses_votes" && "address") || null,
 	})
 	votes.value = data.value
 
@@ -95,9 +96,7 @@ onMounted(() => {
 watch(
 	() => page.value,
 	() => {
-		if (activeTab.value === "votes") {
-			getVotes()
-		}
+		getVotes()
 	},
 )
 
@@ -111,6 +110,7 @@ watch(
 		})
 
 		page.value = 1
+		resetFilter("option")
 
 		getVotes()
 	},
@@ -150,7 +150,7 @@ const handleViewRawVotes = () => {
 
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">
-				<ProposalTimeline :proposal v-if="proposal.status !== 'removed'" />
+				<ProposalTimeline :proposal />
 
 				<Flex direction="column" gap="24" :class="$style.main">
 					<Flex gap="40">
@@ -218,7 +218,7 @@ const handleViewRawVotes = () => {
 					<Flex direction="column" gap="16">
 						<Text size="12" weight="600" color="secondary">Details</Text>
 
-						<Flex v-if="proposal.proposer" align="center" justify="between">
+						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Block</Text>
 
 							<NuxtLink :to="`/block/${proposal.height}`" target="_blank">
@@ -307,20 +307,27 @@ const handleViewRawVotes = () => {
 				<Flex align="center" justify="between" :class="$style.tabs_wrapper">
 					<Flex gap="4" :class="$style.tabs">
 						<Flex
-							@click="activeTab = 'votes'"
+							@click="activeTab = 'validators_votes'"
 							align="center"
 							gap="6"
-							:class="[$style.tab, activeTab === 'votes' && $style.active]"
+							:class="[$style.tab, activeTab === 'validators_votes' && $style.active]"
 						>
-							<Icon name="check-circle" size="12" color="secondary" />
-							<Text size="13" weight="600">Votes</Text>
-							<Text size="13" weight="600" color="tertiary">{{ comma(votesTotal) }}</Text>
+							<Icon name="validator" size="12" color="secondary" />
+							<Text size="13" weight="600">Validators Votes</Text>
+						</Flex>
+						<Flex
+							@click="activeTab = 'addresses_votes'"
+							align="center"
+							gap="6"
+							:class="[$style.tab, activeTab === 'addresses_votes' && $style.active]"
+						>
+							<Icon name="address" size="12" color="secondary" />
+							<Text size="13" weight="600">Addresses Votes</Text>
 						</Flex>
 					</Flex>
 				</Flex>
 
 				<VotesTable
-					v-if="activeTab === 'votes'"
 					:proposal
 					:votes
 					:votesTotal

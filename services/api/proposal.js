@@ -29,13 +29,14 @@ export const fetchProposalById = async ({ id }) => {
 	}
 }
 
-export const fetchProposalVotes = async ({ id, limit, offset, option }) => {
+export const fetchProposalVotes = async ({ id, limit, offset, option, voter }) => {
 	try {
 		const url = new URL(`${useServerURL()}/proposal/${id}/votes`)
 
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 		if (option) url.searchParams.append("option", option)
+		if (voter) url.searchParams.append("voter", voter)
 
 		const data = await useAsyncData(`proposal-${id}-votes`, () => $fetch(url.href))
 		return data

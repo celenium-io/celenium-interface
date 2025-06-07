@@ -42,19 +42,24 @@ const props = defineProps({
 	},
 })
 
+const router = useRouter()
+
 /** Filter by vote option */
 const optionFilter = ref()
+const cachedOptionFilter = ref()
 
 const hasActiveFilters = computed(() => !!optionFilter.value)
 
 const isOptionPopoverOpen = ref(false)
 const handleOpenOptionPopover = () => {
 	isOptionPopoverOpen.value = true
+
+	cachedOptionFilter.value = optionFilter.value
 }
 const onOptionPopoverClose = () => {
 	isOptionPopoverOpen.value = false
 
-	optionFilter.value = null
+	optionFilter.value = cachedOptionFilter.value
 }
 const handleApplyOptionFilters = () => {
 	isOptionPopoverOpen.value = false
@@ -62,24 +67,32 @@ const handleApplyOptionFilters = () => {
 	emit("updateFilters", "option", optionFilter.value, true)
 }
 const handleResetOptionFilter = () => {
+	isOptionPopoverOpen.value = false
+
 	emit("onFiltersReset", "option", true)
 	optionFilter.value = null
 }
 
 /** Pagination */
-const totalPages = computed(() => Math.ceil(optionFilter.value ? props.proposal[optionFilter.value] / 10 : props.votesTotal / 10))
 const handlePrevPage = () => {
 	if (props.page === 1) return
 	emit("onPrevPage")
 }
 
 const isNextPageDisabled = computed(() => {
-	return totalPages.value === props.page || !totalPages.value
+	return !props.votes.length || props.votes.length !== 10
 })
 const handleNextPage = () => {
 	if (isNextPageDisabled.value) return
 	emit("onNextPage")
 }
+
+watch(
+	() => props.filters.option,
+	() => {
+		if (!props.filters.option) optionFilter.value = null
+	},
+)
 </script>
 
 <template>
@@ -119,9 +132,9 @@ const handleNextPage = () => {
 						</Flex>
 
 						<Flex gap="8">
-							<Button @click="handleApplyOptionFilters" type="secondary" size="mini" wide :disabled="!optionFilter"
-								>Apply</Button
-							>
+							<Button @click="handleApplyOptionFilters" type="secondary" size="mini" wide :disabled="!optionFilter">
+								Apply
+							</Button>
 							<Button v-if="optionFilter" @click="handleResetOptionFilter" type="tertiary" size="mini" wide>Reset</Button>
 						</Flex>
 					</Flex>
@@ -135,8 +148,8 @@ const handleNextPage = () => {
 					<tr>
 						<th><Text size="12" weight="600" color="tertiary">Option</Text></th>
 						<th><Text size="12" weight="600" color="tertiary">Voter</Text></th>
+						<th><Text size="12" weight="600" color="tertiary">Height</Text></th>
 						<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
-						<th><Text size="12" weight="600" color="tertiary">Validator</Text></th>
 					</tr>
 				</thead>
 
@@ -150,7 +163,7 @@ const handleNextPage = () => {
 								</Text>
 							</Flex>
 						</td>
-						<td>
+						<td v-if="!vote.validator">
 							<NuxtLink :to="`/address/${vote.voter.hash}`">
 								<Flex align="center">
 									<Text size="13" weight="600" color="primary" class="table_column_alias">
@@ -158,6 +171,29 @@ const handleNextPage = () => {
 									</Text>
 								</Flex>
 							</NuxtLink>
+						</td>
+						<td v-else>
+							<Flex v-if="vote.validator" align="center">
+								<Tooltip delay="500">
+									<Text size="13" height="120" weight="600" color="primary">
+										{{ vote.validator.moniker }}
+									</Text>
+
+									<template #content> {{ space(vote.validator.cons_address) }} </template>
+								</Tooltip>
+							</Flex>
+							<Text v-else size="12" weight="600" color="support">No Validator</Text>
+						</td>
+						<td>
+							<Flex align="center" :class="$style.link">
+								<Outline @click.prevent="router.push(`/block/${vote.height}`)">
+									<Flex align="center" gap="6">
+										<Icon name="block" size="14" color="secondary" />
+
+										<Text size="13" weight="600" color="primary" tabular>{{ comma(vote.height) }}</Text>
+									</Flex>
+								</Outline>
+							</Flex>
 						</td>
 						<td>
 							<Flex justify="center" direction="column" gap="4">
@@ -168,40 +204,6 @@ const handleNextPage = () => {
 									{{ DateTime.fromISO(vote.deposit_time).setLocale("en").toFormat("LLL d, t") }}
 								</Text>
 							</Flex>
-						</td>
-						<td>
-							<Flex v-if="vote.validator" align="center">
-								<Tooltip delay="500">
-									<template #default>
-										<Flex direction="column" gap="4">
-											<Text size="12" height="120" weight="600" color="primary">
-												{{ vote.validator.moniker }}
-											</Text>
-
-											<Flex align="center" gap="6">
-												<Text size="12" weight="600" color="tertiary" mono>
-													{{ vote.validator.cons_address.slice(0, 4) }}
-												</Text>
-												<Flex align="center" gap="3">
-													<div v-for="dot in 3" class="dot" />
-												</Flex>
-												<Text size="12" weight="600" color="tertiary" mono>
-													{{
-														vote.validator.cons_address.slice(
-															vote.validator.cons_address.length - 4,
-															vote.validator.cons_address.length,
-														)
-													}}
-												</Text>
-												<CopyButton :text="vote.validator.cons_address" size="10" />
-											</Flex>
-										</Flex>
-									</template>
-
-									<template #content> {{ space(vote.validator.cons_address) }} </template>
-								</Tooltip>
-							</Flex>
-							<Text v-else size="12" weight="600" color="support">No Validator</Text>
 						</td>
 					</tr>
 				</tbody>
@@ -230,9 +232,7 @@ const handleNextPage = () => {
 			</Button>
 
 			<Button type="secondary" size="mini" disabled>
-				<Text size="12" weight="600" color="primary">
-					Page {{ comma(page) }} <template v-if="totalPages">of {{ comma(totalPages) }}</template>
-				</Text>
+				<Text size="12" weight="600" color="primary"> Page {{ comma(page) }} </Text>
 			</Button>
 
 			<Button @click="handleNextPage" type="secondary" size="mini" :disabled="isNextPageDisabled">
