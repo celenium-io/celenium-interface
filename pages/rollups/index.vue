@@ -473,12 +473,17 @@ onBeforeMount(() => {
 				<Flex wrap="wrap" align="center" gap="8">
 					<Popover v-for="p in Object.keys(popovers)" :open="popovers[p]" @on-close="onPopoverClose(p)" width="200">
 						<Button @click="handleOpenPopover(p)" type="secondary" size="mini">
-							<Icon name="plus-circle" size="12" color="tertiary" />
-							<Text color="secondary"> {{ capitilize(keyMap[p]) }} </Text>
+							<Icon
+								name="plus-circle"
+								size="12"
+								:color="Object.keys(filters[p]).find((item) => filters[p][item]) ? 'brand' : 'tertiary'"
+							/>
+							<Text color="secondary">
+								{{ capitilize(keyMap[p])
+								}}<template v-if="Object.keys(filters[p]).find((item) => filters[p][item])">:</template></Text
+							>
 
 							<template v-if="Object.keys(filters[p]).find((item) => filters[p][item])">
-								<div :class="$style.vertical_divider" />
-
 								<Text size="12" weight="600" color="primary">
 									{{
 										Object.keys(filters[p]).filter((item) => filters[p][item]).length < 3
@@ -502,7 +507,7 @@ onBeforeMount(() => {
 
 						<template #content>
 							<Flex direction="column" gap="12">
-								<Text size="12" weight="500" color="secondary"> {{ `Filter by ${capitilize(keyMap[p])}` }} </Text>
+								<Text size="12" weight="600" color="secondary"> {{ `Filter by ${capitilize(keyMap[p])}` }} </Text>
 
 								<Flex direction="column" gap="8" :class="$style.filters_list">
 									<Checkbox v-for="item in Object.keys(filters[p])" v-model="filters[p][item]">
@@ -817,12 +822,6 @@ onBeforeMount(() => {
 	background: var(--card-background);
 
 	padding: 8px 16px;
-}
-
-.vertical_divider {
-	min-width: 2px;
-	height: 12px;
-	background: var(--op-10);
 }
 
 .filters_list {
