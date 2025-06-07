@@ -12,7 +12,7 @@ import VotesTable from "./VotesTable.vue"
 
 /** Services */
 import { comma, splitAddress } from "@/services/utils"
-import { getProposalIcon, getProposalIconColor, getProposalType } from "@/services/utils/states"
+import { getProposalIcon, getProposalIconColor, getProposalType, getProposalTypeIcon } from "@/services/utils/states"
 
 /** API */
 import { fetchProposalVotes } from "@/services/api/proposal"
@@ -153,22 +153,45 @@ const handleViewRawVotes = () => {
 				<ProposalTimeline :proposal />
 
 				<Flex direction="column" gap="24" :class="$style.main">
-					<Flex direction="column" gap="10" :class="$style.key_value">
-						<Text size="12" weight="600" color="secondary">Status</Text>
+					<Flex gap="40">
+						<Flex direction="column" gap="10" :class="$style.key_value">
+							<Text size="12" weight="600" color="secondary">Status</Text>
 
-						<Flex align="center" gap="6">
-							<Icon :name="getProposalIcon(proposal.status)" size="14" :color="getProposalIconColor(proposal.status)" />
-							<Text size="13" weight="600" color="primary" style="text-transform: capitalize">
-								{{ proposal.status }}
-							</Text>
+							<Flex align="center" gap="6">
+								<Icon :name="getProposalIcon(proposal.status)" size="14" :color="getProposalIconColor(proposal.status)" />
+								<Text size="13" weight="600" color="primary" style="text-transform: capitalize">
+									{{ proposal.status }}
+								</Text>
+							</Flex>
 						</Flex>
 
-						<Text v-if="proposal.status === 'removed'" size="12" weight="500" color="tertiary">
-							The minimum deposit was not reached
+						<Flex direction="column" gap="10" :class="$style.key_value">
+							<Text size="12" weight="600" color="secondary">Type</Text>
+
+							<Flex align="center" gap="6">
+								<Icon :name="getProposalTypeIcon(proposal.type)" size="12" color="secondary" />
+								<Text size="13" weight="600" color="primary">
+									{{ getProposalType(proposal.type) }}
+								</Text>
+							</Flex>
+						</Flex>
+					</Flex>
+
+					<Flex v-if="['rejected', 'removed'].includes(proposal.status)" direction="column" gap="10" :class="$style.key_value">
+						<Text size="12" weight="600" color="secondary">
+							{{ proposal.status === "removed" ? "Removal" : "Rejection" }} Reason
 						</Text>
-						<Text v-else-if="proposal.status === 'rejected'" size="12" weight="500" color="tertiary">
-							The quorum was not reached
-						</Text>
+
+						<Flex align="center" gap="6">
+							<Icon name="info" size="14" color="orange" />
+
+							<Text v-if="proposal.status === 'removed'" size="13" weight="600" color="primary">
+								The minimum deposit was not reached
+							</Text>
+							<Text v-else-if="proposal.status === 'rejected'" size="13" weight="600" color="primary">
+								The quorum {{ appStore.constants.gov.quorum * 100 }}% was not reached
+							</Text>
+						</Flex>
 					</Flex>
 
 					<Flex direction="column" gap="10" :class="$style.key_value">
@@ -192,29 +215,19 @@ const handleViewRawVotes = () => {
 
 					<VotesAllocation v-if="proposal.status !== 'removed'" :proposal />
 
-					<Flex direction="column" gap="10" :class="$style.key_value">
-						<Text size="12" weight="600" color="secondary">Type</Text>
-
-						<Badge style="width: fit-content">
-							<Text size="13" weight="600" color="primary">
-								{{ getProposalType(proposal.type) }}
-							</Text>
-						</Badge>
-					</Flex>
-
-					<Flex direction="column" gap="10" :class="$style.key_value">
-						<Text size="12" weight="600" color="secondary">Block</Text>
-
-						<Outline @click.prevent="router.push(`/block/${proposal.height}`)" class="clickable">
-							<Flex align="center" gap="6">
-								<Icon name="block" size="14" color="secondary" />
-								<Text size="13" weight="600" color="primary" tabular>{{ comma(proposal.height) }}</Text>
-							</Flex>
-						</Outline>
-					</Flex>
-
 					<Flex direction="column" gap="16">
 						<Text size="12" weight="600" color="secondary">Details</Text>
+
+						<Flex v-if="proposal.proposer" align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Block</Text>
+
+							<NuxtLink :to="`/block/${proposal.height}`" target="_blank">
+								<Flex align="center" gap="6">
+									<Text size="12" weight="600" color="secondary">{{ comma(proposal.height) }}</Text>
+									<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
+								</Flex>
+							</NuxtLink>
+						</Flex>
 
 						<Flex v-if="proposal.proposer" align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Proposer</Text>

@@ -25,6 +25,13 @@ export const getProposalType = (type) => {
 	if (type === "community_pool_spend") return "Community Pool Spend"
 }
 
+export const getProposalTypeIcon = (type) => {
+	if (type === "param_changed") return "edit"
+	if (type === "text") return "edit"
+	if (type === "client_update") return "refresh"
+	if (type === "community_pool_spend") return "coins"
+}
+
 export const getVoteIcon = (status) => {
 	if (status === "yes") return "check-circle"
 	if (status === "no") return "close-circle"
