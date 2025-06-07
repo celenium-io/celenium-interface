@@ -150,7 +150,7 @@ const handleViewRawVotes = () => {
 
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">
-				<ProposalTimeline :proposal />
+				<ProposalTimeline :proposal v-if="proposal.status !== 'removed'" />
 
 				<Flex direction="column" gap="24" :class="$style.main">
 					<Flex gap="40">
