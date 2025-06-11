@@ -189,7 +189,7 @@ const handleViewRawVotes = () => {
 								The minimum deposit was not reached
 							</Text>
 							<Text v-else-if="proposal.status === 'rejected'" size="13" weight="600" color="primary">
-								The quorum {{ appStore.constants.gov.quorum * 100 }}% was not reached
+								The quorum {{ Number(proposal.quorum) * 100 }}% was not reached
 							</Text>
 						</Flex>
 					</Flex>
@@ -287,7 +287,7 @@ const handleViewRawVotes = () => {
 								</Flex>
 
 								<AmountInCurrency
-									:amount="{ value: appStore.constants.gov.min_deposit.replace('utia', ''), decimal: 6 }"
+									:amount="{ value: proposal.min_deposit.replace('utia', ''), decimal: 6 }"
 									:styles="{ amount: { color: 'secondary' }, currency: { color: 'tertiary' } }"
 								/>
 							</Flex>

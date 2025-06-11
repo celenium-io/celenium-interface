@@ -20,8 +20,6 @@ const props = defineProps({
 })
 
 const expand = ref(["inactive", "active"].includes(props.proposal.status))
-
-const votingPeriod = ref(appStore.constants.gov.voting_period.replace("s", ""))
 </script>
 
 <template>
@@ -40,12 +38,11 @@ const votingPeriod = ref(appStore.constants.gov.voting_period.replace("s", ""))
 
 				<div v-for="dot in 4" class="dot" />
 
-				<Flex v-if="isMainnet()" align="center" gap="6">
+				<Flex align="center" gap="6">
 					<Icon name="time" size="12" color="secondary" />
 					<Text size="12" weight="600" color="primary">
 						{{
-							DateTime.fromISO(proposal.activation_time)
-								.plus({ seconds: votingPeriod })
+							DateTime.fromISO(proposal.end_time)
 								.diff(DateTime.fromISO(proposal.activation_time), "days")
 								.toObject()
 								.days.toFixed(0)
@@ -56,15 +53,14 @@ const votingPeriod = ref(appStore.constants.gov.voting_period.replace("s", ""))
 
 				<div v-for="dot in 4" class="dot" />
 
-				<Text v-if="isMainnet()" size="12" weight="600" color="secondary" align="right">
+				<Text size="12" weight="600" color="secondary" align="right">
 					{{
-						DateTime.fromISO(proposal.activation_time)
-							.plus({ seconds: votingPeriod })
+						DateTime.fromISO(proposal.end_time)
+
 							.setLocale("en")
 							.toLocaleString(DateTime.DATE_MED)
 					}}
 				</Text>
-				<Text v-else size="12" weight="600" color="tertiary" align="right"> Unknown </Text>
 			</Flex>
 		</Badge>
 
@@ -91,29 +87,18 @@ const votingPeriod = ref(appStore.constants.gov.voting_period.replace("s", ""))
 						<Text size="12" weight="500" color="tertiary">{{ DateTime.fromISO(proposal.activation_time).toFormat("FF") }}</Text>
 					</Flex>
 				</Flex>
-				<Flex v-if="isMainnet()" gap="12">
+				<Flex gap="12">
 					<div :class="$style.circle" />
 
 					<Flex direction="column" gap="8">
-						<Text size="13" weight="600" color="secondary">End of voting period</Text>
+						<Text size="13" weight="600" color="secondary">End of voting</Text>
 						<Text size="12" weight="500" color="tertiary">
-							{{ DateTime.fromISO(proposal.activation_time).plus({ seconds: votingPeriod }).toFormat("FF") }}
+							{{ DateTime.fromISO(proposal.end_time).toFormat("FF") }}
 						</Text>
 					</Flex>
 				</Flex>
 
 				<div :class="$style.line" />
-			</Flex>
-
-			<Flex gap="12" style="margin-top: 8px">
-				<div :class="[$style.circle, $style.red]" />
-
-				<Flex direction="column" gap="8">
-					<Text size="13" weight="600" color="secondary">Deadline for deposit</Text>
-					<Text size="12" weight="500" color="tertiary">
-						{{ DateTime.fromISO(proposal.deposit_time).toFormat("FF") }}
-					</Text>
-				</Flex>
 			</Flex>
 		</template>
 	</Flex>

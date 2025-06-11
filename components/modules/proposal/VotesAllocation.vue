@@ -31,7 +31,7 @@ const expand = ref(["inactive", "active"].includes(props.proposal.status))
 		</Flex>
 
 		<Flex align="center" gap="4" :class="$style.voting_wrapper">
-			<div :style="{ left: `${appStore.constants.gov.threshold * 100}%` }" :class="$style.threshold" />
+			<div :style="{ left: `${Number(proposal.threshold) * 100}%` }" :class="$style.threshold" />
 
 			<Tooltip v-if="proposal.yes" wide :trigger-width="`${Math.max(5, (proposal.yes * 100) / proposal.votes_count)}%`">
 				<div
@@ -106,19 +106,19 @@ const expand = ref(["inactive", "active"].includes(props.proposal.status))
 				</Flex>
 			</Flex>
 
-			<Flex v-if="proposal.yes / proposal.votes_count > appStore.constants.gov.threshold" align="center" gap="4">
+			<Flex v-if="proposal.yes / proposal.votes_count > Number(proposal.threshold)" align="center" gap="4">
 				<Icon name="check-circle" size="12" color="tertiary" />
 				<Text size="12" weight="500" color="tertiary">
 					The <Text color="secondary" weight="600">Yes</Text> vote threshold of
-					<Text color="secondary">{{ appStore.constants.gov.threshold * 100 }}%</Text> is met
+					<Text color="secondary">{{ Number(proposal.threshold) * 100 }}%</Text> is met
 				</Text>
 			</Flex>
 
-			<Flex v-if="proposal.no_with_veto / proposal.votes_count > appStore.constants.gov.veto_threshold" align="center" gap="4">
+			<Flex v-if="proposal.no_with_veto / proposal.votes_count > Number(proposal.veto_quorum)" align="center" gap="4">
 				<Icon name="check-circle" size="12" color="tertiary" />
 				<Text size="12" weight="500" color="tertiary">
 					The <Text color="secondary" weight="600">No With Veto</Text> vote threshold of
-					<Text color="secondary">{{ appStore.constants.gov.veto_threshold * 100 }}%</Text> is met
+					<Text color="secondary">{{ Number(proposal.veto_quorum) * 100 }}%</Text> is met
 				</Text>
 			</Flex>
 		</Flex>
