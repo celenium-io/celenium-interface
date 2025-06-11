@@ -20,83 +20,6 @@ export const fetchRollups = async ({ categories, type, tags, limit, offset, sort
 	}
 }
 
-// export const fetchRollupsCount = async () => {
-// 	try {
-// 		const url = new URL(`${useServerURL()}/rollup/count`)
-
-// 		const data = await useFetch(url.href)
-// 		return data
-// 	} catch (error) {
-// 		console.error(error)
-// 	}
-// }
-
-// export const fetchRollupByID = async (id) => {
-// 	try {
-// 		const url = new URL(`${useServerURL()}/rollup/${id}`)
-
-// 		const data = await useFetch(encodeURI(url.href))
-// 		return data
-// 	} catch (error) {
-// 		console.error(error)
-// 	}
-// }
-
-// export const fetchRollupBySlug = async (slug) => {
-// 	try {
-// 		const url = new URL(`${useServerURL()}/rollup/slug/${slug}`)
-
-// 		const data = await useFetch(encodeURI(url.href))
-// 		return data
-// 	} catch (error) {
-// 		console.error(error)
-// 	}
-// }
-
-// export const fetchRollupBlobs = async ({ id, limit, offset, sort, sort_by }) => {
-// 	try {
-// 		const url = new URL(`${useServerURL()}/rollup/${id}/blobs`)
-
-// 		if (limit) url.searchParams.append("limit", limit)
-// 		if (offset) url.searchParams.append("offset", offset)
-// 		if (sort) url.searchParams.append("sort", sort)
-// 		if (sort_by) url.searchParams.append("sort_by", sort_by)
-
-// 		const data = await useFetch(encodeURI(url.href))
-// 		return data
-// 	} catch (error) {
-// 		console.error(error)
-// 	}
-// }
-
-// export const fetchRollupNamespaces = async ({ id, limit, offset }) => {
-// 	try {
-// 		const url = new URL(`${useServerURL()}/rollup/${id}/namespaces`)
-
-// 		if (limit) url.searchParams.append("limit", limit)
-// 		if (offset) url.searchParams.append("offset", offset)
-
-// 		const data = await useFetch(encodeURI(url.href))
-// 		return data
-// 	} catch (error) {
-// 		console.error(error)
-// 	}
-// }
-
-// export const fetchRollupExportData = async ({ id, from, to }) => {
-// 	try {
-// 		const url = new URL(`${useServerURL()}/rollup/${id}/export`)
-
-// 		url.searchParams.append("from", from)
-// 		url.searchParams.append("to", to)
-
-// 		const data = await useFetch(encodeURI(url.href))
-// 		return data
-// 	} catch (error) {
-// 		console.error(error)
-// 	}
-// }
-
 export const fetchRollupsCount = () => {
 	try {
 		const url = new URL(`${useServerURL()}/rollup/count`)
@@ -202,7 +125,7 @@ export const fetchRollupTVL = async ({ slug, period, from, to }) => {
 
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
-		
+
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
@@ -216,7 +139,7 @@ export const fetchRollupOrgs = async ({ limit, offset }) => {
 
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
-	
+
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
@@ -255,7 +178,7 @@ export const fetchRollupOrgReposBySlug = async ({ slug, limit, offset, sort_by, 
 		if (offset) url.searchParams.append("offset", offset)
 		if (sort_by) url.searchParams.append("sort_by", sort_by)
 		if (sort) url.searchParams.append("sort", sort)
-		
+
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
@@ -264,13 +187,13 @@ export const fetchRollupOrgReposBySlug = async ({ slug, limit, offset, sort_by, 
 	}
 }
 
-export const fetchRollupOrgCommitsBySlug = async ({ slug, timeframe = 'week', from, to }) => {
+export const fetchRollupOrgCommitsBySlug = async ({ slug, timeframe = "week", from, to }) => {
 	try {
 		const url = new URL(`${githubServiceURL}/org/${slug}/commits/${timeframe}`)
 
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
-	
+
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
