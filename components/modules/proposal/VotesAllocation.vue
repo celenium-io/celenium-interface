@@ -26,7 +26,28 @@ const expand = ref(["inactive", "active"].includes(props.proposal.status))
 <template>
 	<Flex direction="column" gap="10" :class="$style.wrapper">
 		<Flex @click="expand = !expand" align="center" justify="between" class="clickable">
-			<Text size="12" weight="600" color="secondary">Allocation of votes</Text>
+			<Tooltip position="start" :disabled="!['applied', 'rejected'].includes(proposal.status)">
+				<Flex align="center" gap="6">
+					<Text size="12" weight="600" color="secondary">Allocation of votes</Text>
+					<Icon
+						v-if="['applied', 'rejected'].includes(proposal.status)"
+						:name="
+							(proposal.no_with_veto / proposal.votes_count > Number(proposal.veto_quorum) && 'warning') ||
+							(proposal.yes / proposal.votes_count > Number(proposal.threshold) && 'check-circle')
+						"
+						size="12"
+						color="secondary"
+					/>
+				</Flex>
+
+				<template v-if="proposal.no_with_veto / proposal.votes_count > Number(proposal.veto_quorum)" #content>
+					The No With Veto vote threshold is met - {{ Number(proposal.veto_quorum) * 100 }}%
+				</template>
+				<template v-else-if="proposal.yes / proposal.votes_count > Number(proposal.threshold)" #content>
+					The Yes vote threshold is met - {{ Number(proposal.threshold) * 100 }}%
+				</template>
+			</Tooltip>
+
 			<Icon name="chevron" size="12" color="secondary" :style="{ transform: `rotate(${expand ? '180deg' : '0deg'})` }" />
 		</Flex>
 
@@ -87,7 +108,7 @@ const expand = ref(["inactive", "active"].includes(props.proposal.status))
 		</Flex>
 
 		<Flex v-if="expand" direction="column" gap="16">
-			<Flex direction="column" gap="12">
+			<Flex direction="column" gap="16">
 				<Flex v-for="vote in votes" align="center" justify="between">
 					<Flex align="center" gap="6">
 						<div :class="[$style.dot, $style[vote]]" />
@@ -98,28 +119,12 @@ const expand = ref(["inactive", "active"].includes(props.proposal.status))
 					</Flex>
 
 					<Text size="12" weight="600" :color="proposal[vote] ? 'secondary' : 'tertiary'">
-						<Text v-if="Number(proposal[`${vote}_voting_power`])" color="tertiary">
-							{{ comma(proposal[`${vote}_voting_power`] / 1_000_000) }} TIA
-						</Text>
-						{{ ((proposal[vote] * 100) / proposal.votes_count).toFixed(0) }}%
+						<template v-if="(proposal[vote] * 100) / proposal.votes_count < 1">
+							<Text color="tertiary">< 1%</Text>
+						</template>
+						<template v-else> {{ ((proposal[vote] * 100) / proposal.votes_count).toFixed(0) }}% </template>
 					</Text>
 				</Flex>
-			</Flex>
-
-			<Flex v-if="proposal.yes / proposal.votes_count > Number(proposal.threshold)" align="center" gap="4">
-				<Icon name="check-circle" size="12" color="tertiary" />
-				<Text size="12" weight="500" color="tertiary">
-					The <Text color="secondary" weight="600">Yes</Text> vote threshold of
-					<Text color="secondary">{{ Number(proposal.threshold) * 100 }}%</Text> is met
-				</Text>
-			</Flex>
-
-			<Flex v-if="proposal.no_with_veto / proposal.votes_count > Number(proposal.veto_quorum)" align="center" gap="4">
-				<Icon name="check-circle" size="12" color="tertiary" />
-				<Text size="12" weight="500" color="tertiary">
-					The <Text color="secondary" weight="600">No With Veto</Text> vote threshold of
-					<Text color="secondary">{{ Number(proposal.veto_quorum) * 100 }}%</Text> is met
-				</Text>
 			</Flex>
 		</Flex>
 	</Flex>

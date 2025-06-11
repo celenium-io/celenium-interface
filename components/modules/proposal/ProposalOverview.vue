@@ -8,6 +8,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 /** Shared & Local Components */
 import ProposalTimeline from "./ProposalTimeline.vue"
 import VotesAllocation from "./VotesAllocation.vue"
+import VotingPower from "./VotingPower.vue"
 import VotesTable from "./VotesTable.vue"
 
 /** Services */
@@ -227,6 +228,8 @@ const handleViewRawVotes = () => {
 					</Flex>
 
 					<VotesAllocation v-if="proposal.status !== 'removed'" :proposal />
+
+					<VotingPower v-if="!['inactive', 'removed'].includes(proposal.status)" :proposal />
 
 					<Flex direction="column" gap="16">
 						<Text size="12" weight="600" color="secondary">Details</Text>
