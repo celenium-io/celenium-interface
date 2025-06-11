@@ -112,14 +112,16 @@ const expand = ref(["inactive", "active"].includes(props.proposal.status))
 				<Flex v-for="vote in votes" align="center" justify="between">
 					<Flex align="center" gap="6">
 						<div :class="[$style.dot, $style[vote]]" />
-						<Text size="12" weight="600" color="secondary" style="text-transform: capitalize">{{
-							vote.replaceAll("_", " ")
-						}}</Text>
+						<Text size="12" weight="600" color="secondary" style="text-transform: capitalize">
+							{{ vote.replaceAll("_", " ") }}
+						</Text>
 						<Text size="12" weight="600" color="tertiary">{{ comma(proposal[vote]) }}</Text>
 					</Flex>
 
 					<Text size="12" weight="600" :color="proposal[vote] ? 'secondary' : 'tertiary'">
-						<template v-if="(proposal[vote] * 100) / proposal.votes_count < 1">
+						<template
+							v-if="(proposal[vote] * 100) / proposal.votes_count > 0 && (proposal[vote] * 100) / proposal.votes_count < 1"
+						>
 							<Text color="tertiary">< 1%</Text>
 						</template>
 						<template v-else> {{ ((proposal[vote] * 100) / proposal.votes_count).toFixed(0) }}% </template>

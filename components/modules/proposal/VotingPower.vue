@@ -118,7 +118,12 @@ const expand = ref(["active"].includes(props.proposal.status))
 				</Flex>
 
 				<Text size="12" weight="600" :color="proposal[vote] ? 'secondary' : 'tertiary'">
-					<template v-if="(Number(proposal[`${vote}_voting_power`]) * 100) / (Number(proposal.voting_power) * 2) < 1">
+					<template
+						v-if="
+							(Number(proposal[`${vote}_voting_power`]) * 100) / (Number(proposal.voting_power) * 2) > 0 &&
+							(Number(proposal[`${vote}_voting_power`]) * 100) / (Number(proposal.voting_power) * 2) < 1
+						"
+					>
 						<Text color="tertiary">< 1%</Text>
 					</template>
 					<template v-else>
