@@ -47,12 +47,15 @@ const timeline = computed(() => {
 	return time
 })
 
-const maxSize = computed(() => Math.max(...blocks.value?.map((b) => b.stats.bytes_in_block)))
+const maxSize = computed(() => {
+	if (!blocks.value) return 0
+	return Math.max(...blocks.value.map((b) => b.stats.bytes_in_block))
+})
 const avgBlockTime = ref(0)
 
 const calculateHeight = (size) => {
 	if (!size) return 2
-	
+
 	return Math.max((size / maxSize.value) * 100, 2)
 }
 
