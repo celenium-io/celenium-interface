@@ -134,7 +134,6 @@ const getSectorName = (item) => {
 				<Flex v-for="i in 4" direction="column" gap="8" wide :class="$style.sector">
 					<Flex justify="between" wide :class="$style.hours">
 						<Flex v-for="j in 6" direction="column" justify="end" gap="6" :class="$style.hour">
-							<Skeleton w="4" :style="{ height: `${Math.random(20, 80) * 100}%` }" />
 							<div :class="$style.dot" />
 						</Flex>
 					</Flex>
