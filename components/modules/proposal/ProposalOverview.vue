@@ -43,16 +43,27 @@ const votes = ref([])
 const votesTotal = ref(0)
 
 const defaultFilters = {
-	option: null,
+	option: {
+		yes: false,
+		no: false,
+		no_with_veto: false,
+		abstain: false,
+	},
 }
 const { filters, setFilter, resetFilter } = useFilters(defaultFilters)
 const handleUpdateFilter = (target, newFilter, withRefetch) => {
 	setFilter(target, newFilter)
-	if (withRefetch) getVotes()
+	if (withRefetch) {
+		getVotes()
+		page.value = 1
+	}
 }
 const handleResetFilters = (target, withRefetch) => {
 	resetFilter(target)
-	if (withRefetch) getVotes()
+	if (withRefetch) {
+		getVotes()
+		page.value = 1
+	}
 }
 
 /** Pagination */
@@ -71,7 +82,9 @@ const getVotes = async () => {
 	const { data } = await fetchProposalVotes({
 		id: props.proposal.id,
 		offset: (page.value - 1) * 10,
-		option: filters.option,
+		option: Object.keys(filters.value.option)
+			.filter((opt) => filters.value.option[opt])
+			.join(","),
 		voter: (activeTab.value === "validators_votes" && "validator") || (activeTab.value === "addresses_votes" && "address") || null,
 	})
 	votes.value = data.value

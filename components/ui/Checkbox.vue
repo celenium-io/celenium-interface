@@ -23,6 +23,7 @@ const emit = defineEmits(["update:modelValue"])
 <style module>
 .wrapper {
 	cursor: pointer;
+	user-select: none;
 
 	&:hover {
 		.checkbox {

@@ -11,9 +11,14 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 import Popover from "@/components/ui/Popover.vue"
 import Radio from "@/components/ui/Radio.vue"
+import Checkbox from "@/components/ui/Checkbox.vue"
 
 /** Shared Components */
 import TablePlaceholderView from "@/components/shared/TablePlaceholderView.vue"
+
+/** Store */
+import { useEnumStore } from "@/store/enums"
+const enumStore = useEnumStore()
 
 const emit = defineEmits(["onPrevPage", "onNextPage", "updatePage", "updateFilters", "onFiltersReset"])
 const props = defineProps({
@@ -44,33 +49,52 @@ const props = defineProps({
 
 const router = useRouter()
 
+const options = enumStore.enums.voteOption
+
 /** Filter by vote option */
-const optionFilter = ref()
+const setDefaultOptionFilter = () => {
+	options.forEach((opt) => {
+		optionFilter[opt] = false
+	})
+}
+const optionFilter = reactive({})
+setDefaultOptionFilter()
+
 const cachedOptionFilter = ref()
 
-const hasActiveFilters = computed(() => !!optionFilter.value)
+const hasActiveOptionFilters = computed(() => {
+	let hasActiveFilter = false
+	Object.keys(optionFilter).forEach((opt) => {
+		if (optionFilter[opt]) {
+			hasActiveFilter = true
+		}
+	})
+	return hasActiveFilter
+})
 
 const isOptionPopoverOpen = ref(false)
 const handleOpenOptionPopover = () => {
 	isOptionPopoverOpen.value = true
 
-	cachedOptionFilter.value = optionFilter.value
+	cachedOptionFilter.value = { ...optionFilter }
 }
 const onOptionPopoverClose = () => {
 	isOptionPopoverOpen.value = false
 
-	optionFilter.value = cachedOptionFilter.value
+	options.forEach((opt) => {
+		optionFilter[opt] = cachedOptionFilter.value[opt]
+	})
 }
 const handleApplyOptionFilters = () => {
 	isOptionPopoverOpen.value = false
 
-	emit("updateFilters", "option", optionFilter.value, true)
+	emit("updateFilters", "option", optionFilter, true)
 }
 const handleResetOptionFilter = () => {
 	isOptionPopoverOpen.value = false
 
 	emit("onFiltersReset", "option", true)
-	optionFilter.value = null
+	setDefaultOptionFilter()
 }
 
 /** Pagination */
@@ -90,7 +114,7 @@ const handleNextPage = () => {
 watch(
 	() => props.filters.option,
 	() => {
-		if (!props.filters.option) optionFilter.value = null
+		if (!props.filters.option) setDefaultOptionFilter()
 	},
 )
 </script>
@@ -99,13 +123,18 @@ watch(
 	<Flex direction="column" :class="[$style.wrapper, isLoadingVotes && $style.disabled]">
 		<Flex wrap="wrap" align="center" gap="8" :class="$style.filters">
 			<Popover :open="isOptionPopoverOpen" @on-close="onOptionPopoverClose" width="200">
-				<Button @click="handleOpenOptionPopover" type="secondary" size="mini" :disabled="!votes.length && !hasActiveFilters">
-					<Icon name="plus-circle" size="12" :color="optionFilter ? 'brand' : 'tertiary'" />
-					<Text color="secondary">Option<template v-if="optionFilter">:</template></Text>
+				<Button @click="handleOpenOptionPopover" type="secondary" size="mini" :disabled="!votes.length && !hasActiveOptionFilters">
+					<Icon name="plus-circle" size="12" :color="hasActiveOptionFilters ? 'brand' : 'tertiary'" />
+					<Text color="secondary">Option<template v-if="hasActiveOptionFilters">:</template></Text>
 
-					<template v-if="optionFilter">
+					<template v-if="hasActiveOptionFilters">
 						<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
-							{{ optionFilter.replaceAll("_", " ") }}
+							{{
+								options
+									.map((opt) => optionFilter[opt] && opt.replaceAll("_", " "))
+									.filter(Boolean)
+									.join(", ")
+							}}
 						</Text>
 
 						<Icon @click.stop="handleResetOptionFilter" name="close-circle" size="12" color="secondary" />
@@ -117,25 +146,20 @@ watch(
 						<Text size="12" weight="600" color="secondary">Filter by Vote Option</Text>
 
 						<Flex direction="column" gap="8">
-							<Radio v-model="optionFilter" value="yes">
-								<Text size="12" weight="600" color="primary">Yes</Text>
-							</Radio>
-							<Radio v-model="optionFilter" value="no">
-								<Text size="12" weight="600" color="primary">No</Text>
-							</Radio>
-							<Radio v-model="optionFilter" value="no_with_veto">
-								<Text size="12" weight="600" color="primary">No with veto</Text>
-							</Radio>
-							<Radio v-model="optionFilter" value="abstain">
-								<Text size="12" weight="600" color="primary">Abstain</Text>
-							</Radio>
+							<Checkbox v-for="opt in options" v-model="optionFilter[opt]">
+								<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
+									{{ opt.replaceAll("_", " ") }}
+								</Text>
+							</Checkbox>
 						</Flex>
 
 						<Flex gap="8">
-							<Button @click="handleApplyOptionFilters" type="secondary" size="mini" wide :disabled="!optionFilter">
+							<Button @click="handleApplyOptionFilters" type="secondary" size="mini" wide :disabled="!hasActiveOptionFilters">
 								Apply
 							</Button>
-							<Button v-if="optionFilter" @click="handleResetOptionFilter" type="tertiary" size="mini" wide>Reset</Button>
+							<Button v-if="hasActiveOptionFilters" @click="handleResetOptionFilter" type="tertiary" size="mini" wide>
+								Reset
+							</Button>
 						</Flex>
 					</Flex>
 				</template>
@@ -217,7 +241,7 @@ watch(
 			icon="governance"
 			subIcon="search"
 			:descriptionWidth="260"
-			:callback="optionFilter ? () => handleResetOptionFilter() : null"
+			:callback="hasActiveOptionFilters ? () => handleResetOptionFilter() : null"
 			callbackText="Reset Filters"
 			style="height: 100%"
 		/>
