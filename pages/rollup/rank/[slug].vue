@@ -123,8 +123,6 @@ const getRollupRepos = async (slug) => {
 		slug: slug,
 		limit: limit,
 		offset: (page.value - 1) * limit,
-		// sort: sort.dir,
-		// sort_by: sort.by,
 	})
 
 	return data

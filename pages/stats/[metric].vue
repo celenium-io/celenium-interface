@@ -323,7 +323,6 @@ const handleDatePickerUpdate = async (event) => {
 
 const handleTimelineUpdate = async (event) => {
 	await handleUpdateDate(event)
-	// selectedPeriod.value = {}
 }
 
 const handleUpdateDate = async (event) => {

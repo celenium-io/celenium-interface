@@ -1,6 +1,6 @@
 <script setup>
 /** Vendor */
-import { DateTime } from "luxon";
+import { DateTime } from "luxon"
 
 /** API */
 import { fetchVestingPeriods } from "@/services/api/address"
@@ -9,10 +9,10 @@ import { fetchVestingPeriods } from "@/services/api/address"
 import Button from "@/components/ui/Button.vue"
 import Modal from "@/components/ui/Modal.vue"
 import Spinner from "@/components/ui/Spinner.vue"
-import Tooltip from "@/components/ui/Tooltip.vue";
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { capitilize, comma } from "@/services/utils";
+import { capitilize, comma } from "@/services/utils"
 
 /** Store */
 import { useCacheStore } from "@/store/cache"
@@ -55,14 +55,12 @@ const getVestingPeriods = async () => {
 	isLoading.value = false
 }
 
-
 watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
 			vesting.value = cacheStore.current.vesting
 			nextTick(async () => {
-				// vesting.value = cacheStore.current.vesting
 				getVestingPeriods()
 			})
 		}
@@ -73,7 +71,7 @@ watch(
 	() => page.value,
 	() => {
 		getVestingPeriods()
-	}
+	},
 )
 </script>
 
@@ -81,7 +79,7 @@ watch(
 	<Modal :show="show" @onClose="emit('onClose')" width="500" disable-trap>
 		<Flex direction="column" gap="24">
 			<Text size="16" weight="600" color="primary">Releasing Schedule</Text>
-			
+
 			<Flex align="center" justify="between" wide>
 				<Flex align="center" direction="column" gap="12" :class="$style.value">
 					<Flex align="center" gap="4">
@@ -91,7 +89,10 @@ watch(
 
 					<Flex align="center" justify="start" gap="4" wide>
 						<Text size="12" weight="500" color="tertiary">Total Amount:</Text>
-						<AmountInCurrency :amount="{ value: vesting.amount, decimal: 6 }" :styles="{ amount: { size: '13' }, currency: { size: '13', color: 'primary' }}" />
+						<AmountInCurrency
+							:amount="{ value: vesting.amount, decimal: 6 }"
+							:styles="{ amount: { size: '13' }, currency: { size: '13', color: 'primary' } }"
+						/>
 					</Flex>
 				</Flex>
 
@@ -127,41 +128,40 @@ watch(
 						<tr v-for="vp in vestingPeriods">
 							<td>
 								<Flex align="center" justify="start" gap="4">
-										<Text size="12" weight="600" color="primary">
-											{{ DateTime.fromISO(vp.time).setLocale("en").toFormat("yyyy LLL d, t") }}
-										</Text>
+									<Text size="12" weight="600" color="primary">
+										{{ DateTime.fromISO(vp.time).setLocale("en").toFormat("yyyy LLL d, t") }}
+									</Text>
 
-										<Text size="11" weight="500" color="tertiary">
-											({{ DateTime.fromISO(vp.time).toRelative({ locale: "en", style: "short" }) }})
-										</Text>
+									<Text size="11" weight="500" color="tertiary">
+										({{ DateTime.fromISO(vp.time).toRelative({ locale: "en", style: "short" }) }})
+									</Text>
 								</Flex>
 							</td>
 							<td>
-								<AmountInCurrency :amount="{ value: vp.amount, decimal: 6 }" :styles="{ amount: { size: '13' }, currency: { size: '13' }}" />
+								<AmountInCurrency
+									:amount="{ value: vp.amount, decimal: 6 }"
+									:styles="{ amount: { size: '13' }, currency: { size: '13' } }"
+								/>
 							</td>
 							<td>
 								<Flex align="center" justify="center">
 									<Tooltip v-if="DateTime.fromISO(vp.time).ts <= DateTime.now().ts" position="start" delay="500">
 										<Icon name="check" size="16" color="neutral-green" />
 
-										<template #content>
-											Released
-										</template>
+										<template #content> Released </template>
 									</Tooltip>
 
 									<Tooltip v-else position="start" delay="500">
 										<Icon name="clock-forward" size="16" color="secondary" />
 
-										<template #content>
-											Waiting
-										</template>
+										<template #content> Waiting </template>
 									</Tooltip>
 								</Flex>
 							</td>
 						</tr>
 					</tbody>
 				</table>
-				
+
 				<!-- Pagination -->
 				<Flex align="center" justify="end" gap="6" :class="$style.pagination">
 					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
@@ -275,5 +275,4 @@ watch(
 	height: 1px;
 	background: var(--op-5);
 }
-
 </style>

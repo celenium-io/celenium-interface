@@ -73,8 +73,6 @@ const getBlobMetadata = async () => {
 	} else {
 		notFound.value = true
 	}
-
-	// isLoading.value = false
 }
 
 watch(
@@ -88,7 +86,6 @@ watch(
 
 			await getBlobMetadata()
 
-			
 			const { data } = await fetchBlobBlockscoutData({
 				height: cacheStore.selectedBlob.height,
 				namespace: cacheStore.selectedBlob.hash,
@@ -380,7 +377,6 @@ const handlePreviewContent = () => {
 						View batch
 						<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
 					</Button>
-
 
 					<Button @click="handleDownload" type="secondary" size="small" :disabled="isLoading">
 						<Icon name="download" size="14" color="secondary" />

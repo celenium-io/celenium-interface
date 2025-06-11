@@ -216,22 +216,16 @@ const popovers = reactive({
 	categories: false,
 	types: false,
 	tags: false,
-	// providers: false,
-	// stacks: false,
 })
 const keyMap = {
 	categories: "category",
 	types: "type",
 	tags: "tag",
-	// providers: 'provider',
-	// stacks: 'stack',
 }
 const filters = reactive({
 	categories: categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	types: types.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	tags: tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
-	// providers: {},
-	// stacks: {},
 })
 const savedFiltersBeforeChanges = ref(null)
 const handleOpenPopover = (name) => {
@@ -289,9 +283,6 @@ const limit = ref(100)
 const getRollups = async () => {
 	const data = await fetchRollups({
 		limit: limit.value,
-		// offset: (page.value - 1) * 20,
-		// sort: sort.dir,
-		// sort_by: sort.by,
 	})
 
 	rollups.value = isMainnet()
