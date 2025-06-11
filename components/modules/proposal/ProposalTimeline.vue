@@ -20,6 +20,57 @@ const props = defineProps({
 })
 
 const expand = ref(["inactive", "active"].includes(props.proposal.status))
+
+const getStartDate = () => {
+	let timeToFormat = null
+
+	if (["inactive", "applied", "rejected", "removed"].includes(props.proposal.status)) {
+		timeToFormat = props.proposal.created_at
+	} else if (props.proposal.status === "active") {
+		timeToFormat = props.proposal.activation_time
+	}
+
+	return DateTime.fromISO(timeToFormat).setLocale("en").toLocaleString(DateTime.DATE_MED)
+}
+const getEndDate = () => {
+	let timeToFormat = null
+
+	if (["inactive", "removed"].includes(props.proposal.status)) {
+		timeToFormat = props.proposal.deposit_time
+	} else if (["applied", "rejected", "active"].includes(props.proposal.status)) {
+		timeToFormat = props.proposal.end_time
+	}
+
+	return DateTime.fromISO(timeToFormat).setLocale("en").toLocaleString(DateTime.DATE_MED)
+}
+
+const getTimelineDuration = () => {
+	let timeToFormat = null
+	let timeDiffToFormat = null
+
+	if (["inactive", "applied", "rejected", "removed"].includes(props.proposal.status)) {
+		timeDiffToFormat = props.proposal.created_at
+	} else if (props.proposal.status === "active") {
+		timeDiffToFormat = props.proposal.activation_time
+	}
+
+	if (["inactive", "removed"].includes(props.proposal.status)) {
+		timeToFormat = props.proposal.deposit_time
+	} else if (["applied", "rejected", "active"].includes(props.proposal.status)) {
+		timeToFormat = props.proposal.end_time
+	}
+
+	return DateTime.fromISO(timeToFormat).diff(DateTime.fromISO(timeDiffToFormat), "days").toObject().days.toFixed(0)
+}
+
+const getStartLabel = () => {
+	if (["inactive", "removed"].includes(props.proposal.status)) return "Created at"
+	if (["active", "applied", "rejected"].includes(props.proposal.status)) return "Voting start"
+}
+const getEndLabel = () => {
+	if (["inactive", "removed"].includes(props.proposal.status)) return "Deposit end"
+	if (["active", "applied", "rejected"].includes(props.proposal.status)) return "Voting end"
+}
 </script>
 
 <template>
@@ -33,63 +84,57 @@ const expand = ref(["inactive", "active"].includes(props.proposal.status))
 		<Badge>
 			<Flex align="center" justify="between" wide>
 				<Text size="12" weight="600" color="secondary">
-					{{ DateTime.fromISO(proposal.activation_time).setLocale("en").toLocaleString(DateTime.DATE_MED) }}
+					{{ getStartDate() }}
 				</Text>
 
 				<div v-for="dot in 4" class="dot" />
 
 				<Flex align="center" gap="6">
 					<Icon name="time" size="12" color="secondary" />
-					<Text size="12" weight="600" color="primary">
-						{{
-							DateTime.fromISO(proposal.end_time)
-								.diff(DateTime.fromISO(proposal.activation_time), "days")
-								.toObject()
-								.days.toFixed(0)
-						}}
-						Days
+					<Text size="12" weight="600" color="secondary">
+						{{ getTimelineDuration() }}
+						day<template v-if="getTimelineDuration() > 1">s</template>
 					</Text>
 				</Flex>
 
 				<div v-for="dot in 4" class="dot" />
 
 				<Text size="12" weight="600" color="secondary" align="right">
-					{{
-						DateTime.fromISO(proposal.end_time)
-
-							.setLocale("en")
-							.toLocaleString(DateTime.DATE_MED)
-					}}
+					{{ getEndDate() }}
 				</Text>
 			</Flex>
 		</Badge>
 
 		<Flex align="center" justify="between">
-			<Text size="12" weight="600" color="tertiary">Voting Start</Text>
-			<Text size="12" weight="600" color="tertiary">Voting End</Text>
+			<Text size="12" weight="600" color="tertiary">{{ getStartLabel() }}</Text>
+			<Text size="12" weight="600" color="tertiary">{{ getEndLabel() }}</Text>
 		</Flex>
 
 		<template v-if="expand">
 			<Flex direction="column" gap="16" :class="$style.timeline">
 				<Flex gap="12">
 					<div :class="$style.circle" />
-
 					<Flex direction="column" gap="8">
-						<Text size="13" weight="600" color="secondary">Proposal submitted</Text>
+						<Text size="13" weight="600" color="secondary">Created at</Text>
 						<Text size="12" weight="500" color="tertiary">{{ DateTime.fromISO(proposal.created_at).toFormat("FF") }}</Text>
 					</Flex>
 				</Flex>
-				<Flex gap="12">
+				<Flex v-if="['removed', 'inactive'].includes(proposal.status)" gap="12">
 					<div :class="$style.circle" />
-
+					<Flex direction="column" gap="8">
+						<Text size="13" weight="600" color="secondary">Deposit end</Text>
+						<Text size="12" weight="500" color="tertiary">{{ DateTime.fromISO(proposal.deposit_time).toFormat("FF") }}</Text>
+					</Flex>
+				</Flex>
+				<Flex v-if="['active', 'applied', 'rejected'].includes(proposal.status)" gap="12">
+					<div :class="$style.circle" />
 					<Flex direction="column" gap="8">
 						<Text size="13" weight="600" color="secondary">Voting started</Text>
 						<Text size="12" weight="500" color="tertiary">{{ DateTime.fromISO(proposal.activation_time).toFormat("FF") }}</Text>
 					</Flex>
 				</Flex>
-				<Flex gap="12">
+				<Flex v-if="['active', 'applied', 'rejected'].includes(proposal.status)" gap="12">
 					<div :class="$style.circle" />
-
 					<Flex direction="column" gap="8">
 						<Text size="13" weight="600" color="secondary">End of voting</Text>
 						<Text size="12" weight="500" color="tertiary">
