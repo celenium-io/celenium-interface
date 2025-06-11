@@ -1,0 +1,3 @@
+{
+	"ignorePatterns": ["services/lumina-node-wasm/**"]
+}
