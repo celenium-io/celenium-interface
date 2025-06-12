@@ -10,9 +10,35 @@ export const fetchHead = async () => {
 	}
 }
 
-export const fetchConstants = async () => {
+export const fetchMainnetConstants = async () => {
 	try {
-		const data = await $fetch(`${useServerURL()}/constants`)
+		return await $fetch(`https://api.celenium.io/v1/constants`)
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchMochaConstants = async () => {
+	try {
+		const data = await $fetch(`https://api-mocha-4.celenium.io/v1/constants`)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchArabicaConstants = async () => {
+	try {
+		const data = await $fetch(`https://api-arabica-11.celenium.io/v1/constants`)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchMammothConstants = async () => {
+	try {
+		const data = await $fetch(`https://api-mammoth.celenium.io/v1/constants`)
 		return data
 	} catch (error) {
 		console.error(error)

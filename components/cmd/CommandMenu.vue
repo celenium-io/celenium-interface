@@ -626,7 +626,7 @@ const rawDeveloperActions = [
 		subtitle: "Command",
 		runText: "View Constants",
 		callback: () => {
-			modalsStore.open("constants")
+			router.push("/constants")
 		},
 	},
 	{

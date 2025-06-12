@@ -4,7 +4,7 @@ import Modal from "@/components/ui/Modal.vue"
 import Input from "@/components/ui/Input.vue"
 
 /** API */
-import { fetchConstants } from "@/services/api/main"
+// import { fetchConstants } from "@/services/api/main"
 
 /** Store */
 import { useNotificationsStore } from "@/store/notifications"
@@ -61,8 +61,8 @@ const searchTerm = ref("")
 const rawModules = ref({})
 
 onMounted(async () => {
-	const data = await fetchConstants()
-	rawModules.value = data.module
+	// const data = await fetchConstants()
+	// rawModules.value = data.module
 })
 
 const modules = computed(() => {
@@ -143,7 +143,14 @@ const handleCopy = (target) => {
 								<Text size="12" height="140" weight="500" color="tertiary"> {{ DescriptionMap[constant.name] }} </Text>
 							</Flex>
 
-							<Text @click="handleCopy(constant.value)" size="13" weight="600" color="secondary" class="copyable" :class="constant.name === 'allow_messages' && $style.overflow">
+							<Text
+								@click="handleCopy(constant.value)"
+								size="13"
+								weight="600"
+								color="secondary"
+								class="copyable"
+								:class="constant.name === 'allow_messages' && $style.overflow"
+							>
 								{{ constant.value }}
 							</Text>
 						</Flex>

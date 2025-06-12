@@ -24,6 +24,7 @@ const props = defineProps({
 	wide: { type: Boolean, default: null },
 	disabled: { type: Boolean, default: false },
 	delay: { type: [String, Number], default: 0 },
+	width: { type: String, required: false },
 })
 
 const isHovered = ref(false)
@@ -34,6 +35,7 @@ const tip = ref(null)
 
 const styles = reactive({
 	transform: `translate3d(0, 0, 0)`,
+	maxWidth: props.width,
 })
 
 watch(

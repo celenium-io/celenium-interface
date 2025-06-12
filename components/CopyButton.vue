@@ -40,6 +40,7 @@ const handleCopy = (target) => {
 		:name="!isCopied ? 'copy' : 'check'"
 		:size="size"
 		:color="!isCopied ? 'tertiary' : 'green'"
+		hoverColor="primary"
 		class="copyable"
 	/>
 </template>

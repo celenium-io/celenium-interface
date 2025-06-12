@@ -165,11 +165,9 @@ const toolsLinks = reactive([
 		path: "/gas",
 	},
 	{
-		icon: "zap",
+		icon: "constant",
 		name: "Constants",
-		callback: () => {
-			modalsStore.open("constants")
-		},
+		path: "/constants",
 	},
 	{
 		icon: "bookmark",
