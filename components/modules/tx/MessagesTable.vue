@@ -12,8 +12,8 @@ import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 import { comma, formatBytes } from "@/services/utils"
 
 /** Store */
-import { useModalsStore } from "@/store/modals"
-import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals.store"
+import { useCacheStore } from "@/store/cache.store"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
 

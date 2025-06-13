@@ -22,7 +22,7 @@ import { getStartChainDate } from "@/services/config"
 import { fetchTransactions } from "@/services/api/tx"
 
 /** Stores */
-import { useEnumStore } from "@/store/enums"
+import { useEnumStore } from "@/store/enums.store"
 const enumStore = useEnumStore()
 
 useHead({

@@ -17,7 +17,7 @@ import { abbreviate, formatBytes } from "@/services/utils"
 import { fetchNamespaceSeries } from "@/services/api/stats"
 
 /** Store */
-import { useSettingsStore } from "@/store/settings"
+import { useSettingsStore } from "@/store/settings.store"
 const settingsStore = useSettingsStore()
 
 const props = defineProps({

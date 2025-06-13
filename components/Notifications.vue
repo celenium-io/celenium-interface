@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button.vue"
 /**
  * Store
  */
-import { useNotificationsStore } from "@/store/notifications"
+import { useNotificationsStore } from "@/store/notifications.store"
 const notificationsStore = useNotificationsStore()
 
 const handleActionCallback = (callback, notification) => {

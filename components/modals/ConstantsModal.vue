@@ -7,7 +7,7 @@ import Input from "@/components/ui/Input.vue"
 import { fetchConstants } from "@/services/api/main"
 
 /** Store */
-import { useNotificationsStore } from "@/store/notifications"
+import { useNotificationsStore } from "@/store/notifications.store"
 const notificationsStore = useNotificationsStore()
 
 const emit = defineEmits(["onClose"])
@@ -143,7 +143,14 @@ const handleCopy = (target) => {
 								<Text size="12" height="140" weight="500" color="tertiary"> {{ DescriptionMap[constant.name] }} </Text>
 							</Flex>
 
-							<Text @click="handleCopy(constant.value)" size="13" weight="600" color="secondary" class="copyable" :class="constant.name === 'allow_messages' && $style.overflow">
+							<Text
+								@click="handleCopy(constant.value)"
+								size="13"
+								weight="600"
+								color="secondary"
+								class="copyable"
+								:class="constant.name === 'allow_messages' && $style.overflow"
+							>
 								{{ constant.value }}
 							</Text>
 						</Flex>

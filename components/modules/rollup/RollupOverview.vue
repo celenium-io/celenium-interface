@@ -23,12 +23,12 @@ import { getRankCategory } from "@/services/constants/rollups"
 import { fetchRollupBlobs, fetchRollupExportData, fetchRollupNamespaces } from "@/services/api/rollup"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
-import { useNotificationsStore } from "@/store/notifications"
-import { useRollupsRankingStore } from "@/store/rollupsrank"
+import { useCacheStore } from "@/store/cache.store"
+import { useNotificationsStore } from "@/store/notifications.store"
+import { useActivityStore } from "@/store/activity.store"
 const cacheStore = useCacheStore()
 const notificationsStore = useNotificationsStore()
-const rollupRankingStore = useRollupsRankingStore()
+const activityStore = useActivityStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -58,11 +58,11 @@ const namespaces = ref([])
 const blobs = ref([])
 
 const rollupRanking = computed(() => {
-	if (!rollupRankingStore?.initialized || !isMainnet()) return null
+	if (!activityStore?.initialized || !isMainnet()) return null
 
 	let rollup_ranking =
-		rollupRankingStore?.rollups_ranking?.ranking[
-			Object.keys(rollupRankingStore?.rollups_ranking?.ranking).find((key) => key === props.rollup.slug)
+		activityStore?.rollups_ranking?.ranking[
+			Object.keys(activityStore?.rollups_ranking?.ranking).find((key) => key === props.rollup.slug)
 		]
 	rollup_ranking.rank = {
 		category: getRankCategory(roundTo(rollup_ranking?.ranking?.rank / 10, 0)),

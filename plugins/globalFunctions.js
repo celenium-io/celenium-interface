@@ -2,7 +2,7 @@
 import { comma, getShortNamespaceID, shortHash, splitAddress } from "@/services/utils"
 
 /** Store */
-import { useBookmarksStore } from "@/store/bookmarks"
+import { useBookmarksStore } from "@/store/bookmarks.store"
 
 export default defineNuxtPlugin((nuxtApp) => {
 	const getDisplayName = (type, id, entity) => {

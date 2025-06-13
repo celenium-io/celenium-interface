@@ -5,7 +5,7 @@
 import { space } from "@/services/utils"
 
 /** Store */
-import { useNotificationsStore } from "@/store/notifications"
+import { useNotificationsStore } from "@/store/notifications.store"
 const notificationsStore = useNotificationsStore()
 
 const props = defineProps({

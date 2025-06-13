@@ -12,8 +12,8 @@ import { fetchTxBlobs, fetchTxBlobsCount } from "@/services/api/tx"
 import { fetchBlockBlobs } from "@/services/api/block"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 
@@ -187,7 +187,7 @@ const handlePrev = () => {
 										<Flex direction="column" gap="4">
 											<Flex align="center" gap="8">
 												<Text size="12" weight="600" color="primary" mono class="table_column_alias">
-													{{ $getDisplayName('namespaces', blob.namespace.namespace_id) }}
+													{{ $getDisplayName("namespaces", blob.namespace.namespace_id) }}
 												</Text>
 
 												<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
@@ -234,12 +234,7 @@ const handlePrev = () => {
 										</Flex>
 
 										<Text size="13" weight="600" color="primary">
-											{{
-												blob.commitment.slice(
-													blob.commitment.length - 4,
-													blob.commitment.length,
-												)
-											}}
+											{{ blob.commitment.slice(blob.commitment.length - 4, blob.commitment.length) }}
 										</Text>
 
 										<CopyButton :text="blob.commitment" />

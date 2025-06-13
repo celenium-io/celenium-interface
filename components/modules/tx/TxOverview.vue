@@ -20,8 +20,8 @@ import { comma } from "@/services/utils"
 import { fetchTxMessages } from "@/services/api/tx"
 
 /** Store */
-import { useModalsStore } from "@/store/modals"
-import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals.store"
+import { useCacheStore } from "@/store/cache.store"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
 
@@ -174,7 +174,7 @@ const handleViewRawTransaction = () => {
 							<Text size="12" weight="600" color="secondary">Memo</Text>
 							<CopyButton :text="tx.memo" />
 						</Flex>
-						
+
 						<Text size="12" height="140" weight="600" color="tertiary" mono selectable :class="$style.memo">
 							{{ tx.memo }}
 						</Text>

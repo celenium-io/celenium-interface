@@ -23,7 +23,7 @@ import ConnectModal from "./ConnectModal.vue"
 import RollupRankModal from "./RollupRankModal.vue"
 
 /** Store */
-import { useModalsStore } from "@/store/modals"
+import { useModalsStore } from "@/store/modals.store"
 const modalsStore = useModalsStore()
 </script>
 

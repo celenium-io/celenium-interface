@@ -15,8 +15,8 @@ import { fetchBlockBlobs } from "@/services/api/block"
 import { fetchTransactionsByBlock } from "@/services/api/tx"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useNotificationsStore } from "@/store/notifications"
+import { useAppStore } from "@/store/app.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const appStore = useAppStore()
 const notificationsStore = useNotificationsStore()
 

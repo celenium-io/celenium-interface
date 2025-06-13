@@ -2,7 +2,7 @@
 import { useSocketURL } from "../config"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 
 export let socket = null
 

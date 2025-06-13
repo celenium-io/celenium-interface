@@ -1,8 +1,4 @@
 <script setup>
-/** Store */
-import { useSettingsStore } from "@/store/settings"
-const settingsStore = useSettingsStore()
-
 const props = defineProps({
 	blob: {
 		type: Object,

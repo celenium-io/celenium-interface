@@ -6,7 +6,7 @@ import ValidatorOverview from "@/components/modules/validator/ValidatorOverview.
 import { fetchValidatorByID } from "@/services/api/validator"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const route = useRoute()

@@ -8,14 +8,13 @@ import { fetchVestingPeriods } from "@/services/api/address"
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Modal from "@/components/ui/Modal.vue"
-import Spinner from "@/components/ui/Spinner.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { capitilize, comma } from "@/services/utils"
+import { capitilize } from "@/services/utils"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const emit = defineEmits(["onClose"])

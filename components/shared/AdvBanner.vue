@@ -3,7 +3,7 @@
 import { getAdvByName, getRandomAdv } from "@/services/constants/advertising"
 
 /** Store */
-import { useModalsStore } from "@/store/modals"
+import { useModalsStore } from "@/store/modals.store"
 const modalsStore = useModalsStore()
 
 const props = defineProps({

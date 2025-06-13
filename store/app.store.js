@@ -1,4 +1,4 @@
-import { useModalsStore } from "./modals"
+import { useModalsStore } from "./modals.store"
 
 export const useAppStore = defineStore("app", () => {
 	const version = ref()

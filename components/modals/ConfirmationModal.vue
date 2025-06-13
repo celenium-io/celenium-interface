@@ -8,7 +8,7 @@ import Modal from "@/components/ui/Modal.vue"
 /**
  * Store
  */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 defineProps({

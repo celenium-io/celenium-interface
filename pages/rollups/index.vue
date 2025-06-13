@@ -30,10 +30,10 @@ import { getLastActivityCategory, getRankCategory } from "@/services/constants/r
 import { fetchRollups } from "@/services/api/rollup"
 
 /** Stores */
-import { useEnumStore } from "@/store/enums"
-import { useRollupsRankingStore } from "@/store/rollupsrank"
+import { useEnumStore } from "@/store/enums.store"
+import { useActivityStore } from "@/store/activity.store"
 const enumStore = useEnumStore()
-const rollupRankingStore = useRollupsRankingStore()
+const activityStore = useActivityStore()
 
 useHead({
 	title: "Rollups - Celestia Explorer",
@@ -93,7 +93,7 @@ const isRefetching = ref(true)
 const rollups = ref([])
 const filteredRollups = ref([])
 const processedRollups = ref([])
-const rollupsRanking = computed(() => rollupRankingStore?.rollups_ranking?.ranking)
+const rollupsRanking = computed(() => activityStore?.rollups_ranking?.ranking)
 
 const utiaPerMB = (rollup) => {
 	let totalRollupMB = rollup.size / (1024 * 1024)
@@ -330,7 +330,7 @@ const processRollups = () => {
 
 	isRefetching.value = false
 }
-if (rollupRankingStore.initialized) {
+if (activityStore.initialized) {
 	await getRollups()
 	processRollups()
 }
@@ -394,9 +394,9 @@ watch(
 	},
 )
 watch(
-	() => rollupRankingStore.initialized,
+	() => activityStore.initialized,
 	async () => {
-		if (rollupRankingStore.initialized) {
+		if (activityStore.initialized) {
 			await getRollups()
 			processRollups()
 		}

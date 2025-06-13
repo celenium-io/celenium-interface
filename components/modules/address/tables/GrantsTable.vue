@@ -10,8 +10,8 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { comma } from "@/services/utils"
 
 /** Store */
-import { useModalsStore } from "@/store/modals"
-import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals.store"
+import { useCacheStore } from "@/store/cache.store"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
 
@@ -73,7 +73,7 @@ const handleViewRawGrants = (g) => {
 					<td @click="handleViewRawGrants(g)">
 						<Flex align="center">
 							<Text size="12" weight="600" color="primary" class="table_column_alias">
-								{{ $getDisplayName('addresses', g.grantee.hash) }}
+								{{ $getDisplayName("addresses", g.grantee.hash) }}
 							</Text>
 						</Flex>
 					</td>
@@ -99,13 +99,9 @@ const handleViewRawGrants = (g) => {
 							</Tooltip>
 
 							<Tooltip v-else="g.expiration" position="start" delay="500">
-								<Text size="12" weight="600" color="primary">
-									— —
-								</Text>
+								<Text size="12" weight="600" color="primary"> — — </Text>
 
-								<template #content>
-									This grant is permanent until the user revokes it
-								</template>
+								<template #content> This grant is permanent until the user revokes it </template>
 							</Tooltip>
 						</Flex>
 					</td>

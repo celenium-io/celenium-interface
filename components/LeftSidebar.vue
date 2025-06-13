@@ -13,9 +13,9 @@ import { StatusMap } from "@/services/constants/node"
 import { isMainnet, isMobile } from "@/services/utils"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useNodeStore } from "@/store/node"
-import { useModalsStore } from "@/store/modals"
+import { useAppStore } from "@/store/app.store"
+import { useNodeStore } from "@/store/node.store"
+import { useModalsStore } from "@/store/modals.store"
 const appStore = useAppStore()
 const nodeStore = useNodeStore()
 const modalsStore = useModalsStore()
