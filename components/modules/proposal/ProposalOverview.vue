@@ -21,10 +21,8 @@ import { fetchProposalVotes } from "@/services/api/proposal"
 /** Store */
 import { useModalsStore } from "@/store/modals"
 import { useCacheStore } from "@/store/cache"
-import { useAppStore } from "@/store/app"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
-const appStore = useAppStore()
 
 const route = useRoute()
 const router = useRouter()

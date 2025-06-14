@@ -11,6 +11,8 @@ import { useEnumStore } from "@/store/enums"
 const appStore = useAppStore()
 const enumStore = useEnumStore()
 
+const lastHead = computed(() => appStore.lastHead)
+
 const votes = computed(() => enumStore.enums.voteOption)
 
 const props = defineProps({
@@ -21,30 +23,41 @@ const props = defineProps({
 })
 
 const expand = ref(["active"].includes(props.proposal.status))
+
+const totalVotingPower = computed(() => {
+	if (Number(props.proposal.total_voting_power)) return Number(props.proposal.total_voting_power)
+	return lastHead.value?.total_voting_power ?? 0
+})
+
+const quorum = props.proposal.status === "active" ? Number(appStore.constants.gov.quorum) : Number(props.proposal.quorum)
+
+const isQuorumReached = computed(() => {
+	return props.proposal.voting_power / 1_000_000 / totalVotingPower.value > quorum
+})
 </script>
 
 <template>
 	<Flex direction="column" gap="10" :class="$style.wrapper">
 		<Flex @click="expand = !expand" align="center" justify="between" class="clickable">
-			<Tooltip position="start" :disabled="!proposal.status === 'applied'">
+			<Tooltip position="start" :disabled="!isQuorumReached && proposal.status === 'active'">
 				<Flex align="center" gap="6">
 					<Text size="12" weight="600" color="secondary">Voting power</Text>
-					<Icon v-if="proposal.status === 'applied'" name="check-circle" size="12" color="secondary" />
+					<Icon v-if="isQuorumReached && proposal.status !== 'active'" name="check-circle" size="12" color="secondary" />
 				</Flex>
 
-				<template #content> The quorum is reached - {{ Number(proposal.quorum) * 100 }}% </template>
+				<template #content> The quorum is reached - {{ quorum * 100 }}% </template>
 			</Tooltip>
 
 			<Icon name="chevron" size="12" color="secondary" :style="{ transform: `rotate(${expand ? '180deg' : '0deg'})` }" />
 		</Flex>
 
 		<Flex align="center" gap="4" :class="$style.voting_wrapper">
-			<div :style="{ left: `${Number(proposal.quorum) * 100}%` }" :class="$style.threshold" />
+			<div :style="{ left: `${quorum * 100}%` }" :class="[$style.threshold, !isQuorumReached && $style.red]" />
 
 			<Tooltip
 				v-if="proposal.yes"
 				wide
-				:trigger-width="`${Math.max(5, (Number(proposal.yes_voting_power) * 100) / (proposal.voting_power * 2))}%`"
+				:trigger-width="`${Math.max(5, ((proposal.yes_voting_power / 1_000_000) * 100) / totalVotingPower)}%`"
 			>
 				<div
 					:style="{
@@ -63,7 +76,7 @@ const expand = ref(["active"].includes(props.proposal.status))
 			<Tooltip
 				v-if="proposal.no"
 				wide
-				:trigger-width="`${Math.max(5, (Number(proposal.no_voting_power) * 100) / (proposal.voting_power * 2))}%`"
+				:trigger-width="`${Math.max(5, ((proposal.no_voting_power / 1_000_000) * 100) / totalVotingPower)}%`"
 			>
 				<div
 					:style="{
@@ -78,7 +91,7 @@ const expand = ref(["active"].includes(props.proposal.status))
 			<Tooltip
 				v-if="proposal.no_with_veto"
 				wide
-				:trigger-width="`${Math.max(5, (Number(proposal.no_with_veto_voting_power) * 100) / (proposal.voting_power * 2))}%`"
+				:trigger-width="`${Math.max(5, ((proposal.no_with_veto_voting_power / 1_000_000) * 100) / totalVotingPower)}%`"
 			>
 				<div
 					:style="{
@@ -93,7 +106,7 @@ const expand = ref(["active"].includes(props.proposal.status))
 			<Tooltip
 				v-if="proposal.abstain"
 				wide
-				:trigger-width="`${Math.max(5, (Number(proposal.abstain_voting_power) * 100) / (proposal.voting_power * 2))}%`"
+				:trigger-width="`${Math.max(5, ((proposal.abstain_voting_power / 1_000_000) * 100) / totalVotingPower)}%`"
 			>
 				<div
 					:style="{
@@ -171,6 +184,11 @@ const expand = ref(["active"].includes(props.proposal.status))
 	z-index: 1;
 
 	transform: translateX(-50%);
+
+	&.red {
+		background: var(--red);
+		box-shadow: 0 0 8px rgb(235, 87, 87);
+	}
 }
 
 .voting_bar {

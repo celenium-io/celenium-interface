@@ -69,7 +69,7 @@ export const useSocketURL = () => {
 			return Server.WSS.dev
 
 		default:
-			return Server.WSS.dev
+			return Server.WSS.mocha
 	}
 }
 

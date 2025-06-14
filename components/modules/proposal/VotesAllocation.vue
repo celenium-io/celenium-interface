@@ -21,6 +21,17 @@ const props = defineProps({
 })
 
 const expand = ref(["inactive", "active"].includes(props.proposal.status))
+
+const threshold = props.proposal.status === "active" ? Number(appStore.constants.gov.threshold) : Number(props.proposal.threshold)
+const vetoThreshold =
+	props.proposal.status === "active" ? Number(appStore.constants.gov.veto_threshold) : Number(props.proposal.veto_quorum)
+
+const isThresholdMet = computed(() => {
+	return props.proposal.yes / props.proposal.votes_count > threshold
+})
+const isVetoThresholdMet = computed(() => {
+	return props.proposal.no_with_veto / props.proposal.votes_count > vetoThreshold
+})
 </script>
 
 <template>
@@ -31,28 +42,23 @@ const expand = ref(["inactive", "active"].includes(props.proposal.status))
 					<Text size="12" weight="600" color="secondary">Allocation of votes</Text>
 					<Icon
 						v-if="['applied', 'rejected'].includes(proposal.status)"
-						:name="
-							(proposal.no_with_veto / proposal.votes_count > Number(proposal.veto_quorum) && 'warning') ||
-							(proposal.yes / proposal.votes_count > Number(proposal.threshold) && 'check-circle')
-						"
+						:name="(isVetoThresholdMet && 'warning') || (isThresholdMet && 'check-circle')"
 						size="12"
 						color="secondary"
 					/>
 				</Flex>
 
-				<template v-if="proposal.no_with_veto / proposal.votes_count > Number(proposal.veto_quorum)" #content>
-					The No With Veto vote threshold is met - {{ Number(proposal.veto_quorum) * 100 }}%
+				<template v-if="isVetoThresholdMet" #content>
+					The No With Veto vote threshold is met - {{ vetoThreshold * 100 }}%
 				</template>
-				<template v-else-if="proposal.yes / proposal.votes_count > Number(proposal.threshold)" #content>
-					The Yes vote threshold is met - {{ Number(proposal.threshold) * 100 }}%
-				</template>
+				<template v-else-if="isThresholdMet" #content> The Yes vote threshold is met - {{ threshold * 100 }}% </template>
 			</Tooltip>
 
 			<Icon name="chevron" size="12" color="secondary" :style="{ transform: `rotate(${expand ? '180deg' : '0deg'})` }" />
 		</Flex>
 
 		<Flex align="center" gap="4" :class="$style.voting_wrapper">
-			<div :style="{ left: `${Number(proposal.threshold) * 100}%` }" :class="$style.threshold" />
+			<div :style="{ left: `${threshold * 100}%` }" :class="$style.threshold" />
 
 			<Tooltip v-if="proposal.yes" wide :trigger-width="`${Math.max(5, (proposal.yes * 100) / proposal.votes_count)}%`">
 				<div

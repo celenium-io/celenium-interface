@@ -14,7 +14,6 @@ export const useAppStore = defineStore("app", () => {
 		constants.value = data.value.module
 	}
 
-	const head = ref()
 	const gas = ref({
 		fast: 0,
 		median: 0,
@@ -57,7 +56,6 @@ export const useAppStore = defineStore("app", () => {
 		network,
 		constants,
 		initConstants,
-		head,
 		gas,
 		currentPrice,
 		wallet,
