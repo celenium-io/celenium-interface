@@ -69,14 +69,21 @@ onMounted(async () => {
 </script>
 
 <template>
-	<Flex align="center" direction="column" gap="16" wide :class="$style.wrapper">
-		<Flex align="start" direction="column" gap="32" wide :class="$style.section">
-			<Text size="16" weight="600" color="primary" justify="start">Light Node Distribution</Text>
+    <Flex align="center" direction="column" gap="16" wide :class="$style.wrapper">
+        <Flex align="start" direction="column" gap="32" wide :class="$style.section">
+			<Text size="16" weight="600" color="primary" justify="start">Celestia Node Distribution</Text>
 
 			<GeoMap :class="$style.chart" />
 
 			<Flex v-if="!isLoading" align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
 				<BarplotChartCard v-for="s in series" :series="s" :data="s.data" :class="$style.chart_card" />
+			</Flex>
+
+			<Flex align="center" justify="end" wide>
+				<Text size="12" color="tertiary" justify="start">Data provided by the 
+					<NuxtLink to="https://probelab.io" target="_blank" :class="$style.link">ProbeLab</NuxtLink>
+					 team
+				</Text>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -108,6 +115,11 @@ onMounted(async () => {
 	max-width: 480px;
 	max-height: 240px;
 	height: 240px;
+}
+
+.link {
+	color: var(--brand);
+	font-weight: 600;
 }
 
 @media (max-width: 1050px) {

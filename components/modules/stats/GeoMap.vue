@@ -455,44 +455,53 @@ watch(
 
 <template>
 	<Flex direction="column" justify="start" gap="8" wide :class="$style.wrapper">
-		<Flex
-			@click="handleChangeChartView"
-			align="center"
-			gap="12"
-			:class="$style.chart_selector"
-			:style="{
-				background: `linear-gradient(to ${chartView === 'countries' ? 'right' : 'left'}, var(--op-5) 50%, transparent 50%)`,
-			}"
-		>
-			<Icon name="earth" size="14" :style="{ fill: `${chartView === 'countries' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }" />
+        <Flex
+            @click="handleChangeChartView"
+            align="center"
+            gap="12"
+            :class="$style.chart_selector"
+            :style="{
+                background: `linear-gradient(to ${chartView === 'countries' ? 'right' : 'left'}, var(--op-5) 50%, transparent 50%)`,
+            }"
+        >
+            <Icon
+                name="earth"
+                size="14"
+                :style="{ fill: `${chartView === 'countries' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
+            />
 
-			<Icon name="city" size="14" :style="{ fill: `${chartView === 'cities' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }" />
-		</Flex>
+            <Icon
+                name="city"
+                size="14"
+                :style="{ fill: `${chartView === 'cities' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
+            />
+        </Flex>
 
-		<Tooltip v-if="chartView === 'cities'" position="start" :class="$style.chart_info">
-			<Icon name="info" size="16" color="yellow" />
+        <Tooltip v-if="chartView === 'cities'" position="start" :class="$style.chart_info">
+            <Icon name="info" size="16" color="yellow" />
 
-			<template #content>
-				<Flex align="center" gap="2" :style="{ width: '200px' }">
-					<Text size="12" weight="600" color="secondary">
-						Somewhere in..
-						<Text size="12" weight="400" color="secondary">
-							means that it was not possible to determine the exact location.
-						</Text>
-					</Text>
-				</Flex>
-			</template>
-		</Tooltip>
+            <template #content>
+                <Flex align="center" gap="2" :style="{ width: '200px' }">
+                    <Text size="12" weight="600" color="secondary">
+                        "Somewhere in ..."
+                        <Text size="12" weight="400" color="secondary">
+                            means that it was not possible to determine the exact location.
+                        </Text>
+                    </Text>
+                    
+                </Flex>
+            </template>
+        </Tooltip>
+        
+        <Flex ref="chartEl" :class="$style.chart" />
 
-		<Flex ref="chartEl" :class="$style.chart" />
+        <Flex v-if="isLoading" align="center" direction="column" gap="8" :class="$style.loader">
+            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 512 512">
+                <path id="france-path" fill="transparent" :d="loaderPath"/>
+            </svg>
 
-		<Flex v-if="isLoading" align="center" direction="column" gap="8" :class="$style.loader">
-			<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 512 512">
-				<path id="france-path" fill="transparent" :d="loaderPath" />
-			</svg>
-
-			<Text size="12" color="secondary">Loading map..</Text>
-		</Flex>
+            <Text size="12" color="secondary">Loading map..</Text>
+        </Flex>
 	</Flex>
 </template>
 

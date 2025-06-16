@@ -2,19 +2,13 @@ import { nodePolyfills } from "vite-plugin-node-polyfills"
 import wasm from "vite-plugin-wasm"
 import topLevelAwait from "vite-plugin-top-level-await"
 
-import { updateSiteConfig } from "nuxt-site-config/kit"
-
 import path from "path"
 
 export default defineNuxtConfig({
 	modules: ["nuxt-site-config", "@pinia/nuxt", "nuxt-og-image", "@nuxtjs/sitemap"],
 
-	hooks: {
-		"site-config:resolve": () => {
-			updateSiteConfig({
-				url: process.env.CF_PAGES_URL ?? "https://celenium.io",
-			})
-		},
+	site: {
+		url: "https://celenium.io",
 	},
 
 	sitemap: {
