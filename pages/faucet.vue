@@ -13,9 +13,9 @@ import Input from "@/components/ui/Input.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
+import { useAppStore } from "@/store/app.store"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
 const appStore = useAppStore()
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
@@ -31,7 +31,8 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: "Get free testnet TIA for the Celestia Testnets using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!",
+			content:
+				"Get free testnet TIA for the Celestia Testnets using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!",
 		},
 		{
 			property: "og:title",
@@ -39,7 +40,8 @@ useHead({
 		},
 		{
 			property: "og:description",
-			content: "Get free testnet TIA for the Celestia Testnets using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!",
+			content:
+				"Get free testnet TIA for the Celestia Testnets using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!",
 		},
 		{
 			property: "og:url",
@@ -55,7 +57,8 @@ useHead({
 		},
 		{
 			name: "twitter:description",
-			content: "Get free testnet TIA for the Celestia Testnets using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!",
+			content:
+				"Get free testnet TIA for the Celestia Testnets using the Celenium Faucet. Developers can claim tokens to test dApps, validators, and blockchain tools. Start testing Celestia today!",
 		},
 		{
 			name: "twitter:card",
@@ -72,10 +75,10 @@ const isLoading = ref(false)
 const address = ref("")
 const account = ref()
 const networks = ["Mocha", "Arabica", "Mammoth"]
-const network = ref((networks.find(n => n === getNetworkName()) || networks[0]).toLowerCase())
+const network = ref((networks.find((n) => n === getNetworkName()) || networks[0]).toLowerCase())
 
 const isNetworkSelectorOpen = ref(false)
-const fetchAccount = async() => {
+const fetchAccount = async () => {
 	try {
 		account.value = null
 		const url = new URL(`${Server.API[network.value]}/address/${address.value}`)
@@ -84,7 +87,7 @@ const fetchAccount = async() => {
 			fillValidation("error", "Invalid address")
 			return
 		}
-		
+
 		if (!data.value) {
 			fillValidation("warning", "Address not found, make sure it is correct")
 			return
@@ -141,20 +144,19 @@ const handleExecute = async () => {
 		const { data, error } = await executeFaucet(network.value, address.value)
 
 		if (error?.value?.data) {
-			fillExecutionResult("error",
-				error.value.statusCode === 429
-					? 'Request limit exceeded'
-					: error.value?.data?.message || "Unexpected error"
+			fillExecutionResult(
+				"error",
+				error.value.statusCode === 429 ? "Request limit exceeded" : error.value?.data?.message || "Unexpected error",
 			)
 		} else if (data.value) {
-			if (data.value?.status === 'success') {
+			if (data.value?.status === "success") {
 				await refreshFaucetBalance()
 				await fetchAccount()
 			}
 
 			fillExecutionResult(data.value?.status, data.value?.hash)
 		}
-	} catch(error) {
+	} catch (error) {
 		fillExecutionResult("error", error || "Unexpected error")
 	} finally {
 		isLoading.value = false
@@ -163,9 +165,9 @@ const handleExecute = async () => {
 
 const handleReturnTokensClick = () => {
 	if (
-		(useServerURL().includes("mocha") && network.value === "mocha")
-		|| (useServerURL().includes("arabica") && network.value === "arabica")
-		|| (useServerURL().includes("mammoth") && network.value === "mammoth")
+		(useServerURL().includes("mocha") && network.value === "mocha") ||
+		(useServerURL().includes("arabica") && network.value === "arabica") ||
+		(useServerURL().includes("mammoth") && network.value === "mammoth")
 	) {
 		cacheStore.current.address = { hash: faucetAddress }
 		modalsStore.open("send")
@@ -181,7 +183,7 @@ const handleChangeNetwork = (net) => {
 const openedQuestion = ref(0)
 const handleOpenQuestion = (idx) => {
 	const elements = document.querySelectorAll("[class*=answer]")
-	elements.forEach(el => {
+	elements.forEach((el) => {
 		el.style.height = "0px"
 		el.style.marginBottom = "0px"
 	})
@@ -221,7 +223,7 @@ watch(
 		clearTimeout(timeout)
 		timeout = setTimeout(async () => {
 			await fetchAccount()
-		}, 500);
+		}, 500)
 	},
 )
 watch(
@@ -229,17 +231,20 @@ watch(
 	async () => {
 		address.value = ""
 		await refreshFaucetBalance()
-	}
+	},
 )
 
 await refreshFaucetBalance()
 onMounted(() => {
-	if ((useServerURL().includes('mocha') || useServerURL().includes('arabica') || useServerURL().includes('mammoth')) && appStore.address) {
+	if (
+		(useServerURL().includes("mocha") || useServerURL().includes("arabica") || useServerURL().includes("mammoth")) &&
+		appStore.address
+	) {
 		address.value = appStore.address
 	}
 
 	const transferEl = document.getElementById("transferWindow")
-	document.documentElement.style.setProperty('--runner-distance', `${transferEl.clientWidth}px`)
+	document.documentElement.style.setProperty("--runner-distance", `${transferEl.clientWidth}px`)
 })
 </script>
 
@@ -264,7 +269,7 @@ onMounted(() => {
 			</Text>
 		</Flex>
 
-		<Flex direction="column" justify="between" gap="24" wide :style="{maxWidth: '650px', marginTop: '24px'}">
+		<Flex direction="column" justify="between" gap="24" wide :style="{ maxWidth: '650px', marginTop: '24px' }">
 			<Flex direction="column" gap="48" wide>
 				<Flex direction="column" gap="16" wide>
 					<Flex align="center" justify="start" gap="16" wide>
@@ -288,16 +293,13 @@ onMounted(() => {
 									color="secondary"
 									:style="{
 										transform: `rotate(${isNetworkSelectorOpen ? '180' : '0'}deg)`,
-										transition: 'all 0.2s ease'
+										transition: 'all 0.2s ease',
 									}"
 								/>
 							</Flex>
 
 							<template #popup>
-								<DropdownItem
-									v-for="net in networks"
-									@click="handleChangeNetwork(net.toLowerCase())"
-								>
+								<DropdownItem v-for="net in networks" @click="handleChangeNetwork(net.toLowerCase())">
 									{{ net }}
 								</DropdownItem>
 							</template>
@@ -336,26 +338,27 @@ onMounted(() => {
 							:loading="isLoading"
 							:disabled="validation.type === 'error' || !address"
 						>
-							{{ `Recieve ${network === 'mammoth' ? 100 : 1} TIA` }}
+							{{ `Recieve ${network === "mammoth" ? 100 : 1} TIA` }}
 						</Button>
 					</Flex>
 				</Flex>
-				
+
 				<Flex direction="column" gap="4">
-					<Flex id="transferWindow" align="center" gap="12" :class="[$style.transfer, !(address && validation.type !== 'error') && $style.disabled]">
+					<Flex
+						id="transferWindow"
+						align="center"
+						gap="12"
+						:class="[$style.transfer, !(address && validation.type !== 'error') && $style.disabled]"
+					>
 						<Flex align="center" justify="between" wide>
 							<Flex align="center" gap="12">
 								<Icon name="faucet" size="16" color="secondary" :class="$style.icon" />
 
 								<Flex direction="column" gap="6" :class="$style.metadata" wide>
 									<Flex align="center" gap="6">
-										<Text size="14" weight="500" color="secondary">
-											Faucet
-										</Text>
+										<Text size="14" weight="500" color="secondary"> Faucet </Text>
 
-										<Text size="13" weight="400" color="secondary">
-											{{ comma(tia(faucetBalance, 2)) }} TIA
-										</Text>
+										<Text size="13" weight="400" color="secondary"> {{ comma(tia(faucetBalance, 2)) }} TIA </Text>
 									</Flex>
 
 									<Flex align="center" gap="6">
@@ -364,7 +367,7 @@ onMounted(() => {
 										</Text>
 
 										<CopyButton size="11" :text="faucetAddress" />
-									</Flex>									
+									</Flex>
 								</Flex>
 							</Flex>
 
@@ -372,11 +375,12 @@ onMounted(() => {
 								<Flex direction="column" align="end" gap="6" :class="$style.metadata" wide>
 									<Flex align="center" gap="6">
 										<Text size="14" weight="500" color="secondary">
-											{{ account?.hash
-												? $getDisplayName("addresses", "", account) === splitAddress(account?.hash)
-													? 'Address'
-													: $getDisplayName("addresses", "", account)
-												: 'Address'
+											{{
+												account?.hash
+													? $getDisplayName("addresses", "", account) === splitAddress(account?.hash)
+														? "Address"
+														: $getDisplayName("addresses", "", account)
+													: "Address"
 											}}
 										</Text>
 
@@ -386,9 +390,10 @@ onMounted(() => {
 									</Flex>
 
 									<Text size="12" weight="500" color="tertiary">
-										{{ (account?.hash || (address && validation.type !== 'error'))
-											? splitAddress(account?.hash || address)
-											: 'celestia ••• celestia'
+										{{
+											account?.hash || (address && validation.type !== "error")
+												? splitAddress(account?.hash || address)
+												: "celestia ••• celestia"
 										}}
 									</Text>
 								</Flex>
@@ -409,8 +414,19 @@ onMounted(() => {
 						</Flex>
 					</Flex>
 
-					<Flex v-if="executionResult?.status" align="center" justify="end" gap="6" wide :style="{padding: '0 8px', opacity: '0.7'}">
-						<a v-if="executionResult.status === 'success'" :href="`https://${network}.celenium.io/tx/${executionResult.message}`" target="_blank">
+					<Flex
+						v-if="executionResult?.status"
+						align="center"
+						justify="end"
+						gap="6"
+						wide
+						:style="{ padding: '0 8px', opacity: '0.7' }"
+					>
+						<a
+							v-if="executionResult.status === 'success'"
+							:href="`https://${network}.celenium.io/tx/${executionResult.message}`"
+							target="_blank"
+						>
 							<Flex align="center" gap="4">
 								<Text size="12" color="green">View Tx</Text>
 								<Icon name="arrow-narrow-up-right" size="12" color="green" />
@@ -434,7 +450,7 @@ onMounted(() => {
 					</Text>
 				</Flex>
 			</Flex>
-			
+
 			<Flex direction="column" gap="20" :class="$style.qa_wrapper">
 				<Text size="20" weight="500" color="primary" :class="$style.title">Frequently asked questions</Text>
 
@@ -449,14 +465,16 @@ onMounted(() => {
 								color="tertiary"
 								:style="{
 									transform: `rotate(${openedQuestion === 1 ? '180deg' : '0deg'})`,
-									transition: 'all 0.2s ease'
+									transition: 'all 0.2s ease',
 								}"
 							/>
 						</Flex>
 
 						<Flex id="1" :class="[$style.answer, openedQuestion === 1 && $style.answer_extended]">
 							<Text size="13" weight="500" color="tertiary" height="160">
-								The Celestia testnet faucet is a service that provides free testnet tokens for developers and users who want to interact with the Celestia blockchain without spending real assets. These tokens have no monetary value and are solely for testing purposes.
+								The Celestia testnet faucet is a service that provides free testnet tokens for developers and users who want
+								to interact with the Celestia blockchain without spending real assets. These tokens have no monetary value
+								and are solely for testing purposes.
 							</Text>
 						</Flex>
 
@@ -469,14 +487,18 @@ onMounted(() => {
 								color="tertiary"
 								:style="{
 									transform: `rotate(${openedQuestion === 2 ? '180deg' : '0deg'})`,
-									transition: 'all 0.2s ease'
+									transition: 'all 0.2s ease',
 								}"
 							/>
 						</Flex>
 
 						<Flex id="2" :class="[$style.answer, openedQuestion === 2 && $style.answer_extended]">
 							<Text size="13" weight="500" color="tertiary" height="160">
-								{{ `You can request testnet tokens by entering your Celestia testnet address, and clicking the "Receive ${network === 'mammoth' ? 100 : 1} TIA" button. Tokens will be sent to your wallet within a few moments.` }}
+								{{
+									`You can request testnet tokens by entering your Celestia testnet address, and clicking the "Receive ${
+										network === "mammoth" ? 100 : 1
+									} TIA" button. Tokens will be sent to your wallet within a few moments.`
+								}}
 							</Text>
 						</Flex>
 
@@ -489,16 +511,18 @@ onMounted(() => {
 								color="tertiary"
 								:style="{
 									transform: `rotate(${openedQuestion === 3 ? '180deg' : '0deg'})`,
-									transition: 'all 0.2s ease'
+									transition: 'all 0.2s ease',
 								}"
 							/>
 						</Flex>
 
 						<Flex id="3" :class="[$style.answer, openedQuestion === 3 && $style.answer_extended]">
 							<Text size="13" weight="500" color="tertiary" height="160">
-								To ensure fair distribution and prevent abuse, the faucet has the following limitations:<br>
-								&nbsp;&nbsp;• You can receive <b>100 TIA for Mammoth network and 1 TIA for other testnets per request</b>.<br>
-								&nbsp;&nbsp;• You can request tokens <b>only once per hour</b> per <b>IP address or wallet address</b>.<br>
+								To ensure fair distribution and prevent abuse, the faucet has the following limitations:<br />
+								&nbsp;&nbsp;• You can receive
+								<b>100 TIA for Mammoth network and 1 TIA for other testnets per request</b>.<br />
+								&nbsp;&nbsp;• You can request tokens <b>only once per hour</b> per
+								<b>IP address or wallet address</b>.<br />
 								&nbsp;&nbsp;• If you reach the limit, you will need to wait before requesting again.
 							</Text>
 						</Flex>
@@ -512,16 +536,16 @@ onMounted(() => {
 								color="tertiary"
 								:style="{
 									transform: `rotate(${openedQuestion === 4 ? '180deg' : '0deg'})`,
-									transition: 'all 0.2s ease'
+									transition: 'all 0.2s ease',
 								}"
 							/>
 						</Flex>
 
 						<Flex id="4" :class="[$style.answer, openedQuestion === 4 && $style.answer_extended]">
 							<Text size="13" weight="500" color="tertiary" height="160">
-								If you haven't received your tokens:<br>
-								&nbsp;&nbsp;• Double-check that you entered <b>the correct Celestia address</b>.<br>
-								&nbsp;&nbsp;• Ensure you are using <b>one of supported networks</b>.<br>
+								If you haven't received your tokens:<br />
+								&nbsp;&nbsp;• Double-check that you entered <b>the correct Celestia address</b>.<br />
+								&nbsp;&nbsp;• Ensure you are using <b>one of supported networks</b>.<br />
 								&nbsp;&nbsp;• If the issue persists, contact support.
 							</Text>
 						</Flex>
@@ -535,14 +559,15 @@ onMounted(() => {
 								color="tertiary"
 								:style="{
 									transform: `rotate(${openedQuestion === 5 ? '180deg' : '0deg'})`,
-									transition: 'all 0.2s ease'
+									transition: 'all 0.2s ease',
 								}"
 							/>
 						</Flex>
 
 						<Flex id="5" :class="[$style.answer, openedQuestion === 5 && $style.answer_extended]">
 							<Text size="13" weight="500" color="tertiary" height="160">
-								No, testnet tokens are only for testing on the Celestia testnets. They cannot be transferred or used on the Celestia mainnet.
+								No, testnet tokens are only for testing on the Celestia testnets. They cannot be transferred or used on the
+								Celestia mainnet.
 							</Text>
 						</Flex>
 
@@ -555,14 +580,15 @@ onMounted(() => {
 								color="tertiary"
 								:style="{
 									transform: `rotate(${openedQuestion === 6 ? '180deg' : '0deg'})`,
-									transition: 'all 0.2s ease'
+									transition: 'all 0.2s ease',
 								}"
 							/>
 						</Flex>
 
 						<Flex id="6" :class="[$style.answer, openedQuestion === 6 && $style.answer_extended]">
 							<Text size="13" weight="500" color="tertiary" height="160">
-								If you run out of testnet tokens, you can request more from the faucet (subject to request limits). You may also check community channels for alternative ways to obtain test tokens.
+								If you run out of testnet tokens, you can request more from the faucet (subject to request limits). You may
+								also check community channels for alternative ways to obtain test tokens.
 							</Text>
 						</Flex>
 
@@ -575,18 +601,17 @@ onMounted(() => {
 								color="tertiary"
 								:style="{
 									transform: `rotate(${openedQuestion === 7 ? '180deg' : '0deg'})`,
-									transition: 'all 0.2s ease'
+									transition: 'all 0.2s ease',
 								}"
 							/>
 						</Flex>
 
 						<Flex id="7" :class="[$style.answer, openedQuestion === 7 && $style.answer_extended]">
 							<Text size="13" weight="500" color="tertiary" height="160">
-								If you no longer need the testnet tokens, please return them to the faucet so that other developers and testers can use them. You can send them back to the
-								<a @click="handleReturnTokensClick" :class="$style.return_tokens">
-									faucet
-								</a>
-								.<br>
+								If you no longer need the testnet tokens, please return them to the faucet so that other developers and
+								testers can use them. You can send them back to the
+								<a @click="handleReturnTokensClick" :class="$style.return_tokens"> faucet </a>
+								.<br />
 								Your contribution helps keep the testnet accessible for everyone!
 							</Text>
 						</Flex>
@@ -731,7 +756,7 @@ onMounted(() => {
 		padding-left: 5px;
 		padding-right: 5px;
 		font-size: small;
-		font-family: 'Courier New', Courier, monospace;
+		font-family: "Courier New", Courier, monospace;
 		background-color: #2d2d2d;
 		border-radius: 4px;
 	}

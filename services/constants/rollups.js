@@ -28,9 +28,9 @@ export const getRankCategory = (rank) => {
 
 export const getMetricCategory = (metric, score) => {
 	const metricValue = rankCoefficients[metric]
-	let rank = roundTo(score / metricValue * 10, 0)
+	let rank = roundTo((score / metricValue) * 10, 0)
 
-	return {...getRankCategory(rank), rank: score / metricValue}
+	return { ...getRankCategory(rank), rank: score / metricValue }
 }
 
 export const lastActivityCategories = [

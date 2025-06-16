@@ -10,14 +10,14 @@ import { fetchEstimatedGas } from "@/services/api/gas"
 /** Services */
 import amp from "@/services/amp"
 import { getNamespaceID } from "@/services/utils"
-import { sendPayForBlob } from "~/services/wallet"
+import { sendPayForBlob } from "@/services/wallet"
 import { prepareBlob } from "@/services/utils/encode"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
-import { useNotificationsStore } from "@/store/notifications"
+import { useAppStore } from "@/store/app.store"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const appStore = useAppStore()
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
@@ -171,7 +171,7 @@ const handleContinue = async () => {
 					type: "warning",
 					icon: "danger",
 					title: `Looks like your account is fresh`,
-					description: 'Top up your balance to submit the blob',
+					description: "Top up your balance to submit the blob",
 					autoDestroy: true,
 				},
 			})

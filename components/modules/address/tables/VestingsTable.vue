@@ -10,11 +10,10 @@ import AmountInCurrency from "@/components/AmountInCurrency.vue"
 import { capitilize, comma } from "@/services/utils"
 
 /** Store */
-import { useModalsStore } from "@/store/modals"
-import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals.store"
+import { useCacheStore } from "@/store/cache.store"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
-
 
 const router = useRouter()
 
@@ -31,25 +30,25 @@ const vestingTime = (v, tooltip) => {
 
 	if (!tooltip) {
 		switch (v.type) {
-			case 'periodic':
-			case 'continuous':
+			case "periodic":
+			case "continuous":
 				if (startTime.year === endTime.year) {
-					return `${startTime.toFormat('dd LLL')} - ${endTime.toFormat('dd LLL')}`
+					return `${startTime.toFormat("dd LLL")} - ${endTime.toFormat("dd LLL")}`
 				} else {
-					return `${startTime.toFormat('dd LLL yyyy')} - ${endTime.toFormat('dd LLL yyyy')}`
+					return `${startTime.toFormat("dd LLL yyyy")} - ${endTime.toFormat("dd LLL yyyy")}`
 				}
-			case 'permanent':
-				return '— —'
+			case "permanent":
+				return "— —"
 			default:
-				return DateTime.now().year === endTime.year ? endTime.toFormat('dd LLL') : endTime.toFormat('dd LLL yyyy')
+				return DateTime.now().year === endTime.year ? endTime.toFormat("dd LLL") : endTime.toFormat("dd LLL yyyy")
 		}
 	} else {
 		switch (v.type) {
-			case 'periodic':
-			case 'continuous':
+			case "periodic":
+			case "continuous":
 				return `${startTime.toFormat("yyyy LLL d, t")} - ${endTime.toFormat("yyyy LLL d, t")}`
-			case 'permanent':
-				return 'Permanent vesting has no start or end date'
+			case "permanent":
+				return "Permanent vesting has no start or end date"
 			default:
 				return `Vesting till ${endTime.toFormat("yyyy LLL d, t")}`
 		}
@@ -63,19 +62,18 @@ const handleViewVestingDetails = (v) => {
 
 const vestingTypeDescription = (v) => {
 	switch (v.type) {
-		case 'periodic':
-			return 'Periodic vesting, where coins begin to vest at start time and vest periodically according to number of periods and the vesting amount per period. The number of periods, length per period, and amount per period are configurable.'
-		case 'continuous':
-			return 'Continuous vesting, where coins begin to vest at start time and vest linearly with respect to time until end time is reached.'
-		case 'permanent':
-			return 'Permanent locked vesting, where coins are locked forever. Coins in this account can still be used for delegating and for governance votes even while locked.'
-		case 'delayed':
-			return 'Delayed vesting, where all coins are vested once end time is reached.'
+		case "periodic":
+			return "Periodic vesting, where coins begin to vest at start time and vest periodically according to number of periods and the vesting amount per period. The number of periods, length per period, and amount per period are configurable."
+		case "continuous":
+			return "Continuous vesting, where coins begin to vest at start time and vest linearly with respect to time until end time is reached."
+		case "permanent":
+			return "Permanent locked vesting, where coins are locked forever. Coins in this account can still be used for delegating and for governance votes even while locked."
+		case "delayed":
+			return "Delayed vesting, where all coins are vested once end time is reached."
 		default:
-			return 'Unknown vesting type'
+			return "Unknown vesting type"
 	}
 }
-
 </script>
 
 <template>
@@ -148,7 +146,10 @@ const vestingTypeDescription = (v) => {
 						</Flex>
 					</td>
 					<td>
-						<AmountInCurrency :amount="{ value: v.amount, decimal: 2 }" :styles="{ amount: { size: '13' }, currency: { size: '13' }}" />
+						<AmountInCurrency
+							:amount="{ value: v.amount, decimal: 2 }"
+							:styles="{ amount: { size: '13' }, currency: { size: '13' } }"
+						/>
 					</td>
 
 					<td v-if="v.type === 'periodic'">
@@ -158,13 +159,10 @@ const vestingTypeDescription = (v) => {
 							</Flex>
 
 							<template #content>
-								<Text size="12" weight="500" color="secondary">
-									View releasing schedule
-								</Text>
+								<Text size="12" weight="500" color="secondary"> View releasing schedule </Text>
 							</template>
 						</Tooltip>
 					</td>
-
 				</tr>
 			</tbody>
 		</table>
@@ -235,7 +233,6 @@ const vestingTypeDescription = (v) => {
 		&:last-child {
 			padding-right: 8px;
 		}
-
 	}
 }
 

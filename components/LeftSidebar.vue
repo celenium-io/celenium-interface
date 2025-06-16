@@ -13,9 +13,9 @@ import { StatusMap } from "@/services/constants/node"
 import { isMainnet, isMobile } from "@/services/utils"
 
 /** Store */
-import { useAppStore } from "~/store/app"
-import { useNodeStore } from "~/store/node"
-import { useModalsStore } from "~/store/modals"
+import { useAppStore } from "@/store/app.store"
+import { useNodeStore } from "@/store/node.store"
+import { useModalsStore } from "@/store/modals.store"
 const appStore = useAppStore()
 const nodeStore = useNodeStore()
 const modalsStore = useModalsStore()
@@ -143,6 +143,13 @@ const modularLinks = reactive([
 const isToolsLinkCollapsed = ref(false)
 const toolsLinks = reactive([
 	{
+		icon: "explorable",
+		name: "Terminal",
+		path: "https://terminal.celenium.io",
+		external: true,
+		new: true,
+	},
+	{
 		icon: "drop",
 		name: "Faucet",
 		path: "/faucet",
@@ -168,16 +175,6 @@ const toolsLinks = reactive([
 		icon: "bookmark",
 		name: "Bookmarks",
 		path: "/bookmarks",
-	},
-])
-
-const newLinks = reactive([
-	{
-		icon: "tag",
-		name: "Celenium API",
-		callback: () => {
-			modalsStore.open("api")
-		},
 	},
 ])
 
@@ -238,7 +235,7 @@ const handleOnClose = () => {
 				</Flex>
 			</Flex>
 
-			<Flex direction="column" gap="8">
+			<Flex direction="column" gap="2">
 				<Flex @click="isToolsLinkCollapsed = !isToolsLinkCollapsed" align="center" gap="4" :class="$style.group_title">
 					<Text size="12" weight="500" color="tertiary">Tools</Text>
 					<Icon
@@ -253,17 +250,6 @@ const handleOnClose = () => {
 					<NavLink v-for="link in toolsLinks" :link="link" @onClose="handleOnClose" />
 				</Flex>
 			</Flex>
-
-			<!-- <Flex direction="column" gap="8">
-				<Flex align="center" gap="8" style="padding: 0 8px">
-					<Icon name="stars" size="12" color="tertiary" />
-					<Text size="12" weight="500" color="tertiary">New things</Text>
-				</Flex>
-
-				<Flex direction="column" gap="2">
-					<NavLink v-for="link in newLinks" :link="link" @onClose="appStore.showSidebar = false" />
-				</Flex>
-			</Flex> -->
 
 			<AdvBanner />
 		</Flex>

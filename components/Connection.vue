@@ -5,13 +5,13 @@ import { Dropdown, DropdownTitle, DropdownItem, DropdownDivider } from "@/compon
 
 /** Services */
 import amp from "@/services/amp"
-import { disconnect } from "~/services/wallet"
+import { disconnect } from "@/services/wallet"
 import { arabica, mainnet, mammoth, mocha } from "@/services/chains"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useModalsStore } from "@/store/modals"
-import { useNotificationsStore } from "@/store/notifications"
+import { useAppStore } from "@/store/app.store"
+import { useModalsStore } from "@/store/modals.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const appStore = useAppStore()
 const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
@@ -22,7 +22,6 @@ const { hostname } = useRequestURL()
 
 switch (hostname) {
 	case "celenium.io":
-		// case "dev.celenium.io":
 		appStore.network = mainnet
 		break
 
@@ -30,20 +29,15 @@ switch (hostname) {
 	case "mocha-4.celenium.io":
 		appStore.network = mocha
 		break
-	
+
 	case "mammoth.celenium.io":
 		appStore.network = mammoth
 		break
 
-	case "mammoth.celenium.io":
- 		appStore.network = mammoth
- 		break
-
-	// case "arabica.celenium.io":
 	case "localhost":
 		appStore.network = arabica
 		break
-	
+
 	default:
 		appStore.network = arabica
 		break

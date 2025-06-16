@@ -166,25 +166,11 @@ export function base64ToHex(base64) {
 	return hex
 }
 
-// export function sortArrayOfObjects(arr, param, asc = true) {
-// 	if (!arr || !arr?.length) return []
-
-// 	return arr.sort((a, b) => {
-// 		if (a[param] > b[param]) {
-// 			return asc ? 1 : -1
-// 		} else if (a[param] < b[param]) {
-// 			return asc ? -1 : 1
-// 		}
-
-// 		return 0
-// 	})
-// }
-
 export function sortArrayOfObjects(arr, path, asc = true) {
 	if (!arr || !arr?.length) return []
 
 	return arr.sort((a, b) => {
-		const getValue = (obj, path) => path.split('.').reduce((o, key) => o?.[key], obj) ?? 0
+		const getValue = (obj, path) => path.split(".").reduce((o, key) => o?.[key], obj) ?? 0
 
 		let valueA = getValue(a, path)
 		let valueB = getValue(b, path)
@@ -192,11 +178,7 @@ export function sortArrayOfObjects(arr, path, asc = true) {
 		const dateA = Date.parse(valueA)
 		const dateB = Date.parse(valueB)
 
-		const bothAreDates =
-			typeof valueA === "string" &&
-			typeof valueB === "string" &&
-			!isNaN(dateA) &&
-			!isNaN(dateB)
+		const bothAreDates = typeof valueA === "string" && typeof valueB === "string" && !isNaN(dateA) && !isNaN(dateB)
 
 		if (bothAreDates) {
 			valueA = dateA
@@ -208,10 +190,13 @@ export function sortArrayOfObjects(arr, path, asc = true) {
 }
 
 export function hexToRgba(hex, alpha = 255) {
-	let h = hex.replace(/^#/, '')
+	let h = hex.replace(/^#/, "")
 
 	if (h.length === 3) {
-		h = h.split('').map(c => c + c).join('')
+		h = h
+			.split("")
+			.map((c) => c + c)
+			.join("")
 	}
 
 	const int = parseInt(h, 16)

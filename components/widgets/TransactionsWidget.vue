@@ -24,6 +24,7 @@ const hoursMap = [
 const min = ref(0)
 const max = ref(0)
 const roundedMax = ref(0)
+const isLoading = ref(true)
 
 const getHistogram = async (sectorOffset) => {
 	const data = await fetchSeries({
@@ -74,7 +75,9 @@ const buildHistogram = async () => {
 }
 
 onMounted(async () => {
-	buildHistogram()
+	isLoading.value = true
+	await buildHistogram()
+	isLoading.value = false
 })
 
 const txCounter = computed(() => {
@@ -96,7 +99,9 @@ const getSectorName = (item) => {
 			<Flex align="center" gap="6">
 				<Icon name="tx" size="16" color="primary" />
 				<Flex gap="4" align="end">
-					<Tooltip v-if="txCounter">
+					<Skeleton v-if="isLoading" w="36" h="16" />
+
+					<Tooltip v-else>
 						<Flex gap="4" align="end">
 							<Text size="16" weight="600" color="primary">{{ abbreviate(txCounter) }}</Text>
 
@@ -109,8 +114,6 @@ const getSectorName = (item) => {
 							</Flex>
 						</template>
 					</Tooltip>
-					
-					<Skeleton v-else w="36" h="16" />
 				</Flex>
 			</Flex>
 
@@ -120,18 +123,17 @@ const getSectorName = (item) => {
 		<!-- Chart -->
 		<Flex gap="16" :class="$style.chart">
 			<Flex direction="column" justify="between" :class="$style.yAxis">
-				<Skeleton w="35" h="12" v-if="!roundedMax" />
-				<Text v-else size="12" weight="600" color="tertiary">{{ abbreviate(roundedMax) }}</Text>
+				<Skeleton v-if="isLoading" w="35" h="12" />
+				<Text v-else-if="roundedMax" size="12" weight="600" color="tertiary">{{ abbreviate(roundedMax) }}</Text>
 
-				<Skeleton w="15" h="12" v-if="!roundedMax" />
-				<Text v-else size="12" weight="600" color="tertiary">{{ comma(min) }}</Text>
+				<Skeleton v-if="isLoading" w="15" h="12" />
+				<Text v-else-if="min" size="12" weight="600" color="tertiary">{{ comma(min) }}</Text>
 			</Flex>
 
 			<Flex v-if="!sectors[0].length" wide :class="$style.sectors">
 				<Flex v-for="i in 4" direction="column" gap="8" wide :class="$style.sector">
 					<Flex justify="between" wide :class="$style.hours">
 						<Flex v-for="j in 6" direction="column" justify="end" gap="6" :class="$style.hour">
-							<Skeleton w="4" :style="{ height: `${Math.random(20, 80) * 100}%` }" />
 							<div :class="$style.dot" />
 						</Flex>
 					</Flex>

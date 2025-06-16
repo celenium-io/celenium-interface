@@ -1,34 +1,6 @@
 /** Services */
 import { useServerURL } from "@/services/config"
 
-// export const fetchBlocks = async ({ limit, offset }) => {
-// 	try {
-// 		const url = new URL(`${useServerURL()}/block`)
-
-// 		url.searchParams.append("stats", true)
-// 		url.searchParams.append("sort", "desc")
-
-// 		if (limit) url.searchParams.append("limit", limit)
-// 		if (offset) url.searchParams.append("offset", offset)
-
-// 		const data = await useFetch(url.href)
-// 		return data
-// 	} catch (error) {
-// 		console.error(error)
-// 	}
-// }
-
-// export const fetchBlocksCount = async () => {
-// 	try {
-// 		const url = new URL(`${useServerURL()}/block/count`)
-
-// 		const data = await useFetch(url.href)
-// 		return data
-// 	} catch (error) {
-// 		console.error(error)
-// 	}
-// }
-
 export const fetchBlocks = ({ limit, offset }) => {
 	try {
 		const url = new URL(`${useServerURL()}/block`)
@@ -73,28 +45,6 @@ export const fetchLatestBlocks = async ({ limit }) => {
 		console.error(error)
 	}
 }
-
-// export const fetchAvgBlockTime = async ({ from }) => {
-// 	try {
-// 		const url = new URL(`${useServerURL()}/stats/summary/block_stats/avg?column=block_time`)
-
-// 		url.searchParams.append("from", from)
-
-// 		const data = await useFetch(url.href)
-// 		return data
-// 	} catch (error) {
-// 		console.error(error)
-// 	}
-// }
-
-// export const fetchBlockByHeight = async (height) => {
-// 	try {
-// 		const data = await useFetch(`${useServerURL()}/block/${height}?stats=true`)
-// 		return data
-// 	} catch (error) {
-// 		console.error(error)
-// 	}
-// }
 
 export const fetchAvgBlockTime = async ({ from }) => {
 	try {
@@ -148,8 +98,8 @@ export const fetchBlockBlobs = async ({ height, limit, offset, sort }) => {
 	try {
 		const url = new URL(`${useServerURL()}/block/${height}/blobs`)
 
-		url.searchParams.append("sort_by", 'time')
-		
+		url.searchParams.append("sort_by", "time")
+
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 		if (sort) url.searchParams.append("sort", sort)

@@ -3,14 +3,13 @@
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { useServerURL } from "@/services/config"
 import { abbreviate, capitilize, numToPercent, shareOfTotal } from "@/services/utils"
 
 /** API */
 import { fetchValidatorsCount } from "@/services/api/validator"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 const currentPrice = computed(() => appStore.currentPrice)
@@ -74,7 +73,7 @@ const getValidatorsStats = async () => {
 
 await getValidatorsStats()
 
-onMounted( async () => {
+onMounted(async () => {
 	wrapperWidth.value = wrapperEl.value.wrapper.offsetWidth
 })
 </script>

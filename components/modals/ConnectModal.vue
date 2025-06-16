@@ -5,13 +5,13 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Utils */
-import { connect, syncBalance, getAccounts, disconnect } from "~/services/wallet"
+import { connect, syncBalance, getAccounts } from "@/services/wallet"
 import { getNetworkName, isMainnet } from "@/services/utils/general"
 import amp from "@/services/amp"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useNotificationsStore } from "@/store/notifications"
+import { useAppStore } from "@/store/app.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const appStore = useAppStore()
 const notificationsStore = useNotificationsStore()
 
@@ -93,7 +93,7 @@ const handleConnect = async (target) => {
 					<NuxtLink to="/terms-of-use" target="_blank">
 						<Text color="secondary">Terms of Use</Text>
 					</NuxtLink>
-					 and 
+					and
 					<NuxtLink to="/privacy-policy" target="_blank">
 						<Text color="secondary">Privacy Policy</Text>
 					</NuxtLink>
@@ -128,7 +128,13 @@ const handleConnect = async (target) => {
 					</Tooltip>
 
 					<Tooltip wide>
-						<Flex @click="handleConnect('leap')" wide align="center" justify="between" :class="[$style.wallet, !isMainnet() && $style.disabled]">
+						<Flex
+							@click="handleConnect('leap')"
+							wide
+							align="center"
+							justify="between"
+							:class="[$style.wallet, !isMainnet() && $style.disabled]"
+						>
 							<Flex align="center" gap="12">
 								<img src="@/assets/logos/leap.png" />
 								<Text size="14" weight="600" color="primary">Leap Wallet</Text>
@@ -146,8 +152,8 @@ const handleConnect = async (target) => {
 								!isMainnet()
 									? "Temporarily unavailable for test networks."
 									: hasLeap
-										? "Leap is found in your extensions and ready to connect."
-										: "Leap is not found in your extensions, install it."
+									? "Leap is found in your extensions and ready to connect."
+									: "Leap is not found in your extensions, install it."
 							}}
 						</template>
 					</Tooltip>

@@ -8,7 +8,6 @@ import * as focusTrap from "focus-trap"
  * Composable
  */
 import { useOutside } from "@/composables/outside"
-import Height from "~/pages/block/[height].vue";
 
 const emit = defineEmits(["onClose"])
 const props = defineProps({
@@ -66,8 +65,6 @@ watch(
 	() => props.show,
 	() => {
 		if (!props.show) {
-			document.body.style.overflow = null
-
 			document.removeEventListener("keydown", onKeydown)
 
 			if (!props.disableTrap) trap.value.deactivate()
@@ -76,8 +73,6 @@ watch(
 				removeOutside()
 			}
 		} else {
-			document.body.style.overflow = "hidden"
-
 			document.addEventListener("keydown", onKeydown)
 
 			nextTick(() => {
@@ -98,8 +93,8 @@ watch(
 
 const calcModalStyles = computed(() => {
 	const styles = {
-		width: props.fullscreen ? 'calc(100vw - 40px)' : props.width ? `${props.width}px` : `400px`,
-		height: props.fullscreen ? '900px' : '',
+		width: props.fullscreen ? "calc(100vw - 40px)" : props.width ? `${props.width}px` : `400px`,
+		height: props.fullscreen ? "900px" : "",
 	}
 
 	props.new && (styles.padding = "0")

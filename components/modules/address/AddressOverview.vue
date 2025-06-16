@@ -17,8 +17,8 @@ import DelegationsTable from "./tables/DelegationsTable.vue"
 import RedelegationsTable from "./tables/RedelegationsTable.vue"
 import UndelegationsTable from "./tables/UndelegationsTable.vue"
 import GrantsTable from "./tables/GrantsTable.vue"
-import GrantersTable from "./tables/GrantersTable.vue";
-import VestingsTable from "./tables/VestingsTable.vue";
+import GrantersTable from "./tables/GrantersTable.vue"
+import VestingsTable from "./tables/VestingsTable.vue"
 
 /** Services */
 import { comma, splitAddress } from "@/services/utils"
@@ -38,9 +38,9 @@ import {
 } from "@/services/api/address"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
-import { useEnumStore } from "@/store/enums"
-import { useModalsStore } from "@/store/modals"
+import { useCacheStore } from "@/store/cache.store"
+import { useEnumStore } from "@/store/enums.store"
+import { useModalsStore } from "@/store/modals.store"
 const cacheStore = useCacheStore()
 const enumStore = useEnumStore()
 const modalsStore = useModalsStore()
@@ -569,11 +569,11 @@ watch(
 			case "undelegations":
 				getUndelegations()
 				break
-			
+
 			case "grants":
 				getGrants()
 				break
-			
+
 			case "granters":
 				getGranters()
 				break
@@ -611,15 +611,15 @@ watch(
 			case "undelegations":
 				getUndelegations()
 				break
-			
+
 			case "grants":
 				getGrants()
 				break
-			
+
 			case "granters":
 				getGranters()
 				break
-			
+
 			case "vestings":
 				getVestings()
 				break
@@ -630,7 +630,7 @@ watch(
 	() => msgTypes.value,
 	() => {
 		filters.message_type = msgTypes.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
-	}
+	},
 )
 watch(
 	() => showEnded.value,
@@ -652,11 +652,6 @@ const handleViewRawAddress = () => {
 	modalsStore.open("rawData")
 }
 
-const handleViewRawTransactions = () => {
-	cacheStore.current._target = "transactions"
-	modalsStore.open("rawData")
-}
-
 const handleOpenQRModal = () => {
 	cacheStore.qr.data = props.address.hash
 	cacheStore.qr.description = "Scan QR code to get this address"
@@ -671,7 +666,10 @@ const handleOpenQRModal = () => {
 		<Flex align="center" justify="between" :class="$style.header">
 			<Flex align="center" gap="8">
 				<Icon name="address" size="14" color="primary" />
-				<Text size="13" weight="600" color="primary">Address</Text>
+				<Text as="h1" size="13" weight="600" color="primary">
+					Address <Text color="secondary">{{ splitAddress(address.hash) }}</Text>
+				</Text>
+				<CopyButton :text="address.hash" size="12" />
 			</Flex>
 
 			<Flex align="center" gap="12">
@@ -681,10 +679,7 @@ const handleOpenQRModal = () => {
 						Send
 					</Button>
 
-					<BookmarkButton
-						type="address"
-						:id="address.hash"
-					/>
+					<BookmarkButton type="address" :id="address.hash" />
 				</Flex>
 
 				<div class="divider_v"></div>
@@ -721,9 +716,7 @@ const handleOpenQRModal = () => {
 						</Flex>
 
 						<Flex direction="column" gap="8" :class="$style.key_value">
-							<Text size="14" weight="600" color="secondary">
-								{{ $getDisplayName('addresses', '', address) }}
-							</Text>
+							<Text size="14" weight="600" color="secondary"> {{ $getDisplayName("addresses", "", address) }}</Text>
 
 							<Flex align="center" gap="10">
 								<Text size="12" weight="600" color="secondary"> {{ splitAddress(address.hash) }} </Text>
@@ -735,11 +728,7 @@ const handleOpenQRModal = () => {
 					<Flex v-else direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Address</Text>
 
-						<Flex align="center" gap="10">
-							<Text size="12" weight="600" color="secondary"> {{ splitAddress(address.hash) }} </Text>
-
-							<CopyButton :text="address.hash" />
-						</Flex>
+						<Text size="13" weight="600" color="primary"> {{ address.hash }} </Text>
 					</Flex>
 
 					<Flex direction="column" gap="16" :class="$style.key_value">
@@ -805,7 +794,12 @@ const handleOpenQRModal = () => {
 						</Flex>
 
 						<Flex v-if="!collapseCelestials" direction="column" gap="12" :class="$style.key_value">
-							<NuxtLink v-for="c in celestials" :to="`https://celestials.id/id/${c.name}?utm_source=celenium_address_page`" target="_blank" :class="$style.link">
+							<NuxtLink
+								v-for="c in celestials"
+								:to="`https://celestials.id/id/${c.name}?utm_source=celenium_address_page`"
+								target="_blank"
+								:class="$style.link"
+							>
 								<Flex align="center" gap="8">
 									<Flex v-if="c.image_url" align="center" justify="center" :class="$style.cel_image_container">
 										<img :src="c.image_url" :class="$style.cel_image" />
@@ -1309,7 +1303,7 @@ const handleOpenQRModal = () => {
 		}
 
 		img {
-			filter: brightness(1.2)
+			filter: brightness(1.2);
 		}
 	}
 }
@@ -1327,6 +1321,16 @@ const handleOpenQRModal = () => {
 
 	.table {
 		border-radius: 4px 4px 8px 8px;
+	}
+}
+
+@media (max-width: 550px) {
+	.header {
+		height: initial;
+		flex-direction: column;
+		gap: 12px;
+
+		padding: 12px 0;
 	}
 }
 

@@ -14,14 +14,14 @@ import { search } from "@/services/api/search"
 /** Services */
 import amp from "@/services/amp"
 import { normalizeAmount, purgeNumber, comma } from "@/services/utils/amounts"
-import { SIMULATE_ADDRESS_FROM, SIMULATE_VALIDATOR, simulateMsgs, sendMsgs } from "~/services/wallet"
+import { SIMULATE_ADDRESS_FROM, SIMULATE_VALIDATOR, simulateMsgs, sendMsgs } from "@/services/wallet"
 import { MsgDelegate } from "@/services/proto/gen/staking"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useModalsStore } from "@/store/modals"
-import { useCacheStore } from "@/store/cache"
-import { useNotificationsStore } from "@/store/notifications"
+import { useAppStore } from "@/store/app.store"
+import { useModalsStore } from "@/store/modals.store"
+import { useCacheStore } from "@/store/cache.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const appStore = useAppStore()
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
@@ -698,4 +698,3 @@ const handleContinue = async () => {
 	padding: 0 16px;
 }
 </style>
-~/services/proto/gen/msg_send

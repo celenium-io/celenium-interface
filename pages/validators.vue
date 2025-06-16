@@ -12,7 +12,7 @@ import { capitilize, comma, numToPercent, shareOfTotalString, splitAddress } fro
 import { fetchValidators, fetchValidatorsCount } from "@/services/api/validator"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 useHead({
@@ -27,7 +27,7 @@ useHead({
 		{
 			name: "description",
 			content:
-				"Validators in the Celestia Blockchain. Validators name, description, rates, blocks, uptime, social links, contacts are shown.",
+				"View all validators in the Celestia Blockchain. Validators name, description, rates, blocks, uptime, social links, contacts are shown.",
 		},
 		{
 			property: "og:title",
@@ -36,7 +36,7 @@ useHead({
 		{
 			property: "og:description",
 			content:
-				"Validators in the Celestia Blockchain. Validators name, description, rates, blocks, uptime, social links, contacts are shown.",
+				"View all validators in the Celestia Blockchain. Validators name, description, rates, blocks, uptime, social links, contacts are shown.",
 		},
 		{
 			property: "og:url",
@@ -53,7 +53,7 @@ useHead({
 		{
 			name: "twitter:description",
 			content:
-				"Validators in the Celestia Blockchain. Validators name, description, rates, blocks, uptime, social links, contacts are shown.",
+				"View all validators in the Celestia Blockchain. Validators name, description, rates, blocks, uptime, social links, contacts are shown.",
 		},
 		{
 			name: "twitter:card",
@@ -211,7 +211,7 @@ onMounted(() => {
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
 					<Icon name="validator" size="16" color="secondary" />
-					<Text size="14" weight="600" color="primary">Validators</Text>
+					<Text as="h1" size="14" weight="600" color="primary">Validators</Text>
 				</Flex>
 
 				<Flex align="center" gap="6">

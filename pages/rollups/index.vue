@@ -5,26 +5,35 @@ import { DateTime } from "luxon"
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Checkbox from "@/components/ui/Checkbox.vue"
-import DiffChip from "@/components/modules/stats/DiffChip.vue"
 import Popover from "@/components/ui/Popover.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Components */
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
+import DiffChip from "@/components/modules/stats/DiffChip.vue"
 
 /** Services */
-import { capitalizeAndReplace, capitilize, comma, formatBytes, isMainnet, roundTo, sortArrayOfObjects, truncateDecimalPart } from "@/services/utils"
+import {
+	capitalizeAndReplace,
+	capitilize,
+	comma,
+	formatBytes,
+	isMainnet,
+	roundTo,
+	sortArrayOfObjects,
+	truncateDecimalPart,
+} from "@/services/utils"
 import { getLastActivityCategory, getRankCategory } from "@/services/constants/rollups"
 
 /** API */
 import { fetchRollups } from "@/services/api/rollup"
 
 /** Stores */
-import { useEnumStore } from "@/store/enums"
-import { useRollupsRankingStore } from "@/store/rollupsrank"
+import { useEnumStore } from "@/store/enums.store"
+import { useActivityStore } from "@/store/activity.store"
 const enumStore = useEnumStore()
-const rollupRankingStore = useRollupsRankingStore()
+const activityStore = useActivityStore()
 
 useHead({
 	title: "Rollups - Celestia Explorer",
@@ -37,7 +46,8 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: "Rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
+			content:
+				"View all rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
 		},
 		{
 			property: "og:title",
@@ -45,7 +55,8 @@ useHead({
 		},
 		{
 			property: "og:description",
-			content: "Rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
+			content:
+				"View all rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
 		},
 		{
 			property: "og:url",
@@ -61,7 +72,8 @@ useHead({
 		},
 		{
 			name: "twitter:description",
-			content: "Rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
+			content:
+				"View all rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
 		},
 		{
 			name: "twitter:card",
@@ -81,7 +93,7 @@ const isRefetching = ref(true)
 const rollups = ref([])
 const filteredRollups = ref([])
 const processedRollups = ref([])
-const rollupsRanking = computed(() => rollupRankingStore?.rollups_ranking?.ranking)
+const rollupsRanking = computed(() => activityStore?.rollups_ranking?.ranking)
 
 const utiaPerMB = (rollup) => {
 	let totalRollupMB = rollup.size / (1024 * 1024)
@@ -94,13 +106,12 @@ const config = reactive({
 	columns: {
 		...(isMainnet()
 			? {
-				activity: {
+					activity: {
 						show: true,
 						sortPath: "stats.ranking.rank",
-					}
-			}
-			: {}
-		),
+					},
+			  }
+			: {}),
 		da_change: {
 			show: false,
 		},
@@ -125,13 +136,12 @@ const config = reactive({
 		},
 		...(isMainnet()
 			? {
-				commits: {
-					show: false,
-					sortPath: "stats.commits_weekly",
-				},
-			}
-			: {}
-		),
+					commits: {
+						show: false,
+						sortPath: "stats.commits_weekly",
+					},
+			  }
+			: {}),
 		avg_pfb_size: {
 			show: false,
 			sortPath: "stats.avg_pfb_size",
@@ -154,7 +164,7 @@ const getColumnName = (name) => {
 		case "avg_pfb_size":
 			return "Avg PFB Size"
 		default:
-			return capitalizeAndReplace(name, '_')
+			return capitalizeAndReplace(name, "_")
 	}
 }
 
@@ -168,23 +178,23 @@ const categories = computed(() => {
 	if (enumStore.enums.rollupCategories.length) {
 		res = enumStore.enums.rollupCategories
 	}
-	
-	return res	
+
+	return res
 })
 const types = computed(() => {
 	let res = []
 	if (enumStore.enums.rollupTypes.length) {
 		res = enumStore.enums.rollupTypes
 	}
-	
-	return res	
+
+	return res
 })
 const tags = computed(() => {
 	let res = []
 	if (enumStore.enums?.rollupTags?.length) {
 		res = enumStore.enums.rollupTags
 	}
-	
+
 	return res
 })
 
@@ -192,11 +202,11 @@ const providers = ref([])
 const stacks = ref([])
 const getDisplayName = (name) => {
 	switch (name) {
-		case 'nft':
-			return 'NFT'
+		case "nft":
+			return "NFT"
 
-		case 'uncategorized':
-			return 'Other'
+		case "uncategorized":
+			return "Other"
 
 		default:
 			return capitilize(name)
@@ -206,22 +216,16 @@ const popovers = reactive({
 	categories: false,
 	types: false,
 	tags: false,
-	// providers: false,
-	// stacks: false,
 })
 const keyMap = {
-	categories: 'category',
-	types: 'type',
-	tags: 'tag',
-	// providers: 'provider',
-	// stacks: 'stack',
+	categories: "category",
+	types: "type",
+	tags: "tag",
 }
 const filters = reactive({
 	categories: categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	types: types.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	tags: tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
-	// providers: {},
-	// stacks: {},
 })
 const savedFiltersBeforeChanges = ref(null)
 const handleOpenPopover = (name) => {
@@ -233,7 +237,7 @@ const handleOpenPopover = (name) => {
 }
 const onPopoverClose = (name) => {
 	popovers[name] = false
-	
+
 	if (savedFiltersBeforeChanges.value) {
 		filters[name] = savedFiltersBeforeChanges.value
 		savedFiltersBeforeChanges.value = null
@@ -279,21 +283,17 @@ const limit = ref(100)
 const getRollups = async () => {
 	const data = await fetchRollups({
 		limit: limit.value,
-		// offset: (page.value - 1) * 20,
-		// sort: sort.dir,
-		// sort_by: sort.by,
 	})
 
 	rollups.value = isMainnet()
-		? data
-			.map(r => ({
+		? data.map((r) => ({
 				...r,
 				stats: rollupsRanking.value[r.slug],
 				rounded_rank: roundTo(rollupsRanking.value[r.slug]?.ranking?.rank / 10, 0),
-				rank_category: getRankCategory(roundTo(rollupsRanking.value[r.slug]?.ranking?.rank / 10, 0))
-			}))
+				rank_category: getRankCategory(roundTo(rollupsRanking.value[r.slug]?.ranking?.rank / 10, 0)),
+		  }))
 		: data
-	
+
 	pages.value = roundTo(rollups.value?.length / itemsPerPage, 0, "ceil")
 	if (page.value > pages.value) {
 		page.value = pages.value
@@ -304,38 +304,40 @@ const processRollups = () => {
 	isRefetching.value = true
 
 	const selected = Object.keys(filters).reduce((acc, key) => {
-        acc[key] = Object.keys(filters[key]).filter(k => filters[key][k])
-        return acc
-    }, {})
+		acc[key] = Object.keys(filters[key]).filter((k) => filters[key][k])
+		return acc
+	}, {})
 
-    filteredRollups.value = rollups.value.filter(r => {
-        return Object.keys(selected).every(key => {
-            if (selected[key].length === 0) return true
-            
-            if (Array.isArray(r[key])) {
-                return r[key].some(item => selected[key].includes(item))
-            } else {
-                return selected[key].includes(r[keyMap[key]])
-            }
-        })
-    })
+	filteredRollups.value = rollups.value.filter((r) => {
+		return Object.keys(selected).every((key) => {
+			if (selected[key].length === 0) return true
 
-	filteredRollups.value = sortArrayOfObjects(filteredRollups.value, sort.by, sort.dir === "asc")
-		.map((r, i) => ({ ...r, index: i + 1 }))
+			if (Array.isArray(r[key])) {
+				return r[key].some((item) => selected[key].includes(item))
+			} else {
+				return selected[key].includes(r[keyMap[key]])
+			}
+		})
+	})
+
+	filteredRollups.value = sortArrayOfObjects(filteredRollups.value, sort.by, sort.dir === "asc").map((r, i) => ({ ...r, index: i + 1 }))
 
 	pages.value = roundTo(filteredRollups.value?.length / itemsPerPage, 0, "ceil")
-	processedRollups.value = filteredRollups.value.slice((page.value - 1) * itemsPerPage, Math.min((page.value) * itemsPerPage, rollups.value?.length))
+	processedRollups.value = filteredRollups.value.slice(
+		(page.value - 1) * itemsPerPage,
+		Math.min(page.value * itemsPerPage, rollups.value?.length),
+	)
 
 	isRefetching.value = false
 }
-if (rollupRankingStore.initialized) {
+if (activityStore.initialized) {
 	await getRollups()
 	processRollups()
 }
 
 const handleSort = (by) => {
 	if (!by) return
-	
+
 	switch (sort.dir) {
 		case "desc":
 			if (sort.by == by) sort.dir = "asc"
@@ -369,19 +371,19 @@ watch(
 	() => categories.value,
 	() => {
 		filters.categories = categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
-	}
+	},
 )
 watch(
 	() => types.value,
 	() => {
 		filters.types = types.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
-	}
+	},
 )
 watch(
 	() => tags.value,
 	() => {
 		filters.tags = tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
-	}
+	},
 )
 
 watch(
@@ -392,9 +394,9 @@ watch(
 	},
 )
 watch(
-	() => rollupRankingStore.initialized,
+	() => activityStore.initialized,
 	async () => {
-		if (rollupRankingStore.initialized) {
+		if (activityStore.initialized) {
 			await getRollups()
 			processRollups()
 		}
@@ -436,7 +438,7 @@ onBeforeMount(() => {
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
 					<Icon name="rollup" size="16" color="secondary" />
-					<Text size="14" weight="600" color="primary">Rollups Leaderboard</Text>
+					<Text as="h1" size="14" weight="600" color="primary">Rollups Leaderboard</Text>
 				</Flex>
 
 				<!-- Pagination -->
@@ -460,12 +462,7 @@ onBeforeMount(() => {
 
 			<Flex align="center" justify="between" wrap="wrap" gap="8" :class="$style.settings">
 				<Flex wrap="wrap" align="center" gap="8">
-					<Popover
-						v-for="p in Object.keys(popovers)"
-						:open="popovers[p]"
-						@on-close="onPopoverClose(p)"
-						width="200"
-					>
+					<Popover v-for="p in Object.keys(popovers)" :open="popovers[p]" @on-close="onPopoverClose(p)" width="200">
 						<Button @click="handleOpenPopover(p)" type="secondary" size="mini">
 							<Icon name="plus-circle" size="12" color="tertiary" />
 							<Text color="secondary"> {{ capitilize(keyMap[p]) }} </Text>
@@ -474,16 +471,19 @@ onBeforeMount(() => {
 								<div :class="$style.vertical_divider" />
 
 								<Text size="12" weight="600" color="primary">
-									{{ Object.keys(filters[p]).filter((item) => filters[p][item]).length < 3
-										? Object.keys(filters[p])
-											.filter((item) => filters[p][item])
-											.map(item => getDisplayName(item))
-											.join(", ")
-										: `${Object.keys(filters[p])
-											.filter((item) => filters[p][item])
-											.slice(0, 2)
-											.map(item => getDisplayName(item))
-											.join(", ")} and ${Object.keys(filters[p]).filter((item) => filters[p][item]).length - 2} more`
+									{{
+										Object.keys(filters[p]).filter((item) => filters[p][item]).length < 3
+											? Object.keys(filters[p])
+													.filter((item) => filters[p][item])
+													.map((item) => getDisplayName(item))
+													.join(", ")
+											: `${Object.keys(filters[p])
+													.filter((item) => filters[p][item])
+													.slice(0, 2)
+													.map((item) => getDisplayName(item))
+													.join(", ")} and ${
+													Object.keys(filters[p]).filter((item) => filters[p][item]).length - 2
+											  } more`
 									}}
 								</Text>
 
@@ -496,10 +496,7 @@ onBeforeMount(() => {
 								<Text size="12" weight="500" color="secondary"> {{ `Filter by ${capitilize(keyMap[p])}` }} </Text>
 
 								<Flex direction="column" gap="8" :class="$style.filters_list">
-									<Checkbox
-										v-for="item in Object.keys(filters[p])"
-										v-model="filters[p][item]"
-									>
+									<Checkbox v-for="item in Object.keys(filters[p])" v-model="filters[p][item]">
 										<Text size="12" weight="500" color="primary">
 											{{ getDisplayName(item) }}
 										</Text>
@@ -591,7 +588,7 @@ onBeforeMount(() => {
 													<img :src="r?.logo" :class="$style.avatar_image" />
 												</div>
 											</Flex>
-											
+
 											<Flex direction="column" gap="4">
 												<Text size="12" weight="600" color="primary" mono>
 													{{ r?.name }}
@@ -623,10 +620,7 @@ onBeforeMount(() => {
 								<td v-if="config.columns.da_change.show">
 									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
-											<DiffChip
-												:value="r.da_pct.toFixed(2)"
-												tooltip="Difference between current and previous week"
-											/>
+											<DiffChip :value="r.da_pct.toFixed(2)" tooltip="Difference between current and previous week" />
 										</Flex>
 									</NuxtLink>
 								</td>
@@ -637,14 +631,18 @@ onBeforeMount(() => {
 												<Flex direction="column" gap="4">
 													<Text size="13" weight="600" color="primary">{{ formatBytes(r?.size) }}</Text>
 
-													<Text size="12" weight="600" color="tertiary">{{ truncateDecimalPart(r?.size_pct * 100, 2) }}%</Text>
+													<Text size="12" weight="600" color="tertiary"
+														>{{ truncateDecimalPart(r?.size_pct * 100, 2) }}%</Text
+													>
 												</Flex>
 
 												<template #content>
 													<Flex align="end" gap="8">
 														<Text size="12" weight="600" color="tertiary">Share of total size</Text>
 
-														<Text size="12" weight="600" color="primary">{{ truncateDecimalPart(r?.size_pct * 100, 2) }}%</Text>
+														<Text size="12" weight="600" color="primary"
+															>{{ truncateDecimalPart(r?.size_pct * 100, 2) }}%</Text
+														>
 													</Flex>
 												</template>
 											</Tooltip>
@@ -658,14 +656,18 @@ onBeforeMount(() => {
 												<Flex direction="column" gap="4">
 													<Text size="13" weight="600" color="primary">{{ comma(r.blobs_count) }}</Text>
 
-													<Text size="12" weight="600" color="tertiary">{{ truncateDecimalPart(r.blobs_count_pct * 100, 2) }}%</Text>
+													<Text size="12" weight="600" color="tertiary"
+														>{{ truncateDecimalPart(r.blobs_count_pct * 100, 2) }}%</Text
+													>
 												</Flex>
 
 												<template #content>
 													<Flex align="end" gap="8">
 														<Text size="12" weight="600" color="tertiary">Share of total blobs count</Text>
 
-														<Text size="12" weight="600" color="primary">{{ truncateDecimalPart(r.blobs_count_pct * 100, 2) }}%</Text>
+														<Text size="12" weight="600" color="primary"
+															>{{ truncateDecimalPart(r.blobs_count_pct * 100, 2) }}%</Text
+														>
 													</Flex>
 												</template>
 											</Tooltip>
@@ -678,13 +680,17 @@ onBeforeMount(() => {
 											<AmountInCurrency :amount="{ value: r.fee }" />
 
 											<Tooltip position="start" delay="400">
-												<Text size="12" weight="600" color="tertiary">{{ truncateDecimalPart(r.fee_pct * 100, 2) }}%</Text>
+												<Text size="12" weight="600" color="tertiary"
+													>{{ truncateDecimalPart(r.fee_pct * 100, 2) }}%</Text
+												>
 
 												<template #content>
 													<Flex align="end" gap="8">
 														<Text size="12" weight="600" color="tertiary">Share of total fee paid</Text>
 
-														<Text size="12" weight="600" color="primary">{{ truncateDecimalPart(r.fee_pct * 100, 2) }}%</Text>
+														<Text size="12" weight="600" color="primary"
+															>{{ truncateDecimalPart(r.fee_pct * 100, 2) }}%</Text
+														>
 													</Flex>
 												</template>
 											</Tooltip>
@@ -710,14 +716,18 @@ onBeforeMount(() => {
 										<Flex align="start" justify="center" direction="column" gap="4">
 											<Tooltip position="start" delay="400" :disabled="true">
 												<Flex direction="column" gap="4">
-													<Text size="13" weight="600" color="primary">{{ comma(r?.stats?.commits_weekly) }}</Text>
+													<Text size="13" weight="600" color="primary">{{
+														comma(r?.stats?.commits_weekly)
+													}}</Text>
 												</Flex>
 
 												<template #content>
 													<Flex align="end" gap="8">
 														<Text size="12" weight="600" color="tertiary">Share of total blobs count</Text>
 
-														<Text size="12" weight="600" color="primary">{{ truncateDecimalPart(r.blobs_count_pct * 100, 2) }}%</Text>
+														<Text size="12" weight="600" color="primary"
+															>{{ truncateDecimalPart(r.blobs_count_pct * 100, 2) }}%</Text
+														>
 													</Flex>
 												</template>
 											</Tooltip>
@@ -734,7 +744,11 @@ onBeforeMount(() => {
 								<td v-if="config.columns.latest_activity.show">
 									<NuxtLink :to="`/rollup/${r?.slug}`">
 										<Flex align="center" gap="4">
-											<Icon name="clock-forward-2" size="13" :color="getLastActivityCategory(DateTime.fromISO(r?.last_message_time))" />
+											<Icon
+												name="clock-forward-2"
+												size="13"
+												:color="getLastActivityCategory(DateTime.fromISO(r?.last_message_time))"
+											/>
 											<Text size="13" weight="600" color="primary">
 												{{ DateTime.fromISO(r?.last_message_time).toRelative({ locale: "en", style: "short" }) }}
 											</Text>
@@ -889,9 +903,9 @@ onBeforeMount(() => {
 }
 
 .avatar_wrapper {
-  position: relative;
-  width: 25px;
-  height: 25px;
+	position: relative;
+	width: 25px;
+	height: 25px;
 }
 
 .avatar_container {

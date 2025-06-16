@@ -16,9 +16,6 @@ export default defineNuxtConfig({
 	},
 
 	routeRules: {
-		"/node": {
-			ssr: false,
-		},
 		"/": {
 			sitemap: {
 				changefreq: "daily",
@@ -66,6 +63,7 @@ export default defineNuxtConfig({
 	runtimeConfig: {
 		public: {
 			AMP: process.env.AMP,
+			version: "1.16.0",
 		},
 	},
 
@@ -129,7 +127,7 @@ export default defineNuxtConfig({
 	},
 
 	devtools: {
-		enabled: false,
+		enabled: true,
 	},
 
 	vite: {

@@ -11,7 +11,7 @@ import Spinner from "@/components/ui/Spinner.vue"
 import { capitilize, comma, shortHex } from "@/services/utils"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const emit = defineEmits(["onClose"])
@@ -29,7 +29,6 @@ watch(
 		}
 	},
 )
-
 </script>
 
 <template>
@@ -87,7 +86,7 @@ watch(
 
 			<Flex align="center">
 				<Text size="12" weight="600" color="secondary"> {{ capitilize(commitment.contract.network) }} </Text>
-			</Flex> 
+			</Flex>
 
 			<Flex direction="column" align="center" gap="12">
 				<Flex align="center" justify="between" wide :class="$style.metadata">
@@ -240,7 +239,6 @@ watch(
 
 	margin: 0 -16px;
 }
-
 
 @media (max-width: 550px) {
 	.metadata {

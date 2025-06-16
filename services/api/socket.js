@@ -2,7 +2,7 @@
 import { useSocketURL } from "../config"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 
 export let socket = null
 
@@ -10,10 +10,9 @@ export const init = () => {
 	const appStore = useAppStore()
 
 	const startWs = () => {
-
 		socket = new WebSocket(useSocketURL())
 
-		socket.addEventListener("open", (e) => {
+		socket.addEventListener("open", () => {
 			/** Head Subscription */
 			socket.send(
 				JSON.stringify({
@@ -37,13 +36,13 @@ export const init = () => {
 
 		socket.addEventListener("message", (e) => {
 			const data = JSON.parse(e.data)
-			if (data.channel === 'head') {
-				appStore.lastHead = data.body;
-			} else if (data.channel === 'blocks') {
-				appStore.latestBlocks.unshift(data.body);
+			if (data.channel === "head") {
+				appStore.lastHead = data.body
+			} else if (data.channel === "blocks") {
+				appStore.latestBlocks.unshift(data.body)
 				setTimeout(() => {
-					appStore.latestBlocks.pop();
-				}, 1000);
+					appStore.latestBlocks.pop()
+				}, 1000)
 			}
 		})
 

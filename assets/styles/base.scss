@@ -46,8 +46,8 @@ $grayscale: (
 	--neutral-mint: #109373;
 	--dark-mint: #1e473d;
 	--legendary: #ff5a17;
-	--epic: #7448E7;
-	--rare: #007AFF;
+	--epic: #7448e7;
+	--rare: #007aff;
 
 	/* Grayscale */
 	@each $gray, $value in $grayscale {
@@ -78,10 +78,9 @@ $grayscale: (
 	--validator-active: #85f891;
 	--validator-inactive: #1ca7ed;
 	--validator-jailed: #f8774a;
-	// --supply: #65c7f8;
 	--supply: #1ca7ed;
 	--staking: #85f891;
-	--geo-map: #8B8C8D;
+	--geo-map: #8b8c8d;
 }
 
 [theme="dimmed"] {
@@ -105,7 +104,6 @@ $grayscale: (
 	--txt-white: rgba(255, 255, 255, 95%);
 
 	/* General */
-	// --brand: #18d2a5;
 	--brand: #33a853;
 	--blue: #0b84fe;
 	--red: #eb5757;
@@ -120,8 +118,8 @@ $grayscale: (
 	--neutral-mint: #109373;
 	--dark-mint: #1e473d;
 	--legendary: #ff5a17;
-	--epic: #7448E7;
-	--rare: #007AFF;
+	--epic: #7448e7;
+	--rare: #007aff;
 
 	/* Grayscale */
 	@each $gray, $value in $grayscale {
@@ -146,7 +144,7 @@ $grayscale: (
 	--block-progress-fill-background: #33a853;
 	--logo-name: var(--txt-primary);
 	--bar-fill: rgb(243, 147, 45);
-	--geo-map: #8B8C8D;
+	--geo-map: #8b8c8d;
 }
 
 [theme="light"] {
@@ -170,7 +168,6 @@ $grayscale: (
 	--txt-white: rgba(255, 255, 255, 95%);
 
 	/* General */
-	// --brand: #18d2a5;
 	--brand: #0ade71;
 	--blue: #0b84fe;
 	--red: #eb5757;
@@ -185,8 +182,8 @@ $grayscale: (
 	--neutral-mint: #109373;
 	--dark-mint: #c4f9eb;
 	--legendary: #ff5a17;
-	--epic: #7448E7;
-	--rare: #007AFF;
+	--epic: #7448e7;
+	--rare: #007aff;
 
 	/* Grayscale */
 	@each $gray, $value in $grayscale {
@@ -211,7 +208,7 @@ $grayscale: (
 	--block-progress-fill-background: #33a853;
 	--logo-name: var(--txt-primary);
 	--bar-fill: rgb(243, 147, 45);
-	--geo-map: #8B8C8D;
+	--geo-map: #8b8c8d;
 }
 
 @font-face {
@@ -273,7 +270,7 @@ body {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-	
+
 	user-select: text;
 }
 

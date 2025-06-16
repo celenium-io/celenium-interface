@@ -6,7 +6,7 @@ import { amountToString } from "@/services/utils"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 const currentPrice = computed(() => appStore.currentPrice)
@@ -74,12 +74,12 @@ const calculatedAmount = computed(() => {
 				...defaultCurrencyStyle,
 				...props.styles.currency,
 			},
-		}
+		},
 	}
 
 	let tiaDisplay
 	let tiaExchange
-	if (finalAmount.amount.unit === 'utia') {
+	if (finalAmount.amount.unit === "utia") {
 		tiaExchange = finalAmount.amount.value / 1_000_000
 
 		if (finalAmount.amount.currency === "TIA") {

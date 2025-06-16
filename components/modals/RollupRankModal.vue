@@ -6,7 +6,7 @@ import Modal from "@/components/ui/Modal.vue"
 import { roundTo } from "@/services/utils"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const emit = defineEmits(["onClose"])
@@ -50,7 +50,7 @@ const metrics = ref([
 ])
 
 const getMetricValue = (key) => {
-	const coefficient = metrics.value.find(m => m.key === key)?.coefficient
+	const coefficient = metrics.value.find((m) => m.key === key)?.coefficient
 	const metricValue = +rank.value?.ranking[key]?.score / +coefficient
 
 	return roundTo(metricValue, 2)
@@ -62,7 +62,7 @@ watch(
 			rank.value = cacheStore.selectedRollupRank
 			rollup.value = cacheStore.selectedRollup
 
-			metrics.value = metrics.value.map(m => {
+			metrics.value = metrics.value.map((m) => {
 				return {
 					...m,
 					metricValue: getMetricValue(m.key),
@@ -122,12 +122,12 @@ watch(
 							</li>
 							<li>
 								<Text size="13" weight="600" color="secondary">K</Text>
-								is the weight assigned to that metric; the sum of all 
+								is the weight assigned to that metric; the sum of all
 								<Text size="13" weight="600" color="secondary">K</Text>
 								equals 1.
 							</li>
 						</ul>
-					</Text>					
+					</Text>
 				</Flex>
 
 				<Text size="12" color="secondary" :style="{ lineHeight: '1.4' }">
@@ -202,21 +202,21 @@ watch(
 						<ul>
 							<li>
 								<div :class="$style.inline_formula_wrapper">
-										<mi>diff</mi>
-										<mo>=</mo>
-										<mi>maxTime</mi>
-										<mo>-</mo>
-										<mi>lastTime</mi>
+									<mi>diff</mi>
+									<mo>=</mo>
+									<mi>maxTime</mi>
+									<mo>-</mo>
+									<mi>lastTime</mi>
 								</div>
 								in the chosen <mi :class="$style.inline_formula_wrapper">timeframe</mi>.
 							</li>
 							<li>
 								<mi :class="$style.inline_formula_wrapper" :style="{ padding: '1px 4px' }">t</mi>
-								 is the <strong>decay period</strong> (time constant) that controls how quickly the metric fades: 
-								 after a time span of 
-								 <mi :class="$style.inline_formula_wrapper" :style="{ padding: '1px 4px' }">t</mi>
-								 , the value drops to 
-								 <msup :class="$style.inline_formula_wrapper"><mi>e</mi><mo>−1</mo></msup>
+								is the <strong>decay period</strong> (time constant) that controls how quickly the metric fades: after a
+								time span of
+								<mi :class="$style.inline_formula_wrapper" :style="{ padding: '1px 4px' }">t</mi>
+								, the value drops to
+								<msup :class="$style.inline_formula_wrapper"><mi>e</mi><mo>−1</mo></msup>
 							</li>
 						</ul>
 					</Text>
@@ -303,7 +303,9 @@ watch(
 										<mn> {{ m.coefficient }} </mn>
 									</template>
 									<mo>=</mo>
-									<mn :style="{ color: `var(--${rank.ranking.rank.category.color})`, fontWeight: '800'}"> {{ rank.ranking.rank.score }} </mn>
+									<mn :style="{ color: `var(--${rank.ranking.rank.category.color})`, fontWeight: '800' }">
+										{{ rank.ranking.rank.score }}
+									</mn>
 								</mrow>
 							</math>
 							<Icon name="laurel" size="20" :color="rank.ranking.rank.category.color" />
@@ -316,7 +318,7 @@ watch(
 </template>
 
 <style module>
-.formula_wrapper{
+.formula_wrapper {
 	padding: 10px;
 	background-color: var(--op-5);
 	border-radius: 6px;

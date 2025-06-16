@@ -3,13 +3,13 @@
 import Button from "@/components/ui/Button.vue"
 
 /** Services */
-import { capitilize } from "~/services/utils"
+import { capitilize } from "@/services/utils"
 
 /** Store */
-import { useBookmarksStore } from "@/store/bookmarks"
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
-import { useNotificationsStore } from "@/store/notifications"
+import { useBookmarksStore } from "@/store/bookmarks.store"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const bookmarksStore = useBookmarksStore()
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
@@ -39,7 +39,6 @@ const bookmarkText = computed(() => {
 
 const handleBookmark = () => {
 	if (!isBookmarked.value) {
-
 		let newBookmark = {
 			id: props.id,
 			type: capitilize(props.type),
@@ -70,7 +69,6 @@ const handleBookmark = () => {
 			cacheStore.current.bookmark = newBookmark
 			modalsStore.open("edit_alias")
 		}
-
 	} else {
 		let notification = {}
 
@@ -101,7 +99,6 @@ const handleBookmark = () => {
 onMounted(() => {
 	isBookmarked.value = bookmarksStore.getBookmark(props.type, props.id) ? true : false
 })
-
 </script>
 
 <template>

@@ -25,11 +25,11 @@ import { capitilize } from "@/services/utils/strings"
 import { search } from "@/services/api/search"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
-import { useBookmarksStore } from "@/store/bookmarks"
-import { useNotificationsStore } from "@/store/notifications"
+import { useAppStore } from "@/store/app.store"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
+import { useBookmarksStore } from "@/store/bookmarks.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const appStore = useAppStore()
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
@@ -290,6 +290,15 @@ const rawNavigationActions = [
 		runText: "Open Cost Savings",
 		callback: () => {
 			router.push("/calculators/savings")
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
+		title: "Go to Terminal",
+		runText: "Open Terminal",
+		callback: () => {
+			location.href = "https://terminal.celenium.io"
 		},
 	},
 	{

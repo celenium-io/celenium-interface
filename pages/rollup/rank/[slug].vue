@@ -15,12 +15,12 @@ import { comma, isMainnet, roundTo, sortArrayOfObjects } from "@/services/utils"
 import { getMetricCategory, getRankCategory } from "@/services/constants/rollups"
 
 /** Stores */
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
-import { useRollupsRankingStore } from "@/store/rollupsrank"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
+import { useActivityStore } from "@/store/activity.store"
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
-const rollupRankingStore = useRollupsRankingStore()
+const activityStore = useActivityStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -50,9 +50,9 @@ const repos = ref([])
 const commits = ref([])
 const totalCommits = computed(() => commits.value?.reduce((acc, c) => acc + c.amount, 0))
 const rollupRanking = computed(() => {
-	if (!rollupRankingStore?.initialized) return null
+	if (!activityStore?.initialized) return null
 
-	const rollupRaw = rollupRankingStore?.rollups_ranking?.ranking?.[route.params.slug]
+	const rollupRaw = activityStore?.rollups_ranking?.ranking?.[route.params.slug]
 	if (!rollupRaw) return null
 
 	const rawRanking = rollupRaw.ranking
@@ -92,12 +92,12 @@ const rollupRanking = computed(() => {
 			description[0].text += "."
 		}
 	}
-	
+
 	return {
 		...rollupRaw,
 		ranking,
 		description,
-		updated: rollupRankingStore?.rollups_ranking?.last_update,
+		updated: activityStore?.rollups_ranking?.last_update,
 	}
 })
 const getMetricDescription = (metric) => {
@@ -123,10 +123,8 @@ const getRollupRepos = async (slug) => {
 		slug: slug,
 		limit: limit,
 		offset: (page.value - 1) * limit,
-		// sort: sort.dir,
-		// sort_by: sort.by,
 	})
-	
+
 	return data
 }
 const fetchData = async () => {
@@ -156,7 +154,7 @@ defineOgImageComponent("RollupImage", {
 })
 
 useHead({
-	title: `Rollup ${rollup.value?.name} - Celestia Explorer`,
+	title: `Rollup ${rollup.value?.name} - Celenium`,
 	link: [
 		{
 			rel: "canonical",
@@ -170,7 +168,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: `Rollup ${rollup.value?.name} - Celestia Explorer`,
+			content: `Rollup ${rollup.value?.name} - Celenium`,
 		},
 		{
 			property: "og:description",
@@ -182,7 +180,7 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: `Rollup ${rollup.value?.name} - Celestia Explorer`,
+			content: `Rollup ${rollup.value?.name} - Celenium`,
 		},
 		{
 			name: "twitter:description",
@@ -199,19 +197,19 @@ const buildChart = (chart, data) => {
 	const { width, height } = chart.getBoundingClientRect()
 	const margin = { top: 4, bottom: 4 }
 
-	const MAX_VALUE = d3.max(data?.map(d => d.amount))
-	
+	const MAX_VALUE = d3.max(data?.map((d) => d.amount))
+
 	/** Scales */
 	const x = d3.scaleUtc(
-		d3.extent(data, (d => new Date(d.time))),
+		d3.extent(data, (d) => new Date(d.time)),
 		[0, width],
 	)
 	const y = d3.scaleLinear([0, MAX_VALUE], [height - margin.bottom, margin.top])
 
 	const line = d3
 		.line()
-		.x(d => x(new Date(d.time)))
-		.y(d => y(d.amount))
+		.x((d) => x(new Date(d.time)))
+		.y((d) => y(d.amount))
 		.curve(d3.curveCatmullRom)
 
 	/** SVG Container */
@@ -226,7 +224,8 @@ const buildChart = (chart, data) => {
 		.style("-webkit-tap-highlight-color", "transparent")
 
 	/** Chart Lines */
-	const cPath = svg.append("path")
+	const cPath = svg
+		.append("path")
 		.attr("fill", "none")
 		.attr("stroke", "var(--brand)")
 		.attr("stroke-width", 2)
@@ -237,14 +236,15 @@ const buildChart = (chart, data) => {
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
 
-	const cTotalLength = cPath.node().getTotalLength();
+	const cTotalLength = cPath.node().getTotalLength()
 
-	cPath.attr("stroke-dasharray", `${cTotalLength} ${cTotalLength}`)
+	cPath
+		.attr("stroke-dasharray", `${cTotalLength} ${cTotalLength}`)
 		.attr("stroke-dashoffset", cTotalLength)
 		.transition()
 		.duration(1_000)
 		.ease(d3.easeLinear)
-		.attr("stroke-dashoffset", 0);
+		.attr("stroke-dashoffset", 0)
 }
 
 const handleHowItWorksClick = () => {
@@ -269,7 +269,7 @@ onMounted(() => {
 
 <template>
 	<Flex direction="column" gap="32" wide :class="$style.wrapper">
-		<Flex v-if="rollup"  direction="column" gap="16">
+		<Flex v-if="rollup" direction="column" gap="16">
 			<Flex justify="between" :class="$style.breadcrumbs">
 				<Breadcrumbs
 					:items="[
@@ -294,7 +294,9 @@ onMounted(() => {
 								</Flex>
 								<Flex direction="column" gap="8">
 									<Text size="13" color="primary"> {{ rollup?.name }} </Text>
-									<Text size="12" color="tertiary" :style="{ lineHeight: '1.2' }"> {{ org?.description || rollup?.description }} </Text>
+									<Text size="12" color="tertiary" :style="{ lineHeight: '1.2' }">
+										{{ org?.description || rollup?.description }}
+									</Text>
 								</Flex>
 							</Flex>
 
@@ -314,7 +316,7 @@ onMounted(() => {
 							</Flex>
 							<Flex align="center" gap="12" :class="$style.card" wide>
 								<Flex direction="column" gap="16" :class="$style.overlay">
-									<Text size="13" color="secondary"> Total Commits  </Text>
+									<Text size="13" color="secondary"> Total Commits </Text>
 									<Flex align="center" gap="6">
 										<Icon name="commit" size="18" color="secondary" />
 										<Text size="18" weight="600" color="primary"> {{ comma(totalCommits) }} </Text>
@@ -343,7 +345,12 @@ onMounted(() => {
 										<Text size="12" weight="600" color="primary">Page {{ page }} </Text>
 									</Button>
 
-									<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages || repos?.length === 0">
+									<Button
+										@click="handleNext"
+										type="secondary"
+										size="mini"
+										:disabled="page === pages || repos?.length === 0"
+									>
 										<Icon name="arrow-right" size="12" color="primary" />
 									</Button>
 								</Flex>
@@ -368,7 +375,9 @@ onMounted(() => {
 														<Flex align="start" justify="center" direction="column" gap="4">
 															<Text size="13" weight="600" color="primary"> {{ r.name }} </Text>
 
-															<Text size="12" weight="600" color="tertiary" :class="$style.description"> {{ r.description || 'No description' }} </Text>
+															<Text size="12" weight="600" color="tertiary" :class="$style.description">
+																{{ r.description || "No description" }}
+															</Text>
 														</Flex>
 													</NuxtLink>
 												</td>
@@ -385,12 +394,22 @@ onMounted(() => {
 															<Flex align="start" justify="center" direction="column" gap="4">
 																<Text size="13" weight="600" color="primary"> {{ comma(r.commits) }} </Text>
 
-																<Text v-if="r.commits_weekly" size="12" weight="600" color="tertiary"> {{ `+${comma(r.commits_weekly)}` }} </Text>
+																<Text v-if="r.commits_weekly" size="12" weight="600" color="tertiary">
+																	{{ `+${comma(r.commits_weekly)}` }}
+																</Text>
 															</Flex>
 
 															<template #content>
-																<Text size="12" weight="600" color="secondary"> {{ comma(r.commits_weekly) }} </Text>
-																<Text size="12" color="secondary"> {{ `${r.commits_weekly === 1 ? ' commit' : ' commits'} in the last week` }} </Text>
+																<Text size="12" weight="600" color="secondary">
+																	{{ comma(r.commits_weekly) }}
+																</Text>
+																<Text size="12" color="secondary">
+																	{{
+																		`${
+																			r.commits_weekly === 1 ? " commit" : " commits"
+																		} in the last week`
+																	}}
+																</Text>
 															</template>
 														</Tooltip>
 													</NuxtLink>
@@ -400,7 +419,12 @@ onMounted(() => {
 														<Flex align="center" gap="4">
 															<Icon name="clock-forward-2" size="13" color="secondary" />
 															<Text size="13" weight="600" color="primary">
-																{{ DateTime.fromISO(r.last_pushed_at).toRelative({ locale: "en", style: "short" }) }}
+																{{
+																	DateTime.fromISO(r.last_pushed_at).toRelative({
+																		locale: "en",
+																		style: "short",
+																	})
+																}}
 															</Text>
 														</Flex>
 													</NuxtLink>
@@ -427,19 +451,34 @@ onMounted(() => {
 							<Flex direction="column" gap="12" :style="{ flex: 1 }">
 								<Icon name="laurel" size="32" :color="rollupRanking?.ranking?.rank?.category?.color" />
 								<Flex direction="column" gap="6">
-									<Text size="16" weight="600" :class="[$style.summary_rate, $style[rollupRanking?.ranking?.rank?.category?.name?.toLowerCase()]]" :style="{ textWrap: 'nowrap' }">
-										{{ `${roundTo(rollupRanking?.ranking?.rank?.score / 10, 0)} ${rollupRanking?.ranking?.rank?.category?.name}` }}
+									<Text
+										size="16"
+										weight="600"
+										:class="[$style.summary_rate, $style[rollupRanking?.ranking?.rank?.category?.name?.toLowerCase()]]"
+										:style="{ textWrap: 'nowrap' }"
+									>
+										{{
+											`${roundTo(rollupRanking?.ranking?.rank?.score / 10, 0)} ${
+												rollupRanking?.ranking?.rank?.category?.name
+											}`
+										}}
 									</Text>
 									<Text size="12" color="tertiary"> {{ rollupRanking?.ranking?.rank?.score }}% </Text>
 								</Flex>
 							</Flex>
 
-							<Text v-if="rollupRanking?.description.length" size="13" color="primary" weight="600" :style="{ lineHeight: '1.4' }">
+							<Text
+								v-if="rollupRanking?.description.length"
+								size="13"
+								color="primary"
+								weight="600"
+								:style="{ lineHeight: '1.4' }"
+							>
 								{{ rollup.name }}
 								<Text weight="500" color="secondary">shows the </Text>
 								<span v-for="d in rollupRanking?.description">
 									<Text :class="[$style.summary_rate, $style[d.category.name.toLowerCase()]]">
-										{{ d.category.name.toLowerCase() + ' ' }}
+										{{ d.category.name.toLowerCase() + " " }}
 									</Text>
 									<Text weight="500" color="secondary"> {{ d.text }} </Text>
 								</span>
@@ -456,7 +495,9 @@ onMounted(() => {
 								<Icon name="clock-forward-2" size="12" color="secondary" />
 								<Text size="12" color="tertiary">
 									Updated
-									<Text color="secondary" weight="600"> {{ DateTime.fromMillis(rollupRanking?.updated).toRelative({ locale: "en", style: "short" }) }} </Text>
+									<Text color="secondary" weight="600">
+										{{ DateTime.fromMillis(rollupRanking?.updated).toRelative({ locale: "en", style: "short" }) }}
+									</Text>
 								</Text>
 							</Flex>
 
@@ -638,7 +679,7 @@ onMounted(() => {
 			&:first-child {
 				padding: 0 24px 0 16px;
 				/* width: 300px; */
-				
+
 				/* span {
 					&:last-child {
 						width: 300px;
@@ -671,8 +712,8 @@ onMounted(() => {
 }
 
 .summary_rate {
-    color: transparent;
-    background-clip: text;
+	color: transparent;
+	background-clip: text;
 }
 .legendary {
 	background-image: linear-gradient(var(--light-orange), var(--legendary));

@@ -221,7 +221,6 @@ const brushed = ({ selection, sourceEvent }) => {
 			fixedX0 = xBand(new Date(currentData[currentIndex].time).toISOString()) - padding
 			setStartEndFromIndex(currentData, currentIndex, fixedX1Index)
 		} else if (fixedX0Index - currentIndex < 0) {
-
 			fixedX1 = xBand(new Date(currentData[currentIndex].time).toISOString()) - padding + xBand.step()
 			setStartEndFromIndex(currentData, fixedX0Index, currentIndex)
 		} else {
@@ -364,7 +363,6 @@ const updateHandlePosition = (selection) => {
 
 			const dotsWidth = 12
 			const dotsX = (handleWidth - dotsWidth) / 2
-			// handle.select(".dots-container").attr("transform", `translate(${dotsX}, ${margin.top - 12.5})`)
 
 			leftHandle.attr("transform", `translate(${x0}, 0)`)
 			rightHandle.attr("transform", `translate(${x1 - 5}, 0)`)
@@ -736,14 +734,6 @@ watch(
 	},
 	{ deep: true },
 )
-
-// watch([() => props.from, () => props.to], ([newFrom, newTo], [oldFrom, oldTo]) => {
-// 	if (newFrom === oldFrom && newTo === oldTo) return
-// 	if (!props.allData?.length) return
-// 	if (isInternalUpdate.value) return
-
-// 	createChart()
-// })
 
 onMounted(() => {
 	createChart()

@@ -1,5 +1,5 @@
 /** Store */
-import { useNotificationsStore } from "@/store/notifications"
+import { useNotificationsStore } from "@/store/notifications.store"
 
 export const parseRedirectQueryError = (query) => {
 	const notificationsStore = useNotificationsStore()

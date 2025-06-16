@@ -1,20 +1,19 @@
 <script setup>
 /** Stats Components */
 import GeoMap from "@/components/modules/stats/GeoMap.vue"
-import BarplotChartCard from "@/components/modules/stats/BarplotChartCard.vue";
-// import PieChartCard from "@/components/modules/stats/PieChartCard.vue"
+import BarplotChartCard from "@/components/modules/stats/BarplotChartCard.vue"
 
 /** Constants */
-import { getSeriesByGroupAndType, STATS_PERIODS } from "@/services/constants/stats.js"
+import { getSeriesByGroupAndType } from "@/services/constants/stats.js"
 
 /** Services */
-import { capitilize, isMobile, sortArrayOfObjects } from "@/services/utils"
+import { capitilize, sortArrayOfObjects } from "@/services/utils"
 
 /** API */
 import { fetchNodeStats } from "@/services/api/stats"
 
 const isLoading = ref(true)
-const series = computed(() => getSeriesByGroupAndType('Ecosystem'))
+const series = computed(() => getSeriesByGroupAndType("Ecosystem"))
 
 const getNodeStats = async (name) => {
 	const data = await fetchNodeStats({ name })
@@ -33,7 +32,7 @@ const prepareData = async () => {
 		let otherEntry = null
 		if (s.name === "nodetype") {
 			s.data = data.reduce((acc, d) => {
-				let name = d.name === "celestia-celestia" ? "Celestia" : capitilize(d.name);
+				let name = d.name === "celestia-celestia" ? "Celestia" : capitilize(d.name)
 
 				if (name === "Unknown" || name === "Other") {
 					if (!otherEntry) {
@@ -52,7 +51,7 @@ const prepareData = async () => {
 			s.data = sortArrayOfObjects(s.data, "amount")
 		} else if (s.name === "version") {
 			s.data = data.sort((a, b) => {
-				const parseVersion = (version) => version.split('.').map(Number)
+				const parseVersion = (version) => version.split(".").map(Number)
 				const [aMajor, aMinor, aPatch] = parseVersion(a.name)
 				const [bMajor, bMinor, bPatch] = parseVersion(b.name)
 
@@ -77,12 +76,7 @@ onMounted(async () => {
 			<GeoMap :class="$style.chart" />
 
 			<Flex v-if="!isLoading" align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
-				<BarplotChartCard
-					v-for="s in series"
-					:series="s"
-					:data="s.data"
-					:class="$style.chart_card"
-				/>
+				<BarplotChartCard v-for="s in series" :series="s" :data="s.data" :class="$style.chart_card" />
 			</Flex>
 
 			<Flex align="center" justify="end" wide>
@@ -92,7 +86,7 @@ onMounted(async () => {
 				</Text>
 			</Flex>
 		</Flex>
-    </Flex>
+	</Flex>
 </template>
 
 <style module>

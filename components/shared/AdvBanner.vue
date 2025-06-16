@@ -3,7 +3,7 @@
 import { getAdvByName, getRandomAdv } from "@/services/constants/advertising"
 
 /** Store */
-import { useModalsStore } from "~/store/modals"
+import { useModalsStore } from "@/store/modals.store"
 const modalsStore = useModalsStore()
 
 const props = defineProps({
@@ -13,7 +13,7 @@ const props = defineProps({
 	},
 	orientation: {
 		type: String,
-		default: 'vertical',
+		default: "vertical",
 	},
 })
 
@@ -26,7 +26,7 @@ const handleClick = () => {
 	if (adv.value.internalLink) {
 		router.push(adv.value.internalLink)
 	} else if (adv.value.link) {
-		window.open(adv.value.link, '_blank')
+		window.open(adv.value.link, "_blank")
 	} else if (adv.value.modal) {
 		modalsStore.open(adv.value.modal)
 	}
@@ -42,7 +42,11 @@ onMounted(() => {
 </script>
 
 <template>
-	<Flex v-if="adv.name" @click="handleClick()" :class="[$style.wrapper, orientation === 'horizontal' && $style.wrapper_horizontal, !isDisplayed && $style.not_display]">
+	<Flex
+		v-if="adv.name"
+		@click="handleClick()"
+		:class="[$style.wrapper, orientation === 'horizontal' && $style.wrapper_horizontal, !isDisplayed && $style.not_display]"
+	>
 		<Flex v-if="orientation === 'vertical'" direction="column" gap="12" :class="$style.ad_vertical">
 			<Flex direction="column" gap="8">
 				<Flex align="center" gap="6">
@@ -55,18 +59,12 @@ onMounted(() => {
 
 			<Flex align="center" justify="between">
 				<Text size="13" weight="600" color="brand" :class="$style.footer"> {{ adv.footer }} </Text>
-				
+
 				<Icon @click.prevent.stop="isDisplayed = false" name="close" size="16" color="secondary" :class="$style.close_icon" />
 			</Flex>
 		</Flex>
 
-		<Flex
-			v-else-if="orientation === 'horizontal'"
-			align="center"
-			gap="12"
-			wide
-			:class="$style.ad_horizontal"
-		>
+		<Flex v-else-if="orientation === 'horizontal'" align="center" gap="12" wide :class="$style.ad_horizontal">
 			<Flex align="center" gap="8">
 				<Icon v-if="adv.icon" :name="adv.icon" size="14" color="brand" />
 
@@ -77,7 +75,7 @@ onMounted(() => {
 
 			<Flex align="center" gap="8" :class="$style.footer">
 				<Text size="13" weight="600" color="brand" :class="$style.text"> {{ adv.footer }} </Text>
-				
+
 				<Icon @click.prevent.stop="isDisplayed = false" name="close" size="16" color="secondary" :class="$style.close_icon" />
 			</Flex>
 		</Flex>
@@ -87,7 +85,7 @@ onMounted(() => {
 <style module>
 .wrapper {
 	width: 100%;
-	
+
 	cursor: pointer;
 }
 

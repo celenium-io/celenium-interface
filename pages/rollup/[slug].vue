@@ -10,7 +10,7 @@ import { fetchRollupBySlug } from "@/services/api/rollup"
 import Button from "@/components/ui/Button.vue"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const route = useRoute()
@@ -33,7 +33,7 @@ defineOgImageComponent("RollupImage", {
 })
 
 useHead({
-	title: `Rollup ${rollup.value?.name} - Celestia Explorer`,
+	title: `Rollup ${rollup.value?.name} - Celenium`,
 	link: [
 		{
 			rel: "canonical",
@@ -47,7 +47,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: `Rollup ${rollup.value?.name} - Celestia Explorer`,
+			content: `Rollup ${rollup.value?.name} - Celenium`,
 		},
 		{
 			property: "og:description",
@@ -59,7 +59,7 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: `Rollup ${rollup.value?.name} - Celestia Explorer`,
+			content: `Rollup ${rollup.value?.name} - Celenium`,
 		},
 		{
 			name: "twitter:description",

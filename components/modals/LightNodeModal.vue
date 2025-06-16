@@ -16,10 +16,10 @@ import amp from "@/services/amp"
 import { comma, isMobile } from "@/services/utils"
 
 /** Stores */
-import { useAppStore } from "@/store/app.js"
-import { useNodeStore } from "@/store/node.js"
-import { useModalsStore } from "@/store/modals.js"
-import { useNotificationsStore } from "@/store/notifications"
+import { useAppStore } from "@/store/app.store"
+import { useNodeStore } from "@/store/node.store"
+import { useModalsStore } from "@/store/modals.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const appStore = useAppStore()
 const nodeStore = useNodeStore()
 const modalsStore = useModalsStore()

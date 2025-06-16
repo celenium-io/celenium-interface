@@ -3,13 +3,13 @@ import { defineStore, acceptHMRUpdate } from "pinia"
 import { DateTime } from "luxon"
 
 /** Services */
-import { capitalizeAndReplace, isMainnet, roundTo, sortArrayOfObjects } from "@/services/utils"
+import { capitalizeAndReplace, isMainnet, roundTo } from "@/services/utils"
 import { rankCoefficients } from "@/services/constants/rollups"
 
 /** API */
-import { fetchRollupOrgs, fetchRollupOrgsState, fetchRollupOrgReposBySlug, fetchRollups, fetchRollupsDailyStats } from "@/services/api/rollup"
+import { fetchRollupOrgs, fetchRollupOrgsState, fetchRollups, fetchRollupsDailyStats } from "@/services/api/rollup"
 
-export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
+export const useActivityStore = defineStore("activity", () => {
 	const rollups_ranking = ref({
 		ranking: {},
 		top_rollup: {},
@@ -30,14 +30,14 @@ export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
 			initialized.value = true
 			return
 		}
-		
+
 		const limit = 100
 		const params = { limit }
 		const [rollupsData, orgsData, dailyStatsData, orgsState] = await Promise.all([
 			fetchRollups(params),
 			fetchRollupOrgs(params),
 			fetchRollupsDailyStats(params),
-			fetchRollupOrgsState(params)
+			fetchRollupOrgsState(params),
 		])
 		let maxDailyBlobsCount = 0
 		let maxAvgPfbSize = 0
@@ -66,21 +66,20 @@ export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
 			rollupsRanking.value[slug].commits_weekly = od.commits_weekly
 		}
 
-		rollupsData.forEach(r => {
+		rollupsData.forEach((r) => {
 			let slug = r.slug
 			if (!rollupsRanking.value[slug]) {
 				rollupsRanking.value[slug] = {}
 			}
 			rollupsRanking.value[slug].last_message_time = r.last_message_time
-
 		})
-		
+
 		const quantitative = (value, maxValue) => {
 			return Math.min(value / maxValue, 1)
 		}
 		const timeBased = (maxTime, lastTime, t, timeframe) => {
 			const diff = maxTime.diff(lastTime, timeframe)[timeframe]
-			return Math.exp(-( diff / t ))
+			return Math.exp(-(diff / t))
 		}
 		const calculateRanking = (r) => {
 			let ranking = {
@@ -95,38 +94,49 @@ export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
 				ranking.commits_weekly = roundTo(quantitative(r.commits_weekly, maxWeeklyCommits) * rankCoefficients.commits_weekly * 100)
 			}
 			if (r.day_blobs_count) {
-				ranking.day_blobs_count = roundTo(quantitative(r.day_blobs_count, maxDailyBlobsCount) * rankCoefficients.day_blobs_count * 100)
+				ranking.day_blobs_count = roundTo(
+					quantitative(r.day_blobs_count, maxDailyBlobsCount) * rankCoefficients.day_blobs_count * 100,
+				)
 			}
 			if (r.avg_pfb_size) {
 				ranking.avg_pfb_size = roundTo(quantitative(r.avg_pfb_size, maxAvgPfbSize) * rankCoefficients.avg_pfb_size * 100)
 			}
 			if (r.last_message_time) {
-				ranking.last_message_time = roundTo(timeBased(DateTime.now(), DateTime.fromISO(r.last_message_time), 12, "hours")  * rankCoefficients.last_message_time * 100)
+				ranking.last_message_time = roundTo(
+					timeBased(DateTime.now(), DateTime.fromISO(r.last_message_time), 12, "hours") *
+						rankCoefficients.last_message_time *
+						100,
+				)
 			}
 			if (r.last_pushed_at) {
-				ranking.last_pushed_at = roundTo(timeBased(DateTime.fromISO(orgsState), DateTime.fromISO(r.last_pushed_at), 4, "weeks")  * rankCoefficients.last_pushed_at * 100)
+				ranking.last_pushed_at = roundTo(
+					timeBased(DateTime.fromISO(orgsState), DateTime.fromISO(r.last_pushed_at), 4, "weeks") *
+						rankCoefficients.last_pushed_at *
+						100,
+				)
 			}
 
 			ranking.rank = roundTo(Object.values(ranking).reduce((acc, val) => acc + val, 0))
 			return ranking
 		}
 
-		Object.keys(rollupsRanking.value).forEach(r => {
+		Object.keys(rollupsRanking.value).forEach((r) => {
 			rollupsRanking.value[r].ranking = calculateRanking(rollupsRanking.value[r])
 		})
 
-		const maxRankEntry = Object.entries(rollupsRanking.value).reduce((maxEntry, [key, value]) => {
-			return value.ranking.rank > maxEntry.rank
-				? { slug: key, rank: value.ranking.rank }
-				: maxEntry
-		}, { slug: null, rank: 0 })
+		const maxRankEntry = Object.entries(rollupsRanking.value).reduce(
+			(maxEntry, [key, value]) => {
+				return value.ranking.rank > maxEntry.rank ? { slug: key, rank: value.ranking.rank } : maxEntry
+			},
+			{ slug: null, rank: 0 },
+		)
 
 		rollups_ranking.value = {
 			ranking: rollupsRanking.value,
 			top_rollup: {
 				slug: maxRankEntry.slug,
 				name: capitalizeAndReplace(maxRankEntry.slug, "-"),
-				rank: maxRankEntry.rank
+				rank: maxRankEntry.rank,
 			},
 			last_update: DateTime.now().ts,
 		}
@@ -138,5 +148,5 @@ export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
 })
 
 if (import.meta.hot) {
-	import.meta.hot.accept(acceptHMRUpdate(useRollupsRankingStore, import.meta.hot))
+	import.meta.hot.accept(acceptHMRUpdate(useActivityStore, import.meta.hot))
 }

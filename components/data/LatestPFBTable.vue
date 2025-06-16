@@ -1,7 +1,4 @@
 <script setup>
-/** Vendor */
-import { DateTime } from "luxon"
-
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
@@ -9,8 +6,7 @@ import Spinner from "@/components/ui/Spinner.vue"
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { useServerURL } from "@/services/config"
-import { comma, space, splitAddress, tia } from "@/services/utils"
+import { comma, space } from "@/services/utils"
 
 /** API */
 import { fetchLatestPFBs } from "@/services/api/tx"
@@ -23,7 +19,6 @@ const pfbs = ref([])
 const { data } = await fetchLatestPFBs()
 pfbs.value = data.value
 isLoading.value = false
-
 </script>
 
 <template>
@@ -108,7 +103,7 @@ isLoading.value = false
 								<NuxtLink :to="`/tx/${pfb.hash}`">
 									<Flex align="center" justify="center">
 										<Text size="12" weight="600" color="primary" class="table_column_alias">
-											{{ $getDisplayName('addresses', pfb.signers[0].hash) }}
+											{{ $getDisplayName("addresses", pfb.signers ? pfb.signers[0].hash : "") }}
 										</Text>
 									</Flex>
 								</NuxtLink>
@@ -155,7 +150,6 @@ isLoading.value = false
 }
 
 .pfb_body {
-	max-width: 500px;
 	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 

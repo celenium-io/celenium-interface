@@ -5,9 +5,9 @@ import Input from "@/components/ui/Input.vue"
 import Button from "@/components/ui/Button.vue"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
-import { useBookmarksStore } from "@/store/bookmarks"
-import { useNotificationsStore } from "@/store/notifications"
+import { useCacheStore } from "@/store/cache.store"
+import { useBookmarksStore } from "@/store/bookmarks.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const cacheStore = useCacheStore()
 const bookmarksStore = useBookmarksStore()
 const notificationsStore = useNotificationsStore()

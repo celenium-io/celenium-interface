@@ -7,7 +7,7 @@ import BlobsTable from "@/components/modules/block/BlobsTable.vue"
 import { fetchTxByHash } from "@/services/api/tx"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const route = useRoute()
@@ -29,7 +29,7 @@ defineOgImageComponent("TxImage", {
 })
 
 useHead({
-	title: `Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash.toUpperCase().slice(-4)} - Celestia Explorer`,
+	title: `Transaction ${tx.value?.hash.toUpperCase()} - Celenium`,
 	link: [
 		{
 			rel: "canonical",
@@ -45,9 +45,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: `Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash
-				.toUpperCase()
-				.slice(-4)} - Celestia Explorer`,
+			content: `Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash.toUpperCase().slice(-4)} - Celenium`,
 		},
 		{
 			property: "og:description",
@@ -61,9 +59,7 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: `Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash
-				.toUpperCase()
-				.slice(-4)} - Celestia Explorer`,
+			content: `Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash.toUpperCase().slice(-4)} - Celenium`,
 		},
 		{
 			name: "twitter:description",
@@ -80,7 +76,6 @@ useHead({
 
 const displayName = computed(() => {
 	const { $getDisplayName } = useNuxtApp()
-
 	return $getDisplayName("tx", tx.value?.hash)
 })
 </script>
