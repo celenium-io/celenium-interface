@@ -64,6 +64,9 @@ export const defaultEnums = {
 		"MsgUpdateClient",
 		"MsgUpgradeClient",
 		"MsgSubmitMisbehaviour",
+		"MsgRecoverClient",
+		"MsgIBCSoftwareUpgrade",
+		"MsgUpdateParams",
 		"MsgConnectionOpenInit",
 		"MsgConnectionOpenTry",
 		"MsgConnectionOpenAck",
@@ -77,7 +80,19 @@ export const defaultEnums = {
 		"MsgRecvPacket",
 		"MsgTimeout",
 		"MsgTimeoutOnClose",
-		"MsgAcknowledgement"
+		"MsgAcknowledgement",
+		"MsgSignalVersion",
+		"MsgTryUpgrade",
+		"MsgCreateMailbox",
+		"MsgProcessMessage",
+		"MsgSetMailbox",
+		"MsgCreateCollateralToken",
+		"MsgCreateSyntheticToken",
+		"MsgSetToken",
+		"MsgEnrollRemoteRouter",
+		"MsgUnrollRemoteRouter",
+		"MsgRemoteTransfer",
+		"MsgUpdateMinfeeParams"
 	],
 	event_type: [
 		"unknown",
@@ -153,7 +168,9 @@ export const defaultEnums = {
 	],
 	tags: [
 		"ZK",
-		"AI"
+		"AI",
+		"Meme",
+		"Gambling"
 	],
 	celestials_statuses: [
 		"NOT_VERIFIED",
