@@ -11,6 +11,10 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 /** API */
 import { fetchMainnetConstants, fetchMochaConstants, fetchArabicaConstants, fetchMammothConstants } from "@/services/api/main"
 
+/** Store */
+import { useNotificationsStore } from "@/store/notifications"
+const notificationsStore = useNotificationsStore()
+
 useHead({
 	title: "Celestia Constants - Celenium",
 	link: [
@@ -150,6 +154,19 @@ const DescriptionMap = {
 	evidence_max_bytes: "Maximum size in bytes used by evidence in a given block",
 	validator_pub_key_types: "The type of public key used by validators",
 }
+
+const handleCopy = (text) => {
+	window.navigator.clipboard.writeText(text)
+
+	notificationsStore.create({
+		notification: {
+			type: "info",
+			icon: "check",
+			title: "Successfully copied to clipboard",
+			autoDestroy: true,
+		},
+	})
+}
 </script>
 
 <template>
@@ -235,7 +252,11 @@ const DescriptionMap = {
 										</Tooltip>
 									</Flex>
 								</td>
-								<td v-for="network in networks">
+								<td
+									v-for="network in networks"
+									@click="constants[network].module[module] && handleCopy(constants[network].module[module][constant])"
+									:copyable="!!constants[network].module[module]"
+								>
 									<template v-if="constants[network].module[module]">
 										<Flex align="center" justify="between">
 											<Flex v-if="constantsToFormat.includes(constant)" direction="column" gap="6">
@@ -262,7 +283,7 @@ const DescriptionMap = {
 												</template>
 											</Tooltip>
 
-											<CopyButton :text="constants[network].module[module][constant]" :class="$style.copy_button" />
+											<Icon name="copy" size="12" color="tertiary" :class="$style.copy_button" />
 										</Flex>
 									</template>
 									<template v-else>
@@ -311,8 +332,6 @@ const DescriptionMap = {
 	}
 
 	& td {
-		/* height: 40px; */
-
 		border-bottom: 1px solid var(--outline-background);
 
 		padding: 12px;
@@ -331,9 +350,17 @@ const DescriptionMap = {
 			}
 		}
 
-		&:hover {
-			.copy_button {
-				opacity: 1;
+		&[copyable="true"] {
+			cursor: copy;
+
+			transition: background 0.2s ease;
+
+			&:hover {
+				background: var(--app-background);
+
+				.copy_button {
+					opacity: 1;
+				}
 			}
 		}
 	}
