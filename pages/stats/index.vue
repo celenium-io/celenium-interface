@@ -9,7 +9,7 @@ import EcosystemTab from "@/components/modules/stats/tabs/EcosystemTab.vue"
 import RollupsTab from "@/components/modules/stats/tabs/RollupsTab.vue"
 
 /** Services */
-import { capitilize } from "@/services/utils"
+import { capitilize, isMainnet } from "@/services/utils"
 
 useHead({
 	title: "Statistics - Celestia Explorer",
