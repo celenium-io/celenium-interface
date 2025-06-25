@@ -38,9 +38,9 @@ import {
 } from "@/services/api/address"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
-import { useEnumStore } from "@/store/enums"
-import { useModalsStore } from "@/store/modals"
+import { useCacheStore } from "@/store/cache.store"
+import { useEnumStore } from "@/store/enums.store"
+import { useModalsStore } from "@/store/modals.store"
 const cacheStore = useCacheStore()
 const enumStore = useEnumStore()
 const modalsStore = useModalsStore()

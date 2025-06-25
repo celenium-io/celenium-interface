@@ -1,9 +1,11 @@
 /** API */
 import { fetchConstants } from "@/services/api/main"
 
-import { useModalsStore } from "./modals"
+import { useModalsStore } from "./modals.store"
 
 export const useAppStore = defineStore("app", () => {
+	const version = ref()
+
 	const modalsStore = useModalsStore()
 
 	const network = ref()
@@ -53,6 +55,7 @@ export const useAppStore = defineStore("app", () => {
 	}
 
 	return {
+		version,
 		network,
 		constants,
 		initConstants,

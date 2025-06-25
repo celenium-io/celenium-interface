@@ -16,9 +16,9 @@ import Tooltip from "@/components/ui/Tooltip"
 import { space, formatBytes, comma, strToHex } from "@/services/utils"
 
 /** Stores */
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
-import { useNotificationsStore } from "@/store/notifications"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()

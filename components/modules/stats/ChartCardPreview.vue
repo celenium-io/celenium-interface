@@ -31,7 +31,7 @@ const dataLoaded = ref(false)
 const diff = computed(() => {
 	if (!dataLoaded.value) return undefined
 
-	const res = prevTotal.value ? ((currentTotal.value - prevTotal.value) / prevTotal.value) : 1
+	const res = prevTotal.value ? (currentTotal.value - prevTotal.value) / prevTotal.value : 1
 	return (res * 100).toFixed(1)
 })
 const chartEl = ref()
@@ -49,49 +49,59 @@ const getSeries = async () => {
 		baseTime.minus({
 			days: props.period.timeframe === "day" ? props.period.value * 2 + 1 : 0,
 			hours: props.period.timeframe === "hour" ? props.period.value * 2 + 1 : 0,
-			months: props.period.timeframe === "month"
-				? props.period.value * 2
-				: props.period.timeframe === "year"
+			months:
+				props.period.timeframe === "month"
+					? props.period.value * 2
+					: props.period.timeframe === "year"
 					? props.period.value * 24
 					: 0,
-		}).ts / 1_000
+		}).ts / 1_000,
 	)
 	let to = parseInt(
 		baseTime.minus({
 			days: props.period.timeframe === "day" ? 1 : 0,
 			hours: props.period.timeframe === "hour" ? 1 : 0,
-		}).ts / 1_000
+		}).ts / 1_000,
 	)
-	
-	if (props.series.aggregate === 'cumulative') {
+
+	if (props.series.aggregate === "cumulative") {
 		data = await fetchSeriesCumulative({
 			name: props.series.name,
-			period: 'day',
+			period: "day",
 			from: parseInt(
 				baseTime.minus({
 					days: 60,
-				}).ts / 1_000)
+				}).ts / 1_000,
+			),
 		})
 	} else if (props.series.name === "tvs") {
-		data = (await fetchTVS({
-			period: props.period.timeframe,
-			from: from,
-			to: to,
-		})).map(v => { return { time: v.time, value: v.close } }).reverse()
+		data = (
+			await fetchTVS({
+				period: props.period.timeframe,
+				from: from,
+				to: to,
+			})
+		)
+			.map((v) => {
+				return { time: v.time, value: v.close }
+			})
+			.reverse()
 	} else {
-		data = (await fetchSeries({
-			table: props.series.name,
-			period: props.period.timeframe === "year" ? "month" : props.period.timeframe,
-			from: from,
-			to: to,
-		})).reverse()
+		data = (
+			await fetchSeries({
+				table: props.series.name,
+				period: props.period.timeframe === "year" ? "month" : props.period.timeframe,
+				from: from,
+				to: to,
+			})
+		).reverse()
 	}
-	
+
 	const parseData = (slice) =>
 		slice.map((s) => ({
-		date: DateTime.fromISO(s.time).toJSDate(),
-		value: parseFloat(s.value),
-	}))
+			date: DateTime.fromISO(s.time).toJSDate(),
+			value: parseFloat(s.value),
+		}))
 
 	const dataLength = data.length
 	let prev = []
@@ -99,7 +109,7 @@ const getSeries = async () => {
 	const periodLength = props.period.timeframe === "year" ? 12 : props.period.value
 	const timeframe = props.period.timeframe
 
-	if (props.series.aggregate === 'cumulative') {
+	if (props.series.aggregate === "cumulative") {
 		current = parseData(data.slice(-30))
 		prev = parseData(data.slice(0, dataLength - 30))
 	} else {
@@ -109,7 +119,9 @@ const getSeries = async () => {
 		if (prev.length < current.length) {
 			const missing = current.length - prev.length
 			const extra = current.slice(0, missing).map((d) => ({
-				date: DateTime.fromJSDate(d.date).minus({ [`${timeframe}s`]: periodLength }).toJSDate(),
+				date: DateTime.fromJSDate(d.date)
+					.minus({ [`${timeframe}s`]: periodLength })
+					.toJSDate(),
 				value: 0,
 			}))
 
@@ -120,40 +132,38 @@ const getSeries = async () => {
 	currentData.value = current
 	prevData.value = prev
 
-	if (props.series.name === 'block_time') {
-		prevData.value = prevData.value
-			.map(el => {
-				return {
-					...el,
-					value: (el.value / 1_000).toFixed(2)
-				}
-			})
-		currentData.value = currentData.value
-			.map(el => {
-				return {
-					...el,
-					value: (el.value / 1_000).toFixed(2)
-				}
-			})
+	if (props.series.name === "block_time") {
+		prevData.value = prevData.value.map((el) => {
+			return {
+				...el,
+				value: (el.value / 1_000).toFixed(2),
+			}
+		})
+		currentData.value = currentData.value.map((el) => {
+			return {
+				...el,
+				value: (el.value / 1_000).toFixed(2),
+			}
+		})
 	}
 
-	if (props.series.name === 'tvs') {
+	if (props.series.name === "tvs") {
 		currentTotal.value = currentData.value[currentData.value.length - 1].value
 		prevTotal.value = prevData.value[prevData.value.length - 1].value
-	} else if (props.series.aggregate !== 'cumulative') {
+	} else if (props.series.aggregate !== "cumulative") {
 		currentTotal.value = currentData.value.reduce((sum, el) => {
-			return sum + +el.value;
-		}, 0);
+			return sum + +el.value
+		}, 0)
 
 		prevTotal.value = prevData.value.reduce((sum, el) => {
-			return sum + +el.value;
-		}, 0);		
+			return sum + +el.value
+		}, 0)
 	} else {
 		currentTotal.value = currentData.value.slice(-1)[0].value
 		prevTotal.value = prevData.value.slice(-1)[0].value
 	}
 
-	if (props.series.aggregate === 'avg') {
+	if (props.series.aggregate === "avg") {
 		prevTotal.value = prevTotal.value / prevData.value.length
 		currentTotal.value = currentTotal.value / currentData.value.length
 	}
@@ -182,7 +192,7 @@ const buildChart = (chart, data, color) => {
 	const MIN_VALUE = Math.min(Math.min(...prevData.value.map((s) => s.value)), Math.min(...currentData.value.map((s) => s.value)))
 
 	function formatDate(date) {
-		if (props.period.timeframe === 'hour' && props.series.aggregate !== 'cumulative') {
+		if (props.period.timeframe === "hour" && props.series.aggregate !== "cumulative") {
 			return DateTime.fromJSDate(date).toFormat("HH:mm, LLL dd")
 		}
 
@@ -191,17 +201,17 @@ const buildChart = (chart, data, color) => {
 
 	function formatValue(value) {
 		switch (props.series.units) {
-			case 'bytes':
+			case "bytes":
 				return formatBytes(value)
-			case 'utia':
-				if (props.series.name === 'gas_price') {
+			case "utia":
+				if (props.series.name === "gas_price") {
 					return `${truncateDecimalPart(value, 4)} UTIA`
 				}
 
 				return `${tia(value, 2)} TIA`
-			case 'seconds':
+			case "seconds":
 				return `${truncateDecimalPart(value / 1_000, 3)}s`
-			case 'usd':
+			case "usd":
 				return `${abbreviate(value)} $`
 			default:
 				return comma(value)
@@ -232,57 +242,53 @@ const buildChart = (chart, data, color) => {
 		.on("pointerenter pointermove", onPointerMoved)
 		.on("pointerleave", onPointerleft)
 		.on("touchstart", (event) => event.preventDefault())
-	
+
 	// This allows to find the closest X index of the mouse:
-	const bisect = d3.bisector(function(d) { return d.date; }).center
+	const bisect = d3.bisector(function (d) {
+		return d.date
+	}).center
 
 	const cFocus = svg
-		.append('g')
-		.append('circle')
-			.style("fill", "var(--brand)")
-			.attr('r', 4)
-			.style("opacity", 0)
-			.style("transition", "all 0.2s ease" )
+		.append("g")
+		.append("circle")
+		.style("fill", "var(--brand)")
+		.attr("r", 4)
+		.style("opacity", 0)
+		.style("transition", "all 0.2s ease")
 
 	const pFocus = svg
-		.append('g')
-		.append('circle')
-			.style("fill", "var(--txt-tertiary)")
-			.attr('r', 4)
-			.style("opacity", 0)
-			.style("transition", "all 0.2s ease" )
+		.append("g")
+		.append("circle")
+		.style("fill", "var(--txt-tertiary)")
+		.attr("r", 4)
+		.style("opacity", 0)
+		.style("transition", "all 0.2s ease")
 
 	const focusLine = svg
-		.append('g')
-		.append('line')
-			.style("stroke-width", 2)
-			.style("stroke", "var(--op-15)")
-			.style("fill", "none")
-			.style("opacity", 0)
+		.append("g")
+		.append("line")
+		.style("stroke-width", 2)
+		.style("stroke", "var(--op-15)")
+		.style("fill", "none")
+		.style("opacity", 0)
 
 	function onPointerMoved(event) {
 		tooltip.value.show = true
-		
+
 		cFocus.style("opacity", 1)
 		focusLine.style("opacity", 1)
 
 		// Recover coordinate we need
 		let idx = bisect(currentData.value, x.invert(d3.pointer(event)[0]))
 		let selectedCData = currentData.value[idx]
-		cFocus
-			.attr("cx", x(selectedCData.date))
-			.attr("cy", y(selectedCData.value))
-		focusLine
-			.attr("x1", x(selectedCData.date))
-			.attr("y1", 0)
-			.attr("x2", x(selectedCData.date))
-			.attr("y2", height)
-		
+		cFocus.attr("cx", x(selectedCData.date)).attr("cy", y(selectedCData.value))
+		focusLine.attr("x1", x(selectedCData.date)).attr("y1", 0).attr("x2", x(selectedCData.date)).attr("y2", height)
+
 		let tooltipWidth = tooltipEl.value?.wrapper ? tooltipEl.value?.wrapper?.getBoundingClientRect()?.width : 100
 		let xPosition = x(selectedCData.date)
-		tooltip.value.x = (xPosition + tooltipWidth) > width + 5 ? xPosition - tooltipWidth - 15 : xPosition + 15
+		tooltip.value.x = xPosition + tooltipWidth > width + 5 ? xPosition - tooltipWidth - 15 : xPosition + 15
 		tooltip.value.y = Math.min(y(selectedCData.value), height - 100)
-		
+
 		tooltip.value.data[0] = {
 			date: formatDate(selectedCData.date),
 			value: formatValue(selectedCData.value),
@@ -292,18 +298,14 @@ const buildChart = (chart, data, color) => {
 		if (prevData.value.length) {
 			let selectedPData = prevData.value[idx]
 
-			pFocus
-				.attr("cx", x(selectedPData.date))
-				.attr("cy", y(selectedPData.value))
-				.style("opacity", 1)
-			
+			pFocus.attr("cx", x(selectedPData.date)).attr("cy", y(selectedPData.value)).style("opacity", 1)
+
 			tooltip.value.data[1] = {
 				date: formatDate(selectedPData.realDate),
 				value: formatValue(selectedPData.value),
 				color: "var(--txt-tertiary)",
 			}
 		}
-
 	}
 
 	function onPointerleft() {
@@ -314,12 +316,8 @@ const buildChart = (chart, data, color) => {
 	}
 
 	/** Default Horizontal Lines  */
-	svg.append("path")
-		.attr("fill", "none")
-		.attr("stroke", "var(--op-5)")
-		.attr("stroke-width", 1)
-		.attr("d", `M${0},${0} L${width},${0}`)
-	
+	svg.append("path").attr("fill", "none").attr("stroke", "var(--op-5)").attr("stroke-width", 1).attr("d", `M${0},${0} L${width},${0}`)
+
 	svg.append("path")
 		.attr("fill", "none")
 		.attr("stroke", "var(--op-5)")
@@ -331,9 +329,10 @@ const buildChart = (chart, data, color) => {
 		.attr("stroke", "var(--op-5)")
 		.attr("stroke-width", 1)
 		.attr("d", `M${0},${height - marginBottom - 6} L${width},${height - marginBottom - 6}`)
-	
+
 	/** Chart Lines */
-	const path = svg.append("path")
+	const path = svg
+		.append("path")
 		.attr("fill", "none")
 		.attr("stroke", color)
 		.attr("stroke-width", 2)
@@ -341,25 +340,17 @@ const buildChart = (chart, data, color) => {
 		.attr("stroke-linejoin", "round")
 		.attr("d", line(data.filter((item) => item.value !== null)))
 
-	// svg.append("path")
-	// 	.attr("fill", "none")
-	// 	.attr("stroke", "transparent")
-	// 	.attr("stroke-width", 2)
-	// 	.attr("stroke-linecap", "round")
-	// 	.attr("stroke-linejoin", "round")
-	// 	.attr("d", line(data.filter((item) => item.value === null).map((item) => ({ ...item, value: 0 }))))
-
 	if (chart.children[0]) chart.children[0].remove()
 	chart.append(svg.node())
 
-	const totalLength = path.node().getTotalLength();
+	const totalLength = path.node().getTotalLength()
 
 	path.attr("stroke-dasharray", `${totalLength} ${totalLength}`)
 		.attr("stroke-dashoffset", totalLength)
 		.transition()
 		.duration(1_000)
 		.ease(d3.easeLinear)
-		.attr("stroke-dashoffset", 0);
+		.attr("stroke-dashoffset", 0)
 }
 
 const drawChart = async () => {
@@ -396,39 +387,41 @@ watch(
 					</Flex>
 				</NuxtLink>
 			</Flex>
-			
+
 			<Flex v-if="series.units === 'seconds'" align="end" gap="10" justify="start" wide>
 				<Text size="16" weight="600" color="primary"> {{ `~${Math.round(currentTotal)}s` }} </Text>
-				<Text size="14" weight="600" color="tertiary"> {{ `~${Math.round(prevTotal)}s previous ${period.title.replace('Last ', '')}` }} </Text>
+				<Text size="14" weight="600" color="tertiary">
+					{{ `~${Math.round(prevTotal)}s previous ${period.title.replace("Last ", "")}` }}
+				</Text>
 			</Flex>
 			<Flex v-else-if="series.units === 'utia'" align="end" gap="10" justify="start" wide>
-				<Text size="16" weight="600" color="primary"> {{ series.name === 'gas_price' ? `${currentTotal.toFixed(4)} UTIA` : `${tia(currentTotal, 2)} TIA` }} </Text>
-				<Text size="14" weight="600" color="tertiary"> {{ series.name === 'gas_price' ? `${prevTotal.toFixed(4)} UTIA` : `${tia(prevTotal, 2)} TIA` }} </Text>
+				<Text size="16" weight="600" color="primary">
+					{{ series.name === "gas_price" ? `${currentTotal.toFixed(4)} UTIA` : `${tia(currentTotal, 2)} TIA` }}
+				</Text>
+				<Text size="14" weight="600" color="tertiary">
+					{{ series.name === "gas_price" ? `${prevTotal.toFixed(4)} UTIA` : `${tia(prevTotal, 2)} TIA` }}
+				</Text>
 			</Flex>
 			<Flex v-else-if="series.units === 'usd'" align="end" gap="10" justify="start" wide>
 				<Text size="16" weight="600" color="primary"> {{ `${abbreviate(currentTotal)} $` }} </Text>
 				<Text size="14" weight="600" color="tertiary"> {{ `${abbreviate(prevTotal)} $` }} </Text>
 			</Flex>
 			<Flex v-else align="end" gap="10" justify="start" wide>
-				<Text size="16" weight="600" color="primary"> {{ series.units === 'bytes' ? formatBytes(currentTotal) : comma(currentTotal) }} </Text>
+				<Text size="16" weight="600" color="primary">
+					{{ series.units === "bytes" ? formatBytes(currentTotal) : comma(currentTotal) }}
+				</Text>
 
-				<Text
-					v-if="series.aggregate === 'cumulative'"
-					size="14"
-					weight="600"
-					color="tertiary"
-				>
+				<Text v-if="series.aggregate === 'cumulative'" size="14" weight="600" color="tertiary">
 					{{ `${formatBytes(prevTotal)} previous month` }}
 				</Text>
-				<Text
-					v-else
-					size="14"
-					weight="600"
-					color="tertiary"
-				>
-					{{ `${series.units === 'bytes' ? formatBytes(prevTotal) : abbreviate(prevTotal)} previous ${period.title.replace('Last ', '')}` }}
+				<Text v-else size="14" weight="600" color="tertiary">
+					{{
+						`${series.units === "bytes" ? formatBytes(prevTotal) : abbreviate(prevTotal)} previous ${period.title.replace(
+							"Last ",
+							"",
+						)}`
+					}}
 				</Text>
-				
 			</Flex>
 		</Flex>
 
@@ -443,16 +436,9 @@ watch(
 						gap="12"
 						:class="$style.tooltip"
 					>
-						<Flex
-							v-for="(d, index) in tooltip.data"
-							align="start"
-							direction="column"
-							wide
-							gap="8"
-						>
+						<Flex v-for="(d, index) in tooltip.data" align="start" direction="column" wide gap="8">
 							<Flex align="center" justify="between" gap="12" wide>
 								<Text size="12" weight="600" color="primary"> {{ d.value }} </Text>
-									
 
 								<Flex align="center" justify="end" gap="6">
 									<Text size="12" weight="500" color="tertiary">
@@ -462,7 +448,7 @@ watch(
 									<div
 										:class="$style.legend"
 										:style="{
-											background: d.color
+											background: d.color,
 										}"
 									/>
 								</Flex>
@@ -482,18 +468,24 @@ watch(
 					{{ DateTime.fromJSDate(currentData[0]?.date).toFormat("LLL dd") }}
 				</Text>
 				<Text v-else size="11" weight="600" color="tertiary">
-					{{ DateTime.now().minus({
-							days: period.timeframe === "day" ? period.value : 0,
-							hours: period.timeframe === "hour" ? period.value : 0,
-						}).toFormat("LLL dd")
+					{{
+						DateTime.now()
+							.minus({
+								days: period.timeframe === "day" ? period.value : 0,
+								hours: period.timeframe === "hour" ? period.value : 0,
+							})
+							.toFormat("LLL dd")
 					}}
 				</Text>
 
 				<Text size="11" weight="600" color="tertiary">
-					{{ DateTime.now().minus({
-							days: period.timeframe === "day" ? 1 : 0,
-							hours: period.timeframe === "hour" ? 1 : 0,
-						}).toFormat("LLL dd")
+					{{
+						DateTime.now()
+							.minus({
+								days: period.timeframe === "day" ? 1 : 0,
+								hours: period.timeframe === "hour" ? 1 : 0,
+							})
+							.toFormat("LLL dd")
 					}}
 				</Text>
 			</Flex>
@@ -512,15 +504,14 @@ watch(
 }
 
 .link {
-    transition: fill 0.3s ease;
+	transition: fill 0.3s ease;
 
-    &:hover {
-        fill: var(--txt-secondary)
-    }
+	&:hover {
+		fill: var(--txt-secondary);
+	}
 }
 
 .header {
-
 }
 
 .chart_wrapper {

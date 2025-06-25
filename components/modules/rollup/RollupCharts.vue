@@ -20,7 +20,7 @@ import { fetchRollupSeries } from "@/services/api/stats"
 import { fetchRollups, fetchRollupTVL } from "@/services/api/rollup"
 
 /** Store */
-import { useSettingsStore } from "@/store/settings"
+import { useSettingsStore } from "@/store/settings.store"
 const settingsStore = useSettingsStore()
 
 const props = defineProps({

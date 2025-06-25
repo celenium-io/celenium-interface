@@ -5,6 +5,7 @@ import * as Sentry from "@sentry/vue"
 /** Services */
 import Socket from "@/services/api/socket"
 import amp from "@/services/amp"
+import { watchForUpdate } from "@/services/version"
 
 /** Components */
 import ModalsManager from "@/components/modals/ModalsManager.vue"
@@ -16,14 +17,14 @@ import { fetchHead } from "@/services/api/main"
 import { fetchLatestBlocks } from "@/services/api/block"
 
 /** Store */
-import { useNodeStore } from "@/store/node"
-import { useAppStore } from "@/store/app"
-import { useBookmarksStore } from "@/store/bookmarks"
-import { useSettingsStore } from "@/store/settings"
-import { useEnumStore } from "@/store/enums"
-import { useLegalStore } from "@/store/legal"
-import { useNotificationsStore } from "@/store/notifications"
-import { useRollupsRankingStore } from "@/store/rollupsrank"
+import { useNodeStore } from "@/store/node.store"
+import { useAppStore } from "@/store/app.store"
+import { useBookmarksStore } from "@/store/bookmarks.store"
+import { useSettingsStore } from "@/store/settings.store"
+import { useEnumStore } from "@/store/enums.store"
+import { useLegalStore } from "@/store/legal.store"
+import { useNotificationsStore } from "@/store/notifications.store"
+import { useActivityStore } from "@/store/activity.store"
 const nodeStore = useNodeStore()
 const appStore = useAppStore()
 const bookmarksStore = useBookmarksStore()
@@ -31,7 +32,7 @@ const settingsStore = useSettingsStore()
 const enumStore = useEnumStore()
 const legalStore = useLegalStore()
 const notificationsStore = useNotificationsStore()
-const rollupsRankingStore = useRollupsRankingStore()
+const activityStore = useActivityStore()
 
 bookmarksStore.$subscribe((mutation, state) => {
 	localStorage.setItem("bookmarks", JSON.stringify(state.bookmarks))
@@ -42,13 +43,52 @@ settingsStore.$subscribe((mutation, state) => {
 legalStore.$subscribe((mutation, state) => {
 	localStorage.setItem("legal", JSON.stringify(state.legal))
 })
-rollupsRankingStore.$subscribe((mutation, state) => {
+activityStore.$subscribe((mutation, state) => {
 	localStorage.setItem("rollups_ranking", JSON.stringify(state.rollups_ranking))
 })
 
 appStore.initConstants()
 
+let watchInterval = null
+
 onMounted(async () => {
+	/**
+	 * Watch for package.json->version and notify users about the new version
+	 */
+	appStore.version = (await $fetch("/api/version")).version
+	if (!import.meta.dev)
+		watchInterval = watchForUpdate(appStore.version, (newVersion) => {
+			clearInterval(watchInterval)
+			notificationsStore.create({
+				notification: {
+					type: "success",
+					icon: "info",
+					title: "New update is available",
+					description: "Refresh the page to get the latest update with new features & bug fixes.",
+					autoDestroy: false,
+					irremovable: true,
+					actions: [
+						{
+							name: "Refresh",
+							icon: "refresh",
+							callback: () => {
+								location.reload()
+							},
+						},
+						{
+							name: "Changelog",
+							icon: "menu",
+							callback: () => {
+								window
+									.open(`https://github.com/celenium-io/celenium-interface/releases/tag/v${newVersion}`, "_blank")
+									.focus()
+							},
+						},
+					],
+				},
+			})
+		})
+
 	if (localStorage.bookmarks) {
 		bookmarksStore.bookmarks = JSON.parse(localStorage.bookmarks)
 	}
@@ -58,7 +98,7 @@ onMounted(async () => {
 	}
 
 	settingsStore.init()
-	rollupsRankingStore.init()
+	activityStore.init()
 
 	const runtimeConfig = useRuntimeConfig()
 	amp.init(runtimeConfig.public.AMP)
@@ -118,6 +158,10 @@ onMounted(async () => {
 	window.onbeforeunload = function () {
 		Socket.close()
 	}
+})
+
+onBeforeUnmount(() => {
+	clearInterval(watchInterval)
 })
 </script>
 

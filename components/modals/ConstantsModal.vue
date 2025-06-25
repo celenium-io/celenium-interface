@@ -7,7 +7,7 @@ import Input from "@/components/ui/Input.vue"
 import { fetchConstants } from "@/services/api/main"
 
 /** Store */
-import { useNotificationsStore } from "@/store/notifications"
+import { useNotificationsStore } from "@/store/notifications.store"
 const notificationsStore = useNotificationsStore()
 
 const emit = defineEmits(["onClose"])

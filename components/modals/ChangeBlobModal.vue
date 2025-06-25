@@ -5,7 +5,7 @@ import Input from "@/components/ui/Input.vue"
 import Button from "@/components/ui/Button.vue"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const emit = defineEmits(["onClose"])

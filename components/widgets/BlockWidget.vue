@@ -12,7 +12,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { fetchAvgBlockTime } from "@/services/api/block"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 const lastBlock = computed(() => appStore.latestBlocks[0])

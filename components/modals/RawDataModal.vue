@@ -16,8 +16,8 @@ import Modal from "@/components/ui/Modal.vue"
 import Button from "@/components/ui/Button.vue"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
-import { useNotificationsStore } from "@/store/notifications"
+import { useCacheStore } from "@/store/cache.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const cacheStore = useCacheStore()
 const notificationsStore = useNotificationsStore()
 

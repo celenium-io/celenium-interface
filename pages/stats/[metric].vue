@@ -24,10 +24,10 @@ import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Popover from "@/components/ui/Popover.vue"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
-import { useNotificationsStore } from "@/store/notifications"
-import { useSettingsStore } from "@/store/settings"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
+import { useNotificationsStore } from "@/store/notifications.store"
+import { useSettingsStore } from "@/store/settings.store"
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
@@ -323,7 +323,6 @@ const handleDatePickerUpdate = async (event) => {
 
 const handleTimelineUpdate = async (event) => {
 	await handleUpdateDate(event)
-	// selectedPeriod.value = {}
 }
 
 const handleUpdateDate = async (event) => {

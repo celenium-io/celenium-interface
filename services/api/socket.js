@@ -2,7 +2,7 @@
 import { useSocketURL } from "../config"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 
 export let socket = null
 
@@ -12,7 +12,7 @@ export const init = () => {
 	const startWs = () => {
 		socket = new WebSocket(useSocketURL())
 
-		socket.addEventListener("open", (e) => {
+		socket.addEventListener("open", () => {
 			/** Head Subscription */
 			socket.send(
 				JSON.stringify({

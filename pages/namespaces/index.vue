@@ -13,7 +13,7 @@ import { space, formatBytes, comma, getNamespaceID } from "@/services/utils"
 import { fetchNamespaces } from "@/services/api/namespace"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 useHead({

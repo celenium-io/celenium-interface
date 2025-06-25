@@ -19,9 +19,9 @@ import { fetchTxByHash } from "@/services/api/tx"
 /**
  * Store
  */
-import { useAppStore } from "@/store/app"
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
+import { useAppStore } from "@/store/app.store"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
 const appStore = useAppStore()
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
@@ -39,34 +39,34 @@ const tx = ref()
 const details = computed(() => {
 	let detailsRes = []
 	switch (cacheStore.tx.type) {
-		case 'send':
-			detailsRes.processing = 'Sending...'
-			detailsRes.success = 'Successfuly sent'
-			detailsRes.destination = 'Destination Wallet'
-			detailsRes.icon = 'address'
-
-			return detailsRes
-	
-		case 'pfb':
-			detailsRes.processing = 'Submiting Blob...'
-			detailsRes.success = 'Successfuly submited'
-			detailsRes.destination = 'Namespace'
-			detailsRes.icon = 'namespace'
+		case "send":
+			detailsRes.processing = "Sending..."
+			detailsRes.success = "Successfuly sent"
+			detailsRes.destination = "Destination Wallet"
+			detailsRes.icon = "address"
 
 			return detailsRes
 
-		case 'staking':
-			detailsRes.processing = 'Sending...'
-			detailsRes.success = 'Successfuly delegated'
-			detailsRes.destination = 'Validator'
-			detailsRes.icon = 'validator'
+		case "pfb":
+			detailsRes.processing = "Submiting Blob..."
+			detailsRes.success = "Successfuly submited"
+			detailsRes.destination = "Namespace"
+			detailsRes.icon = "namespace"
+
+			return detailsRes
+
+		case "staking":
+			detailsRes.processing = "Sending..."
+			detailsRes.success = "Successfuly delegated"
+			detailsRes.destination = "Validator"
+			detailsRes.icon = "validator"
 
 			return detailsRes
 
 		default:
-			detailsRes.processing = 'Processing...'
-			detailsRes.success = 'Successfuly executed tx'
-			detailsRes.destination = 'Destination address'
+			detailsRes.processing = "Processing..."
+			detailsRes.success = "Successfuly executed tx"
+			detailsRes.destination = "Destination address"
 
 			return detailsRes
 	}

@@ -1,0 +1,6 @@
+{
+	"rules": {
+		"no-async-promise-executor": "off"
+	},
+	"ignorePatterns": ["services/lumina-node-wasm/**", "services/utils/blob.js", "services/utils/blobtx.js"]
+}

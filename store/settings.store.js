@@ -1,5 +1,4 @@
 /** Vendor */
-import { reactive } from "vue"
 import { defineStore, acceptHMRUpdate } from "pinia"
 
 export const useSettingsStore = defineStore("settings", () => {

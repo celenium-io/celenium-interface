@@ -68,7 +68,7 @@ watch(
 )
 
 const getInputType = computed(() => {
-	if (!!props.type) return props.type
+	if (props.type) return props.type
 	return "text"
 })
 

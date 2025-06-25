@@ -14,7 +14,7 @@ import LineChart from "@/components/modules/stats/LineChart.vue"
 import BarplotStakedChart from "@/components/modules/stats/BarplotStakedChart.vue"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const emit = defineEmits(["onClose"])
@@ -41,7 +41,7 @@ watch(
 
 <template>
 	<Modal :show="show" @onClose="emit('onClose')" fullscreen disable-trap>
-        <LineChart v-if="chartView === 'line'" :series="series" />
+		<LineChart v-if="chartView === 'line'" :series="series" />
 		<BarChart v-else-if="chartView === 'bar'" :series="series" />
 		<BarplotStakedChart v-else-if="chartView === 'barplot-stacked'" :series="series" />
 	</Modal>

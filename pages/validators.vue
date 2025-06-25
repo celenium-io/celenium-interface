@@ -12,7 +12,7 @@ import { capitilize, comma, numToPercent, shareOfTotalString, splitAddress } fro
 import { fetchValidators, fetchValidatorsCount } from "@/services/api/validator"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 useHead({

@@ -9,7 +9,7 @@ import BlocksTimelineTable from "@/components/data/BlocksTimeline/BlocksTimeline
 import { parseRedirectQueryError } from "@/services/notifications"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 const route = useRoute()

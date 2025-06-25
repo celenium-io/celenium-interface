@@ -7,7 +7,7 @@ import BlobsTable from "@/components/modules/block/BlobsTable.vue"
 import { fetchTxByHash } from "@/services/api/tx"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const route = useRoute()

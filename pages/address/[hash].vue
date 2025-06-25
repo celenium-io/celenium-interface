@@ -8,7 +8,7 @@ import AddressCharts from "@/components/modules/address/AddressCharts.vue"
 import { fetchAddressByHash } from "@/services/api/address"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 
 const cacheStore = useCacheStore()
 

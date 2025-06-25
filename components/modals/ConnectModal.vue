@@ -10,8 +10,8 @@ import { getNetworkName, isMainnet } from "@/services/utils/general"
 import amp from "@/services/amp"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useNotificationsStore } from "@/store/notifications"
+import { useAppStore } from "@/store/app.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const appStore = useAppStore()
 const notificationsStore = useNotificationsStore()
 

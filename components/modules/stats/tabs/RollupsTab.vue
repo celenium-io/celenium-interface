@@ -23,7 +23,7 @@ import { capitilize, capitalizeAndReplace, isMainnet } from "@/services/utils"
 import { fetchRollups, fetchRollupsDailyStats } from "@/services/api/rollup.js"
 
 /** Stores */
-import { useEnumStore } from "@/store/enums"
+import { useEnumStore } from "@/store/enums.store"
 const enumStore = useEnumStore()
 
 const emit = defineEmits(["onUpdateSection"])

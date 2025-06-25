@@ -130,7 +130,6 @@ const getSeries = async () => {
 const barWrapperEl = ref(null)
 const barWrapperWidth = ref(0)
 const colors = {
-	// mint: ["var(--mint)", "#46a78e", "var(--dark-mint)", "var(--op-10)"],
 	mint: ["var(--mint)", "#50bfa3", "#327766", "var(--dark-mint)", "var(--op-10)"],
 	white: ["var(--txt-primary)", "var(--txt-secondary)", "var(--txt-tertiary)", "var(--op-10)", "var(--op-5)"],
 }
@@ -158,13 +157,6 @@ onMounted(async () => {
 
 	await getSeries()
 })
-
-// watch(
-// 	() => props.period,
-// 	async () => {
-// 		await drawChart()
-// 	},
-// )
 </script>
 
 <template>
