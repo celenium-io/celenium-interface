@@ -17,7 +17,7 @@ import Checkbox from "@/components/ui/Checkbox.vue"
 import TablePlaceholderView from "@/components/shared/TablePlaceholderView.vue"
 
 /** Store */
-import { useEnumStore } from "@/store/enums"
+import { useEnumStore } from "@/store/enums.store"
 const enumStore = useEnumStore()
 
 const emit = defineEmits(["onPrevPage", "onNextPage", "updatePage", "updateFilters", "onFiltersReset"])

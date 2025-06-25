@@ -9,7 +9,7 @@ import { isMainnet } from "@/services/utils"
 import Badge from "@/components/ui/Badge.vue"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 const props = defineProps({

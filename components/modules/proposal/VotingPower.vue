@@ -6,8 +6,8 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { comma } from "@/services/utils"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useEnumStore } from "@/store/enums"
+import { useAppStore } from "@/store/app.store"
+import { useEnumStore } from "@/store/enums.store"
 const appStore = useAppStore()
 const enumStore = useEnumStore()
 

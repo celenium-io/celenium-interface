@@ -19,8 +19,8 @@ import { getProposalIcon, getProposalIconColor, getProposalType, getProposalType
 import { fetchProposalVotes } from "@/services/api/proposal"
 
 /** Store */
-import { useModalsStore } from "@/store/modals"
-import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals.store"
+import { useCacheStore } from "@/store/cache.store"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
 

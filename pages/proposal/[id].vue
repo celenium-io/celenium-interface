@@ -8,7 +8,7 @@ import ProposalDescription from "@/components/modules/proposal/ProposalDescripti
 import { fetchProposalById } from "@/services/api/proposal"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const route = useRoute()
