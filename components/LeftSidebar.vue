@@ -20,6 +20,8 @@ const appStore = useAppStore()
 const nodeStore = useNodeStore()
 const modalsStore = useModalsStore()
 
+const developerMode = useCookie("developerMode", { default: () => false })
+
 const head = computed(() => appStore.lastHead)
 
 const mainLinks = reactive([
@@ -153,6 +155,7 @@ const toolsLinks = reactive([
 		path: "https://terminal.celenium.io",
 		external: true,
 		new: true,
+		hide: !developerMode.value,
 	},
 	{
 		icon: "drop",
@@ -182,6 +185,15 @@ const toolsLinks = reactive([
 		path: "/bookmarks",
 	},
 ])
+
+/** TEMP */
+watch(
+	() => developerMode.value,
+	() => {
+		const terminalLinkIdx = toolsLinks.findIndex((l) => l.name === "Terminal")
+		toolsLinks[terminalLinkIdx].hide = !developerMode.value
+	},
+)
 
 const handleNavigate = (url) => {
 	window.location.replace(url)
@@ -221,7 +233,7 @@ const handleOnClose = () => {
 			</Flex>
 
 			<Flex direction="column" gap="2">
-				<NavLink v-for="link in mainLinks" :link="link" @onClose="handleOnClose" />
+				<NavLink v-for="link in mainLinks.filter((l) => !l.hide)" :link="link" @onClose="handleOnClose" />
 			</Flex>
 
 			<Flex direction="column" gap="2">
@@ -236,7 +248,7 @@ const handleOnClose = () => {
 				</Flex>
 
 				<Flex v-if="!isModularLinksCollapsed" direction="column" gap="2">
-					<NavLink v-for="link in modularLinks" :link="link" @onClose="handleOnClose" />
+					<NavLink v-for="link in modularLinks.filter((l) => !l.hide)" :link="link" @onClose="handleOnClose" />
 				</Flex>
 			</Flex>
 
@@ -252,7 +264,7 @@ const handleOnClose = () => {
 				</Flex>
 
 				<Flex v-if="!isToolsLinkCollapsed" direction="column" gap="2">
-					<NavLink v-for="link in toolsLinks" :link="link" @onClose="handleOnClose" />
+					<NavLink v-for="link in toolsLinks.filter((l) => !l.hide)" :link="link" @onClose="handleOnClose" />
 				</Flex>
 			</Flex>
 

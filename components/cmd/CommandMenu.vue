@@ -38,6 +38,7 @@ const notificationsStore = useNotificationsStore()
 
 const appConfig = useAppConfig()
 
+const developerMode = useCookie("developerMode", { default: () => false })
 const theme = useCookie("theme", { default: () => "dark" })
 const showPromoBackground = useCookie("showPromoBackground", { default: () => true })
 
@@ -60,7 +61,6 @@ const searchTerm = ref("")
 
 const bounce = ref(false)
 
-const developerMode = ref(false)
 const featurePreviewMode = ref(false)
 
 const mode = ref(null)
@@ -847,7 +847,6 @@ const rawOtherActions = [
 		subtitle: "Command",
 		runText: "Toggle",
 		callback: () => {
-			localStorage.developer = !localStorage.developer
 			developerMode.value = !developerMode.value
 
 			notificationsStore.create({
@@ -1067,7 +1066,6 @@ const handleShareCopyData = (data) => {
 }
 
 onMounted(() => {
-	developerMode.value = localStorage.developer
 	featurePreviewMode.value = localStorage.featurePreview
 
 	root = document.querySelector("html")
