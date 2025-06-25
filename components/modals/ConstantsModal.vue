@@ -61,8 +61,8 @@ const searchTerm = ref("")
 const rawModules = ref({})
 
 onMounted(async () => {
-	const data = await fetchConstants()
-	rawModules.value = data.module
+	const { data } = await fetchConstants()
+	rawModules.value = data.value.module
 })
 
 const modules = computed(() => {
