@@ -127,7 +127,7 @@ export const STATS_SERIES = [
 		],
 	},
 	{
-		group: 'Ecosystem',
+		group: 'Nodes',
 		series: [
 			{
 				name: 'nodetype',

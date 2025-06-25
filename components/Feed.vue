@@ -10,7 +10,7 @@ import { getRankCategory } from "@/services/constants/rollups"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** API */
-import { fetchPriceSeries } from "@/services/api/stats"
+import { fetchPriceSeries, fetchTVS } from "@/services/api/stats"
 
 /** Store */
 import { useAppStore } from "@/store/app.store"
@@ -38,13 +38,14 @@ const topRollup = computed(() => {
 	}
 })
 
+const isLoading = ref(true)
 const series = ref([])
 const price = reactive({
 	value: 0,
 	diff: 0,
 	side: null,
 })
-
+const tvs = ref(0)
 onMounted(async () => {
 	const dataSeries = await fetchPriceSeries({ from: parseInt(DateTime.now().minus({ days: 3 }).ts / 1_000) })
 	series.value = dataSeries
@@ -58,6 +59,13 @@ onMounted(async () => {
 		side = price.value - prevDayClosePrice > 0 ? "rise" : "fall"
 	}
 	price.side = side
+
+	const _tvs = await fetchTVS({ period: null })
+	if (_tvs.value) {
+		tvs.value = _tvs.value
+	}
+
+	isLoading.value = false
 })
 </script>
 
@@ -132,10 +140,10 @@ onMounted(async () => {
 					<Flex align="center" gap="6" :class="$style.stat">
 						<Icon name="coins" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
-							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Supply:</Text>
+							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">TVS:</Text>
 
-							<Text v-if="head.total_supply" size="12" weight="600" noWrap :class="$style.value">
-								{{ abbreviate(totalSupply, 2) }} TIA
+							<Text v-if="!isLoading" size="12" weight="600" noWrap :class="$style.value">
+								{{ abbreviate(tvs, 2) }} USD
 							</Text>
 							<Skeleton v-else w="40" h="12" />
 						</Flex>
@@ -143,8 +151,8 @@ onMounted(async () => {
 
 					<template #content>
 						<Flex align="center" justify="between" gap="8">
-							<Text size="12" weight="500" color="tertiary">Total Supply:</Text>
-							<Text size="12" weight="600" color="secondary"> {{ abbreviate(totalSupplyUSD, 2) }} USD </Text>
+							<Text size="12" weight="500" color="tertiary">Total Value Secured:</Text>
+							<Text size="12" weight="600" color="secondary"> {{ comma(tvs) }} USD </Text>
 						</Flex>
 					</template>
 				</Tooltip>
