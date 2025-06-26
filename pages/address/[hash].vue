@@ -1,6 +1,7 @@
 <script setup>
 /** Components: Modules */
 import AddressOverview from "@/components/modules/address/AddressOverview.vue"
+import VotesTable from "@/components/modules/address/VotesTable.vue"
 import AddressCharts from "@/components/modules/address/AddressCharts.vue"
 
 /** API */
@@ -95,10 +96,13 @@ const displayName = computed(() => {
 				:class="$style.breadcrumbs"
 			/>
 
-			<AddressOverview v-if="address" :address="address" />
+			<AddressOverview v-if="address" :address />
 		</Flex>
 
-		<AddressCharts v-if="address" :hash="address.hash" />
+		<template v-if="address">
+			<AddressCharts :hash="address.hash" />
+			<VotesTable :address />
+		</template>
 	</Flex>
 </template>
 

@@ -440,12 +440,16 @@ const handleNext = () => {
 				<Flex wrap="wrap" align="center" gap="8">
 					<Popover :open="isStatusPopoverOpen" @on-close="onStatusPopoverClose" width="200">
 						<Button @click="handleOpenStatusPopover" type="secondary" size="mini">
-							<Icon name="plus-circle" size="12" color="tertiary" />
-							<Text color="secondary">Status</Text>
+							<Icon
+								name="plus-circle"
+								size="12"
+								:color="Object.keys(filters.status).find((f) => filters.status[f]) ? 'brand' : 'tertiary'"
+							/>
+							<Text color="secondary">
+								Status<template v-if="Object.keys(filters.status).find((f) => filters.status[f])">: </template>
+							</Text>
 
 							<template v-if="Object.keys(filters.status).find((f) => filters.status[f])">
-								<div :class="$style.vertical_divider" />
-
 								<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
 									{{
 										Object.keys(filters.status)
@@ -460,7 +464,7 @@ const handleNext = () => {
 
 						<template #content>
 							<Flex direction="column" gap="12">
-								<Text size="12" weight="500" color="secondary">Filter by Status</Text>
+								<Text size="12" weight="600" color="secondary">Filter by Status</Text>
 
 								<Flex direction="column" gap="8">
 									<Checkbox v-model="filters.status.success">
@@ -478,12 +482,18 @@ const handleNext = () => {
 
 					<Popover :open="isMessageTypePopoverOpen" @on-close="onMessageTypePopoverClose" width="250">
 						<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini">
-							<Icon name="plus-circle" size="12" color="tertiary" />
-							<Text color="secondary">Message Type</Text>
+							<Icon
+								name="plus-circle"
+								size="12"
+								:color="Object.keys(filters.message_type).find((f) => filters.message_type[f]) ? 'brand' : 'tertiary'"
+							/>
+							<Text color="secondary"
+								>Message Type<template v-if="Object.keys(filters.message_type).find((f) => filters.message_type[f])"
+									>:</template
+								></Text
+							>
 
 							<template v-if="Object.keys(filters.message_type).find((f) => filters.message_type[f])">
-								<div :class="$style.vertical_divider" />
-
 								<Text size="12" weight="600" color="primary">
 									{{
 										Object.keys(filters.message_type).filter((f) => filters.message_type[f]).length < 3
@@ -505,7 +515,7 @@ const handleNext = () => {
 
 						<template #content>
 							<Flex direction="column" gap="12">
-								<Text size="12" weight="500" color="secondary">Filter by Message Type</Text>
+								<Text size="12" weight="600" color="secondary">Filter by Message Type</Text>
 
 								<Input v-model="searchTerm" size="small" placeholder="Search" autofocus />
 
@@ -814,12 +824,6 @@ const handleNext = () => {
 	background: var(--card-background);
 
 	padding: 8px 16px;
-}
-
-.vertical_divider {
-	min-width: 2px;
-	height: 12px;
-	background: var(--op-10);
 }
 
 .horizontal_divider {

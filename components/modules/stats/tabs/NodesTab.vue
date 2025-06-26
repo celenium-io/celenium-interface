@@ -13,7 +13,7 @@ import { capitilize, sortArrayOfObjects } from "@/services/utils"
 import { fetchNodeStats } from "@/services/api/stats"
 
 const isLoading = ref(true)
-const series = computed(() => getSeriesByGroupAndType("Ecosystem"))
+const series = computed(() => getSeriesByGroupAndType("Nodes"))
 
 const getNodeStats = async (name) => {
 	const data = await fetchNodeStats({ name })

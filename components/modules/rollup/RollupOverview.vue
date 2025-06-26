@@ -320,11 +320,13 @@ const handleCSVDownload = async (value) => {
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">
 				<Flex direction="column" gap="24" :class="$style.main">
-					<div
-						:style="{ background: `linear-gradient(90deg, ${rollupColorAlpha}, ${rollupColor}, ${rollupColorAlpha})` }"
-						:class="$style.line"
-					/>
-					<div :style="{ background: `linear-gradient(${rollupColor}, ${rollupColorAlpha})` }" :class="$style.bg" />
+					<template v-if="rollupColor && rollupColorAlpha">
+						<div
+							:style="{ background: `linear-gradient(90deg, ${rollupColorAlpha}, ${rollupColor}, ${rollupColorAlpha})` }"
+							:class="$style.line"
+						/>
+						<div :style="{ background: `linear-gradient(${rollupColor}, ${rollupColorAlpha})` }" :class="$style.bg" />
+					</template>
 
 					<Flex direction="column" gap="20" :class="$style.key_value">
 						<Flex align="center" justify="between" gap="24" wide>

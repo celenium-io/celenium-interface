@@ -24,11 +24,11 @@ const processedRollups = computed(() => {
 		r.avg_pfb_size = r.avg_size * r.blobs_per_pfb
 		r.pfb_hour_count = Math.round(r.pfb_count / 24)
 	})
-
+	
 	return arr
 })
 
-const selectedView = ref("graph")
+const selectedView = ref("table")
 const handleSelectView = () => {
 	selectedView.value === "graph" ? (selectedView.value = "table") : (selectedView.value = "graph")
 }

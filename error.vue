@@ -22,7 +22,7 @@ onMounted(async () => {
 	amp.init(runtimeConfig.public.AMP)
 
 	const data = await fetchHead()
-	if (data) appStore.head = data
+	if (data) appStore.lastHead = data
 })
 
 const handleBack = () => {

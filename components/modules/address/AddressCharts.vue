@@ -80,9 +80,9 @@ const updateUserSettings = () => {
 }
 
 /** Charts */
-const chartWrapperEl = ref()
-const txSeriesChartEl = ref()
-const feeSeriesChartEl = ref()
+const chartWrapperEl = useTemplateRef("chartWrapperEl")
+const txSeriesChartEl = useTemplateRef("txSeriesChartEl")
+const feeSeriesChartEl = useTemplateRef("feeSeriesChartEl")
 
 /** Data */
 const isLoading = ref(false)

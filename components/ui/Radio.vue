@@ -1,19 +1,19 @@
 <script setup>
-const props = defineProps(["modelValue", "checked", "disabled"])
+const props = defineProps(["modelValue", "checked", "disabled", "value"])
 const emit = defineEmits(["update:modelValue"])
 </script>
 
 <template>
 	<Flex
-		@click="emit('update:modelValue', !modelValue)"
-		@keydown.enter="emit('update:modelValue', !modelValue)"
+		@click="emit('update:modelValue', value)"
+		@keydown.enter="emit('update:modelValue', value)"
 		align="center"
 		gap="8"
 		:class="[$style.wrapper, disabled && $style.disabled]"
 		tabindex="0"
 	>
-		<Flex align="center" justify="center" :class="[$style.checkbox, (modelValue || checked) && $style.active]">
-			<Icon v-if="modelValue || checked" name="check" size="12" color="black" />
+		<Flex align="center" justify="center" :class="[$style.circle, modelValue === value && $style.active]">
+			<div v-if="modelValue === value" :class="$style.dot" />
 		</Flex>
 
 		<slot />
@@ -26,15 +26,15 @@ const emit = defineEmits(["update:modelValue"])
 	user-select: none;
 
 	&:hover {
-		.checkbox {
-			border-color: var(--op-10);
+		.circle {
+			border-color: var(--op-15);
 		}
 	}
 
 	&.disabled {
 		cursor: not-allowed;
 
-		& .checkbox {
+		& .circle {
 			opacity: 0.5;
 			background: var(--op-30);
 		}
@@ -44,21 +44,21 @@ const emit = defineEmits(["update:modelValue"])
 .wrapper:focus-visible {
 	outline: none;
 
-	.checkbox {
-		border: 1px solid var(--op-15);
+	.circle {
+		border: 1px solid var(--op-20);
 	}
 
-	.checkbox.active {
+	.circle.active {
 		background: var(--op-15);
 	}
 }
 
-.checkbox {
+.circle {
 	min-width: 14px;
 	min-height: 14px;
 
-	border-radius: 4px;
-	border: 1px solid var(--op-5);
+	border-radius: 50px;
+	border: 1px solid var(--op-10);
 	background: rgba(0, 0, 0, 5%);
 
 	transition: all 0.1s ease;
@@ -66,5 +66,13 @@ const emit = defineEmits(["update:modelValue"])
 	&.active {
 		background: var(--brand);
 	}
+}
+
+.dot {
+	width: 6px;
+	height: 6px;
+
+	border-radius: 50px;
+	background: #000;
 }
 </style>

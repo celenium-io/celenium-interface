@@ -47,6 +47,8 @@ activityStore.$subscribe((mutation, state) => {
 	localStorage.setItem("rollups_ranking", JSON.stringify(state.rollups_ranking))
 })
 
+appStore.initConstants()
+
 let watchInterval = null
 
 onMounted(async () => {

@@ -1324,7 +1324,7 @@ onBeforeUnmount(() => {
 
 							<template #content>
 								<Flex direction="column" justify="center" gap="12">
-									<Text size="12" weight="500" color="secondary">Filter by Rollup</Text>
+									<Text size="12" weight="600" color="secondary">Filter by Rollup</Text>
 
 									<Input v-model="searchTerm" size="small" placeholder="Search" autofocus />
 
