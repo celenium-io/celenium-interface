@@ -11,8 +11,8 @@ import amp from "@/services/amp"
 import { StatusMap } from "@/services/constants/node.js"
 
 /** Stores */
-import { useNodeStore } from "@/store/node"
-import { useNotificationsStore } from "@/store/notifications"
+import { useNodeStore } from "@/store/node.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const nodeStore = useNodeStore()
 const notificationsStore = useNotificationsStore()
 

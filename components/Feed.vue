@@ -10,13 +10,13 @@ import { getRankCategory } from "@/services/constants/rollups"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** API */
-import { fetchPriceSeries } from "@/services/api/stats"
+import { fetchPriceSeries, fetchTVS } from "@/services/api/stats"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useRollupsRankingStore } from "@/store/rollupsrank"
+import { useAppStore } from "@/store/app.store"
+import { useActivityStore } from "@/store/activity.store"
 const appStore = useAppStore()
-const rollupRankingStore = useRollupsRankingStore()
+const activityStore = useActivityStore()
 
 const head = computed(() => appStore.lastHead)
 const currentPrice = computed(() => appStore.currentPrice)
@@ -26,38 +26,46 @@ const totalSupplyUSD = computed(() => totalSupply.value * currentPrice.value?.cl
 const totalFees = computed(() => head.value.total_fee / 1_000_000)
 const totalFeesUSD = computed(() => totalFees.value * currentPrice.value?.close)
 const topRollup = computed(() => {
-	let rankCategory = getRankCategory(roundTo(rollupRankingStore?.rollups_ranking?.top_rollup?.rank / 10, 0))
+	let rankCategory = getRankCategory(roundTo(activityStore?.rollups_ranking?.top_rollup?.rank / 10, 0))
 	return {
-		slug: rollupRankingStore?.rollups_ranking?.top_rollup?.slug,
-		name: rollupRankingStore?.rollups_ranking?.top_rollup?.name,
+		slug: activityStore?.rollups_ranking?.top_rollup?.slug,
+		name: activityStore?.rollups_ranking?.top_rollup?.name,
 		rank: {
 			name: rankCategory?.name,
-			score: rollupRankingStore?.rollups_ranking?.top_rollup?.rank,
+			score: activityStore?.rollups_ranking?.top_rollup?.rank,
 			color: rankCategory?.color,
-		}
+		},
 	}
 })
 
+const isLoading = ref(true)
 const series = ref([])
 const price = reactive({
 	value: 0,
 	diff: 0,
 	side: null,
 })
-
+const tvs = ref(0)
 onMounted(async () => {
-	const dataSeries = await fetchPriceSeries( {from: parseInt(DateTime.now().minus({ days: 3 }).ts / 1_000)})
+	const dataSeries = await fetchPriceSeries({ from: parseInt(DateTime.now().minus({ days: 3 }).ts / 1_000) })
 	series.value = dataSeries
 	appStore.currentPrice = series.value[0]
 	price.value = parseFloat(series.value[0].close)
 
 	const prevDayClosePrice = parseFloat(series.value[1].close)
 	price.diff = (Math.abs(prevDayClosePrice - price.value) / ((prevDayClosePrice + price.value) / 2)) * 100
-	let side = 'stay'
+	let side = "stay"
 	if (price.value - prevDayClosePrice !== 0) {
-		side = price.value - prevDayClosePrice > 0 ? 'rise' : 'fall'
+		side = price.value - prevDayClosePrice > 0 ? "rise" : "fall"
 	}
 	price.side = side
+
+	const _tvs = await fetchTVS({ period: null })
+	if (_tvs.value) {
+		tvs.value = _tvs.value
+	}
+
+	isLoading.value = false
 })
 </script>
 
@@ -69,12 +77,20 @@ onMounted(async () => {
 					<NuxtLink :to="`/rollup/rank/${topRollup?.slug}`">
 						<Tooltip>
 							<Flex align="center" gap="6" :class="$style.stat">
-								<Icon v-if="topRollup?.name" name="laurel" size="14" :color="topRollup?.rank?.color" :style="{marginTop: '1px'}" />
-								<Icon v-else name="laurel" size="14" color="tertiary" :class="$style.icon" :style="{marginTop: '1px'}" />
+								<Icon
+									v-if="topRollup?.name"
+									name="laurel"
+									size="14"
+									:color="topRollup?.rank?.color"
+									:style="{ marginTop: '1px' }"
+								/>
+								<Icon v-else name="laurel" size="14" color="tertiary" :class="$style.icon" :style="{ marginTop: '1px' }" />
 								<Flex align="center" gap="4">
 									<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Top Rollup:</Text>
 
-									<Text v-if="topRollup?.name" size="12" weight="600" color="secondary" noWrap :class="$style.value"> {{ topRollup?.name }} </Text>
+									<Text v-if="topRollup?.name" size="12" weight="600" color="secondary" noWrap :class="$style.value">
+										{{ topRollup?.name }}
+									</Text>
 									<Skeleton v-else w="40" h="12" />
 								</Flex>
 							</Flex>
@@ -103,7 +119,9 @@ onMounted(async () => {
 						<Flex align="center" gap="4">
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Txs:</Text>
 
-							<Text v-if="head.total_tx" size="12" weight="600" noWrap :class="$style.value">{{ abbreviate(head.total_tx) }}</Text>
+							<Text v-if="head.total_tx" size="12" weight="600" noWrap :class="$style.value">{{
+								abbreviate(head.total_tx)
+							}}</Text>
 							<Skeleton v-else w="40" h="12" />
 						</Flex>
 					</Flex>
@@ -122,10 +140,10 @@ onMounted(async () => {
 					<Flex align="center" gap="6" :class="$style.stat">
 						<Icon name="coins" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
-							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Supply:</Text>
+							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">TVS:</Text>
 
-							<Text v-if="head.total_supply" size="12" weight="600" noWrap :class="$style.value">
-								{{ abbreviate(totalSupply, 2) }} TIA
+							<Text v-if="!isLoading" size="12" weight="600" noWrap :class="$style.value">
+								{{ abbreviate(tvs, 2) }} USD
 							</Text>
 							<Skeleton v-else w="40" h="12" />
 						</Flex>
@@ -133,8 +151,8 @@ onMounted(async () => {
 
 					<template #content>
 						<Flex align="center" justify="between" gap="8">
-							<Text size="12" weight="500" color="tertiary">Total Supply:</Text>
-							<Text size="12" weight="600" color="secondary"> {{ abbreviate(totalSupplyUSD, 2) }} USD </Text>
+							<Text size="12" weight="500" color="tertiary">Total Value Secured:</Text>
+							<Text size="12" weight="600" color="secondary"> {{ comma(tvs) }} USD </Text>
 						</Flex>
 					</template>
 				</Tooltip>

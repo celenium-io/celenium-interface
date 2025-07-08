@@ -16,8 +16,8 @@ import { comma, formatBytes, getNamespaceID, shortHex, space } from "@/services/
 import { fetchNamespaceBlobs, fetchNamespaceMessagesById, fetchNamespaceRollups } from "@/services/api/namespace"
 
 /** Store */
-import { useModalsStore } from "@/store/modals"
-import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals.store"
+import { useCacheStore } from "@/store/cache.store"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
 

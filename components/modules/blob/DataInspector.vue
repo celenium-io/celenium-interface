@@ -3,7 +3,7 @@
 import { DateTime } from "luxon"
 
 /** Store */
-import { useSettingsStore } from "@/store/settings"
+import { useSettingsStore } from "@/store/settings.store"
 const settingsStore = useSettingsStore()
 
 const props = defineProps({

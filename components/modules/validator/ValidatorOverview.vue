@@ -16,8 +16,8 @@ import { comma, numToPercent, shortHex, splitAddress } from "@/services/utils"
 import { fetchValidatorBlocks, fetchValidatorDelegators, fetchValidatorJails, fetchValidatorUptime } from "@/services/api/validator"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 

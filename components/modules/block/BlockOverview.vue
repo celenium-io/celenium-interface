@@ -18,15 +18,15 @@ import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 import Events from "@/components/shared/tables/Events.vue"
 
 /** Services */
-import { comma, formatBytes, space, shortHex, tia } from "@/services/utils"
+import { comma, formatBytes, space, shortHex } from "@/services/utils"
 
 /** API */
 import { fetchTransactionsByBlock } from "@/services/api/tx"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useModalsStore } from "@/store/modals"
-import { useCacheStore } from "@/store/cache"
+import { useAppStore } from "@/store/app.store"
+import { useModalsStore } from "@/store/modals.store"
+import { useCacheStore } from "@/store/cache.store"
 const appStore = useAppStore()
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
@@ -466,12 +466,16 @@ const handleViewRawTransactions = () => {
 					<Flex wrap="wrap" align="center" justify="start" gap="8" :class="$style.filters">
 						<Popover :open="isStatusPopoverOpen" @on-close="onStatusPopoverClose" width="200">
 							<Button @click="handleOpenStatusPopover" type="secondary" size="mini" :disabled="!transactions.length">
-								<Icon name="plus-circle" size="12" color="tertiary" />
-								<Text color="secondary">Status</Text>
+								<Icon
+									name="plus-circle"
+									size="12"
+									:color="Object.keys(filters.status).find((f) => filters.status[f]) ? 'brand' : 'tertiary'"
+								/>
+								<Text color="secondary"
+									>Status<template v-if="Object.keys(filters.status).find((f) => filters.status[f])">:</template></Text
+								>
 
 								<template v-if="Object.keys(filters.status).find((f) => filters.status[f])">
-									<div :class="$style.vertical_divider" />
-
 									<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
 										{{
 											Object.keys(filters.status)
@@ -486,7 +490,7 @@ const handleViewRawTransactions = () => {
 
 							<template #content>
 								<Flex direction="column" gap="12">
-									<Text size="12" weight="500" color="secondary">Filter by Status</Text>
+									<Text size="12" weight="600" color="secondary">Filter by Status</Text>
 
 									<Flex direction="column" gap="8">
 										<Checkbox v-model="filters.status.success">
@@ -504,12 +508,18 @@ const handleViewRawTransactions = () => {
 
 						<Popover :open="isMessageTypePopoverOpen" @on-close="onMessageTypePopoverClose" width="250">
 							<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini" :disabled="!transactions.length">
-								<Icon name="plus-circle" size="12" color="tertiary" />
-								<Text color="secondary">Message Type</Text>
+								<Icon
+									name="plus-circle"
+									size="12"
+									:color="Object.keys(filters.message_type).find((f) => filters.message_type[f]) ? 'brand' : 'tertiary'"
+								/>
+								<Text color="secondary"
+									>Message Type<template v-if="Object.keys(filters.message_type).find((f) => filters.message_type[f])"
+										>:</template
+									></Text
+								>
 
 								<template v-if="Object.keys(filters.message_type).find((f) => filters.message_type[f])">
-									<div :class="$style.vertical_divider" />
-
 									<Text size="12" weight="600" color="primary">
 										{{
 											Object.keys(filters.message_type).filter((f) => filters.message_type[f]).length < 3
@@ -536,7 +546,7 @@ const handleViewRawTransactions = () => {
 
 							<template #content>
 								<Flex direction="column" gap="12">
-									<Text size="12" weight="500" color="secondary">Filter by Message Type</Text>
+									<Text size="12" weight="600" color="secondary">Filter by Message Type</Text>
 
 									<Input v-model="searchTerm" size="small" placeholder="Search" autofocus />
 
@@ -818,9 +828,9 @@ const handleViewRawTransactions = () => {
 	background: var(--card-background);
 
 	.top {
-		padding: 16px;
-
 		border-bottom: 1px solid var(--op-5);
+
+		padding: 16px;
 	}
 
 	.main {
@@ -992,9 +1002,9 @@ const handleViewRawTransactions = () => {
 }
 
 .filters {
-	border-bottom: 1px dashed var(--op-8);
+	border-bottom: 1px solid var(--op-5);
 
-	padding: 4px 8px 6px 8px;
+	padding: 12px 8px 12px 8px;
 }
 
 .empty {

@@ -63,8 +63,6 @@ isLoading.value = false
 											<Text size="13" weight="600" color="primary" mono>
 												{{ pfb.hash.slice(pfb.hash.length - 4, pfb.hash.length).toUpperCase() }}
 											</Text>
-
-											<CopyButton :text="pfb.hash.toUpperCase()" />
 										</Flex>
 
 										<template #content>

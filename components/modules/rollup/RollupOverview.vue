@@ -23,12 +23,12 @@ import { getRankCategory } from "@/services/constants/rollups"
 import { fetchRollupBlobs, fetchRollupExportData, fetchRollupNamespaces } from "@/services/api/rollup"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
-import { useNotificationsStore } from "@/store/notifications"
-import { useRollupsRankingStore } from "@/store/rollupsrank"
+import { useCacheStore } from "@/store/cache.store"
+import { useNotificationsStore } from "@/store/notifications.store"
+import { useActivityStore } from "@/store/activity.store"
 const cacheStore = useCacheStore()
 const notificationsStore = useNotificationsStore()
-const rollupRankingStore = useRollupsRankingStore()
+const activityStore = useActivityStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -58,11 +58,11 @@ const namespaces = ref([])
 const blobs = ref([])
 
 const rollupRanking = computed(() => {
-	if (!rollupRankingStore?.initialized || !isMainnet()) return null
+	if (!activityStore?.initialized || !isMainnet()) return null
 
 	let rollup_ranking =
-		rollupRankingStore?.rollups_ranking?.ranking[
-			Object.keys(rollupRankingStore?.rollups_ranking?.ranking).find((key) => key === props.rollup.slug)
+		activityStore?.rollups_ranking?.ranking[
+			Object.keys(activityStore?.rollups_ranking?.ranking).find((key) => key === props.rollup.slug)
 		]
 	rollup_ranking.rank = {
 		category: getRankCategory(roundTo(rollup_ranking?.ranking?.rank / 10, 0)),
@@ -320,11 +320,13 @@ const handleCSVDownload = async (value) => {
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">
 				<Flex direction="column" gap="24" :class="$style.main">
-					<div
-						:style="{ background: `linear-gradient(90deg, ${rollupColorAlpha}, ${rollupColor}, ${rollupColorAlpha})` }"
-						:class="$style.line"
-					/>
-					<div :style="{ background: `linear-gradient(${rollupColor}, ${rollupColorAlpha})` }" :class="$style.bg" />
+					<template v-if="rollupColor && rollupColorAlpha">
+						<div
+							:style="{ background: `linear-gradient(90deg, ${rollupColorAlpha}, ${rollupColor}, ${rollupColorAlpha})` }"
+							:class="$style.line"
+						/>
+						<div :style="{ background: `linear-gradient(${rollupColor}, ${rollupColorAlpha})` }" :class="$style.bg" />
+					</template>
 
 					<Flex direction="column" gap="20" :class="$style.key_value">
 						<Flex align="center" justify="between" gap="24" wide>

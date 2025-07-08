@@ -18,10 +18,10 @@ import { SIMULATE_ADDRESS_FROM, SIMULATE_VALIDATOR, simulateMsgs, sendMsgs } fro
 import { MsgDelegate } from "@/services/proto/gen/staking"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useModalsStore } from "@/store/modals"
-import { useCacheStore } from "@/store/cache"
-import { useNotificationsStore } from "@/store/notifications"
+import { useAppStore } from "@/store/app.store"
+import { useModalsStore } from "@/store/modals.store"
+import { useCacheStore } from "@/store/cache.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const appStore = useAppStore()
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()

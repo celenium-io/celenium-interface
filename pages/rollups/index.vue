@@ -30,10 +30,10 @@ import { getLastActivityCategory, getRankCategory } from "@/services/constants/r
 import { fetchRollups } from "@/services/api/rollup"
 
 /** Stores */
-import { useEnumStore } from "@/store/enums"
-import { useRollupsRankingStore } from "@/store/rollupsrank"
+import { useEnumStore } from "@/store/enums.store"
+import { useActivityStore } from "@/store/activity.store"
 const enumStore = useEnumStore()
-const rollupRankingStore = useRollupsRankingStore()
+const activityStore = useActivityStore()
 
 useHead({
 	title: "Rollups - Celestia Explorer",
@@ -93,7 +93,7 @@ const isRefetching = ref(true)
 const rollups = ref([])
 const filteredRollups = ref([])
 const processedRollups = ref([])
-const rollupsRanking = computed(() => rollupRankingStore?.rollups_ranking?.ranking)
+const rollupsRanking = computed(() => activityStore?.rollups_ranking?.ranking)
 
 const utiaPerMB = (rollup) => {
 	let totalRollupMB = rollup.size / (1024 * 1024)
@@ -113,7 +113,7 @@ const config = reactive({
 			  }
 			: {}),
 		da_change: {
-			show: true,
+			show: false,
 		},
 		size: {
 			show: true,
@@ -131,7 +131,7 @@ const config = reactive({
 			show: true,
 		},
 		today_blobs: {
-			show: false,
+			show: true,
 			sortPath: "stats.day_blobs_count",
 		},
 		...(isMainnet()
@@ -330,7 +330,7 @@ const processRollups = () => {
 
 	isRefetching.value = false
 }
-if (rollupRankingStore.initialized) {
+if (activityStore.initialized) {
 	await getRollups()
 	processRollups()
 }
@@ -394,9 +394,9 @@ watch(
 	},
 )
 watch(
-	() => rollupRankingStore.initialized,
+	() => activityStore.initialized,
 	async () => {
-		if (rollupRankingStore.initialized) {
+		if (activityStore.initialized) {
 			await getRollups()
 			processRollups()
 		}
@@ -464,12 +464,17 @@ onBeforeMount(() => {
 				<Flex wrap="wrap" align="center" gap="8">
 					<Popover v-for="p in Object.keys(popovers)" :open="popovers[p]" @on-close="onPopoverClose(p)" width="200">
 						<Button @click="handleOpenPopover(p)" type="secondary" size="mini">
-							<Icon name="plus-circle" size="12" color="tertiary" />
-							<Text color="secondary"> {{ capitilize(keyMap[p]) }} </Text>
+							<Icon
+								name="plus-circle"
+								size="12"
+								:color="Object.keys(filters[p]).find((item) => filters[p][item]) ? 'brand' : 'tertiary'"
+							/>
+							<Text color="secondary">
+								{{ capitilize(keyMap[p])
+								}}<template v-if="Object.keys(filters[p]).find((item) => filters[p][item])">:</template></Text
+							>
 
 							<template v-if="Object.keys(filters[p]).find((item) => filters[p][item])">
-								<div :class="$style.vertical_divider" />
-
 								<Text size="12" weight="600" color="primary">
 									{{
 										Object.keys(filters[p]).filter((item) => filters[p][item]).length < 3
@@ -493,7 +498,7 @@ onBeforeMount(() => {
 
 						<template #content>
 							<Flex direction="column" gap="12">
-								<Text size="12" weight="500" color="secondary"> {{ `Filter by ${capitilize(keyMap[p])}` }} </Text>
+								<Text size="12" weight="600" color="secondary"> {{ `Filter by ${capitilize(keyMap[p])}` }} </Text>
 
 								<Flex direction="column" gap="8" :class="$style.filters_list">
 									<Checkbox v-for="item in Object.keys(filters[p])" v-model="filters[p][item]">
@@ -808,12 +813,6 @@ onBeforeMount(() => {
 	background: var(--card-background);
 
 	padding: 8px 16px;
-}
-
-.vertical_divider {
-	min-width: 2px;
-	height: 12px;
-	background: var(--op-10);
 }
 
 .filters_list {

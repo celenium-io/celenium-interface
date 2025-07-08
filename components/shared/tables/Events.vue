@@ -14,8 +14,8 @@ import { fetchTxEvents } from "@/services/api/tx"
 import { fetchBlockEvents } from "@/services/api/block"
 
 /** Store */
-import { useModalsStore } from "@/store/modals"
-import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals.store"
+import { useCacheStore } from "@/store/cache.store"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
 

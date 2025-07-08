@@ -82,7 +82,7 @@ const handleClick = () => {
 		>
 			<Flex align="center" gap="8">
 				<Icon :name="link.icon" size="14" :color="!link.new ? 'secondary' : 'blue'" :class="$style.link_icon" />
-				<Text size="13" weight="600" color="secondary">{{ link.name }}</Text>
+				<Text size="13" weight="600" color="secondary">{{ link.name }} </Text>
 			</Flex>
 
 			<Flex v-if="link.children" @click.prevent.stop="isExpanded = !isExpanded" :class="[$style.icon, $style.chevron]">

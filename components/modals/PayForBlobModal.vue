@@ -14,10 +14,10 @@ import { sendPayForBlob } from "@/services/wallet"
 import { prepareBlob } from "@/services/utils/encode"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
-import { useNotificationsStore } from "@/store/notifications"
+import { useAppStore } from "@/store/app.store"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const appStore = useAppStore()
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()

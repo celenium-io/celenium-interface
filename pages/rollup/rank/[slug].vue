@@ -15,12 +15,12 @@ import { comma, isMainnet, roundTo, sortArrayOfObjects } from "@/services/utils"
 import { getMetricCategory, getRankCategory } from "@/services/constants/rollups"
 
 /** Stores */
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
-import { useRollupsRankingStore } from "@/store/rollupsrank"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
+import { useActivityStore } from "@/store/activity.store"
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
-const rollupRankingStore = useRollupsRankingStore()
+const activityStore = useActivityStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -50,9 +50,9 @@ const repos = ref([])
 const commits = ref([])
 const totalCommits = computed(() => commits.value?.reduce((acc, c) => acc + c.amount, 0))
 const rollupRanking = computed(() => {
-	if (!rollupRankingStore?.initialized) return null
+	if (!activityStore?.initialized) return null
 
-	const rollupRaw = rollupRankingStore?.rollups_ranking?.ranking?.[route.params.slug]
+	const rollupRaw = activityStore?.rollups_ranking?.ranking?.[route.params.slug]
 	if (!rollupRaw) return null
 
 	const rawRanking = rollupRaw.ranking
@@ -97,7 +97,7 @@ const rollupRanking = computed(() => {
 		...rollupRaw,
 		ranking,
 		description,
-		updated: rollupRankingStore?.rollups_ranking?.last_update,
+		updated: activityStore?.rollups_ranking?.last_update,
 	}
 })
 const getMetricDescription = (metric) => {

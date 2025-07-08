@@ -4,7 +4,7 @@ import { computed } from "vue"
 import icons from "@/assets/icons.json"
 
 const props = defineProps({
-	name: { type: String, required: true, default: "warning" },
+	name: { type: String, required: true, default: "" },
 	size: { type: [String, Number], default: "16" },
 	color: { type: String, default: null },
 	hoverColor: { type: String, required: false },
@@ -40,7 +40,6 @@ const classes = computed(() => {
 })
 
 const hoverColorVar = computed(() => {
-	if (!props.hoverColor) return "transparent"
 	return `var(--txt-${props.hoverColor})`
 })
 
@@ -79,6 +78,14 @@ const isSplitted = () => {
 </template>
 
 <style module>
+.hovered {
+	transition: all 0.3s var(--bezier);
+
+	&:hover {
+		fill: v-bind(hoverColorVar);
+	}
+}
+
 .loading {
 	animation: skeleton 1s ease-in-out infinite;
 }

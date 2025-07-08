@@ -25,11 +25,11 @@ import { capitilize } from "@/services/utils/strings"
 import { search } from "@/services/api/search"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
-import { useBookmarksStore } from "@/store/bookmarks"
-import { useNotificationsStore } from "@/store/notifications"
+import { useAppStore } from "@/store/app.store"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
+import { useBookmarksStore } from "@/store/bookmarks.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const appStore = useAppStore()
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
@@ -38,6 +38,7 @@ const notificationsStore = useNotificationsStore()
 
 const appConfig = useAppConfig()
 
+const developerMode = useCookie("developerMode", { default: () => false })
 const theme = useCookie("theme", { default: () => "dark" })
 const showPromoBackground = useCookie("showPromoBackground", { default: () => true })
 
@@ -60,7 +61,6 @@ const searchTerm = ref("")
 
 const bounce = ref(false)
 
-const developerMode = ref(false)
 const featurePreviewMode = ref(false)
 
 const mode = ref(null)
@@ -847,7 +847,6 @@ const rawOtherActions = [
 		subtitle: "Command",
 		runText: "Toggle",
 		callback: () => {
-			localStorage.developer = !localStorage.developer
 			developerMode.value = !developerMode.value
 
 			notificationsStore.create({
@@ -1067,7 +1066,6 @@ const handleShareCopyData = (data) => {
 }
 
 onMounted(() => {
-	developerMode.value = localStorage.developer
 	featurePreviewMode.value = localStorage.featurePreview
 
 	root = document.querySelector("html")

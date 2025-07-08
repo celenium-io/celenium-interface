@@ -9,8 +9,8 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { formatBytes } from "@/services/utils"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 

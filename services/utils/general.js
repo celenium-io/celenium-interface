@@ -195,6 +195,8 @@ export function sortArrayOfObjects(arr, path, asc = true) {
 }
 
 export function hexToRgba(hex, alpha = 255) {
+	if (!hex) return ""
+	
 	let h = hex.replace(/^#/, "")
 
 	if (h.length === 3) {

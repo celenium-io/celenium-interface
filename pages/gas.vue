@@ -10,7 +10,7 @@ import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Button from "@/components/ui/Button.vue"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 const route = useRoute()

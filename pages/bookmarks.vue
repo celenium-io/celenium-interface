@@ -7,10 +7,10 @@ import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem, DropdownDivider } from "@/components/ui/Dropdown"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useModalsStore } from "@/store/modals"
-import { useBookmarksStore } from "@/store/bookmarks"
-import { useNotificationsStore } from "@/store/notifications"
+import { useAppStore } from "@/store/app.store"
+import { useModalsStore } from "@/store/modals.store"
+import { useBookmarksStore } from "@/store/bookmarks.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const appStore = useAppStore()
 const modalsStore = useModalsStore()
 const bookmarksStore = useBookmarksStore()

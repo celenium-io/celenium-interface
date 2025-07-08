@@ -3,7 +3,6 @@
 import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 
-
 /** Stats Components */
 import BlocksFeed from "@/components/modules/stats/BlocksFeed.vue"
 import ChartCardPreview from "@/components/modules/stats/ChartCardPreview.vue"
@@ -17,7 +16,7 @@ import { getInsightsByGroup, getSeriesByGroupAndType, STATS_PERIODS } from "@/se
 import { fetchGeneralStats } from "@/services/api/stats.js"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 const isLoading = ref(false)
@@ -26,27 +25,27 @@ const diffs24h = ref({})
 const highlights = computed(() => {
 	return [
 		{
-			name: 'blocks',
-			title: 'Blocks',
+			name: "blocks",
+			title: "Blocks",
 			value: lastHead.value.last_height,
 		},
 		{
-			name: 'txs',
-			title: 'Transactions',
+			name: "txs",
+			title: "Transactions",
 			value: lastHead.value.total_tx,
 			diff: diffs24h.value.tx_count_24h * 100,
 		},
 		{
-			name: 'blobs_size',
-			title: 'Blobs Size',
-			units: 'bytes',
+			name: "blobs_size",
+			title: "Blobs Size",
+			units: "bytes",
 			value: lastHead.value.total_blobs_size,
 			diff: diffs24h.value.blobs_size_24h * 100,
 		},
 		{
-			name: 'fee',
-			title: 'Total Fees',
-			units: 'utia',
+			name: "fee",
+			title: "Total Fees",
+			units: "utia",
 			value: lastHead.value.total_fee,
 			diff: diffs24h.value.fee_24h * 100,
 		},
@@ -56,16 +55,16 @@ const highlights = computed(() => {
 const periods = ref(STATS_PERIODS)
 const selectedPeriod = ref(periods.value[1])
 
-const series = computed(() => getSeriesByGroupAndType('General'))
-const insights = computed(() => getInsightsByGroup('General'))
+const series = computed(() => getSeriesByGroupAndType("General"))
+const insights = computed(() => getInsightsByGroup("General"))
 
 const get24hDiffs = async () => {
-    isLoading.value = true
+	isLoading.value = true
 
-	const data = await fetchGeneralStats({ name: 'changes_24h' })
+	const data = await fetchGeneralStats({ name: "changes_24h" })
 	diffs24h.value = data
 
-    isLoading.value = false
+	isLoading.value = false
 }
 
 await get24hDiffs()
@@ -75,10 +74,7 @@ await get24hDiffs()
 	<Flex direction="column" gap="24" wide :class="$style.wrapper">
 		<Flex align="center" direction="column" gap="10">
 			<Flex justify="between" wide :class="$style.highlights_wrapper">
-				<HighlightCard
-					v-for="h in highlights"
-					:highlight="h"
-				/>
+				<HighlightCard v-for="h in highlights" :highlight="h" />
 			</Flex>
 
 			<Flex align="center" justify="start" wide>
@@ -91,12 +87,8 @@ await get24hDiffs()
 				<Text size="16" weight="600" color="primary" justify="start">Daily Insights</Text>
 			</Flex>
 
-			
 			<Flex align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
-				<InsightCard v-for="i in insights"
-					:series="i"
-					:class="$style.chart_card"
-				/>
+				<InsightCard v-for="i in insights" :series="i" :class="$style.chart_card" />
 			</Flex>
 		</Flex>
 
@@ -122,11 +114,7 @@ await get24hDiffs()
 			</Flex>
 
 			<Flex align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
-				<ChartCardPreview v-for="s in series"
-					:series="s"
-					:period="selectedPeriod"
-					:class="$style.chart_card"
-				/>
+				<ChartCardPreview v-for="s in series" :series="s" :period="selectedPeriod" :class="$style.chart_card" />
 			</Flex>
 		</Flex>
 	</Flex>

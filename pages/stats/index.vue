@@ -5,11 +5,11 @@ import Button from "@/components/ui/Button.vue"
 /** Stats Tabs */
 import BlocksTab from "@/components/modules/stats/tabs/BlocksTab.vue"
 import GeneralTab from "@/components/modules/stats/tabs/GeneralTab.vue"
-import EcosystemTab from "@/components/modules/stats/tabs/EcosystemTab.vue"
+import NodesTab from "~/components/modules/stats/tabs/NodesTab.vue"
 import RollupsTab from "@/components/modules/stats/tabs/RollupsTab.vue"
 
 /** Services */
-import { capitilize } from "@/services/utils"
+import { capitilize, isMainnet } from "@/services/utils"
 
 useHead({
 	title: "Statistics - Celestia Explorer",
@@ -76,8 +76,8 @@ const tabs = ref([
 		visible: true,
 	},
 	{
-		name: "ecosystem",
-		visible: false,
+		name: "nodes",
+		visible: isMainnet(),
 	},
 ])
 const activeTab = ref(
@@ -165,7 +165,7 @@ watch(
 		<GeneralTab v-if="activeTab === 'general'" />
 		<BlocksTab v-if="activeTab === 'blocks'" />
 		<RollupsTab v-if="activeTab === 'rollups'" @onUpdateSection="handleSectionUpdate" />
-		<EcosystemTab v-if="activeTab === 'ecosystem'" />
+		<NodesTab v-if="activeTab === 'nodes'" />
 	</Flex>
 </template>
 

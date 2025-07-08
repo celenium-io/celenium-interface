@@ -11,7 +11,7 @@ import { comma, formatBytes, getNamespaceID, shortHash, space, strToHex } from "
 import { fetchBlobBlockscoutData, fetchBlobByMetadata } from "@/services/api/namespace"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const emit = defineEmits(["onClose"])

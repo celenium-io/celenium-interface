@@ -12,7 +12,7 @@ import { comma, formatBytes } from "@/services/utils"
 import { fetchAvgBlockTime } from "@/services/api/block"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 const props = defineProps({

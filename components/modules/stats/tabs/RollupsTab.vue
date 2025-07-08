@@ -23,7 +23,7 @@ import { capitilize, capitalizeAndReplace, isMainnet } from "@/services/utils"
 import { fetchRollups, fetchRollupsDailyStats } from "@/services/api/rollup.js"
 
 /** Stores */
-import { useEnumStore } from "@/store/enums"
+import { useEnumStore } from "@/store/enums.store"
 const enumStore = useEnumStore()
 
 const emit = defineEmits(["onUpdateSection"])
@@ -341,7 +341,7 @@ watch(
 
 					<template #content>
 						<Flex direction="column" gap="12">
-							<Text size="12" weight="500" color="secondary"> {{ `Filter by ${capitilize(keyMap[p])}` }} </Text>
+							<Text size="12" weight="600" color="secondary"> {{ `Filter by ${capitilize(keyMap[p])}` }} </Text>
 
 							<Flex direction="column" gap="8" :class="$style.filters_list">
 								<Checkbox v-for="item in Object.keys(filters[p])" v-model="filters[p][item]">

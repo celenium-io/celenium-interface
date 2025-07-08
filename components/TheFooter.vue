@@ -6,7 +6,7 @@ import { Dropdown, DropdownItem, DropdownTitle } from "@/components/ui/Dropdown"
 import { isPrefersDarkScheme } from "@/services/utils"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 const theme = useCookie("theme", { default: () => "dark" })

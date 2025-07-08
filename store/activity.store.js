@@ -9,7 +9,7 @@ import { rankCoefficients } from "@/services/constants/rollups"
 /** API */
 import { fetchRollupOrgs, fetchRollupOrgsState, fetchRollups, fetchRollupsDailyStats } from "@/services/api/rollup"
 
-export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
+export const useActivityStore = defineStore("activity", () => {
 	const rollups_ranking = ref({
 		ranking: {},
 		top_rollup: {},
@@ -148,5 +148,5 @@ export const useRollupsRankingStore = defineStore("rollups_ranking", () => {
 })
 
 if (import.meta.hot) {
-	import.meta.hot.accept(acceptHMRUpdate(useRollupsRankingStore, import.meta.hot))
+	import.meta.hot.accept(acceptHMRUpdate(useActivityStore, import.meta.hot))
 }

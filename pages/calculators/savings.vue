@@ -6,7 +6,7 @@ import { formatBytes, comma, abbreviate, purgeNumber } from "@/services/utils"
 import Tooltip from "@/components/ui/Tooltip"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 const route = useRoute()
@@ -520,8 +520,8 @@ useHead({
 					<div :class="$style.divider" />
 
 					<Text size="13" weight="600" color="support" height="160" style="max-width: 500px">
-						This estimation assumes a constant <Text color="tertiary">$TIA</Text> price. It should only be used as an estimation and
-						reference to compare what-if scenarios.
+						This estimation assumes a constant <Text color="tertiary">$TIA</Text> price. It should only be used as an estimation
+						and reference to compare what-if scenarios.
 					</Text>
 				</Flex>
 			</Flex>
