@@ -13,7 +13,6 @@ export const useModalsStore = defineStore("modals", () => {
 		blob: false,
 		commitment: false,
 		confirmation: false,
-		constants: false,
 		edit_alias: false,
 		import: false,
 		ods: false,

@@ -4,7 +4,6 @@ import BlobModal from "./BlobModal.vue"
 import ChartModal from "./ChartModal.vue"
 import CommitmentModal from "./CommitmentModal.vue"
 import ConfirmationModal from "./ConfirmationModal.vue"
-import ConstantsModal from "./ConstantsModal.vue"
 import EditBookmarkAliasModal from "./EditBookmarkAliasModal.vue"
 import ImportBookmarksModal from "./ImportBookmarksModal.vue"
 import ODSModal from "./ODSModal.vue"
@@ -32,7 +31,6 @@ const modalsStore = useModalsStore()
 	<BlobModal :show="modalsStore.modals.blob" @onClose="modalsStore.close('blob')" />
 	<CommitmentModal :show="modalsStore.modals.commitment" @onClose="modalsStore.close('commitment')" />
 	<ConfirmationModal :show="modalsStore.modals.confirmation" @onClose="modalsStore.close('confirmation')" />
-	<ConstantsModal :show="modalsStore.modals.constants" @onClose="modalsStore.close('constants')" />
 	<EditBookmarkAliasModal :show="modalsStore.modals.edit_alias" @onClose="modalsStore.close('edit_alias')" />
 	<ImportBookmarksModal :show="modalsStore.modals.import" @onClose="modalsStore.close('import')" />
 	<ODSModal :show="modalsStore.modals.ods" @onClose="modalsStore.close('ods')" />
