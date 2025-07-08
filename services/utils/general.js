@@ -68,6 +68,11 @@ export const midHex = (hex) => {
 	}
 }
 
+export const round = (num, decimals) => {
+	const factor = Math.pow(10, decimals)
+	return Math.round((num + Number.EPSILON) * factor) / factor
+}
+
 export const splitAddress = (address, format = "string") => {
 	if (!address) return
 

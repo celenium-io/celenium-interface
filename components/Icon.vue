@@ -90,6 +90,14 @@ const isSplitted = () => {
 	animation: skeleton 1s ease-in-out infinite;
 }
 
+.hovered {
+	transition: all 0.2s ease;
+
+	&:hover {
+		fill: v-bind(hoverColorVar);
+	}
+}
+
 @keyframes skeleton {
 	0% {
 		opacity: 1;
