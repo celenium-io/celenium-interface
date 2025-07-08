@@ -12,7 +12,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { fetchMainnetConstants, fetchMochaConstants, fetchArabicaConstants, fetchMammothConstants } from "@/services/api/main"
 
 /** Store */
-import { useNotificationsStore } from "@/store/notifications"
+import { useNotificationsStore } from "@/store/notifications.store"
 const notificationsStore = useNotificationsStore()
 
 useHead({
