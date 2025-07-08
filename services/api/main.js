@@ -10,6 +10,14 @@ export const fetchHead = async () => {
 	}
 }
 
+export const fetchConstants = async () => {
+	try {
+		return await $fetch(`${useServerURL()}/constants`)
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchMainnetConstants = async () => {
 	try {
 		return await $fetch(`https://api.celenium.io/v1/constants`)
