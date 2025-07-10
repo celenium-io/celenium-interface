@@ -7,7 +7,7 @@ import { DateTime } from "luxon"
 import DiffChip from "@/components/modules/stats/DiffChip.vue"
 
 /** Services */
-import { abbreviate, comma, formatBytes, tia, truncateDecimalPart } from "@/services/utils"
+import { abbreviate, comma, formatBytes, roundTo, tia, truncateDecimalPart } from "@/services/utils"
 
 /** API */
 import { fetchSeries, fetchSeriesCumulative, fetchTVL, fetchTVS } from "@/services/api/stats"
@@ -218,7 +218,7 @@ const buildChart = (chart, data, color) => {
 
 				return `${tia(value, 2)} TIA`
 			case "seconds":
-				return `${truncateDecimalPart(value / 1_000, 3)}s`
+				return `${value}s`
 			case "usd":
 				return `${abbreviate(value)} $`
 			default:
@@ -397,9 +397,9 @@ watch(
 				</Flex>
 
 				<Flex v-if="series.units === 'seconds'" align="end" gap="10" justify="start" wide>
-					<Text size="16" weight="600" color="primary"> {{ `~${Math.round(currentTotal)}s` }} </Text>
+					<Text size="16" weight="600" color="primary"> {{ `~${roundTo(currentTotal)}s` }} </Text>
 					<Text size="14" weight="600" color="tertiary">
-						{{ `~${Math.round(prevTotal)}s previous ${period.title.replace("Last ", "")}` }}
+						{{ `~${roundTo(prevTotal)}s previous ${period.title.replace("Last ", "")}` }}
 					</Text>
 				</Flex>
 				<Flex v-else-if="series.units === 'utia'" align="end" gap="10" justify="start" wide>

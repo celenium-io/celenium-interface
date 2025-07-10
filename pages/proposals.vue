@@ -281,7 +281,7 @@ const handleLast = async () => {
 									</NuxtLink>
 								</td>
 								<td>
-									<NuxtLink :to="`/address/${proposal.proposer.hash}`">
+									<NuxtLink :to="`/proposal/${proposal.id}`">
 										<Flex align="center">
 											<Outline @click.prevent="router.push(`/block/${proposal.height}`)">
 												<Flex align="center" gap="6">
