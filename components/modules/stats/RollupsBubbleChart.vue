@@ -249,9 +249,9 @@ const buildChart = (chart, data) => {
 		const element = document.getElementById(event.target.id)
 		element.style.filter = "brightness(100%)"
 
-		if (!tooltip.value.data.length) {
+		if (!tooltip.value.data.length) {			
 			tooltip.value.x = x(rollup.blobs_count)
-			tooltip.value.y = y(rollup.feeUpdated)
+			tooltip.value.y = rollup.feeUpdated ? y(rollup.feeUpdated) : height - z(rollup.size) * 2
 			tooltip.value.r = z(rollup.size)
 			tooltip.value.data.push(rollup)
 			tooltip.value.show = true
@@ -268,12 +268,17 @@ const buildChart = (chart, data) => {
 
 	const calculateY = (d) => {
 		let cy = y(d.feeUpdated)
+		if (!cy) {
+			return height - (z(d.size) * 2)
+		}
+		
 		if (cy > height - 30) {
 			return height - 30 - 1
 		}
 
 		return cy
 	}
+
 	// Draw chart
 	const defs = svg.append("defs")
 	data.forEach((d, i) => {
@@ -295,14 +300,7 @@ const buildChart = (chart, data) => {
 		.enter()
 		.append("circle")
 		.attr("cx", (d) => x(d.blobs_count))
-		.attr("cy", (d) => {
-			let cy = y(d.feeUpdated)
-			if (cy > height - 30) {
-				return height - 30 - 1
-			}
-
-			return cy
-		})
+		.attr("cy", (d) => calculateY(d))
 		.attr("r", 0)
 		.attr("stroke", "var(--op-20)")
 		.attr("stroke-width", 1)
@@ -323,6 +321,10 @@ const buildChart = (chart, data) => {
 		.attr("x", (d) => x(d.blobs_count) - z(d.size))
 		.attr("y", (d) => {
 			let cy = y(d.feeUpdated)
+			if (!cy) {
+				return height - 30 - z(d.size)
+			}
+
 			if (cy > height - 30) {
 				return height - 30 - z(d.size) - 1
 			}
