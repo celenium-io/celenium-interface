@@ -463,6 +463,8 @@ li:not(li:last-child) {
 .link {
 	color: var(--txt-secondary);
 
+	transition: all 0.3s ease;
+
 	&:hover {
 		color: var(--txt-primary);
 		text-decoration: underline;

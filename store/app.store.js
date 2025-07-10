@@ -28,6 +28,7 @@ export const useAppStore = defineStore("app", () => {
 		low: "0",
 		close: "0",
 	})
+	const tvs = ref(0)
 
 	const wallet = ref("")
 	const address = ref("")
@@ -61,6 +62,7 @@ export const useAppStore = defineStore("app", () => {
 		initConstants,
 		gas,
 		currentPrice,
+		tvs,
 		wallet,
 		address,
 		balance,

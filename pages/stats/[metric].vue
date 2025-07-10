@@ -13,10 +13,10 @@ import TimelineSlider from "@/components/modules/stats/TimelineSlider.vue"
 /** Services */
 import { getStartChainDate } from "@/services/config"
 import { exportSVGToPNG, exportToCSV } from "@/services/utils/export"
-import { capitilize, capitalizeAndReplace } from "@/services/utils"
+import { abbreviate, capitilize, capitalizeAndReplace } from "@/services/utils"
 
 /** API */
-import { fetchSeries, fetchRollupsSeries, fetchSeriesCumulative, fetchTVS } from "@/services/api/stats"
+import { fetchSeries, fetchRollupsSeries, fetchSeriesCumulative, fetchTVL, fetchTVS } from "@/services/api/stats"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
@@ -24,10 +24,12 @@ import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Popover from "@/components/ui/Popover.vue"
 
 /** Store */
+import { useAppStore } from "@/store/app.store"
 import { useCacheStore } from "@/store/cache.store"
 import { useModalsStore } from "@/store/modals.store"
 import { useNotificationsStore } from "@/store/notifications.store"
 import { useSettingsStore } from "@/store/settings.store"
+const appStore = useAppStore()
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
@@ -38,11 +40,30 @@ const router = useRouter()
 
 const series = ref(getSeriesByPage(route.params.metric, route.query.aggregate))
 const metricName = ref("")
+const totalValue = computed(() => {
+	if (!series.value?.page) return null
+
+	switch (series.value.page) {
+		case "tvs":
+			return appStore.tvs
+				? {
+					value: appStore.tvs,
+					units: "$",
+				}
+				: null
+		
+		default:
+			return null
+	}
+})
 if (!series.value?.page) {
 	router.push("/stats")
 } else {
 	switch (series.value?.page) {
 		case "tvs":
+			metricName.value = series.value?.title
+			break
+		case "tvl":
 			metricName.value = series.value?.title
 			break
 		case "rollups":
@@ -104,12 +125,12 @@ useHead({
 
 const selectedPeriod = ref(STATS_PERIODS[2])
 
-const selectedTimeframe = ref(STATS_TIMEFRAMES.find((tf) => tf.timeframe === "day"))
+const selectedTimeframe = ref(STATS_TIMEFRAMES.find((tf) => tf.timeframe === "week"))
 const timeframes = computed(() => {
 	let res = [...STATS_TIMEFRAMES]
 
-	if (series.value?.name === "tvs") {
-		res = res.filter((tf) => tf.timeframe === "day" || tf.timeframe === "month")
+	if (["tvs", "tvl"].includes(series.value?.name)) {
+		res = res.filter((tf) => tf.timeframe !== "hour")
 	}
 
 	return res
@@ -227,6 +248,11 @@ const fetchData = async () => {
 			})
 		).map((v) => {
 			return { time: v.time, value: v.close }
+		})
+	} else if (series.value.name === "tvl") {
+		data = await fetchTVL({
+			slug: "celestia",
+			period: selectedTimeframe.value.timeframe,
 		})
 	} else if (series.value.page === "rollups") {
 		data = await fetchRollupsSeries({
@@ -470,7 +496,11 @@ onBeforeMount(() => {
 			</Flex>
 
 			<Flex v-if="series?.name" align="center" justify="between" wide :class="$style.header">
-				<Text size="16" weight="600" color="primary" justify="start"> {{ `${metricName} Chart` }} </Text>
+				<Flex align="center" gap="8">
+					<Text size="16" weight="600" color="primary" justify="start"> {{ `${metricName}` }} </Text>
+
+					<Text v-if="totalValue" size="20" weight="600" color="brand" justify="start"> {{ `${abbreviate(totalValue.value, 2)} ${totalValue.units}` }} </Text>
+				</Flex>
 
 				<Flex v-if="series?.name !== 'square_size'" align="center" gap="8" :class="$style.settings">
 					<Flex v-if="series?.page !== 'rollups'" align="center" gap="8">
@@ -586,22 +616,40 @@ onBeforeMount(() => {
 			</Flex>
 		</Flex>
 
-		<template v-if="series?.page">
-			<BarplotStakedChart v-if="series?.page === 'rollups'" :series="series" />
-			<SquareSizeChart v-else-if="series?.name === 'square_size'" />
-			<LineChart v-else-if="chartView === 'line'" :series="series" />
-			<BarChart v-else-if="chartView === 'bar'" :series="series" />
-		</template>
+		<Flex direction="column" gap="8">
+			<template v-if="series?.page">
+				<BarplotStakedChart v-if="series?.page === 'rollups'" :series="series" />
+				<SquareSizeChart v-else-if="series?.name === 'square_size'" />
+				<LineChart v-else-if="chartView === 'line'" :series="series" />
+				<BarChart v-else-if="chartView === 'bar'" :series="series" />
+			</template>
 
-		<TimelineSlider
-			v-if="series?.name !== 'square_size' && series?.page !== 'rollups'"
-			:allData="allData"
-			:chartView="chartView"
-			:from="filters.from"
-			:to="filters.to"
-			:selectedTimeframe="selectedTimeframe"
-			@onUpdate="handleTimelineUpdate"
-		/>
+			<TimelineSlider
+				v-if="series?.name !== 'square_size' && series?.page !== 'rollups'"
+				:allData="allData"
+				:chartView="chartView"
+				:from="filters.from"
+				:to="filters.to"
+				:selectedTimeframe="selectedTimeframe"
+				@onUpdate="handleTimelineUpdate"
+			/>
+		</Flex>
+
+		<Flex v-if="series?.name === 'tvs'" :class="$style.section">
+			<Text :class="$style.section_title">Celenium: How We Calculate Celestia’s TVS</Text>
+
+			<Flex :class="[$style.section, $style.section_content]">
+				<Text :class="$style.section_paragraph">On Celenium, the Total Value Secured (TVS) of the Celestia network is calculated by aggregating the TVL of each rollup that posts data to Celestia. We consider a rollup “secured by Celestia” if it uses Celestia as its data availability (DA) layer, regardless of its execution or settlement environment.</Text>
+
+				<Text :class="$style.section_paragraph">To determine each rollup’s TVL, we fetch data from one of the following public sources:</Text>
+				<ul style="margin-top: -8px">
+					<li><a href="https://l2beat.com" target="_blank" :class="$style.link">L2BEAT</a> - includes canonically and externally bridged assets, as well as natively minted tokens;</li>
+					<li><a href="https://defillama.com" target="_blank" :class="$style.link">DeFiLlama</a> - focuses on assets actively engaged in dApps on the rollup.</li>
+				</ul>
+
+				<Text :class="$style.section_paragraph">In addition to the rollup TVLs, we also include the circulating supply of the Celestia (TIA) token to reflect the value secured by the base layer itself. This gives a more holistic view of the total value secured by the Celestia network.</Text>
+			</Flex>
+		</Flex>
 	</Flex>
 </template>
 
@@ -640,6 +688,46 @@ onBeforeMount(() => {
 	opacity: 0.3;
 	pointer-events: none;
 	cursor: default;
+}
+
+.section {
+	flex-direction: column;
+	gap: 12px;
+
+	line-height: 1.2;
+}
+
+.wrapper > .section {
+	margin-top: 8px;
+}
+
+.section_title {
+	color: var(--txt-primary);
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.section_content {
+	color: var(--txt-secondary);
+	font-size: 14px;
+}
+
+.section_paragraph {
+	line-height: 1.2;
+}
+
+li:not(li:last-child) {
+	margin-bottom: 4px;
+}
+
+.link {
+	color: var(--txt-secondary);
+
+	transition: all 0.3s ease;
+
+	&:hover {
+		color: var(--brand);
+	}
 }
 
 @media (max-width: 650px) {
