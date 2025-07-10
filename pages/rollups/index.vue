@@ -197,6 +197,7 @@ const tags = computed(() => {
 
 	return res
 })
+const showInactive = ref(false)
 
 const providers = ref([])
 const stacks = ref([])
@@ -221,11 +222,13 @@ const keyMap = {
 	categories: "category",
 	types: "type",
 	tags: "tag",
+	showInactive: "is_active",
 }
 const filters = reactive({
 	categories: categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	types: types.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	tags: tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	showInactive: showInactive.value,
 })
 const savedFiltersBeforeChanges = ref(null)
 const handleOpenPopover = (name) => {
@@ -246,8 +249,10 @@ const onPopoverClose = (name) => {
 	}
 }
 const handleApplyFilters = (name) => {
-	savedFiltersBeforeChanges.value = null
-	popovers[name] = false
+	if (name) {
+		savedFiltersBeforeChanges.value = null
+		popovers[name] = false
+	}
 
 	if (page.value !== 1) {
 		page.value = 1
@@ -304,12 +309,15 @@ const processRollups = () => {
 	isRefetching.value = true
 
 	const selected = Object.keys(filters).reduce((acc, key) => {
-		acc[key] = Object.keys(filters[key]).filter((k) => filters[key][k])
+		if (typeof filters[key] === "object") {
+			acc[key] = Object.keys(filters[key]).filter((k) => filters[key][k])
+		}
+		
 		return acc
 	}, {})
 
 	filteredRollups.value = rollups.value.filter((r) => {
-		return Object.keys(selected).every((key) => {
+		const matchMulti = Object.keys(selected).every((key) => {
 			if (selected[key].length === 0) return true
 
 			if (Array.isArray(r[key])) {
@@ -318,6 +326,10 @@ const processRollups = () => {
 				return selected[key].includes(r[keyMap[key]])
 			}
 		})
+
+		const matchActive = filters.showInactive ? true : r.is_active
+
+		return matchMulti && matchActive
 	})
 
 	filteredRollups.value = sortArrayOfObjects(filteredRollups.value, sort.by, sort.dir === "asc").map((r, i) => ({ ...r, index: i + 1 }))
@@ -383,6 +395,13 @@ watch(
 	() => tags.value,
 	() => {
 		filters.tags = tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+	},
+)
+watch(
+	() => showInactive.value,
+	() => {
+		filters.showInactive = showInactive.value
+		handleApplyFilters()
 	},
 )
 
@@ -512,8 +531,18 @@ onBeforeMount(() => {
 							</Flex>
 						</template>
 					</Popover>
-				</Flex>
 
+					<Button @click="showInactive = !showInactive" type="secondary" size="mini">
+						<Icon
+							:name="showInactive ? 'eye' : 'eye-off'"
+							size="12"
+							:color="showInactive ? 'brand' : 'secondary'"
+						/>
+
+						<Text :color="showInactive ? 'secondary' : 'tertiary'"> Show inactive </Text>
+					</Button>
+				</Flex>
+				
 				<Popover :open="isConfigurePopoverOpen" @on-close="isConfigurePopoverOpen = false" width="150" side="right">
 					<Button @click="isConfigurePopoverOpen = true" type="secondary" size="mini">
 						<Icon name="settings" size="12" color="tertiary" />
@@ -775,6 +804,26 @@ onBeforeMount(() => {
 					<Text size="12" weight="500" height="160" color="tertiary" align="center">
 						This network does not contain any rollups
 					</Text>
+				</Flex>
+			</Flex>
+			
+			<Flex align="center" justify="end" :class="$style.footer">
+				<!-- Pagination -->
+				<Flex align="center" gap="6">
+					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
+						<Icon name="arrow-left-stop" size="12" color="primary" />
+					</Button>
+					<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
+						<Icon name="arrow-left" size="12" color="primary" />
+					</Button>
+
+					<Button type="secondary" size="mini" disabled>
+						<Text size="12" weight="600" color="primary">Page {{ comma(page) }} </Text>
+					</Button>
+
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
+						<Icon name="arrow-right" size="12" color="primary" />
+					</Button>
 				</Flex>
 			</Flex>
 		</Flex>
