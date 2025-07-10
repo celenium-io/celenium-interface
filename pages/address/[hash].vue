@@ -79,7 +79,7 @@ onBeforeRouteLeave(() => {
 
 const displayName = computed(() => {
 	const { $getDisplayName } = useNuxtApp()
-	return $getDisplayName("address", address.value.hash)
+	return $getDisplayName("address", address.value.hash, address.value)
 })
 </script>
 
