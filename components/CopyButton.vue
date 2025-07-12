@@ -1,6 +1,6 @@
 <script setup>
 /** Store */
-import { useNotificationsStore } from "@/store/notifications"
+import { useNotificationsStore } from "@/store/notifications.store"
 const notificationsStore = useNotificationsStore()
 
 const props = defineProps({
@@ -40,6 +40,7 @@ const handleCopy = (target) => {
 		:name="!isCopied ? 'copy' : 'check'"
 		:size="size"
 		:color="!isCopied ? 'tertiary' : 'green'"
+		hoverColor="primary"
 		class="copyable"
 	/>
 </template>

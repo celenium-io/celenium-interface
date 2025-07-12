@@ -348,7 +348,6 @@ watch(
                     </Flex>
                 </template>
             </Tooltip>
-            
         </div>
 
         <div :class="$style.horizontal_divider" />

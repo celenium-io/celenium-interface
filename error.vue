@@ -11,7 +11,7 @@ import CommandMenu from "@/components/cmd/CommandMenu.vue"
 import Button from "@/components/ui/Button.vue"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 const router = useRouter()
@@ -22,7 +22,7 @@ onMounted(async () => {
 	amp.init(runtimeConfig.public.AMP)
 
 	const data = await fetchHead()
-	if (data) appStore.head = data
+	if (data) appStore.lastHead = data
 })
 
 const handleBack = () => {

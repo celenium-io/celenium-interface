@@ -46,7 +46,7 @@ if (rawBlock.value) {
 	cacheStore.current.block = block.value
 }
 
-defineOgImage({
+defineOgImageComponent("BlockImage", {
 	title: "Block",
 	block: block.value,
 	component: "BlockImage",
@@ -54,11 +54,11 @@ defineOgImage({
 })
 
 useHead({
-	title: `Block ${comma(height)} - Celestia Explorer`,
+	title: `Block ${comma(height)} - Celenium`,
 	link: [
 		{
 			rel: "canonical",
-			href: `https://celenium.io${route.path}`,
+			href: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 	],
 	meta: [
@@ -68,7 +68,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: `Block ${comma(height)} - Celestia Explorer`,
+			content: `Block ${comma(height)} - Celenium`,
 		},
 		{
 			property: "og:description",
@@ -76,15 +76,11 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io${route.path}`,
-		},
-		{
-			property: "og:image",
-			content: `https://celenium.io${route.path}__og_image__/og.png`,
+			content: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 		{
 			name: "twitter:title",
-			content: `Block ${comma(height)} - Celestia Explorer`,
+			content: `Block ${comma(height)} - Celenium`,
 		},
 		{
 			name: "twitter:description",

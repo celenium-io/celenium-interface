@@ -39,7 +39,7 @@ onMounted(async () => {
 
 	const firstDayDt = DateTime.fromISO(days.value[0].time)
 	if (firstDayDt.weekday !== 1) {
-		days.value.unshift(...new Array(firstDayDt.weekday - 1))
+		days.value.unshift(...Array.from({ length: firstDayDt.weekday - 1 }))
 	}
 
 	/** days -> weeks */
@@ -55,7 +55,7 @@ onMounted(async () => {
 
 	/** fill empty weeks */
 	while (weeks.value.length < 24) {
-		weeks.value.push(new Array(7))
+		weeks.value.push(Array.from({ length: 7 }))
 	}
 
 	/** remove first weeks */
@@ -63,7 +63,6 @@ onMounted(async () => {
 		weeks.value.shift()
 	}
 
-	// totalSize.time = DateTime.fromISO(weeks.value[0][0].time)
 	totalSize.time = Object.values(weeks.value[0]).find(Boolean).time
 })
 
@@ -78,8 +77,8 @@ const calculateOpacity = (val) => {
 }
 
 const selectDay = (d) => {
-	let from = parseInt(DateTime.fromISO(d.time).startOf('day').ts / 1_000)
-	let to = parseInt(DateTime.fromISO(d.time).endOf('day').ts / 1_000)
+	let from = parseInt(DateTime.fromISO(d.time).startOf("day").ts / 1_000)
+	let to = parseInt(DateTime.fromISO(d.time).endOf("day").ts / 1_000)
 	router.push(`/txs?message_type=MsgPayForBlobs&from=${from}&to=${to}`)
 }
 </script>

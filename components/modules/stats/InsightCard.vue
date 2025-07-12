@@ -1,13 +1,9 @@
 <script setup>
 /** Vendor */
-import * as d3 from "d3"
 import { DateTime } from "luxon"
 
-/** Stats Components */
-import DiffChip from "@/components/modules/stats/DiffChip.vue"
-
 /** Services */
-import { abbreviate, capitilize, comma, formatBytes, shareOfTotal, shareOfTotalString } from "@/services/utils"
+import { abbreviate, capitilize, comma, formatBytes, shareOfTotal } from "@/services/utils"
 
 /** API */
 import { fetchGeneralStats, fetchSummary } from "@/services/api/stats"
@@ -29,74 +25,73 @@ const isLoading = ref(false)
 
 const getSeries = async () => {
 	isLoading.value = true
-	
+
 	let data = []
-	if (props.series.name === 'gas') {
+	if (props.series.name === "gas") {
 		const gasUsed = await fetchSummary({
-			table: 'tx',
-			func: 'sum',
-			column: 'gas_used',
+			table: "tx",
+			func: "sum",
+			column: "gas_used",
 			from: parseInt(DateTime.now().minus({ hours: 24 }).ts / 1_000),
 		})
 
 		const gasWanted = await fetchSummary({
-			table: 'tx',
-			func: 'sum',
-			column: 'gas_wanted',
+			table: "tx",
+			func: "sum",
+			column: "gas_wanted",
 			from: parseInt(DateTime.now().minus({ hours: 24 }).ts / 1_000),
 		})
 
-		let efficiency = (gasUsed / gasWanted * 100).toFixed(0)
+		let efficiency = ((gasUsed / gasWanted) * 100).toFixed(0)
 		data = [
 			{
-				name: 'efficiency',
+				name: "efficiency",
 				value: `${efficiency}%`,
 				share: efficiency,
-				color: colors[props.series.color ? props.series.color : 'mint'][0]
+				color: colors[props.series.color ? props.series.color : "mint"][0],
 			},
 			{
-				name: 'limit',
+				name: "limit",
 				value: abbreviate(gasWanted),
 				share: 100 - efficiency,
-				color: colors[props.series.color ? props.series.color : 'mint'][4]
+				color: colors[props.series.color ? props.series.color : "mint"][4],
 			},
 			{
-				name: 'used',
+				name: "used",
 				value: abbreviate(gasUsed),
-				color: colors[props.series.color ? props.series.color : 'mint'][4]
+				color: colors[props.series.color ? props.series.color : "mint"][4],
 			},
 		]
 	} else {
-		data = await fetchGeneralStats({ name: props.series.name })	
+		data = await fetchGeneralStats({ name: props.series.name })
 	}
-	
+
 	switch (props.series.name) {
-		case 'rollup_stats_24h':
+		case "rollup_stats_24h":
 			resData.value = data
-				.filter(item => item.id !== undefined && item.id !== null)
-				.map(item => {
+				.filter((item) => item.id !== undefined && item.id !== null)
+				.map((item) => {
 					const { blobs_count, ...rest } = item
 					return {
 						...rest,
-						value: blobs_count
+						value: blobs_count,
 					}
 				})
 			break
-		case 'messages_count_24h':
-			resData.value = data
-				.map(item => {
-					return {
-						...item,
-						name: item.name.replace('Msg', '')
-					}
-				})
+		case "messages_count_24h":
+			resData.value = data.map((item) => {
+				return {
+					...item,
+					name: item.name.replace("Msg", ""),
+				}
+			})
 			break
 		default:
 			resData.value = data
 			break
 	}
 
-	if (props.series.name === 'gas') {
+	if (props.series.name === "gas") {
 		total.value = resData.value[0].value
 	} else {
 		total.value = resData.value.reduce((sum, el) => {
@@ -108,7 +103,7 @@ const getSeries = async () => {
 
 		let totalOther = total.value
 		let sumShares = 0
-		resData.value.forEach(item => {
+		resData.value.forEach((item) => {
 			let share = shareOfTotal(item.value, total.value, 2)
 			totalOther -= item.value
 			sumShares += share ? share : 0
@@ -125,8 +120,8 @@ const getSeries = async () => {
 		}
 
 		resData.value.forEach((item, index) => {
-			item.color = colors[props.series.color ? props.series.color : 'mint'][index]
-		})		
+			item.color = colors[props.series.color ? props.series.color : "mint"][index]
+		})
 	}
 
 	isLoading.value = false
@@ -135,14 +130,13 @@ const getSeries = async () => {
 const barWrapperEl = ref(null)
 const barWrapperWidth = ref(0)
 const colors = {
-	// mint: ["var(--mint)", "#46a78e", "var(--dark-mint)", "var(--op-10)"],
 	mint: ["var(--mint)", "#50bfa3", "#327766", "var(--dark-mint)", "var(--op-10)"],
 	white: ["var(--txt-primary)", "var(--txt-secondary)", "var(--txt-tertiary)", "var(--op-10)", "var(--op-5)"],
 }
 
 const handleHoverEnter = (index) => {
 	const elements = document.querySelectorAll(`[class*='insight-item-${props.series.name}']`)
-	elements.forEach(el => {
+	elements.forEach((el) => {
 		if (+el.id === index) {
 			el.style.filter = "brightness(100%)"
 		} else {
@@ -153,7 +147,7 @@ const handleHoverEnter = (index) => {
 
 const handleHoverLeave = () => {
 	const elements = document.querySelectorAll(`[class*='insight-item-${props.series.name}']`)
-	elements.forEach(el => {
+	elements.forEach((el) => {
 		el.style.filter = "brightness(100%)"
 	})
 }
@@ -163,14 +157,6 @@ onMounted(async () => {
 
 	await getSeries()
 })
-
-// watch(
-// 	() => props.period,
-// 	async () => {
-// 		await drawChart()
-// 	},
-// )
-
 </script>
 
 <template>
@@ -179,9 +165,9 @@ onMounted(async () => {
 			<Flex align="center" gap="10" justify="start" wide>
 				<Text size="14" weight="600" color="secondary"> {{ series.title }} </Text>
 			</Flex>
-			
+
 			<Flex v-if="series.name !== 'gas'" align="end" gap="10" justify="start" wide>
-				<Text size="20" weight="600" color="primary"> {{ series.units === 'bytes' ? formatBytes(total) : comma(total) }} </Text>
+				<Text size="20" weight="600" color="primary"> {{ series.units === "bytes" ? formatBytes(total) : comma(total) }} </Text>
 				<Text size="14" weight="600" color="tertiary"> new today </Text>
 			</Flex>
 			<Flex v-else align="end" gap="10" justify="start" wide>
@@ -200,7 +186,7 @@ onMounted(async () => {
 					{
 						[$style.bar]: true,
 						[$style.fadein]: true,
-					}
+					},
 				]"
 				:style="{
 					transition: 'all 0.5s ease',
@@ -219,7 +205,7 @@ onMounted(async () => {
 					{
 						[$style.bar]: true,
 						[$style.fadein]: true,
-					}
+					},
 				]"
 				:style="{
 					transition: 'all 0.5s ease',
@@ -231,22 +217,24 @@ onMounted(async () => {
 		</Flex>
 
 		<Flex v-if="series.name !== 'gas'" @pointerleave="handleHoverLeave()" align="center" direction="column" gap="12" wide>
-			<Flex 
+			<Flex
 				@pointerenter="handleHoverEnter(index)"
 				v-for="(item, index) in resData"
 				justify="between"
-				gap="4" wide
+				gap="4"
+				wide
 				:id="index"
 				:class="[
 					`insight-item-${series.name}`,
 					{
 						[$style.fadein]: true,
-					}
+					},
 				]"
 				:style="{ transition: 'all 0.5s ease', animationDelay: `${index * 0.15}s` }"
 			>
 				<Flex align="center" justify="start" gap="6">
-					<Icon v-if="series.name === 'rollup_stats_24h' && index === 0"
+					<Icon
+						v-if="series.name === 'rollup_stats_24h' && index === 0"
 						name="crown"
 						size="14"
 						:style="{
@@ -255,7 +243,8 @@ onMounted(async () => {
 							fill: 'var(--mint)',
 						}"
 					/>
-					<div v-else
+					<div
+						v-else
 						:class="$style.legend"
 						:style="{
 							background: item.color,
@@ -268,7 +257,9 @@ onMounted(async () => {
 				<Flex align="center" gap="6">
 					<Text size="12" weight="500" color="tertiary"> {{ comma(item.value) }} </Text>
 
-					<Text size="12" weight="500" color="secondary"> {{ `${item.share > 99 && resData.length > 1 ? 99 : item.share < 1 ? '<1' : item.share.toFixed(0)}%` }} </Text>
+					<Text size="12" weight="500" color="secondary">
+						{{ `${item.share > 99 && resData.length > 1 ? 99 : item.share < 1 ? "<1" : item.share.toFixed(0)}%` }}
+					</Text>
 				</Flex>
 			</Flex>
 		</Flex>
@@ -278,13 +269,14 @@ onMounted(async () => {
 				@pointerenter="handleHoverEnter(index)"
 				v-for="(item, index) in resData"
 				justify="between"
-				gap="4" wide
+				gap="4"
+				wide
 				:id="index"
 				:class="[
 					`insight-item-${series.name}`,
 					{
 						[$style.fadein]: true,
-					}
+					},
 				]"
 				:style="{ transition: 'all 0.5s ease', animationDelay: `${index * 0.15}s` }"
 			>
@@ -341,23 +333,22 @@ onMounted(async () => {
 }
 
 .header {
-
 }
 
 .fadein {
-    opacity: 0;
-    animation-name: fadeIn;
-    animation-duration: 1s;
-    animation-fill-mode: forwards;
+	opacity: 0;
+	animation-name: fadeIn;
+	animation-duration: 1s;
+	animation-fill-mode: forwards;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 
 @media (max-width: 1000px) {

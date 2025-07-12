@@ -29,9 +29,9 @@ import { fetchTransactionsByBlock } from "@/services/api/tx"
 import { fetchAvgBlockTime } from "@/services/api/block"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useModalsStore } from "@/store/modals"
-import { useCacheStore } from "@/store/cache"
+import { useAppStore } from "@/store/app.store"
+import { useModalsStore } from "@/store/modals.store"
+import { useCacheStore } from "@/store/cache.store"
 const appStore = useAppStore()
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
@@ -214,7 +214,11 @@ const handleApplyMessageTypeFilters = () => {
 	savedFiltersBeforeChanges.value = null
 	isMessageTypePopoverOpen.value = false
 
-	getTransactions()
+	if (page.value > 1) {
+		page.value = 1
+	} else {
+		getTransactions()
+	}
 
 	updateRouteQuery()
 }
@@ -324,7 +328,9 @@ const handleViewRawTransactions = () => {
 			<Flex align="center" gap="12">
 				<Flex align="center" gap="8">
 					<Icon name="block" size="14" color="primary" />
-					<Text size="13" weight="600" color="primary">Block </Text>
+          <Text as="h1" size="13" weight="600" color="primary">
+            Block <Text color="secondary">{{ comma(block.height) }} </Text>
+          </Text>
 				</Flex>
 
 				<Flex align="center" gap="8">
@@ -371,7 +377,7 @@ const handleViewRawTransactions = () => {
 
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" :class="$style.data">
-				<Flex wide direction="column" gap="12" :class="$style.top">
+				<Flex wide direction="column" gap="8" :class="$style.top">
 					<Flex align="center" justify="between" wide>
 						<Flex tag="h1" align="center" gap="6">
 							<Text size="12" weight="600" color="secondary"> Height </Text>
@@ -492,6 +498,30 @@ const handleViewRawTransactions = () => {
 							<Icon v-else name="clock" size="12" color="support" />
 						</Flex>
 					</Flex>
+
+					<Flex align="center" gap="8">
+						<Button
+							@click="router.push(`/block/${block.height - 1}`)"
+							wide
+							type="secondary"
+							size="mini"
+							:disabled="block.height === 0"
+						>
+							<Icon name="arrow-redo-right" size="16" color="tertiary" :style="{ transform: 'scaleX(-1)' }" />
+							<Text :class="$style.block_nav__txt"><Text color="secondary">Go to</Text> {{ comma(block.height - 1) }}</Text>
+						</Button>
+
+						<Button
+							@click="router.push(`/block/${block.height + 1}`)"
+							wide
+							type="secondary"
+							size="mini"
+							:disabled="block.height === lastBlock?.height"
+						>
+							<Text :class="$style.block_nav__txt"><Text color="secondary">Go to </Text>{{ comma(block.height + 1) }}</Text>
+							<Icon name="arrow-redo-right" size="16" color="tertiary" />
+						</Button>
+					</Flex>
 				</Flex>
 			</Flex>
 
@@ -526,12 +556,16 @@ const handleViewRawTransactions = () => {
 					<Flex wrap="wrap" align="center" justify="start" gap="8" :class="$style.filters">
 						<Popover :open="isStatusPopoverOpen" @on-close="onStatusPopoverClose" width="200">
 							<Button @click="handleOpenStatusPopover" type="secondary" size="mini" :disabled="!transactions.length">
-								<Icon name="plus-circle" size="12" color="tertiary" />
-								<Text color="secondary">Status</Text>
+								<Icon
+									name="plus-circle"
+									size="12"
+									:color="Object.keys(filters.status).find((f) => filters.status[f]) ? 'brand' : 'tertiary'"
+								/>
+								<Text color="secondary"
+									>Status<template v-if="Object.keys(filters.status).find((f) => filters.status[f])">:</template></Text
+								>
 
 								<template v-if="Object.keys(filters.status).find((f) => filters.status[f])">
-									<div :class="$style.vertical_divider" />
-
 									<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
 										{{
 											Object.keys(filters.status)
@@ -546,7 +580,7 @@ const handleViewRawTransactions = () => {
 
 							<template #content>
 								<Flex direction="column" gap="12">
-									<Text size="12" weight="500" color="secondary">Filter by Status</Text>
+									<Text size="12" weight="600" color="secondary">Filter by Status</Text>
 
 									<Flex direction="column" gap="8">
 										<Checkbox v-model="filters.status.success">
@@ -564,12 +598,18 @@ const handleViewRawTransactions = () => {
 
 						<Popover :open="isMessageTypePopoverOpen" @on-close="onMessageTypePopoverClose" width="250">
 							<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini" :disabled="!transactions.length">
-								<Icon name="plus-circle" size="12" color="tertiary" />
-								<Text color="secondary">Message Type</Text>
+								<Icon
+									name="plus-circle"
+									size="12"
+									:color="Object.keys(filters.message_type).find((f) => filters.message_type[f]) ? 'brand' : 'tertiary'"
+								/>
+								<Text color="secondary"
+									>Message Type<template v-if="Object.keys(filters.message_type).find((f) => filters.message_type[f])"
+										>:</template
+									></Text
+								>
 
 								<template v-if="Object.keys(filters.message_type).find((f) => filters.message_type[f])">
-									<div :class="$style.vertical_divider" />
-
 									<Text size="12" weight="600" color="primary">
 										{{
 											Object.keys(filters.message_type).filter((f) => filters.message_type[f]).length < 3
@@ -596,7 +636,7 @@ const handleViewRawTransactions = () => {
 
 							<template #content>
 								<Flex direction="column" gap="12">
-									<Text size="12" weight="500" color="secondary">Filter by Message Type</Text>
+									<Text size="12" weight="600" color="secondary">Filter by Message Type</Text>
 
 									<Input v-model="searchTerm" size="small" placeholder="Search" autofocus />
 
@@ -888,9 +928,9 @@ const handleViewRawTransactions = () => {
 	background: var(--card-background);
 
 	.top {
-		padding: 16px;
-
 		border-bottom: 1px solid var(--op-5);
+
+		padding: 16px;
 	}
 
 	.main {
@@ -1062,9 +1102,9 @@ const handleViewRawTransactions = () => {
 }
 
 .filters {
-	border-bottom: 1px dashed var(--op-8);
+	border-bottom: 1px solid var(--op-5);
 
-	padding: 4px 8px 6px 8px;
+	padding: 12px 8px 12px 8px;
 }
 
 .pagination {
@@ -1090,6 +1130,16 @@ const handleViewRawTransactions = () => {
 
 	.table {
 		border-radius: 4px 4px 8px 8px;
+	}
+}
+
+@media (max-width: 550px) {
+	.header {
+		height: initial;
+		flex-direction: column;
+		gap: 12px;
+
+		padding: 12px 0;
 	}
 }
 

@@ -13,7 +13,6 @@ export const useModalsStore = defineStore("modals", () => {
 		blob: false,
 		commitment: false,
 		confirmation: false,
-		constants: false,
 		edit_alias: false,
 		import: false,
 		ods: false,
@@ -30,6 +29,7 @@ export const useModalsStore = defineStore("modals", () => {
 		lightNodeSettings: false,
 		connect: false,
 		chart: false,
+		rollupRank: false,
 	})
 
 	const open = (target) => {

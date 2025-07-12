@@ -22,7 +22,7 @@ import { getStartChainDate } from "@/services/config"
 import { fetchTransactions } from "@/services/api/tx"
 
 /** Stores */
-import { useEnumStore } from "@/store/enums"
+import { useEnumStore } from "@/store/enums.store"
 const enumStore = useEnumStore()
 
 useHead({
@@ -36,7 +36,8 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: "Transactions in the Celestia Blockchain. Hash, messages, timestamp, block height, gas usage, events count are shown.",
+			content:
+				"View all transactions in the Celestia Blockchain. Hash, messages, timestamp, block height, gas usage, events count are shown.",
 		},
 		{
 			property: "og:title",
@@ -44,7 +45,8 @@ useHead({
 		},
 		{
 			property: "og:description",
-			content: "Transactions in the Celestia Blockchain. Hash, messages, timestamp, block height, gas usage, events count are shown.",
+			content:
+				"View all transactions in the Celestia Blockchain. Hash, messages, timestamp, block height, gas usage, events count are shown.",
 		},
 		{
 			property: "og:url",
@@ -60,7 +62,8 @@ useHead({
 		},
 		{
 			name: "twitter:description",
-			content: "Transactions in the Celestia Blockchain. Hash, messages, timestamp, block height, gas usage, events count are shown.",
+			content:
+				"View all transactions in the Celestia Blockchain. Hash, messages, timestamp, block height, gas usage, events count are shown.",
 		},
 		{
 			name: "twitter:card",
@@ -283,7 +286,7 @@ const sort = reactive({
 	dir: "desc",
 })
 
-const page = ref(route.query.page ? parseInt(route.query.page) < 1 ? 1 : parseInt(route.query.page) : 1)
+const page = ref(route.query.page ? (parseInt(route.query.page) < 1 ? 1 : parseInt(route.query.page)) : 1)
 const limit = ref(20)
 const handleNextCondition = ref(false)
 
@@ -310,7 +313,7 @@ const getTransactions = async () => {
 		from: filters.from,
 		to: filters.to,
 	})
-	
+
 	transactions.value = data.value
 
 	handleNextCondition.value = transactions.value?.length < limit.value
@@ -336,7 +339,7 @@ watch(
 			} else {
 				resetFilters()
 			}
-			
+
 			await getTransactions()
 		}
 	},
@@ -360,7 +363,7 @@ watch(
 	() => msgTypes.value,
 	() => {
 		filters.message_type = msgTypes.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
-	}
+	},
 )
 
 const handleSort = async (by) => {
@@ -412,7 +415,7 @@ const handleNext = () => {
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
 					<Icon name="tx" size="16" color="secondary" />
-					<Text size="14" weight="600" color="primary">Transactions</Text>
+					<Text as="h1" size="14" weight="600" color="primary">Transactions</Text>
 				</Flex>
 
 				<Flex align="center" gap="6">
@@ -437,12 +440,16 @@ const handleNext = () => {
 				<Flex wrap="wrap" align="center" gap="8">
 					<Popover :open="isStatusPopoverOpen" @on-close="onStatusPopoverClose" width="200">
 						<Button @click="handleOpenStatusPopover" type="secondary" size="mini">
-							<Icon name="plus-circle" size="12" color="tertiary" />
-							<Text color="secondary">Status</Text>
+							<Icon
+								name="plus-circle"
+								size="12"
+								:color="Object.keys(filters.status).find((f) => filters.status[f]) ? 'brand' : 'tertiary'"
+							/>
+							<Text color="secondary">
+								Status<template v-if="Object.keys(filters.status).find((f) => filters.status[f])">: </template>
+							</Text>
 
 							<template v-if="Object.keys(filters.status).find((f) => filters.status[f])">
-								<div :class="$style.vertical_divider" />
-
 								<Text size="12" weight="600" color="primary" style="text-transform: capitalize">
 									{{
 										Object.keys(filters.status)
@@ -457,7 +464,7 @@ const handleNext = () => {
 
 						<template #content>
 							<Flex direction="column" gap="12">
-								<Text size="12" weight="500" color="secondary">Filter by Status</Text>
+								<Text size="12" weight="600" color="secondary">Filter by Status</Text>
 
 								<Flex direction="column" gap="8">
 									<Checkbox v-model="filters.status.success">
@@ -475,12 +482,18 @@ const handleNext = () => {
 
 					<Popover :open="isMessageTypePopoverOpen" @on-close="onMessageTypePopoverClose" width="250">
 						<Button @click="handleOpenMessageTypePopover" type="secondary" size="mini">
-							<Icon name="plus-circle" size="12" color="tertiary" />
-							<Text color="secondary">Message Type</Text>
+							<Icon
+								name="plus-circle"
+								size="12"
+								:color="Object.keys(filters.message_type).find((f) => filters.message_type[f]) ? 'brand' : 'tertiary'"
+							/>
+							<Text color="secondary"
+								>Message Type<template v-if="Object.keys(filters.message_type).find((f) => filters.message_type[f])"
+									>:</template
+								></Text
+							>
 
 							<template v-if="Object.keys(filters.message_type).find((f) => filters.message_type[f])">
-								<div :class="$style.vertical_divider" />
-
 								<Text size="12" weight="600" color="primary">
 									{{
 										Object.keys(filters.message_type).filter((f) => filters.message_type[f]).length < 3
@@ -502,7 +515,7 @@ const handleNext = () => {
 
 						<template #content>
 							<Flex direction="column" gap="12">
-								<Text size="12" weight="500" color="secondary">Filter by Message Type</Text>
+								<Text size="12" weight="600" color="secondary">Filter by Message Type</Text>
 
 								<Input v-model="searchTerm" size="small" placeholder="Search" autofocus />
 
@@ -707,7 +720,7 @@ const handleNext = () => {
 									<NuxtLink :to="`/tx/${tx.hash}`">
 										<Flex align="center">
 											<Text size="12" weight="600" color="primary" mono class="table_column_alias">
-												{{ $getDisplayName("addresses", "", tx.signers[0]) }}
+												{{ $getDisplayName("addresses", "", tx.signers ? tx.signers[0] : "") }}
 											</Text>
 										</Flex>
 									</NuxtLink>
@@ -811,12 +824,6 @@ const handleNext = () => {
 	background: var(--card-background);
 
 	padding: 8px 16px;
-}
-
-.vertical_divider {
-	min-width: 2px;
-	height: 12px;
-	background: var(--op-10);
 }
 
 .horizontal_divider {

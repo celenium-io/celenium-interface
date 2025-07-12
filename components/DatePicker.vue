@@ -281,13 +281,11 @@ watch(
 <template>
 	<Popover :open="isOpen" @on-close="handleClose" :width="popoverStyles.width" :side="popoverStyles.side">
 		<Button v-if="showTitle" @click="handleOpen" type="secondary" size="mini">
-			<Icon name="plus-circle" size="12" color="tertiary" />
+			<Icon name="plus-circle" size="12" :color="selectedRange ? 'brand' : 'tertiary'" />
 
-			<Text color="secondary">Date Range</Text>
+			<Text color="secondary">Date Range<template v-if="selectedRange">:</template></Text>
 
 			<template v-if="selectedRange">
-				<div :class="$style.vertical_divider" />
-
 				<Text size="12" weight="600" color="primary">
 					{{ selectedRange }}
 				</Text>
@@ -443,12 +441,6 @@ watch(
 <style module lang="scss">
 .wrapper {
 	height: 100%;
-}
-
-.vertical_divider {
-	min-width: 2px;
-	height: 50%;
-	background: var(--op-10);
 }
 
 .period {

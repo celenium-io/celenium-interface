@@ -7,7 +7,7 @@ import BlobsTable from "@/components/modules/block/BlobsTable.vue"
 import { fetchTxByHash } from "@/services/api/tx"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const route = useRoute()
@@ -22,19 +22,18 @@ if (!rawTx.value) {
 	cacheStore.current.transaction = tx.value
 }
 
-defineOgImage({
+defineOgImageComponent("TxImage", {
 	title: "Tx",
 	tx: tx.value,
-	component: "TxImage",
 	cacheKey: `${tx.value?.hash}`,
 })
 
 useHead({
-	title: `Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash.toUpperCase().slice(-4)} - Celestia Explorer`,
+	title: `Transaction ${tx.value?.hash.toUpperCase()} - Celenium`,
 	link: [
 		{
 			rel: "canonical",
-			href: `https://celenium.io${route.path}`,
+			href: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 	],
 	meta: [
@@ -46,9 +45,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: `Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash
-				.toUpperCase()
-				.slice(-4)} - Celestia Explorer`,
+			content: `Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash.toUpperCase().slice(-4)} - Celenium`,
 		},
 		{
 			property: "og:description",
@@ -58,17 +55,11 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io${route.path}`,
-		},
-		{
-			property: "og:image",
-			content: `https://celenium.io${route.path}__og_image__/og.png`,
+			content: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 		{
 			name: "twitter:title",
-			content: `Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash
-				.toUpperCase()
-				.slice(-4)} - Celestia Explorer`,
+			content: `Transaction ${tx.value?.hash.toUpperCase().slice(0, 4)} ••• ${tx.value?.hash.toUpperCase().slice(-4)} - Celenium`,
 		},
 		{
 			name: "twitter:description",
@@ -85,7 +76,6 @@ useHead({
 
 const displayName = computed(() => {
 	const { $getDisplayName } = useNuxtApp()
-
 	return $getDisplayName("tx", tx.value?.hash)
 })
 </script>

@@ -1,13 +1,14 @@
 <script setup>
 /** Components: Modules */
 import AddressOverview from "@/components/modules/address/AddressOverview.vue"
+import VotesTable from "@/components/modules/address/VotesTable.vue"
 import AddressCharts from "@/components/modules/address/AddressCharts.vue"
 
 /** API */
 import { fetchAddressByHash } from "@/services/api/address"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 
 const cacheStore = useCacheStore()
 
@@ -24,21 +25,20 @@ if (!rawAddress.value) {
 	cacheStore.current.address = address.value
 }
 
-defineOgImage({
+defineOgImageComponent("AddressImage", {
 	title: "Address",
 	address: address.value,
-	component: "AddressImage",
 	cacheKey: `${address.value?.hash.slice(-4)}-${address.value?.balance.spendable}-${address.value?.first_height}-${
 		address.value?.last_height
 	}`,
 })
 
 useHead({
-	title: `Address ${address.value?.hash} - Celestia Explorer`,
+	title: `Address ${address.value?.hash} - Celenium`,
 	link: [
 		{
 			rel: "canonical",
-			href: `https://celenium.io${route.path}`,
+			href: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 	],
 	meta: [
@@ -48,7 +48,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: `Address ${address.value?.hash} - Celestia Explorer`,
+			content: `Address ${address.value?.hash} - Celenium`,
 		},
 		{
 			property: "og:description",
@@ -56,15 +56,11 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io${route.path}`,
-		},
-		{
-			property: "og:image",
-			content: `https://celenium.io${route.path}__og_image__/og.png`,
+			content: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 		{
 			name: "twitter:title",
-			content: `Address ${address.value?.hash} - Celestia Explorer`,
+			content: `Address ${address.value?.hash} - Celenium`,
 		},
 		{
 			name: "twitter:description",
@@ -83,7 +79,6 @@ onBeforeRouteLeave(() => {
 
 const displayName = computed(() => {
 	const { $getDisplayName } = useNuxtApp()
-
 	return $getDisplayName("address", address.value.hash)
 })
 </script>
@@ -101,10 +96,13 @@ const displayName = computed(() => {
 				:class="$style.breadcrumbs"
 			/>
 
-			<AddressOverview v-if="address" :address="address" />
+			<AddressOverview v-if="address" :address />
 		</Flex>
 
-		<AddressCharts v-if="address" :hash="address.hash" />
+		<template v-if="address">
+			<AddressCharts :hash="address.hash" />
+			<VotesTable :address />
+		</template>
 	</Flex>
 </template>
 

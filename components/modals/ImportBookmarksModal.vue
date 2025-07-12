@@ -5,8 +5,8 @@ import Toggle from "@/components/ui/Toggle.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Store */
-import { useBookmarksStore } from "@/store/bookmarks"
-import { useNotificationsStore } from "@/store/notifications"
+import { useBookmarksStore } from "@/store/bookmarks.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const bookmarksStore = useBookmarksStore()
 const notificationsStore = useNotificationsStore()
 

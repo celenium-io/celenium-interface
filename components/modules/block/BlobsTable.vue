@@ -15,8 +15,8 @@ import { fetchTxBlobs, fetchTxBlobsCount } from "@/services/api/tx"
 import { fetchBlockBlobs } from "@/services/api/block"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 

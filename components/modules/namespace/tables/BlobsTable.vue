@@ -9,8 +9,8 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { formatBytes, getNamespaceID, space } from "@/services/utils"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 
@@ -26,7 +26,7 @@ const props = defineProps({
 	source: {
 		type: String,
 		required: false,
-	}
+	},
 })
 
 const handleViewBlob = (blob) => {
@@ -47,7 +47,9 @@ const handleViewBlob = (blob) => {
 		<table :class="$style.table">
 			<thead>
 				<tr>
-					<th><Text size="12" weight="600" color="tertiary"> {{ source === "account" ? "Namespace" : "Signer" }} </Text></th>
+					<th>
+						<Text size="12" weight="600" color="tertiary"> {{ source === "account" ? "Namespace" : "Signer" }} </Text>
+					</th>
 					<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
 					<th><Text size="12" weight="600" color="tertiary">Share Commitments</Text></th>
 					<th><Text size="12" weight="600" color="tertiary">Size</Text></th>
@@ -61,7 +63,7 @@ const handleViewBlob = (blob) => {
 							<Flex direction="column" gap="4">
 								<Flex align="center" gap="8">
 									<Text size="12" weight="600" color="primary" mono class="table_column_alias">
-										{{ $getDisplayName('namespaces', blob.namespace.namespace_id) }}
+										{{ $getDisplayName("namespaces", blob.namespace.namespace_id) }}
 									</Text>
 
 									<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
@@ -80,7 +82,7 @@ const handleViewBlob = (blob) => {
 							<template #content>
 								{{ space(getNamespaceID(blob.namespace.namespace_id)) }}
 							</template>
-						</Tooltip>					
+						</Tooltip>
 					</td>
 					<td v-else>
 						<Tooltip v-if="blob.signer.hash" position="start" delay="500">
@@ -103,7 +105,7 @@ const handleViewBlob = (blob) => {
 							<Text size="12" weight="600" color="primary">
 								{{ DateTime.fromISO(blob.time).toRelative({ locale: "en", style: "short" }) }}
 							</Text>
-							
+
 							<Text size="12" weight="500" color="tertiary">
 								{{ DateTime.fromISO(blob.time).setLocale("en").toFormat("LLL d, t") }}
 							</Text>

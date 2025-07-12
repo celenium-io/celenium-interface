@@ -8,7 +8,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { tia, comma, space, formatBytes } from "@/services/utils"
+import { comma, space, formatBytes } from "@/services/utils"
 
 /** API */
 import { fetchBlocks, fetchBlocksCount } from "@/services/api/block"
@@ -24,7 +24,8 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: "Blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size and fee are shown.",
+			content:
+				"View all blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size and fee are shown.",
 		},
 		{
 			property: "og:title",
@@ -32,7 +33,8 @@ useHead({
 		},
 		{
 			property: "og:description",
-			content: "Blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size and fee are shown.",
+			content:
+				"View all blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size and fee are shown.",
 		},
 		{
 			property: "og:url",
@@ -48,7 +50,8 @@ useHead({
 		},
 		{
 			name: "twitter:description",
-			content: "Blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size and fee are shown.",
+			content:
+				"View all blocks in the Celestia Blockchain. Hash, proposer, transactions count, events, blobs size and fee are shown.",
 		},
 		{
 			name: "twitter:card",
@@ -131,7 +134,7 @@ const handleLast = async () => {
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
 					<Icon name="block" size="16" color="secondary" />
-					<Text size="14" weight="600" color="primary">Blocks</Text>
+					<Text as="h1" size="14" weight="600" color="primary">Blocks</Text>
 				</Flex>
 
 				<Flex align="center" gap="6">

@@ -13,7 +13,7 @@ import { formatBytes, comma, abbreviate, capitilize } from "@/services/utils"
 import { fetchRollups } from "@/services/api/rollup"
 
 /** Stores */
-import { useEnumStore } from "@/store/enums"
+import { useEnumStore } from "@/store/enums.store"
 const enumStore = useEnumStore()
 
 useHead({
@@ -84,20 +84,20 @@ const categories = computed(() => {
 	let res = []
 	if (enumStore.enums.rollupCategories.length) {
 		res = enumStore.enums.rollupCategories.slice(1)
-		res.push('other')
+		res.push("other")
 	}
-	
-	return res	
+
+	return res
 })
 const selectedCategories = ref([])
 
 const getCategoryDisplayName = (category) => {
 	switch (category) {
-		case 'nft':
-			return 'NFT'
+		case "nft":
+			return "NFT"
 
-		case 'uncategorized':
-			return 'Other'
+		case "uncategorized":
+			return "Other"
 
 		default:
 			return capitilize(category)
@@ -106,7 +106,7 @@ const getCategoryDisplayName = (category) => {
 
 const handleSelectCategory = (category) => {
 	if (selectedCategories.value.includes(category)) {
-		selectedCategories.value = selectedCategories.value.filter(c => c !== category)
+		selectedCategories.value = selectedCategories.value.filter((c) => c !== category)
 	} else {
 		selectedCategories.value.push(category)
 	}
@@ -120,7 +120,7 @@ const getRollups = async () => {
 	isLoading.value = true
 
 	const data = await fetchRollups({
-		categories: selectedCategories.value.map(c => c === 'other' ? 'uncategorized' : c).join(','),
+		categories: selectedCategories.value.map((c) => (c === "other" ? "uncategorized" : c)).join(","),
 		limit: limit.value,
 		offset: (page.value - 1) * limit.value,
 		sort: sort.dir,
@@ -129,7 +129,7 @@ const getRollups = async () => {
 
 	rollups.value = data
 
-	rollups.value?.forEach(r => {
+	rollups.value?.forEach((r) => {
 		r.size_graph = Math.max(Math.round(r.size_pct * 100, 2), 1)
 		r.blobs_count_graph = Math.max(Math.round(r.blobs_count_pct * 100, 2), 1)
 		r.fee_graph = Math.max(Math.round(r.fee_pct * 100, 2), 1)
@@ -170,7 +170,7 @@ const handleSort = async (by) => {
 }
 
 const handleOpenLink = (link) => {
-	window.open(link, '_blank')
+	window.open(link, "_blank")
 }
 
 const handlePrev = () => {
@@ -221,7 +221,7 @@ watch(
 		} else {
 			await getRollups()
 		}
-	}
+	},
 )
 </script>
 
@@ -242,7 +242,12 @@ watch(
 						<DropdownItem @click="handleSort('size')">
 							<Flex align="center" justify="between" gap="16" wide>
 								<Flex align="center" gap="8">
-									<Icon name="check" size="12" color="brand" :class="[sort.by === 'size' && $style.show, sort.by !== 'size' && $style.hide]" />
+									<Icon
+										name="check"
+										size="12"
+										color="brand"
+										:class="[sort.by === 'size' && $style.show, sort.by !== 'size' && $style.hide]"
+									/>
 
 									<Text size="12" color="primary">Size</Text>
 								</Flex>
@@ -254,7 +259,12 @@ watch(
 						<DropdownItem @click="handleSort('blobs_count')">
 							<Flex align="center" justify="between" gap="16" wide>
 								<Flex align="center" gap="8">
-									<Icon name="check" size="12" color="brand" :class="[sort.by === 'blobs_count' && $style.show, sort.by !== 'blobs_count' && $style.hide]" />
+									<Icon
+										name="check"
+										size="12"
+										color="brand"
+										:class="[sort.by === 'blobs_count' && $style.show, sort.by !== 'blobs_count' && $style.hide]"
+									/>
 
 									<Text size="12" color="primary">Blobs</Text>
 								</Flex>
@@ -266,7 +276,12 @@ watch(
 						<DropdownItem @click="handleSort('fee')">
 							<Flex align="center" justify="between" gap="16" wide>
 								<Flex align="center" gap="8">
-									<Icon name="check" size="12" color="brand" :class="[sort.by === 'fee' && $style.show, sort.by !== 'fee' && $style.hide]" />
+									<Icon
+										name="check"
+										size="12"
+										color="brand"
+										:class="[sort.by === 'fee' && $style.show, sort.by !== 'fee' && $style.hide]"
+									/>
 
 									<Text size="12" color="primary">Fee</Text>
 								</Flex>
@@ -286,14 +301,13 @@ watch(
 						<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
 					</Button>
 
-
 					<Button @click="handleNext" type="secondary" size="mini" :disabled="rollups.length < limit">
 						<Icon name="arrow-right" size="12" color="primary" />
 					</Button>
 				</Flex>
 			</Flex>
 
-			<Flex align="center" justify="start" gap="6" wide :style="{flexWrap: 'wrap'}">
+			<Flex align="center" justify="start" gap="6" wide :style="{ flexWrap: 'wrap' }">
 				<Flex
 					v-if="categories.length"
 					v-for="c in categories"
@@ -307,12 +321,7 @@ watch(
 					</Flex>
 				</Flex>
 
-				<Skeleton
-					v-else
-					v-for="i in 3"
-					w="60"
-					h="22"
-				/>
+				<Skeleton v-else v-for="i in 3" w="60" h="22" />
 			</Flex>
 		</Flex>
 
@@ -334,12 +343,13 @@ watch(
 						<div
 							:class="$style.status_dot"
 							:style="{
-								background: `${Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 1
-												? ''
-												: Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 7
-													? 'var(--light-orange)'
-													: 'var(--red)'
-											}`
+								background: `${
+									Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 1
+										? ''
+										: Math.abs(DateTime.fromISO(r.last_message_time).diffNow('days').days) < 7
+										? 'var(--light-orange)'
+										: 'var(--red)'
+								}`,
 							}"
 						/>
 					</Flex>
@@ -373,21 +383,59 @@ watch(
 									<div :class="$style.dot" />
 
 									<Text size="13" weight="500" color="tertiary">Fee</Text>
-									<Text size="13" weight="600" color="primary">{{ `${abbreviate(Math.round(r.fee / 1_000_000))} TIA` }}</Text>
+									<Text size="13" weight="600" color="primary">{{
+										`${abbreviate(Math.round(r.fee / 1_000_000))} TIA`
+									}}</Text>
 								</Flex>
 
 								<Flex v-else align="center" gap="12">
-									<Icon v-if="r.website" @click.prevent.stop=handleOpenLink(r.website) name="globe" size="13" color="secondary" />
+									<Icon
+										v-if="r.website"
+										@click.prevent.stop="handleOpenLink(r.website)"
+										name="globe"
+										size="13"
+										color="secondary"
+									/>
 
-									<Icon v-if="r.twitter" @click.prevent.stop=handleOpenLink(r.twitter) name="twitter" size="13" color="secondary" />
+									<Icon
+										v-if="r.twitter"
+										@click.prevent.stop="handleOpenLink(r.twitter)"
+										name="twitter"
+										size="13"
+										color="secondary"
+									/>
 
-									<Icon v-if="r.github" @click.prevent.stop=handleOpenLink(r.github) name="github" size="13" color="secondary" />
+									<Icon
+										v-if="r.github"
+										@click.prevent.stop="handleOpenLink(r.github)"
+										name="github"
+										size="13"
+										color="secondary"
+									/>
 
-									<Icon v-if="r.defi_lama" @click.prevent.stop="handleOpenLink(`https://defillama.com/chain/${r.defi_lama}`)" name="lama" size="13" color="secondary" />
+									<Icon
+										v-if="r.defi_lama"
+										@click.prevent.stop="handleOpenLink(`https://defillama.com/chain/${r.defi_lama}`)"
+										name="lama"
+										size="13"
+										color="secondary"
+									/>
 
-									<Icon v-if="r.l2_beat" @click.prevent.stop=handleOpenLink(r.l2_beat) name="l2beat" size="13" color="secondary" />
+									<Icon
+										v-if="r.l2_beat"
+										@click.prevent.stop="handleOpenLink(r.l2_beat)"
+										name="l2beat"
+										size="13"
+										color="secondary"
+									/>
 
-									<Icon v-if="r.explorer" @click.prevent.stop=handleOpenLink(r.explorer) name="search" size="13" color="secondary" />
+									<Icon
+										v-if="r.explorer"
+										@click.prevent.stop="handleOpenLink(r.explorer)"
+										name="search"
+										size="13"
+										color="secondary"
+									/>
 								</Flex>
 							</Transition>
 						</Flex>
@@ -509,11 +557,11 @@ watch(
 		</Flex>
 
 		<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
-            <Text size="13" weight="600" color="secondary" align="center"> No rollups found </Text>
-            <Text size="12" weight="500" height="160" color="tertiary" align="center">
-                {{ `There are no ${page > 1 ? 'more' : ''} rollups to display` }}
-            </Text>
-        </Flex>
+			<Text size="13" weight="600" color="secondary" align="center"> No rollups found </Text>
+			<Text size="12" weight="500" height="160" color="tertiary" align="center">
+				{{ `There are no ${page > 1 ? "more" : ""} rollups to display` }}
+			</Text>
+		</Flex>
 	</Flex>
 </template>
 
@@ -529,7 +577,7 @@ watch(
 	border-top: 1px solid var(--op-5);
 
 	cursor: pointer;
-	
+
 	overflow: hidden;
 	transition: all 0.5s ease;
 }
@@ -549,9 +597,9 @@ watch(
 }
 
 .avatar_wrapper {
-  position: relative;
-  width: 40px;
-  height: 40px;
+	position: relative;
+	width: 40px;
+	height: 40px;
 }
 
 .avatar_container {
@@ -613,8 +661,8 @@ watch(
 }
 
 .chip {
-    box-shadow: inset 0 0 0 1px var(--op-15);
-    border-radius: 10px;
+	box-shadow: inset 0 0 0 1px var(--op-15);
+	border-radius: 10px;
 	cursor: pointer;
 
 	transition: all 0.2s ease;
@@ -630,7 +678,7 @@ watch(
 }
 
 .content {
-    padding: 6px 10px;
+	padding: 6px 10px;
 }
 
 .show {
@@ -652,7 +700,7 @@ a {
 
 		& svg:first-of-type {
 			fill: var(--txt-secondary);
-		}		
+		}
 	}
 }
 

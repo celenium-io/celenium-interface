@@ -57,8 +57,6 @@ watch(
 					break
 			}
 
-			// popoverStyles[props.side] = `${props.side === "left" ? triggerRect.x : window.innerWidth - triggerRect.x - triggerRect.width}px`
-
 			document.addEventListener("scroll", onClose)
 			document.addEventListener("keydown", onKeydown)
 

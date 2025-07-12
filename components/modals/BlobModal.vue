@@ -11,7 +11,7 @@ import { comma, formatBytes, getNamespaceID, shortHash, space, strToHex } from "
 import { fetchBlobBlockscoutData, fetchBlobByMetadata } from "@/services/api/namespace"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const emit = defineEmits(["onClose"])
@@ -73,8 +73,6 @@ const getBlobMetadata = async () => {
 	} else {
 		notFound.value = true
 	}
-
-	isLoading.value = false
 }
 
 watch(
@@ -88,7 +86,6 @@ watch(
 
 			await getBlobMetadata()
 
-			
 			const { data } = await fetchBlobBlockscoutData({
 				height: cacheStore.selectedBlob.height,
 				namespace: cacheStore.selectedBlob.hash,
@@ -113,6 +110,8 @@ watch(
 			showPreviewText.value = false
 			contentPreviewText.value = ""
 		}
+
+		isLoading.value = false
 	},
 )
 
@@ -378,7 +377,6 @@ const handlePreviewContent = () => {
 						View batch
 						<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
 					</Button>
-
 
 					<Button @click="handleDownload" type="secondary" size="small" :disabled="isLoading">
 						<Icon name="download" size="14" color="secondary" />

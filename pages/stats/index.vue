@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button.vue"
 /** Stats Tabs */
 import BlocksTab from "@/components/modules/stats/tabs/BlocksTab.vue"
 import GeneralTab from "@/components/modules/stats/tabs/GeneralTab.vue"
-import EcosystemTab from "@/components/modules/stats/tabs/EcosystemTab.vue"
+import NodesTab from "~/components/modules/stats/tabs/NodesTab.vue"
 import RollupsTab from "@/components/modules/stats/tabs/RollupsTab.vue"
 
 /** Services */
@@ -76,11 +76,19 @@ const tabs = ref([
 		visible: true,
 	},
 	{
-		name: "ecosystem",
-		visible: false,
+		name: "nodes",
+		visible: isMainnet(),
 	},
 ])
-const activeTab = ref(route.query.tab && tabs.value.filter(t => t.visible).map(t => t.name).includes(route.query.tab) ? route.query.tab : tabs.value[0].name)
+const activeTab = ref(
+	route.query.tab &&
+		tabs.value
+			.filter((t) => t.visible)
+			.map((t) => t.name)
+			.includes(route.query.tab)
+		? route.query.tab
+		: tabs.value[0].name,
+)
 
 const updateRouteQuery = () => {
 	router.replace({
@@ -107,7 +115,7 @@ watch(
 	() => activeTab.value,
 	() => {
 		updateRouteQuery()
-	}
+	},
 )
 
 watch(
@@ -135,7 +143,13 @@ watch(
 
 		<Flex align="center" justify="between" wide :class="$style.tabs_wrapper">
 			<Flex align="center" gap="16">
-				<Text v-for="t in tabs.filter(t => t.visible)" @click="activeTab = t.name" size="14" color="tertiary" :class="[$style.tab, activeTab === t.name && $style.tab_active]">
+				<Text
+					v-for="t in tabs.filter((t) => t.visible)"
+					@click="activeTab = t.name"
+					size="14"
+					color="tertiary"
+					:class="[$style.tab, activeTab === t.name && $style.tab_active]"
+				>
 					{{ capitilize(t.name) }}
 				</Text>
 			</Flex>
@@ -151,7 +165,7 @@ watch(
 		<GeneralTab v-if="activeTab === 'general'" />
 		<BlocksTab v-if="activeTab === 'blocks'" />
 		<RollupsTab v-if="activeTab === 'rollups'" @onUpdateSection="handleSectionUpdate" />
-		<EcosystemTab v-if="activeTab === 'ecosystem'" />
+		<NodesTab v-if="activeTab === 'nodes'" />
 	</Flex>
 </template>
 
@@ -175,7 +189,7 @@ watch(
 }
 
 .tabs_wrapper::after {
-	content: '';
+	content: "";
 	position: absolute;
 	bottom: 0;
 	left: 0;
@@ -186,7 +200,7 @@ watch(
 
 .tab {
 	padding-bottom: 12px;
-	
+
 	cursor: pointer;
 }
 

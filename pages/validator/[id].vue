@@ -5,11 +5,8 @@ import ValidatorOverview from "@/components/modules/validator/ValidatorOverview.
 /** API */
 import { fetchValidatorByID } from "@/services/api/validator"
 
-/** UI */
-import Button from "@/components/ui/Button.vue"
-
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const route = useRoute()
@@ -25,19 +22,18 @@ if (!rawValidator.value) {
 	cacheStore.current.validator = validator.value
 }
 
-defineOgImage({
+defineOgImageComponent("ValidatorImage", {
 	title: "Validator",
 	validator: validator.value,
-	component: "ValidatorImage",
-	cacheKey: `${validator.value?.moniker}`,
+	cacheKey: `${validator.value?.moniker || validator.value.address.hash}`,
 })
 
 useHead({
-	title: `Validator ${validator.value?.moniker} - Celestia Explorer`,
+	title: `Validator ${validator.value?.moniker} - Celenium`,
 	link: [
 		{
 			rel: "canonical",
-			href: `https://celenium.io${route.path}`,
+			href: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 	],
 	meta: [
@@ -47,7 +43,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: `Validator ${validator.value?.moniker} - Celestia Explorer`,
+			content: `Validator ${validator.value?.moniker} - Celenium`,
 		},
 		{
 			property: "og:description",
@@ -55,15 +51,11 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io${route.path}`,
-		},
-		{
-			property: "og:image",
-			content: `https://celenium.io${route.path}__og_image__/og.png`,
+			content: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 		{
 			name: "twitter:title",
-			content: `Validator ${validator.value?.moniker} - Celestia Explorer`,
+			content: `Validator ${validator.value?.moniker} - Celenium`,
 		},
 		{
 			name: "twitter:description",
@@ -86,7 +78,7 @@ useHead({
 					:items="[
 						{ link: '/', name: 'Explore' },
 						{ link: '/validators', name: 'Validators' },
-						{ link: route.fullPath, name: validator.moniker ? validator.moniker : validator.address },
+						{ link: route.fullPath, name: validator.address.hash },
 					]"
 				/>
 			</Flex>

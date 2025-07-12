@@ -1,9 +1,8 @@
-import { getNamespaceID } from '~/services/utils';
 <script setup>
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import BookmarkButton from "@/components/BookmarkButton.vue"
-import { Dropdown, DropdownItem, DropdownDivider } from "@/components/ui/Dropdown"
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Tables */
@@ -11,14 +10,14 @@ import BlobsTable from "./tables/BlobsTable.vue"
 import MessagesTable from "./tables/MessagesTable.vue"
 
 /** Services */
-import { comma, formatBytes, getNamespaceID, shortHex, midHex, space } from "@/services/utils"
+import { comma, formatBytes, getNamespaceID, shortHex, space } from "@/services/utils"
 
 /** API */
 import { fetchNamespaceBlobs, fetchNamespaceMessagesById, fetchNamespaceRollups } from "@/services/api/namespace"
 
 /** Store */
-import { useModalsStore } from "@/store/modals"
-import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals.store"
+import { useCacheStore } from "@/store/cache.store"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
 
@@ -192,10 +191,7 @@ const handleViewRawMessages = () => {
 						Submit Blob
 					</Button>
 
-					<BookmarkButton
-						type="namespace"
-						:id="namespace.namespace_id"
-					/>
+					<BookmarkButton type="namespace" :id="namespace.namespace_id" />
 				</Flex>
 
 				<div class="divider_v" />
@@ -501,6 +497,16 @@ const handleViewRawMessages = () => {
 
 	.table {
 		border-radius: 4px 4px 8px 8px;
+	}
+}
+
+@media (max-width: 550px) {
+	.header {
+		height: initial;
+		flex-direction: column;
+		gap: 12px;
+
+		padding: 12px 0;
 	}
 }
 

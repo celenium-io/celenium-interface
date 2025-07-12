@@ -13,8 +13,8 @@ import { capitilize, comma, shortHex } from "@/services/utils"
 import { fetchNetworks, fetchCommitments, fetchCommitmentsByNetwork } from "@/services/api/blobstream"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
-import { useModalsStore } from "@/store/modals"
+import { useCacheStore } from "@/store/cache.store"
+import { useModalsStore } from "@/store/modals.store"
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 
@@ -227,15 +227,17 @@ await getCommitments()
 							<Icon name="info" size="12" color="yellow" />
 							<template #content>
 								<Text size="12" weight="600" color="secondary">
-									No activity in the last 
+									No activity in the last
 									{{ DateTime.fromISO(n.time).diffNow().negate().toFormat("h") }}
 									hours
 								</Text>
 							</template>
 						</Tooltip>
-					</Flex>					
+					</Flex>
 
-					<Text size="12" weight="600" color="secondary"> {{ DateTime.fromISO(n.time).setLocale("en").toFormat("LLL d, t") }} </Text>
+					<Text size="12" weight="600" color="secondary">
+						{{ DateTime.fromISO(n.time).setLocale("en").toFormat("LLL d, t") }}
+					</Text>
 				</Flex>
 			</Flex>
 		</Flex>

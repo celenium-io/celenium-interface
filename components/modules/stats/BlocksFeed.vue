@@ -3,7 +3,6 @@
 import { DateTime } from "luxon"
 
 /** UI */
-// import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
@@ -13,7 +12,7 @@ import { comma, formatBytes } from "@/services/utils"
 import { fetchAvgBlockTime } from "@/services/api/block"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 const props = defineProps({
@@ -48,12 +47,15 @@ const timeline = computed(() => {
 	return time
 })
 
-const maxSize = computed(() => Math.max(...blocks.value?.map((b) => b.stats.bytes_in_block)))
+const maxSize = computed(() => {
+	if (!blocks.value) return 0
+	return Math.max(...blocks.value.map((b) => b.stats.bytes_in_block))
+})
 const avgBlockTime = ref(0)
 
 const calculateHeight = (size) => {
 	if (!size) return 2
-	
+
 	return Math.max((size / maxSize.value) * 100, 2)
 }
 

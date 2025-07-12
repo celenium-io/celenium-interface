@@ -8,15 +8,15 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { comma, formatBytes, getNamespaceID, shortHex, space, tia } from "@/services/utils"
+import { comma, formatBytes, shortHex, space } from "@/services/utils"
 
 /** API */
 import { fetchBlockBlobs } from "@/services/api/block"
 import { fetchTransactionsByBlock } from "@/services/api/tx"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useNotificationsStore } from "@/store/notifications"
+import { useAppStore } from "@/store/app.store"
+import { useNotificationsStore } from "@/store/notifications.store"
 const appStore = useAppStore()
 const notificationsStore = useNotificationsStore()
 
@@ -62,6 +62,9 @@ const handlePause = () => {
 	isPaused.value = !isPaused.value
 }
 
+const showSidebar = ref(false)
+const handleToggleSidebar = () => (showSidebar.value = !showSidebar.value)
+
 watch(
 	() => isPaused.value,
 	() => {
@@ -106,9 +109,8 @@ if (Object.keys(lastHead.value).length !== 0 && !lastHead?.value.synced) {
 watch(
 	() => preview.block,
 	async () => {
-		if (preview.block.stats.tx_count) {
+		if (preview.block.stats.tx_count && showSidebar.value) {
 			if (preview.block.stats.blobs_size) preview.isLoadingNamespaces = true
-
 			getTransactionsByBlock()
 		}
 	},
@@ -123,13 +125,6 @@ watch(
 		}
 
 		const data = await fetchBlockBlobs({ height: preview.block.height, limit: 3 })
-		// let namespaces = []
-
-		// data.forEach(blob => {
-		// 	namespaces.push(blob.namespace)
-		// });
-
-		// preview.namespaces = Array.from(new Map(namespaces.map(item => [item.id, item])).values());
 
 		preview.blobs = data
 		preview.isLoadingNamespaces = false
@@ -193,6 +188,14 @@ watch(
 						</Flex>
 					</template>
 				</Tooltip>
+
+				<Tooltip position="end">
+					<Button @click="handleToggleSidebar" type="tertiary" size="mini">
+						<Icon name="sidebar" size="14" color="secondary" :class="[$style.sidebar_icon, showSidebar && $style.rotate]" />
+					</Button>
+
+					<template #content> {{ showSidebar ? "Hide" : "Show" }} sidebar </template>
+				</Tooltip>
 			</Flex>
 		</Flex>
 
@@ -253,7 +256,13 @@ watch(
 									<Tooltip delay="500">
 										<template #default>
 											<Flex direction="column" gap="4">
-												<Text size="12" height="120" weight="600" color="primary" :class="$style.proposer_moniker">
+												<Text
+													size="12"
+													height="120"
+													weight="600"
+													color="primary"
+													:class="[$style.proposer_moniker, showSidebar && $style.fixed]"
+												>
 													{{ block.proposer.moniker }}
 												</Text>
 
@@ -325,7 +334,7 @@ watch(
 				</Button>
 			</Flex>
 
-			<Flex direction="column" :class="[$style.preview]">
+			<Flex v-if="showSidebar" direction="column" :class="[$style.preview]">
 				<Flex wide direction="column" gap="12" :class="$style.top">
 					<Flex align="center" justify="between" wide>
 						<Flex align="center" gap="6">
@@ -633,9 +642,11 @@ watch(
 }
 
 .table {
+	width: 100%;
+	min-width: 0;
+
 	border-radius: 4px 4px 4px 8px;
 	background: var(--card-background);
-	max-width: 604px;
 
 	& table {
 		width: 100%;
@@ -758,10 +769,12 @@ watch(
 }
 
 .proposer_moniker {
-	max-width: 150px;
-
 	text-overflow: ellipsis;
 	overflow: hidden;
+
+	&.fixed {
+		max-width: 150px;
+	}
 }
 
 .empty_state {
@@ -784,6 +797,14 @@ watch(
 	padding: 4px 6px;
 }
 
+.sidebar_icon {
+	transform: rotate(180deg);
+
+	&.rotate {
+		transform: rotate(0deg);
+	}
+}
+
 @media (max-width: 1024px) {
 	.content {
 		flex-direction: column-reverse;
@@ -800,6 +821,14 @@ watch(
 	.table {
 		flex: 1;
 		border-radius: 4px 4px 8px 8px;
+	}
+
+	.sidebar_icon {
+		transform: rotate(90deg);
+
+		&.rotate {
+			transform: rotate(270deg);
+		}
 	}
 }
 

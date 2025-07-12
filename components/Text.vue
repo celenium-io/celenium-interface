@@ -2,6 +2,10 @@
 import { computed } from "vue"
 
 const props = defineProps({
+	as: {
+		type: String,
+		default: "span",
+	},
 	size: {
 		type: String,
 	},
@@ -71,7 +75,7 @@ const classes = computed(() => {
 </script>
 
 <template>
-	<span :class="classes">
+	<component :is="as" :class="classes">
 		<slot />
-	</span>
+	</component>
 </template>

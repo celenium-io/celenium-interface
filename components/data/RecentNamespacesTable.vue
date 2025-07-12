@@ -8,7 +8,6 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
-import { useServerURL } from "@/services/config"
 import { comma, space, formatBytes, getNamespaceID } from "@/services/utils"
 
 /** API */
@@ -96,18 +95,14 @@ const handleSort = async (by) => {
 
 					<tbody>
 						<tr v-for="ns in namespaces">
-							<td style="width: 1px">
+							<td>
 								<NuxtLink :to="`/namespace/${ns.namespace_id}`">
 									<Flex align="center">
 										<Tooltip position="start">
 											<Flex direction="column" gap="4">
-												<Flex align="center" gap="8">
-													<Text size="12" weight="600" color="primary" mono class="table_column_alias">
-														{{ $getDisplayName('namespaces', ns.namespace_id) }}
-													</Text>
-
-													<CopyButton :text="getNamespaceID(ns.namespace_id)" />
-												</Flex>
+												<Text size="13" weight="600" color="primary" mono class="table_column_alias">
+													{{ $getDisplayName("namespaces", ns.namespace_id) }}
+												</Text>
 
 												<Text
 													v-if="ns.name !== getNamespaceID(ns.namespace_id)"

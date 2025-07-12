@@ -9,7 +9,7 @@ import BlocksTimelineTable from "@/components/data/BlocksTimeline/BlocksTimeline
 import { parseRedirectQueryError } from "@/services/notifications"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 const route = useRoute()
@@ -83,10 +83,10 @@ onBeforeMount(async () => {
 		<Widgets :class="$style.widgets" />
 
 		<Flex direction="column" gap="40" :class="$style.main">
-			<Flex gap="20" :class="$style.small_tables">
+			<div :class="$style.tables">
 				<RecentNamespacesTable />
 				<LatestPFBTable />
-			</Flex>
+			</div>
 
 			<BlocksTimelineTable v-if="appStore.lastHead && appStore.latestBlocks.length" />
 		</Flex>
@@ -109,20 +109,17 @@ onBeforeMount(async () => {
 	margin-top: 40px;
 }
 
-.small_tables {
+.tables {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(486px, 1fr));
+	gap: 20px;
+
 	max-width: 100%;
 }
 
-/* 
-@media (max-width: 1100px) {
-	.widgets {
-		display: none;
-	}
-} */
-
 @media (max-width: 1024px) {
-	.small_tables {
-		flex-direction: column;
+	.tables {
+		grid-template-columns: 100%;
 	}
 }
 

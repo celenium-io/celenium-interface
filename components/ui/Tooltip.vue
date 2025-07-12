@@ -24,6 +24,8 @@ const props = defineProps({
 	wide: { type: Boolean, default: null },
 	disabled: { type: Boolean, default: false },
 	delay: { type: [String, Number], default: 0 },
+	width: { type: String, required: false },
+	triggerWidth: { type: String, required: false, default: null },
 })
 
 const isHovered = ref(false)
@@ -34,6 +36,7 @@ const tip = ref(null)
 
 const styles = reactive({
 	transform: `translate3d(0, 0, 0)`,
+	maxWidth: props.width,
 })
 
 watch(
@@ -158,7 +161,7 @@ const handleMouseLeave = () => {
 		@touchstart="handleMouseEnter"
 		@touchend="handleMouseLeave"
 		:class="$style.wrapper"
-		:style="{ width: wide && '100%' }"
+		:style="{ width: triggerWidth ? triggerWidth : wide && '100%' }"
 	>
 		<div ref="trigger" :class="$style.trigger" :style="{ width: wide && '100%' }">
 			<slot />
@@ -178,11 +181,11 @@ const handleMouseLeave = () => {
 .wrapper {
 	display: flex;
 	position: relative;
-	width: fit-content;
 }
 
 .trigger {
 	display: flex;
+	min-width: 0;
 }
 
 .content {

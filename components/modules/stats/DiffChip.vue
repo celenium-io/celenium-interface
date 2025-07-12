@@ -10,6 +10,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    tooltip: {
+        type: String,
+        default: "Difference between current and previous equal period",
+    },
 })
 
 const styles = computed(() => {
@@ -67,9 +71,9 @@ const styles = computed(() => {
             </Flex>
 
             <template #content>
-                <Text color="secondary" size="12">
-                    Difference between current and previous equal period
-                </Text>
+                <Flex align="center"  :class="$style.tooltip">
+                    <Text color="secondary" size="12"> {{ tooltip }} </Text>
+                </Flex>
             </template>
         </Tooltip>
     </Flex>
@@ -84,5 +88,11 @@ const styles = computed(() => {
 
 .content {
     padding: 2px 6px 2px 4px;
+}
+
+.tooltip {
+    max-width: 170px;
+    text-align: start;
+    line-height: 1.5;
 }
 </style>

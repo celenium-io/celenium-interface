@@ -6,7 +6,7 @@ import Checkbox from "@/components/ui/Checkbox.vue"
 import Button from "@/components/ui/Button.vue"
 
 /** Store */
-import { useSettingsStore } from "@/store/settings"
+import { useSettingsStore } from "@/store/settings.store"
 const settingsStore = useSettingsStore()
 
 const emit = defineEmits(["onClose"])

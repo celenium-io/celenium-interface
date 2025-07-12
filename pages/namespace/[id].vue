@@ -10,7 +10,7 @@ import { getNamespaceID } from "@/services/utils"
 import { fetchNamespaceByID } from "@/services/api/namespace"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const route = useRoute()
@@ -26,19 +26,18 @@ if (!rawNamespace.value) {
 	cacheStore.current.namespace = namespace.value
 }
 
-defineOgImage({
+defineOgImageComponent("NamespaceImage", {
 	title: "Namespace",
 	namespace: namespace.value,
-	component: "NamespaceImage",
 	cacheKey: `${namespace.value?.hash}`,
 })
 
 useHead({
-	title: `Namespace ${getNamespaceID(namespace.value?.namespace_id)} - Celestia Explorer`,
+	title: `Namespace ${getNamespaceID(namespace.value?.namespace_id)} - Celenium`,
 	link: [
 		{
 			rel: "canonical",
-			href: `https://celenium.io${route.path}`,
+			href: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 	],
 	meta: [
@@ -48,7 +47,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: `Namespace ${getNamespaceID(namespace.value?.namespace_id)} - Celestia Explorer`,
+			content: `Namespace ${getNamespaceID(namespace.value?.namespace_id)} - Celenium`,
 		},
 		{
 			property: "og:description",
@@ -56,15 +55,11 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io${route.path}`,
-		},
-		{
-			property: "og:image",
-			content: `https://celenium.io${route.path}__og_image__/og.png`,
+			content: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 		{
 			name: "twitter:title",
-			content: `Namespace ${getNamespaceID(namespace.value?.namespace_id)} - Celestia Explorer`,
+			content: `Namespace ${getNamespaceID(namespace.value?.namespace_id)} - Celenium`,
 		},
 		{
 			name: "twitter:description",
@@ -80,12 +75,6 @@ useHead({
 onBeforeRouteLeave(() => {
 	cacheStore.current.namespace = null
 })
-
-const displayName = computed(() => {
-	const { $getDisplayName } = useNuxtApp()
-
-	return $getDisplayName("namespace", namespace.value.namespace_id)
-})
 </script>
 
 <template>
@@ -96,7 +85,7 @@ const displayName = computed(() => {
 				:items="[
 					{ link: '/', name: 'Explore' },
 					{ link: '/namespaces', name: 'Namespaces' },
-					{ link: route.fullPath, name: `${displayName}` },
+					{ link: route.fullPath, name: `${getNamespaceID(namespace.namespace_id)}` },
 				]"
 			/>
 

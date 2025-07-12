@@ -68,6 +68,11 @@ export const midHex = (hex) => {
 	}
 }
 
+export const round = (num, decimals) => {
+	const factor = Math.pow(10, decimals)
+	return Math.round((num + Number.EPSILON) * factor) / factor
+}
+
 export const splitAddress = (address, format = "string") => {
 	if (!address) return
 
@@ -166,16 +171,50 @@ export function base64ToHex(base64) {
 	return hex
 }
 
-export function sortArrayOfObjects(arr, param, asc = true) {
+export function sortArrayOfObjects(arr, path, asc = true) {
 	if (!arr || !arr?.length) return []
 
 	return arr.sort((a, b) => {
-		if (a[param] > b[param]) {
-			return asc ? 1 : -1
-		} else if (a[param] < b[param]) {
-			return asc ? -1 : 1
+		const getValue = (obj, path) => path.split(".").reduce((o, key) => o?.[key], obj) ?? 0
+
+		let valueA = getValue(a, path)
+		let valueB = getValue(b, path)
+
+		const dateA = Date.parse(valueA)
+		const dateB = Date.parse(valueB)
+
+		const bothAreDates = typeof valueA === "string" && typeof valueB === "string" && !isNaN(dateA) && !isNaN(dateB)
+
+		if (bothAreDates) {
+			valueA = dateA
+			valueB = dateB
 		}
 
-		return 0
+		return asc ? valueA - valueB : valueB - valueA
 	})
+}
+
+export function hexToRgba(hex, alpha = 255) {
+	if (!hex) return ""
+	
+	let h = hex.replace(/^#/, "")
+
+	if (h.length === 3) {
+		h = h
+			.split("")
+			.map((c) => c + c)
+			.join("")
+	}
+
+	const int = parseInt(h, 16)
+	const r = (int >> 16) & 255
+	const g = (int >> 8) & 255
+	const b = int & 255
+
+	let a = alpha
+	if (alpha > 1) {
+		a = Math.max(0, Math.min(255, alpha)) / 255
+	}
+
+	return `rgba(${r}, ${g}, ${b}, ${a})`
 }

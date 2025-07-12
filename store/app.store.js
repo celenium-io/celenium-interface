@@ -1,11 +1,21 @@
-import { useModalsStore } from "./modals"
+/** API */
+import { fetchConstants } from "@/services/api/main"
+
+import { useModalsStore } from "./modals.store"
 
 export const useAppStore = defineStore("app", () => {
+	const version = ref()
+
 	const modalsStore = useModalsStore()
 
 	const network = ref()
 
-	const head = ref()
+	const constants = ref()
+	const initConstants = async () => {
+		const { data } = await fetchConstants()
+		constants.value = data.value.module
+	}
+
 	const gas = ref({
 		fast: 0,
 		median: 0,
@@ -45,8 +55,10 @@ export const useAppStore = defineStore("app", () => {
 	}
 
 	return {
+		version,
 		network,
-		head,
+		constants,
+		initConstants,
 		gas,
 		currentPrice,
 		wallet,

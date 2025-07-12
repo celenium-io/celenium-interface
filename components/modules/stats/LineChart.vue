@@ -11,13 +11,16 @@ const props = defineProps({
 		type: Object,
 		required: true,
 	},
+	disableTooltip: {
+		type: Boolean,
+		default: false,
+	},
 })
 
 // TO DO: Fetch data if series.currentData is null
 const currentData = computed(() => {
 	return { data: props.series.currentData }
 })
-
 
 const chartEl = ref()
 const tooltip = ref({
@@ -33,8 +36,8 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 	const marginLeft = 36
 	const marginAxisX = 20
 
-	const MIN_VALUE = d3.min([...cData.data?.map((s) => s.value)])
-	const MAX_VALUE = d3.max([...cData.data?.map((s) => s.value)])
+	const MIN_VALUE = d3.min(cData.data?.map((s) => s.value))
+	const MAX_VALUE = d3.max(cData.data?.map((s) => s.value))
 
 	/** Scales */
 	const x = d3.scaleUtc(
@@ -105,7 +108,7 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 			d3
 				.axisBottom(x)
 				.ticks(Math.min(cData.data.length, 6))
-				.tickFormat(d3.timeFormat(["hour", "day"].includes(props.series.timeframe.timeframe) ? "%b %d" : "%b"))
+				.tickFormat(d3.timeFormat(["hour", "day"].includes(props.series.timeframe.timeframe) ? "%b %d" : "%b")),
 		)
 
 	svg.append("g")

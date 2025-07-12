@@ -10,7 +10,7 @@ import { fetchRollupBySlug } from "@/services/api/rollup"
 import Button from "@/components/ui/Button.vue"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const route = useRoute()
@@ -26,19 +26,18 @@ if (!rawRollup.value) {
 	cacheStore.current.rollup = rollup.value
 }
 
-defineOgImage({
+defineOgImageComponent("RollupImage", {
 	title: "Rollup",
 	rollup: rollup.value,
-	component: "RollupImage",
 	cacheKey: `${rollup.value?.name}`,
 })
 
 useHead({
-	title: `Rollup ${rollup.value?.name} - Celestia Explorer`,
+	title: `Rollup ${rollup.value?.name} - Celenium`,
 	link: [
 		{
 			rel: "canonical",
-			href: `https://celenium.io${route.path}`,
+			href: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 	],
 	meta: [
@@ -48,7 +47,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: `Rollup ${rollup.value?.name} - Celestia Explorer`,
+			content: `Rollup ${rollup.value?.name} - Celenium`,
 		},
 		{
 			property: "og:description",
@@ -56,15 +55,11 @@ useHead({
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io${route.path}`,
-		},
-		{
-			property: "og:image",
-			content: `https://celenium.io${route.path}__og_image__/og.png`,
+			content: `${useRequestURL().origin}${useRequestURL().pathname}`,
 		},
 		{
 			name: "twitter:title",
-			content: `Rollup ${rollup.value?.name} - Celestia Explorer`,
+			content: `Rollup ${rollup.value?.name} - Celenium`,
 		},
 		{
 			name: "twitter:description",

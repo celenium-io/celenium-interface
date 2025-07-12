@@ -3,8 +3,8 @@
 import { DateTime } from "luxon"
 
 /** UI */
-import Tooltip from "~/components/ui/Tooltip.vue"
-import Button from "~/components/ui/Button.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
+import Button from "@/components/ui/Button.vue"
 
 /** Services */
 import { tia, splitAddress } from "@/services/utils"
@@ -14,12 +14,10 @@ import { fetchTxEvents } from "@/services/api/tx"
 import { fetchBlockEvents } from "@/services/api/block"
 
 /** Store */
-import { useModalsStore } from "@/store/modals"
-import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals.store"
+import { useCacheStore } from "@/store/cache.store"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
-
-const router = useRouter()
 
 const props = defineProps({
 	block: {

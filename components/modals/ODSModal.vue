@@ -8,10 +8,10 @@ import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
 import amp from "@/services/amp"
-import { capitalizeAndReplaceUnderscore, comma, getNamespaceIDFromBase64, shortHex } from "@/services/utils";
+import { capitalizeAndReplace, comma, getNamespaceIDFromBase64, shortHex } from "@/services/utils"
 
 /** Store */
-import { useCacheStore } from "@/store/cache"
+import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const emit = defineEmits(["onClose"])
@@ -44,67 +44,67 @@ const cellSize = computed(() => {
 			return 4
 	}
 })
-const svgWidth = computed(() => blockODS.value?.width ? cellSize.value * blockODS.value?.width : 0)
-const modalWidth = computed(() => svgWidth.value ? svgWidth.value + 250 : 350)
+const svgWidth = computed(() => (blockODS.value?.width ? cellSize.value * blockODS.value?.width : 0))
+const modalWidth = computed(() => (svgWidth.value ? svgWidth.value + 250 : 350))
 
 function generateCells(item, width) {
-    const cells = []
+	const cells = []
 
-    for (let y = item.from[0]; y <= item.to[0]; y++) {
-        if (y === item.from[0] && y === item.to[0]) {
-            for (let x = item.from[1]; x <= item.to[1]; x++) {
-                cells.push({ x, y })
-            }
-        } else if (y === item.from[0] && y !== item.to[0]) {
-            for (let x = item.from[1]; x <= width - 1; x++) {
-                cells.push({ x, y })
-            }
-        } else if (y !== item.to[0]) {
-            for (let x = 0; x <= width - 1; x++) {
-                cells.push({ x, y })
-            }
-        } else {
-            for (let x = 0; x <= item.to[1]; x++) {
-                cells.push({ x, y })
-            }
-        }
-    }
+	for (let y = item.from[0]; y <= item.to[0]; y++) {
+		if (y === item.from[0] && y === item.to[0]) {
+			for (let x = item.from[1]; x <= item.to[1]; x++) {
+				cells.push({ x, y })
+			}
+		} else if (y === item.from[0] && y !== item.to[0]) {
+			for (let x = item.from[1]; x <= width - 1; x++) {
+				cells.push({ x, y })
+			}
+		} else if (y !== item.to[0]) {
+			for (let x = 0; x <= width - 1; x++) {
+				cells.push({ x, y })
+			}
+		} else {
+			for (let x = 0; x <= item.to[1]; x++) {
+				cells.push({ x, y })
+			}
+		}
+	}
 
-    return cells;
+	return cells
 }
 
 function getColor(item) {
 	switch (item.type) {
-		case 'pay_for_blob':
-			return 'var(--blue)'
-		case 'tx':
-			return 'var(--neutral-green)'
-		case 'parity_shares':
-			return 'var(--purple)'
-		case 'primary_reserved_padding':
-			return 'var(--light-orange)'
-		case 'tail_padding':
-			return 'var(--txt-secondary)'
-		case 'namespace':
+		case "pay_for_blob":
+			return "var(--blue)"
+		case "tx":
+			return "var(--neutral-green)"
+		case "parity_shares":
+			return "var(--purple)"
+		case "primary_reserved_padding":
+			return "var(--light-orange)"
+		case "tail_padding":
+			return "var(--txt-secondary)"
+		case "namespace":
 			let hash = 0
 			let str = item.namespace
 			for (let i = 0; i < str.length; i++) {
 				hash = str.charCodeAt(i) + ((hash << 5) - hash)
 			}
 
-			let color = '#'
+			let color = "#"
 			for (let i = 0; i < 3; i++) {
-				const value = (hash >> (i * 8)) & 0xFF
-				color += ('00' + value.toString(16)).slice(-2)
+				const value = (hash >> (i * 8)) & 0xff
+				color += ("00" + value.toString(16)).slice(-2)
 			}
 
-			return color;
+			return color
 	}
 }
 
 const data = computed(() => {
 	if (blockODS.value.items) {
-		blockODS.value.items.forEach(item => {
+		blockODS.value.items.forEach((item) => {
 			item.cells = generateCells(item, blockODS.value.width)
 			item.color = getColor(item)
 		})
@@ -123,10 +123,10 @@ const drawSVG = () => {
 		const group = document.createElementNS(svgNS, "g")
 		group.setAttribute("class", "ods_group")
 		group.setAttribute("data-index", index)
-		if (item.type === 'namespace') {
+		if (item.type === "namespace") {
 			group.setAttribute("cursor", "pointer")
 		}
-		item.cells.forEach(cell => {
+		item.cells.forEach((cell) => {
 			const rect = document.createElementNS(svgNS, "rect")
 			rect.setAttribute("x", cell.x * cellSize.value)
 			rect.setAttribute("y", cell.y * cellSize.value)
@@ -138,13 +138,12 @@ const drawSVG = () => {
 			group.appendChild(rect)
 		})
 
-		group.addEventListener('click', () => handleGroupClick(item))
-		group.addEventListener('mouseover', () => highlight(index))
-		group.addEventListener('mouseout', () => unhighlight(index))
+		group.addEventListener("click", () => handleGroupClick(item))
+		group.addEventListener("mouseover", () => highlight(index))
+		group.addEventListener("mouseout", () => unhighlight(index))
 
 		svg.appendChild(group)
-	});
-
+	})
 
 	svgEl.value.wrapper.appendChild(svg)
 
@@ -153,7 +152,7 @@ const drawSVG = () => {
 
 function highlight(index) {
 	const elements = document.querySelectorAll(`.ods_group[data-index="${index}"]`)
-	elements.forEach(el => {
+	elements.forEach((el) => {
 		el.style.filter = "brightness(1.2)"
 	})
 	dimOthers(index)
@@ -161,40 +160,40 @@ function highlight(index) {
 
 function unhighlight(index) {
 	const elements = document.querySelectorAll(`.ods_group[data-index="${index}"]`)
-	elements.forEach(el => {
+	elements.forEach((el) => {
 		el.style.filter = ""
 	})
 	restoreOthers()
 }
 
 function dimOthers(index) {
-	const elements = document.querySelectorAll('.ods_group')
-	elements.forEach(el => {
-		if (el.getAttribute('data-index') !== index.toString()) {
+	const elements = document.querySelectorAll(".ods_group")
+	elements.forEach((el) => {
+		if (el.getAttribute("data-index") !== index.toString()) {
 			el.style.filter = "brightness(0.5)"
 		}
 	})
 }
 
 function restoreOthers() {
-	const elements = document.querySelectorAll('.ods_group')
-	elements.forEach(el => {
+	const elements = document.querySelectorAll(".ods_group")
+	elements.forEach((el) => {
 		el.style.filter = ""
 	})
 }
 
 function handleGroupClick(item) {
-	if (item.type === 'namespace') {
-		window.open(`/namespace/${getNamespaceIDFromBase64(item.namespace)}`, '_blank')
+	if (item.type === "namespace") {
+		window.open(`/namespace/${getNamespaceIDFromBase64(item.namespace)}`, "_blank")
 	}
 }
 
 function getNamespaceName(item) {
 	switch (item.type) {
-		case 'namespace':
+		case "namespace":
 			const { $getDisplayName } = useNuxtApp()
 
-			return $getDisplayName('namespaces', getNamespaceIDFromBase64(item.namespace))
+			return $getDisplayName("namespaces", getNamespaceIDFromBase64(item.namespace))
 		default:
 			return shortHex(item.namespace)
 	}
@@ -234,7 +233,8 @@ watch(
 
 			<Flex align="start" justify="between" wide>
 				<Flex align="start" direction="column" gap="12">
-					<Flex v-for="(item, index) in data?.items"
+					<Flex
+						v-for="(item, index) in data?.items"
 						@click="handleGroupClick(item)"
 						@mouseover="highlight(index)"
 						@mouseout="unhighlight(index)"
@@ -248,7 +248,7 @@ watch(
 						<Flex align="start" justify="start" direction="column" gap="4" wide>
 							<Text size="12" weight="600" color="primary">{{ getNamespaceName(item) }}</Text>
 
-							<Text size="11" weight="500" color="tertiary">{{ capitalizeAndReplaceUnderscore(item.type) }}</Text>
+							<Text size="11" weight="500" color="tertiary">{{ capitalizeAndReplace(item.type, "_") }}</Text>
 						</Flex>
 					</Flex>
 				</Flex>
@@ -272,7 +272,7 @@ watch(
 
 .legend {
 	width: 250px;
-	
+
 	cursor: pointer;
 }
 

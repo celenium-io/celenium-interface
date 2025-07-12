@@ -97,6 +97,11 @@ export const amountToString = (amount, decimal = 2) => {
 		: truncateDecimalPart(amount, decimal).toLocaleString("en-US", { maximumFractionDigits: decimal })
 }
 
+export const roundTo = (num, decimal = 2, method = "round") => {
+	const factor = Math.pow(10, decimal)
+	return Math[method](num * factor) / factor
+}
+
 export const abbreviate = (n, h = 1) => {
 	if (n < 1e3) return n
 	if (n >= 1e3 && n < 1e6) return +(n / 1e3).toFixed(h) + "K"

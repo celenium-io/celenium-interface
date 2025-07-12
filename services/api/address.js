@@ -77,7 +77,7 @@ import { useServerURL } from "@/services/config"
 // 		const url = new URL(`${useServerURL()}/address/${hash}/blobs`)
 
 // 		url.searchParams.append("sort_by", 'time')
-		
+
 // 		if (limit) url.searchParams.append("limit", limit)
 // 		if (offset) url.searchParams.append("offset", offset)
 // 		if (sort) url.searchParams.append("sort", sort)
@@ -268,8 +268,8 @@ export const fetchBlobsByAddressHash = ({ limit, offset, sort, hash }) => {
 	try {
 		const url = new URL(`${useServerURL()}/address/${hash}/blobs`)
 
-		url.searchParams.append("sort_by", 'time')
-		
+		url.searchParams.append("sort_by", "time")
+
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 		if (sort) url.searchParams.append("sort", sort)
@@ -277,6 +277,20 @@ export const fetchBlobsByAddressHash = ({ limit, offset, sort, hash }) => {
 		return useFetch(url.href, {
 			key: "address_blobs_by_hash",
 		})
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchVotesByAddressHash = async ({ hash, limit, offset }) => {
+	try {
+		const url = new URL(`${useServerURL()}/address/${hash}/votes`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+
+		const data = await useAsyncData(`address-${hash}-votes`, () => $fetch(url.href))
+		return data
 	} catch (error) {
 		console.error(error)
 	}

@@ -248,6 +248,7 @@ export const fetchAccountInfo = async (network, address) => {
 		const response = await $fetch(uri)
 		return response.account
 	} catch (e) {
+		console.error(e)
 		return undefined
 	}
 }

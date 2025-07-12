@@ -5,7 +5,7 @@ import { DateTime } from "luxon"
 /** UI */
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 import BookmarkButton from "@/components/BookmarkButton.vue"
-import Button from "~/components/ui/Button.vue"
+import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Events from "@/components/shared/tables/Events.vue"
 
@@ -20,8 +20,8 @@ import { comma } from "@/services/utils"
 import { fetchTxMessages } from "@/services/api/tx"
 
 /** Store */
-import { useModalsStore } from "@/store/modals"
-import { useCacheStore } from "@/store/cache"
+import { useModalsStore } from "@/store/modals.store"
+import { useCacheStore } from "@/store/cache.store"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
 
@@ -40,7 +40,7 @@ const activeTab = ref(preselectedTab)
 const messages = ref([])
 
 const gasBarColor = computed(() => {
-	let percent = props.tx.gas_used * 100 / props.tx.gas_wanted
+	let percent = (props.tx.gas_used * 100) / props.tx.gas_wanted
 
 	if (percent > 100) {
 		return "var(--red)"
@@ -85,14 +85,14 @@ const handleViewRawTransaction = () => {
 		<Flex align="center" justify="between" :class="$style.header">
 			<Flex align="center" gap="8">
 				<Icon name="tx" size="14" color="primary" />
-				<Text size="13" weight="600" color="primary">Transaction</Text>
+				<Text as="h1" size="13" weight="600" color="primary">
+					Transaction <Text color="secondary">{{ tx.hash.slice(0, 4) }} ••• {{ tx.hash.slice(-4) }}</Text>
+				</Text>
+				<CopyButton :text="tx.hash" size="12" />
 			</Flex>
 
 			<Flex align="center" gap="12">
-				<BookmarkButton
-					type="transaction"
-					:id="tx.hash"
-				/>
+				<BookmarkButton type="transaction" :id="tx.hash" />
 
 				<div class="divider_v" />
 
@@ -170,14 +170,14 @@ const handleViewRawTransaction = () => {
 					</Flex>
 
 					<Flex v-if="tx.memo" direction="column" gap="6">
-						<Text size="12" weight="600" color="secondary">Memo</Text>
-
 						<Flex align="center" gap="6">
+							<Text size="12" weight="600" color="secondary">Memo</Text>
 							<CopyButton :text="tx.memo" />
-							<Text size="12" height="140" weight="600" color="tertiary" mono selectable :class="$style.memo">
-								{{ tx.memo }}
-							</Text>
 						</Flex>
+
+						<Text size="12" height="140" weight="600" color="tertiary" mono selectable :class="$style.memo">
+							{{ tx.memo }}
+						</Text>
 					</Flex>
 
 					<Flex direction="column" gap="10">
@@ -188,7 +188,7 @@ const handleViewRawTransaction = () => {
 								:style="{
 									width: `${(tx.gas_used * 100) / tx.gas_wanted > 100 ? 100 : (tx.gas_used * 100) / tx.gas_wanted}%`,
 									background: gasBarColor,
-									boxShadow: `0 0 6px ${gasBarColor}`
+									boxShadow: `0 0 6px ${gasBarColor}`,
 								}"
 								:class="$style.gas_used"
 							/>
@@ -205,7 +205,7 @@ const handleViewRawTransaction = () => {
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Signer</Text>
-							<Flex align="center" gap="6">
+							<Flex v-if="tx.signers" align="center" gap="6">
 								<AddressBadge :account="tx.signers[0]" color="secondary" />
 
 								<CopyButton :text="tx.signers[0].hash" />
@@ -475,6 +475,16 @@ const handleViewRawTransaction = () => {
 		min-width: 0;
 
 		border-radius: 4px;
+	}
+}
+
+@media (max-width: 550px) {
+	.header {
+		height: initial;
+		flex-direction: column;
+		gap: 12px;
+
+		padding: 12px 0;
 	}
 }
 
