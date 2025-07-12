@@ -29,7 +29,7 @@ const totalVotingPower = computed(() => {
 	return lastHead.value?.total_voting_power ?? 0
 })
 
-const quorum = props.proposal.status === "active" ? Number(appStore.constants.gov.quorum) : Number(props.proposal.quorum)
+const quorum = props.proposal.status === "active" ? Number(appStore.constants?.gov.quorum) : Number(props.proposal.quorum)
 
 const isQuorumReached = computed(() => {
 	return props.proposal.voting_power / 1_000_000 / totalVotingPower.value > quorum

@@ -124,6 +124,13 @@ export const STATS_SERIES = [
 				page: 'tvs',
 				units: 'usd',
 			},
+			{
+				subGroup: 'economy',
+				name: 'tvl',
+				title: 'Total Value Locked',
+				page: 'tvl',
+				units: 'usd',
+			},
 		],
 	},
 	{

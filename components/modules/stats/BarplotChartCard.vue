@@ -2,6 +2,9 @@
 /** Vendor */
 import * as d3 from "d3"
 
+/** Components */
+import Popover from "@/components/ui/Popover.vue"
+
 const props = defineProps({
 	series: {
 		type: Object,
@@ -11,14 +14,31 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    filter: {
+        type: Object,
+        required: false,
+    },
 })
+
+const emit = defineEmits(["onFilterUpdate"])
 
 const chartEl = ref()
 const tooltipEl = ref()
 const tooltip = ref({
     show: false,
 })
-const labels = ref(props.data.map(d => d.name))
+
+const labels = computed(() => props.data?.map(d => d.name))
+
+const isPopoverOpen = ref(false)
+const handlePopoverClose = () => {
+	isPopoverOpen.value = false
+}
+const handleFilterUpdate = (value) => {
+	isPopoverOpen.value = false
+
+    emit("onFilterUpdate", { source: props.series.name, value: value })
+}
 
 const buildChart = (chart) => {
 	const { height, width } = chart.getBoundingClientRect()
@@ -128,6 +148,13 @@ const buildChart = (chart) => {
 	chart.append(svg.node())
 }
 
+watch(
+    () => props.data,
+    () => {
+        buildChart(chartEl.value.wrapper)
+    }
+)
+
 onMounted(() => {
     buildChart(chartEl.value.wrapper)
 })
@@ -135,8 +162,52 @@ onMounted(() => {
 
 <template>
 	<Flex direction="column" justify="start" gap="8" wide :class="$style.wrapper">
-        <Flex align="center" justify="start" wide>
+        <Flex align="center" justify="between" wide>
             <Text size="14" weight="600" color="secondary"> {{ `By ${series.title}` }} </Text>
+
+            <Popover v-if="filter?.data?.length" :open="isPopoverOpen" @on-close="handlePopoverClose" side="right" width="160">
+                <Flex
+                    @click="isPopoverOpen = true"
+                    align="center"
+                    justify="between"
+                    gap="6"
+                    :class="[$style.popover_header, isPopoverOpen && $style.popover_header_active]"
+                >
+                    <Flex align="center" gap="8">
+                        <Text size="12" color="primary"> {{ filter.selected }} </Text>
+                    </Flex>
+
+                    <Icon
+                        name="chevron"
+                        size="14"
+                        color="secondary"
+                        :style="{ transform: `rotate(${isPopoverOpen ? '180' : '0'}deg)`, transition: 'all 0.25s ease' }"
+                    />
+                </Flex>
+
+                <template #content>
+                    <Flex direction="column" justify="center" gap="12">
+                        <Text size="12" weight="600" color="secondary">Select node type</Text>
+
+                        <Flex direction="column" gap="4" :class="$style.popover_list">
+                            <Flex
+                                v-for="fd in filter.data"
+                                @click="handleFilterUpdate(fd)"
+                                align="center"
+                                justify="between"
+                                gap="4"
+                                :class="$style.popover_list_item"
+                            >
+                                <Flex align="center" gap="6">
+                                    <Text size="12" color="primary"> {{ fd }} </Text>
+                                </Flex>
+
+                                <Icon v-if="filter.selected === fd" name="check" size="14" color="brand" />
+                            </Flex>
+                        </Flex>
+                    </Flex>
+                </template>
+            </Popover>
         </Flex>
 
         <Flex align="center" :class="$style.chart_wrapper">
@@ -170,6 +241,41 @@ onMounted(() => {
 	border-radius: 12px;
 
 	padding: 16px;
+}
+
+.popover_header {
+	cursor: pointer;
+
+	padding: 4px 8px;
+	box-shadow: 0 0 0 1px var(--op-10);
+	border-radius: 6px;
+
+	&:hover {
+		box-shadow: 0 0 0 1px var(--op-20);
+	}
+}
+
+.popover_header_active {
+	box-shadow: 0 0 0 1px var(--op-20);
+}
+
+.popover_list {
+	height: 120px;
+
+	overflow-y: auto;
+	overflow-x: hidden;
+	overscroll-behavior: contain;
+}
+
+.popover_list_item {
+	padding: 8px 6px;
+	border-radius: 2px;
+
+	cursor: pointer;
+
+	&:hover {
+		background-color: var(--op-5);
+	}
 }
 
 .legend_wrapper {

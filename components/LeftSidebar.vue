@@ -20,8 +20,6 @@ const appStore = useAppStore()
 const nodeStore = useNodeStore()
 const modalsStore = useModalsStore()
 
-const developerMode = useCookie("developerMode", { default: () => false })
-
 const head = computed(() => appStore.lastHead)
 
 const mainLinks = reactive([
@@ -155,7 +153,6 @@ const toolsLinks = reactive([
 		path: "https://terminal.celenium.io",
 		external: true,
 		new: true,
-		hide: !developerMode.value,
 	},
 	{
 		icon: "drop",
@@ -183,15 +180,6 @@ const toolsLinks = reactive([
 		path: "/bookmarks",
 	},
 ])
-
-/** TEMP */
-watch(
-	() => developerMode.value,
-	() => {
-		const terminalLinkIdx = toolsLinks.findIndex((l) => l.name === "Terminal")
-		toolsLinks[terminalLinkIdx].hide = !developerMode.value
-	},
-)
 
 const handleNavigate = (url) => {
 	window.location.replace(url)

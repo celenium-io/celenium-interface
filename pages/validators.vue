@@ -287,12 +287,12 @@ onMounted(() => {
 								</td>
 								<td>
 									<NuxtLink :to="`/validator/${v.id}`">
-										<Flex align="start" justify="center" direction="column" gap="4">
+										<Flex v-if="activeTab === 'active'" align="start" justify="center" direction="column" gap="4">
 											<Tooltip position="start" delay="400">
 												<Text size="12" weight="600" color="primary">{{ comma(v.voting_power) }}</Text>
 
 												<template #content>
-													<Flex v-if="activeTab === 'active'" align="center" justify="between" gap="8">
+													<Flex align="center" justify="between" gap="8">
 														<Text size="12" weight="600" color="tertiary">Staking Share</Text>
 														<Text size="12" weight="600" color="primary"
 															>{{ shareOfTotalString(v.voting_power, totalVotingPower) }}%</Text
@@ -301,9 +301,13 @@ onMounted(() => {
 												</template>
 											</Tooltip>
 
-											<Text v-if="activeTab === 'active'" size="12" weight="600" color="tertiary"
+											<Text size="12" weight="600" color="tertiary"
 												>{{ shareOfTotalString(v.voting_power, totalVotingPower) }}%</Text
 											>
+										</Flex>
+
+										<Flex v-else align="center" justify="center">
+											<Text size="12" weight="600" color="primary">{{ comma(v.voting_power) }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>

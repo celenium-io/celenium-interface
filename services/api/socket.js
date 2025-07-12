@@ -39,9 +39,9 @@ export const init = () => {
 			if (data.channel === "head") {
 				appStore.lastHead = data.body
 			} else if (data.channel === "blocks") {
-				appStore.latestBlocks.unshift(data.body)
+				appStore.latestBlocks?.unshift(data.body)
 				setTimeout(() => {
-					appStore.latestBlocks.pop()
+					appStore.latestBlocks?.pop()
 				}, 1000)
 			}
 		})

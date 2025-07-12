@@ -224,15 +224,16 @@ watch(
 
 <template>
 	<Flex v-if="props.data?.length" direction="column" justify="start" gap="8" wide :class="$style.wrapper">
-		<Flex align="center" justify="between" wide>
-			<Text size="14" weight="600" color="secondary"> {{ `By ${series.title}` }} </Text>
+		<NuxtLink :to="`/stats/${series.page}${series.aggregate ? '?aggregate=' + series.aggregate : ''}`" :class="[$style.header, !series.page && $style.disabled]">
+			<Flex align="center" justify="between" wide :class="$style.title">
+				<Text size="14" weight="600" color="secondary"> {{ `By ${series.title}` }} </Text>
 
-			<NuxtLink v-if="series.page" :to="`/stats/${series.page}${series.aggregate ? '?aggregate=' + series.aggregate : ''}`">
-				<Flex align="center">
-					<Icon name="bar-chart" size="16" color="tertiary" :class="$style.link" />
+				
+				<Flex v-if="series.page" align="center">
+					<Icon name="bar-chart" size="16" color="tertiary" />
 				</Flex>
-			</NuxtLink>
-		</Flex>
+			</Flex>
+		</NuxtLink>
 
 		<Flex align="center" justify="between" wide>
 			<Flex align="center" direction="column" gap="16" wide :class="$style.legend_wrapper">
@@ -316,12 +317,26 @@ watch(
 	padding: 16px;
 }
 
-.link {
-	transition: fill 0.3s ease;
+.header {
+	cursor: pointer;
 
-	&:hover {
-		fill: var(--txt-secondary);
+	.title {
+		width: 100%;
+
+		svg:last-of-type {
+			transition: fill 0.3s ease;
+		}
 	}
+
+	&:hover .title svg:last-of-type {
+		fill: var(--txt-primary);
+		transform: scale(1.1);
+	}
+}
+
+.disabled {
+	cursor: auto;
+	pointer-events: none;
 }
 
 .legend_wrapper {

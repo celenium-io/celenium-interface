@@ -10,59 +10,147 @@ import { getSeriesByGroupAndType } from "@/services/constants/stats.js"
 import { capitilize, sortArrayOfObjects } from "@/services/utils"
 
 /** API */
-import { fetchNodeStats } from "@/services/api/stats"
+import { fetchNodeStats, fetchNodeVersionStats } from "@/services/api/stats"
+
+/** Store */
+import { useEnumStore } from "@/store/enums.store"
+const enumStore = useEnumStore()
 
 const isLoading = ref(true)
-const series = computed(() => getSeriesByGroupAndType("Nodes"))
+const series = reactive(getSeriesByGroupAndType("Nodes"))
+const filters = computed(() => {
+	let f = {}
+	series.forEach(s => {
+		switch (s.name) {
+			case "version":
+				f[s.name] = {
+					data: nodeTypes.value,
+					selected: selectedNodeType.value,
+				}
+				break;
+		
+			default:
+				break;
+		}
+	})
 
-const getNodeStats = async (name) => {
-	const data = await fetchNodeStats({ name })
+	return f
+})
 
-	if (!data.length) return []
+const nodeTypeMap = {
+  "celestia-celestia": "Celestia",
+  "unknown": "Other"
+}
+function getNodeTypeName(nodeType, reverse = false) {
+	if (!reverse) {
+		return nodeTypeMap[nodeType] || capitilize(nodeType)
+	} else {
+		const entry = Object.entries(nodeTypeMap).find(([, display]) => display === nodeType)
+		return entry ? entry[0] : nodeType.toLowerCase()
+	}
+}
+const nodeTypes = computed(() => [...new Set(enumStore?.enums?.nodeType?.map(nt => getNodeTypeName(nt))?.sort())])
+const selectedNodeType = ref(nodeTypes.value[0])
 
-	return sortArrayOfObjects(data, "amount")
+async function getNodeTypeData() {
+	let data = await fetchNodeStats({ name: "nodetype" })
+
+	let otherEntry = null
+	data = data.reduce((acc, d) => {
+		const name = getNodeTypeName(d.name)
+
+		if (name === "Unknown" || name === "Other") {
+			if (!otherEntry) {
+				otherEntry = { ...d, name: "Other" }
+				acc.push(otherEntry)
+			} else {
+				otherEntry.amount += d.amount
+			}
+		} else {
+			acc.push({ ...d, name })
+		}
+
+		return acc
+	}, [])
+
+	return sortArrayOfObjects(data, "amount", true)
+}
+async function getNodeVersionData() {
+	let data = []
+	if (selectedNodeType.value === "Other") {
+		const [otherData, unknownData] = await Promise.all([
+			fetchNodeVersionStats({ name: "other" }),
+			fetchNodeVersionStats({ name: "unknown" })
+		])
+
+		data = [...otherData, ...unknownData].reduce((acc, d) => {
+			const idx = acc.findIndex(el => el.name === d.name)
+			if (idx === -1) {
+				acc.push(d)
+			} else {
+				acc[idx].amount += d.amount
+			}
+
+			return acc
+		}, [])
+
+	} else {
+		data = await fetchNodeVersionStats({ name: getNodeTypeName(selectedNodeType.value, true) })
+	}
+	
+	return data.sort((a, b) => {
+		const parseVersion = (version) => version.split(".").map(Number)
+		const [aMajor, aMinor, aPatch] = parseVersion(a.name)
+		const [bMajor, bMinor, bPatch] = parseVersion(b.name)
+
+		return aMajor - bMajor || aMinor - bMinor || aPatch - bPatch
+	})
 }
 
-const prepareData = async () => {
-	isLoading.value = true
+const fetchData = async (ser) => {
+	if (!ser) {
+		series.forEach(async (s) => {
+			await fetchData(s)
+		})
 
-	for (const s of series.value) {
-		const data = await getNodeStats(s.name)
+		return
+	}
 
-		let otherEntry = null
-		if (s.name === "nodetype") {
-			s.data = data.reduce((acc, d) => {
-				let name = d.name === "celestia-celestia" ? "Celestia" : capitilize(d.name)
-
-				if (name === "Unknown" || name === "Other") {
-					if (!otherEntry) {
-						otherEntry = { ...d, name: "Other" }
-						acc.push(otherEntry)
-					} else {
-						otherEntry.amount += d.amount
-					}
-				} else {
-					acc.push({ ...d, name })
-				}
-
-				return acc
-			}, [])
-
-			s.data = sortArrayOfObjects(s.data, "amount")
-		} else if (s.name === "version") {
-			s.data = data.sort((a, b) => {
-				const parseVersion = (version) => version.split(".").map(Number)
-				const [aMajor, aMinor, aPatch] = parseVersion(a.name)
-				const [bMajor, bMinor, bPatch] = parseVersion(b.name)
-
-				return aMajor - bMajor || aMinor - bMinor || aPatch - bPatch
-			})
-		}
+	switch (ser.name) {
+		case "nodetype":
+			ser.data = await getNodeTypeData()
+			break;
+		case "version":
+			ser.data = await getNodeVersionData()
+			break;
+		
+		default:
+			break;
 	}
 }
 
-onMounted(async () => {
-	await prepareData()
+async function handleFilterUpdate(event) {
+	if (!event.source) return
+	
+	const ser = series.find(s => s.name === event.source)
+	if (!ser) return
+
+	switch (event.source) {
+		case "version":
+			selectedNodeType.value = event.value
+			await fetchData(ser)
+			
+			break;
+	
+		default:
+			break;
+	}
+}
+
+onBeforeMount(async () => {
+	isLoading.value = true
+
+	await fetchData()
 
 	isLoading.value = false
 })
@@ -76,10 +164,19 @@ onMounted(async () => {
 			<GeoMap :class="$style.chart" />
 
 			<Flex v-if="!isLoading" align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
-				<BarplotChartCard v-for="s in series" :series="s" :data="s.data" :class="$style.chart_card" />
+				<template v-for="s in series">
+					<BarplotChartCard
+						v-if="s.data?.length"
+						@onFilterUpdate="handleFilterUpdate"
+						:series="s"
+						:data="s.data"
+						:filter="filters[s.name]"
+						:class="$style.chart_card"
+					/>
+				</template>
 			</Flex>
 
-			<Flex align="center" justify="end" wide>
+			<Flex v-if="!isLoading" align="center" justify="end" wide>
 				<Text size="12" color="tertiary" justify="start">Data provided by the 
 					<NuxtLink to="https://probelab.io" target="_blank" :class="$style.link">ProbeLab</NuxtLink>
 					 team

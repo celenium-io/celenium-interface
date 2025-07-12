@@ -45,7 +45,7 @@ const price = reactive({
 	diff: 0,
 	side: null,
 })
-const tvs = ref(0)
+const tvs = computed(() => appStore.tvs)
 onMounted(async () => {
 	const dataSeries = await fetchPriceSeries({ from: parseInt(DateTime.now().minus({ days: 3 }).ts / 1_000) })
 	series.value = dataSeries
@@ -62,7 +62,7 @@ onMounted(async () => {
 
 	const _tvs = await fetchTVS({ period: null })
 	if (_tvs.value) {
-		tvs.value = _tvs.value
+		appStore.tvs = _tvs.value
 	}
 
 	isLoading.value = false

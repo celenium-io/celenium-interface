@@ -508,7 +508,7 @@ const initHandles = (gb) => {
 	tooltip
 		.append("text")
 		.attr("fill", "var(--txt-primary)")
-		.attr("y", margin.top - 33)
+		.attr("y", margin.top - 32)
 		.attr("text-anchor", "middle")
 		.attr("dominant-baseline", "middle")
 		.style("font-size", "12px")

@@ -7,10 +7,10 @@ import { DateTime } from "luxon"
 import DiffChip from "@/components/modules/stats/DiffChip.vue"
 
 /** Services */
-import { abbreviate, comma, formatBytes, tia, truncateDecimalPart } from "@/services/utils"
+import { abbreviate, comma, formatBytes, roundTo, tia, truncateDecimalPart } from "@/services/utils"
 
 /** API */
-import { fetchSeries, fetchSeriesCumulative, fetchTVS } from "@/services/api/stats"
+import { fetchSeries, fetchSeriesCumulative, fetchTVL, fetchTVS } from "@/services/api/stats"
 
 const props = defineProps({
 	series: {
@@ -81,11 +81,19 @@ const getSeries = async () => {
 				from: from,
 				to: to,
 			})
-		)
-			.map((v) => {
-				return { time: v.time, value: v.close }
+		).map((v) => {
+			return { time: v.time, value: v.close }
+		})
+		.reverse()
+	} else if (props.series.name === "tvl") {
+		data = (
+			await fetchTVL({
+				slug: "celestia",
+				period: props.period.timeframe,
+				from: from,
+				to: to,
 			})
-			.reverse()
+		).reverse()
 	} else {
 		data = (
 			await fetchSeries({
@@ -147,7 +155,7 @@ const getSeries = async () => {
 		})
 	}
 
-	if (props.series.name === "tvs") {
+	if (["tvs", "tvl"].includes(props.series.name)) {
 		currentTotal.value = currentData.value[currentData.value.length - 1].value
 		prevTotal.value = prevData.value[prevData.value.length - 1].value
 	} else if (props.series.aggregate !== "cumulative") {
@@ -210,7 +218,7 @@ const buildChart = (chart, data, color) => {
 
 				return `${tia(value, 2)} TIA`
 			case "seconds":
-				return `${truncateDecimalPart(value / 1_000, 3)}s`
+				return `${value}s`
 			case "usd":
 				return `${abbreviate(value)} $`
 			default:
@@ -374,56 +382,57 @@ watch(
 
 <template>
 	<Flex direction="column" justify="between" gap="16" wide :class="$style.wrapper">
-		<Flex align="center" direction="column" gap="16" :class="$style.header">
-			<Flex align="center" justify="between" wide>
-				<Flex align="center" gap="10" justify="start">
-					<Text size="14" weight="600" color="secondary"> {{ series.title }} </Text>
-					<DiffChip :value="diff" :invert="series.name === 'block_time'" />
+		<NuxtLink :to="`/stats/${series.page}${series.aggregate ? '?aggregate=' + series.aggregate : ''}`" :class="[$style.header, !series.page && $style.disabled]">
+			<Flex align="center" direction="column" gap="16" :class="$style.title">
+				<Flex align="center" justify="between" wide>
+					<Flex align="center" gap="10" justify="start">
+						<Text size="14" weight="600" color="secondary"> {{ series.title }} </Text>
+						<DiffChip :value="diff" :invert="series.name === 'block_time'" />
+					</Flex>
+
+					
+					<Flex v-if="series.page" align="center">
+						<Icon name="expand" size="16" color="tertiary" />
+					</Flex>
 				</Flex>
 
-				<NuxtLink v-if="series.page" :to="`/stats/${series.page}${series.aggregate ? '?aggregate=' + series.aggregate : ''}`">
-					<Flex align="center">
-						<Icon name="expand" size="16" color="tertiary" :class="$style.link" />
-					</Flex>
-				</NuxtLink>
-			</Flex>
+				<Flex v-if="series.units === 'seconds'" align="end" gap="10" justify="start" wide>
+					<Text size="16" weight="600" color="primary"> {{ `~${roundTo(currentTotal)}s` }} </Text>
+					<Text size="14" weight="600" color="tertiary">
+						{{ `~${roundTo(prevTotal)}s previous ${period.title.replace("Last ", "")}` }}
+					</Text>
+				</Flex>
+				<Flex v-else-if="series.units === 'utia'" align="end" gap="10" justify="start" wide>
+					<Text size="16" weight="600" color="primary">
+						{{ series.name === "gas_price" ? `${currentTotal.toFixed(4)} UTIA` : `${tia(currentTotal, 2)} TIA` }}
+					</Text>
+					<Text size="14" weight="600" color="tertiary">
+						{{ series.name === "gas_price" ? `${prevTotal.toFixed(4)} UTIA` : `${tia(prevTotal, 2)} TIA` }}
+					</Text>
+				</Flex>
+				<Flex v-else-if="series.units === 'usd'" align="end" gap="10" justify="start" wide>
+					<Text size="16" weight="600" color="primary"> {{ `${abbreviate(currentTotal)} $` }} </Text>
+					<Text size="14" weight="600" color="tertiary"> {{ `${abbreviate(prevTotal)} $` }} </Text>
+				</Flex>
+				<Flex v-else align="end" gap="10" justify="start" wide>
+					<Text size="16" weight="600" color="primary">
+						{{ series.units === "bytes" ? formatBytes(currentTotal) : comma(currentTotal) }}
+					</Text>
 
-			<Flex v-if="series.units === 'seconds'" align="end" gap="10" justify="start" wide>
-				<Text size="16" weight="600" color="primary"> {{ `~${Math.round(currentTotal)}s` }} </Text>
-				<Text size="14" weight="600" color="tertiary">
-					{{ `~${Math.round(prevTotal)}s previous ${period.title.replace("Last ", "")}` }}
-				</Text>
+					<Text v-if="series.aggregate === 'cumulative'" size="14" weight="600" color="tertiary">
+						{{ `${formatBytes(prevTotal)} previous month` }}
+					</Text>
+					<Text v-else size="14" weight="600" color="tertiary">
+						{{
+							`${series.units === "bytes" ? formatBytes(prevTotal) : abbreviate(prevTotal)} previous ${period.title.replace(
+								"Last ",
+								"",
+							)}`
+						}}
+					</Text>
+				</Flex>
 			</Flex>
-			<Flex v-else-if="series.units === 'utia'" align="end" gap="10" justify="start" wide>
-				<Text size="16" weight="600" color="primary">
-					{{ series.name === "gas_price" ? `${currentTotal.toFixed(4)} UTIA` : `${tia(currentTotal, 2)} TIA` }}
-				</Text>
-				<Text size="14" weight="600" color="tertiary">
-					{{ series.name === "gas_price" ? `${prevTotal.toFixed(4)} UTIA` : `${tia(prevTotal, 2)} TIA` }}
-				</Text>
-			</Flex>
-			<Flex v-else-if="series.units === 'usd'" align="end" gap="10" justify="start" wide>
-				<Text size="16" weight="600" color="primary"> {{ `${abbreviate(currentTotal)} $` }} </Text>
-				<Text size="14" weight="600" color="tertiary"> {{ `${abbreviate(prevTotal)} $` }} </Text>
-			</Flex>
-			<Flex v-else align="end" gap="10" justify="start" wide>
-				<Text size="16" weight="600" color="primary">
-					{{ series.units === "bytes" ? formatBytes(currentTotal) : comma(currentTotal) }}
-				</Text>
-
-				<Text v-if="series.aggregate === 'cumulative'" size="14" weight="600" color="tertiary">
-					{{ `${formatBytes(prevTotal)} previous month` }}
-				</Text>
-				<Text v-else size="14" weight="600" color="tertiary">
-					{{
-						`${series.units === "bytes" ? formatBytes(prevTotal) : abbreviate(prevTotal)} previous ${period.title.replace(
-							"Last ",
-							"",
-						)}`
-					}}
-				</Text>
-			</Flex>
-		</Flex>
+		</NuxtLink>
 
 		<Flex :class="$style.chart_wrapper">
 			<Transition name="fastfade">
@@ -503,15 +512,27 @@ watch(
 	padding: 16px;
 }
 
-.link {
-	transition: fill 0.3s ease;
+.header {
+	cursor: pointer;
 
-	&:hover {
-		fill: var(--txt-secondary);
+	.title {
+		width: 100%;
+
+		svg:last-of-type {
+			transition: fill 0.3s ease;
+		}
+		
+	}
+
+	&:hover .title svg:last-of-type {
+		fill: var(--txt-primary);
+		transform: scale(1.1);
 	}
 }
 
-.header {
+.disabled {
+	cursor: auto;
+	pointer-events: none;
 }
 
 .chart_wrapper {
