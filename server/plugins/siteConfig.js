@@ -9,10 +9,11 @@ export default defineNitroPlugin((nitroApp) => {
 	nitroApp.hooks.hook("site-config:init", ({ event, siteConfig }) => {
 		const origin = useNitroOrigin(event)
 
-		if (!origins.includes(origin)) return
-
-		siteConfig.push({
-			url: origin,
-		})
+		if (origins.includes(origin)) {
+			siteConfig.push({
+				url: origin,
+				indexable: false,
+			})
+		}
 	})
 })

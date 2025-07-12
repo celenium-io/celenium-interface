@@ -5,7 +5,7 @@ import topLevelAwait from "vite-plugin-top-level-await"
 import path from "path"
 
 export default defineNuxtConfig({
-	modules: ["nuxt-site-config", "@pinia/nuxt", "nuxt-og-image", "@nuxtjs/sitemap"],
+	modules: ["nuxt-site-config", "@nuxtjs/robots", "@pinia/nuxt", "nuxt-og-image", "@nuxtjs/sitemap"],
 
 	site: {
 		url: "https://celenium.io",
@@ -13,6 +13,10 @@ export default defineNuxtConfig({
 
 	sitemap: {
 		xsl: false,
+	},
+
+	robots: {
+		sitemap: "/sitemap.xml",
 	},
 
 	routeRules: {
