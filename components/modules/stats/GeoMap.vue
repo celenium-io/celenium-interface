@@ -438,7 +438,7 @@ onMounted(async () => {
 				amountLostCities: (amountCountryMap[feature.id] || 0) - (amountCityMap[feature.id] || 0),
 			}))
 
-			await buildChart(chartEl.value.wrapper)
+			await buildChart(chartEl.value?.wrapper)
 		}
 	} finally {
 		isLoading.value = false

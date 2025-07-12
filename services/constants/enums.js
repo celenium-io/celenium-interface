@@ -159,6 +159,7 @@ export const DEFAULT_ENUMS = {
 	proposal_status: ["inactive", "active", "removed", "applied", "rejected"],
 	vote_type: ["address", "validator"],
 	vote_option: ["yes", "no", "no_with_veto", "abstain"],
+	node_type: ["bridge", "full", "light", "lumina", "other", "unknown"],
 }
 
 export const LOCAL_ENUMS_KEYS = Object.keys(DEFAULT_ENUMS)
