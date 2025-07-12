@@ -328,9 +328,9 @@ const handleViewRawTransactions = () => {
 			<Flex align="center" gap="12">
 				<Flex align="center" gap="8">
 					<Icon name="block" size="14" color="primary" />
-          <Text as="h1" size="13" weight="600" color="primary">
-            Block <Text color="secondary">{{ comma(block.height) }} </Text>
-          </Text>
+					<Text as="h1" size="13" weight="600" color="primary">
+						Block <Text color="secondary">{{ comma(height) }} </Text>
+					</Text>
 				</Flex>
 
 				<Flex align="center" gap="8">
@@ -500,25 +500,19 @@ const handleViewRawTransactions = () => {
 					</Flex>
 
 					<Flex align="center" gap="8">
-						<Button
-							@click="router.push(`/block/${block.height - 1}`)"
-							wide
-							type="secondary"
-							size="mini"
-							:disabled="block.height === 0"
-						>
+						<Button @click="router.push(`/block/${height - 1}`)" wide type="secondary" size="mini" :disabled="height === 0">
 							<Icon name="arrow-redo-right" size="16" color="tertiary" :style="{ transform: 'scaleX(-1)' }" />
-							<Text :class="$style.block_nav__txt"><Text color="secondary">Go to</Text> {{ comma(block.height - 1) }}</Text>
+							<Text :class="$style.block_nav__txt"><Text color="secondary">Go to</Text> {{ comma(height - 1) }}</Text>
 						</Button>
 
 						<Button
-							@click="router.push(`/block/${block.height + 1}`)"
+							@click="router.push(`/block/${height + 1}`)"
 							wide
 							type="secondary"
 							size="mini"
-							:disabled="block.height === lastBlock?.height"
+							:disabled="height === lastBlock?.height"
 						>
-							<Text :class="$style.block_nav__txt"><Text color="secondary">Go to </Text>{{ comma(block.height + 1) }}</Text>
+							<Text :class="$style.block_nav__txt"><Text color="secondary">Go to </Text>{{ comma(height + 1) }}</Text>
 							<Icon name="arrow-redo-right" size="16" color="tertiary" />
 						</Button>
 					</Flex>
