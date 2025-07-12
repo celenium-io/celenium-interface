@@ -10,8 +10,8 @@ import { comma } from "@/services/utils"
 import { fetchBlockByHeight } from "@/services/api/block"
 
 /** Store */
-import { useAppStore } from "@/store/app"
-import { useCacheStore } from "@/store/cache"
+import { useAppStore } from "@/store/app.store"
+import { useCacheStore } from "@/store/cache.store"
 const appStore = useAppStore()
 const cacheStore = useCacheStore()
 

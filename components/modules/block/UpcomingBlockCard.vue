@@ -10,7 +10,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import { comma } from "@/services/utils"
 
 /** Store */
-import { useAppStore } from "@/store/app"
+import { useAppStore } from "@/store/app.store"
 const appStore = useAppStore()
 
 const props = defineProps({
