@@ -52,9 +52,7 @@ export const fetchAvgBlockTime = async ({ from }) => {
 
 		url.searchParams.append("from", from)
 
-		return useFetch(url.href, {
-			key: "avg_block_time",
-		})
+		return $fetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -62,7 +60,7 @@ export const fetchAvgBlockTime = async ({ from }) => {
 
 export const fetchBlockByHeight = async (height) => {
 	try {
-		return useFetch(`${useServerURL()}/block/${height}?stats=true`, {
+		return useFetch(`${useServerURL()}/block/${height}?stats=true&q=${new Date().getTime()}`, {
 			key: "block",
 		})
 	} catch (error) {

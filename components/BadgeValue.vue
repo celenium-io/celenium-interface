@@ -18,6 +18,8 @@ const props = defineProps({
 const copied = ref(false)
 
 const handleCopy = () => {
+	if (!props.text) return
+
 	window.navigator.clipboard.writeText(props.text.toUpperCase())
 
 	notificationsStore.create({
@@ -37,15 +39,17 @@ const handleCopy = () => {
 </script>
 
 <template>
-	<Flex @click="handleCopy" align="center" justify="between" :class="$style.wrapper">
+	<Flex @click="handleCopy" align="center" justify="between" :class="[$style.wrapper, !text && $style.not_available]">
 		<Flex :class="$style.left">
-			<Text size="12" weight="600" color="secondary" mono>{{ space(text.toUpperCase()) }}</Text>
+			<Text v-if="text" size="12" weight="600" color="secondary" mono>{{ space(text.toUpperCase()) }}</Text>
+			<Text v-else size="12" weight="600" color="secondary" mono>**** **** **** ****</Text>
 		</Flex>
 
 		<div v-for="dot in 3" class="dot" />
 
 		<Flex justify="end" :class="$style.right">
-			<Text size="12" weight="600" color="secondary" mono>{{ space(text.toUpperCase()) }}</Text>
+			<Text v-if="text" size="12" weight="600" color="secondary" mono>{{ space(text.toUpperCase()) }}</Text>
+			<Text v-else size="12" weight="600" color="secondary" mono>**** **** **** ****</Text>
 		</Flex>
 	</Flex>
 </template>
@@ -68,6 +72,15 @@ const handleCopy = () => {
 	&:active {
 		border: 1px solid var(--op-20);
 		background: var(--op-10);
+	}
+
+	&.not_available {
+		cursor: not-allowed;
+
+		&:hover {
+			background: transparent;
+			border: 1px solid var(--op-10);
+		}
 	}
 }
 

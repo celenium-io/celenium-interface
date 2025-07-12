@@ -16,12 +16,17 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 /** Shared Components */
 import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 import Events from "@/components/shared/tables/Events.vue"
+import TablePlaceholderView from "@/components/shared/TablePlaceholderView.vue"
+
+/** Components */
+import UpcomingBlockCard from "./UpcomingBlockCard.vue"
 
 /** Services */
 import { comma, formatBytes, space, shortHex } from "@/services/utils"
 
 /** API */
 import { fetchTransactionsByBlock } from "@/services/api/tx"
+import { fetchAvgBlockTime } from "@/services/api/block"
 
 /** Store */
 import { useAppStore } from "@/store/app.store"
@@ -37,14 +42,41 @@ const router = useRouter()
 const props = defineProps({
 	block: {
 		type: Object,
-		required: true,
 	},
 	transactions: {
 		type: Array,
 	},
+	isUpcomingBlock: {
+		type: Boolean,
+		default: false,
+	},
+	isWaited: {
+		type: Boolean,
+		default: false,
+	},
+
+	/**
+	 * Height from route.params.height
+	 * Used when isUpcomingBlock === true
+	 */
+	height: {
+		type: Number,
+		required: true,
+	},
 })
 
-const lastBlock = computed(() => appStore.latestBlocks[0])
+const latestBlock = computed(() => appStore.latestBlocks[0])
+
+const avgBlockTime = ref(0)
+const { data } = await useAsyncData("avgBlockTime", () =>
+	fetchAvgBlockTime({ from: parseInt(DateTime.now().minus({ hours: 3 }).ts / 1_000) }),
+)
+if (data.value) avgBlockTime.value = Number(data.value) / 1_000
+
+const secondsToSelectedBlock = computed(() => {
+	if (!latestBlock.value) return null
+	return (props.height - latestBlock.value.height) * avgBlockTime.value
+})
 
 const preselectedTab = route.query.tab && ["transactions", "events"].includes(route.query.tab) ? route.query.tab : "transactions"
 const activeTab = ref(preselectedTab)
@@ -67,7 +99,7 @@ const filters = reactive({
 		success: false,
 		failed: false,
 	},
-	message_type: props.block.message_types.sort().reduce((a, b) => ({ ...a, [b]: false }), {}),
+	message_type: props.isUpcomingBlock ? [] : props.block.message_types.sort().reduce((a, b) => ({ ...a, [b]: false }), {}),
 })
 const hasActiveFilters = computed(() => {
 	let has = false
@@ -204,10 +236,12 @@ const resetFilters = (target, refetch) => {
 }
 
 const getTransactions = async () => {
+	if (props.isUpcomingBlock) return
+
 	isLoading.value = true
 
 	const { data } = await fetchTransactionsByBlock({
-		height: props.block.height,
+		height: props.height,
 		from: parseInt(DateTime.fromISO(props.block.time) / 1000),
 		to: parseInt(DateTime.fromISO(props.block.time) / 1000) + 1,
 		limit: 10,
@@ -233,7 +267,7 @@ const getTransactions = async () => {
 
 await getTransactions()
 
-onMounted(() => {
+onMounted(async () => {
 	router.replace({
 		query: {
 			tab: activeTab.value,
@@ -266,6 +300,13 @@ watch(
 	},
 )
 
+watch(
+	() => props.block,
+	() => {
+		getTransactions()
+	},
+)
+
 const handleViewODSBlock = () => {
 	modalsStore.open("ods")
 }
@@ -284,26 +325,45 @@ const handleViewRawTransactions = () => {
 <template>
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
-			<Flex align="center" gap="8">
-				<Icon name="block" size="14" color="primary" />
-				<Text as="h1" size="13" weight="600" color="primary">
-					Block <Text color="secondary">{{ comma(block.height) }} </Text>
-				</Text>
-				<CopyButton :text="block.height" size="12" />
+			<Flex align="center" gap="12">
+				<Flex align="center" gap="8">
+					<Icon name="block" size="14" color="primary" />
+					<Text as="h1" size="13" weight="600" color="primary">
+						Block <Text color="secondary">{{ comma(height) }} </Text>
+					</Text>
+				</Flex>
+
+				<Flex align="center" gap="8">
+					<Button @click="router.push(`/block/${height - 1}`)" type="secondary" size="mini" :disabled="height === 0">
+						<Icon name="arrow-redo-right" size="16" color="secondary" :style="{ transform: 'scaleX(-1)' }" />
+						<Text :class="$style.block_nav__txt">Prev</Text>
+					</Button>
+
+					<Button @click="router.push(`/block/${height + 1}`)" type="secondary" size="mini">
+						<Text :class="$style.block_nav__txt">Next</Text>
+						<Icon name="arrow-redo-right" size="16" color="secondary" />
+					</Button>
+				</Flex>
 			</Flex>
 
 			<Flex align="center" gap="12">
-				<Button @click="handleViewODSBlock" type="secondary" size="mini" :class="$style.ods_btn" :disabled="block.height === 0">
+				<Button
+					@click="handleViewODSBlock"
+					type="secondary"
+					size="mini"
+					:class="$style.ods_btn"
+					:disabled="height === 0 || isUpcomingBlock"
+				>
 					<Icon name="ods" size="12" color="primary" />
 					ODS
 				</Button>
 
-				<BookmarkButton type="block" :id="block.height" />
+				<BookmarkButton type="block" :id="height" />
 
 				<div class="divider_v" />
 
-				<Dropdown>
-					<Button type="secondary" size="mini">
+				<Dropdown :disabled="isUpcomingBlock">
+					<Button type="secondary" size="mini" :disabled="isUpcomingBlock">
 						<Icon name="dots" size="16" color="primary" />
 					</Button>
 
@@ -319,15 +379,29 @@ const handleViewRawTransactions = () => {
 			<Flex direction="column" :class="$style.data">
 				<Flex wide direction="column" gap="8" :class="$style.top">
 					<Flex align="center" justify="between" wide>
-						<Text size="12" weight="600" color="secondary"> Timeline </Text>
-						<Text size="12" weight="600" color="tertiary">
+						<Flex tag="h1" align="center" gap="6">
+							<Text size="12" weight="600" color="secondary"> Height </Text>
+							<Text size="12" weight="600" color="primary">{{ comma(height) }}</Text>
+							<CopyButton :text="height" size="10" />
+						</Flex>
+
+						<Text v-if="block && !isUpcomingBlock" size="12" weight="600" color="tertiary">
 							{{ DateTime.fromISO(block.time).setLocale("en").toFormat("ff") }}
+						</Text>
+						<Text
+							v-else-if="secondsToSelectedBlock"
+							size="12"
+							weight="600"
+							color="secondary"
+							style="text-transform: capitalize"
+						>
+							{{ DateTime.now().plus({ seconds: secondsToSelectedBlock }).toRelativeCalendar() }}
 						</Text>
 					</Flex>
 
 					<Badge>
 						<Flex align="center" justify="between" wide>
-							<Text size="12" weight="600" color="secondary">
+							<Text v-if="block" size="12" weight="600" color="secondary" mono>
 								{{
 									DateTime.fromISO(block.time)
 										.minus({ milliseconds: block.stats.block_time })
@@ -335,25 +409,32 @@ const handleViewRawTransactions = () => {
 										.toFormat("TT")
 								}}
 							</Text>
+							<Text v-else size="12" weight="600" color="tertiary"> TBD</Text>
 
 							<div v-for="dot in 5" class="dot" />
 
 							<Flex align="center" gap="6">
 								<Icon name="time" size="12" color="secondary" />
-								<Text size="12" weight="600" color="primary"> {{ (block.stats.block_time / 1_000).toFixed(2) }}s </Text>
+								<Text v-if="block" size="12" weight="600" color="primary" mono>
+									{{ (block.stats.block_time / 1_000).toFixed(2) }}s
+								</Text>
+								<Text v-else size="12" weight="600" color="primary">~{{ avgBlockTime.toFixed(2) }}s </Text>
 							</Flex>
 
 							<div v-for="dot in 5" class="dot" />
 
-							<Text size="12" weight="600" color="secondary" align="right">
-								{{ DateTime.fromISO(block.time).setLocale("en").toFormat("TT") }}</Text
-							>
+							<Text v-if="block" size="12" weight="600" color="secondary" align="right" mono>
+								{{ DateTime.fromISO(block.time).setLocale("en").toFormat("TT") }}
+							</Text>
+							<Text v-else size="12" weight="600" color="tertiary" align="right"> TBD</Text>
 						</Flex>
 					</Badge>
 				</Flex>
 
 				<Flex direction="column" gap="24" :class="$style.main">
-					<Flex v-if="block.proposer" direction="column" gap="12">
+					<UpcomingBlockCard v-if="isWaited" :height :secondsToSelectedBlock :avgBlockTime />
+
+					<Flex v-if="block?.proposer" direction="column" gap="12">
 						<Text size="12" weight="600" color="tertiary">Proposer</Text>
 
 						<Flex direction="column" gap="8">
@@ -371,10 +452,10 @@ const handleViewRawTransactions = () => {
 						</Flex>
 					</Flex>
 
-					<Flex v-if="block.hash" direction="column" gap="8" :class="$style.key_value">
+					<Flex v-if="block" direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Hash</Text>
 
-						<BadgeValue :text="block.hash" />
+						<BadgeValue :text="block?.hash ?? ''" />
 					</Flex>
 
 					<Flex direction="column" gap="16">
@@ -382,17 +463,22 @@ const handleViewRawTransactions = () => {
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Blobs Size</Text>
-							<Text size="12" weight="600" color="secondary"> {{ formatBytes(block.stats.blobs_size) }} </Text>
+							<Text v-if="block" size="12" weight="600" color="secondary">
+								{{ formatBytes(block.stats.blobs_size) }}
+							</Text>
+							<Icon v-else name="clock" size="12" color="support" />
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Events</Text>
-							<Text size="12" weight="600" color="secondary"> {{ block.stats.events_count }} </Text>
+							<Text v-if="block" size="12" weight="600" color="secondary"> {{ block.stats.events_count }} </Text>
+							<Icon v-else name="clock" size="12" color="support" />
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Transactions</Text>
-							<Text size="12" weight="600" color="secondary"> {{ block.stats.tx_count }} </Text>
+							<Text v-if="block" size="12" weight="600" color="secondary"> {{ block.stats.tx_count }} </Text>
+							<Icon v-else name="clock" size="12" color="support" />
 						</Flex>
-						<Flex align="center" justify="between">
+						<Flex v-if="block" align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Transactions Fee </Text>
 							<AmountInCurrency
 								:amount="{ value: block.stats.fee, decimal: 6 }"
@@ -401,34 +487,32 @@ const handleViewRawTransactions = () => {
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Bytes in block </Text>
-							<Text size="12" weight="600" color="secondary"> {{ formatBytes(block.stats.bytes_in_block) }}</Text>
+							<Text v-if="block" size="12" weight="600" color="secondary">
+								{{ formatBytes(block.stats.bytes_in_block) }}</Text
+							>
+							<Icon v-else name="clock" size="12" color="support" />
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Square size </Text>
-							<Text size="12" weight="600" color="secondary"> {{ block.stats.square_size }}</Text>
+							<Text v-if="block" size="12" weight="600" color="secondary"> {{ block.stats.square_size }}</Text>
+							<Icon v-else name="clock" size="12" color="support" />
 						</Flex>
 					</Flex>
 
 					<Flex align="center" gap="8">
-						<Button
-							@click="router.push(`/block/${block.height - 1}`)"
-							wide
-							type="secondary"
-							size="mini"
-							:disabled="block.height === 0"
-						>
+						<Button @click="router.push(`/block/${height - 1}`)" wide type="secondary" size="mini" :disabled="height === 0">
 							<Icon name="arrow-redo-right" size="16" color="tertiary" :style="{ transform: 'scaleX(-1)' }" />
-							<Text :class="$style.block_nav__txt"><Text color="secondary">Go to</Text> {{ comma(block.height - 1) }}</Text>
+							<Text :class="$style.block_nav__txt"><Text color="secondary">Go to</Text> {{ comma(height - 1) }}</Text>
 						</Button>
 
 						<Button
-							@click="router.push(`/block/${block.height + 1}`)"
+							@click="router.push(`/block/${height + 1}`)"
 							wide
 							type="secondary"
 							size="mini"
-							:disabled="block.height === lastBlock?.height"
+							:disabled="height === lastBlock?.height"
 						>
-							<Text :class="$style.block_nav__txt"><Text color="secondary">Go to </Text>{{ comma(block.height + 1) }}</Text>
+							<Text :class="$style.block_nav__txt"><Text color="secondary">Go to </Text>{{ comma(height + 1) }}</Text>
 							<Icon name="arrow-redo-right" size="16" color="tertiary" />
 						</Button>
 					</Flex>
@@ -579,7 +663,7 @@ const handleViewRawTransactions = () => {
 					</Flex>
 
 					<Flex v-if="transactions.length" :class="$style.table_scroller">
-						<table v-if="block.height">
+						<table v-if="height">
 							<thead>
 								<tr>
 									<th><Text size="12" weight="600" color="tertiary">Hash</Text></th>
@@ -780,12 +864,22 @@ const handleViewRawTransactions = () => {
 						<Button @click="handleClearAllFilters" type="secondary" size="small">Clear all filters</Button>
 					</Flex>
 
-					<Flex v-else direction="column" align="center" justify="center" gap="8" :class="$style.empty">
-						<Text size="13" weight="600" color="secondary" align="center"> No transactions </Text>
-						<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-							This block does not contain any transactions
-						</Text>
-					</Flex>
+					<TablePlaceholderView
+						v-else-if="!isUpcomingBlock"
+						title="There's no transactions"
+						description="This block does not contain any transactions. How's that possible?"
+						icon="tx"
+						subIcon="search"
+						:descriptionWidth="260"
+					/>
+					<TablePlaceholderView
+						v-else-if="isUpcomingBlock"
+						title="There's no transactions, yet"
+						description="Let's wait for the block to arrive, then we'll know."
+						icon="tx"
+						subIcon="clock"
+						subIconColor="yellow"
+					/>
 
 					<!-- Pagination -->
 					<Flex v-if="transactions.length" align="center" gap="6" :class="$style.pagination">
@@ -1005,11 +1099,6 @@ const handleViewRawTransactions = () => {
 	border-bottom: 1px solid var(--op-5);
 
 	padding: 12px 8px 12px 8px;
-}
-
-.empty {
-	flex: 1;
-	padding: 16px 0;
 }
 
 .pagination {
