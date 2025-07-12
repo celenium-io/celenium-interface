@@ -72,8 +72,8 @@ const debouncedRedraw = () => {
 onMounted(async () => {
 	chartWidth.value = chartBlocksEl.value?.wrapper?.offsetWidth
 
-	const { data } = await fetchAvgBlockTime({ from: parseInt(DateTime.now().minus({ hours: 3 }).ts / 1_000) })
-	avgBlockTime.value = data.value / 1_000
+	const data = await fetchAvgBlockTime({ from: parseInt(DateTime.now().minus({ hours: 3 }).ts / 1_000) })
+	avgBlockTime.value = data / 1_000
 
 	window.addEventListener("resize", debouncedRedraw)
 })

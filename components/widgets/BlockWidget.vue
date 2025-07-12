@@ -36,8 +36,8 @@ const fillOffset = computed(() => {
 })
 
 const init = async () => {
-	const { data } = await fetchAvgBlockTime({ from: parseInt(DateTime.now().minus({ hours: 3 }).ts / 1_000) })
-	avgBlockTime.value = data.value / 1_000
+	const data = await fetchAvgBlockTime({ from: parseInt(DateTime.now().minus({ hours: 3 }).ts / 1_000) })
+	avgBlockTime.value = data / 1_000
 
 	const offsetSinceLastBlock = Math.abs(DateTime.fromISO(lastBlock.value.time).diffNow("seconds").values.seconds + avgBlockTime.value)
 
