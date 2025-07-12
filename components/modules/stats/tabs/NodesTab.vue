@@ -166,6 +166,7 @@ onBeforeMount(async () => {
 			<Flex v-if="!isLoading" align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">
 				<template v-for="s in series">
 					<BarplotChartCard
+						v-if="s.data?.length"
 						@onFilterUpdate="handleFilterUpdate"
 						:series="s"
 						:data="s.data"
@@ -175,7 +176,7 @@ onBeforeMount(async () => {
 				</template>
 			</Flex>
 
-			<Flex align="center" justify="end" wide>
+			<Flex v-if="!isLoading" align="center" justify="end" wide>
 				<Text size="12" color="tertiary" justify="start">Data provided by the 
 					<NuxtLink to="https://probelab.io" target="_blank" :class="$style.link">ProbeLab</NuxtLink>
 					 team

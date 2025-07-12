@@ -15,7 +15,7 @@ import { convertCountryCode, getCountryByCity, getCountryCentroid, getRandomLoad
 import { fetchNodeStats } from "@/services/api/stats"
 
 const isLoading = ref(true)
-const loaderPath = ref(getRandomLoaderPath())
+const loaderPath = ref("")
 const geoMap = ref()
 const nodeCityData = ref([])
 const chartView = ref("countries")
@@ -451,6 +451,10 @@ watch(
 		await buildChart(chartEl.value.wrapper)
 	},
 )
+
+onMounted(() => {
+  loaderPath.value = getRandomLoaderPath()
+})
 </script>
 
 <template>
@@ -495,7 +499,7 @@ watch(
         
         <Flex ref="chartEl" :class="$style.chart" />
 
-        <Flex v-if="isLoading" align="center" direction="column" gap="8" :class="$style.loader">
+        <Flex v-if="isLoading && loaderPath" align="center" direction="column" gap="8" :class="$style.loader">
             <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 512 512">
                 <path id="france-path" fill="transparent" :d="loaderPath"/>
             </svg>
@@ -521,7 +525,6 @@ watch(
 
 	& svg {
 		overflow: visible;
-		/* display: block; */
 	}
 }
 
@@ -559,30 +562,11 @@ watch(
 	}
 }
 
-/* .france_icon circle {
-    fill: var(--brand);
-    box-shadow: 0 0 0 4px var(--dark-mint);
-    animation: movePoint 2s linear infinite, blink 1s ease-in-out infinite;
-    offset-path: path('M283.4 19.83c-3.2 0-31.2 5.09-31.2 5.09c-1.3 41.61-30.4 78.48-90.3 84.88l-12.8-23.07l-25.1 2.48l11.3 60.09l-113.79-4.9l12.2 41.5C156.3 225.4 150.7 338.4 124 439.4c47 53 141.8 47.8 186 43.1c3.1-62.2 52.4-64.5 135.9-32.2c11.3-17.6 18.8-36 44.6-50.7l-46.6-139.5l-27.5 6.2c11-21.1 32.2-49.9 50.4-63.4l15.6-86.9c-88.6-6.3-146.4-46.36-199-96.17');
-    offset-distance: 103%;
-} */
-
 @keyframes drawPath {
 	to {
 		stroke-dashoffset: 0;
 	}
 }
-
-/* @keyframes movePoint {
-    0% {
-        offset-distance: 0%;
-        transform: translate(0, 0);
-    }
-    100% {
-        offset-distance: 103%;
-        transform: translate(0, 0);
-    }
-} */
 
 @keyframes blink {
 	0% {
