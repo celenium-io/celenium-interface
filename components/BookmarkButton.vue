@@ -28,7 +28,6 @@ const props = defineProps({
 
 const router = useRouter()
 
-const bookmark = ref(null)
 const isBookmarked = ref(false)
 const isButtonHovered = ref(false)
 const bookmarkText = computed(() => {

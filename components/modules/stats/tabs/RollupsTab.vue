@@ -82,7 +82,7 @@ const types = computed(() => {
 const tags = computed(() => {
 	let res = []
 	if (enumStore.enums?.rollupTags?.length) {
-		res = enumStore.enums.rollupTags
+		res = enumStore.enums.rollupTags.filter(Boolean)
 	}
 
 	return res

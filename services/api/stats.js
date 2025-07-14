@@ -1,5 +1,5 @@
 /** Services */
-import { nodeStatsURL, quoteServiceURL, tvlServiceURL, useServerURL } from "@/services/config"
+import { nodeStatsURL, nodeVersionStatsURL, quoteServiceURL, tvlServiceURL, useServerURL } from "@/services/config"
 
 export const fetchGeneralStats = async ({ name }) => {
 	try {
@@ -57,6 +57,26 @@ export const fetchSummary = async ({ table, func, column, from, to }) => {
 export const fetchTPS = async () => {
 	try {
 		const url = new URL(`${useServerURL()}/stats/tps`)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchTVL = async ({ slug, period, from, to }) => {
+	try {
+		let url = ""
+
+		if (period) {
+			url = new URL(`${tvlServiceURL}/tvl/${slug}/${period}`)
+
+			if (from) url.searchParams.append("from", from)
+			if (to) url.searchParams.append("to", to)
+		} else {
+			url = new URL(`${tvlServiceURL}/tvl`)
+		}
 
 		const data = await $fetch(url.href)
 		return data
@@ -190,9 +210,23 @@ export const fetchSquareSize = async (from) => {
 	}
 }
 
-export const fetchNodeStats = async ({ name, from, to }) => {
+export const fetchNodeStats = async ({ name, timeframe, from, to }) => {
 	try {
-		const url = new URL(`${nodeStatsURL}/stats/${name}`)
+		const url = new URL(`${nodeStatsURL}/stats/${name}${timeframe ? `/${timeframe}` : ''}`)
+
+		if (from) url.searchParams.append("from", from)
+		if (to) url.searchParams.append("to", to)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchNodeVersionStats = async ({ name, timeframe, from, to }) => {
+	try {
+		const url = new URL(`${nodeVersionStatsURL}/stats/version/${name}${timeframe ? `/${timeframe}` : ''}`)
 
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)

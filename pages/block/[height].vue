@@ -10,7 +10,9 @@ import { comma } from "@/services/utils"
 import { fetchBlockByHeight } from "@/services/api/block"
 
 /** Store */
+import { useAppStore } from "@/store/app.store"
 import { useCacheStore } from "@/store/cache.store"
+const appStore = useAppStore()
 const cacheStore = useCacheStore()
 
 const route = useRoute()
@@ -18,16 +20,28 @@ const route = useRoute()
 const block = ref()
 const { data: rawBlock } = await fetchBlockByHeight(route.params.height)
 
-if (!rawBlock.value) {
-	navigateTo({
-		path: "/",
-		query: {
-			error: "not_found",
-			target: "block",
-			id: route.params.height,
-		},
-	})
-} else {
+const height = rawBlock.value ? rawBlock.value.height : Number(route.params.height)
+
+const latestBlock = computed(() => appStore.latestBlocks[0])
+
+const isUpcomingBlock = ref(!rawBlock.value)
+const isWaited = ref(isUpcomingBlock.value)
+
+if (isUpcomingBlock.value && height > 1_000_000_000_000) {
+	navigateTo(`/blocks`)
+}
+
+watch(
+	() => latestBlock.value,
+	() => {
+		if (height === latestBlock.value.height) {
+			isUpcomingBlock.value = false
+			block.value = latestBlock.value
+		}
+	},
+)
+
+if (rawBlock.value) {
 	block.value = rawBlock.value
 	cacheStore.current.block = block.value
 }
@@ -35,11 +49,12 @@ if (!rawBlock.value) {
 defineOgImageComponent("BlockImage", {
 	title: "Block",
 	block: block.value,
-	cacheKey: `${block.value?.height}`,
+	component: "BlockImage",
+	cacheKey: `${height}`,
 })
 
 useHead({
-	title: `Block ${comma(block.value?.height)} - Celenium`,
+	title: `Block ${comma(height)} - Celenium`,
 	link: [
 		{
 			rel: "canonical",
@@ -49,15 +64,15 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: `Celestia Block Height ${block.value?.height}. The timestamp, hash, proposer, metadata, gas used and transactions in the block.`,
+			content: `Celestia Block Height ${height}. The timestamp, hash, proposer, metadata, gas used and transactions in the block.`,
 		},
 		{
 			property: "og:title",
-			content: `Block ${comma(block.value?.height)} - Celenium`,
+			content: `Block ${comma(height)} - Celenium`,
 		},
 		{
 			property: "og:description",
-			content: `Celestia Block Height ${block.value?.height}. The timestamp, hash, proposer, metadata, gas used and transactions in the block.`,
+			content: `Celestia Block Height ${height}. The timestamp, hash, proposer, metadata, gas used and transactions in the block.`,
 		},
 		{
 			property: "og:url",
@@ -65,11 +80,11 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: `Block ${comma(block.value?.height)} - Celenium`,
+			content: `Block ${comma(height)} - Celenium`,
 		},
 		{
 			name: "twitter:description",
-			content: `Celestia Block Height ${block.value?.height}. The timestamp, hash, proposer, metadata, gas used and transactions in the block.`,
+			content: `Celestia Block Height ${height}. The timestamp, hash, proposer, metadata, gas used and transactions in the block.`,
 		},
 		{
 			name: "twitter:card",
@@ -80,14 +95,13 @@ useHead({
 
 const displayName = computed(() => {
 	const { $getDisplayName } = useNuxtApp()
-	return $getDisplayName("block", block.value?.height)
+	return $getDisplayName("block", height)
 })
 </script>
 
 <template>
 	<Flex direction="column" wide :class="$style.wrapper">
 		<Breadcrumbs
-			v-if="block"
 			:items="[
 				{ link: '/', name: 'Explore' },
 				{ link: '/blocks', name: 'Blocks' },
@@ -96,10 +110,13 @@ const displayName = computed(() => {
 			:class="$style.breadcrumbs"
 		/>
 
-		<Flex v-if="block" direction="column" gap="40">
-			<BlockOverview :block="block" />
-
-			<BlobsTable :block="block" description="This block does not contain blobs" />
+		<Flex direction="column" gap="40">
+			<BlockOverview :block="block" :isUpcomingBlock :isWaited :height />
+			<BlobsTable
+				:block="block"
+				:isUpcomingBlock
+				description="This block does not contain any blobs. It's actually kind of strange."
+			/>
 		</Flex>
 	</Flex>
 </template>

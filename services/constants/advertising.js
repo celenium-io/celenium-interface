@@ -13,7 +13,7 @@ const advertisements = [
 		internalLink: '/faucet',
 		icon: 'drop',
 		header: 'Celenium Faucet',
-		body: 'Free testnet TIA for the Celestia Mocha network!',
+		body: 'Free TIA for the Celestia testnets!',
 		footer: 'Get Tokens',
 		weight: 0.2,
   },

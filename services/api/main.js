@@ -1,5 +1,5 @@
 /** Services */
-import { useServerURL } from "@/services/config"
+import { nodeVersionStatsURL, useServerURL } from "@/services/config"
 
 export const fetchHead = async () => {
 	try {
@@ -55,9 +55,14 @@ export const fetchMammothConstants = async () => {
 
 export const fetchEnums = async () => {
 	try {
-		const data = await $fetch(`${useServerURL()}/enums`)
-		return data
+		const [mainEnums, nodeEnums] = await Promise.all([
+			$fetch(`${useServerURL()}/enums`),
+			$fetch(`${nodeVersionStatsURL}/enums`)
+		])
+
+		return { ...mainEnums, ...nodeEnums }
 	} catch (error) {
-		console.error(error)
+		console.error("Failed to fetch enums: ", error)
+		return {}
 	}
 }

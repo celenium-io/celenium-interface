@@ -30,6 +30,7 @@ const tooltip = ref({
 
 const buildChart = (chart, cData, onEnter, onLeave) => {
 	const { width, height } = chart.getBoundingClientRect()
+
 	const marginTop = 6
 	const marginRight = 12
 	const marginBottom = 24
@@ -42,8 +43,9 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 	/** Scales */
 	const x = d3.scaleUtc(
 		d3.extent(cData.data, (d) => d.date),
-		[marginLeft, width - marginRight - marginLeft],
+		[marginLeft, width - marginRight],
 	)
+
 	const y = d3.scaleLinear([MIN_VALUE, MAX_VALUE], [height - marginBottom, marginTop])
 	const line = d3
 		.line()
@@ -110,6 +112,11 @@ const buildChart = (chart, cData, onEnter, onLeave) => {
 				.ticks(Math.min(cData.data.length, 6))
 				.tickFormat(d3.timeFormat(["hour", "day"].includes(props.series.timeframe.timeframe) ? "%b %d" : "%b")),
 		)
+		.selectAll(".tick line")
+		.filter(function (d) {
+			return d === 0
+		})
+		.remove()
 
 	svg.append("g")
 		.attr("transform", `translate(0,0)`)

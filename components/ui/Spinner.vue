@@ -1,6 +1,10 @@
 <script setup>
 const props = defineProps({
 	size: String,
+	color: {
+		type: String,
+		default: "var(--txt-primary)",
+	},
 })
 
 const calcStyles = computed(() => {
@@ -9,6 +13,7 @@ const calcStyles = computed(() => {
 		minHeight: `${props.size}px`,
 		width: `${props.size}px`,
 		minWidth: `${props.size}px`,
+		borderTop: `2px ${props.color} solid`,
 	}
 })
 </script>
@@ -21,7 +26,6 @@ const calcStyles = computed(() => {
 .wrapper {
 	border-radius: 100px;
 	border: 2px rgba(255, 255, 255, 0.1) solid;
-	border-top: 2px rgba(255, 255, 255, 1) solid;
 	animation: material-spinner 4s infinite;
 }
 

@@ -124,6 +124,13 @@ export const STATS_SERIES = [
 				page: 'tvs',
 				units: 'usd',
 			},
+			{
+				subGroup: 'economy',
+				name: 'tvl',
+				title: 'Aggregated TVL',
+				page: 'tvl',
+				units: 'usd',
+			},
 		],
 	},
 	{

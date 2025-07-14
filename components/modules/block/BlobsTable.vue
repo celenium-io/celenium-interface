@@ -4,6 +4,9 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import Button from "@/components/ui/Button.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 
+/** Components */
+import TablePlaceholderView from "@/components/shared/TablePlaceholderView.vue"
+
 /** Services */
 import { space, formatBytes, getNamespaceID } from "@/services/utils"
 
@@ -25,6 +28,10 @@ const props = defineProps({
 	block: {
 		type: Object,
 		required: false,
+	},
+	isUpcomingBlock: {
+		type: Boolean,
+		default: false,
 	},
 	height: {
 		type: Number,
@@ -95,6 +102,13 @@ watch(
 		getNamespaces()
 
 		router.replace({ query: { page: page.value } })
+	},
+)
+
+watch(
+	() => props.block,
+	() => {
+		getNamespaces()
 	},
 )
 
@@ -275,12 +289,22 @@ const handlePrev = () => {
 				<Text size="13" weight="500" color="secondary"> Loading blobs </Text>
 			</Flex>
 
-			<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
-				<Text size="13" weight="600" color="secondary" align="center"> No blobs </Text>
-				<Text size="12" weight="500" height="160" color="tertiary" align="center">
-					{{ description }}
-				</Text>
-			</Flex>
+			<TablePlaceholderView
+				v-else-if="!isUpcomingBlock"
+				title="There's no blobs"
+				description="This block does not contain any blobs. How's that possible?"
+				icon="tx"
+				subIcon="search"
+				:descriptionWidth="260"
+			/>
+			<TablePlaceholderView
+				v-else-if="isUpcomingBlock"
+				title="There's no blobs, yet"
+				description="Let's wait for the block to arrive, then we'll know."
+				icon="tx"
+				subIcon="clock"
+				subIconColor="yellow"
+			/>
 		</Flex>
 	</Flex>
 </template>
@@ -377,9 +401,5 @@ const handlePrev = () => {
 .table.disabled {
 	opacity: 0.5;
 	pointer-events: none;
-}
-
-.empty {
-	padding: 16px 0;
 }
 </style>
