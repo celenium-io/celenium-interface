@@ -137,8 +137,7 @@ export const getNetworkName = () => {
 }
 
 export const isMainnet = () => {
-	return true
-	// return getNetworkName() === "Mainnet"
+	return getNetworkName() === "Mainnet"
 }
 
 export const isMac = () => {

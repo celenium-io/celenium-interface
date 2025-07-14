@@ -127,7 +127,7 @@ export const STATS_SERIES = [
 			{
 				subGroup: 'economy',
 				name: 'tvl',
-				title: 'Total Value Locked',
+				title: 'Aggregated TVL',
 				page: 'tvl',
 				units: 'usd',
 			},
