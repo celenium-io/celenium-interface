@@ -465,7 +465,7 @@ const handlePNGDownload = async () => {
 
 const handleOpenChartModal = () => {
 	cacheStore.chart.series = series.value
-	cacheStore.chart.view = series.value.page === "rollups" ? "barplot-stacked" : chartView.value
+	cacheStore.chart.view = series.value.page === "tvs" ? "barplot-stacked" : series.value.page === "rollups" ? "barplot-stacked-rollups" : chartView.value
 
 	modalsStore.open("chart")
 }
@@ -502,7 +502,7 @@ watch(
 
 onBeforeMount(() => {
 	const settings = JSON.parse(localStorage.getItem("settings"))
-	chartView.value = settings?.chart?.view || "line"
+	chartView.value = settings?.chart?.view || "bar"
 })
 </script>
 
