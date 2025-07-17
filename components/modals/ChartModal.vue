@@ -11,7 +11,7 @@ import Modal from "@/components/ui/Modal.vue"
 /** Stats Components/Constants */
 import BarChart from "@/components/modules/stats/BarChart.vue"
 import LineChart from "@/components/modules/stats/LineChart.vue"
-import BarplotStakedChart from "@/components/modules/stats/BarplotStakedChart.vue"
+import BarplotStakedRollupChart from "@/components/modules/stats/BarplotStakedRollupChart.vue"
 
 /** Store */
 import { useCacheStore } from "@/store/cache.store"
@@ -43,7 +43,7 @@ watch(
 	<Modal :show="show" @onClose="emit('onClose')" fullscreen disable-trap>
 		<LineChart v-if="chartView === 'line'" :series="series" />
 		<BarChart v-else-if="chartView === 'bar'" :series="series" />
-		<BarplotStakedChart v-else-if="chartView === 'barplot-stacked'" :series="series" />
+		<BarplotStakedRollupChart v-else-if="chartView === 'barplot-stacked'" :series="series" />
 	</Modal>
 </template>
 

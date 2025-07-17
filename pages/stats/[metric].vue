@@ -5,6 +5,7 @@ import { DateTime } from "luxon"
 /** Stats Components/Constants */
 import { getSeriesByPage, STATS_PERIODS, STATS_TIMEFRAMES } from "@/services/constants/stats.js"
 import BarChart from "@/components/modules/stats/BarChart.vue"
+import BarplotStakedRollupChart from "@/components/modules/stats/BarplotStakedRollupChart.vue"
 import BarplotStakedChart from "@/components/modules/stats/BarplotStakedChart.vue"
 import LineChart from "@/components/modules/stats/LineChart.vue"
 import SquareSizeChart from "@/components/modules/stats/SquareSizeChart.vue"
@@ -203,7 +204,7 @@ const allData = ref([])
 const loadedAllData = ref(false)
 const currentChartName = ref(null)
 
-const chartView = ref("line")
+const chartView = ref("bar")
 
 const updateUserSettings = () => {
 	settingsStore.chart = {
@@ -242,13 +243,33 @@ const fetchData = async () => {
 	let data = []
 
 	if (series.value.name === "tvs") {
-		data = (
-			await fetchTVS({
-				period: selectedTimeframe.value.timeframe,
-			})
-		).map((v) => {
-			return { time: v.time, value: v.close }
+		const [ tvsData, supplyData ] = await Promise.all([
+			fetchTVS({ period: selectedTimeframe.value.timeframe }),
+			fetchTVL({ slug: "celestia", period: selectedTimeframe.value.timeframe }),
+		])
+
+		tvsData.forEach(d => {
+			let res = {}
+			res.time = d.time
+			res.supply = parseFloat(supplyData.find(s => s.time === d.time)?.value) || 0
+			res.rollupTvl = parseFloat(d.close) - res.supply
+			res.value = parseFloat(d.close)
+
+			data.push(res)
 		})
+
+		if (!series.value?.keys?.length) {
+			series.value.keys = {
+				supply: {
+					name: "Supply",
+					color: "var(--brand)",
+				},
+				rollupTvl: {
+					name: "Rollups TVL",
+					color: "var(--txt-tertiary)",
+				},
+			}
+		}
 	} else if (series.value.name === "tvl") {
 		data = await fetchTVL({
 			slug: "celestia",
@@ -307,10 +328,14 @@ const getData = async (fetch = true) => {
 				const time = new Date(d.time).getTime() / 1_000
 				return time >= filters.from && time <= filters.to
 			})
-			.map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
 			.reverse()
-
-		series.value.currentData = [...currentData.value]
+		
+		if (series.value.page !== "tvs") {
+			currentData.value = currentData.value.map((s) => ({ date: DateTime.fromISO(s.time).toJSDate(), value: parseFloat(s.value) }))
+			series.value.currentData = [...currentData.value]
+		} else {
+			series.value.data = [...currentData.value]
+		}
 
 		filters.timeframe = selectedTimeframe.value
 		series.value.timeframe = filters.timeframe
@@ -527,7 +552,7 @@ onBeforeMount(() => {
 											@click="handleChangeChartView"
 											align="center"
 											gap="12"
-											:class="$style.chart_selector"
+											:class="[$style.chart_selector, series?.name === 'tvs' && $style.disabled]"
 											:style="{
 												background: `linear-gradient(to ${
 													chartView === 'line' ? 'right' : 'left'
@@ -618,7 +643,8 @@ onBeforeMount(() => {
 
 		<Flex direction="column" gap="8">
 			<template v-if="series?.page">
-				<BarplotStakedChart v-if="series?.page === 'rollups'" :series="series" />
+				<BarplotStakedRollupChart v-if="series?.page === 'rollups'" :series="series" />
+				<BarplotStakedChart v-else-if="series?.name === 'tvs'" :series="series" />
 				<SquareSizeChart v-else-if="series?.name === 'square_size'" />
 				<LineChart v-else-if="chartView === 'line'" :series="series" />
 				<BarChart v-else-if="chartView === 'bar'" :series="series" />
