@@ -14,7 +14,7 @@ import TimelineSlider from "@/components/modules/stats/TimelineSlider.vue"
 /** Services */
 import { getStartChainDate } from "@/services/config"
 import { exportSVGToPNG, exportToCSV } from "@/services/utils/export"
-import { abbreviate, capitilize, capitalizeAndReplace } from "@/services/utils"
+import { abbreviate, capitilize, capitalizeAndReplace, isMobile } from "@/services/utils"
 
 /** API */
 import { fetchSeries, fetchRollupsSeries, fetchSeriesCumulative, fetchTVL, fetchTVS } from "@/services/api/stats"
@@ -126,7 +126,7 @@ useHead({
 
 const selectedPeriod = ref(STATS_PERIODS[2])
 
-const selectedTimeframe = ref(STATS_TIMEFRAMES.find((tf) => tf.timeframe === "week"))
+const selectedTimeframe = ref(STATS_TIMEFRAMES.find((tf) => isMobile() ? tf.timeframe === "month" : tf.timeframe === "week"))
 const timeframes = computed(() => {
 	let res = [...STATS_TIMEFRAMES]
 
@@ -266,7 +266,7 @@ const fetchData = async () => {
 				},
 				rollupTvl: {
 					name: "Rollups TVL",
-					color: "var(--txt-tertiary)",
+					color: "var(--legendary)",
 				},
 			}
 		}
