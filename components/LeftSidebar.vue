@@ -254,7 +254,7 @@ const handleOnClose = () => {
 				</Flex>
 			</Flex>
 
-			<AdvBanner />
+			<AdvBanner advName="lotus_upgrade" />
 		</Flex>
 
 		<Flex direction="column" gap="16" style="margin-right: 20px">
