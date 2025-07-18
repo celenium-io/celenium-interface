@@ -119,9 +119,9 @@ const buildChart = (chart) => {
             .style("text-anchor", "end")
             .style("transition", "all 0.3s ease-in-out")
     
-    svg.append("g")
-        .attr("color", "var(--op-20)")
-        .call(d3.axisLeft(y))
+    // svg.append("g")
+    //     .attr("color", "var(--op-20)")
+    //     .call(d3.axisLeft(y))
 
     // Bars
     svg.selectAll("bar")

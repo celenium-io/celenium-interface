@@ -42,7 +42,7 @@ export const useServerURL = () => {
 			return Server.API.dev
 
 		default:
-			return Server.API.mocha
+			return Server.API.dev
 	}
 }
 
@@ -69,7 +69,7 @@ export const useSocketURL = () => {
 			return Server.WSS.dev
 
 		default:
-			return Server.WSS.mocha
+			return Server.WSS.dev
 	}
 }
 
@@ -123,7 +123,6 @@ export const getStartChainDate = () => {
 
 export const blockscoutURL = "https://celestia-l2-router.k8s-dev.blockscout.com/api/v1/celestia/l2BatchMetadata"
 export const nodeStatsURL = "https://node-stats.celenium.io/v1"
-export const nodeVersionStatsURL = "https://node-stats-versions.celenium.io/v1"
 export const tvlServiceURL = "https://tvl.celenium.io/v1"
 export const githubServiceURL = "https://github.celenium.io/v1"
 export const quoteServiceURL = "https://quote.celenium.io/v1"

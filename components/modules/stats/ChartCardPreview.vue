@@ -34,6 +34,7 @@ const diff = computed(() => {
 	const res = prevTotal.value ? (currentTotal.value - prevTotal.value) / prevTotal.value : 1
 	return (res * 100).toFixed(1)
 })
+const diffTooltip = ref("Difference between current and previous equal period")
 const chartEl = ref()
 const chartElPrev = ref()
 const tooltipEl = ref()
@@ -158,6 +159,7 @@ const getSeries = async () => {
 	if (["tvs", "tvl"].includes(props.series.name)) {
 		currentTotal.value = currentData.value[currentData.value.length - 1].value
 		prevTotal.value = prevData.value[prevData.value.length - 1].value
+		diffTooltip.value = "Difference between the last values of the current and previous periods"
 	} else if (props.series.aggregate !== "cumulative") {
 		currentTotal.value = currentData.value.reduce((sum, el) => {
 			return sum + +el.value
@@ -387,7 +389,11 @@ watch(
 				<Flex align="center" justify="between" wide>
 					<Flex align="center" gap="10" justify="start">
 						<Text size="14" weight="600" color="secondary"> {{ series.title }} </Text>
-						<DiffChip :value="diff" :invert="series.name === 'block_time'" />
+						<DiffChip
+							:value="diff"
+							:invert="series.name === 'block_time'"
+							:tooltip="diffTooltip"
+						/>
 					</Flex>
 
 					

@@ -21,27 +21,31 @@ const tooltip = ref({
 	show: false,
 })
 
-const keys = computed(() => Object.keys(props.series.keys))
+const rollupNames = computed(() => {
+	let namesSet = new Set(sortArrayOfObjects(props.series?.data[0]?.items, props.series?.metric, false).map((item) => item.name))
+	props.series?.data?.slice(1).forEach((d) => {
+		d.items.forEach((item) => namesSet.add(item.name))
+	})
+
+	return [...namesSet]
+})
 
 const buildChart = (chart, data) => {
 	const { width, height } = chart.getBoundingClientRect()
 	const minStackHeight = 4
 	const margin = {
-		top: minStackHeight * keys.value?.length,
+		top: minStackHeight * (props.series.itemsCount > 0 ? props.series.itemsCount : rollupNames.value.length),
 		right: 30,
 		bottom: 20,
 		left: 50,
 		axisX: 44,
 	}
-	const maxValue = d3.max(data, (d) => d3.sum(keys.value, (key) => d[key]))	
-	
+	const maxValue = d3.max(data, (d) => d3.sum(rollupNames.value, (key) => d[key]))
+
 	/** Scales */
-	const xDomain = data.map(d => d.time)
-	const maxTicks = data.length > 30 ? 30 : data.length
-	const step = Math.ceil(xDomain.length / maxTicks)
-	const filteredDomain = xDomain.filter((_, i) => i % step === 0)
-	const x = d3.scaleBand()
-		.domain(xDomain)
+	const x = d3
+		.scaleBand()
+		.domain(data.map((d) => d.time).reverse())
 		.range([margin.left, width - margin.right])
 		.padding(0.1)
 
@@ -51,15 +55,23 @@ const buildChart = (chart, data) => {
 		return acc
 	}, {})
 
+	const colorPalette = [
+		"#18d2a5",
+		"#2F6AA0",
+		"#033366",
+		"#5A5D87",
+		"#25647A",
+		"#3A7A78",
+		"#2A6B55",
+		"#02402A",
+		"#4A6B52",
+		"#1E5A45",
+		"#2D7A5F",
+	]
 
-	/** Colors */
-	const defaultColorScale = d3.scaleOrdinal().domain(keys.value).range(d3.schemeSet2)
-	const getColor = (key) => {
-		return props.series.keys[key]?.color || defaultColorScale(key)
-	}
+	const color = d3.scaleOrdinal().domain(rollupNames.value).range(d3.schemeSet2)
 
-	/** Format data */
-	const stackedData = d3.stack().keys(keys.value)(data)
+	const stackedData = d3.stack().keys(rollupNames.value)(data)
 
 	function formatDate(date) {
 		if (props.series.timeframe === "day") {
@@ -84,27 +96,12 @@ const buildChart = (chart, data) => {
 		}
 	}
 
-	function formatScaleValue(scale, value) {
-		if (scale === "y") {
-			if (props.series.units) {
-				return formatValue(value, -1)
-			}
-
-			return abbreviate(value)
-		} else if (scale === "x") {
-			switch (props.series.timeframe.timeframe) {
-				case "hour":
-					return "%H:%M"
-				case "day":
-				case "week":
-					return "%d %b"
-				case "month":
-					return "%b %y"
-				
-				default:
-					return "%b"
-			}
+	function formatScaleValue(value) {
+		if (props.series.units) {
+			return formatValue(value, -1)
 		}
+
+		return abbreviate(value)
 	}
 
 	/** SVG Container */
@@ -123,7 +120,7 @@ const buildChart = (chart, data) => {
 	svg.append("g")
 		.attr("transform", `translate(0,0)`)
 		.attr("color", "var(--op-20)")
-		.call(d3.axisRight(y).ticks(4).tickSize(width).tickFormat(v => formatScaleValue("y", v)))
+		.call(d3.axisRight(y).ticks(4).tickSize(width).tickFormat(formatScaleValue))
 		.call((g) => g.select(".domain").remove())
 		.call((g) => g.selectAll(".tick line").attr("stroke-opacity", 0.7).attr("stroke-dasharray", "10, 10"))
 		.call((g) => g.selectAll(".tick text").attr("x", 4).attr("dy", -4))
@@ -131,7 +128,13 @@ const buildChart = (chart, data) => {
 	svg.append("g")
 		.attr("transform", `translate(0, ${height - margin.axisX} )`)
 		.attr("color", "#ffffff33")
-		.call(d3.axisBottom(x).tickValues(filteredDomain).tickFormat(d3.timeFormat(formatScaleValue("x"))),)
+		.call(
+			d3
+				.axisBottom(x)
+				.tickFormat(
+					d3.timeFormat(props.series.timeframe === "day" ? "%H:%M" : props.series.timeframe === "month" ? "%b %d" : "%b"),
+				),
+		)
 		.selectAll("text")
 		.each(function (d) {
 			const text = d3.select(this)
@@ -151,13 +154,20 @@ const buildChart = (chart, data) => {
 		const name = d3.select(this.parentNode).datum().key
 		d3.selectAll("[class^='rect_']").style("opacity", 0.2)
 		d3.selectAll(`[class='rect_${name}']`).style("opacity", 1)
-
+		let selectedRollup = null
+		for (let dr of props.series.data) {
+			selectedRollup = dr.items.find((item) => item.name === name)
+			if (selectedRollup) {
+				break
+			}
+		}
 		nextTick(() => {
 			tooltip.value.data = {
-				name: props.series.keys[name]?.name || name,
+				name: name,
 				value: formatValue(d.data[name]),
 				date: formatDate(d.data.time),
-				color: getColor(name),
+				logo: selectedRollup?.logo,
+				color: color(name),
 			}
 			nextTick(() => {
 				let tooltipWidth = tooltipEl.value?.wrapper ? tooltipEl.value?.wrapper?.getBoundingClientRect()?.width : 100
@@ -176,7 +186,7 @@ const buildChart = (chart, data) => {
 		.data(stackedData)
 		.enter()
 		.append("g")
-		.attr("fill", (d) => getColor(d.key))
+		.attr("fill", (d) => color(d.key))
 		.attr("class", (d) => "rect_" + d.key)
 		.selectAll("rect")
 		.data((d) => d)
@@ -211,17 +221,27 @@ const buildChart = (chart, data) => {
 
 const drawChart = () => {
 	let data = JSON.parse(JSON.stringify(props.series.data))
-	data.forEach(d => {
+	data.forEach((d) => {
 		d.time = new Date(d.time)
-		delete(d.date)
-		delete(d.timestamp)
+		let items = sortArrayOfObjects(d.items, props.series.metric, false)
+		d.items = items.slice(0, Math.min(items.length, props.series.itemsCount > 0 ? props.series.itemsCount : items.length))
 	})
-	
-	buildChart(chartEl.value.wrapper, data)
+
+	let formattedData = data.map((d) => {
+		const obj = { time: d.time }
+		rollupNames.value.forEach((name) => {
+			let item = d.items.find((item) => item.name === name)
+			obj[name] = item ? item[props.series.metric] : 0
+		})
+
+		return obj
+	})
+
+	buildChart(chartEl.value.wrapper, formattedData)
 }
 
 watch(
-	() => [props.series.data],
+	() => [props.series.data, props.series.metric, props.series.itemsCount],
 	() => {
 		if (chartEl?.value?.wrapper) {
 			drawChart()
@@ -251,6 +271,10 @@ onMounted(async () => {
 					>
 						<Flex align="center" jsutify="between" gap="8" wide>
 							<Flex align="center" gap="8">
+								<div v-if="tooltip.data?.logo" :class="$style.avatar_container">
+									<img :src="tooltip.data?.logo" :class="$style.avatar_image" />
+								</div>
+
 								<Text size="12" weight="500" color="secondary"> {{ tooltip.data.name }} </Text>
 							</Flex>
 
@@ -329,5 +353,19 @@ onMounted(async () => {
 		width: 100%;
 		height: 2px;
 	}
+}
+
+.avatar_container {
+	position: relative;
+	width: 16px;
+	height: 16px;
+	overflow: hidden;
+	border-radius: 50%;
+}
+
+.avatar_image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 </style>

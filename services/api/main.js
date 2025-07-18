@@ -1,5 +1,5 @@
 /** Services */
-import { nodeVersionStatsURL, useServerURL } from "@/services/config"
+import { nodeStatsURL, useServerURL } from "@/services/config"
 
 export const fetchHead = async () => {
 	try {
@@ -57,7 +57,7 @@ export const fetchEnums = async () => {
 	try {
 		const [mainEnums, nodeEnums] = await Promise.all([
 			$fetch(`${useServerURL()}/enums`),
-			$fetch(`${nodeVersionStatsURL}/enums`)
+			$fetch(`${nodeStatsURL}/enums`)
 		])
 
 		return { ...mainEnums, ...nodeEnums }
