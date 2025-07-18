@@ -17,7 +17,7 @@ const showPromoBackground = useCookie("showPromoBackground", { default: () => tr
 
 			<Flex direction="column" align="center" :class="$style.content">
 				<Feed />
-				<AdvBanner orientation="horizontal" />
+				<AdvBanner advName="lotus_upgrade" orientation="horizontal" />
 				<ActionBar />
 
 				<Flex direction="column" align="center" wide :class="$style.container">

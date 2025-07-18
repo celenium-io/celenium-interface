@@ -48,18 +48,17 @@ onMounted(() => {
 		:class="[$style.wrapper, orientation === 'horizontal' && $style.wrapper_horizontal, !isDisplayed && $style.not_display]"
 	>
 		<Flex v-if="orientation === 'vertical'" direction="column" gap="12" :class="$style.ad_vertical">
-			<Flex direction="column" gap="8">
-				<Flex align="center" gap="6">
-					<Icon v-if="adv.icon" :name="adv.icon" size="14" color="brand" />
-					<Text size="13" weight="600" color="primary"> {{ adv.header }} </Text>
-				</Flex>
+			<Flex direction="column" gap="16">
+				<Icon v-if="adv.icon" :name="adv.icon" size="24" color="brand" />
 
-				<Text size="13" weight="600" color="tertiary" height="140"> {{ adv.body }} </Text>
+				<Flex direction="column" gap="8">
+					<Text size="13" weight="600" color="primary"> {{ adv.header }} </Text>
+					<Text size="13" weight="500" color="tertiary" height="150"> {{ adv.body }} </Text>
+				</Flex>
 			</Flex>
 
 			<Flex align="center" justify="between">
 				<Text size="13" weight="600" color="brand" :class="$style.footer"> {{ adv.footer }} </Text>
-
 				<Icon @click.prevent.stop="isDisplayed = false" name="close" size="16" color="secondary" :class="$style.close_icon" />
 			</Flex>
 		</Flex>
@@ -67,7 +66,6 @@ onMounted(() => {
 		<Flex v-else-if="orientation === 'horizontal'" align="center" gap="12" wide :class="$style.ad_horizontal">
 			<Flex align="center" gap="8">
 				<Icon v-if="adv.icon" :name="adv.icon" size="14" color="brand" />
-
 				<Text size="13" weight="600" color="primary" :class="$style.text"> {{ adv.header }} </Text>
 			</Flex>
 
@@ -75,7 +73,6 @@ onMounted(() => {
 
 			<Flex align="center" gap="8" :class="$style.footer">
 				<Text size="13" weight="600" color="brand" :class="$style.text"> {{ adv.footer }} </Text>
-
 				<Icon @click.prevent.stop="isDisplayed = false" name="close" size="16" color="secondary" :class="$style.close_icon" />
 			</Flex>
 		</Flex>
@@ -91,6 +88,7 @@ onMounted(() => {
 
 .wrapper_horizontal {
 	width: 100%;
+
 	padding: 8px 24px 0px 24px;
 }
 
@@ -102,14 +100,14 @@ onMounted(() => {
 	position: relative;
 
 	border-radius: 12px;
-	box-shadow: inset 0 0 0 2px var(--op-10);
+	background: var(--op-3);
 
 	padding: 16px;
 
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: var(--op-3);
+		background: var(--op-5);
 
 		.close_icon {
 			display: block;
@@ -139,14 +137,14 @@ onMounted(() => {
 	width: 100%;
 
 	border-radius: 12px;
-	box-shadow: inset 0 0 0 2px var(--op-10);
+	background: var(--op-3);
 
 	padding: 8px 16px;
 
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: var(--op-3);
+		background: var(--op-5);
 
 		.close_icon {
 			display: block;
