@@ -10,7 +10,7 @@ import { getRankCategory } from "@/services/constants/rollups"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** API */
-import { fetchPriceSeries, fetchTVS } from "@/services/api/stats"
+import { fetchPriceSeries, fetchSummary, fetchTVS } from "@/services/api/stats"
 
 /** Store */
 import { useAppStore } from "@/store/app.store"
@@ -21,8 +21,6 @@ const activityStore = useActivityStore()
 const head = computed(() => appStore.lastHead)
 const currentPrice = computed(() => appStore.currentPrice)
 
-const totalSupply = computed(() => head.value.total_supply / 1_000_000)
-const totalSupplyUSD = computed(() => totalSupply.value * currentPrice.value?.close)
 const totalFees = computed(() => head.value.total_fee / 1_000_000)
 const totalFeesUSD = computed(() => totalFees.value * currentPrice.value?.close)
 const topRollup = computed(() => {
@@ -46,6 +44,9 @@ const price = reactive({
 	side: null,
 })
 const tvs = computed(() => appStore.tvs)
+const txCount24h = ref(0)
+const bytesInBlocks24h = ref(0)
+
 onMounted(async () => {
 	const dataSeries = await fetchPriceSeries({ from: parseInt(DateTime.now().minus({ days: 3 }).ts / 1_000) })
 	series.value = dataSeries
@@ -64,6 +65,15 @@ onMounted(async () => {
 	if (_tvs.value) {
 		appStore.tvs = _tvs.value
 	}
+
+	const startTime = parseInt(DateTime.now().minus({ days: 1 }).toSeconds())
+	const params = {
+		table: "block_stats",
+		func: "sum",
+		from: startTime,
+	}
+	txCount24h.value = await fetchSummary({ ...params, column: "tx_count" })
+	bytesInBlocks24h.value = await fetchSummary({ ...params, column: "bytes_in_block" })
 
 	isLoading.value = false
 })
@@ -112,35 +122,12 @@ onMounted(async () => {
 
 					<div :class="$style.dot" />
 				</template>
-
-				<Tooltip>
-					<Flex align="center" gap="6" :class="$style.stat">
-						<Icon name="tx" size="12" color="secondary" :class="$style.icon" />
-						<Flex align="center" gap="4">
-							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Txs:</Text>
-
-							<Text v-if="head.total_tx" size="12" weight="600" noWrap :class="$style.value">{{
-								abbreviate(head.total_tx)
-							}}</Text>
-							<Skeleton v-else w="40" h="12" />
-						</Flex>
-					</Flex>
-
-					<template #content>
-						<Flex align="center" justify="between" gap="8">
-							<Text size="12" weight="500" color="tertiary">Total Txs:</Text>
-							<Text size="12" weight="600" color="secondary"> {{ comma(head.total_tx) }} </Text>
-						</Flex>
-					</template>
-				</Tooltip>
-
-				<div :class="$style.dot" />
-
+				
 				<Tooltip>
 					<Flex align="center" gap="6" :class="$style.stat">
 						<Icon name="coins" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
-							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">TVS:</Text>
+							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Current TVS:</Text>
 
 							<Text v-if="!isLoading" size="12" weight="600" noWrap :class="$style.value">
 								{{ abbreviate(tvs, 2) }} USD
@@ -161,12 +148,12 @@ onMounted(async () => {
 
 				<Tooltip>
 					<Flex align="center" gap="6" :class="$style.stat">
-						<Icon name="namespace" size="12" color="secondary" :class="$style.icon" />
+						<Icon name="tx" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
-							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Blobs Size:</Text>
+							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Txs:</Text>
 
-							<Text v-if="head.total_blobs_size" size="12" weight="600" noWrap :class="$style.value">{{
-								formatBytes(head.total_blobs_size)
+							<Text v-if="!isLoading" size="12" weight="600" noWrap :class="$style.value">{{
+								abbreviate(txCount24h)
 							}}</Text>
 							<Skeleton v-else w="40" h="12" />
 						</Flex>
@@ -174,8 +161,8 @@ onMounted(async () => {
 
 					<template #content>
 						<Flex align="center" justify="between" gap="8">
-							<Text size="12" weight="500" color="tertiary">Total Blobs Size:</Text>
-							<Text size="12" weight="600" color="secondary"> {{ comma(head.total_blobs_size) }} Bytes </Text>
+							<Text size="12" weight="500" color="tertiary">24h Tx Count:</Text>
+							<Text size="12" weight="600" color="secondary"> {{ comma(txCount24h) }} </Text>
 						</Flex>
 					</template>
 				</Tooltip>
@@ -184,21 +171,21 @@ onMounted(async () => {
 
 				<Tooltip>
 					<Flex align="center" gap="6" :class="$style.stat">
-						<Icon name="tag" size="12" color="secondary" :class="$style.icon" />
+						<Icon name="block" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
-							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Fees:</Text>
+							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Bytes In Blocks:</Text>
 
-							<Text v-if="head.total_fee" size="12" weight="600" noWrap :class="$style.value">
-								{{ abbreviate(parseInt(totalFees)) }} TIA
-							</Text>
+							<Text v-if="!isLoading" size="12" weight="600" noWrap :class="$style.value">{{
+								formatBytes(bytesInBlocks24h)
+							}}</Text>
 							<Skeleton v-else w="40" h="12" />
 						</Flex>
 					</Flex>
 
 					<template #content>
 						<Flex align="center" justify="between" gap="8">
-							<Text size="12" weight="500" color="tertiary">Total Fees:</Text>
-							<Text size="12" weight="600" color="secondary"> {{ abbreviate(totalFeesUSD) }} USD </Text>
+							<Text size="12" weight="500" color="tertiary">24h Bytes In Blocks:</Text>
+							<Text size="12" weight="600" color="secondary"> {{ comma(bytesInBlocks24h) }} Bytes </Text>
 						</Flex>
 					</template>
 				</Tooltip>

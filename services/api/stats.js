@@ -75,7 +75,7 @@ export const fetchTVL = async ({ slug, period, from, to }) => {
 			if (from) url.searchParams.append("from", from)
 			if (to) url.searchParams.append("to", to)
 		} else {
-			url = new URL(`${tvlServiceURL}/supply/${period}`)
+			url = new URL(`${tvlServiceURL}/supply${period ? `/${period}` : ''}`)
 
 			if (from) url.searchParams.append("from", from)
 			if (to) url.searchParams.append("to", to)
