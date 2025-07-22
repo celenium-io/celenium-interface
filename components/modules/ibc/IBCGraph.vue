@@ -83,13 +83,15 @@ const updateSvgSizes = () => {
 }
 
 const draw = () => {
+	const { $d3Force } = useNuxtApp()
+
 	const { width, height } = canvasEl.value.getBoundingClientRect()
 
 	const root = d3.hierarchy(data)
 	const links = root.links()
 	const nodes = root.descendants()
 
-	simulation = d3
+	simulation = $d3Force
 		.forceSimulation(nodes)
 		.force(
 			"link",

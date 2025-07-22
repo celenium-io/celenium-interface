@@ -130,6 +130,8 @@ export default defineNuxtConfig({
 		enabled: true,
 	},
 
+	plugins: ["~/plugins/force.client.js"],
+
 	vite: {
 		define: {
 			global: "globalThis",
