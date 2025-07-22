@@ -69,13 +69,16 @@ export const fetchTVL = async ({ slug, period, from, to }) => {
 	try {
 		let url = ""
 
-		if (period) {
+		if (slug !== "celestia") {
 			url = new URL(`${tvlServiceURL}/tvl/${slug}/${period}`)
 
 			if (from) url.searchParams.append("from", from)
 			if (to) url.searchParams.append("to", to)
 		} else {
-			url = new URL(`${tvlServiceURL}/tvl`)
+			url = new URL(`${tvlServiceURL}/supply/${period}`)
+
+			if (from) url.searchParams.append("from", from)
+			if (to) url.searchParams.append("to", to)
 		}
 
 		const data = await $fetch(url.href)

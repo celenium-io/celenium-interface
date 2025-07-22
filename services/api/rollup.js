@@ -1,5 +1,5 @@
 /** Services */
-import { githubServiceURL, tvlServiceURL, tvlServiceURL_new, useServerURL } from "@/services/config"
+import { githubServiceURL, tvlServiceURL, useServerURL } from "@/services/config"
 
 export const fetchRollups = async ({ categories, type, tags, limit, offset, sort, sort_by }) => {
 	try {
@@ -121,7 +121,7 @@ export const fetchRollupsDailyStats = async ({ limit, offset, sort, sort_by }) =
 
 export const fetchRollupTVL = async ({ dataSource, slug, period, from, to }) => {
 	try {
-		const url = new URL(`${tvlServiceURL_new}/tvl/${dataSource}/${slug}/${period}`)
+		const url = new URL(`${tvlServiceURL}/tvl/${dataSource}/${slug}/${period}`)
 
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
