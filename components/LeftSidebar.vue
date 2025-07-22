@@ -94,8 +94,25 @@ const mainLinks = reactive([
 			{
 				name: "Ecosystem",
 				path: "/stats?tab=ecosystem",
-				queryParam: {tab: "ecosystem"},
+				queryParam: { tab: "ecosystem" },
 				show: isMainnet(),
+			},
+		],
+	},
+	{
+		icon: "ibc",
+		name: "IBC",
+		path: "/ibc",
+		children: [
+			{
+				name: "Transfers",
+				path: "/ibc/transfers",
+				show: true,
+			},
+			{
+				name: "Chains",
+				path: "/ibc/chains",
+				show: true,
 			},
 		],
 	},

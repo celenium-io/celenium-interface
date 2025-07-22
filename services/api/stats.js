@@ -17,7 +17,7 @@ export const fetchSeries = async ({ table, period, column, from, to }) => {
 		if (column) url.searchParams.append("column", column)
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
-		
+
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
@@ -31,7 +31,7 @@ export const fetchSeriesCumulative = async ({ name, period, from, to }) => {
 
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
-		
+
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
@@ -46,7 +46,7 @@ export const fetchSummary = async ({ table, func, column, from, to }) => {
 		if (column) url.searchParams.append("column", column)
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
-		
+
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
@@ -182,7 +182,7 @@ export const fetchSquareSize = async (from) => {
 		const url = new URL(`${useServerURL()}/stats/square_size`)
 
 		if (from) url.searchParams.append("from", from)
-			
+
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {
@@ -196,6 +196,24 @@ export const fetchNodeStats = async ({ name, from, to }) => {
 
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+/**
+ * IBC
+ */
+
+export const fetchIbcChainsStats = async ({ limit, offset }) => {
+	try {
+		const url = new URL(`${useServerURL()}/stats/ibc/chains`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
 
 		const data = await $fetch(url.href)
 		return data
