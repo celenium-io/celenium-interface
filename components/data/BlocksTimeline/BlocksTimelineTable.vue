@@ -3,9 +3,12 @@
 import { DateTime } from "luxon"
 
 /** UI */
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
 import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
-import AmountInCurrency from "@/components/AmountInCurrency.vue"
+
+/** Components */
+import BlocksFeed from "@/components/modules/stats/BlocksFeed.vue"
 
 /** Services */
 import { comma, formatBytes, shortHex, space } from "@/services/utils"
@@ -198,6 +201,8 @@ watch(
 				</Tooltip>
 			</Flex>
 		</Flex>
+
+		<BlocksFeed :pause="isPaused" :class="$style.blocks_feed" />
 
 		<Flex gap="4" :class="$style.content">
 			<Flex direction="column" gap="16" wide :class="$style.table">
@@ -519,46 +524,6 @@ watch(
 						<Text v-else size="12" weight="600" color="tertiary" align="center" :class="$style.empty_state"> No blobs </Text>
 					</Flex>
 
-					<!-- <Flex direction="column" gap="12">
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Namespaces</Text>
-							<Text size="12" weight="600" color="secondary">
-								{{ preview.namespaces?.length > 3 ? "3 /" : "" }} {{ preview.namespaces?.length }}
-							</Text>
-						</Flex>
-
-						<Text
-							v-if="preview.isLoadingNamespaces"
-							size="12"
-							weight="600"
-							color="tertiary"
-							align="center"
-							:class="$style.empty_state"
-						>
-							Loading namespaces..
-						</Text>
-						<Flex v-else-if="preview.namespaces?.length" direction="column" gap="8">
-							<NuxtLink v-for="ns in preview.namespaces.slice(0, 3)" :to="`/namespace/${ns.namespace_id}`">
-								<Outline wide height="32" padding="8" radius="6">
-									<Flex align="center" justify="between" wide>
-										<Flex align="center" gap="8">
-											<Icon name="namespace" size="12" color="secondary" />
-
-											<Text size="13" weight="600" color="primary" mono class="overflow_ellipsis" style="max-width: 250px">
-												{{ $getDisplayName('namespaces', ns.namespace_id) }}
-											</Text>
-										</Flex>
-
-										<Text size="12" weight="600" color="tertiary">{{ formatBytes(ns.size) }}</Text>
-									</Flex>
-								</Outline>
-							</NuxtLink>
-						</Flex>
-						<Text v-else size="12" weight="600" color="tertiary" align="center" :class="$style.empty_state">
-							No namespaces
-						</Text>
-					</Flex> -->
-
 					<Flex direction="column" gap="16">
 						<Text size="12" weight="600" color="secondary">Details</Text>
 
@@ -603,6 +568,14 @@ watch(
 	background: var(--card-background);
 
 	padding: 0 12px;
+}
+
+.blocks_feed {
+	height: 120px;
+
+	border-radius: 4px 4px 4px 4px;
+
+	padding: 12px 18px;
 }
 
 .status {

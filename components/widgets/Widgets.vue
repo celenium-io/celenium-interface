@@ -9,8 +9,6 @@ import StakingWidget from "./StakingWidget.vue"
 import TransactionsWidget from "./TransactionsWidget.vue"
 import GasWidget from "./GasWidget.vue"
 
-import BlocksFeed from "@/components/modules/stats/BlocksFeed.vue"
-
 const tablet = ref(false)
 
 onBeforeMount(() => {
@@ -22,8 +20,6 @@ onBeforeMount(() => {
 
 <template>
 	<Flex direction="column" gap="20">
-		<BlocksFeed v-if="getNetworkName() === 'Mammoth'" />
-
 		<Flex gap="20" :class="$style.wrapper">
 			<Flex direction="column" gap="20" wide :class="$style.column">
 				<BlockWidget />

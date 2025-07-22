@@ -248,12 +248,13 @@ const fetchData = async () => {
 			fetchTVL({ slug: "celestia", period: selectedTimeframe.value.timeframe }),
 		])
 
-		tvsData.forEach(d => {
+		supplyData.forEach(d => {
 			let res = {}
+			const tvsValue = parseFloat(tvsData.find(s => s.time === d.time)?.close || 0)
 			res.time = d.time
-			res.supply = parseFloat(supplyData.find(s => s.time === d.time)?.value) || 0
-			res.rollupTvl = parseFloat(d.close) - res.supply
-			res.value = parseFloat(d.close)
+			res.supply = parseFloat(d.value) || 0
+			res.rollupTvl = tvsValue - res.supply
+			res.value = tvsValue
 
 			data.push(res)
 		})

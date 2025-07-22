@@ -209,11 +209,21 @@ onBeforeUnmount(() => {
 					<Text size="12" weight="600" color="tertiary">
 						The block {{ status === STATUS_MAP.Arrived ? "arrived" : "arrives" }}
 					</Text>
-					<Text size="12" weight="600" color="secondary">
-						{{
-							status === STATUS_MAP.Arriving ? "soon" : DateTime.now().plus({ seconds: secondsToSelectedBlock }).toRelative()
-						}}
-					</Text>
+					<Tooltip>
+						<Text size="12" weight="600" color="secondary">
+							{{
+								status === STATUS_MAP.Arriving ? "soon" : DateTime.now().plus({ seconds: secondsToSelectedBlock }).setLocale("en").toRelative()
+							}}
+						</Text>
+
+						<template #content>
+							<Text size="12" weight="600" color="secondary">
+							{{
+								status === STATUS_MAP.Arriving ? "soon" : DateTime.now().plus({ seconds: secondsToSelectedBlock }).setLocale("en").toFormat("TT dd LLL yyyy")
+							}}
+						</Text>
+						</template>
+					</Tooltip>
 				</Flex>
 				<Flex align="center" justify="between">
 					<Text size="12" weight="600" color="tertiary"> Current height </Text>

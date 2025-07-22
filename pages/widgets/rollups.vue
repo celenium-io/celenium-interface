@@ -416,7 +416,7 @@ watch(
 									<Icon
 										v-if="r.defi_lama"
 										@click.prevent.stop="handleOpenLink(`https://defillama.com/chain/${r.defi_lama}`)"
-										name="lama"
+										name="llama"
 										size="13"
 										color="secondary"
 									/>

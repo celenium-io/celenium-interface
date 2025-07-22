@@ -97,6 +97,8 @@ const sizeSeries = ref([])
 const pfbSeries = ref([])
 const feeSeries = ref([])
 const tvlSeries = ref([])
+const tvlDataSources = ref([])
+const selectedTvlDataSource = ref()
 const rollupsList = ref()
 const comparisonData = ref([])
 const selectedRollup = ref()
@@ -179,6 +181,8 @@ const buildLineChart = (chartEl, data, onEnter, onLeave, metric) => {
 	/** Tooltip */
 	const bisect = d3.bisector((d) => d.date).center
 	const onPointermoved = (event) => {
+		if (!data.length) return
+
 		onEnter()
 
 		const idx = bisect(data, x.invert(d3.pointer(event)[0]))
@@ -218,6 +222,8 @@ const buildLineChart = (chartEl, data, onEnter, onLeave, metric) => {
 		}
 	}
 	const onPointerleft = () => {
+		if (!data.length) return
+
 		onLeave()
 		badgeText.value = ""
 	}
@@ -254,76 +260,86 @@ const buildLineChart = (chartEl, data, onEnter, onLeave, metric) => {
 		.attr("stroke-width", 2)
 		.attr("d", `M${0},${height - marginBottom - 6} L${width},${height - marginBottom - 6}`)
 
-	/** Chart Line */
-	let path1 = null
-	let path2 = null
-	path1 = svg
-		.append("path")
-		.attr("fill", "none")
-		.attr("stroke", "var(--brand)")
-		.attr("stroke-width", 2)
-		.attr("stroke-linecap", "round")
-		.attr("stroke-linejoin", "round")
-		.attr("d", line(loadLastValue.value ? data.slice(0, data.length - 1) : data))
-
-	if (loadLastValue.value) {
-		// Create pattern
-		const defs = svg.append("defs")
-		const pattern = defs
-			.append("pattern")
-			.attr("id", "dashedPattern")
-			.attr("width", 8)
-			.attr("height", 2)
-			.attr("patternUnits", "userSpaceOnUse")
-		pattern.append("rect").attr("width", 4).attr("height", 2).attr("fill", "var(--brand)")
-		pattern.append("rect").attr("x", 8).attr("width", 4).attr("height", 2).attr("fill", "transparent")
-
-		// Last dash segment
-		path2 = svg
+	if (data.length) {
+		/** Chart Line */
+		let path1 = null
+		let path2 = null
+		path1 = svg
 			.append("path")
 			.attr("fill", "none")
-			.attr("stroke", "url(#dashedPattern)")
+			.attr("stroke", "var(--brand)")
 			.attr("stroke-width", 2)
 			.attr("stroke-linecap", "round")
 			.attr("stroke-linejoin", "round")
-			.attr("d", line(data.slice(data.length - 2, data.length)))
-	}
+			.attr("d", line(loadLastValue.value ? data.slice(0, data.length - 1) : data))
 
-	const totalDuration = 1_000
-	const path1Duration = loadLastValue.value ? (totalDuration / data.length) * (data.length - 1) : totalDuration
-	const path1Length = path1.node().getTotalLength()
+		if (loadLastValue.value) {
+			// Create pattern
+			const defs = svg.append("defs")
+			const pattern = defs
+				.append("pattern")
+				.attr("id", "dashedPattern")
+				.attr("width", 8)
+				.attr("height", 2)
+				.attr("patternUnits", "userSpaceOnUse")
+			pattern.append("rect").attr("width", 4).attr("height", 2).attr("fill", "var(--brand)")
+			pattern.append("rect").attr("x", 8).attr("width", 4).attr("height", 2).attr("fill", "transparent")
 
-	path1
-		.attr("stroke-dasharray", path1Length)
-		.attr("stroke-dashoffset", path1Length)
-		.transition()
-		.duration(path1Duration)
-		.ease(d3.easeLinear)
-		.attr("stroke-dashoffset", 0)
+			// Last dash segment
+			path2 = svg
+				.append("path")
+				.attr("fill", "none")
+				.attr("stroke", "url(#dashedPattern)")
+				.attr("stroke-width", 2)
+				.attr("stroke-linecap", "round")
+				.attr("stroke-linejoin", "round")
+				.attr("d", line(data.slice(data.length - 2, data.length)))
+		}
 
-	if (loadLastValue.value) {
-		const path2Duration = totalDuration / data.length
-		const path2Length = path2.node().getTotalLength() + 1
+		const totalDuration = 1_000
+		const path1Duration = loadLastValue.value ? (totalDuration / data.length) * (data.length - 1) : totalDuration
+		const path1Length = path1.node().getTotalLength()
 
-		path2
-			.attr("stroke-dasharray", path2Length)
-			.attr("stroke-dashoffset", path2Length)
+		path1
+			.attr("stroke-dasharray", path1Length)
+			.attr("stroke-dashoffset", path1Length)
 			.transition()
-			.duration(path2Duration)
+			.duration(path1Duration)
 			.ease(d3.easeLinear)
-			.delay(path1Duration)
 			.attr("stroke-dashoffset", 0)
+
+		if (loadLastValue.value) {
+			const path2Duration = totalDuration / data.length
+			const path2Length = path2.node().getTotalLength() + 1
+
+			path2
+				.attr("stroke-dasharray", path2Length)
+				.attr("stroke-dashoffset", path2Length)
+				.transition()
+				.duration(path2Duration)
+				.ease(d3.easeLinear)
+				.delay(path1Duration)
+				.attr("stroke-dashoffset", 0)
+		}
+
+		const point = svg
+			.append("circle")
+			.attr("cx", x(data[data.length - 1].date))
+			.attr("cy", y(data[data.length - 1].value))
+			.attr("fill", "var(--brand)")
+			.attr("r", 3)
+			.attr("opacity", 0)
+
+		point.transition().delay(totalDuration).duration(200).attr("opacity", 1)
+	} else {
+		svg.append("text")
+			.attr("x", width / 2)
+			.attr("y", height * 0.3)
+			.attr("text-anchor", "middle")
+			.attr("fill", "var(--op-20)")
+			.style("font-size", "14px")
+			.text("No data available for this rollup")
 	}
-
-	const point = svg
-		.append("circle")
-		.attr("cx", x(data[data.length - 1].date))
-		.attr("cy", y(data[data.length - 1].value))
-		.attr("fill", "var(--brand)")
-		.attr("r", 3)
-		.attr("opacity", 0)
-
-	point.transition().delay(totalDuration).duration(200).attr("opacity", 1)
 
 	if (chartEl.children[0]) chartEl.children[0].remove()
 	chartEl.append(svg.node())
@@ -342,18 +358,27 @@ const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 	const MAX_VALUE = d3.max(data, (d) => d.value) ? d3.max(data, (d) => d.value) : 1
 
 	/** Scale */
-	const x = d3.scaleUtc(
+	const x = d3
+		.scaleBand()
+		.domain(data.map(d => d.date))
+		.range([marginLeft, width - marginRight])
+		.padding(0.1)
+
+	const scaleX = d3.scaleUtc(
 		d3.extent(data, (d) => d.date),
 		[marginLeft, width - marginRight - barWidth],
 	)
+
 	const y = d3.scaleLinear([0, MAX_VALUE], [height - marginBottom, marginTop])
 
 	/** Tooltip */
 	const bisect = d3.bisector((d) => d.date).center
 	const onPointermoved = (event) => {
+		if (!data.length) return
+
 		onEnter()
 
-		const idx = bisect(data, x.invert(d3.pointer(event)[0] - barWidth / 2))
+		const idx = bisect(data, scaleX.invert(d3.pointer(event)[0] - barWidth / 2))
 
 		const elements = document.querySelectorAll(`[metric="${metric}"]`)
 		elements.forEach((el) => {
@@ -364,7 +389,7 @@ const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 			}
 		})
 
-		tooltipXOffset.value = x(data[idx].date)
+		tooltipXOffset.value = scaleX(data[idx].date)
 		tooltipYDataOffset.value = y(data[idx].value)
 		tooltipYOffset.value = event.layerY
 		tooltipText.value = data[idx].value
@@ -399,6 +424,8 @@ const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 		}
 	}
 	const onPointerleft = () => {
+		if (!data.length) return
+
 		onLeave()
 
 		const elements = document.querySelectorAll("[data-index]")
@@ -440,35 +467,45 @@ const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 		.attr("stroke-width", 2)
 		.attr("d", `M${0},${height - marginBottom - 6} L${width},${height - marginBottom - 6}`)
 
-	/** Chart Bars */
-	svg.append("defs")
-		.append("pattern")
-		.attr("id", "diagonal-stripe")
-		.attr("width", 6)
-		.attr("height", 6)
-		.attr("patternUnits", "userSpaceOnUse")
-		.attr("patternTransform", "rotate(45)")
-		.append("rect")
-		.attr("width", 2)
-		.attr("height", 6)
-		.attr("transform", "translate(0,0)")
-		.attr("fill", "var(--brand)")
+	if (data.length) {
+		/** Chart Bars */
+		svg.append("defs")
+			.append("pattern")
+			.attr("id", "diagonal-stripe")
+			.attr("width", 6)
+			.attr("height", 6)
+			.attr("patternUnits", "userSpaceOnUse")
+			.attr("patternTransform", "rotate(45)")
+			.append("rect")
+			.attr("width", 2)
+			.attr("height", 6)
+			.attr("transform", "translate(0,0)")
+			.attr("fill", "var(--brand)")
 
-	svg.append("g")
-		.selectAll("g")
-		.data(data)
-		.enter()
-		.append("rect")
-		.attr("class", "bar")
-		.attr("data-index", (d, i) => i)
-		.attr("metric", metric)
-		.attr("x", (d) => x(new Date(d.date)))
-		.attr("y", (d) => y(d.value))
-		.attr("width", barWidth)
-		.attr("fill", (d, i) => (loadLastValue.value && i === data.length - 1 ? `url(#diagonal-stripe)` : "var(--brand)"))
-		.transition()
-		.duration(1_000)
-		.attr("height", (d) => Math.max(height - marginBottom - 6 - y(d.value), 0))
+		svg.append("g")
+			.selectAll("g")
+			.data(data)
+			.enter()
+			.append("rect")
+			.attr("class", "bar")
+			.attr("data-index", (d, i) => i)
+			.attr("metric", metric)
+			.attr("x", (d) => x(new Date(d.date)))
+			.attr("y", (d) => y(d.value))
+			.attr("width", x.bandwidth())
+			.attr("fill", (d, i) => (loadLastValue.value && i === data.length - 1 ? `url(#diagonal-stripe)` : "var(--brand)"))
+			.transition()
+			.duration(1_000)
+			.attr("height", (d) => Math.max(height - marginBottom - 6 - y(d.value), 0))
+	} else {
+		svg.append("text")
+			.attr("x", width / 2)
+			.attr("y", height * 0.3)
+			.attr("text-anchor", "middle")
+			.attr("fill", "var(--op-20)")
+			.style("font-size", "14px")
+			.text("No data available for this rollup")
+	}
 
 	if (chartEl.children[0]) chartEl.children[0].remove()
 	chartEl.append(svg.node())
@@ -609,7 +646,9 @@ const getFeeSeries = async () => {
 
 const getTVLSeries = async () => {
 	tvlSeries.value = []
+	if (!selectedTvlDataSource.value?.name) return
 
+	isLoading.value = true
 	let from = ""
 	let tf = selectedPeriod.value.timeframe
 	let periodValue = selectedPeriod.value.value
@@ -620,6 +659,7 @@ const getTVLSeries = async () => {
 	}
 
 	const tvlSeriesRawData = await fetchRollupTVL({
+		dataSource: selectedTvlDataSource.value?.name,
 		slug: props.rollup.slug,
 		period: tf,
 		from,
@@ -649,6 +689,16 @@ const getTVLSeries = async () => {
 			value: parseFloat(tvlSeriesMap[dt.toFormat(["day", "month"].includes(tf) ? "y-LL-dd" : "y-LL-dd-HH")]) || 0,
 		})
 	}
+
+	isLoading.value = false
+}
+const isTvlDataSourcePopoverOpen = ref(false)
+const handleTvlDataSourcePopoverClose = () => {
+	isTvlDataSourcePopoverOpen.value = false
+}
+const handleSelectTvlDataSource = (ds) => {
+	selectedTvlDataSource.value = ds
+	isTvlDataSourcePopoverOpen.value = false
 }
 
 const prepareComparisonData = async () => {
@@ -808,6 +858,32 @@ watch(
 	},
 )
 
+watch(
+	() => selectedTvlDataSource.value,
+	async () => {
+		if (!isLoading.value) {
+			await getTVLSeries()
+			if (chartView.value === "line") {
+				buildLineChart(
+					tvlSeriesChartEl.value.wrapper,
+					loadLastValue.value ? tvlSeries.value : tvlSeries.value.slice(0, tvlSeries.value.length - 1),
+					() => (showTVLTooltip.value = true),
+					() => (showTVLTooltip.value = false),
+					"tvl",
+				)
+			} else {
+				buildBarChart(
+					tvlSeriesChartEl.value.wrapper,
+					loadLastValue.value ? tvlSeries.value : tvlSeries.value.slice(0, tvlSeries.value.length - 1),
+					() => (showTVLTooltip.value = true),
+					() => (showTVLTooltip.value = false),
+					"tvl",
+				)
+			}
+		}
+	},
+)
+
 const debouncedRedraw = useDebounceFn((e) => {
 	buildRollupCharts()
 }, 500)
@@ -821,6 +897,14 @@ onBeforeMount(() => {
 
 onMounted(async () => {
 	window.addEventListener("resize", debouncedRedraw)
+
+	if (props.rollup["l2_beat"]) {
+		tvlDataSources.value.push({ name: "l2beat", title: "L2Beat"})
+	}
+	if (props.rollup["defi_lama"]) {
+		tvlDataSources.value.push({ name: "llama", title: "Defi Llama"})
+	}
+	selectedTvlDataSource.value = tvlDataSources.value[0]
 
 	buildRollupCharts()
 })
@@ -1181,19 +1265,73 @@ onBeforeUnmount(() => {
 					</Flex>
 				</Flex>
 
-				<Flex direction="column" gap="20" wide>
+				<Flex direction="column" :gap="tvlSeries.length ? 12 : 20" wide>
 					<Flex align="center" justify="between">
-						<Text size="13" weight="600" color="primary">TVL</Text>
+						<Flex align="center" gap="8">
+							<Text size="13" weight="600" color="primary">TVL</Text>
 
-						<Tooltip position="end">
-							<Icon name="info" size="16" color="tertiary" />
+							<Text v-if="tvlSeries.length" size="13" weight="600" color="brand">
+								{{ `${abbreviate(tvlSeries[tvlSeries.length - 1].value ? tvlSeries[tvlSeries.length - 1].value : tvlSeries[tvlSeries.length - 2].value, 2)} USD` }}
+							</Text>
+
+							<Tooltip v-if="tvlSeries.length" position="end">
+								<Icon name="info" size="13" color="tertiary" />
+
+								<template #content>
+									<Flex align="center" :style="{ width: '160px' }">
+										<Text size="12" color="secondary" :style="{ lineHeight: '1.2' }"> Grouping by day or month is only available for this chart. </Text>
+									</Flex>
+								</template>
+							</Tooltip>
+						</Flex>
+
+						<Popover v-if="selectedTvlDataSource" :open="isTvlDataSourcePopoverOpen" @on-close="handleTvlDataSourcePopoverClose" side="right" width="180">
+							<Flex
+								@click="isTvlDataSourcePopoverOpen = true"
+								align="center"
+								justify="between"
+								gap="12"
+								:class="[$style.popover_header, isTvlDataSourcePopoverOpen && $style.popover_header_active]"
+							>
+								<Flex align="center" gap="8">
+									<Icon :name="selectedTvlDataSource?.name" size="13" color="brand" />
+
+									<Text size="13" color="primary"> {{ selectedTvlDataSource?.title }} </Text>
+								</Flex>
+
+								<Icon
+									name="chevron"
+									size="14"
+									color="secondary"
+									:style="{ transform: `rotate(${isTvlDataSourcePopoverOpen ? '180' : '0'}deg)`, transition: 'all 0.25s ease' }"
+								/>
+							</Flex>
 
 							<template #content>
-								<Flex align="center" :style="{ width: '160px' }">
-									<Text size="12" color="secondary"> Grouping by day or month is only available for this chart. </Text>
+								<Flex direction="column" justify="center" gap="12">
+									<Text size="12" weight="600" color="secondary">Select TVL Data Source</Text>
+
+									<Flex direction="column" gap="4" :class="$style.popover_list">
+										<Flex
+											v-for="ds in tvlDataSources"
+											@click="handleSelectTvlDataSource(ds)"
+											align="center"
+											justify="between"
+											gap="4"
+											:class="$style.popover_list_item"
+										>
+											<Flex align="center" gap="8">
+												<Icon :name="ds.name" size="13" color="secondary" />
+
+												<Text size="12" color="primary"> {{ ds.title }} </Text>
+											</Flex>
+
+											<Icon v-if="selectedTvlDataSource.name === ds.name" name="check" size="14" color="brand" />
+										</Flex>
+									</Flex>
 								</Flex>
 							</template>
-						</Tooltip>
+						</Popover>
 					</Flex>
 
 					<Flex direction="column" :class="$style.chart_wrapper">
@@ -1212,7 +1350,7 @@ onBeforeUnmount(() => {
 								}}
 								$
 							</Text>
-							<Skeleton v-else-if="!tvlSeries.length" w="32" h="12" />
+							<Skeleton v-else-if="!tvlSeries.length && isLoading" w="32" h="12" />
 
 							<Text
 								v-if="tvlSeries.length"
@@ -1234,10 +1372,10 @@ onBeforeUnmount(() => {
 								}}
 								$
 							</Text>
-							<Skeleton v-else-if="!tvlSeries.length" w="24" h="12" />
+							<Skeleton v-else-if="!tvlSeries.length && isLoading" w="24" h="12" />
 
 							<Text v-if="tvlSeries.length" size="12" weight="600" color="tertiary"> 0 </Text>
-							<Skeleton v-else-if="!tvlSeries.length" w="16" h="12" />
+							<Skeleton v-else-if="!tvlSeries.length && isLoading" w="16" h="12" />
 						</Flex>
 
 						<Flex :class="[$style.axis, $style.x]">
@@ -1612,7 +1750,7 @@ onBeforeUnmount(() => {
 }
 
 .popover_list {
-	height: 180px;
+	max-height: 180px;
 
 	overflow-y: auto;
 	overflow-x: hidden;

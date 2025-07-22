@@ -437,7 +437,7 @@ const handleCSVDownload = async (value) => {
 
 						<Tooltip v-if="rollup.defi_lama" position="start" delay="300">
 							<a :href="`https://defillama.com/chain/${rollup.defi_lama}`" target="_blank">
-								<Icon name="lama" size="14" color="secondary" />
+								<Icon name="llama" size="14" color="secondary" />
 							</a>
 
 							<template #content>

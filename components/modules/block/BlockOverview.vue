@@ -395,7 +395,7 @@ const handleViewRawTransactions = () => {
 							color="secondary"
 							style="text-transform: capitalize"
 						>
-							{{ DateTime.now().plus({ seconds: secondsToSelectedBlock }).toRelativeCalendar() }}
+							~ {{ DateTime.now().plus({ seconds: secondsToSelectedBlock }).setLocale("en").toFormat("TT dd LLL yyyy") }}
 						</Text>
 					</Flex>
 
@@ -458,7 +458,7 @@ const handleViewRawTransactions = () => {
 						<BadgeValue :text="block?.hash ?? ''" />
 					</Flex>
 
-					<Flex direction="column" gap="16">
+					<Flex v-if="block" direction="column" gap="16">
 						<Text size="12" weight="600" color="secondary">Details</Text>
 
 						<Flex align="center" justify="between">

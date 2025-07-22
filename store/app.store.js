@@ -13,7 +13,7 @@ export const useAppStore = defineStore("app", () => {
 	const constants = ref()
 	const initConstants = async () => {
 		const data = await fetchConstants()
-		constants.value = data.module
+		constants.value = data?.module
 	}
 
 	const gas = ref({
