@@ -55,11 +55,11 @@ const advertisements = [
 	},
 	{
 		name: "lotus_upgrade",
-		link: "https://blog.celestia.org/lotus",
+		link: "https://celenium.io/block/6680339",
 		icon: "lotus",
 		header: "Lotus Upgrade",
-		body: "Welcome the Lotus upgrade: native TIA interop and reduced issuance.",
-		footer: "Read More",
+		body: "Native TIA interop and reduced issuance will happen on 6,680,339.",
+		footer: "View Block",
 		weight: 0,
 	},
 ]
