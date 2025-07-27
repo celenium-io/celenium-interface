@@ -1,4 +1,7 @@
 <script setup>
+/** Vendor */
+import { DateTime } from "luxon"
+
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
@@ -8,11 +11,37 @@ import { comma } from "@/services/utils"
 /** Constants */
 import { IbcChainName } from "@/services/constants/ibc"
 
+/** Store */
+import { useModalsStore } from "@/store/modals.store"
+import { useCacheStore } from "@/store/cache.store"
+const modalsStore = useModalsStore()
+const cacheStore = useCacheStore()
+
 const props = defineProps({
-	largestChain: {
+	ibcData: {
 		type: Object,
 	},
 })
+
+const largestChain = ref(props.ibcData.rawChainsStats[0])
+props.ibcData.rawChainsStats.forEach((chainStats) => {
+	if (Number(chainStats.flow) > Number(largestChain.value.flow)) {
+		largestChain.value = chainStats
+	}
+})
+const largestTransfer = props.ibcData.rawSummary.largest_transfer
+const busiestChannel = props.ibcData.rawSummary.busiest_channel
+
+const handleOpenTransferModal = (transfer) => {
+	cacheStore.current.transfer = transfer
+	modalsStore.open("ibcTransfer")
+}
+
+const getChainName = (target) => {
+	return largestTransfer[target].hash.startsWith("celestia")
+		? "Celestia"
+		: IbcChainName[largestTransfer.chain_id] ?? largestTransfer.chain_id
+}
 </script>
 
 <template>
@@ -38,7 +67,7 @@ const props = defineProps({
 			<template #content> The amount shown is the chain flow, sent and received tokens </template>
 		</Tooltip>
 
-		<Flex wide direction="column" gap="12" :class="[$style.card, $style.hoverable]">
+		<Flex @click="handleOpenTransferModal(largestTransfer)" wide direction="column" gap="12" :class="[$style.card, $style.hoverable]">
 			<Flex align="center" justify="between">
 				<Flex align="center" gap="8">
 					<Icon name="arrow-circle-broken-right" size="14" color="brand" />
@@ -48,10 +77,12 @@ const props = defineProps({
 				<Icon name="arrow-narrow-up-right-circle" size="14" color="tertiary" />
 			</Flex>
 
-			<Text size="15" weight="600" color="primary">Celestia <Text color="tertiary">-></Text> Stride </Text>
+			<Text size="15" weight="600" color="primary"
+				>{{ getChainName("sender") }} <Text color="tertiary">-></Text> {{ getChainName("receiver") }}
+			</Text>
 
 			<Text size="13" weight="500" color="support">
-				<Text color="tertiary" mono>{{ comma(1_360_707) }} TIA</Text>
+				<Text color="tertiary" mono>{{ comma(largestTransfer.amount / 1_000_000) }} TIA</Text>
 			</Text>
 		</Flex>
 
@@ -62,13 +93,13 @@ const props = defineProps({
 					<Text size="13" weight="600" color="secondary">Busiest channel</Text>
 				</Flex>
 
-				<Text size="12" weight="600" color="tertiary">July</Text>
+				<Text size="12" weight="600" color="tertiary">{{ DateTime.now().toFormat("MMMM") }}</Text>
 			</Flex>
 
-			<Text size="15" weight="600" color="primary">channel-98</Text>
+			<Text size="15" weight="600" color="primary">{{ busiestChannel.channel_id }}</Text>
 
 			<Text size="13" weight="500" color="support">
-				<Text color="tertiary" mono>582 transfers</Text>
+				<Text color="tertiary" mono>{{ comma(busiestChannel.transfers_count) }} transfers</Text>
 			</Text>
 		</Flex>
 	</Flex>

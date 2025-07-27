@@ -221,3 +221,14 @@ export const fetchIbcChainsStats = async ({ limit, offset }) => {
 		console.error(error)
 	}
 }
+
+export const fetchIbcSummary = async () => {
+	try {
+		const url = new URL(`${useServerURL()}/stats/ibc/summary`)
+
+		const data = await $fetch(url.href)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}

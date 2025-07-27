@@ -1,6 +1,6 @@
 <script setup>
 /** API */
-import { fetchIbcChainsStats } from "@/services/api/stats"
+import { fetchIbcChainsStats, fetchIbcSummary } from "@/services/api/stats"
 
 /** Components */
 import NotableStats from "@/components/modules/ibc/NotableStats.vue"
@@ -56,17 +56,9 @@ useHead({
 	],
 })
 
-const chainsStats = ref()
-const largestChain = ref()
-
-const { data } = await useAsyncData(`ibc-chains`, () => fetchIbcChainsStats({ limit: 100 }))
-chainsStats.value = data.value
-largestChain.value = chainsStats.value[0]
-
-chainsStats.value.forEach((chainStats) => {
-	if (Number(chainStats.flow) > Number(largestChain.value.flow)) {
-		largestChain.value = chainStats
-	}
+const { data: ibcData } = await useAsyncData("ibc-data", async () => {
+	const [rawChainsStats, rawSummary] = await Promise.all([fetchIbcChainsStats({ limit: 100 }), fetchIbcSummary()])
+	return { rawChainsStats, rawSummary }
 })
 </script>
 
@@ -81,13 +73,13 @@ chainsStats.value.forEach((chainStats) => {
 		/>
 
 		<Flex direction="column" gap="24">
-			<NotableStats :largestChain />
+			<NotableStats :ibcData />
 
-			<IBCGraph :chains="chainsStats" />
+			<IBCGraph :chains="ibcData.rawChainsStats" />
 
 			<Flex gap="24" :class="$style.tables">
 				<LatestTransfersTable />
-				<LargestChainsTable :chainsStats />
+				<LargestChainsTable :chainsStats="ibcData.rawChainsStats" />
 			</Flex>
 		</Flex>
 	</Flex>
