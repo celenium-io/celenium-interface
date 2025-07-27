@@ -99,23 +99,6 @@ const mainLinks = reactive([
 			},
 		],
 	},
-	{
-		icon: "ibc",
-		name: "IBC",
-		path: "/ibc",
-		children: [
-			{
-				name: "Transfers",
-				path: "/ibc/transfers",
-				show: true,
-			},
-			{
-				name: "Chains",
-				path: "/ibc/chains",
-				show: true,
-			},
-		],
-	},
 ])
 
 const isModularLinksCollapsed = ref(false)
@@ -134,6 +117,23 @@ const modularLinks = reactive([
 				name: "Register rollup",
 				path: "https://forms.gle/nimJyQJG4Lb4BTcG7",
 				external: true,
+				show: true,
+			},
+		],
+	},
+	{
+		icon: "ibc",
+		name: "IBC",
+		path: "/ibc",
+		children: [
+			{
+				name: "Transfers",
+				path: "/ibc/transfers",
+				show: true,
+			},
+			{
+				name: "Chains",
+				path: "/ibc/chains",
 				show: true,
 			},
 		],
