@@ -22,6 +22,10 @@ const props = defineProps({
 		type: String,
 		default: "left",
 	},
+	disabled: {
+		type: Boolean,
+		default: false,
+	},
 })
 const emit = defineEmits(["onClose"])
 
@@ -73,7 +77,7 @@ watch(
 </script>
 
 <template>
-	<Flex>
+	<Flex :class="disabled && $style.disabled">
 		<div ref="triggerEl">
 			<slot />
 		</div>
@@ -114,5 +118,11 @@ watch(
 	box-shadow: inset 0 0 0 1px var(--op-5), 0 14px 34px rgba(0, 0, 0, 15%), 0 4px 14px rgba(0, 0, 0, 5%);
 
 	padding: 12px;
+}
+
+.disabled {
+	opacity: 0.6;
+	cursor: auto;
+	pointer-events: none;
 }
 </style>

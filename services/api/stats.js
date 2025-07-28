@@ -1,5 +1,5 @@
 /** Services */
-import { nodeStatsURL, nodeVersionStatsURL, quoteServiceURL, tvlServiceURL, useServerURL } from "@/services/config"
+import { nodeStatsURL, quoteServiceURL, tvlServiceURL, useServerURL } from "@/services/config"
 
 export const fetchGeneralStats = async ({ name }) => {
 	try {
@@ -69,13 +69,16 @@ export const fetchTVL = async ({ slug, period, from, to }) => {
 	try {
 		let url = ""
 
-		if (period) {
+		if (slug !== "celestia") {
 			url = new URL(`${tvlServiceURL}/tvl/${slug}/${period}`)
 
 			if (from) url.searchParams.append("from", from)
 			if (to) url.searchParams.append("to", to)
 		} else {
-			url = new URL(`${tvlServiceURL}/tvl`)
+			url = new URL(`${tvlServiceURL}/supply${period ? `/${period}` : ''}`)
+
+			if (from) url.searchParams.append("from", from)
+			if (to) url.searchParams.append("to", to)
 		}
 
 		const data = await $fetch(url.href)
@@ -226,7 +229,7 @@ export const fetchNodeStats = async ({ name, timeframe, from, to }) => {
 
 export const fetchNodeVersionStats = async ({ name, timeframe, from, to }) => {
 	try {
-		const url = new URL(`${nodeVersionStatsURL}/stats/version/${name}${timeframe ? `/${timeframe}` : ''}`)
+		const url = new URL(`${nodeStatsURL}/stats/version/${name}${timeframe ? `/${timeframe}` : ''}`)
 
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)

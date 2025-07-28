@@ -202,7 +202,7 @@ const resetFilters = (name) => {
 
 const route = useRoute()
 
-const sections = ref(["overview", "daily_stats"])
+const sections = ref(["daily_stats", "overview"])
 const activeSection = ref("")
 
 const updateSection = (section) => {
