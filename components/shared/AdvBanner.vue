@@ -136,7 +136,7 @@ onMounted(() => {
 	position: relative;
 	width: 100%;
 
-	border-radius: 8px;
+	border-radius: 12px;
 	background: var(--op-3);
 
 	padding: 8px 16px;
