@@ -119,9 +119,9 @@ export const fetchRollupsDailyStats = async ({ limit, offset, sort, sort_by }) =
 	}
 }
 
-export const fetchRollupTVL = async ({ slug, period, from, to }) => {
+export const fetchRollupTVL = async ({ dataSource, slug, period, from, to }) => {
 	try {
-		const url = new URL(`${tvlServiceURL}/tvl/${slug}/${period}`)
+		const url = new URL(`${tvlServiceURL}/tvl/${dataSource}/${slug}/${period}`)
 
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)

@@ -88,7 +88,7 @@ const selectDay = (d) => {
 		<Flex justify="between">
 			<Flex align="center" gap="6">
 				<Icon name="blob" size="12" color="secondary" />
-				<Text size="13" weight="600" height="110" color="primary">Blobs Graph</Text>
+				<Text size="13" weight="600" height="110" color="primary">Daily Blobs Graph</Text>
 			</Flex>
 
 			<Tooltip>
