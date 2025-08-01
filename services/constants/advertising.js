@@ -53,15 +53,6 @@ const advertisements = [
 		footer: "Take the survey",
 		weight: 0,
 	},
-	{
-		name: "lotus_upgrade",
-		link: "https://celenium.io/block/6680339",
-		icon: "lotus",
-		header: "Lotus Upgrade",
-		body: "Native TIA interop and reduced issuance will happen on 6,680,339.",
-		footer: "View Block",
-		weight: 0,
-	},
 ]
 
 export function getRandomAdv() {
