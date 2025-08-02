@@ -20,6 +20,9 @@ import LightNodeModal from "./LightNodeModal.vue"
 import LightNodeSettingsModal from "./LightNodeSettingsModal.vue"
 import ConnectModal from "./ConnectModal.vue"
 import RollupRankModal from "./RollupRankModal.vue"
+import HyperlaneTransferModal from "./HyperlaneTransferModal.vue"
+import HyperlaneTokenModal from "./HyperlaneTokenModal.vue"
+import HyperlaneMailboxModal from "./HyperlaneMailboxModal.vue"
 
 /** Store */
 import { useModalsStore } from "@/store/modals.store"
@@ -48,4 +51,7 @@ const modalsStore = useModalsStore()
 	<ConnectModal :show="modalsStore.modals.connect" @onClose="modalsStore.close('connect')" />
 	<ChartModal :show="modalsStore.modals.chart" @onClose="modalsStore.close('chart')" />
 	<RollupRankModal :show="modalsStore.modals.rollupRank" @onClose="modalsStore.close('rollupRank')" />
+	<HyperlaneTransferModal :show="modalsStore.modals.hyperlaneTransfer" @onClose="modalsStore.close('hyperlaneTransfer')" />
+	<HyperlaneTokenModal :show="modalsStore.modals.hyperlaneToken" @onClose="modalsStore.close('hyperlaneToken')" />
+	<HyperlaneMailboxModal :show="modalsStore.modals.hyperlaneMailbox" @onClose="modalsStore.close('hyperlaneMailbox')" />
 </template>
