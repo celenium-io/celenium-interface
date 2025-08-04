@@ -70,26 +70,28 @@ const handleOpenTransferModal = (transfer) => {
 
 				<tbody>
 					<tr v-for="transfer in transfers" @click="handleOpenTransferModal(transfer)">
-						<td style="width: 1px">
-							<NuxtLink :to="`/tx/${transfer.tx_hash}`">
-								<Flex align="center" gap="8">
-									<Icon name="check-circle" size="13" color="brand" />
+						<td>
+							<Flex align="center">
+								<NuxtLink @click.stop :to="`/tx/${transfer.tx_hash}`">
+									<Flex align="center" gap="8">
+										<Icon name="check-circle" size="13" color="brand" />
 
-									<Text size="13" weight="600" color="primary" mono>
-										{{ transfer.tx_hash.slice(0, 4).toUpperCase() }}
-									</Text>
+										<Text size="13" weight="600" color="primary" mono>
+											{{ transfer.tx_hash.slice(0, 4).toUpperCase() }}
+										</Text>
 
-									<Flex align="center" gap="3">
-										<div v-for="dot in 3" class="dot" />
+										<Flex align="center" gap="3">
+											<div v-for="dot in 3" class="dot" />
+										</Flex>
+
+										<Text size="13" weight="600" color="primary" mono>
+											{{ transfer.tx_hash.slice(-4).toUpperCase() }}
+										</Text>
+
+										<CopyButton :text="transfer.tx_hash" />
 									</Flex>
-
-									<Text size="13" weight="600" color="primary" mono>
-										{{ transfer.tx_hash.slice(-4).toUpperCase() }}
-									</Text>
-
-									<CopyButton :text="transfer.tx_hash" />
-								</Flex>
-							</NuxtLink>
+								</NuxtLink>
+							</Flex>
 						</td>
 						<td>
 							<Flex align="center" gap="6">
@@ -105,19 +107,21 @@ const handleOpenTransferModal = (transfer) => {
 							</Flex>
 						</td>
 						<td>
-							<NuxtLink :to="`/address/${transfer.address.hash}`">
-								<Flex align="center" gap="6">
-									<Text size="13" weight="600" color="primary" mono>
-										{{ transfer.address.hash.slice(0, 8) }}
-									</Text>
-									<Flex align="center" gap="3">
-										<div v-for="_ in 3" class="dot" />
+							<Flex align="center">
+								<NuxtLink @click.stop :to="`/address/${transfer.address.hash}`">
+									<Flex align="center" gap="6">
+										<Text size="13" weight="600" color="primary" mono>
+											{{ transfer.address.hash.slice(0, 8) }}
+										</Text>
+										<Flex align="center" gap="3">
+											<div v-for="_ in 3" class="dot" />
+										</Flex>
+										<Text size="13" weight="600" color="primary" mono>
+											{{ transfer.address.hash.slice(-4) }}
+										</Text>
 									</Flex>
-									<Text size="13" weight="600" color="primary" mono>
-										{{ transfer.address.hash.slice(-4) }}
-									</Text>
-								</Flex>
-							</NuxtLink>
+								</NuxtLink>
+							</Flex>
 						</td>
 						<td>
 							<NuxtLink>

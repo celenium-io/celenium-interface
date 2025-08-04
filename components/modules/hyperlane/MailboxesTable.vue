@@ -61,20 +61,22 @@ const handleOpenMailboxModal = (mailbox) => {
 
 					<tbody>
 						<tr v-for="mailbox in mailboxes" @click="handleOpenMailboxModal(mailbox)">
-							<td style="width: 1px">
-								<NuxtLink :to="`/address/${mailbox.owner.hash}`">
-									<Flex align="center" gap="6">
-										<Text size="13" weight="600" color="primary" mono>
-											{{ mailbox.owner.hash.slice(0, 8) }}
-										</Text>
-										<Flex align="center" gap="3">
-											<div v-for="_ in 3" class="dot" />
+							<td>
+								<Flex align="center">
+									<NuxtLink @click.stop :to="`/address/${mailbox.owner.hash}`">
+										<Flex align="center" gap="6">
+											<Text size="13" weight="600" color="primary" mono>
+												{{ mailbox.owner.hash.slice(0, 8) }}
+											</Text>
+											<Flex align="center" gap="3">
+												<div v-for="_ in 3" class="dot" />
+											</Flex>
+											<Text size="13" weight="600" color="primary" mono>
+												{{ mailbox.owner.hash.slice(-4) }}
+											</Text>
 										</Flex>
-										<Text size="13" weight="600" color="primary" mono>
-											{{ mailbox.owner.hash.slice(-4) }}
-										</Text>
-									</Flex>
-								</NuxtLink>
+									</NuxtLink>
+								</Flex>
 							</td>
 							<td>
 								<Flex align="center" gap="6">
@@ -185,20 +187,14 @@ const handleOpenMailboxModal = (mailbox) => {
 		}
 
 		& tr td {
+			height: 40px;
+
 			padding: 0;
 
 			white-space: nowrap;
 
 			&:first-child {
 				padding-left: 16px;
-			}
-
-			& > a {
-				display: flex;
-
-				min-height: 40px;
-
-				padding-right: 16px;
 			}
 		}
 	}

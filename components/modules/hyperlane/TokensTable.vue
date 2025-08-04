@@ -71,19 +71,21 @@ const handleOpenTokenModal = (token) => {
 								</Flex>
 							</td>
 							<td>
-								<NuxtLink :to="`/address/${token.owner.hash}`">
-									<Flex align="center" gap="6">
-										<Text size="13" weight="600" color="primary" mono>
-											{{ token.owner.hash.slice(0, 8) }}
-										</Text>
-										<Flex align="center" gap="3">
-											<div v-for="_ in 3" class="dot" />
+								<Flex align="center">
+									<NuxtLink @click.stop :to="`/address/${token.owner.hash}`">
+										<Flex align="center" gap="6">
+											<Text size="13" weight="600" color="primary" mono>
+												{{ token.owner.hash.slice(0, 8) }}
+											</Text>
+											<Flex align="center" gap="3">
+												<div v-for="_ in 3" class="dot" />
+											</Flex>
+											<Text size="13" weight="600" color="primary" mono>
+												{{ token.owner.hash.slice(-4) }}
+											</Text>
 										</Flex>
-										<Text size="13" weight="600" color="primary" mono>
-											{{ token.owner.hash.slice(-4) }}
-										</Text>
-									</Flex>
-								</NuxtLink>
+									</NuxtLink>
+								</Flex>
 							</td>
 							<td>
 								<Flex align="center">
@@ -183,20 +185,14 @@ const handleOpenTokenModal = (token) => {
 		}
 
 		& tr td {
+			height: 40px;
+
 			padding: 0;
 
 			white-space: nowrap;
 
 			&:first-child {
 				padding-left: 16px;
-			}
-
-			& > a {
-				display: flex;
-
-				min-height: 40px;
-
-				padding-right: 16px;
 			}
 		}
 	}
