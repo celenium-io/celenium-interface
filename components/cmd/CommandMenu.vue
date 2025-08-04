@@ -241,6 +241,15 @@ const rawNavigationActions = [
 	{
 		type: "callback",
 		icon: "arrow-narrow-right",
+		title: "Go to Hyperlane",
+		runText: "Open Hyperlane",
+		callback: () => {
+			router.push("/hyperlane")
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Transactions",
 		runText: "Open Transactions",
 		callback: () => {
