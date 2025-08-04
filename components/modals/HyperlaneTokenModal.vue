@@ -34,7 +34,7 @@ const handleNavigate = (target) => {
 			<Flex wide gap="16">
 				<Flex wide direction="column" gap="8" :class="[$style.card]">
 					<Flex align="center" gap="4">
-						<Icon name="arrow-narrow-up-right-circle" size="12" color="brand" />
+						<Icon name="arrow-narrow-up-right-circle" size="12" color="purple" />
 						<Text size="12" weight="600" color="secondary">Sent</Text>
 					</Flex>
 
@@ -47,7 +47,7 @@ const handleNavigate = (target) => {
 
 				<Flex wide direction="column" gap="8" :class="[$style.card]">
 					<Flex align="center" gap="4">
-						<Icon name="arrow-narrow-up-right-circle" size="12" color="purple" style="transform: scale(1, -1)" />
+						<Icon name="arrow-narrow-up-right-circle" size="12" color="brand" style="transform: scale(1, -1)" />
 						<Text size="12" weight="600" color="secondary">Received</Text>
 					</Flex>
 

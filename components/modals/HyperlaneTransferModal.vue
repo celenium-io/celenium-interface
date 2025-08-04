@@ -48,7 +48,7 @@ const handleNavigate = (target) => {
 						<Icon
 							name="arrow-narrow-up-right-circle"
 							size="14"
-							:color="transfer.type === 'send' ? 'brand' : 'purple'"
+							:color="transfer.type === 'send' ? 'purple' : 'brand'"
 							:style="{ transform: `scale(1, ${transfer.type === 'receive' ? '-' : ''}1)` }"
 						/>
 
