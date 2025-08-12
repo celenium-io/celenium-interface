@@ -20,6 +20,8 @@ import LightNodeModal from "./LightNodeModal.vue"
 import LightNodeSettingsModal from "./LightNodeSettingsModal.vue"
 import ConnectModal from "./ConnectModal.vue"
 import RollupRankModal from "./RollupRankModal.vue"
+import IBCTransferModal from "./IBCTransferModal.vue"
+import IBCClientModal from "./IBCClientModal.vue"
 
 /** Store */
 import { useModalsStore } from "@/store/modals.store"
@@ -48,4 +50,6 @@ const modalsStore = useModalsStore()
 	<ConnectModal :show="modalsStore.modals.connect" @onClose="modalsStore.close('connect')" />
 	<ChartModal :show="modalsStore.modals.chart" @onClose="modalsStore.close('chart')" />
 	<RollupRankModal :show="modalsStore.modals.rollupRank" @onClose="modalsStore.close('rollupRank')" />
+	<IBCTransferModal :show="modalsStore.modals.ibcTransfer" @onClose="modalsStore.close('ibcTransfer')" />
+	<IBCClientModal :show="modalsStore.modals.ibcClient" @onClose="modalsStore.close('ibcClient')" />
 </template>
