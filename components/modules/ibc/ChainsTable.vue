@@ -76,7 +76,7 @@ const handleNextPage = () => {
 						<td>
 							<NuxtLink :to="`/ibc/chain/${chain.chain}`">
 								<Flex align="center" gap="6">
-									<Icon name="arrow-narrow-up-right-circle" size="14" color="green" />
+									<Icon name="arrow-narrow-up-right-circle" size="14" color="purple" />
 									<Text size="13" weight="600" color="primary" mono>
 										{{ abbreviate(chain.sent / 1_000_000) }} <Text color="secondary">TIA</Text>
 									</Text>
@@ -89,7 +89,7 @@ const handleNextPage = () => {
 						<td>
 							<NuxtLink :to="`/ibc/chain/${chain.chain}`">
 								<Flex align="center" gap="6">
-									<Icon name="arrow-narrow-up-right-circle" size="14" color="purple" style="transform: scale(1, -1)" />
+									<Icon name="arrow-narrow-up-right-circle" size="14" color="brand" style="transform: scale(1, -1)" />
 									<Text size="13" weight="600" color="primary" mono>
 										{{ abbreviate(chain.received / 1_000_000) }} <Text color="tertiary">TIA</Text>
 									</Text>

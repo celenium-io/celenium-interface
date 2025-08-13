@@ -96,7 +96,10 @@ const getChainName = (target) => {
 				<Text size="12" weight="600" color="tertiary">{{ DateTime.now().toFormat("MMMM") }}</Text>
 			</Flex>
 
-			<Text size="15" weight="600" color="primary">{{ busiestChannel.channel_id }}</Text>
+			<Text size="15" weight="600" color="primary">
+				{{ busiestChannel.channel_id }}
+				<Text size="12" color="tertiary">{{ IbcChainName[busiestChannel.chain_id] ?? "Unknown" }}</Text>
+			</Text>
 
 			<Text size="13" weight="500" color="support">
 				<Text color="tertiary" mono>{{ comma(busiestChannel.transfers_count) }} transfers</Text>
