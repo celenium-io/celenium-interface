@@ -93,7 +93,7 @@ const getChainName = (target) => {
 					<Text size="13" weight="600" color="secondary">Busiest channel</Text>
 				</Flex>
 
-				<Text size="12" weight="600" color="tertiary">{{ DateTime.now().toFormat("MMMM") }}</Text>
+				<Text size="12" weight="600" color="tertiary">30 days</Text>
 			</Flex>
 
 			<Text size="15" weight="600" color="primary">
