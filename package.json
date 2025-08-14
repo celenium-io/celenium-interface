@@ -6,9 +6,10 @@
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
-		"build": "nuxt build",
-		"dev": "cross-env PORT=9090 nuxt dev",
+		"build": "npm run generate-badges && nuxt build",
+		"dev": "npm run generate-badges && cross-env PORT=9090 nuxt dev",
 		"generate": "nuxt generate",
+		"generate-badges": "node scripts/generateBadgesList.js",
 		"preview": "nuxt preview",
 		"postinstall": "nuxt prepare",
 		"lint": "oxlint"
