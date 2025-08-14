@@ -100,6 +100,18 @@ const tags = computed(() =>
 	}, []),
 )
 
+const { data: badges } = await useFetch('/api/badges')
+const showBadges = computed(() => {
+	const showSettled = props.rollup?.settled_on && badges.value?.settled?.includes(props.rollup?.settled_on?.toLowerCase())
+	const showProvider = props.rollup?.provider && badges.value?.providers?.includes(props.rollup?.provider?.toLowerCase())
+	
+	return {
+		show: showSettled || showProvider,
+		provider: showProvider,
+		settled: showSettled,
+	}
+})
+
 const getCategoryDisplayName = (category) => {
 	switch (category) {
 		case "nft":
@@ -388,23 +400,23 @@ const handleCSVDownload = async (value) => {
 						</Flex>
 					</Flex>
 
-					<Flex v-if="rollup.provider || rollup.settled_on" gap="24" style="margin-bottom: 16px">
+					<Flex v-if="showBadges.show" gap="24" style="margin-bottom: 16px">
 						<img
-							v-if="rollup.settled_on"
+							v-if="showBadges.settled"
 							:src="`/img/badges/settled/${rollup.settled_on.toLowerCase()}.png`"
 							alt="Rollup badge"
 							:class="$style.badge"
 						/>
 
 						<img
-							v-if="rollup.provider"
+							v-if="showBadges.provider"
 							:src="`/img/badges/provider/${rollup.provider.toLowerCase()}.png`"
 							alt="Rollup badge"
 							:class="$style.badge"
 						/>
 					</Flex>
 
-					<Flex align="center" justify="start" gap="16" wrap="wrap">
+					<Flex align="center" justify="start" gap="16" wrap="wrap" :style="{ marginTop: showBadges.show ? '0px' : '-24px' }">
 						<Tooltip v-if="rollup.website" position="start" delay="300">
 							<a :href="rollup.website" target="_blank">
 								<Icon name="globe" size="14" color="secondary" />
