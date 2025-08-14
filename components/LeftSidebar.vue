@@ -127,6 +127,23 @@ const modularLinks = reactive([
 		],
 	},
 	{
+		icon: "ibc",
+		name: "IBC",
+		path: "/ibc",
+		children: [
+			{
+				name: "Transfers",
+				path: "/ibc/transfers",
+				show: true,
+			},
+			{
+				name: "Chains",
+				path: "/ibc/chains",
+				show: true,
+			},
+		],
+	},
+	{
 		icon: "namespace",
 		name: "Namespaces",
 		path: "/namespaces",

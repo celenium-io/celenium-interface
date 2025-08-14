@@ -36,8 +36,11 @@ dependencies:
     specifier: ^4.2.0
     version: 4.2.0
   d3:
-    specifier: ^7.8.5
+    specifier: 7.9.0
     version: 7.9.0
+  d3-force:
+    specifier: ^3.0.0
+    version: 3.0.0
   d3-geo:
     specifier: ^3.1.1
     version: 3.1.1
@@ -2857,7 +2860,7 @@ packages:
       mitt: 3.0.1
       nanoid: 5.1.5
       pathe: 2.0.3
-      vite-hot-client: 2.0.4(vite@6.2.6)
+      vite-hot-client: 2.1.0(vite@6.2.6)
       vue: 3.5.13
     transitivePeerDependencies:
       - vite
@@ -8443,14 +8446,6 @@ packages:
       vite-hot-client: 2.1.0(vite@6.2.6)
     dev: true
 
-  /vite-hot-client@2.0.4(vite@6.2.6):
-    resolution: {integrity: sha512-W9LOGAyGMrbGArYJN4LBCdOC5+Zwh7dHvOHC0KmGKkJhsOzaKbpo/jEjpPKVHIW0/jBWj8RZG0NUxfgA8BxgAg==}
-    peerDependencies:
-      vite: ^2.6.0 || ^3.0.0 || ^4.0.0 || ^5.0.0-0 || ^6.0.0-0
-    dependencies:
-      vite: 6.2.6(jiti@2.4.2)(sass@1.66.1)
-    dev: true
-
   /vite-hot-client@2.1.0(vite@6.2.6):
     resolution: {integrity: sha512-7SpgZmU7R+dDnSmvXE1mfDtnHLHQSisdySVR7lO8ceAXvM0otZeuQQ6C8LrS5d/aYyP/QZ0hI0L+dIPrm4YlFQ==}
     peerDependencies:
@@ -8746,7 +8741,7 @@ packages:
       '@webassemblyjs/ast': 1.14.1
       '@webassemblyjs/wasm-edit': 1.14.1
       '@webassemblyjs/wasm-parser': 1.14.1
-      acorn: 8.14.1
+      acorn: 8.15.0
       browserslist: 4.24.4
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.18.1
