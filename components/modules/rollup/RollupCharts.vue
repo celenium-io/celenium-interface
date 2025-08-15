@@ -14,7 +14,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
 import { abbreviate, formatBytes, sortArrayOfObjects, spaces, tia } from "@/services/utils"
-import { buildLineChart } from "@/services/utils/charts"
+import { buildLineChart, buildBarChart } from "@/services/utils/charts"
 
 /** API */
 import { fetchRollupSeries } from "@/services/api/stats"
@@ -156,172 +156,6 @@ const getXAxisLabels = (start, tvl = false) => {
 	}
 
 	return res
-}
-
-const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
-	const width = chartWrapperEl.value.wrapper.getBoundingClientRect().width
-	const height = 180
-	const marginTop = 0
-	const marginRight = 2
-	const marginBottom = 24
-	const marginLeft = 52
-
-	const barWidth = Math.max(Math.round((width - marginLeft - marginRight) / data.length - (data.length > 7 ? 4 : 8)), 4)
-
-	const MAX_VALUE = d3.max(data, (d) => d.value) ? d3.max(data, (d) => d.value) : 1
-
-	/** Scale */
-	const x = d3
-		.scaleBand()
-		.domain(data.map(d => d.date))
-		.range([marginLeft, width - marginRight])
-		.padding(0.1)
-
-	const scaleX = d3.scaleUtc(
-		d3.extent(data, (d) => d.date),
-		[marginLeft, width - marginRight - barWidth],
-	)
-
-	const y = d3.scaleLinear([0, MAX_VALUE], [height - marginBottom, marginTop])
-
-	/** Tooltip */
-	const bisect = d3.bisector((d) => d.date).center
-	const onPointermoved = (event) => {
-		if (!data.length) return
-
-		onEnter()
-
-		const idx = bisect(data, scaleX.invert(d3.pointer(event)[0] - barWidth / 2))
-
-		const elements = document.querySelectorAll(`[metric="${metric}"]`)
-		elements.forEach((el) => {
-			if (+el.getAttribute("data-index") === idx) {
-				el.style.filter = "brightness(1.2)"
-			} else {
-				el.style.filter = "brightness(0.6)"
-			}
-		})
-
-		tooltipXOffset.value = scaleX(data[idx].date)
-		tooltipYDataOffset.value = y(data[idx].value)
-		tooltipYOffset.value = event.layerY
-		tooltipText.value = data[idx].value
-
-		if (tooltipEl.value) {
-			if (idx > parseInt(selectedPeriod.value.value / 2)) {
-				tooltipDynamicXPosition.value = tooltipXOffset.value - tooltipEl.value.wrapper.getBoundingClientRect().width - 16
-			} else {
-				tooltipDynamicXPosition.value = tooltipXOffset.value + 16
-			}
-		}
-
-		let tf = selectedPeriod.value.timeframe
-		if (metric === "tvl" && ["hour", "week"].includes(selectedPeriod.value.timeframe)) {
-			tf = "day"
-		}
-		badgeText.value =
-			tf === "month"
-				? DateTime.fromJSDate(data[idx].date).toFormat("LLL")
-				: tf === "day"
-				? DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
-				: DateTime.fromJSDate(data[idx].date).set({ minutes: 0 }).toFormat("hh:mm a")
-
-		if (!badgeEl.value) return
-		const badgeWidth = badgeEl.value.getBoundingClientRect().width
-		if (tooltipXOffset.value - marginLeft < badgeWidth / 2) {
-			badgeOffset.value = 0
-		} else if (badgeWidth + tooltipXOffset.value > width) {
-			badgeOffset.value = Math.abs(width - (badgeWidth + tooltipXOffset.value)) + (data.length - 1 - idx) * 2
-		} else {
-			badgeOffset.value = (badgeWidth - barWidth) / 2
-		}
-	}
-	const onPointerleft = () => {
-		if (!data.length) return
-
-		onLeave()
-
-		const elements = document.querySelectorAll("[data-index]")
-		elements.forEach((el) => {
-			el.style.filter = ""
-		})
-		badgeText.value = ""
-	}
-
-	/** SVG Container */
-	const svg = d3
-		.create("svg")
-		.attr("width", width)
-		.attr("height", height)
-		.attr("viewBox", [0, 0, width, height])
-		.attr("preserveAspectRatio", "none")
-		.attr("style", "max-width: 100%;  height: intrinsic;")
-		.style("-webkit-tap-highlight-color", "transparent")
-		.on("pointerenter pointermove", onPointermoved)
-		.on("pointerleave", onPointerleft)
-		.on("touchstart", (event) => event.preventDefault())
-
-	/** Vertical Lines */
-	svg.append("path")
-		.attr("fill", "none")
-		.attr("stroke", "var(--op-10)")
-		.attr("stroke-width", 2)
-		.attr("d", `M${marginLeft},${height - marginBottom + 2} L${marginLeft},${height - marginBottom - 5}`)
-	svg.append("path")
-		.attr("fill", "none")
-		.attr("stroke", "var(--op-10)")
-		.attr("stroke-width", 2)
-		.attr("d", `M${width - 1},${height - marginBottom + 2} L${width - 1},${height - marginBottom - 5}`)
-
-	/** Default Horizontal Line  */
-	svg.append("path")
-		.attr("fill", "none")
-		.attr("stroke", "var(--op-10)")
-		.attr("stroke-width", 2)
-		.attr("d", `M${0},${height - marginBottom - 6} L${width},${height - marginBottom - 6}`)
-
-	if (data.length) {
-		/** Chart Bars */
-		svg.append("defs")
-			.append("pattern")
-			.attr("id", "diagonal-stripe")
-			.attr("width", 6)
-			.attr("height", 6)
-			.attr("patternUnits", "userSpaceOnUse")
-			.attr("patternTransform", "rotate(45)")
-			.append("rect")
-			.attr("width", 2)
-			.attr("height", 6)
-			.attr("transform", "translate(0,0)")
-			.attr("fill", "var(--brand)")
-
-		svg.append("g")
-			.selectAll("g")
-			.data(data)
-			.enter()
-			.append("rect")
-			.attr("class", "bar")
-			.attr("data-index", (d, i) => i)
-			.attr("metric", metric)
-			.attr("x", (d) => x(new Date(d.date)))
-			.attr("y", (d) => y(d.value))
-			.attr("width", x.bandwidth())
-			.attr("fill", (d, i) => (loadLastValue.value && i === data.length - 1 ? `url(#diagonal-stripe)` : "var(--brand)"))
-			.transition()
-			.duration(1_000)
-			.attr("height", (d) => Math.max(height - marginBottom - 6 - y(d.value), 0))
-	} else {
-		svg.append("text")
-			.attr("x", width / 2)
-			.attr("y", height * 0.3)
-			.attr("text-anchor", "middle")
-			.attr("fill", "var(--op-20)")
-			.style("font-size", "14px")
-			.text("No data available for this rollup")
-	}
-
-	if (chartEl.children[0]) chartEl.children[0].remove()
-	chartEl.append(svg.node())
 }
 
 const getRollupsList = async () => {
@@ -713,10 +547,10 @@ onMounted(async () => {
 	window.addEventListener("resize", debouncedRedraw)
 
 	if (props.rollup["l2_beat"]) {
-		tvlDataSources.value.push({ name: "l2beat", title: "L2Beat"})
+		tvlDataSources.value.push({ name: "l2beat", title: "L2Beat" })
 	}
 	if (props.rollup["defi_lama"]) {
-		tvlDataSources.value.push({ name: "llama", title: "Defi Llama"})
+		tvlDataSources.value.push({ name: "llama", title: "Defi Llama" })
 	}
 	selectedTvlDataSource.value = tvlDataSources.value[0]
 
@@ -1085,7 +919,14 @@ onBeforeUnmount(() => {
 							<Text size="13" weight="600" color="primary">TVL</Text>
 
 							<Text v-if="tvlSeries.length" size="13" weight="600" color="brand">
-								{{ `${abbreviate(tvlSeries[tvlSeries.length - 1].value ? tvlSeries[tvlSeries.length - 1].value : tvlSeries[tvlSeries.length - 2].value, 2)} USD` }}
+								{{
+									`${abbreviate(
+										tvlSeries[tvlSeries.length - 1].value
+											? tvlSeries[tvlSeries.length - 1].value
+											: tvlSeries[tvlSeries.length - 2].value,
+										2,
+									)} USD`
+								}}
 							</Text>
 
 							<Tooltip v-if="tvlSeries.length" position="end">
@@ -1093,13 +934,21 @@ onBeforeUnmount(() => {
 
 								<template #content>
 									<Flex align="center" :style="{ width: '160px' }">
-										<Text size="12" color="secondary" :style="{ lineHeight: '1.2' }"> Grouping by day or month is only available for this chart. </Text>
+										<Text size="12" color="secondary" :style="{ lineHeight: '1.2' }">
+											Grouping by day or month is only available for this chart.
+										</Text>
 									</Flex>
 								</template>
 							</Tooltip>
 						</Flex>
 
-						<Popover v-if="selectedTvlDataSource" :open="isTvlDataSourcePopoverOpen" @on-close="handleTvlDataSourcePopoverClose" side="right" width="180">
+						<Popover
+							v-if="selectedTvlDataSource"
+							:open="isTvlDataSourcePopoverOpen"
+							@on-close="handleTvlDataSourcePopoverClose"
+							side="right"
+							width="180"
+						>
 							<Flex
 								@click="isTvlDataSourcePopoverOpen = true"
 								align="center"
@@ -1117,7 +966,10 @@ onBeforeUnmount(() => {
 									name="chevron"
 									size="14"
 									color="secondary"
-									:style="{ transform: `rotate(${isTvlDataSourcePopoverOpen ? '180' : '0'}deg)`, transition: 'all 0.25s ease' }"
+									:style="{
+										transform: `rotate(${isTvlDataSourcePopoverOpen ? '180' : '0'}deg)`,
+										transition: 'all 0.25s ease',
+									}"
 								/>
 							</Flex>
 

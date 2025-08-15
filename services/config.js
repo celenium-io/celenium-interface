@@ -39,10 +39,10 @@ export const useServerURL = () => {
 			return Server.API.mammoth
 
 		case "dev.celenium.io":
-			return Server.API.dev
+			return Server.API.mainnet
 
 		default:
-			return Server.API.dev
+			return Server.API.mainnet
 	}
 }
 
@@ -66,10 +66,10 @@ export const useSocketURL = () => {
 			return Server.WSS.mammoth
 
 		case "dev.celenium.io":
-			return Server.WSS.dev
+			return Server.WSS.mainnet
 
 		default:
-			return Server.WSS.dev
+			return Server.WSS.mainnet
 	}
 }
 
