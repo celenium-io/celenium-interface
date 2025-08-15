@@ -6,9 +6,10 @@
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
-		"build": "nuxt build",
-		"dev": "cross-env PORT=9090 nuxt dev",
+		"build": "npm run generate-badges && nuxt build",
+		"dev": "npm run generate-badges && cross-env PORT=9090 nuxt dev",
 		"generate": "nuxt generate",
+		"generate-badges": "node scripts/generateBadgesList.js",
 		"preview": "nuxt preview",
 		"postinstall": "nuxt prepare",
 		"lint": "oxlint"
@@ -40,7 +41,8 @@
 		"buffer": "^6.0.3",
 		"codemirror": "^6.0.1",
 		"crypto-js": "^4.2.0",
-		"d3": "^7.8.5",
+		"d3": "7.9.0",
+		"d3-force": "^3.0.0",
 		"d3-geo": "^3.1.1",
 		"d3-hierarchy": "^3.1.2",
 		"focus-trap": "7.5.2",
