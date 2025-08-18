@@ -301,6 +301,12 @@ const handleCSVDownload = async (value) => {
 					<Text>Activity Rank</Text>
 				</Button>
 
+				<Button v-if="rollup.settled_on" :link="`/blobstream?network=${rollup.settled_on?.toLowerCase()}&page=1`" type="secondary" size="mini">
+					<Icon name="blob" size="12" color="secondary" />
+
+					<Text>Blobstream</Text>
+				</Button>
+
 				<Button link="/stats?tab=rollups&section=daily_stats" type="secondary" size="mini">
 					<Icon name="line-chart" size="12" color="secondary" />
 

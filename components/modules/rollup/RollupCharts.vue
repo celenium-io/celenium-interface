@@ -1265,7 +1265,7 @@ onBeforeUnmount(() => {
 					</Flex>
 				</Flex>
 
-				<Flex direction="column" :gap="tvlSeries.length ? 12 : 20" wide>
+				<Flex direction="column" :gap="tvlSeries.length ? '12' : '20'" wide>
 					<Flex align="center" justify="between">
 						<Flex align="center" gap="8">
 							<Text size="13" weight="600" color="primary">TVL</Text>
