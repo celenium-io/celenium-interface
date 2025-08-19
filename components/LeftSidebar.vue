@@ -165,11 +165,17 @@ const modularLinks = reactive([
 const isToolsLinkCollapsed = ref(false)
 const toolsLinks = reactive([
 	{
+		icon: "widgets",
+		name: "Widgets",
+		path: "https://widgets.celenium.io",
+		external: true,
+		new: true,
+	},
+	{
 		icon: "explorable",
 		name: "Terminal",
 		path: "https://terminal.celenium.io",
 		external: true,
-		new: true,
 	},
 	{
 		icon: "drop",
