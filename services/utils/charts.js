@@ -362,6 +362,8 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 		.attr("d", `M${0},${height - marginBottom - 6} L${width},${height - marginBottom - 6}`)
 
 	if (data.length) {
+		const loadLastValue = window.currentLoadLastValue
+
 		/** Chart Bars */
 		svg.append("defs")
 			.append("pattern")
