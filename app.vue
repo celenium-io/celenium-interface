@@ -100,6 +100,8 @@ onMounted(async () => {
 	settingsStore.init()
 	activityStore.init()
 
+	appStore.initGlobalUpdates()
+	
 	const runtimeConfig = useRuntimeConfig()
 	amp.init(runtimeConfig.public.AMP)
 
