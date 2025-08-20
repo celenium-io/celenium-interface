@@ -400,6 +400,21 @@ const filteredRollupsList = computed(() => {
 const buildRollupCharts = async (loadData = true) => {
 	isLoading.value = true
 
+
+	const tooltipConfig = {
+		tooltipXOffset,
+		tooltipYDataOffset,
+		tooltipYOffset,
+		tooltipText,
+		tooltipDynamicXPosition,
+		badgeText,
+		badgeOffset,
+		tooltipEl,
+		badgeEl,
+		selectedPeriod,
+		loadLastValue,
+	}
+
 	if (loadData) {
 		await getRollupsList()
 		if (!selectedRollup.value) {
@@ -421,18 +436,23 @@ const buildRollupCharts = async (loadData = true) => {
 			() => (showSeriesTooltip.value = true),
 			() => (showSeriesTooltip.value = false),
 			"size",
+			tooltipConfig
 		)
 		buildLineChart(
 			pfbSeriesChartEl.value.wrapper,
 			loadLastValue.value ? pfbSeries.value : pfbSeries.value.slice(0, pfbSeries.value.length - 1),
 			() => (showPfbTooltip.value = true),
 			() => (showPfbTooltip.value = false),
+			"pfb",
+			tooltipConfig
 		)
 		buildLineChart(
 			feeSeriesChartEl.value.wrapper,
 			loadLastValue.value ? feeSeries.value : feeSeries.value.slice(0, feeSeries.value.length - 1),
 			() => (showFeeTooltip.value = true),
 			() => (showFeeTooltip.value = false),
+			"fee",
+			tooltipConfig
 		)
 		buildLineChart(
 			tvlSeriesChartEl.value.wrapper,
@@ -440,6 +460,7 @@ const buildRollupCharts = async (loadData = true) => {
 			() => (showTVLTooltip.value = true),
 			() => (showTVLTooltip.value = false),
 			"tvl",
+			tooltipConfig
 		)
 	} else {
 		buildBarChart(
@@ -448,6 +469,7 @@ const buildRollupCharts = async (loadData = true) => {
 			() => (showSeriesTooltip.value = true),
 			() => (showSeriesTooltip.value = false),
 			"size",
+			tooltipConfig,
 		)
 		buildBarChart(
 			pfbSeriesChartEl.value.wrapper,
@@ -455,6 +477,7 @@ const buildRollupCharts = async (loadData = true) => {
 			() => (showPfbTooltip.value = true),
 			() => (showPfbTooltip.value = false),
 			"pfb",
+			tooltipConfig,
 		)
 		buildBarChart(
 			feeSeriesChartEl.value.wrapper,
@@ -462,6 +485,7 @@ const buildRollupCharts = async (loadData = true) => {
 			() => (showFeeTooltip.value = true),
 			() => (showFeeTooltip.value = false),
 			"fee",
+			tooltipConfig,
 		)
 		buildBarChart(
 			tvlSeriesChartEl.value.wrapper,
@@ -469,6 +493,7 @@ const buildRollupCharts = async (loadData = true) => {
 			() => (showTVLTooltip.value = true),
 			() => (showTVLTooltip.value = false),
 			"tvl",
+			tooltipConfig,
 		)
 	}
 

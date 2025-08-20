@@ -9,7 +9,7 @@ import { DateTime } from "luxon"
  * @param {Function} onLeave - Callback on cursor leave
  * @param {string} metric - Metric (optional, for special TVL logic)
  */
-export const buildLineChart = (chartEl, data, onEnter, onLeave, metric) => {
+export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipConfig) => {
 	const width = chartEl.parentElement.getBoundingClientRect().width
 	const height = 180
 	const marginTop = 0
@@ -39,17 +39,18 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric) => {
 
 		const idx = bisect(data, x.invert(d3.pointer(event)[0]))
 
-		const tooltipXOffset = window.currentTooltipXOffset
-		const tooltipYDataOffset = window.currentTooltipYDataOffset
-		const tooltipYOffset = window.currentTooltipYOffset
-		const tooltipText = window.currentTooltipText
-		const tooltipDynamicXPosition = window.currentTooltipDynamicXPosition
-		const badgeText = window.currentBadgeText
-		const badgeOffset = window.currentBadgeOffset
-		const tooltipEl = window.currentTooltipEl
-		const badgeEl = window.currentBadgeEl
-		const selectedPeriod = window.currentSelectedPeriod
-		const loadLastValue = window.currentLoadLastValue
+		const {
+			tooltipXOffset,
+			tooltipYDataOffset,
+			tooltipYOffset,
+			tooltipText,
+			tooltipDynamicXPosition,
+			badgeText,
+			badgeOffset,
+			tooltipEl,
+			badgeEl,
+			selectedPeriod,
+		} = tooltipConfig
 
 		if (tooltipXOffset) tooltipXOffset.value = x(data[idx].date)
 		if (tooltipYDataOffset) tooltipYDataOffset.value = y(data[idx].value)
@@ -95,7 +96,7 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric) => {
 
 		onLeave()
 
-		const badgeText = window.currentBadgeText
+		const { badgeText } = tooltipConfig
 		if (badgeText) badgeText.value = ""
 	}
 
@@ -133,10 +134,9 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric) => {
 
 	if (data.length) {
 		/** Chart Line */
+		const { loadLastValue } = tooltipConfig
 		let path1 = null
 		let path2 = null
-
-		const loadLastValue = window.currentLoadLastValue
 
 		path1 = svg
 			.append("path")
@@ -227,7 +227,7 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric) => {
  * @param {Function} onLeave - Callback on cursor leave
  * @param {string} metric - Metric for chart identification
  */
-export const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
+export const buildBarChart = (chartEl, data, onEnter, onLeave, metric, tooltipConfig) => {
 	const width = chartEl.parentElement.getBoundingClientRect().width
 	const height = 180
 	const marginTop = 0
@@ -235,7 +235,7 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 	const marginBottom = 24
 	const marginLeft = 52
 
-	const barWidth = Math.max(Math.round((width - marginLeft - marginRight) / data.length - (data.length > 7 ? 4 : 8)), 4)
+	const barWidth = Math.max(Math.round((width - marginLeft - marginRight) / data.length - (data.length > 7 ? 2 : 8)), 3)
 
 	const MAX_VALUE = d3.max(data, (d) => d.value) ? d3.max(data, (d) => d.value) : 1
 
@@ -264,17 +264,18 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 			}
 		})
 
-		// Get tooltip elements from window object
-		const tooltipXOffset = window.currentTooltipXOffset
-		const tooltipYDataOffset = window.currentTooltipYDataOffset
-		const tooltipYOffset = window.currentTooltipYOffset
-		const tooltipText = window.currentTooltipText
-		const tooltipDynamicXPosition = window.currentTooltipDynamicXPosition
-		const badgeText = window.currentBadgeText
-		const badgeOffset = window.currentBadgeOffset
-		const tooltipEl = window.currentTooltipEl
-		const badgeEl = window.currentBadgeEl
-		const selectedPeriod = window.currentSelectedPeriod
+		const {
+			tooltipXOffset,
+			tooltipYDataOffset,
+			tooltipYOffset,
+			tooltipText,
+			tooltipDynamicXPosition,
+			badgeText,
+			badgeOffset,
+			tooltipEl,
+			badgeEl,
+			selectedPeriod,
+		} = tooltipConfig
 
 		if (tooltipXOffset) tooltipXOffset.value = x(data[idx].date)
 		if (tooltipYDataOffset) tooltipYDataOffset.value = y(data[idx].value)
@@ -325,7 +326,7 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 			el.style.filter = ""
 		})
 
-		const badgeText = window.currentBadgeText
+		const { badgeText } = tooltipConfig
 		if (badgeText) badgeText.value = ""
 	}
 
@@ -362,7 +363,7 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric) => {
 		.attr("d", `M${0},${height - marginBottom - 6} L${width},${height - marginBottom - 6}`)
 
 	if (data.length) {
-		const loadLastValue = window.currentLoadLastValue
+		const { loadLastValue } = tooltipConfig
 
 		/** Chart Bars */
 		svg.append("defs")
