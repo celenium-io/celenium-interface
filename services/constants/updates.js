@@ -17,6 +17,7 @@ const updates = [
 	},
 ]
 
+
 export function getActiveUpdates() {
   const now = Math.floor(Date.now() / 1000)
 
