@@ -171,7 +171,7 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipC
 		}
 
 		const totalDuration = 1_000
-		const path1Duration = loadLastValue? (totalDuration / data.length) * (data.length - 1) : totalDuration
+		const path1Duration = loadLastValue ? (totalDuration / data.length) * (data.length - 1) : totalDuration
 		const path1Length = path1.node().getTotalLength()
 
 		path1

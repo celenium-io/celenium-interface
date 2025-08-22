@@ -12,7 +12,7 @@ import Toggle from "@/components/ui/Toggle.vue"
 
 /** Services */
 import { abbreviate, formatBytes } from "@/services/utils"
-import { buildLineChart, buildBarChart } from "@/services/utils/charts"
+import { buildLineChart, buildBarChart } from "@/services/utils/entityCharts"
 
 /** API */
 import { fetchNamespaceSeries } from "@/services/api/stats"
