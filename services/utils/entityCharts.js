@@ -58,15 +58,15 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipC
 		if (tooltipText) tooltipText.value = data[idx].value
 
 		if (tooltipEl && tooltipEl.value) {
-			if (idx > parseInt(selectedPeriod?.value?.value / 2)) {
+			if (idx > parseInt(selectedPeriod?.value / 2)) {
 				tooltipDynamicXPosition.value = tooltipXOffset.value - tooltipEl.value.wrapper.getBoundingClientRect().width - 16
 			} else {
 				tooltipDynamicXPosition.value = tooltipXOffset.value + 16
 			}
 		}
 
-		let tf = selectedPeriod?.value?.timeframe
-		if (metric === "tvl" && ["hour", "week"].includes(selectedPeriod?.value?.timeframe)) {
+		let tf = selectedPeriod?.timeframe
+		if (metric === "tvl" && ["hour", "week"].includes(selectedPeriod?.timeframe)) {
 			tf = "day"
 		}
 
@@ -145,9 +145,9 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipC
 			.attr("stroke-width", 2)
 			.attr("stroke-linecap", "round")
 			.attr("stroke-linejoin", "round")
-			.attr("d", line(loadLastValue?.value ? data.slice(0, data.length - 1) : data))
+			.attr("d", line(loadLastValue ? data.slice(0, data.length - 1) : data))
 
-		if (loadLastValue?.value) {
+		if (loadLastValue) {
 			// Create pattern
 			const defs = svg.append("defs")
 			const pattern = defs
@@ -171,7 +171,7 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipC
 		}
 
 		const totalDuration = 1_000
-		const path1Duration = loadLastValue?.value ? (totalDuration / data.length) * (data.length - 1) : totalDuration
+		const path1Duration = loadLastValue? (totalDuration / data.length) * (data.length - 1) : totalDuration
 		const path1Length = path1.node().getTotalLength()
 
 		path1
@@ -182,7 +182,7 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipC
 			.ease(d3.easeLinear)
 			.attr("stroke-dashoffset", 0)
 
-		if (loadLastValue?.value) {
+		if (loadLastValue) {
 			const path2Duration = totalDuration / data.length
 			const path2Length = path2.node().getTotalLength() + 1
 
@@ -283,15 +283,17 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric, tooltipCo
 		if (tooltipText) tooltipText.value = data[idx].value
 
 		if (tooltipEl && tooltipEl.value) {
-			if (idx > parseInt(selectedPeriod?.value?.value / 2)) {
-				tooltipDynamicXPosition.value = tooltipXOffset.value - tooltipEl.value.wrapper.getBoundingClientRect().width - 16
+			const tooltipDomElement = tooltipEl.value.$el || tooltipEl.value
+
+			if (idx > parseInt(selectedPeriod?.value / 2)) {
+				tooltipDynamicXPosition.value = tooltipXOffset.value - tooltipDomElement.getBoundingClientRect().width - 16
 			} else {
 				tooltipDynamicXPosition.value = tooltipXOffset.value + 16
 			}
 		}
 
-		let tf = selectedPeriod?.value?.timeframe
-		if (metric === "tvl" && ["hour", "week"].includes(selectedPeriod?.value?.timeframe)) {
+		let tf = selectedPeriod?.timeframe
+		if (metric === "tvl" && ["hour", "week"].includes(selectedPeriod?.timeframe)) {
 			tf = "day"
 		}
 
@@ -364,7 +366,6 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric, tooltipCo
 
 	if (data.length) {
 		const { loadLastValue } = tooltipConfig
-
 		/** Chart Bars */
 		svg.append("defs")
 			.append("pattern")
@@ -390,7 +391,7 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric, tooltipCo
 			.attr("x", (d) => x(new Date(d.date)))
 			.attr("y", (d) => y(d.value))
 			.attr("width", barWidth)
-			.attr("fill", (d, i) => (loadLastValue?.value && i === data.length - 1 ? `url(#diagonal-stripe)` : "var(--brand)"))
+			.attr("fill", (d, i) => (loadLastValue && i === data.length - 1 ? `url(#diagonal-stripe)` : "var(--brand)"))
 			.transition()
 			.duration(1_000)
 			.attr("height", (d) => Math.max(height - marginBottom - 6 - y(d.value), 0))
