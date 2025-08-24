@@ -125,7 +125,7 @@ export const useAppStore = defineStore("app", () => {
 ]
 		const updates = getActiveUpdates()
 		globalUpdates.value = [...updates, ...globalUpdates.value]
-		console.log('globalUpdates.value', globalUpdates.value);
+		// console.log('globalUpdates.value', globalUpdates.value);
 	}
 
 	const gas = ref({

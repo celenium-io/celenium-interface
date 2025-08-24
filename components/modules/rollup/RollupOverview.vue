@@ -20,15 +20,13 @@ import { exportToCSV } from "@/services/utils/export"
 import { getRankCategory } from "@/services/constants/rollups"
 
 /** API */
-import { fetchRollupBlobs, fetchRollupExportData, fetchRollupNamespaces } from "@/services/api/rollup"
+import { fetchRollupBlobs, fetchRollupExportData, fetchRollupNamespaces, fetchRollupRankingBySlug } from "@/services/api/rollup"
 
 /** Store */
 import { useCacheStore } from "@/store/cache.store"
 import { useNotificationsStore } from "@/store/notifications.store"
-import { useActivityStore } from "@/store/activity.store"
 const cacheStore = useCacheStore()
 const notificationsStore = useNotificationsStore()
-const activityStore = useActivityStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -57,23 +55,9 @@ const isRefetching = ref(false)
 const namespaces = ref([])
 const blobs = ref([])
 
-const rollupRanking = computed(() => {
-	if (!activityStore?.initialized || !isMainnet()) return null
-
-	let rollup_ranking =
-		activityStore?.rollups_ranking?.ranking[
-			Object.keys(activityStore?.rollups_ranking?.ranking).find((key) => key === props.rollup.slug)
-		]
-	rollup_ranking.rank = {
-		category: getRankCategory(roundTo(rollup_ranking?.ranking?.rank / 10, 0)),
-		score: rollup_ranking?.ranking?.rank,
-	}
-
-	return rollup_ranking
-})
-
 const rollupColor = ref()
 const rollupColorAlpha = ref()
+const rollupRanking = ref()
 
 const tagNames = ref(["stack", "type", "vm", "provider", "category"])
 const tags = computed(() =>
@@ -190,6 +174,16 @@ onMounted(async () => {
 
 	rollupColor.value = hexToRgba(props.rollup.color, 1)
 	rollupColorAlpha.value = hexToRgba(props.rollup.color, 0)
+
+	if (isMainnet()) {
+		const data = await fetchRollupRankingBySlug(props.rollup?.slug)
+		if (data.slug) {
+			rollupRanking.value = {
+				category: getRankCategory(roundTo(data.rank / 10, 0)),
+				rank: +data.rank,
+			}
+		}
+	}
 })
 
 /** Refetch Blobs/Messages on new page */
@@ -352,25 +346,26 @@ const handleCSVDownload = async (value) => {
 								<img id="logo" :src="rollup.logo" :class="$style.rollup_logo" />
 							</Flex>
 
-							<Flex v-if="!!rollupRanking" align="start" :style="{ height: '100%' }">
-								<Tooltip position="end" :disabled="!rollupRanking?.rank?.category?.color">
+							<Flex v-if="isMainnet()" align="start" :style="{ height: '100%' }">
+								<!-- <Tooltip position="end" :disabled="!rollupRanking?.rank?.category?.color"> -->
+								<Tooltip position="end">
 									<Icon
 										name="laurel"
 										size="24"
-										:color="rollupRanking?.rank?.category?.color || 'tertiary'"
-										:loading="!rollupRanking?.rank?.category?.color"
+										:color="rollupRanking?.category?.color || 'tertiary'"
+										:loading="!rollupRanking?.category?.color"
 									/>
 									<template #content>
 										<Flex direction="column" gap="8">
 											<Flex align="center" justify="between" gap="8">
 												<Text size="12" weight="500" color="tertiary">Activity Rank:</Text>
-												<Text size="12" weight="600" :color="rollupRanking?.rank?.category?.color">
-													{{ rollupRanking?.rank?.category?.name }}
+												<Text size="12" weight="600" :color="rollupRanking?.category?.color">
+													{{ rollupRanking?.category?.name }}
 												</Text>
 											</Flex>
 											<Flex align="center" justify="between" gap="8">
 												<Text size="12" weight="500" color="tertiary">Score:</Text>
-												<Text size="12" weight="600" color="secondary"> {{ rollupRanking?.rank?.score }}% </Text>
+												<Text size="12" weight="600" color="secondary"> {{ rollupRanking?.rank }}% </Text>
 											</Flex>
 										</Flex>
 									</template>

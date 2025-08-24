@@ -13,7 +13,7 @@ export const formatBytes = (bytes, decimals = 2) => {
 
 export const getNamespaceID = (target) => {
 	if (!target) return ""
-	
+
 	let s = target
 
 	while (s.startsWith("00")) {
@@ -139,7 +139,8 @@ export const getNetworkName = () => {
 }
 
 export const isMainnet = () => {
-	return getNetworkName() === "Mainnet"
+	return true
+	// return getNetworkName() === "Mainnet"
 }
 
 export const isMac = () => {

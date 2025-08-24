@@ -24,7 +24,6 @@ import { useSettingsStore } from "@/store/settings.store"
 import { useEnumStore } from "@/store/enums.store"
 import { useLegalStore } from "@/store/legal.store"
 import { useNotificationsStore } from "@/store/notifications.store"
-import { useActivityStore } from "@/store/activity.store"
 const nodeStore = useNodeStore()
 const appStore = useAppStore()
 const bookmarksStore = useBookmarksStore()
@@ -32,7 +31,6 @@ const settingsStore = useSettingsStore()
 const enumStore = useEnumStore()
 const legalStore = useLegalStore()
 const notificationsStore = useNotificationsStore()
-const activityStore = useActivityStore()
 
 bookmarksStore.$subscribe((mutation, state) => {
 	localStorage.setItem("bookmarks", JSON.stringify(state.bookmarks))
@@ -42,9 +40,6 @@ settingsStore.$subscribe((mutation, state) => {
 })
 legalStore.$subscribe((mutation, state) => {
 	localStorage.setItem("legal", JSON.stringify(state.legal))
-})
-activityStore.$subscribe((mutation, state) => {
-	localStorage.setItem("rollups_ranking", JSON.stringify(state.rollups_ranking))
 })
 
 appStore.initConstants()
@@ -98,7 +93,6 @@ onMounted(async () => {
 	}
 
 	settingsStore.init()
-	activityStore.init()
 
 	appStore.initGlobalUpdates()
 	
