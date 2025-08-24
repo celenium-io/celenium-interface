@@ -2,9 +2,6 @@
 const props = defineProps({
 	update: Object,
 })
-
-console.log('update?.description?.split()', props.update?.description?.split('\n'));
-
 </script>
 
 <template>

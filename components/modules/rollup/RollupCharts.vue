@@ -919,7 +919,7 @@ onBeforeUnmount(() => {
 		<Flex align="center" justify="between" :class="$style.header">
 			<Flex align="center" gap="8">
 				<Icon name="chart" size="14" color="primary" />
-				<Text size="13" weight="600" color="primary">Analytics</Text>
+				<Text as="h1" size="13" weight="600" color="primary">Analytics</Text>
 			</Flex>
 
 			<Flex align="center" gap="6">
