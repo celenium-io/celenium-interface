@@ -2,6 +2,83 @@ import * as d3 from "d3"
 import { DateTime } from "luxon"
 
 /**
+ * Periods for the charts
+ * @type {Array}
+ */
+export const PERIODS = [
+	{
+		title: "Last 24 hours",
+		value: 24,
+		timeframe: "hour",
+	},
+	{
+		title: "Last 7 days",
+		value: 7,
+		timeframe: "day",
+	},
+	{
+		title: "Last 31 days",
+		value: 30,
+		timeframe: "day",
+	},
+	{
+		title: "Last 12 months",
+		value: 12,
+		timeframe: "month",
+	},
+]
+
+export const generateDateForPeriod = (period, index) => {
+	const { timeframe, value } = period
+
+	if (timeframe === "month") {
+		return DateTime.now()
+			.startOf("month")
+			.minus({ months: value - index })
+	} else {
+		return DateTime.now().minus({
+			[timeframe === "day" ? "days" : "hours"]: value - index,
+		})
+	}
+}
+
+/**
+ * Get the format key for the timeframe
+ * @param {string} timeframe - The timeframe
+ * @returns {string} - The format key
+ */
+export const getFormatKey = (timeframe) => {
+	return ["day", "month"].includes(timeframe) ? "y-LL-dd" : "y-LL-dd-HH"
+}
+
+
+export const createDataMap = (rawData, timeframe) => {
+	const dataMap = {}
+	const formatKey = getFormatKey(timeframe)
+
+	rawData.forEach((item) => {
+		dataMap[DateTime.fromISO(item.time).toFormat(formatKey)] = item.value
+	})
+
+	return dataMap
+}
+
+export const generateSeriesData = (period, dataMap, series) => {
+	series.value = []
+
+	for (let i = 1; i < period.value + 1; i++) {
+		const dt = generateDateForPeriod(period, i)
+		const formatKey = getFormatKey(period.timeframe)
+		const key = dt.toFormat(formatKey)
+
+		series.value.push({
+			date: dt.toJSDate(),
+			value: parseInt(dataMap[key]) || 0,
+		})
+	}
+}
+
+/**
  * Builds a line chart using D3.js
  * @param {HTMLElement} chartEl - DOM element for chart placement
  * @param {Array} data - Data for the chart [{date, value}]

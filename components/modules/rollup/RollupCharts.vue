@@ -18,7 +18,7 @@ import Flex from "@/components/Flex.vue"
 
 /** Services */
 import { abbreviate, formatBytes, sortArrayOfObjects, spaces, tia } from "@/services/utils"
-import { buildLineChart, buildBarChart } from "@/services/utils/entityCharts"
+import { getFormatKey, createDataMap, generateDateForPeriod, generateSeriesData, PERIODS as periods } from "@/services/utils/entityCharts"
 
 /** API */
 import { fetchRollupSeries } from "@/services/api/stats"
@@ -37,31 +37,8 @@ const props = defineProps({
 
 /** Chart settings */
 const selectedPeriodIdx = ref(2)
-const periods = ref([
-	{
-		title: "Last 24 hours",
-		value: 24,
-		timeframe: "hour",
-	},
-	{
-		title: "Last 7 days",
-		value: 7,
-		timeframe: "day",
-	},
-	{
-		title: "Last 31 days",
-		value: 30,
-		timeframe: "day",
-	},
-	{
-		title: "Last 12 months",
-		value: 12,
-		timeframe: "month",
-	},
-])
 
-
-const selectedPeriod = computed(() => periods.value[selectedPeriodIdx.value])
+const selectedPeriod = computed(() => periods[selectedPeriodIdx.value])
 const chartView = ref("line")
 const loadLastValue = ref(true)
 
@@ -97,12 +74,47 @@ const rollupsList = ref()
 const comparisonData = ref([])
 const selectedRollup = ref()
 
-/** Series config */
 const seriesConfig = [
-	{ name: "size", metric: "size", series: sizeSeries },
-	{ name: "blobs_count", metric: "pfb", series: pfbSeries },
-	{ name: "fee", metric: "fee", series: feeSeries },
-	{ name: "tvl", metric: "tvl", series: tvlSeries },
+	{
+		name: "size",
+		metric: "size",
+		series: sizeSeries,
+		title: "DA Usage",
+		tooltipLabel: "Usage",
+		yAxisFormatter: formatBytes,
+		tooltipValueFormatter: formatBytes,
+		unit: null,
+	},
+	{
+		name: "blobs_count",
+		metric: "pfb",
+		series: pfbSeries,
+		title: "Blobs Count",
+		tooltipLabel: "Count",
+		yAxisFormatter: abbreviate,
+		tooltipValueFormatter: abbreviate,
+		unit: null,
+	},
+	{
+		name: "fee",
+		metric: "fee",
+		series: feeSeries,
+		title: "Fee spent",
+		tooltipLabel: "Spent",
+		yAxisFormatter: tia,
+		tooltipValueFormatter: tia,
+		unit: "TIA",
+	},
+	{
+		name: "tvl",
+		metric: "tvl",
+		series: tvlSeries,
+		title: "TVL",
+		tooltipLabel: "TVL",
+		yAxisFormatter: abbreviate,
+		tooltipValueFormatter: abbreviate,
+		unit: "$",
+	},
 ]
 
 const getRollupsList = async () => {
@@ -113,82 +125,62 @@ const getRollupsList = async () => {
 	rollupsList.value = sortArrayOfObjects(data, "slug").filter((r) => r.id !== props.rollup.id)
 }
 
-const fetchData = async (rollup, metric, from, timeframe) => {
-	if (metric === "tvl") {
-		let from = ""
+const fetchTVLData = async () => {
+	let from = ""
+	let tf = selectedPeriod.value.timeframe
+	let periodValue = selectedPeriod.value.value
 
-		const { timeframe: tf, value: periodValue } = selectedPeriod.value
-
-		if (["hour", "week"].includes(tf)) {
-			from = parseInt(DateTime.now().minus({ days: 30 }).ts / 1_000)
-			tf = "day"
-			periodValue = 30
-		}
-
-		return await fetchRollupTVL({
-			dataSource: selectedTvlDataSource.value?.name,
-			slug: props.rollup.slug,
-			period: tf,
-			from,
-		})
-	} else {
-		return await fetchRollupSeries({
-			id: rollup.id,
-			name: metric,
-			timeframe: timeframe ? timeframe : selectedPeriod.value.timeframe,
-			from: from
-				? from
-				: parseInt(
-						DateTime.now().minus({
-							days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
-							hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
-							months: selectedPeriod.value.timeframe === "month" ? selectedPeriod.value.value : 0,
-						}).ts / 1_000,
-				  ),
-		})
+	if (["hour", "week"].includes(tf)) {
+		from = parseInt(DateTime.now().minus({ days: 30 }).ts / 1_000)
+		tf = "day"
+		periodValue = 30
 	}
+
+	return await fetchRollupTVL({
+		dataSource: selectedTvlDataSource.value?.name,
+		slug: props.rollup.slug,
+		period: tf,
+		from,
+	})
 }
 
-const generateDateForPeriod = (period, index) => {
-	const { timeframe, value } = period
-
-	if (timeframe === "month") {
-		return DateTime.now()
-			.startOf("month")
-			.minus({ months: value - index })
-	} else {
-		return DateTime.now().minus({
-			[timeframe === "day" ? "days" : "hours"]: value - index,
-		})
-	}
+const fetchData = async (rollup, metric) => {
+	return await fetchRollupSeries({
+		id: rollup.id,
+		name: metric,
+		timeframe: selectedPeriod.value.timeframe,
+		from: parseInt(
+			DateTime.now().minus({
+				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
+				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
+				months: selectedPeriod.value.timeframe === "month" ? selectedPeriod.value.value : 0,
+			}).ts / 1_000,
+		),
+	})
 }
 
-const getFormatKey = (timeframe) => {
-	return ["day", "month"].includes(timeframe) ? "y-LL-dd" : "y-LL-dd-HH"
+const generateSeries = async (configs) => {
+	isLoading.value = true
+
+	await Promise.all(
+		configs.map(async (config) => {
+			const rawData = await fetchData(props.rollup, config.name)
+			const dataMap = createDataMap(rawData, selectedPeriod.value.timeframe)
+
+			generateSeriesData(selectedPeriod.value, dataMap, config.series)
+		}),
+	)
+
+	isLoading.value = false
 }
 
-const generateSeriesData = (period, dataMap, series) => {
-	series.value = []
-
-	for (let i = 1; i < period.value + 1; i++) {
-		const dt = generateDateForPeriod(period, i)
-		const formatKey = getFormatKey(period.timeframe)
-		const key = dt.toFormat(formatKey)
-
-		series.value.push({
-			date: dt.toJSDate(),
-			value: parseInt(dataMap[key]) || 0,
-		})
-	}
-}
-
-const generateTVLSeriesData = (period, dataMap, series, tvl = false) => {
+const generateTVLSeriesData = (period, dataMap, series) => {
 	series.value = []
 
 	let tf = period.timeframe
 	let periodValue = period.value
 
-	if (tvl && ["hour", "week"].includes(period.timeframe)) {
+	if (["hour", "week"].includes(period.timeframe)) {
 		tf = "day"
 		periodValue = 30
 	}
@@ -205,56 +197,41 @@ const generateTVLSeriesData = (period, dataMap, series, tvl = false) => {
 	}
 }
 
-const createDataMap = (rawData, timeframe) => {
-	const dataMap = {}
-	const formatKey = getFormatKey(timeframe)
-
-	rawData.forEach((item) => {
-		dataMap[DateTime.fromISO(item.time).toFormat(formatKey)] = item.value
-	})
-
-	return dataMap
-}
-
-const generateSeries = async (configs) => {
+const generateTVLSeries = async (configs) => {
 	isLoading.value = true
-
-	/** Get comparison chart width */
-	comparisonBarWidth.value = comparisonChartEl.value.wrapper.getBoundingClientRect().width
-	await getRollupsList()
-	if (!selectedRollup.value) {
-		selectedRollup.value = rollupsList.value[0]
-	}
-
 
 	await Promise.all(
 		configs.map(async (config) => {
-			const rawData = await fetchData(props.rollup, config.name)
+			const rawData = await fetchTVLData()
 			const dataMap = createDataMap(rawData, selectedPeriod.value.timeframe)
 
-			if (config.metric === "tvl") {
-				generateTVLSeriesData(selectedPeriod.value, dataMap, config.series, true)
-			} else {
-				generateSeriesData(selectedPeriod.value, dataMap, config.series)
-			}
-
-			isLoading.value = false
+			generateTVLSeriesData(selectedPeriod.value, dataMap, config.series)
 		}),
 	)
+
+	isLoading.value = false
 }
 
 const isTvlDataSourcePopoverOpen = ref(false)
+
 const handleTvlDataSourcePopoverClose = () => {
 	isTvlDataSourcePopoverOpen.value = false
 }
+
 const handleSelectTvlDataSource = (ds) => {
 	selectedTvlDataSource.value = ds
 	isTvlDataSourcePopoverOpen.value = false
 }
 
-const prepareComparisonData = async () => {
+const prepareComparisonData = async (fetchFunction) => {
 	isLoading.value = true
 	comparisonData.value[1] = {}
+
+	comparisonBarWidth.value = comparisonChartEl.value.wrapper.getBoundingClientRect().width
+	await getRollupsList()
+	if (!selectedRollup.value) {
+		selectedRollup.value = rollupsList.value[0]
+	}
 
 	if (!comparisonData.value[0]?.fee) {
 		comparisonData.value[0] = {
@@ -315,8 +292,12 @@ const fetchAllData = async () => {
 	comparisonData.value[0] = {}
 	comparisonData.value[1] = {}
 
-	await generateSeries(seriesConfig)
-	await prepareComparisonData()
+	await generateSeries(
+		seriesConfig.filter((el) => el.metric !== "tvl"),
+		fetchRollupSeries,
+	)
+	await generateTVLSeries(seriesConfig.filter((el) => el.metric === "tvl"))
+	await prepareComparisonData(fetchRollupSeries)
 }
 
 watch(
@@ -328,9 +309,6 @@ watch(
 	() => [chartView.value, loadLastValue.value],
 	() => {
 		updateUserSettings()
-		if (!isLoading.value) {
-			// buildRollupCharts(false)
-		}
 	},
 )
 
@@ -339,7 +317,7 @@ watch(
 	() => {
 		if (!isLoading.value) {
 			comparisonData.value[1] = {}
-			prepareComparisonData()
+			prepareComparisonData(fetchRollupSeries)
 		}
 	},
 )
@@ -348,10 +326,10 @@ watch(
 	() => selectedTvlDataSource.value,
 	async (newDataSource, oldDataSource) => {
 		if (oldDataSource && newDataSource?.name !== oldDataSource?.name) {
-			await generateSeries([seriesConfig.find((el) => el.metric === "tvl")])
+			await generateTVLSeries([seriesConfig.find((el) => el.metric === "tvl")])
 		}
 	},
-	{ deep: true }
+	{ deep: true },
 )
 
 onBeforeMount(() => {
@@ -450,13 +428,13 @@ onMounted(async () => {
 				<ChartOnEntityPage
 					v-if="sizeSeries.length"
 					:data="sizeSeries"
-					metric="size"
 					:chart-view="chartView"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
+					metric="size"
 					title="DA Usage"
-					:y-axis-formatter="(val) => formatBytes(val, 0)"
 					tooltip-label="Usage"
+					:y-axis-formatter="(val) => formatBytes(val, 0)"
 					:tooltip-value-formatter="formatBytes"
 				/>
 
