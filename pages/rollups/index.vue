@@ -299,7 +299,7 @@ const getRollups = async () => {
 
 				return {
 					...r,
-					rank: rank.rank,
+					rank: +rank.rank,
 					rounded_rank: roundTo(rank.rank / 10, 0),
 					rank_category: getRankCategory(roundTo(rank.rank / 10, 0)),
 				}
