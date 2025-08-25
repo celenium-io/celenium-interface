@@ -138,7 +138,7 @@ watch(
 
 		<Flex align="center" gap="8" :class="$style.header">
 			<Icon name="bar-chart" size="16" color="secondary" />
-			<Text size="16" weight="600" color="primary">Celestia Statistics</Text>
+			<Text as="h1" size="16" weight="600" color="primary">Celestia Statistics</Text>
 		</Flex>
 
 		<Flex align="center" justify="between" wide :class="$style.tabs_wrapper">

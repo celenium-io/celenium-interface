@@ -523,7 +523,7 @@ onBeforeMount(() => {
 
 			<Flex v-if="series?.name" align="center" justify="between" wide :class="$style.header">
 				<Flex align="center" gap="8">
-					<Text size="16" weight="600" color="primary" justify="start"> {{ `${metricName}` }} </Text>
+					<Text as="h1" size="16" weight="600" color="primary" justify="start"> {{ `${metricName}` }} </Text>
 
 					<Text v-if="totalValue" size="20" weight="600" color="brand" justify="start"> {{ `${abbreviate(totalValue.value, 2)} ${totalValue.units}` }} </Text>
 				</Flex>

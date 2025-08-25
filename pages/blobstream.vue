@@ -462,7 +462,6 @@ await getCommitments()
 }
 
 .disabled {
-	opacity: 0.5;
 	pointer-events: none;
 }
 
@@ -505,7 +504,7 @@ await getCommitments()
 	}
 
 	&:active {
-		scale: 0.95;
+		scale: 0.98;
 	}
 }
 

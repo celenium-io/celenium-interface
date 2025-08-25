@@ -122,12 +122,14 @@ export const getStartChainDate = () => {
 }
 
 export const blockscoutURL = "https://celestia-l2-router.k8s-dev.blockscout.com/api/v1/celestia/l2BatchMetadata"
-export const nodeStatsURL = "https://node-stats.celenium.io/v1"
-export const tvlServiceURL = "https://tvl.celenium.io/v1"
-export const githubServiceURL = "https://github.celenium.io/v1"
-export const quoteServiceURL = "https://quote.celenium.io/v1"
+
 export const faucetURL = {
 	mocha: "https://api-faucet.celenium.io/v1",
 	arabica: "https://api-arabica-faucet.celenium.io/v1",
 	mammoth: "https://api-mammoth-faucet.celenium.io/v1",
 }
+export const githubServiceURL = "https://github.celenium.io/v1"
+export const nodeStatsURL = "https://node-stats.celenium.io/v1"
+export const quoteServiceURL = "https://quote.celenium.io/v1"
+export const rollupRankingServiceURL = "https://ranking.celenium.io/v1"
+export const tvlServiceURL = "https://tvl.celenium.io/v1"
