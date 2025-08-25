@@ -4,7 +4,7 @@ import { executeFaucet, faucetAddress, fetchBalance } from "@/services/api/fauce
 
 /** Services */
 import { capitilize, comma, getNetworkName, splitAddress, tia } from "@/services/utils"
-import { Server, useServerURL } from "@/services/config"
+import { getServerURL, useServerURL } from "@/services/config"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
@@ -81,7 +81,7 @@ const isNetworkSelectorOpen = ref(false)
 const fetchAccount = async () => {
 	try {
 		account.value = null
-		const url = new URL(`${Server.API[network.value]}/address/${address.value}`)
+		const url = new URL(`${getServerURL(network.value)}/address/${address.value}`)
 		const { data, error } = await useFetch(url.href)
 		if (error.value) {
 			fillValidation("error", "Invalid address")

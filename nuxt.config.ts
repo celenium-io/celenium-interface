@@ -68,6 +68,31 @@ export default defineNuxtConfig({
 		public: {
 			AMP: process.env.AMP,
 			version: "1.16.0",
+
+			API_MAINNET: '',
+			API_MOCHA: '',
+			API_ARABICA: '',
+			API_MAMMOTH: '',
+			API_DEV: '',
+
+			WSS_MAINNET: '',
+			WSS_MOCHA: '',
+			WSS_ARABICA: '',
+			WSS_MAMMOTH: '',
+			WSS_DEV: '',
+
+			BLOBSTREAM_MAINNET: '',
+			BLOBSTREAM_TESTNET: '',
+
+			BLOCKSCOUT: '',
+			FAUCET_MOCHA: '',
+			FAUCET_ARABICA: '',
+			FAUCET_MAMMOTH: '',
+			GITHUB: '',
+			NODE_STATS: '',
+			QUOTE: '',
+			ROLLUP_RANKING: '',
+			TVL: '',
 		},
 	},
 

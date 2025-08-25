@@ -57,7 +57,7 @@ export const fetchEnums = async () => {
 	try {
 		const [mainEnums, nodeEnums] = await Promise.all([
 			$fetch(`${useServerURL()}/enums`),
-			$fetch(`${nodeStatsURL}/enums`)
+			$fetch(`${nodeStatsURL()}/enums`)
 		])
 
 		return { ...mainEnums, ...nodeEnums }
