@@ -61,9 +61,29 @@ const feeSeries = ref([])
 
 /** Series config */
 const seriesConfig = [
-	{ name: "tx_count", metric: "tx", series: txSeries },
-	{ name: "fee", metric: "fee", series: feeSeries },
+	{
+		name: "tx_count",
+		metric: "tx",
+		series: txSeries,
+		title: "Txs",
+		tooltipLabel: "Txs",
+		yAxisFormatter: abbreviate,
+		tooltipValueFormatter: abbreviate,
+		unit: null,
+	},
+	{
+		name: "fee",
+		metric: "fee",
+		series: feeSeries,
+		title: "Fee Spent",
+		tooltipLabel: "Spent",
+		yAxisFormatter: (val) => (tia(val, 0) > 1 ? tia(val, 0) : tia(val, 2)),
+		tooltipValueFormatter: (val) => tia(val),
+	},
 ]
+
+const txConfig = computed(() => seriesConfig.find((config) => config.metric === "tx"))
+const feeConfig = computed(() => seriesConfig.find((config) => config.metric === "fee"))
 
 const fetchData = async (metric) => {
 	const data = await fetchAddressSeries({
@@ -81,7 +101,6 @@ const fetchData = async (metric) => {
 
 	return data
 }
-
 
 const generateSeries = async (configs) => {
 	isLoading.value = true
@@ -207,29 +226,18 @@ onMounted(async () => {
 			<Flex justify="between" gap="32" :class="[$style.data, $style.top]">
 				<ChartOnEntityPage
 					v-if="txSeries.length"
-					:data="txSeries"
-					metric="tx"
+					:series-config="txConfig"
 					:chart-view="chartView"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
-					title="Txs"
-					:y-axis-formatter="abbreviate"
-					tooltip-label="Txs"
-					:tooltip-value-formatter="abbreviate"
 				/>
 
 				<ChartOnEntityPage
 					v-if="feeSeries.length"
-					:data="feeSeries"
-					metric="fee"
+					:series-config="feeConfig"
 					:chart-view="chartView"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
-					title="Fee Spent"
-					:y-axis-formatter="(val) => (tia(val, 0) > 1 ? tia(val, 0) : tia(val, 2))"
-					tooltip-label="Spent"
-					:tooltip-value-formatter="(val) => tia(val)"
-					unit=" TIA"
 				/>
 			</Flex>
 		</Flex>

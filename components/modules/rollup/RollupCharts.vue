@@ -17,7 +17,7 @@ import Text from "@/components/Text.vue"
 import Flex from "@/components/Flex.vue"
 
 /** Services */
-import { abbreviate, formatBytes, sortArrayOfObjects, spaces, aTia, tia } from "@/services/utils"
+import { abbreviate, formatBytes, sortArrayOfObjects, spaces, tia } from "@/services/utils"
 import { getFormatKey, createDataMap, generateDateForPeriod, generateSeriesData, PERIODS as periods } from "@/services/utils/entityCharts"
 
 /** API */
@@ -101,9 +101,8 @@ const seriesConfig = [
 		series: feeSeries,
 		title: "Fee spent",
 		tooltipLabel: "Spent",
-		yAxisFormatter: (value) => aTia(value, 0),
-		tooltipValueFormatter: aTia,
-		unit: null,
+		yAxisFormatter: (val) => tia(val, 0),
+		tooltipValueFormatter: tia,
 	},
 	{
 		name: "tvl",

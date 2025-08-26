@@ -61,9 +61,30 @@ const pfbSeries = ref([])
 
 /** Series config */
 const seriesConfig = [
-	{ name: "size", metric: "size", series: sizeSeries },
-	{ name: "pfb_count", metric: "pfb", series: pfbSeries },
+	{
+		name: "size",
+		metric: "size",
+		series: sizeSeries,
+		title: "DA Usage",
+		tooltipLabel: "Usage",
+		yAxisFormatter: (value) => formatBytes(value, 0),
+		tooltipValueFormatter: formatBytes,
+		unit: null,
+	},
+	{
+		name: "pfb_count",
+		metric: "pfb",
+		series: pfbSeries,
+		title: "Pay For Blobs Count",
+		tooltipLabel: "Count",
+		yAxisFormatter: abbreviate,
+		tooltipValueFormatter: abbreviate,
+		unit: null,
+	},
 ]
+
+const sizeConfig = computed(() => seriesConfig.find((config) => config.metric === "size"))
+const pfbConfig = computed(() => seriesConfig.find((config) => config.metric === "pfb"))
 
 const fetchData = async (metric) => {
 	return await fetchNamespaceSeries({
@@ -71,15 +92,14 @@ const fetchData = async (metric) => {
 		name: metric,
 		timeframe: selectedPeriod.value.timeframe,
 		from: parseInt(
-					DateTime.now().minus({
-						days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
-						hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
-						months: selectedPeriod.value.timeframe === "month" ? selectedPeriod.value.value : 0,
-					}).ts / 1_000,
-			  ),
+			DateTime.now().minus({
+				days: selectedPeriod.value.timeframe === "day" ? selectedPeriod.value.value : 0,
+				hours: selectedPeriod.value.timeframe === "hour" ? selectedPeriod.value.value : 0,
+				months: selectedPeriod.value.timeframe === "month" ? selectedPeriod.value.value : 0,
+			}).ts / 1_000,
+		),
 	})
 }
-
 
 const generateSeries = async (configs) => {
 	isLoading.value = true
@@ -204,28 +224,18 @@ onMounted(async () => {
 		<Flex justify="between" gap="32" :class="$style.data">
 			<ChartOnEntityPage
 				v-if="sizeSeries.length"
-				:data="sizeSeries"
-				metric="size"
+				:series-config="sizeConfig"
 				:chart-view="chartView"
 				:load-last-value="loadLastValue"
 				:selected-period="selectedPeriod"
-				title="DA Usage"
-				:y-axis-formatter="(val) => formatBytes(val, 0)"
-				tooltip-label="Usage"
-				:tooltip-value-formatter="formatBytes"
 			/>
 
 			<ChartOnEntityPage
 				v-if="pfbSeries.length"
-				:data="pfbSeries"
-				metric="pfb"
+				:series-config="pfbConfig"
 				:chart-view="chartView"
 				:load-last-value="loadLastValue"
 				:selected-period="selectedPeriod"
-				title="Pay For Blobs Count"
-				:y-axis-formatter="abbreviate"
-				tooltip-label="Count"
-				:tooltip-value-formatter="abbreviate"
 			/>
 		</Flex>
 	</Flex>

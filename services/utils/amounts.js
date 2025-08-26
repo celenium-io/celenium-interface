@@ -65,11 +65,6 @@ export const utia = (amount) => {
 	return parseInt(amount)
 }
 
-/** axis TIA */
-export const aTia = (amount, decimal = 6) => {
-	return tia(amount, decimal)
-}
-
 export const truncateDecimalPart = (amount, decimal = 6) => {
 	if (!amount) return 0
 
