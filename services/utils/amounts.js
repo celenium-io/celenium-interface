@@ -57,12 +57,17 @@ export const truncate = (num) => {
 export const tia = (amount, decimal = 6) => {
 	if (!amount || !parseInt(amount)) return 0
 
-	return truncateDecimalPart(parseInt(amount) / 1_000_000, decimal)
+	return truncateDecimalPart(parseInt(amount) / 1_000_000, decimal) + " TIA"
 }
 
 export const utia = (amount) => {
 	if (!amount || !parseInt(amount)) return 0
 	return parseInt(amount)
+}
+
+/** axis TIA */
+export const aTia = (amount, decimal = 6) => {
+	return tia(amount, decimal)
 }
 
 export const truncateDecimalPart = (amount, decimal = 6) => {

@@ -17,7 +17,7 @@ import Text from "@/components/Text.vue"
 import Flex from "@/components/Flex.vue"
 
 /** Services */
-import { abbreviate, formatBytes, sortArrayOfObjects, spaces, tia } from "@/services/utils"
+import { abbreviate, formatBytes, sortArrayOfObjects, spaces, aTia, tia } from "@/services/utils"
 import { getFormatKey, createDataMap, generateDateForPeriod, generateSeriesData, PERIODS as periods } from "@/services/utils/entityCharts"
 
 /** API */
@@ -81,7 +81,7 @@ const seriesConfig = [
 		series: sizeSeries,
 		title: "DA Usage",
 		tooltipLabel: "Usage",
-		yAxisFormatter: formatBytes,
+		yAxisFormatter: (value) => formatBytes(value, 0),
 		tooltipValueFormatter: formatBytes,
 		unit: null,
 	},
@@ -91,7 +91,7 @@ const seriesConfig = [
 		series: pfbSeries,
 		title: "Blobs Count",
 		tooltipLabel: "Count",
-		yAxisFormatter: abbreviate,
+		yAxisFormatter: (value) => abbreviate(value, 0),
 		tooltipValueFormatter: abbreviate,
 		unit: null,
 	},
@@ -101,9 +101,9 @@ const seriesConfig = [
 		series: feeSeries,
 		title: "Fee spent",
 		tooltipLabel: "Spent",
-		yAxisFormatter: tia,
-		tooltipValueFormatter: tia,
-		unit: "TIA",
+		yAxisFormatter: (value) => aTia(value, 0),
+		tooltipValueFormatter: aTia,
+		unit: null,
 	},
 	{
 		name: "tvl",
@@ -116,6 +116,14 @@ const seriesConfig = [
 		unit: "$",
 	},
 ]
+
+const sizeConfig = computed(() => seriesConfig.find((config) => config.metric === "size"))
+
+const pfbConfig = computed(() => seriesConfig.find((config) => config.metric === "pfb"))
+
+const feeConfig = computed(() => seriesConfig.find((config) => config.metric === "fee"))
+
+const tvlConfig = computed(() => seriesConfig.find((config) => config.metric === "tvl"))
 
 const getRollupsList = async () => {
 	const data = await fetchRollups({
@@ -292,10 +300,7 @@ const fetchAllData = async () => {
 	comparisonData.value[0] = {}
 	comparisonData.value[1] = {}
 
-	await generateSeries(
-		seriesConfig.filter((el) => el.metric !== "tvl"),
-		fetchRollupSeries,
-	)
+	await generateSeries(seriesConfig.filter((el) => el.metric !== "tvl"))
 	await generateTVLSeries(seriesConfig.filter((el) => el.metric === "tvl"))
 	await prepareComparisonData(fetchRollupSeries)
 }
@@ -427,58 +432,36 @@ onMounted(async () => {
 			<Flex justify="between" gap="32" :class="[$style.data, $style.top]">
 				<ChartOnEntityPage
 					v-if="sizeSeries.length"
-					:data="sizeSeries"
+					:series-config="sizeConfig"
 					:chart-view="chartView"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
-					metric="size"
-					title="DA Usage"
-					tooltip-label="Usage"
-					:y-axis-formatter="(val) => formatBytes(val, 0)"
-					:tooltip-value-formatter="formatBytes"
 				/>
 
 				<ChartOnEntityPage
 					v-if="pfbSeries.length"
-					:data="pfbSeries"
-					metric="pfb"
+					:series-config="pfbConfig"
 					:chart-view="chartView"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
-					title="Blobs Count"
-					:y-axis-formatter="abbreviate"
-					tooltip-label="Count"
-					:tooltip-value-formatter="abbreviate"
 				/>
 			</Flex>
 
 			<Flex justify="between" gap="32" :class="$style.data">
 				<ChartOnEntityPage
 					v-if="feeSeries.length"
-					:data="feeSeries"
-					metric="fee"
+					:series-config="feeConfig"
 					:chart-view="chartView"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
-					title="Fee Spent"
-					:y-axis-formatter="(val) => (tia(val, 0) > 1 ? `${tia(val, 0)} TIA` : `${tia(val, 2)} TIA`)"
-					tooltip-label="Spent"
-					:tooltip-value-formatter="(val) => tia(val)"
-					unit=" TIA"
 				/>
 
 				<ChartOnEntityPage
 					v-if="tvlSeries.length"
-					:data="tvlSeries"
-					metric="tvl"
+					:series-config="tvlConfig"
 					:chart-view="chartView"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
-					title="TVL"
-					:y-axis-formatter="(val) => (val < 1_000_000 ? abbreviate(val, 0) + ' $' : abbreviate(val) + ' $')"
-					tooltip-label="Value"
-					:tooltip-value-formatter="(val) => abbreviate(val)"
-					unit=" $"
 				>
 					<template #header-content>
 						<Flex align="center" gap="8">

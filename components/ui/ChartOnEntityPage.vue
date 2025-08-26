@@ -18,25 +18,38 @@ import Flex from "@/components/Flex.vue"
 /** Services */
 import { buildLineChart, buildBarChart } from "@/services/utils/entityCharts"
 
+/** Props */
 const props = defineProps({
-	data: { type: Array, required: true },
-	metric: { type: String, required: true },
+	seriesConfig: {
+		type: Object,
+		required: true,
+	},
 
 	chartView: { type: String, default: "line" },
 	loadLastValue: { type: Boolean, default: true },
-
 	selectedPeriod: { type: Object, required: true },
-
-	yAxisFormatter: { type: Function, default: (val) => val },
-	tooltipLabel: { type: String, required: true },
-	tooltipValueFormatter: { type: Function, default: (val) => val },
-
-	title: { type: String, required: true },
-
-	unit: { type: String, default: "" },
 })
 
 const emit = defineEmits(["update:chartView", "update:loadLastValue"])
+
+const data = computed(() => {
+	return props.seriesConfig?.series?.value || props.seriesConfig?.series || []
+})
+// const metric = computed(() => props.seriesConfig?.metric || "")
+// const title = computed(() => props.seriesConfig?.title || "")
+// const tooltipLabel = computed(() => props.seriesConfig?.tooltipLabel || "")
+// const yAxisFormatter = computed(() => props.seriesConfig?.yAxisFormatter || ((val) => val))
+// const tooltipValueFormatter = computed(() => props.seriesConfig?.tooltipValueFormatter || ((val) => val))
+// const unit = computed(() => props.seriesConfig?.unit || "")
+
+const {
+	metric,
+	title,
+	tooltipLabel,
+	yAxisFormatter,
+	tooltipValueFormatter,
+	unit,
+} = props.seriesConfig || {}
 
 // Tooltip variables
 const showTooltip = ref(false)
@@ -69,24 +82,24 @@ const tooltipConfig = computed(() => ({
 const buildChart = () => {
 	const domElement = chartEl.value?.$el
 
-	if (!domElement || !props.data.length) return
+	if (!domElement || !data.value.length) return
 
 	if (props.chartView === "line") {
 		buildLineChart(
 			domElement,
-			props.loadLastValue ? props.data : props.data.slice(0, props.data.length - 1),
+			props.loadLastValue ? data.value : data.value.slice(0, data.value.length - 1),
 			() => (showTooltip.value = true),
 			() => (showTooltip.value = false),
-			props.metric,
+			metric,
 			tooltipConfig.value,
 		)
 	} else {
 		buildBarChart(
 			domElement,
-			props.loadLastValue ? props.data : props.data.slice(0, props.data.length - 1),
+			props.loadLastValue ? data.value : data.value.slice(0, data.value.length - 1),
 			() => (showTooltip.value = true),
 			() => (showTooltip.value = false),
-			props.metric,
+			metric,
 			tooltipConfig.value,
 		)
 	}
@@ -132,7 +145,7 @@ const getXAxisLabels = (start, tvl = false) => {
 }
 
 watch(
-	() => [props.data, props.chartView, props.loadLastValue],
+	() => [data.value, props.chartView, props.loadLastValue],
 	async () => {
 		await nextTick()
 
@@ -226,14 +239,14 @@ onBeforeUnmount(() => {
 					</div>
 					<Flex
 						ref="tooltipEl"
-						:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYDataOffset - 40}px)` }"
+						:style="{ transform: `translate(${tooltipDynamicXPosition}px, ${tooltipYOffset - 40}px)` }"
 						direction="column"
 						gap="8"
 						:class="$style.tooltip"
 					>
 						<Flex align="center" gap="16">
 							<Text size="12" weight="600" color="secondary">{{ tooltipLabel }}</Text>
-							<Text size="12" weight="600" color="primary"> {{ tooltipValueFormatter(tooltipText) }}{{ unit }} </Text>
+							<Text size="12" weight="600" color="primary"> {{ tooltipValueFormatter(tooltipText) }} {{ unit }} </Text>
 						</Flex>
 					</Flex>
 				</div>
