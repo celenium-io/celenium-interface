@@ -84,15 +84,19 @@ export default defineNuxtConfig({
 			BLOBSTREAM_MAINNET: '',
 			BLOBSTREAM_TESTNET: '',
 
-			BLOCKSCOUT: '',
+			FAUCET_ADDRESS: '',
 			FAUCET_MOCHA: '',
 			FAUCET_ARABICA: '',
 			FAUCET_MAMMOTH: '',
+			
+			BLOCKSCOUT: '',
 			GITHUB: '',
 			NODE_STATS: '',
 			QUOTE: '',
 			ROLLUP_RANKING: '',
 			TVL: '',
+
+			SELFHOSTED: false,
 		},
 	},
 

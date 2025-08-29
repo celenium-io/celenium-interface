@@ -20,7 +20,7 @@ export const useServerURL = () => {
 			return p.API_DEV
 
 		default:
-			return p.API_MAINNET
+			return p.API_DEV
 	}
 }
 
@@ -38,7 +38,7 @@ export const getServerURL = (network) => {
 			return p.API_MAMMOTH;
 	
 		default:
-			return "";
+			return p.API_DEV;
 	}
 }
 
@@ -64,7 +64,7 @@ export const useSocketURL = () => {
 			return p.WSS_DEV
 
 		default:
-			return p.WSS_MAINNET
+			return p.WSS_DEV
 	}
 }
 
@@ -111,7 +111,7 @@ export const getStartChainDate = () => {
 	}
 }
 
-export const blockscoutURL = () => useRuntimeConfig().public.BLOCKSCOUT
+export const faucetAddress = () => useRuntimeConfig().public.FAUCET_ADDRESS
 export const faucetURL = () => {
 	const { public: p } = useRuntimeConfig()
 	return {
@@ -120,8 +120,12 @@ export const faucetURL = () => {
 		mammoth: p.FAUCET_MAMMOTH,
 	}
 }
+
+export const blockscoutURL = () => useRuntimeConfig().public.BLOCKSCOUT
 export const githubServiceURL = () => useRuntimeConfig().public.GITHUB
 export const nodeStatsURL = () => useRuntimeConfig().public.NODE_STATS
 export const quoteServiceURL = () => useRuntimeConfig().public.QUOTE
-export const rollupRankingServiceURL = () => useRuntimeConfig().public.ROLLUP_RANKING
+export const rollupRankingServiceURL = () => useRuntimeConfig().public.SELFHOSTED.ROLLUP_RANKING
 export const tvlServiceURL = () => useRuntimeConfig().public.TVL
+
+export const isSelfhosted = () => useRuntimeConfig().public.SELFHOSTED

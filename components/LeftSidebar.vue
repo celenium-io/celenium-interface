@@ -11,6 +11,7 @@ import NavLink from "@/components/modules/navigation/NavLink.vue"
 import { getNetworkName } from "@/services/utils/general"
 import { StatusMap } from "@/services/constants/node"
 import { isMainnet, isMobile } from "@/services/utils"
+import { nodeStatsURL } from "@/services/config"
 
 /** Store */
 import { useAppStore } from "@/store/app.store"
@@ -95,7 +96,7 @@ const mainLinks = reactive([
 				name: "Nodes",
 				path: "/stats?tab=nodes",
 				queryParam: { tab: "nodes" },
-				show: isMainnet(),
+				show: isMainnet() && !!nodeStatsURL(),
 			},
 		],
 	},

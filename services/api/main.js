@@ -55,11 +55,13 @@ export const fetchMammothConstants = async () => {
 
 export const fetchEnums = async () => {
 	try {
-		const [mainEnums, nodeEnums] = await Promise.all([
-			$fetch(`${useServerURL()}/enums`),
-			$fetch(`${nodeStatsURL()}/enums`)
-		])
+		const mainEnums = await $fetch(`${useServerURL()}/enums`)
 
+		let nodeEnums = {}
+		if (nodeStatsURL()) {
+			nodeEnums = await $fetch(`${nodeStatsURL()}/enums`)
+		}
+		
 		return { ...mainEnums, ...nodeEnums }
 	} catch (error) {
 		console.error("Failed to fetch enums: ", error)
