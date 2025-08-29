@@ -214,7 +214,7 @@ const handlePreviewContent = () => {
 
 							<Flex direction="column" align="center" gap="8">
 								<Text size="13" weight="600" color="secondary">Download not started</Text>
-								<Text size="12" weight="500" color="tertiary">Auto download for data over 1 Mb is paused</Text>
+								<Text size="12" weight="500" color="tertiary">Auto download for data over 1 MiB is paused</Text>
 							</Flex>
 
 							<Text @click="handleLoadAnyway" size="12" weight="600" color="tertiary" :class="$style.load_btn"

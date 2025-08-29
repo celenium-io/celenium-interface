@@ -157,7 +157,7 @@ const getColumnName = (name) => {
 		case "da_change":
 			return "DA Change"
 		case "paid_per_mb":
-			return "Paid per MB"
+			return "Paid per MiB"
 		case "avg_pfb_size":
 			return "Avg PFB Size"
 		default:
