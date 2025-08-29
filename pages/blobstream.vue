@@ -79,8 +79,10 @@ const handleNextCondition = ref(true)
 const limit = ref(20)
 const sort = ref("desc")
 
-const getNetworks = async () => {
+async function getNetworks() {
 	const { data } = await fetchNetworks()
+	if (!data?.value?.length) return
+
 	networks.value = data.value.filter((n) => n.last_height > 0)
 
 	if (networks.value.length === 1) {
@@ -88,7 +90,7 @@ const getNetworks = async () => {
 	}
 }
 
-const getCommitments = async () => {
+async function getCommitments() {
 	isRefetching.value = true
 
 	if (!selectedNetwork.value) {
@@ -98,7 +100,7 @@ const getCommitments = async () => {
 			sort: sort.value,
 		})
 
-		commitments.value = data.value
+		commitments.value = data?.value ?? []
 	} else {
 		const { data } = await fetchCommitmentsByNetwork({
 			network: selectedNetwork.value,
@@ -107,7 +109,7 @@ const getCommitments = async () => {
 			sort: sort.value,
 		})
 
-		commitments.value = data.value
+		commitments.value = data?.value ?? []
 	}
 
 	handleNextCondition.value = commitments.value?.length < limit.value

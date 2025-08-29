@@ -125,7 +125,7 @@ export const blockscoutURL = () => useRuntimeConfig().public.BLOCKSCOUT
 export const githubServiceURL = () => useRuntimeConfig().public.GITHUB
 export const nodeStatsURL = () => useRuntimeConfig().public.NODE_STATS
 export const quoteServiceURL = () => useRuntimeConfig().public.QUOTE
-export const rollupRankingServiceURL = () => useRuntimeConfig().public.SELFHOSTED.ROLLUP_RANKING
+export const rollupRankingServiceURL = () => useRuntimeConfig().public.ROLLUP_RANKING
 export const tvlServiceURL = () => useRuntimeConfig().public.TVL
 
 export const isSelfhosted = () => useRuntimeConfig().public.SELFHOSTED
