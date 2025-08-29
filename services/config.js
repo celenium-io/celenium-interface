@@ -4,23 +4,23 @@ export const useServerURL = () => {
 
 	switch (requestURL.hostname) {
 		case "celenium.io":
-			return p.API_MAINNET
+			return p.API_MAINNET;
 
 		case "mocha.celenium.io":
 		case "mocha-4.celenium.io":
-			return p.API_MOCHA
+			return p.API_MOCHA;
 
 		case "arabica.celenium.io":
-			return p.API_ARABICA
+			return p.API_ARABICA;
 
 		case "mammoth.celenium.io":
-			return p.API_MAMMOTH
+			return p.API_MAMMOTH;
 
 		case "dev.celenium.io":
-			return p.API_DEV
+			return p.API_DEV;
 
 		default:
-			return p.API_DEV
+			return p.API_MAINNET;
 	}
 }
 
@@ -38,7 +38,7 @@ export const getServerURL = (network) => {
 			return p.API_MAMMOTH;
 	
 		default:
-			return p.API_DEV;
+			return p.WSS_MAINNET;
 	}
 }
 
@@ -48,23 +48,23 @@ export const useSocketURL = () => {
 
 	switch (requestURL.hostname) {
 		case "celenium.io":
-			return p.WSS_MAINNET
+			return p.WSS_MAINNET;
 
 		case "mocha.celenium.io":
 		case "mocha-4.celenium.io":
-			return p.WSS_MOCHA
+			return p.WSS_MOCHA;
 
 		case "arabica.celenium.io":
-			return p.WSS_ARABICA
+			return p.WSS_ARABICA;
 
 		case "mammoth.celenium.io":
-			return p.WSS_MAMMOTH
+			return p.WSS_MAMMOTH;
 
 		case "dev.celenium.io":
-			return p.WSS_DEV
+			return p.WSS_DEV;
 
 		default:
-			return p.WSS_DEV
+			return p.WSS_MAINNET;
 	}
 }
 
