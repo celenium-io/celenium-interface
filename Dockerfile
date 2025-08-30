@@ -1,5 +1,5 @@
 # Node.js
-FROM node:23
+FROM node:20
 
 # Work directory
 WORKDIR /app

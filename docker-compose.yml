@@ -7,10 +7,6 @@ services:
             dockerfile: Dockerfile
         ports:
             - "127.0.0.1:3000:3000"
-        environment:
-            - NUXT_PUBLIC_API_DEV=${NUXT_PUBLIC_API_DEV:-https://api-dev.celenium.io/v1}
-            - NUXT_PUBLIC_WSS_DEV=${NUXT_PUBLIC_WSS_DEV:-wss://api-dev.celenium.io/v1/ws}
-            - NUXT_PUBLIC_SELFHOSTED=${NUXT_PUBLIC_SELFHOSTED:-true}
         restart: always
         command: npm run start
         logging:
