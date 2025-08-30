@@ -1,5 +1,5 @@
 # Node.js
-FROM node:23
+FROM node:18
 
 # Work directory
 WORKDIR /app
@@ -11,7 +11,7 @@ RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
 # Copy the project
 COPY . .
