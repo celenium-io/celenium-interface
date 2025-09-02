@@ -1,13 +1,9 @@
 <script setup>
-/** Services */
-import { getNetworkName } from "@/services/utils/general"
-
 /** Components: Widgets */
 import BlockWidget from "./BlockWidget.vue"
 import BlobsWidget from "./BlobsWidget.vue"
 import GlobalUpdatesWidget from "./GlobalUpdatesWidget.vue"
 import StakingWidget from "./StakingWidget.vue"
-import TransactionsWidget from "./TransactionsWidget.vue"
 import GasWidget from "./GasWidget.vue"
 
 const tablet = ref(false)
@@ -30,7 +26,6 @@ onBeforeMount(() => {
 			<StakingWidget :class="$style.staking_widget" />
 
 			<Flex direction="column" gap="20" wide :class="$style.column">
-				<!-- <TransactionsWidget /> -->
 				<GlobalUpdatesWidget />
 				<GasWidget />
 			</Flex>

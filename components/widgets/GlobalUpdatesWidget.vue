@@ -1,6 +1,6 @@
 <script setup>
-/** Vendor */
-import { DateTime } from "luxon"
+/** Components */
+import TransactionsWidget from "./TransactionsWidget.vue"
 
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
@@ -70,123 +70,125 @@ watch(
 </script>
 
 <template>
-	<Transition name="slide-fade" mode="out-in">
-	<Flex @click="handleClick" direction="column" gap="8" :key="activeIndex" :class="$style.wrapper">
-		<Flex justify="between">
-			<Flex align="center" gap="6">
-				<Icon
-					:name="updateMeta?.icon"
-					size="18"
-					color="brand"
-				/>
-				<Text size="16" weight="600" color="primary">
-					{{ updateMeta?.main_title }}
-				</Text>
+	<Transition v-if="updates.length > 0" name="slide-fade" mode="out-in">
+		<Flex @click="handleClick" direction="column" gap="8" :key="activeIndex" :class="$style.wrapper">
+			<Flex justify="between">
+				<Flex align="center" gap="6">
+					<Icon
+						:name="updateMeta?.icon"
+						size="18"
+						color="brand"
+					/>
+					<Text size="16" weight="600" color="primary">
+						{{ updateMeta?.main_title }}
+					</Text>
+				</Flex>
+
+				<Flex v-if="updates?.length > 1" @click.stop="handleSwitchUpdate" align="center" justify="center" :class="$style.switcher">
+					<Icon
+						name="repeat"
+						size="14"
+						color="brand"
+						style="margin-bottom: 4; margin-left: 4;"
+					/>
+				</Flex>
 			</Flex>
 
-			<Flex v-if="updates?.length > 1" @click.stop="handleSwitchUpdate" align="center" justify="center" :class="$style.switcher">
-				<Icon
-					name="repeat"
-					size="14"
-					color="brand"
-					style="margin-bottom: 4; margin-left: 4;"
-				/>
-			</Flex>
-		</Flex>
+			<Flex v-if="showingUpdate?.kind === 'proposal'" justify="center" direction="column" gap="16">
+				<Flex align="center" gap="8" wide>
+					<Text size="12" weight="500" color="tertiary">Status</Text>
+					<Text size="12" weight="600" color="brand"> {{ capitilize(showingUpdate?.status) }} </Text>
+				</Flex>
 
-		<Flex v-if="showingUpdate?.kind === 'proposal'" justify="center" direction="column" gap="16">
-			<Flex align="center" gap="8" wide>
-				<Text size="12" weight="500" color="tertiary">Status</Text>
-				<Text size="12" weight="600" color="brand"> {{ capitilize(showingUpdate?.status) }} </Text>
+				<Flex direction="column" gap="6" wide>
+					<Text size="12" weight="600" color="primary" :class="$style.title"> {{ showingUpdate?.title }} </Text>
+					<Text size="12" weight="500" color="secondary" :class="$style.description"> {{ showingUpdate?.description }} </Text>
+				</Flex>
+
+				<Flex direction="column" gap="6" wide>
+					<Text size="12" weight="500" color="tertiary">Voting</Text>
+					<Flex align="center" gap="4" :class="$style.voting_wrapper">
+						<Tooltip
+							v-if="showingUpdate.yes"
+							wide
+							:trigger-width="`${Math.max(10, (showingUpdate.yes * 100) / showingUpdate.votes_count)}%`"
+						>
+							<div
+								:style="{
+									background: 'var(--brand)',
+								}"
+								:class="$style.voting_bar"
+							/>
+							<template #content>
+								Yes: <Text color="primary">{{ comma(showingUpdate.yes) }}</Text>
+							</template>
+						</Tooltip>
+						<Tooltip
+							v-if="showingUpdate.no"
+							wide
+							:trigger-width="`${Math.max(10, (showingUpdate.no * 100) / showingUpdate.votes_count)}%`"
+						>
+							<div
+								:style="{
+									background: 'var(--red)',
+								}"
+								:class="$style.voting_bar"
+							/>
+							<template #content>
+								No: <Text color="primary">{{ comma(showingUpdate.no) }}</Text>
+							</template>
+						</Tooltip>
+						<Tooltip
+							v-if="showingUpdate.no_with_veto"
+							wide
+							:trigger-width="`${Math.max(
+								10,
+								(showingUpdate.no_with_veto * 100) / showingUpdate.votes_count,
+							)}%`"
+						>
+							<div
+								:style="{
+									background: 'var(--red)',
+								}"
+								:class="$style.voting_bar"
+							/>
+							<template #content>
+								No with veto: <Text color="primary">{{ comma(showingUpdate.no_with_veto) }}</Text>
+							</template>
+						</Tooltip>
+						<Tooltip
+							v-if="showingUpdate.abstain"
+							wide
+							:trigger-width="`${Math.max(10, (showingUpdate.abstain * 100) / showingUpdate.votes_count)}%`"
+						>
+							<div
+								:style="{
+									background: 'var(--op-40)',
+								}"
+								:class="$style.voting_bar"
+							/>
+							<template #content>
+								Abstain: <Text color="primary">{{ comma(showingUpdate.abstain) }}</Text>
+							</template>
+						</Tooltip>
+					</Flex>
+				</Flex>
 			</Flex>
 
-			<Flex direction="column" gap="6" wide>
-				<Text size="12" weight="600" color="primary" :class="$style.title"> {{ showingUpdate?.title }} </Text>
-				<Text size="12" weight="500" color="secondary" :class="$style.description"> {{ showingUpdate?.description }} </Text>
-			</Flex>
+			<Flex v-else-if="showingUpdate?.kind" justify="between" direction="column" gap="20" style="padding-top: 12px;">
+				<Flex direction="column" gap="6" wide>
+					<Text size="12" weight="600" color="primary" :class="$style.title"> {{ showingUpdate.title }} </Text>
+					<Text size="12" weight="500" color="secondary" :class="[$style.description, $style.description_four_lines]"> {{ showingUpdate.description.replace('\n', ' ') }} </Text>
+				</Flex>
 
-			<Flex direction="column" gap="6" wide>
-				<Text size="12" weight="500" color="tertiary">Voting</Text>
-				<Flex align="center" gap="4" :class="$style.voting_wrapper">
-					<Tooltip
-						v-if="showingUpdate.yes"
-						wide
-						:trigger-width="`${Math.max(10, (showingUpdate.yes * 100) / showingUpdate.votes_count)}%`"
-					>
-						<div
-							:style="{
-								background: 'var(--brand)',
-							}"
-							:class="$style.voting_bar"
-						/>
-						<template #content>
-							Yes: <Text color="primary">{{ comma(showingUpdate.yes) }}</Text>
-						</template>
-					</Tooltip>
-					<Tooltip
-						v-if="showingUpdate.no"
-						wide
-						:trigger-width="`${Math.max(10, (showingUpdate.no * 100) / showingUpdate.votes_count)}%`"
-					>
-						<div
-							:style="{
-								background: 'var(--red)',
-							}"
-							:class="$style.voting_bar"
-						/>
-						<template #content>
-							No: <Text color="primary">{{ comma(showingUpdate.no) }}</Text>
-						</template>
-					</Tooltip>
-					<Tooltip
-						v-if="showingUpdate.no_with_veto"
-						wide
-						:trigger-width="`${Math.max(
-							10,
-							(showingUpdate.no_with_veto * 100) / showingUpdate.votes_count,
-						)}%`"
-					>
-						<div
-							:style="{
-								background: 'var(--red)',
-							}"
-							:class="$style.voting_bar"
-						/>
-						<template #content>
-							No with veto: <Text color="primary">{{ comma(showingUpdate.no_with_veto) }}</Text>
-						</template>
-					</Tooltip>
-					<Tooltip
-						v-if="showingUpdate.abstain"
-						wide
-						:trigger-width="`${Math.max(10, (showingUpdate.abstain * 100) / showingUpdate.votes_count)}%`"
-					>
-						<div
-							:style="{
-								background: 'var(--op-40)',
-							}"
-							:class="$style.voting_bar"
-						/>
-						<template #content>
-							Abstain: <Text color="primary">{{ comma(showingUpdate.abstain) }}</Text>
-						</template>
-					</Tooltip>
+				<Flex align="center" justify="end" wide>
+					<Text size="11" weight="600" color="tertiary"> {{ `Expected on block ${comma(showingUpdate.block)}` }} </Text>
 				</Flex>
 			</Flex>
 		</Flex>
-
-		<Flex v-else-if="showingUpdate?.kind" justify="between" direction="column" gap="20" style="padding-top: 12px;">
-			<Flex direction="column" gap="6" wide>
-				<Text size="12" weight="600" color="primary" :class="$style.title"> {{ showingUpdate.title }} </Text>
-				<Text size="12" weight="500" color="secondary" :class="[$style.description, $style.description_four_lines]"> {{ showingUpdate.description.replace('\n', ' ') }} </Text>
-			</Flex>
-
-			<Flex align="center" justify="end" wide>
-				<Text size="11" weight="600" color="tertiary"> {{ `Expected on block ${comma(showingUpdate.block)}` }} </Text>
-			</Flex>
-		</Flex>
-	</Flex>
 	</Transition>
+
+	<TransactionsWidget v-else />
 </template>
 
 <style module>
