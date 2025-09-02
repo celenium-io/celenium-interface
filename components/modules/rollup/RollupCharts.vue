@@ -1,8 +1,6 @@
 <script setup>
 /** Vendor */
-import * as d3 from "d3"
 import { DateTime } from "luxon"
-import { useDebounceFn } from "@vueuse/core"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
@@ -11,13 +9,13 @@ import Input from "@/components/ui/Input.vue"
 import Popover from "@/components/ui/Popover.vue"
 import Toggle from "@/components/ui/Toggle.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
-import ChartOnEntityPage from "@/components/ui/ChartOnEntityPage.vue"
+import ChartOnEntityPage from "~/components/shared/ChartOnEntityPage.vue"
 import Icon from "@/components/Icon.vue"
 import Text from "@/components/Text.vue"
 import Flex from "@/components/Flex.vue"
 
 /** Services */
-import { abbreviate, formatBytes, sortArrayOfObjects, spaces, tia } from "@/services/utils"
+import { abbreviate, formatBytes, hexToRgba, sortArrayOfObjects, spaces, tia } from "@/services/utils"
 import { getFormatKey, createDataMap, generateDateForPeriod, generateSeriesData, PERIODS as periods } from "@/services/utils/entityCharts"
 
 /** API */
@@ -34,6 +32,8 @@ const props = defineProps({
 		required: true,
 	},
 })
+
+const rollupColor = ref(hexToRgba(props.rollup.color, 1))
 
 /** Chart settings */
 const selectedPeriodIdx = ref(2)
@@ -133,6 +133,8 @@ const getRollupsList = async () => {
 }
 
 const fetchTVLData = async () => {
+	if (!selectedTvlDataSource.value) return []
+	
 	let from = ""
 	let tf = selectedPeriod.value.timeframe
 	let periodValue = selectedPeriod.value.value
@@ -167,8 +169,6 @@ const fetchData = async (rollup, metric) => {
 }
 
 const generateSeries = async (configs) => {
-	isLoading.value = true
-
 	await Promise.all(
 		configs.map(async (config) => {
 			const rawData = await fetchData(props.rollup, config.name)
@@ -177,8 +177,6 @@ const generateSeries = async (configs) => {
 			generateSeriesData(selectedPeriod.value, dataMap, config.series)
 		}),
 	)
-
-	isLoading.value = false
 }
 
 const generateTVLSeriesData = (period, dataMap, series) => {
@@ -205,8 +203,6 @@ const generateTVLSeriesData = (period, dataMap, series) => {
 }
 
 const generateTVLSeries = async (configs) => {
-	isLoading.value = true
-
 	await Promise.all(
 		configs.map(async (config) => {
 			const rawData = await fetchTVLData()
@@ -215,8 +211,6 @@ const generateTVLSeries = async (configs) => {
 			generateTVLSeriesData(selectedPeriod.value, dataMap, config.series)
 		}),
 	)
-
-	isLoading.value = false
 }
 
 const isTvlDataSourcePopoverOpen = ref(false)
@@ -231,7 +225,6 @@ const handleSelectTvlDataSource = (ds) => {
 }
 
 const prepareComparisonData = async (fetchFunction) => {
-	isLoading.value = true
 	comparisonData.value[1] = {}
 
 	comparisonBarWidth.value = comparisonChartEl.value.wrapper.getBoundingClientRect().width
@@ -267,8 +260,6 @@ const prepareComparisonData = async (fetchFunction) => {
 		let sum = firstRollup[el] + secondRollup[el]
 		firstRollup[el + "_graph"] = Math.max(Math.round((firstRollup[el] / sum) * 100, 2), 1)
 	})
-
-	isLoading.value = false
 }
 
 const isRollupPopoverOpen = ref(false)
@@ -296,12 +287,16 @@ const handleChangeChartView = () => {
 }
 
 const fetchAllData = async () => {
+	isLoading.value = true
+
 	comparisonData.value[0] = {}
 	comparisonData.value[1] = {}
 
 	await generateSeries(seriesConfig.filter((el) => el.metric !== "tvl"))
 	await generateTVLSeries(seriesConfig.filter((el) => el.metric === "tvl"))
 	await prepareComparisonData(fetchRollupSeries)
+
+	isLoading.value = false
 }
 
 watch(
@@ -329,9 +324,13 @@ watch(
 watch(
 	() => selectedTvlDataSource.value,
 	async (newDataSource, oldDataSource) => {
+		isLoading.value = true
+
 		if (oldDataSource && newDataSource?.name !== oldDataSource?.name) {
 			await generateTVLSeries([seriesConfig.find((el) => el.metric === "tvl")])
 		}
+
+		isLoading.value = false
 	},
 	{ deep: true },
 )
@@ -433,16 +432,20 @@ onMounted(async () => {
 					v-if="sizeSeries.length"
 					:series-config="sizeConfig"
 					:chart-view="chartView"
+					:color="rollupColor"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
+					:isLoading="isLoading"
 				/>
 
 				<ChartOnEntityPage
 					v-if="pfbSeries.length"
 					:series-config="pfbConfig"
 					:chart-view="chartView"
+					:color="rollupColor"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
+					:isLoading="isLoading"
 				/>
 			</Flex>
 
@@ -451,16 +454,20 @@ onMounted(async () => {
 					v-if="feeSeries.length"
 					:series-config="feeConfig"
 					:chart-view="chartView"
+					:color="rollupColor"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
+					:isLoading="isLoading"
 				/>
 
 				<ChartOnEntityPage
 					v-if="tvlSeries.length"
 					:series-config="tvlConfig"
 					:chart-view="chartView"
+					:color="rollupColor"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
+					:isLoading="isLoading"
 				>
 					<template #header-content>
 						<Flex align="center" gap="8">
@@ -624,7 +631,7 @@ onMounted(async () => {
 									:class="$style.graph_bar"
 									:style="{
 										width: `${comparisonData[0]?.size_graph}%`,
-										background: 'var(--mint)',
+										background: rollupColor,
 										marginRight: '4px',
 									}"
 								></div>
@@ -652,7 +659,7 @@ onMounted(async () => {
 									:class="$style.graph_bar"
 									:style="{
 										width: `${comparisonData[0]?.pfb_graph}%`,
-										background: 'var(--mint)',
+										background: rollupColor,
 										marginRight: '4px',
 									}"
 								></div>
@@ -680,7 +687,7 @@ onMounted(async () => {
 									:class="$style.graph_bar"
 									:style="{
 										width: `${comparisonData[0]?.fee_graph}%`,
-										background: 'var(--mint)',
+										background: rollupColor,
 										marginRight: '4px',
 									}"
 								></div>

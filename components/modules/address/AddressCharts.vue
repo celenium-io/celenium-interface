@@ -1,22 +1,20 @@
 <script setup>
 /** Vendor */
-import * as d3 from "d3"
 import { DateTime } from "luxon"
-import { useDebounceFn } from "@vueuse/core"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Popover from "@/components/ui/Popover.vue"
 import Toggle from "@/components/ui/Toggle.vue"
-import ChartOnEntityPage from "@/components/ui/ChartOnEntityPage.vue"
+import ChartOnEntityPage from "~/components/shared/ChartOnEntityPage.vue"
 import Icon from "@/components/Icon.vue"
 import Text from "@/components/Text.vue"
 import Flex from "@/components/Flex.vue"
 
 /** Services */
 import { abbreviate, tia } from "@/services/utils"
-import { createDataMap, generateDateForPeriod, generateSeriesData, PERIODS as periods } from "@/services/utils/entityCharts"
+import { createDataMap, generateSeriesData, PERIODS as periods } from "@/services/utils/entityCharts"
 
 /** API */
 import { fetchAddressSeries } from "@/services/api/stats"
@@ -230,6 +228,7 @@ onMounted(async () => {
 					:chart-view="chartView"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
+					:isLoading="isLoading"
 				/>
 
 				<ChartOnEntityPage
@@ -238,6 +237,7 @@ onMounted(async () => {
 					:chart-view="chartView"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
+					:isLoading="isLoading"
 				/>
 			</Flex>
 		</Flex>

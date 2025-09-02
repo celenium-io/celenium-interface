@@ -86,7 +86,7 @@ export const generateSeriesData = (period, dataMap, series) => {
  * @param {Function} onLeave - Callback on cursor leave
  * @param {string} metric - Metric (optional, for special TVL logic)
  */
-export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipConfig) => {
+export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipConfig, color = "var(--brand)") => {
 	const width = chartEl.parentElement.getBoundingClientRect().width
 	const height = 180
 	const marginTop = 0
@@ -95,6 +95,7 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipC
 	const marginLeft = 52
 
 	const MAX_VALUE = d3.max(data, (d) => d.value) ? d3.max(data, (d) => d.value) : 1
+	const showChart = metric === "tvl" ? MAX_VALUE > 1 : data.length
 
 	/** Scale */
 	const x = d3.scaleUtc(
@@ -110,7 +111,7 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipC
 	/** Tooltip */
 	const bisect = d3.bisector((d) => d.date).center
 	const onPointermoved = (event) => {
-		if (!data.length) return
+		if (!showChart) return
 
 		onEnter()
 
@@ -169,7 +170,7 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipC
 	}
 
 	const onPointerleft = () => {
-		if (!data.length) return
+		if (!showChart) return
 
 		onLeave()
 
@@ -209,16 +210,53 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipC
 		.attr("stroke-width", 2)
 		.attr("d", `M${0},${height - marginBottom - 6} L${width},${height - marginBottom - 6}`)
 
-	if (data.length) {
+	if (showChart) {
 		/** Chart Line */
 		const { loadLastValue } = tooltipConfig
 		let path1 = null
 		let path2 = null
 
+		const area = d3.area()
+			.x(d => x(d.date))
+			.y0(y(0))
+			.y1(d => y(d.value))
+		
+		const clipId = `clip-${metric}-${Date.now()}`
+		const clipPath = svg.append("clipPath")
+			.attr("id", clipId)
+		const clipRect = clipPath.append("rect")
+			.attr("x", marginLeft)
+			.attr("y", 0)
+			.attr("width", 0)
+			.attr("height", height)
+
+		svg.append("path")
+			.datum(data)
+			.attr("fill", color)
+			.attr("fill-opacity", 0.1)
+			.attr("stroke", "none")
+			.attr("clip-path", `url(#${clipId})`)
+			.attr("d", area)
+		// const clipId = `clip-${metric}-${Date.now()}`
+		// svg.append("clipPath")
+		// 	.attr("id", clipId)
+		// 	.append("rect")
+		// 	.attr("x", marginLeft)
+		// 	.attr("y", 0)
+		// 	.attr("width", 0)
+		// 	.attr("height", height)
+		// svg.append("path")
+		// 	.datum(data)
+		// 	.attr("fill", color)
+		// 	.attr("fill-opacity", 0.1)
+		// 	.attr("stroke", "none")
+		// 	.attr("clip-path", `url(#${clipId})`)
+		// 	.attr("d", area)
+		
 		path1 = svg
 			.append("path")
 			.attr("fill", "none")
-			.attr("stroke", "var(--brand)")
+			.attr("stroke", color)
 			.attr("stroke-width", 2)
 			.attr("stroke-linecap", "round")
 			.attr("stroke-linejoin", "round")
@@ -229,18 +267,18 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipC
 			const defs = svg.append("defs")
 			const pattern = defs
 				.append("pattern")
-				.attr("id", "dashedPattern")
+				.attr("id", `dashedPattern-${metric}`)
 				.attr("width", 8)
 				.attr("height", 2)
 				.attr("patternUnits", "userSpaceOnUse")
-			pattern.append("rect").attr("width", 4).attr("height", 2).attr("fill", "var(--brand)")
+			pattern.append("rect").attr("width", 4).attr("height", 2).attr("fill", color)
 			pattern.append("rect").attr("x", 8).attr("width", 4).attr("height", 2).attr("fill", "transparent")
 
 			// Last dash segment
 			path2 = svg
 				.append("path")
 				.attr("fill", "none")
-				.attr("stroke", "url(#dashedPattern)")
+				.attr("stroke", `url(#dashedPattern-${metric})`)
 				.attr("stroke-width", 2)
 				.attr("stroke-linecap", "round")
 				.attr("stroke-linejoin", "round")
@@ -277,19 +315,25 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipC
 			.append("circle")
 			.attr("cx", x(data[data.length - 1].date))
 			.attr("cy", y(data[data.length - 1].value))
-			.attr("fill", "var(--brand)")
+			.attr("fill", color)
 			.attr("r", 3)
 			.attr("opacity", 0)
 
+		// const clipRect = svg.select(`#${clipId} rect`)
+		clipRect.transition()
+			.duration(totalDuration)
+			.ease(d3.easeLinear)
+			.attr("width", width - marginLeft)
+		
 		point.transition().delay(totalDuration).duration(200).attr("opacity", 1)
 	} else {
 		svg.append("text")
 			.attr("x", width / 2)
 			.attr("y", height * 0.3)
 			.attr("text-anchor", "middle")
-			.attr("fill", "var(--op-20)")
+			.attr("fill", "var(--op-30)")
 			.style("font-size", "14px")
-			.text("No data available for this rollup")
+			.text("No data available")
 	}
 
 	if (chartEl.children[0]) chartEl.children[0].remove()
@@ -304,7 +348,7 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipC
  * @param {Function} onLeave - Callback on cursor leave
  * @param {string} metric - Metric for chart identification
  */
-export const buildBarChart = (chartEl, data, onEnter, onLeave, metric, tooltipConfig) => {
+export const buildBarChart = (chartEl, data, onEnter, onLeave, metric, tooltipConfig, color = "var(--brand)") => {
 	const width = chartEl.parentElement.getBoundingClientRect().width
 	const height = 180
 	const marginTop = 0
@@ -315,8 +359,15 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric, tooltipCo
 	const barWidth = Math.max(Math.round((width - marginLeft - marginRight) / data.length - (data.length > 7 ? 2 : 8)), 3)
 
 	const MAX_VALUE = d3.max(data, (d) => d.value) ? d3.max(data, (d) => d.value) : 1
+	const showChart = metric === "tvl" ? MAX_VALUE > 1 : data.length
 
 	/** Scale */
+	const xBand = d3
+		.scaleBand()
+		.domain(data.map((d) => new Date(d.date)))
+		.range([marginLeft, width - marginRight])
+		.padding(0.1)
+
 	const x = d3.scaleUtc(
 		d3.extent(data, (d) => d.date),
 		[marginLeft, width - marginRight - barWidth],
@@ -326,7 +377,7 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric, tooltipCo
 	/** Tooltip */
 	const bisect = d3.bisector((d) => d.date).center
 	const onPointermoved = (event) => {
-		if (!data.length) return
+		if (!showChart) return
 
 		onEnter()
 
@@ -379,8 +430,8 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric, tooltipCo
 				tf === "month"
 					? DateTime.fromJSDate(data[idx].date).toFormat("LLL")
 					: tf === "day"
-					? DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
-					: DateTime.fromJSDate(data[idx].date).set({ minutes: 0 }).toFormat("hh:mm a")
+						? DateTime.fromJSDate(data[idx].date).toFormat("LLL dd")
+						: DateTime.fromJSDate(data[idx].date).set({ minutes: 0 }).toFormat("hh:mm a")
 		}
 
 		if (badgeEl && badgeEl.value) {
@@ -396,7 +447,7 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric, tooltipCo
 	}
 
 	const onPointerleft = () => {
-		if (!data.length) return
+		if (!showChart) return
 
 		onLeave()
 
@@ -441,12 +492,12 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric, tooltipCo
 		.attr("stroke-width", 2)
 		.attr("d", `M${0},${height - marginBottom - 6} L${width},${height - marginBottom - 6}`)
 
-	if (data.length) {
+	if (showChart) {
 		const { loadLastValue } = tooltipConfig
 		/** Chart Bars */
 		svg.append("defs")
 			.append("pattern")
-			.attr("id", "diagonal-stripe")
+			.attr("id", `diagonal-stripe-${metric}`)
 			.attr("width", 6)
 			.attr("height", 6)
 			.attr("patternUnits", "userSpaceOnUse")
@@ -455,7 +506,7 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric, tooltipCo
 			.attr("width", 2)
 			.attr("height", 6)
 			.attr("transform", "translate(0,0)")
-			.attr("fill", "var(--brand)")
+			.attr("fill", color)
 
 		svg.append("g")
 			.selectAll("g")
@@ -465,10 +516,10 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric, tooltipCo
 			.attr("class", "bar")
 			.attr("data-index", (d, i) => i)
 			.attr("metric", metric)
-			.attr("x", (d) => x(new Date(d.date)))
+			.attr("x", (d) => xBand(new Date(d.date)))
 			.attr("y", (d) => y(d.value))
-			.attr("width", barWidth)
-			.attr("fill", (d, i) => (loadLastValue && i === data.length - 1 ? `url(#diagonal-stripe)` : "var(--brand)"))
+			.attr("width", xBand.bandwidth())
+			.attr("fill", (d, i) => (loadLastValue && i === data.length - 1 ? `url(#diagonal-stripe-${metric})` : color))
 			.transition()
 			.duration(1_000)
 			.attr("height", (d) => Math.max(height - marginBottom - 6 - y(d.value), 0))
@@ -477,9 +528,9 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric, tooltipCo
 			.attr("x", width / 2)
 			.attr("y", height * 0.3)
 			.attr("text-anchor", "middle")
-			.attr("fill", "var(--op-20)")
+			.attr("fill", "var(--op-30)")
 			.style("font-size", "14px")
-			.text("No data available for this rollup")
+			.text("No data available")
 	}
 
 	if (chartEl.children[0]) chartEl.children[0].remove()

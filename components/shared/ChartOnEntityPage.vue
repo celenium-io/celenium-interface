@@ -1,16 +1,10 @@
 <script setup>
 /** Vendor */
-import * as d3 from "d3"
 import { DateTime } from "luxon"
 import { useDebounceFn } from "@vueuse/core"
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from "vue"
 
 /** UI */
-import Button from "@/components/ui/Button.vue"
-import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
-import Popover from "@/components/ui/Popover.vue"
-import Toggle from "@/components/ui/Toggle.vue"
-import Icon from "@/components/Icon.vue"
 import Text from "@/components/Text.vue"
 import Skeleton from "@/components/Skeleton.vue"
 import Flex from "@/components/Flex.vue"
@@ -26,8 +20,10 @@ const props = defineProps({
 	},
 
 	chartView: { type: String, default: "line" },
+	color: { type: String, required: false },
 	loadLastValue: { type: Boolean, default: true },
 	selectedPeriod: { type: Object, required: true },
+	isLoading: { type: Boolean, default: true },
 })
 
 const emit = defineEmits(["update:chartView", "update:loadLastValue"])
@@ -35,12 +31,6 @@ const emit = defineEmits(["update:chartView", "update:loadLastValue"])
 const data = computed(() => {
 	return props.seriesConfig?.series?.value || props.seriesConfig?.series || []
 })
-// const metric = computed(() => props.seriesConfig?.metric || "")
-// const title = computed(() => props.seriesConfig?.title || "")
-// const tooltipLabel = computed(() => props.seriesConfig?.tooltipLabel || "")
-// const yAxisFormatter = computed(() => props.seriesConfig?.yAxisFormatter || ((val) => val))
-// const tooltipValueFormatter = computed(() => props.seriesConfig?.tooltipValueFormatter || ((val) => val))
-// const unit = computed(() => props.seriesConfig?.unit || "")
 
 const {
 	metric,
@@ -92,6 +82,7 @@ const buildChart = () => {
 			() => (showTooltip.value = false),
 			metric,
 			tooltipConfig.value,
+			props.color,
 		)
 	} else {
 		buildBarChart(
@@ -101,6 +92,7 @@ const buildChart = () => {
 			() => (showTooltip.value = false),
 			metric,
 			tooltipConfig.value,
+			props.color,
 		)
 	}
 }
@@ -252,7 +244,7 @@ onBeforeUnmount(() => {
 				</div>
 			</Transition>
 
-			<Flex ref="chartEl" :class="$style.chart" />
+			<Flex ref="chartEl" :class="[$style.chart, isLoading && $style.loading]" />
 		</Flex>
 	</Flex>
 </template>
@@ -280,6 +272,24 @@ onBeforeUnmount(() => {
 
 	& svg {
 		overflow: visible;
+	}
+}
+
+.loading {
+	animation: skeleton 1s ease infinite;
+	pointer-events: none;
+}
+@keyframes skeleton {
+	0% {
+		opacity: 0.7;
+	}
+
+	50% {
+		opacity: 0.5;
+	}
+
+	100% {
+		opacity: 0.7;
 	}
 }
 

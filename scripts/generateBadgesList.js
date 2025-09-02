@@ -23,5 +23,3 @@ fs.writeFileSync(
     outputPath,
     JSON.stringify(result, null, 2)
 )
-
-console.log("✅ Badges list generated:", result);
