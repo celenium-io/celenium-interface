@@ -134,7 +134,7 @@ const getRollupsList = async () => {
 
 const fetchTVLData = async () => {
 	if (!selectedTvlDataSource.value) return []
-	
+
 	let from = ""
 	let tf = selectedPeriod.value.timeframe
 	let periodValue = selectedPeriod.value.value
@@ -728,8 +728,10 @@ onMounted(async () => {
 <style module lang="scss">
 .header {
 	height: 40px;
+
 	border-radius: 8px 8px 4px 4px;
 	background: var(--card-background);
+
 	padding: 0 12px;
 }
 
@@ -822,5 +824,15 @@ onMounted(async () => {
 
 .bottom {
 	border-radius: 0px 0px 8px 8px;
+}
+
+@media (max-width: 800px) {
+	.data {
+		flex-direction: column;
+	}
+
+	.chart_wrapper_single {
+		max-width: 100%;
+	}
 }
 </style>

@@ -152,7 +152,7 @@ watch(
 
 const debouncedRedraw = useDebounceFn(async () => {
 	buildChart()
-}, 500)
+}, 200)
 
 onMounted(() => {
 	window.addEventListener("resize", debouncedRedraw)
