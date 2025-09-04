@@ -406,7 +406,7 @@ const handleCSVDownload = async (value) => {
 						</Flex>
 					</Flex>
 
-					<Flex v-if="showBadges.show" gap="24" style="margin-bottom: 16px">
+					<Flex v-if="showBadges.show" gap="24">
 						<img
 							v-if="showBadges.settled"
 							:src="`/img/badges/settled/${rollup.settled_on.toLowerCase()}.png`"
@@ -422,7 +422,7 @@ const handleCSVDownload = async (value) => {
 						/>
 					</Flex>
 
-					<Flex align="center" justify="start" gap="16" wrap="wrap" :style="{ marginTop: showBadges.show ? '0px' : '-20px' }">
+					<Flex align="center" justify="start" gap="16" wrap="wrap">
 						<Tooltip v-if="rollup.website" position="start" delay="300">
 							<a :href="rollup.website" target="_blank">
 								<Icon name="globe" size="14" color="secondary" />
@@ -454,12 +454,12 @@ const handleCSVDownload = async (value) => {
 						</Tooltip>
 
 						<Tooltip v-if="rollup.defi_lama" position="start" delay="300">
-							<a :href="`https://defillama.com/chain/${rollup.defi_lama}`" target="_blank">
+							<a :href="`https://defillama.com/${rollup.defi_lama}`" target="_blank">
 								<Icon name="llama" size="14" color="secondary" />
 							</a>
 
 							<template #content>
-								{{ `https://defillama.com/chain/${rollup.defi_lama}` }}
+								{{ `https://defillama.com/${rollup.defi_lama}` }}
 							</template>
 						</Tooltip>
 
