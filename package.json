@@ -1,17 +1,19 @@
 {
 	"name": "celestia-explorer",
-	"version": "1.19.0",
+	"version": "1.20.0",
 	"packageManager": "pnpm@8.7.4",
 	"homepage": "https://celenium.io/",
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
-		"build": "nuxt build",
-		"dev": "cross-env PORT=9090 nuxt dev",
+		"build": "npm run generate-badges && nuxt build",
+		"dev": "npm run generate-badges && cross-env PORT=9090 nuxt dev",
 		"generate": "nuxt generate",
+		"generate-badges": "node scripts/generateBadgesList.js",
 		"preview": "nuxt preview",
 		"postinstall": "nuxt prepare",
-		"lint": "oxlint"
+		"lint": "oxlint",
+		"start": "nuxt start"
 	},
 	"devDependencies": {
 		"@nuxt/devtools": "latest",

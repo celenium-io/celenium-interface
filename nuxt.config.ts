@@ -67,7 +67,36 @@ export default defineNuxtConfig({
 	runtimeConfig: {
 		public: {
 			AMP: process.env.AMP,
-			version: "1.16.0",
+			version: "1.20.0",
+
+			API_MAINNET: '',
+			API_MOCHA: '',
+			API_ARABICA: '',
+			API_MAMMOTH: '',
+			API_DEV: '',
+
+			WSS_MAINNET: '',
+			WSS_MOCHA: '',
+			WSS_ARABICA: '',
+			WSS_MAMMOTH: '',
+			WSS_DEV: '',
+
+			BLOBSTREAM_MAINNET: '',
+			BLOBSTREAM_TESTNET: '',
+
+			FAUCET_ADDRESS: '',
+			FAUCET_MOCHA: '',
+			FAUCET_ARABICA: '',
+			FAUCET_MAMMOTH: '',
+			
+			BLOCKSCOUT: '',
+			GITHUB: '',
+			NODE_STATS: '',
+			QUOTE: '',
+			ROLLUP_RANKING: '',
+			TVL: '',
+
+			SELFHOSTED: false,
 		},
 	},
 
@@ -143,6 +172,7 @@ export default defineNuxtConfig({
 		resolve: {
 			alias: {
 				"unenv/runtime/node/buffer/index/": path.resolve(__dirname, "./node_modules/buffer/index"),
+				"@data": path.resolve(__dirname, "src/data"),
 			},
 		},
 		plugins: [wasm(), topLevelAwait(), nodePolyfills()],

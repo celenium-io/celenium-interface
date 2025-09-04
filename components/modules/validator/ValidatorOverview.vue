@@ -406,7 +406,7 @@ const handleDelegate = () => {
 								<Flex
 									:class="$style.uptime"
 									:style="{
-										background: t.signed ? 'rgb(10, 219, 111)' : 'red',
+										background: t.signed ? 'var(--brand)' : 'var(--red)',
 									}"
 								/>
 

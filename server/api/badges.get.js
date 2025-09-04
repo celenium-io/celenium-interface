@@ -12,7 +12,7 @@ export default defineEventHandler(() => {
     }
 
     return {
-        providers: getFiles('provider'),
+        provider: getFiles('provider'),
         settled: getFiles('settled')
     }
 })
