@@ -41,6 +41,8 @@ export const getShortNamespaceID = (id) => {
 }
 
 export const shortHash = (hash) => {
+	if (!hash) return ""
+
 	return `${hash.slice(0, 4).toUpperCase()} ••• ${hash.slice(-4).toUpperCase()}`
 }
 
@@ -104,7 +106,7 @@ export const isMobile = () => {
 
 	return (
 		REGEX_MOBILE1.test(userAgent) ||
-		REGEX_MOBILE2.test(userAgent.slice(0, 4)) ||
+		REGEX_MOBILE2.test(userAgent?.slice(0, 4)) ||
 		(typeof window !== "undefined" && window.innerWidth < 1300)
 	)
 }
