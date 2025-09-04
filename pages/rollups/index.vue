@@ -27,13 +27,11 @@ import {
 import { getLastActivityCategory, getRankCategory } from "@/services/constants/rollups"
 
 /** API */
-import { fetchRollups } from "@/services/api/rollup"
+import { fetchRollups, fetchRollupsRanking } from "@/services/api/rollup"
 
 /** Stores */
 import { useEnumStore } from "@/store/enums.store"
-import { useActivityStore } from "@/store/activity.store"
 const enumStore = useEnumStore()
-const activityStore = useActivityStore()
 
 useHead({
 	title: "Rollups - Celestia Explorer",
@@ -93,7 +91,6 @@ const isRefetching = ref(true)
 const rollups = ref([])
 const filteredRollups = ref([])
 const processedRollups = ref([])
-const rollupsRanking = computed(() => activityStore?.rollups_ranking?.ranking)
 
 const utiaPerMB = (rollup) => {
 	let totalRollupMB = rollup.size / (1024 * 1024)
@@ -108,7 +105,7 @@ const config = reactive({
 			? {
 					activity: {
 						show: true,
-						sortPath: "stats.ranking.rank",
+						sortPath: "rank",
 					},
 			  }
 			: {}),
@@ -169,7 +166,7 @@ const getColumnName = (name) => {
 }
 
 const sort = reactive({
-	by: isMainnet() ? "stats.ranking.rank" : "size",
+	by: isMainnet() ? "rank" : "size",
 	dir: "desc",
 })
 
@@ -286,18 +283,29 @@ const itemsPerPage = 20
 const limit = ref(100)
 
 const getRollups = async () => {
-	const data = await fetchRollups({
-		limit: limit.value,
-	})
+	const data = await fetchRollups({ limit: limit.value })
 
-	rollups.value = isMainnet()
-		? data.map((r) => ({
-				...r,
-				stats: rollupsRanking.value[r.slug],
-				rounded_rank: roundTo(rollupsRanking.value[r.slug]?.ranking?.rank / 10, 0),
-				rank_category: getRankCategory(roundTo(rollupsRanking.value[r.slug]?.ranking?.rank / 10, 0)),
-		  }))
-		: data
+	if (isMainnet()) {
+		let ranking = {}
+		const ranking_data = await fetchRollupsRanking({ limit: limit.value })
+		if (ranking_data?.length) {
+			ranking_data.forEach(rank => {
+				ranking[rank.slug] = rank
+			})
+
+			rollups.value = data.map((r) => {
+				const rank = ranking[r.slug]
+				if (!rank) return r
+
+				return {
+					...r,
+					rank: +rank.rank,
+					rounded_rank: roundTo(rank.rank / 10, 0),
+					rank_category: getRankCategory(roundTo(rank.rank / 10, 0)),
+				}
+			})
+		}
+	}
 
 	pages.value = roundTo(rollups.value?.length / itemsPerPage, 0, "ceil")
 	if (page.value > pages.value) {
@@ -342,10 +350,9 @@ const processRollups = () => {
 
 	isRefetching.value = false
 }
-if (activityStore.initialized) {
-	await getRollups()
-	processRollups()
-}
+
+await getRollups()
+processRollups()
 
 const handleSort = (by) => {
 	if (!by) return
@@ -404,21 +411,11 @@ watch(
 		handleApplyFilters()
 	},
 )
-
 watch(
 	() => page.value,
 	() => {
 		processRollups()
 		router.replace({ query: { page: page.value } })
-	},
-)
-watch(
-	() => activityStore.initialized,
-	async () => {
-		if (activityStore.initialized) {
-			await getRollups()
-			processRollups()
-		}
 	},
 )
 watch(
@@ -645,7 +642,7 @@ onBeforeMount(() => {
 													{{ `${r?.rounded_rank}/10` }}
 												</Text>
 												<Text size="12" weight="600" color="tertiary">
-													{{ `${r?.stats?.ranking?.rank}%` }}
+													{{ `${r?.rank}%` }}
 												</Text>
 											</Flex>
 										</Flex>
@@ -802,7 +799,9 @@ onBeforeMount(() => {
 				<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 					<Text size="13" weight="600" color="secondary" align="center"> No rollups found </Text>
 					<Text size="12" weight="500" height="160" color="tertiary" align="center">
-						This network does not contain any rollups
+						This network does not contain any
+						<Text v-if="!showInactive" weight="600">active</Text>
+						rollups
 					</Text>
 				</Flex>
 			</Flex>

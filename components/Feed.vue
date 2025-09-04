@@ -3,38 +3,25 @@
 import { DateTime } from "luxon"
 
 /** Services */
-import { abbreviate, comma, formatBytes, isMainnet, roundTo } from "@/services/utils"
+import { abbreviate, capitilize, comma, formatBytes, isMainnet, roundTo } from "@/services/utils"
 import { getRankCategory } from "@/services/constants/rollups"
 
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** API */
+import { fetchRollupsRanking } from "@/services/api/rollup"
 import { fetchPriceSeries, fetchSummary, fetchTVS } from "@/services/api/stats"
 
 /** Store */
 import { useAppStore } from "@/store/app.store"
-import { useActivityStore } from "@/store/activity.store"
 const appStore = useAppStore()
-const activityStore = useActivityStore()
 
 const head = computed(() => appStore.lastHead)
 const currentPrice = computed(() => appStore.currentPrice)
 
 const totalFees = computed(() => head.value.total_fee / 1_000_000)
 const totalFeesUSD = computed(() => totalFees.value * currentPrice.value?.close)
-const topRollup = computed(() => {
-	let rankCategory = getRankCategory(roundTo(activityStore?.rollups_ranking?.top_rollup?.rank / 10, 0))
-	return {
-		slug: activityStore?.rollups_ranking?.top_rollup?.slug,
-		name: activityStore?.rollups_ranking?.top_rollup?.name,
-		rank: {
-			name: rankCategory?.name,
-			score: activityStore?.rollups_ranking?.top_rollup?.rank,
-			color: rankCategory?.color,
-		},
-	}
-})
 
 const isLoading = ref(true)
 const series = ref([])
@@ -43,6 +30,7 @@ const price = reactive({
 	diff: 0,
 	side: null,
 })
+const topRollup = ref(null)
 const tvs = computed(() => appStore.tvs)
 const txCount24h = ref(0)
 const bytesInBlocks24h = ref(0)
@@ -61,6 +49,17 @@ onMounted(async () => {
 	}
 	price.side = side
 
+	const _topRollups = await fetchRollupsRanking({ limit: 1 })
+	if (_topRollups.length) {
+		const _r = _topRollups[0]
+		topRollup.value = {
+			..._r,
+			category: getRankCategory(roundTo(_r.rank / 10, 0)),
+			name: _r.slug.split("-").map(el => capitilize(el)).join(" "),
+		}
+	}
+	
+	
 	const _tvs = await fetchTVS({ period: null })
 	if (_tvs.value) {
 		appStore.tvs = _tvs.value
@@ -91,7 +90,7 @@ onMounted(async () => {
 									v-if="topRollup?.name"
 									name="laurel"
 									size="14"
-									:color="topRollup?.rank?.color"
+									:color="topRollup?.category?.color"
 									:style="{ marginTop: '1px' }"
 								/>
 								<Icon v-else name="laurel" size="14" color="tertiary" :class="$style.icon" :style="{ marginTop: '1px' }" />
@@ -109,11 +108,11 @@ onMounted(async () => {
 								<Flex direction="column" gap="8">
 									<Flex align="center" justify="between" gap="8">
 										<Text size="12" weight="500" color="tertiary">Rank:</Text>
-										<Text size="12" weight="600" :color="topRollup?.rank?.color"> {{ topRollup?.rank?.name }} </Text>
+										<Text size="12" weight="600" :color="topRollup?.category?.color"> {{ topRollup?.category?.name }} </Text>
 									</Flex>
 									<Flex align="center" justify="between" gap="8">
 										<Text size="12" weight="500" color="tertiary">Score:</Text>
-										<Text size="12" weight="600" color="secondary"> {{ topRollup?.rank?.score }}% </Text>
+										<Text size="12" weight="600" color="secondary"> {{ topRollup?.rank }}% </Text>
 									</Flex>
 								</Flex>
 							</template>

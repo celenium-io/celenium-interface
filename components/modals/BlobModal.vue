@@ -62,15 +62,21 @@ const handleLoadAnyway = () => {
 const getBlobMetadata = async () => {
 	isLoading.value = true
 
-	const { data } = await fetchBlobByMetadata({
-		hash: cacheStore.selectedBlob.hash,
-		height: cacheStore.selectedBlob.height,
-		commitment: cacheStore.selectedBlob.commitment,
-	})
+	try {
+		const { data } = await fetchBlobByMetadata({
+			hash: cacheStore.selectedBlob.hash,
+			height: cacheStore.selectedBlob.height,
+			commitment: cacheStore.selectedBlob.commitment,
+		})
 
-	if (data.value) {
-		blob.value = data.value
-	} else {
+		if (data.value) {
+			blob.value = data.value
+		} else {
+			notFound.value = true
+		}
+	} catch (err) {
+		// console.error(err);
+		
 		notFound.value = true
 	}
 }
@@ -95,7 +101,7 @@ watch(
 
 			/** auto preview for small images */
 			if (
-				(["image/png", "image/jpeg"].includes(blob.value.content_type) || blob.value.content_type.startsWith("text/plain")) &&
+				(["image/png", "image/jpeg"].includes(blob.value.content_type) || blob.value.content_type?.startsWith("text/plain")) &&
 				cacheStore.selectedBlob.size < 100_000
 			) {
 				handlePreviewContent()
@@ -109,6 +115,9 @@ watch(
 			showPreviewImage.value = false
 			showPreviewText.value = false
 			contentPreviewText.value = ""
+			
+			notFound.value = false
+			cacheStore.selectedBlob = null
 		}
 
 		isLoading.value = false
