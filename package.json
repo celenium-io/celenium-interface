@@ -12,7 +12,8 @@
 		"generate-badges": "node scripts/generateBadgesList.js",
 		"preview": "nuxt preview",
 		"postinstall": "nuxt prepare",
-		"lint": "oxlint"
+		"lint": "oxlint",
+		"start": "nuxt start"
 	},
 	"devDependencies": {
 		"@nuxt/devtools": "latest",

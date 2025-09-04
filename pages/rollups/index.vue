@@ -25,6 +25,7 @@ import {
 	truncateDecimalPart,
 } from "@/services/utils"
 import { getLastActivityCategory, getRankCategory } from "@/services/constants/rollups"
+import { rollupRankingServiceURL } from "@/services/config"
 
 /** API */
 import { fetchRollups, fetchRollupsRanking } from "@/services/api/rollup"
@@ -91,6 +92,7 @@ const isRefetching = ref(true)
 const rollups = ref([])
 const filteredRollups = ref([])
 const processedRollups = ref([])
+const showRanking = ref(isMainnet() && !!rollupRankingServiceURL())
 
 const utiaPerMB = (rollup) => {
 	let totalRollupMB = rollup.size / (1024 * 1024)
@@ -101,14 +103,15 @@ const utiaPerMB = (rollup) => {
 const isConfigurePopoverOpen = ref(false)
 const config = reactive({
 	columns: {
-		...(isMainnet()
+		...(showRanking.value
 			? {
 					activity: {
 						show: true,
 						sortPath: "rank",
 					},
 			  }
-			: {}),
+			: {}
+		),
 		da_change: {
 			show: false,
 		},
@@ -131,14 +134,6 @@ const config = reactive({
 			show: true,
 			sortPath: "stats.day_blobs_count",
 		},
-		...(isMainnet()
-			? {
-					commits: {
-						show: false,
-						sortPath: "stats.commits_weekly",
-					},
-			  }
-			: {}),
 		avg_pfb_size: {
 			show: false,
 			sortPath: "stats.avg_pfb_size",
@@ -157,7 +152,7 @@ const getColumnName = (name) => {
 		case "da_change":
 			return "DA Change"
 		case "paid_per_mb":
-			return "Paid per MB"
+			return "Paid per MiB"
 		case "avg_pfb_size":
 			return "Avg PFB Size"
 		default:
@@ -166,7 +161,7 @@ const getColumnName = (name) => {
 }
 
 const sort = reactive({
-	by: isMainnet() ? "rank" : "size",
+	by: showRanking.value ? "rank" : "size",
 	dir: "desc",
 })
 
@@ -284,8 +279,9 @@ const limit = ref(100)
 
 const getRollups = async () => {
 	const data = await fetchRollups({ limit: limit.value })
+	rollups.value = data
 
-	if (isMainnet()) {
+	if (showRanking.value) {
 		let ranking = {}
 		const ranking_data = await fetchRollupsRanking({ limit: limit.value })
 		if (ranking_data?.length) {
@@ -739,29 +735,6 @@ onBeforeMount(() => {
 									<NuxtLink :to="`/rollup/${r?.slug}`">
 										<Flex align="center">
 											<Text size="13" weight="600" color="primary">{{ comma(r?.stats?.day_blobs_count) }}</Text>
-										</Flex>
-									</NuxtLink>
-								</td>
-								<td v-if="config.columns.commits?.show">
-									<NuxtLink :to="`/rollup/${r?.slug}`">
-										<Flex align="start" justify="center" direction="column" gap="4">
-											<Tooltip position="start" delay="400" :disabled="true">
-												<Flex direction="column" gap="4">
-													<Text size="13" weight="600" color="primary">{{
-														comma(r?.stats?.commits_weekly)
-													}}</Text>
-												</Flex>
-
-												<template #content>
-													<Flex align="end" gap="8">
-														<Text size="12" weight="600" color="tertiary">Share of total blobs count</Text>
-
-														<Text size="12" weight="600" color="primary"
-															>{{ truncateDecimalPart(r.blobs_count_pct * 100, 2) }}%</Text
-														>
-													</Flex>
-												</template>
-											</Tooltip>
 										</Flex>
 									</NuxtLink>
 								</td>

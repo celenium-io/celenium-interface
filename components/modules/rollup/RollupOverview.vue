@@ -18,6 +18,7 @@ import NamespacesTable from "./tables/NamespacesTable.vue"
 import { capitilize, comma, formatBytes, hexToRgba, isMainnet, roundTo, truncateDecimalPart } from "@/services/utils"
 import { exportToCSV } from "@/services/utils/export"
 import { getRankCategory } from "@/services/constants/rollups"
+import { rollupRankingServiceURL } from "@/services/config"
 
 /** API */
 import { fetchRollupBlobs, fetchRollupExportData, fetchRollupNamespaces, fetchRollupRankingBySlug } from "@/services/api/rollup"
@@ -61,6 +62,7 @@ const blobs = ref([])
 const rollupColor = ref()
 const rollupColorAlpha = ref()
 const rollupRanking = ref()
+const showRanking = ref(false)
 
 const tagNames = ref(["stack", "type", "vm", "provider", "category"])
 const tags = computed(() =>
@@ -177,7 +179,9 @@ onMounted(async () => {
 	rollupColor.value = hexToRgba(props.rollup.color, 1)
 	rollupColorAlpha.value = hexToRgba(props.rollup.color, 0)
 
-	if (isMainnet()) {
+	showRanking.value = isMainnet() && rollupRankingServiceURL()
+
+	if (showRanking.value) {
 		const data = await fetchRollupRankingBySlug(props.rollup?.slug)
 		if (data.slug) {
 			rollupRanking.value = {
@@ -291,7 +295,7 @@ const handleCSVDownload = async (value) => {
 			</Flex>
 
 			<Flex align="center" gap="12">
-				<Button v-if="isMainnet()" :link="`/rollup/rank/${rollup.slug}`" type="secondary" size="mini">
+				<Button v-if="showRanking" :link="`/rollup/rank/${rollup.slug}`" type="secondary" size="mini">
 					<Icon name="laurel" size="12" color="secondary" />
 
 					<Text>Activity Rank</Text>
@@ -348,8 +352,7 @@ const handleCSVDownload = async (value) => {
 								<img id="logo" :src="rollup.logo" :class="$style.rollup_logo" />
 							</Flex>
 
-							<Flex v-if="isMainnet()" align="start" :style="{ height: '100%' }">
-								<!-- <Tooltip position="end" :disabled="!rollupRanking?.rank?.category?.color"> -->
+							<Flex v-if="showRanking" align="start" :style="{ height: '100%' }">
 								<Tooltip position="end">
 									<Icon
 										name="laurel"
@@ -763,6 +766,7 @@ const handleCSVDownload = async (value) => {
 
 		text-overflow: ellipsis;
 		overflow: hidden;
+		line-clamp: 3;
 		-webkit-line-clamp: 3;
 		-webkit-box-orient: vertical;
 	}

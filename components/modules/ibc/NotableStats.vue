@@ -29,8 +29,8 @@ props.ibcData.rawChainsStats.forEach((chainStats) => {
 		largestChain.value = chainStats
 	}
 })
-const largestTransfer = props.ibcData.rawSummary.largest_transfer
-const busiestChannel = props.ibcData.rawSummary.busiest_channel
+const largestTransfer = props.ibcData.rawSummary?.largest_transfer
+const busiestChannel = props.ibcData.rawSummary?.busiest_channel
 
 const handleOpenTransferModal = (transfer) => {
 	cacheStore.current.transfer = transfer
@@ -38,9 +38,9 @@ const handleOpenTransferModal = (transfer) => {
 }
 
 const getChainName = (target) => {
-	return largestTransfer[target].hash.startsWith("celestia")
+	return largestTransfer[target]?.hash?.startsWith("celestia")
 		? "Celestia"
-		: IbcChainName[largestTransfer.chain_id] ?? largestTransfer.chain_id
+		: IbcChainName[largestTransfer?.chain_id] ?? largestTransfer?.chain_id
 }
 </script>
 
@@ -67,7 +67,7 @@ const getChainName = (target) => {
 			<template #content> The amount shown is the chain flow, sent and received tokens </template>
 		</Tooltip>
 
-		<Flex @click="handleOpenTransferModal(largestTransfer)" wide direction="column" gap="12" :class="[$style.card, $style.hoverable]">
+		<Flex v-if="largestTransfer" @click="handleOpenTransferModal(largestTransfer)" wide direction="column" gap="12" :class="[$style.card, $style.hoverable]">
 			<Flex align="center" justify="between">
 				<Flex align="center" gap="8">
 					<Icon name="arrow-circle-broken-right" size="14" color="brand" />
@@ -97,12 +97,12 @@ const getChainName = (target) => {
 			</Flex>
 
 			<Text size="15" weight="600" color="primary">
-				{{ busiestChannel.channel_id }}
-				<Text size="12" color="tertiary">{{ IbcChainName[busiestChannel.chain_id] ?? "Unknown" }}</Text>
+				{{ busiestChannel ? busiestChannel.channel_id : "" }}
+				<Text size="12" color="tertiary">{{ busiestChannel ? IbcChainName[busiestChannel.chain_id] ?? "Unknown" : "Unknown" }}</Text>
 			</Text>
 
 			<Text size="13" weight="500" color="support">
-				<Text color="tertiary" mono>{{ comma(busiestChannel.transfers_count) }} transfers</Text>
+				<Text color="tertiary" mono>{{ comma(busiestChannel?.transfers_count ?? "") }} transfers</Text>
 			</Text>
 		</Flex>
 	</Flex>

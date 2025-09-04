@@ -5,6 +5,7 @@ import { DateTime } from "luxon"
 /** Services */
 import { abbreviate, capitilize, comma, formatBytes, isMainnet, roundTo } from "@/services/utils"
 import { getRankCategory } from "@/services/constants/rollups"
+import { quoteServiceURL, rollupRankingServiceURL } from "@/services/config"
 
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
@@ -30,35 +31,42 @@ const price = reactive({
 	diff: 0,
 	side: null,
 })
+const showPrice = ref(!!quoteServiceURL())
 const topRollup = ref(null)
+const showTopRollup = ref(isMainnet() && !!rollupRankingServiceURL())
 const tvs = computed(() => appStore.tvs)
 const txCount24h = ref(0)
 const bytesInBlocks24h = ref(0)
 
 onMounted(async () => {
-	const dataSeries = await fetchPriceSeries({ from: parseInt(DateTime.now().minus({ days: 3 }).ts / 1_000) })
-	series.value = dataSeries
-	appStore.currentPrice = series.value[0]
-	price.value = parseFloat(series.value[0].close)
+	if (showPrice.value) {
+		const dataSeries = await fetchPriceSeries({ from: parseInt(DateTime.now().minus({ days: 3 }).ts / 1_000) })
+		if (dataSeries.length) {
+			series.value = dataSeries
+			appStore.currentPrice = series.value[0]
+			price.value = parseFloat(series.value[0].close)
 
-	const prevDayClosePrice = parseFloat(series.value[1].close)
-	price.diff = (Math.abs(prevDayClosePrice - price.value) / ((prevDayClosePrice + price.value) / 2)) * 100
-	let side = "stay"
-	if (price.value - prevDayClosePrice !== 0) {
-		side = price.value - prevDayClosePrice > 0 ? "rise" : "fall"
-	}
-	price.side = side
-
-	const _topRollups = await fetchRollupsRanking({ limit: 1 })
-	if (_topRollups.length) {
-		const _r = _topRollups[0]
-		topRollup.value = {
-			..._r,
-			category: getRankCategory(roundTo(_r.rank / 10, 0)),
-			name: _r.slug.split("-").map(el => capitilize(el)).join(" "),
+			const prevDayClosePrice = parseFloat(series.value[1].close)
+			price.diff = (Math.abs(prevDayClosePrice - price.value) / ((prevDayClosePrice + price.value) / 2)) * 100
+			let side = "stay"
+			if (price.value - prevDayClosePrice !== 0) {
+				side = price.value - prevDayClosePrice > 0 ? "rise" : "fall"
+			}
+			price.side = side
 		}
 	}
-	
+
+	if (showTopRollup.value) {
+		const _topRollups = await fetchRollupsRanking({ limit: 1 })
+		if (_topRollups.length) {
+			const _r = _topRollups[0]
+			topRollup.value = {
+				..._r,
+				category: getRankCategory(roundTo(_r.rank / 10, 0)),
+				name: _r.slug.split("-").map(el => capitilize(el)).join(" "),
+			}
+		}
+	}
 	
 	const _tvs = await fetchTVS({ period: null })
 	if (_tvs.value) {
@@ -82,7 +90,7 @@ onMounted(async () => {
 	<Flex tag="section" justify="center" wide :class="$style.wrapper">
 		<Flex align="center" justify="between" gap="24" wide :class="$style.container">
 			<Flex align="center" gap="12" :class="$style.stats">
-				<template v-if="isMainnet()">
+				<template v-if="showTopRollup">
 					<NuxtLink :to="`/rollup/rank/${topRollup?.slug}`">
 						<Tooltip>
 							<Flex align="center" gap="6" :class="$style.stat">
@@ -190,7 +198,7 @@ onMounted(async () => {
 				</Tooltip>
 			</Flex>
 
-			<Tooltip position="end">
+			<Tooltip v-if="showPrice" position="end">
 				<Flex align="center" gap="6" :class="$style.stat">
 					<Icon name="coin" size="12" color="secondary" :class="$style.icon" />
 

@@ -13,6 +13,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 /** Services */
 import { comma, isMainnet, roundTo, sortArrayOfObjects } from "@/services/utils"
 import { getMetricCategory, getRankCategory } from "@/services/constants/rollups"
+import { rollupRankingServiceURL } from "@/services/config"
 
 /** Stores */
 import { useCacheStore } from "@/store/cache.store"
@@ -23,8 +24,10 @@ const modalsStore = useModalsStore()
 const route = useRoute()
 const router = useRouter()
 
-if (!isMainnet()) {
+if (!(isMainnet() && !!rollupRankingServiceURL())) {
 	router.push("/")
+} else {
+	await fetchData()
 }
 
 // Pagination
@@ -77,7 +80,7 @@ const getRollupRepos = async (slug) => {
 
 	return data
 }
-const fetchData = async () => {
+async function fetchData() {
 	isRefetching.value = true
 
 	const slug = route.params.slug
@@ -132,7 +135,6 @@ const fetchData = async () => {
 
 	isRefetching.value = false
 }
-await fetchData()
 
 defineOgImageComponent("RollupImage", {
 	title: "Rollup",
