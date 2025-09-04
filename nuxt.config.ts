@@ -67,7 +67,7 @@ export default defineNuxtConfig({
 	runtimeConfig: {
 		public: {
 			AMP: process.env.AMP,
-			version: "1.16.0",
+			version: "1.20.0",
 
 			API_MAINNET: '',
 			API_MOCHA: '',
