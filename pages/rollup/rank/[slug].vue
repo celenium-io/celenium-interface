@@ -24,12 +24,6 @@ const modalsStore = useModalsStore()
 const route = useRoute()
 const router = useRouter()
 
-if (!(isMainnet() && !!rollupRankingServiceURL())) {
-	router.push("/")
-} else {
-	await fetchData()
-}
-
 // Pagination
 const limit = 10
 const page = ref(1)
@@ -51,6 +45,12 @@ const repos = ref([])
 const commits = ref([])
 const totalCommits = computed(() => commits.value?.reduce((acc, c) => acc + c.amount, 0))
 
+if (!(isMainnet() && !!rollupRankingServiceURL())) {
+	router.push("/")
+} else {
+	await fetchData()
+}
+
 function getMetricDescription(metric) {
 	switch (metric) {
 		case "blobs":
@@ -71,7 +71,7 @@ function getMetricDescription(metric) {
 }
 const chartEl = ref(null)
 
-const getRollupRepos = async (slug) => {
+async function getRollupRepos(slug) {
 	const data = await fetchRollupOrgReposBySlug({
 		slug: slug,
 		limit: limit,
