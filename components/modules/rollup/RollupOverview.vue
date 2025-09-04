@@ -22,6 +22,9 @@ import { getRankCategory } from "@/services/constants/rollups"
 /** API */
 import { fetchRollupBlobs, fetchRollupExportData, fetchRollupNamespaces } from "@/services/api/rollup"
 
+/** Data */
+import badges from "@data/badges.json"
+
 /** Store */
 import { useCacheStore } from "@/store/cache.store"
 import { useNotificationsStore } from "@/store/notifications.store"
@@ -100,10 +103,9 @@ const tags = computed(() =>
 	}, []),
 )
 
-const { data: badges } = await useFetch('/api/badges')
 const showBadges = computed(() => {
-	const showSettled = props.rollup?.settled_on && badges.value?.settled?.includes(props.rollup?.settled_on?.toLowerCase())
-	const showProvider = props.rollup?.provider && badges.value?.providers?.includes(props.rollup?.provider?.toLowerCase())
+	const showSettled = props.rollup?.settled_on && badges?.settled?.includes(props.rollup?.settled_on?.toLowerCase())
+	const showProvider = props.rollup?.provider && badges?.provider?.includes(props.rollup?.provider?.toLowerCase())
 	
 	return {
 		show: showSettled || showProvider,
@@ -416,7 +418,7 @@ const handleCSVDownload = async (value) => {
 						/>
 					</Flex>
 
-					<Flex align="center" justify="start" gap="16" wrap="wrap" :style="{ marginTop: showBadges.show ? '0px' : '-24px' }">
+					<Flex align="center" justify="start" gap="16" wrap="wrap" :style="{ marginTop: showBadges.show ? '0px' : '-20px' }">
 						<Tooltip v-if="rollup.website" position="start" delay="300">
 							<a :href="rollup.website" target="_blank">
 								<Icon name="globe" size="14" color="secondary" />

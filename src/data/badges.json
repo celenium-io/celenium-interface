@@ -1,0 +1,16 @@
+{
+  "provider": [
+    "bvm.network",
+    "caldera",
+    "conduit",
+    "dymension",
+    "gelato",
+    "initia",
+    "movement"
+  ],
+  "settled": [
+    "arbitrum",
+    "base",
+    "ethereum"
+  ]
+}

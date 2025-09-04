@@ -143,6 +143,7 @@ export default defineNuxtConfig({
 		resolve: {
 			alias: {
 				"unenv/runtime/node/buffer/index/": path.resolve(__dirname, "./node_modules/buffer/index"),
+				"@data": path.resolve(__dirname, "src/data"),
 			},
 		},
 		plugins: [wasm(), topLevelAwait(), nodePolyfills()],
