@@ -5,11 +5,12 @@ import { DateTime } from "luxon"
 import { roundTo } from "@/services/utils"
 
 export const rankCoefficients = {
-	day_blobs_count: 0.2,
-	avg_pfb_size: 0.3,
-	last_message_time: 0.3,
-	commits_weekly: 0.1,
-	last_pushed_at: 0.1,
+	blobs: 0.2,
+	commits: 0.05,
+	last_msg: 0.2,
+	last_push: 0.05,
+	mb_price: 0.2,
+	tvl: 0.3,
 }
 
 export const rankCategories = [
@@ -28,7 +29,7 @@ export const getRankCategory = (rank) => {
 
 export const getMetricCategory = (metric, score) => {
 	const metricValue = rankCoefficients[metric]
-	let rank = roundTo((score / metricValue) * 10, 0)
+	let rank = roundTo((score / metricValue) / 10, 0)
 
 	return { ...getRankCategory(rank), rank: score / metricValue }
 }

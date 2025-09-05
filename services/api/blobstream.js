@@ -2,6 +2,8 @@
 import { useBlobstreamURL } from "@/services/config"
 
 export const fetchNetworks = () => {
+	if (!useBlobstreamURL()) return []
+
 	try {
 		const url = new URL(`${useBlobstreamURL()}/network`)
 
@@ -14,6 +16,8 @@ export const fetchNetworks = () => {
 }
 
 export const fetchCommitments = ({ limit, offset, sort }) => {
+	if (!useBlobstreamURL()) return []
+	
 	try {
 		const url = new URL(`${useBlobstreamURL()}/commitments`)
 
@@ -30,6 +34,8 @@ export const fetchCommitments = ({ limit, offset, sort }) => {
 }
 
 export const fetchCommitmentsByNetwork = ({ network, limit, offset, sort }) => {
+	if (!useBlobstreamURL()) return []
+	
 	try {
 		const url = new URL(`${useBlobstreamURL()}/network/${network}/commitments`)
 
@@ -46,6 +52,8 @@ export const fetchCommitmentsByNetwork = ({ network, limit, offset, sort }) => {
 }
 
 export const fetchContracts = (address) => {
+	if (!useBlobstreamURL()) return []
+	
 	try {
 		const url = new URL(`${useBlobstreamURL()}/contracts`)
 

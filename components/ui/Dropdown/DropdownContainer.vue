@@ -70,9 +70,9 @@ watch(
 )
 
 const toggleDropdown = (event) => {
-	emit("onOpen")
 	if (event) event.stopPropagation()
 	if (props.disabled) return
+	emit("onOpen")
 	isOpen.value = !isOpen.value
 }
 const close = (event) => {
@@ -213,7 +213,7 @@ const onKeydown = (event) => {
 
 <template>
 	<div :class="$style.wrapper">
-		<div ref="trigger" id="trigger" @click="toggleDropdown" :class="[$style.trigger, wide && $style.wide]">
+		<div ref="trigger" id="trigger" @click="toggleDropdown" :class="[$style.trigger, wide && $style.wide, disabled && $style.disabled]">
 			<slot />
 			<slot name="trigger" :isOpen="isOpen" />
 		</div>
@@ -227,7 +227,10 @@ const onKeydown = (event) => {
 						v-if="isOpen"
 						ref="dropdown"
 						@click="close"
-						:class="[$style.dropdown, dropdownStyles.top ? $style.transform_origin_top : $style.transform_origin_bottom]"
+						:class="[
+							$style.dropdown,
+							dropdownStyles.top ? $style.transform_origin_top : $style.transform_origin_bottom,
+						]"
 						:style="{
 							...dropdownStyles,
 						}"
@@ -279,5 +282,10 @@ const onKeydown = (event) => {
 
 .dropdown.transform_origin_bottom {
 	transform-origin: bottom center;
+}
+
+.disabled {
+	opacity: 0.5;
+	pointer-events: none;
 }
 </style>
