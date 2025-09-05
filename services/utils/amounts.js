@@ -68,7 +68,7 @@ export const utia = (amount) => {
 export const truncateDecimalPart = (amount, decimal = 6) => {
 	if (!amount) return 0
 
-	const numberString = amount.toFixed(decimal).replace(/\.?0+$/, "")
+	const numberString = amount.toFixed(decimal).replace(/\.0+$/, "")
 
 	return parseFloat(numberString)
 }

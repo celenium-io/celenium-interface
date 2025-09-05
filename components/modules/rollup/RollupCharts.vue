@@ -101,7 +101,7 @@ const seriesConfig = [
 		series: feeSeries,
 		title: "Fee spent",
 		tooltipLabel: "Spent",
-		yAxisFormatter: (val) => tia(val, 0),
+		yAxisFormatter: (val) => tia(val, 1),
 		tooltipValueFormatter: tia,
 	},
 	{
