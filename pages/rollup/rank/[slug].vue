@@ -4,7 +4,7 @@ import * as d3 from "d3"
 import { DateTime } from "luxon"
 
 /** API */
-import { fetchRollupBySlug, fetchRollupOrgBySlug, fetchRollupOrgCommitsBySlug, fetchRollupOrgReposBySlug } from "@/services/api/rollup"
+import { fetchRollupBySlug, fetchRollupOrgBySlug, fetchRollupOrgCommitsBySlug, fetchRollupOrgReposBySlug, fetchRollupRankingBySlug } from "@/services/api/rollup"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
@@ -13,21 +13,16 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 /** Services */
 import { comma, isMainnet, roundTo, sortArrayOfObjects } from "@/services/utils"
 import { getMetricCategory, getRankCategory } from "@/services/constants/rollups"
+import { rollupRankingServiceURL } from "@/services/config"
 
 /** Stores */
 import { useCacheStore } from "@/store/cache.store"
 import { useModalsStore } from "@/store/modals.store"
-import { useActivityStore } from "@/store/activity.store"
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
-const activityStore = useActivityStore()
 
 const route = useRoute()
 const router = useRouter()
-
-if (!isMainnet()) {
-	router.push("/")
-}
 
 // Pagination
 const limit = 10
@@ -49,34 +44,64 @@ const rollup = ref({})
 const repos = ref([])
 const commits = ref([])
 const totalCommits = computed(() => commits.value?.reduce((acc, c) => acc + c.amount, 0))
-const rollupRanking = computed(() => {
-	if (!activityStore?.initialized) return null
 
-	const rollupRaw = activityStore?.rollups_ranking?.ranking?.[route.params.slug]
-	if (!rollupRaw) return null
+if (!(isMainnet() && !!rollupRankingServiceURL())) {
+	router.push("/")
+} else {
+	await fetchData()
+}
 
-	const rawRanking = rollupRaw.ranking
-	const ranking = {}
+function getMetricDescription(metric) {
+	switch (metric) {
+		case "blobs":
+			return "blob sending rate"
+		case "commits":
+			return "commit rate"
+		case "last_msg":
+			return "last message period"
+		case "last_push":
+			return "last commit period"
+		case "mb_price":
+			return "MB price rate"
+		case "tvl":
+			return "TVL rate"
+		default:
+			return ""
+	}
+}
+const chartEl = ref(null)
+
+async function getRollupRepos(slug) {
+	const data = await fetchRollupOrgReposBySlug({
+		slug: slug,
+		limit: limit,
+		offset: (page.value - 1) * limit,
+	})
+
+	return data
+}
+async function fetchData() {
+	isRefetching.value = true
+
+	const slug = route.params.slug
+	const [rollupData, summaryData, reposData, commitsData, rankData] = await Promise.all([
+		fetchRollupBySlug(slug),
+		fetchRollupOrgBySlug(slug),
+		getRollupRepos(slug),
+		fetchRollupOrgCommitsBySlug({ slug }),
+		fetchRollupRankingBySlug(slug),
+	])
+
 	let description = []
-
-	for (const [key, value] of Object.entries(rawRanking)) {
-		if (key === "rank") continue
-
-		const category = getMetricCategory(key, value / 100)
-		ranking[key] = { category, score: value }
+	for (const [key, value] of Object.entries(rankData?.scores)) {
+		const category = getMetricCategory(key, value)
 
 		if (category.name.toLowerCase() === "offline") continue
 
 		description.push({
 			text: getMetricDescription(key),
 			category,
-			score: value,
 		})
-	}
-
-	ranking.rank = {
-		category: getRankCategory(roundTo(rawRanking.rank / 10, 0)),
-		score: rawRanking.rank,
 	}
 
 	if (description.length) {
@@ -93,59 +118,23 @@ const rollupRanking = computed(() => {
 		}
 	}
 
-	return {
-		...rollupRaw,
-		ranking,
-		description,
-		updated: activityStore?.rollups_ranking?.last_update,
-	}
-})
-const getMetricDescription = (metric) => {
-	switch (metric) {
-		case "avg_pfb_size":
-			return "average blob size rate"
-		case "commits_weekly":
-			return "commit rate"
-		case "day_blobs_count":
-			return "blob sending rate"
-		case "last_message_time":
-			return "last message period"
-		case "last_pushed_at":
-			return "last commit period"
-		default:
-			return ""
-	}
-}
-const chartEl = ref(null)
-
-const getRollupRepos = async (slug) => {
-	const data = await fetchRollupOrgReposBySlug({
-		slug: slug,
-		limit: limit,
-		offset: (page.value - 1) * limit,
-	})
-
-	return data
-}
-const fetchData = async () => {
-	isRefetching.value = true
-
-	const slug = route.params.slug
-	const [rollupData, summaryData, reposData, commitsData] = await Promise.all([
-		fetchRollupBySlug(slug),
-		fetchRollupOrgBySlug(slug),
-		getRollupRepos(slug),
-		fetchRollupOrgCommitsBySlug({ slug }),
-	])
+	const minutes = DateTime.now().minute
 
 	org.value = summaryData
-	rollup.value = rollupData?.data?.value
+	rollup.value = {
+		...rollupData?.data?.value,
+		ranking: {
+			...rankData,
+			description,
+			category: getRankCategory(roundTo(rankData.rank / 10, 0)),
+			updated: minutes ? minutes : 1,
+		}
+	}
 	repos.value = reposData
 	commits.value = commitsData
 
 	isRefetching.value = false
 }
-await fetchData()
 
 defineOgImageComponent("RollupImage", {
 	title: "Rollup",
@@ -248,7 +237,6 @@ const buildChart = (chart, data) => {
 }
 
 const handleHowItWorksClick = () => {
-	cacheStore.selectedRollupRank = rollupRanking.value
 	cacheStore.selectedRollup = rollup.value
 	modalsStore.open("rollupRank")
 }
@@ -445,30 +433,30 @@ onMounted(() => {
 				</Flex>
 
 				<Flex direction="column" gap="32" :class="$style.right" wide>
-					<Flex v-if="rollupRanking?.ranking?.rank?.category?.name" direction="column" gap="12" :class="$style.card">
+					<Flex v-if="rollup?.ranking?.category?.name" direction="column" gap="12" :class="$style.card">
 						<Text size="12" color="secondary" weight="600"> Activity Rank </Text>
 						<Flex direction="column" gap="12" :class="$style.rank_description">
 							<Flex direction="column" gap="12" :style="{ flex: 1 }">
-								<Icon name="laurel" size="32" :color="rollupRanking?.ranking?.rank?.category?.color" />
+								<Icon name="laurel" size="32" :color="rollup?.ranking?.category?.color" />
 								<Flex direction="column" gap="6">
 									<Text
 										size="16"
 										weight="600"
-										:class="[$style.summary_rate, $style[rollupRanking?.ranking?.rank?.category?.name?.toLowerCase()]]"
+										:class="[$style.summary_rate, $style[rollup?.ranking?.category?.name?.toLowerCase()]]"
 										:style="{ textWrap: 'nowrap' }"
 									>
 										{{
-											`${roundTo(rollupRanking?.ranking?.rank?.score / 10, 0)} ${
-												rollupRanking?.ranking?.rank?.category?.name
+											`${roundTo(rollup?.ranking?.rank / 10, 0)} ${
+												rollup?.ranking?.category?.name
 											}`
 										}}
 									</Text>
-									<Text size="12" color="tertiary"> {{ rollupRanking?.ranking?.rank?.score }}% </Text>
+									<Text size="12" color="tertiary"> {{ rollup?.ranking?.rank }}% </Text>
 								</Flex>
 							</Flex>
 
 							<Text
-								v-if="rollupRanking?.description.length"
+								v-if="rollup?.ranking?.description?.length"
 								size="13"
 								color="primary"
 								weight="600"
@@ -476,7 +464,7 @@ onMounted(() => {
 							>
 								{{ rollup.name }}
 								<Text weight="500" color="secondary">shows the </Text>
-								<span v-for="d in rollupRanking?.description">
+								<span v-for="d in rollup?.ranking?.description">
 									<Text :class="[$style.summary_rate, $style[d.category.name.toLowerCase()]]">
 										{{ d.category.name.toLowerCase() + " " }}
 									</Text>
@@ -496,7 +484,7 @@ onMounted(() => {
 								<Text size="12" color="tertiary">
 									Updated
 									<Text color="secondary" weight="600">
-										{{ DateTime.fromMillis(rollupRanking?.updated).toRelative({ locale: "en", style: "short" }) }}
+										{{ `${rollup?.ranking?.updated} min. ago` }}
 									</Text>
 								</Text>
 							</Flex>

@@ -23,6 +23,8 @@ import RollupRankModal from "./RollupRankModal.vue"
 import HyperlaneTransferModal from "./HyperlaneTransferModal.vue"
 import HyperlaneTokenModal from "./HyperlaneTokenModal.vue"
 import HyperlaneMailboxModal from "./HyperlaneMailboxModal.vue"
+import IBCTransferModal from "./IBCTransferModal.vue"
+import IBCClientModal from "./IBCClientModal.vue"
 
 /** Store */
 import { useModalsStore } from "@/store/modals.store"
@@ -54,4 +56,6 @@ const modalsStore = useModalsStore()
 	<HyperlaneTransferModal :show="modalsStore.modals.hyperlaneTransfer" @onClose="modalsStore.close('hyperlaneTransfer')" />
 	<HyperlaneTokenModal :show="modalsStore.modals.hyperlaneToken" @onClose="modalsStore.close('hyperlaneToken')" />
 	<HyperlaneMailboxModal :show="modalsStore.modals.hyperlaneMailbox" @onClose="modalsStore.close('hyperlaneMailbox')" />
+	<IBCTransferModal :show="modalsStore.modals.ibcTransfer" @onClose="modalsStore.close('ibcTransfer')" />
+	<IBCClientModal :show="modalsStore.modals.ibcClient" @onClose="modalsStore.close('ibcClient')" />
 </template>

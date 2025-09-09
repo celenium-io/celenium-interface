@@ -3,40 +3,26 @@
 import { DateTime } from "luxon"
 
 /** Services */
-import { abbreviate, comma, formatBytes, isMainnet, roundTo } from "@/services/utils"
+import { abbreviate, capitilize, comma, formatBytes, isMainnet, roundTo } from "@/services/utils"
 import { getRankCategory } from "@/services/constants/rollups"
+import { quoteServiceURL, rollupRankingServiceURL } from "@/services/config"
 
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** API */
-import { fetchPriceSeries, fetchTVS } from "@/services/api/stats"
+import { fetchRollupsRanking } from "@/services/api/rollup"
+import { fetchPriceSeries, fetchSummary, fetchTVS } from "@/services/api/stats"
 
 /** Store */
 import { useAppStore } from "@/store/app.store"
-import { useActivityStore } from "@/store/activity.store"
 const appStore = useAppStore()
-const activityStore = useActivityStore()
 
 const head = computed(() => appStore.lastHead)
 const currentPrice = computed(() => appStore.currentPrice)
 
-const totalSupply = computed(() => head.value.total_supply / 1_000_000)
-const totalSupplyUSD = computed(() => totalSupply.value * currentPrice.value?.close)
 const totalFees = computed(() => head.value.total_fee / 1_000_000)
 const totalFeesUSD = computed(() => totalFees.value * currentPrice.value?.close)
-const topRollup = computed(() => {
-	let rankCategory = getRankCategory(roundTo(activityStore?.rollups_ranking?.top_rollup?.rank / 10, 0))
-	return {
-		slug: activityStore?.rollups_ranking?.top_rollup?.slug,
-		name: activityStore?.rollups_ranking?.top_rollup?.name,
-		rank: {
-			name: rankCategory?.name,
-			score: activityStore?.rollups_ranking?.top_rollup?.rank,
-			color: rankCategory?.color,
-		},
-	}
-})
 
 const isLoading = ref(true)
 const series = ref([])
@@ -45,25 +31,56 @@ const price = reactive({
 	diff: 0,
 	side: null,
 })
+const showPrice = ref(!!quoteServiceURL())
+const topRollup = ref(null)
+const showTopRollup = ref(isMainnet() && !!rollupRankingServiceURL())
 const tvs = computed(() => appStore.tvs)
+const txCount24h = ref(0)
+const bytesInBlocks24h = ref(0)
+
 onMounted(async () => {
-	const dataSeries = await fetchPriceSeries({ from: parseInt(DateTime.now().minus({ days: 3 }).ts / 1_000) })
-	series.value = dataSeries
-	appStore.currentPrice = series.value[0]
-	price.value = parseFloat(series.value[0].close)
+	if (showPrice.value) {
+		const dataSeries = await fetchPriceSeries({ from: parseInt(DateTime.now().minus({ days: 3 }).ts / 1_000) })
+		if (dataSeries.length) {
+			series.value = dataSeries
+			appStore.currentPrice = series.value[0]
+			price.value = parseFloat(series.value[0].close)
 
-	const prevDayClosePrice = parseFloat(series.value[1].close)
-	price.diff = (Math.abs(prevDayClosePrice - price.value) / ((prevDayClosePrice + price.value) / 2)) * 100
-	let side = "stay"
-	if (price.value - prevDayClosePrice !== 0) {
-		side = price.value - prevDayClosePrice > 0 ? "rise" : "fall"
+			const prevDayClosePrice = parseFloat(series.value[1].close)
+			price.diff = (Math.abs(prevDayClosePrice - price.value) / ((prevDayClosePrice + price.value) / 2)) * 100
+			let side = "stay"
+			if (price.value - prevDayClosePrice !== 0) {
+				side = price.value - prevDayClosePrice > 0 ? "rise" : "fall"
+			}
+			price.side = side
+		}
 	}
-	price.side = side
 
+	if (showTopRollup.value) {
+		const _topRollups = await fetchRollupsRanking({ limit: 1 })
+		if (_topRollups.length) {
+			const _r = _topRollups[0]
+			topRollup.value = {
+				..._r,
+				category: getRankCategory(roundTo(_r.rank / 10, 0)),
+				name: _r.slug.split("-").map(el => capitilize(el)).join(" "),
+			}
+		}
+	}
+	
 	const _tvs = await fetchTVS({ period: null })
 	if (_tvs.value) {
 		appStore.tvs = _tvs.value
 	}
+
+	const startTime = parseInt(DateTime.now().minus({ days: 1 }).toSeconds())
+	const params = {
+		table: "block_stats",
+		func: "sum",
+		from: startTime,
+	}
+	txCount24h.value = await fetchSummary({ ...params, column: "tx_count" })
+	bytesInBlocks24h.value = await fetchSummary({ ...params, column: "bytes_in_block" })
 
 	isLoading.value = false
 })
@@ -73,7 +90,7 @@ onMounted(async () => {
 	<Flex tag="section" justify="center" wide :class="$style.wrapper">
 		<Flex align="center" justify="between" gap="24" wide :class="$style.container">
 			<Flex align="center" gap="12" :class="$style.stats">
-				<template v-if="isMainnet()">
+				<template v-if="showTopRollup">
 					<NuxtLink :to="`/rollup/rank/${topRollup?.slug}`">
 						<Tooltip>
 							<Flex align="center" gap="6" :class="$style.stat">
@@ -81,7 +98,7 @@ onMounted(async () => {
 									v-if="topRollup?.name"
 									name="laurel"
 									size="14"
-									:color="topRollup?.rank?.color"
+									:color="topRollup?.category?.color"
 									:style="{ marginTop: '1px' }"
 								/>
 								<Icon v-else name="laurel" size="14" color="tertiary" :class="$style.icon" :style="{ marginTop: '1px' }" />
@@ -99,11 +116,11 @@ onMounted(async () => {
 								<Flex direction="column" gap="8">
 									<Flex align="center" justify="between" gap="8">
 										<Text size="12" weight="500" color="tertiary">Rank:</Text>
-										<Text size="12" weight="600" :color="topRollup?.rank?.color"> {{ topRollup?.rank?.name }} </Text>
+										<Text size="12" weight="600" :color="topRollup?.category?.color"> {{ topRollup?.category?.name }} </Text>
 									</Flex>
 									<Flex align="center" justify="between" gap="8">
 										<Text size="12" weight="500" color="tertiary">Score:</Text>
-										<Text size="12" weight="600" color="secondary"> {{ topRollup?.rank?.score }}% </Text>
+										<Text size="12" weight="600" color="secondary"> {{ topRollup?.rank }}% </Text>
 									</Flex>
 								</Flex>
 							</template>
@@ -112,35 +129,12 @@ onMounted(async () => {
 
 					<div :class="$style.dot" />
 				</template>
-
-				<Tooltip>
-					<Flex align="center" gap="6" :class="$style.stat">
-						<Icon name="tx" size="12" color="secondary" :class="$style.icon" />
-						<Flex align="center" gap="4">
-							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Txs:</Text>
-
-							<Text v-if="head.total_tx" size="12" weight="600" noWrap :class="$style.value">{{
-								abbreviate(head.total_tx)
-							}}</Text>
-							<Skeleton v-else w="40" h="12" />
-						</Flex>
-					</Flex>
-
-					<template #content>
-						<Flex align="center" justify="between" gap="8">
-							<Text size="12" weight="500" color="tertiary">Total Txs:</Text>
-							<Text size="12" weight="600" color="secondary"> {{ comma(head.total_tx) }} </Text>
-						</Flex>
-					</template>
-				</Tooltip>
-
-				<div :class="$style.dot" />
-
+				
 				<Tooltip>
 					<Flex align="center" gap="6" :class="$style.stat">
 						<Icon name="coins" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
-							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">TVS:</Text>
+							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Current TVS:</Text>
 
 							<Text v-if="!isLoading" size="12" weight="600" noWrap :class="$style.value">
 								{{ abbreviate(tvs, 2) }} USD
@@ -161,12 +155,12 @@ onMounted(async () => {
 
 				<Tooltip>
 					<Flex align="center" gap="6" :class="$style.stat">
-						<Icon name="namespace" size="12" color="secondary" :class="$style.icon" />
+						<Icon name="tx" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
-							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Blobs Size:</Text>
+							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Txs:</Text>
 
-							<Text v-if="head.total_blobs_size" size="12" weight="600" noWrap :class="$style.value">{{
-								formatBytes(head.total_blobs_size)
+							<Text v-if="!isLoading" size="12" weight="600" noWrap :class="$style.value">{{
+								abbreviate(txCount24h)
 							}}</Text>
 							<Skeleton v-else w="40" h="12" />
 						</Flex>
@@ -174,8 +168,8 @@ onMounted(async () => {
 
 					<template #content>
 						<Flex align="center" justify="between" gap="8">
-							<Text size="12" weight="500" color="tertiary">Total Blobs Size:</Text>
-							<Text size="12" weight="600" color="secondary"> {{ comma(head.total_blobs_size) }} Bytes </Text>
+							<Text size="12" weight="500" color="tertiary">24h Tx Count:</Text>
+							<Text size="12" weight="600" color="secondary"> {{ comma(txCount24h) }} </Text>
 						</Flex>
 					</template>
 				</Tooltip>
@@ -184,27 +178,27 @@ onMounted(async () => {
 
 				<Tooltip>
 					<Flex align="center" gap="6" :class="$style.stat">
-						<Icon name="tag" size="12" color="secondary" :class="$style.icon" />
+						<Icon name="block" size="12" color="secondary" :class="$style.icon" />
 						<Flex align="center" gap="4">
-							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Fees:</Text>
+							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Bytes In Blocks:</Text>
 
-							<Text v-if="head.total_fee" size="12" weight="600" noWrap :class="$style.value">
-								{{ abbreviate(parseInt(totalFees)) }} TIA
-							</Text>
+							<Text v-if="!isLoading" size="12" weight="600" noWrap :class="$style.value">{{
+								formatBytes(bytesInBlocks24h)
+							}}</Text>
 							<Skeleton v-else w="40" h="12" />
 						</Flex>
 					</Flex>
 
 					<template #content>
 						<Flex align="center" justify="between" gap="8">
-							<Text size="12" weight="500" color="tertiary">Total Fees:</Text>
-							<Text size="12" weight="600" color="secondary"> {{ abbreviate(totalFeesUSD) }} USD </Text>
+							<Text size="12" weight="500" color="tertiary">24h Bytes In Blocks:</Text>
+							<Text size="12" weight="600" color="secondary"> {{ comma(bytesInBlocks24h) }} Bytes </Text>
 						</Flex>
 					</template>
 				</Tooltip>
 			</Flex>
 
-			<Tooltip position="end">
+			<Tooltip v-if="showPrice" position="end">
 				<Flex align="center" gap="6" :class="$style.stat">
 					<Icon name="coin" size="12" color="secondary" :class="$style.icon" />
 

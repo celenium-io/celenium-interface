@@ -1,15 +1,10 @@
 <script setup>
-/** Services */
-import { getNetworkName } from "@/services/utils/general"
-
 /** Components: Widgets */
 import BlockWidget from "./BlockWidget.vue"
 import BlobsWidget from "./BlobsWidget.vue"
+import GlobalUpdatesWidget from "./GlobalUpdatesWidget.vue"
 import StakingWidget from "./StakingWidget.vue"
-import TransactionsWidget from "./TransactionsWidget.vue"
 import GasWidget from "./GasWidget.vue"
-
-import BlocksFeed from "@/components/modules/stats/BlocksFeed.vue"
 
 const tablet = ref(false)
 
@@ -22,8 +17,6 @@ onBeforeMount(() => {
 
 <template>
 	<Flex direction="column" gap="20">
-		<BlocksFeed v-if="getNetworkName() === 'Mammoth'" />
-
 		<Flex gap="20" :class="$style.wrapper">
 			<Flex direction="column" gap="20" wide :class="$style.column">
 				<BlockWidget />
@@ -33,7 +26,7 @@ onBeforeMount(() => {
 			<StakingWidget :class="$style.staking_widget" />
 
 			<Flex direction="column" gap="20" wide :class="$style.column">
-				<TransactionsWidget />
+				<GlobalUpdatesWidget />
 				<GasWidget />
 			</Flex>
 		</Flex>

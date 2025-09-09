@@ -53,15 +53,6 @@ const advertisements = [
 		footer: "Take the survey",
 		weight: 0,
 	},
-	{
-		name: "lotus_upgrade",
-		link: "https://blog.celestia.org/lotus",
-		icon: "lotus",
-		header: "Lotus Upgrade",
-		body: "Introducing the Lotus upgrade: native TIA interop and reduced issuance.",
-		footer: "Read More",
-		weight: 0,
-	},
 ]
 
 export function getRandomAdv() {

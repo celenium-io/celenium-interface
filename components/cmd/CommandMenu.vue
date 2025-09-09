@@ -250,6 +250,15 @@ const rawNavigationActions = [
 	{
 		type: "callback",
 		icon: "arrow-narrow-right",
+		title: "Go to IBC",
+		runText: "Open IBC",
+		callback: () => {
+			router.push("/ibc")
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Transactions",
 		runText: "Open Transactions",
 		callback: () => {

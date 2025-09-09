@@ -28,14 +28,20 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	pause: {
+		type: Boolean,
+		default: false,
+	},
 })
 
 const blocks = computed(() => appStore.latestBlocks.slice(0, 80).sort((a, b) => a.height - b.height))
+const blocksSnapshot = ref([])
 
 const timeline = computed(() => {
 	let time = []
-	blocks.value.forEach((b) => {
-		time.push(DateTime.fromISO(b.time).toFormat("h:mm"))
+	let arrBlocks = props.pause ? blocksSnapshot.value : blocks.value
+	arrBlocks.forEach((b) => {
+		time.push(DateTime.fromISO(b.time).toFormat("H:mm"))
 	})
 	time = new Set(time)
 
@@ -44,11 +50,13 @@ const timeline = computed(() => {
 		arr.splice(Math.round(arr.length / 2), 1)
 		time = new Set(arr)
 	}
+
 	return time
 })
 
 const maxSize = computed(() => {
 	if (!blocks.value) return 0
+	
 	return Math.max(...blocks.value.map((b) => b.stats.bytes_in_block))
 })
 const avgBlockTime = ref(0)
@@ -68,6 +76,17 @@ const marginBar = computed(() => (chartWidth.value - barWidth.value * 80) / 79)
 const debouncedRedraw = () => {
 	chartWidth.value = chartBlocksEl.value?.wrapper?.offsetWidth
 }
+
+watch(
+	() => props.pause,
+	() => {
+		if (props.pause) {
+			blocksSnapshot.value = [...blocks.value]
+		} else {
+			blocksSnapshot.value = []
+		}
+	},
+)
 
 onMounted(async () => {
 	chartWidth.value = chartBlocksEl.value?.wrapper?.offsetWidth
@@ -92,7 +111,7 @@ onBeforeUnmount(() => {
 		</Flex>
 
 		<Flex ref="chartBlocksEl" align="end" :class="$style.chart">
-			<Tooltip v-for="(b, index) in blocks" position="start" :style="{ max_width: '100%', width: '100%', height: '100%' }">
+			<Tooltip v-for="(b, index) in pause ? blocksSnapshot : blocks" position="start" :style="{ max_width: '100%', width: '100%', height: '100%' }">
 				<Flex align="end" :class="$style.bar_wrapper">
 					<Flex
 						:class="[$style.bar, b.stats.blobs_count && $style.bar_blob]"
@@ -139,7 +158,7 @@ onBeforeUnmount(() => {
 .card_wrapper {
 	width: 100%;
 	max-width: 100%;
-	height: 140px;
+	max-height: 140px;
 
 	background: var(--card-background);
 	border-radius: 12px;

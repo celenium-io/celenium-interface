@@ -11,6 +11,8 @@ import NavLink from "@/components/modules/navigation/NavLink.vue"
 import { getNetworkName } from "@/services/utils/general"
 import { StatusMap } from "@/services/constants/node"
 import { isMainnet, isMobile } from "@/services/utils"
+import { nodeStatsURL } from "@/services/config"
+import { isSelfhosted } from "@/services/config.js"
 
 /** Store */
 import { useAppStore } from "@/store/app.store"
@@ -95,7 +97,7 @@ const mainLinks = reactive([
 				name: "Nodes",
 				path: "/stats?tab=nodes",
 				queryParam: { tab: "nodes" },
-				show: isMainnet(),
+				show: isMainnet() && !!nodeStatsURL(),
 			},
 		],
 	},
@@ -139,6 +141,23 @@ const modularLinks = reactive([
 		],
 	},
 	{
+		icon: "ibc",
+		name: "IBC",
+		path: "/ibc",
+		children: [
+			{
+				name: "Transfers",
+				path: "/ibc/transfers",
+				show: true,
+			},
+			{
+				name: "Chains",
+				path: "/ibc/chains",
+				show: true,
+			},
+		],
+	},
+	{
 		icon: "namespace",
 		name: "Namespaces",
 		path: "/namespaces",
@@ -160,11 +179,17 @@ const modularLinks = reactive([
 const isToolsLinkCollapsed = ref(false)
 const toolsLinks = reactive([
 	{
+		icon: "widgets",
+		name: "Widgets",
+		path: "https://widgets.celenium.io",
+		external: true,
+		new: true,
+	},
+	{
 		icon: "explorable",
 		name: "Terminal",
 		path: "https://terminal.celenium.io",
 		external: true,
-		new: true,
 	},
 	{
 		icon: "drop",
@@ -266,7 +291,7 @@ const handleOnClose = () => {
 				</Flex>
 			</Flex>
 
-			<AdvBanner advName="lotus_upgrade" />
+			<AdvBanner />
 		</Flex>
 
 		<Flex direction="column" gap="16" style="margin-right: 20px">
@@ -289,7 +314,7 @@ const handleOnClose = () => {
 				<Text v-else size="12" weight="600" color="tertiary">{{ nodeStore.percentage.toFixed(0) }}%</Text>
 			</Flex>
 
-			<Dropdown position="end" fullWidth>
+			<Dropdown position="end" fullWidth :disabled="isSelfhosted()">
 				<Flex align="center" gap="8" justify="between" :class="$style.network_selector">
 					<Flex align="center" gap="8">
 						<Icon name="globe" size="14" :color="head.synced ? 'brand' : 'red'" />
