@@ -29,16 +29,16 @@ export const getServerURL = (network) => {
 
 	switch (network) {
 		case "mainnet":
-			return p.API_MAINNET;
+			return p.API_MAINNET
 		case "mocha":
-			return p.API_MOCHA;
+			return p.API_MOCHA
 		case "arabica":
-			return p.API_ARABICA;
+			return p.API_ARABICA
 		case "mammoth":
-			return p.API_MAMMOTH;
-	
+			return p.API_MAMMOTH
+
 		default:
-			return p.API_DEV;
+			return p.API_DEV
 	}
 }
 
