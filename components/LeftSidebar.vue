@@ -130,7 +130,7 @@ const modularLinks = reactive([
 	},
 	{
 		icon: "hyperlane",
-		name: "Hyperlane",
+		name: "Interop",
 		path: "/hyperlane",
 		children: [
 			{

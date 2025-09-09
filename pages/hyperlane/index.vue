@@ -58,7 +58,7 @@ useHead({
 		<Breadcrumbs
 			:items="[
 				{ link: '/', name: 'Explore' },
-				{ link: '/hyperlane', name: `Hyperlane` },
+				{ link: '/hyperlane', name: `Interop Hyperlane` },
 			]"
 			:class="$style.breadcrumbs"
 		/>
