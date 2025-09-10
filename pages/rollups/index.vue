@@ -31,7 +31,9 @@ import { rollupRankingServiceURL } from "@/services/config"
 import { fetchRollups, fetchRollupsRanking } from "@/services/api/rollup"
 
 /** Stores */
+import { useAppStore } from "@/store/app.store"
 import { useEnumStore } from "@/store/enums.store"
+const appStore = useAppStore()
 const enumStore = useEnumStore()
 
 useHead({
@@ -289,17 +291,19 @@ const getRollups = async () => {
 				ranking[rank.slug] = rank
 			})
 
-			rollups.value = data.map((r) => {
-				const rank = ranking[r.slug]
-				if (!rank) return r
+			if (data.length) {
+				rollups.value = data.map((r) => {
+					const rank = ranking[r.slug]
+					if (!rank) return r
 
-				return {
-					...r,
-					rank: +rank.rank,
-					rounded_rank: roundTo(rank.rank / 10, 0),
-					rank_category: getRankCategory(roundTo(rank.rank / 10, 0)),
-				}
-			})
+					return {
+						...r,
+						rank: +rank.rank,
+						rounded_rank: roundTo(rank.rank / 10, 0),
+						rank_category: getRankCategory(roundTo(rank.rank / 10, 0)),
+					}
+				})
+			}
 		}
 	}
 
@@ -310,6 +314,12 @@ const getRollups = async () => {
 	}
 }
 const processRollups = () => {
+	if (!rollups.value?.length) {
+		processedRollups.value = []
+		isRefetching.value = false
+		return
+	}
+
 	isRefetching.value = true
 
 	const selected = Object.keys(filters).reduce((acc, key) => {
