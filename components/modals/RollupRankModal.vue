@@ -141,9 +141,9 @@ watch(
 					We use the following metric categories: Quantitative, Reciprocal quantitative, Time-Based, Logarithmic and Custom (for TVL rank calculation).
 				</Text>
 
-				<Text size="12" color="secondary" :style="{ lineHeight: '1.4' }">
+				<!-- <Text size="12" color="secondary" :style="{ lineHeight: '1.4' }">
 					You can find the calculation formulas for each metric in the documentation.
-				</Text>				
+				</Text>				 -->
 
 				<table :class="$style.table_metric">
 					<thead>
