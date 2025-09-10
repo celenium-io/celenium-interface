@@ -137,7 +137,7 @@ const getXAxisLabels = (start, tvl = false) => {
 }
 
 watch(
-	() => [data.value, props.chartView, props.loadLastValue],
+	() => [data.value, props.chartView, props.color, props.loadLastValue],
 	async () => {
 		await nextTick()
 
@@ -220,7 +220,11 @@ onBeforeUnmount(() => {
 				<div v-if="showTooltip" :class="$style.tooltip_wrapper">
 					<div
 						v-if="chartView === 'line'"
-						:style="{ transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)` }"
+						:style="{
+							transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)`,
+							background: color,
+							boxShadow: `0 0 0 4px color-mix(in srgb, ${color} 40%, transparent)`,
+						}"
 						:class="$style.dot"
 					/>
 					<div v-if="chartView === 'line'" :style="{ transform: `translateX(${tooltipXOffset}px)` }" :class="$style.line" />
@@ -320,8 +324,6 @@ onBeforeUnmount(() => {
 		width: 6px;
 		height: 6px;
 		border-radius: 50px;
-		background: var(--brand);
-		box-shadow: 0 0 0 4px var(--dark-mint);
 		transition: all 0.15s ease;
 	}
 

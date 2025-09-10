@@ -61,6 +61,10 @@ const blobs = ref([])
 
 const rollupColor = ref()
 const rollupColorAlpha = ref()
+function calcRollupColor() {
+	rollupColor.value = hexToRgba(props.rollup.color, 1)
+	rollupColorAlpha.value = hexToRgba(props.rollup.color, 0)
+}
 const rollupRanking = ref()
 const showRanking = ref(false)
 
@@ -176,8 +180,7 @@ onMounted(async () => {
 		},
 	})
 
-	rollupColor.value = hexToRgba(props.rollup.color, 1)
-	rollupColorAlpha.value = hexToRgba(props.rollup.color, 0)
+	calcRollupColor()
 
 	showRanking.value = isMainnet() && rollupRankingServiceURL()
 
@@ -230,6 +233,11 @@ watch(
 				break
 		}
 	},
+)
+
+watch(
+	() => props.rollup?.color,
+	() => calcRollupColor(),
 )
 
 const periods = ref([

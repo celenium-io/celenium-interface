@@ -33,7 +33,7 @@ const props = defineProps({
 	},
 })
 
-const rollupColor = ref(hexToRgba(props.rollup.color, 1))
+const rollupColor = computed(() => hexToRgba(props.rollup.color, 1))
 
 /** Chart settings */
 const selectedPeriodIdx = ref(2)
