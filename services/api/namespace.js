@@ -151,14 +151,17 @@ export const fetchBlobProof = async ({ hash, height, commitment }) => {
 }
 
 export const fetchBlobBlockscoutData = async ({ height, namespace, commitment }) => {
+	if (!blockscoutURL()) return {}
+
 	try {
-		const url = new URL(blockscoutURL)
+		const url = new URL(blockscoutURL())
 
 		url.searchParams.append("height", height)
 		url.searchParams.append("namespace", namespace)
 		url.searchParams.append("commitment", commitment)
 
 		const data = useFetch(url.href)
+		
 		return data
 	} catch (error) {
 		console.error(error)

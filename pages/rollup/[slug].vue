@@ -10,7 +10,9 @@ import { fetchRollupBySlug } from "@/services/api/rollup"
 import Button from "@/components/ui/Button.vue"
 
 /** Store */
+import { useAppStore } from "@/store/app.store"
 import { useCacheStore } from "@/store/cache.store"
+const appStore = useAppStore()
 const cacheStore = useCacheStore()
 
 const route = useRoute()
@@ -23,7 +25,19 @@ if (!rawRollup.value) {
 	router.push("/rollups")
 } else {
 	rollup.value = rawRollup.value
+	patchRollupColor()
 	cacheStore.current.rollup = rollup.value
+}
+
+function patchRollupColor() {
+	if (!rollup.value) return
+
+	if (appStore.theme === "light" && rollup.value.color === "#FFFFFF") {
+		rollup.value.originColor = rollup.value.color
+		rollup.value.color = "#8b8c8d"
+	} else if (rollup.value.originColor) {
+		rollup.value.color = rollup.value.originColor
+	}
 }
 
 defineOgImageComponent("RollupImage", {
@@ -71,6 +85,11 @@ useHead({
 		},
 	],
 })
+
+watch(
+	() => appStore.theme,
+	() => patchRollupColor(),
+)
 </script>
 
 <template>

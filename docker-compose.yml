@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+    nuxt-app:
+        image: ghcr.io/celenium-io/celenium-interface:${TAG:-latest}
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "127.0.0.1:3000:3000"
+        restart: always
+        command: npm run start
+        logging:
+            options:
+                max-size: 10m
+                max-file: "5"

@@ -62,15 +62,21 @@ const handleLoadAnyway = () => {
 const getBlobMetadata = async () => {
 	isLoading.value = true
 
-	const { data } = await fetchBlobByMetadata({
-		hash: cacheStore.selectedBlob.hash,
-		height: cacheStore.selectedBlob.height,
-		commitment: cacheStore.selectedBlob.commitment,
-	})
+	try {
+		const { data } = await fetchBlobByMetadata({
+			hash: cacheStore.selectedBlob.hash,
+			height: cacheStore.selectedBlob.height,
+			commitment: cacheStore.selectedBlob.commitment,
+		})
 
-	if (data.value) {
-		blob.value = data.value
-	} else {
+		if (data.value) {
+			blob.value = data.value
+		} else {
+			notFound.value = true
+		}
+	} catch (err) {
+		// console.error(err);
+		
 		notFound.value = true
 	}
 }
@@ -95,7 +101,7 @@ watch(
 
 			/** auto preview for small images */
 			if (
-				(["image/png", "image/jpeg"].includes(blob.value.content_type) || blob.value.content_type.startsWith("text/plain")) &&
+				(["image/png", "image/jpeg"].includes(blob.value.content_type) || blob.value.content_type?.startsWith("text/plain")) &&
 				cacheStore.selectedBlob.size < 100_000
 			) {
 				handlePreviewContent()
@@ -109,6 +115,9 @@ watch(
 			showPreviewImage.value = false
 			showPreviewText.value = false
 			contentPreviewText.value = ""
+			
+			notFound.value = false
+			cacheStore.selectedBlob = null
 		}
 
 		isLoading.value = false
@@ -205,7 +214,7 @@ const handlePreviewContent = () => {
 
 							<Flex direction="column" align="center" gap="8">
 								<Text size="13" weight="600" color="secondary">Download not started</Text>
-								<Text size="12" weight="500" color="tertiary">Auto download for data over 1 Mb is paused</Text>
+								<Text size="12" weight="500" color="tertiary">Auto download for data over 1 MiB is paused</Text>
 							</Flex>
 
 							<Text @click="handleLoadAnyway" size="12" weight="600" color="tertiary" :class="$style.load_btn"

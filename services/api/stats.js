@@ -1,5 +1,5 @@
 /** Services */
-import { nodeStatsURL, quoteServiceURL, tvlServiceURL, useServerURL } from "@/services/config"
+import { isSelfhosted, nodeStatsURL, quoteServiceURL, tvlServiceURL, useServerURL } from "@/services/config"
 
 export const fetchGeneralStats = async ({ name }) => {
 	try {
@@ -66,22 +66,25 @@ export const fetchTPS = async () => {
 }
 
 export const fetchTVL = async ({ slug, period, from, to }) => {
+	if (!tvlServiceURL()) return []
+
 	try {
 		let url = ""
 
 		if (slug !== "celestia") {
-			url = new URL(`${tvlServiceURL}/tvl/${slug}/${period}`)
+			url = new URL(`${tvlServiceURL()}/tvl/${slug}/${period}`)
 
 			if (from) url.searchParams.append("from", from)
 			if (to) url.searchParams.append("to", to)
 		} else {
-			url = new URL(`${tvlServiceURL}/supply${period ? `/${period}` : ''}`)
+			url = new URL(`${tvlServiceURL()}/supply${period ? `/${period}` : ''}`)
 
 			if (from) url.searchParams.append("from", from)
 			if (to) url.searchParams.append("to", to)
 		}
 
 		const data = await $fetch(url.href)
+		
 		return data
 	} catch (error) {
 		console.error(error)
@@ -93,15 +96,20 @@ export const fetchTVS = async ({ period, from, to }) => {
 		let url = ""
 
 		if (period) {
-			url = new URL(`${tvlServiceURL}/tvs/${period}`)
+			if (!tvlServiceURL()) return []
+
+			url = new URL(`${tvlServiceURL()}/tvs/${period}`)
 
 			if (from) url.searchParams.append("from", from)
 			if (to) url.searchParams.append("to", to)
 		} else {
-			url = new URL(`${tvlServiceURL}/tvs`)
+			if (!tvlServiceURL()) return {}
+
+			url = new URL(`${tvlServiceURL()}/tvs`)
 		}
 
 		const data = await $fetch(url.href)
+
 		return data
 	} catch (error) {
 		console.error(error)
@@ -109,8 +117,10 @@ export const fetchTVS = async ({ period, from, to }) => {
 }
 
 export const fetchPrice = async () => {
+	if (!quoteServiceURL()) return {}
+
 	try {
-		const url = new URL(`${quoteServiceURL}/price/current`)
+		const url = new URL(`${quoteServiceURL()}/price/current`)
 
 		const data = await $fetch(url.href)
 		return data
@@ -120,12 +130,15 @@ export const fetchPrice = async () => {
 }
 
 export const fetchPriceSeries = async ({ from }) => {
+	if (!quoteServiceURL()) return []
+
 	try {
-		const url = new URL(`${quoteServiceURL}/price/series/1d`)
+		const url = new URL(`${quoteServiceURL()}/price/series/1d`)
 
 		if (from) url.searchParams.append("from", from)
 
 		const data = await $fetch(url.href)
+
 		return data
 	} catch (error) {
 		console.error(error)
@@ -214,13 +227,16 @@ export const fetchSquareSize = async (from) => {
 }
 
 export const fetchNodeStats = async ({ name, timeframe, from, to }) => {
+	if (!nodeStatsURL()) return []
+
 	try {
-		const url = new URL(`${nodeStatsURL}/stats/${name}${timeframe ? `/${timeframe}` : ''}`)
+		const url = new URL(`${nodeStatsURL()}/stats/${name}${timeframe ? `/${timeframe}` : ''}`)
 
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
 
 		const data = await $fetch(url.href)
+		
 		return data
 	} catch (error) {
 		console.error(error)
@@ -228,13 +244,16 @@ export const fetchNodeStats = async ({ name, timeframe, from, to }) => {
 }
 
 export const fetchNodeVersionStats = async ({ name, timeframe, from, to }) => {
+	if (!nodeStatsURL()) return []
+
 	try {
-		const url = new URL(`${nodeStatsURL}/stats/version/${name}${timeframe ? `/${timeframe}` : ''}`)
+		const url = new URL(`${nodeStatsURL()}/stats/version/${name}${timeframe ? `/${timeframe}` : ''}`)
 
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
 
 		const data = await $fetch(url.href)
+
 		return data
 	} catch (error) {
 		console.error(error)

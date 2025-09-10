@@ -301,7 +301,7 @@ const handleViewRawVotes = () => {
 								</Flex>
 
 								<AmountInCurrency
-									:amount="{ value: proposal.min_deposit.replace('utia', ''), decimal: 6 }"
+									:amount="{ value: proposal.min_deposit?.replace('utia', ''), decimal: 6 }"
 									:styles="{ amount: { color: 'secondary' }, currency: { color: 'tertiary' } }"
 								/>
 							</Flex>

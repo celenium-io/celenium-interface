@@ -18,9 +18,10 @@ import NamespacesTable from "./tables/NamespacesTable.vue"
 import { capitilize, comma, formatBytes, hexToRgba, isMainnet, roundTo, truncateDecimalPart } from "@/services/utils"
 import { exportToCSV } from "@/services/utils/export"
 import { getRankCategory } from "@/services/constants/rollups"
+import { rollupRankingServiceURL } from "@/services/config"
 
 /** API */
-import { fetchRollupBlobs, fetchRollupExportData, fetchRollupNamespaces } from "@/services/api/rollup"
+import { fetchRollupBlobs, fetchRollupExportData, fetchRollupNamespaces, fetchRollupRankingBySlug } from "@/services/api/rollup"
 
 /** Data */
 import badges from "@data/badges.json"
@@ -28,10 +29,8 @@ import badges from "@data/badges.json"
 /** Store */
 import { useCacheStore } from "@/store/cache.store"
 import { useNotificationsStore } from "@/store/notifications.store"
-import { useActivityStore } from "@/store/activity.store"
 const cacheStore = useCacheStore()
 const notificationsStore = useNotificationsStore()
-const activityStore = useActivityStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -60,23 +59,14 @@ const isRefetching = ref(false)
 const namespaces = ref([])
 const blobs = ref([])
 
-const rollupRanking = computed(() => {
-	if (!activityStore?.initialized || !isMainnet()) return null
-
-	let rollup_ranking =
-		activityStore?.rollups_ranking?.ranking[
-			Object.keys(activityStore?.rollups_ranking?.ranking).find((key) => key === props.rollup.slug)
-		]
-	rollup_ranking.rank = {
-		category: getRankCategory(roundTo(rollup_ranking?.ranking?.rank / 10, 0)),
-		score: rollup_ranking?.ranking?.rank,
-	}
-
-	return rollup_ranking
-})
-
 const rollupColor = ref()
 const rollupColorAlpha = ref()
+function calcRollupColor() {
+	rollupColor.value = hexToRgba(props.rollup.color, 1)
+	rollupColorAlpha.value = hexToRgba(props.rollup.color, 0)
+}
+const rollupRanking = ref()
+const showRanking = ref(false)
 
 const tagNames = ref(["stack", "type", "vm", "provider", "category"])
 const tags = computed(() =>
@@ -190,8 +180,19 @@ onMounted(async () => {
 		},
 	})
 
-	rollupColor.value = hexToRgba(props.rollup.color, 1)
-	rollupColorAlpha.value = hexToRgba(props.rollup.color, 0)
+	calcRollupColor()
+
+	showRanking.value = isMainnet() && rollupRankingServiceURL()
+
+	if (showRanking.value) {
+		const data = await fetchRollupRankingBySlug(props.rollup?.slug)
+		if (data.slug) {
+			rollupRanking.value = {
+				category: getRankCategory(roundTo(data.rank / 10, 0)),
+				rank: +data.rank,
+			}
+		}
+	}
 })
 
 /** Refetch Blobs/Messages on new page */
@@ -232,6 +233,11 @@ watch(
 				break
 		}
 	},
+)
+
+watch(
+	() => props.rollup?.color,
+	() => calcRollupColor(),
 )
 
 const periods = ref([
@@ -297,10 +303,16 @@ const handleCSVDownload = async (value) => {
 			</Flex>
 
 			<Flex align="center" gap="12">
-				<Button v-if="isMainnet()" :link="`/rollup/rank/${rollup.slug}`" type="secondary" size="mini">
+				<Button v-if="showRanking" :link="`/rollup/rank/${rollup.slug}`" type="secondary" size="mini">
 					<Icon name="laurel" size="12" color="secondary" />
 
 					<Text>Activity Rank</Text>
+				</Button>
+
+				<Button v-if="rollup.settled_on" :link="`/blobstream?network=${rollup.settled_on?.toLowerCase()}&page=1`" type="secondary" size="mini">
+					<Icon name="blob" size="12" color="secondary" />
+
+					<Text>Blobstream</Text>
 				</Button>
 
 				<Button link="/stats?tab=rollups&section=daily_stats" type="secondary" size="mini">
@@ -348,25 +360,25 @@ const handleCSVDownload = async (value) => {
 								<img id="logo" :src="rollup.logo" :class="$style.rollup_logo" />
 							</Flex>
 
-							<Flex v-if="!!rollupRanking" align="start" :style="{ height: '100%' }">
-								<Tooltip position="end" :disabled="!rollupRanking?.rank?.category?.color">
+							<Flex v-if="showRanking" align="start" :style="{ height: '100%' }">
+								<Tooltip position="end">
 									<Icon
 										name="laurel"
 										size="24"
-										:color="rollupRanking?.rank?.category?.color || 'tertiary'"
-										:loading="!rollupRanking?.rank?.category?.color"
+										:color="rollupRanking?.category?.color || 'tertiary'"
+										:loading="!rollupRanking?.category?.color"
 									/>
 									<template #content>
 										<Flex direction="column" gap="8">
 											<Flex align="center" justify="between" gap="8">
 												<Text size="12" weight="500" color="tertiary">Activity Rank:</Text>
-												<Text size="12" weight="600" :color="rollupRanking?.rank?.category?.color">
-													{{ rollupRanking?.rank?.category?.name }}
+												<Text size="12" weight="600" :color="rollupRanking?.category?.color">
+													{{ rollupRanking?.category?.name }}
 												</Text>
 											</Flex>
 											<Flex align="center" justify="between" gap="8">
 												<Text size="12" weight="500" color="tertiary">Score:</Text>
-												<Text size="12" weight="600" color="secondary"> {{ rollupRanking?.rank?.score }}% </Text>
+												<Text size="12" weight="600" color="secondary"> {{ rollupRanking?.rank }}% </Text>
 											</Flex>
 										</Flex>
 									</template>
@@ -762,6 +774,7 @@ const handleCSVDownload = async (value) => {
 
 		text-overflow: ellipsis;
 		overflow: hidden;
+		line-clamp: 3;
 		-webkit-line-clamp: 3;
 		-webkit-box-orient: vertical;
 	}

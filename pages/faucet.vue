@@ -1,10 +1,10 @@
 <script setup>
 /** API */
-import { executeFaucet, faucetAddress, fetchBalance } from "@/services/api/faucet"
+import { executeFaucet, fetchBalance } from "@/services/api/faucet"
 
 /** Services */
 import { capitilize, comma, getNetworkName, splitAddress, tia } from "@/services/utils"
-import { Server, useServerURL } from "@/services/config"
+import { faucetAddress, getServerURL, useServerURL } from "@/services/config"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
@@ -81,7 +81,7 @@ const isNetworkSelectorOpen = ref(false)
 const fetchAccount = async () => {
 	try {
 		account.value = null
-		const url = new URL(`${Server.API[network.value]}/address/${address.value}`)
+		const url = new URL(`${getServerURL(network.value)}/address/${address.value}`)
 		const { data, error } = await useFetch(url.href)
 		if (error.value) {
 			fillValidation("error", "Invalid address")
@@ -118,7 +118,7 @@ const fillValidation = (type, title) => {
 const faucetBalance = ref(0)
 const refreshFaucetBalance = async () => {
 	const { data } = await fetchBalance(network.value)
-	faucetBalance.value = data.value || faucetBalance.value
+	faucetBalance.value = data?.value ?? faucetBalance.value
 }
 
 const executionResult = ref({
@@ -146,10 +146,10 @@ const handleExecute = async () => {
 		if (error?.value?.data) {
 			fillExecutionResult(
 				"error",
-				error.value.statusCode === 429 ? "Request limit exceeded" : error.value?.data?.message || "Unexpected error",
+				error?.value?.statusCode === 429 ? "Request limit exceeded" : error.value?.data?.message || "Unexpected error",
 			)
-		} else if (data.value) {
-			if (data.value?.status === "success") {
+		} else if (data?.value) {
+			if (data?.value?.status === "success") {
 				await refreshFaucetBalance()
 				await fetchAccount()
 			}
@@ -157,7 +157,7 @@ const handleExecute = async () => {
 			fillExecutionResult(data.value?.status, data.value?.hash)
 		}
 	} catch (error) {
-		fillExecutionResult("error", error || "Unexpected error")
+		fillExecutionResult("error", error ?? "Unexpected error")
 	} finally {
 		isLoading.value = false
 	}
@@ -169,10 +169,10 @@ const handleReturnTokensClick = () => {
 		(useServerURL().includes("arabica") && network.value === "arabica") ||
 		(useServerURL().includes("mammoth") && network.value === "mammoth")
 	) {
-		cacheStore.current.address = { hash: faucetAddress }
+		cacheStore.current.address = { hash: faucetAddress() }
 		modalsStore.open("send")
 	} else {
-		window.open(`https://${network.value}.celenium.io/address/${faucetAddress}`, "_blank")
+		window.open(`https://${network.value}.celenium.io/address/${faucetAddress()}`, "_blank")
 	}
 }
 
@@ -215,7 +215,7 @@ watch(
 			return
 		}
 
-		if (address.value === faucetAddress) {
+		if (address.value === faucetAddress()) {
 			fillValidation("error", "You can't specify the faucet address")
 			return
 		}
@@ -363,10 +363,10 @@ onMounted(() => {
 
 									<Flex align="center" gap="6">
 										<Text size="12" weight="500" color="tertiary">
-											{{ splitAddress(faucetAddress) }}
+											{{ splitAddress(faucetAddress()) }}
 										</Text>
 
-										<CopyButton size="11" :text="faucetAddress" />
+										<CopyButton size="11" :text="faucetAddress()" />
 									</Flex>
 								</Flex>
 							</Flex>

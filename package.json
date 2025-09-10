@@ -1,6 +1,6 @@
 {
 	"name": "celestia-explorer",
-	"version": "1.19.0",
+	"version": "1.20.0",
 	"packageManager": "pnpm@8.7.4",
 	"homepage": "https://celenium.io/",
 	"license": "MIT",
@@ -12,7 +12,8 @@
 		"generate-badges": "node scripts/generateBadgesList.js",
 		"preview": "nuxt preview",
 		"postinstall": "nuxt prepare",
-		"lint": "oxlint"
+		"lint": "oxlint",
+		"start": "nuxt start"
 	},
 	"devDependencies": {
 		"@nuxt/devtools": "latest",

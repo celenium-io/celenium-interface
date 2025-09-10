@@ -25,15 +25,16 @@ import {
 	truncateDecimalPart,
 } from "@/services/utils"
 import { getLastActivityCategory, getRankCategory } from "@/services/constants/rollups"
+import { rollupRankingServiceURL } from "@/services/config"
 
 /** API */
-import { fetchRollups } from "@/services/api/rollup"
+import { fetchRollups, fetchRollupsRanking } from "@/services/api/rollup"
 
 /** Stores */
+import { useAppStore } from "@/store/app.store"
 import { useEnumStore } from "@/store/enums.store"
-import { useActivityStore } from "@/store/activity.store"
+const appStore = useAppStore()
 const enumStore = useEnumStore()
-const activityStore = useActivityStore()
 
 useHead({
 	title: "Rollups - Celestia Explorer",
@@ -93,7 +94,7 @@ const isRefetching = ref(true)
 const rollups = ref([])
 const filteredRollups = ref([])
 const processedRollups = ref([])
-const rollupsRanking = computed(() => activityStore?.rollups_ranking?.ranking)
+const showRanking = ref(isMainnet() && !!rollupRankingServiceURL())
 
 const utiaPerMB = (rollup) => {
 	let totalRollupMB = rollup.size / (1024 * 1024)
@@ -104,14 +105,15 @@ const utiaPerMB = (rollup) => {
 const isConfigurePopoverOpen = ref(false)
 const config = reactive({
 	columns: {
-		...(isMainnet()
+		...(showRanking.value
 			? {
 					activity: {
 						show: true,
-						sortPath: "stats.ranking.rank",
+						sortPath: "rank",
 					},
 			  }
-			: {}),
+			: {}
+		),
 		da_change: {
 			show: false,
 		},
@@ -134,14 +136,6 @@ const config = reactive({
 			show: true,
 			sortPath: "stats.day_blobs_count",
 		},
-		...(isMainnet()
-			? {
-					commits: {
-						show: false,
-						sortPath: "stats.commits_weekly",
-					},
-			  }
-			: {}),
 		avg_pfb_size: {
 			show: false,
 			sortPath: "stats.avg_pfb_size",
@@ -160,7 +154,7 @@ const getColumnName = (name) => {
 		case "da_change":
 			return "DA Change"
 		case "paid_per_mb":
-			return "Paid per MB"
+			return "Paid per MiB"
 		case "avg_pfb_size":
 			return "Avg PFB Size"
 		default:
@@ -169,7 +163,7 @@ const getColumnName = (name) => {
 }
 
 const sort = reactive({
-	by: isMainnet() ? "stats.ranking.rank" : "size",
+	by: showRanking.value ? "rank" : "size",
 	dir: "desc",
 })
 
@@ -286,18 +280,32 @@ const itemsPerPage = 20
 const limit = ref(100)
 
 const getRollups = async () => {
-	const data = await fetchRollups({
-		limit: limit.value,
-	})
+	const data = await fetchRollups({ limit: limit.value })
+	rollups.value = data
 
-	rollups.value = isMainnet()
-		? data.map((r) => ({
-				...r,
-				stats: rollupsRanking.value[r.slug],
-				rounded_rank: roundTo(rollupsRanking.value[r.slug]?.ranking?.rank / 10, 0),
-				rank_category: getRankCategory(roundTo(rollupsRanking.value[r.slug]?.ranking?.rank / 10, 0)),
-		  }))
-		: data
+	if (showRanking.value) {
+		let ranking = {}
+		const ranking_data = await fetchRollupsRanking({ limit: limit.value })
+		if (ranking_data?.length) {
+			ranking_data.forEach(rank => {
+				ranking[rank.slug] = rank
+			})
+
+			if (data.length) {
+				rollups.value = data.map((r) => {
+					const rank = ranking[r.slug]
+					if (!rank) return r
+
+					return {
+						...r,
+						rank: +rank.rank,
+						rounded_rank: roundTo(rank.rank / 10, 0),
+						rank_category: getRankCategory(roundTo(rank.rank / 10, 0)),
+					}
+				})
+			}
+		}
+	}
 
 	pages.value = roundTo(rollups.value?.length / itemsPerPage, 0, "ceil")
 	if (page.value > pages.value) {
@@ -306,6 +314,12 @@ const getRollups = async () => {
 	}
 }
 const processRollups = () => {
+	if (!rollups.value?.length) {
+		processedRollups.value = []
+		isRefetching.value = false
+		return
+	}
+
 	isRefetching.value = true
 
 	const selected = Object.keys(filters).reduce((acc, key) => {
@@ -342,10 +356,9 @@ const processRollups = () => {
 
 	isRefetching.value = false
 }
-if (activityStore.initialized) {
-	await getRollups()
-	processRollups()
-}
+
+await getRollups()
+processRollups()
 
 const handleSort = (by) => {
 	if (!by) return
@@ -404,21 +417,11 @@ watch(
 		handleApplyFilters()
 	},
 )
-
 watch(
 	() => page.value,
 	() => {
 		processRollups()
 		router.replace({ query: { page: page.value } })
-	},
-)
-watch(
-	() => activityStore.initialized,
-	async () => {
-		if (activityStore.initialized) {
-			await getRollups()
-			processRollups()
-		}
 	},
 )
 watch(
@@ -645,7 +648,7 @@ onBeforeMount(() => {
 													{{ `${r?.rounded_rank}/10` }}
 												</Text>
 												<Text size="12" weight="600" color="tertiary">
-													{{ `${r?.stats?.ranking?.rank}%` }}
+													{{ `${r?.rank}%` }}
 												</Text>
 											</Flex>
 										</Flex>
@@ -745,29 +748,6 @@ onBeforeMount(() => {
 										</Flex>
 									</NuxtLink>
 								</td>
-								<td v-if="config.columns.commits?.show">
-									<NuxtLink :to="`/rollup/${r?.slug}`">
-										<Flex align="start" justify="center" direction="column" gap="4">
-											<Tooltip position="start" delay="400" :disabled="true">
-												<Flex direction="column" gap="4">
-													<Text size="13" weight="600" color="primary">{{
-														comma(r?.stats?.commits_weekly)
-													}}</Text>
-												</Flex>
-
-												<template #content>
-													<Flex align="end" gap="8">
-														<Text size="12" weight="600" color="tertiary">Share of total blobs count</Text>
-
-														<Text size="12" weight="600" color="primary"
-															>{{ truncateDecimalPart(r.blobs_count_pct * 100, 2) }}%</Text
-														>
-													</Flex>
-												</template>
-											</Tooltip>
-										</Flex>
-									</NuxtLink>
-								</td>
 								<td v-if="config.columns.avg_pfb_size.show">
 									<NuxtLink :to="`/rollup/${r?.slug}`">
 										<Flex align="center">
@@ -802,7 +782,9 @@ onBeforeMount(() => {
 				<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 					<Text size="13" weight="600" color="secondary" align="center"> No rollups found </Text>
 					<Text size="12" weight="500" height="160" color="tertiary" align="center">
-						This network does not contain any rollups
+						This network does not contain any
+						<Text v-if="!showInactive" weight="600">active</Text>
+						rollups
 					</Text>
 				</Flex>
 			</Flex>

@@ -488,7 +488,7 @@ useHead({
 
 							<Flex direction="column" gap="12">
 								<Text size="24" weight="600" color="primary" tabular mono> ${{ tiaPerMb.toFixed(5) }} </Text>
-								<Text size="14" weight="600" color="tertiary"> Price per Mb in Celestia </Text>
+								<Text size="14" weight="600" color="tertiary"> Price per MiB in Celestia </Text>
 							</Flex>
 						</Flex>
 

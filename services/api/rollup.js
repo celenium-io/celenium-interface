@@ -1,5 +1,5 @@
 /** Services */
-import { githubServiceURL, tvlServiceURL, useServerURL } from "@/services/config"
+import { githubServiceURL, rollupRankingServiceURL, tvlServiceURL, useServerURL } from "@/services/config"
 
 export const fetchRollups = async ({ categories, type, tags, limit, offset, sort, sort_by }) => {
 	try {
@@ -120,38 +120,16 @@ export const fetchRollupsDailyStats = async ({ limit, offset, sort, sort_by }) =
 }
 
 export const fetchRollupTVL = async ({ dataSource, slug, period, from, to }) => {
+	if (!tvlServiceURL()) return []
+
 	try {
-		const url = new URL(`${tvlServiceURL}/tvl/${dataSource}/${slug}/${period}`)
+		const url = new URL(`${tvlServiceURL()}/tvl/${dataSource}/${slug}/${period}`)
 
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
 
 		const data = await $fetch(url.href)
-		return data
-	} catch (error) {
-		console.error(error)
-	}
-}
-
-export const fetchRollupOrgs = async ({ limit, offset }) => {
-	try {
-		const url = new URL(`${githubServiceURL}/org`)
-
-		if (limit) url.searchParams.append("limit", limit)
-		if (offset) url.searchParams.append("offset", offset)
-
-		const data = await $fetch(url.href)
-		return data
-	} catch (error) {
-		console.error(error)
-	}
-}
-
-export const fetchRollupOrgsState = async () => {
-	try {
-		const url = new URL(`${githubServiceURL}/state`)
-
-		const data = await $fetch(url.href)
+		
 		return data
 	} catch (error) {
 		console.error(error)
@@ -159,10 +137,13 @@ export const fetchRollupOrgsState = async () => {
 }
 
 export const fetchRollupOrgBySlug = async (slug) => {
+	if (!githubServiceURL()) return {}
+
 	try {
-		const url = new URL(`${githubServiceURL}/org/${slug}`)
+		const url = new URL(`${githubServiceURL()}/org/${slug}`)
 
 		const data = await $fetch(url.href)
+		
 		return data
 	} catch (error) {
 		console.error(error)
@@ -171,8 +152,48 @@ export const fetchRollupOrgBySlug = async (slug) => {
 }
 
 export const fetchRollupOrgReposBySlug = async ({ slug, limit, offset, sort_by, sort }) => {
+	if (!githubServiceURL()) return []
+
 	try {
-		const url = new URL(`${githubServiceURL}/org/${slug}/repos`)
+		const url = new URL(`${githubServiceURL()}/org/${slug}/repos`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+		if (sort_by) url.searchParams.append("sort_by", sort_by)
+		if (sort) url.searchParams.append("sort", sort)
+
+		const data = await $fetch(url.href)
+
+		return data
+	} catch (error) {
+		console.error(error)
+		return []
+	}
+}
+
+export const fetchRollupOrgCommitsBySlug = async ({ slug, timeframe = "week", from, to }) => {
+	if (!githubServiceURL()) return []
+
+	try {
+		const url = new URL(`${githubServiceURL()}/org/${slug}/commits/${timeframe}`)
+
+		if (from) url.searchParams.append("from", from)
+		if (to) url.searchParams.append("to", to)
+
+		const data = await $fetch(url.href)
+
+		return data
+	} catch (error) {
+		console.error(error)
+		return []
+	}
+}
+
+export const fetchRollupsRanking = async ({ limit, offset, sort_by, sort }) => {
+	if (!rollupRankingServiceURL()) return []
+
+	try {
+		const url = new URL(`${rollupRankingServiceURL()}/rollup`)
 
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
@@ -187,12 +208,11 @@ export const fetchRollupOrgReposBySlug = async ({ slug, limit, offset, sort_by, 
 	}
 }
 
-export const fetchRollupOrgCommitsBySlug = async ({ slug, timeframe = "week", from, to }) => {
-	try {
-		const url = new URL(`${githubServiceURL}/org/${slug}/commits/${timeframe}`)
+export const fetchRollupRankingBySlug = async (slug) => {
+	if (!rollupRankingServiceURL()) return {}
 
-		if (from) url.searchParams.append("from", from)
-		if (to) url.searchParams.append("to", to)
+	try {
+		const url = new URL(`${rollupRankingServiceURL()}/rollup/${slug}`)
 
 		const data = await $fetch(url.href)
 		return data

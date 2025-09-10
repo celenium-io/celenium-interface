@@ -115,9 +115,9 @@ watch(
 const handleViewBlob = (blob) => {
 	/** normalize the blob */
 	cacheStore.selectedBlob = {
-		hash: blob.namespace.hash,
-		namespace_id: blob.namespace.namespace_id,
-		namespace_name: blob.namespace.name,
+		hash: blob.namespace?.hash,
+		namespace_id: blob.namespace?.namespace_id,
+		namespace_name: blob.namespace?.name,
 		commitment: blob.commitment,
 		height: blob.height,
 		signer: blob.signer,
@@ -196,29 +196,29 @@ const handlePrev = () => {
 					<tbody>
 						<tr v-for="blob in blobs" @click.stop="handleViewBlob(blob)">
 							<td>
-								<NuxtLink :to="`/namespace/${blob.namespace.namespace_id}`" @click.stop>
+								<NuxtLink :to="`/namespace/${blob.namespace?.namespace_id}`" @click.stop>
 									<Tooltip position="start" delay="500">
 										<Flex direction="column" gap="4">
 											<Flex align="center" gap="8">
 												<Text size="12" weight="600" color="primary" mono class="table_column_alias">
-													{{ $getDisplayName("namespaces", blob.namespace.namespace_id) }}
+													{{ $getDisplayName("namespaces", blob.namespace?.namespace_id) }}
 												</Text>
 
-												<CopyButton :text="getNamespaceID(blob.namespace.namespace_id)" />
+												<CopyButton :text="getNamespaceID(blob.namespace?.namespace_id)" />
 											</Flex>
 
 											<Text
-												v-if="blob.namespace.name !== getNamespaceID(blob.namespace.namespace_id)"
+												v-if="blob.namespace?.name !== getNamespaceID(blob.namespace?.namespace_id)"
 												size="12"
 												weight="500"
 												color="tertiary"
 											>
-												{{ blob.namespace.name }}
+												{{ blob.namespace?.name }}
 											</Text>
 										</Flex>
 
 										<template #content>
-											{{ space(getNamespaceID(blob.namespace.namespace_id)) }}
+											{{ space(getNamespaceID(blob.namespace?.namespace_id)) }}
 										</template>
 									</Tooltip>
 								</NuxtLink>
@@ -265,7 +265,7 @@ const handlePrev = () => {
 								</Text>
 							</td>
 							<td>
-								<Text size="13" weight="600" color="primary">{{ blob.namespace.version }}</Text>
+								<Text size="13" weight="600" color="primary">{{ blob.namespace?.version }}</Text>
 							</td>
 							<td style="width: 1px">
 								<NuxtLink v-if="blob.rollup?.logo" :to="`/rollup/${blob.rollup.slug}`" @click.stop>

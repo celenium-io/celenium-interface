@@ -11,6 +11,8 @@ import NavLink from "@/components/modules/navigation/NavLink.vue"
 import { getNetworkName } from "@/services/utils/general"
 import { StatusMap } from "@/services/constants/node"
 import { isMainnet, isMobile } from "@/services/utils"
+import { nodeStatsURL } from "@/services/config"
+import { isSelfhosted } from "@/services/config.js"
 
 /** Store */
 import { useAppStore } from "@/store/app.store"
@@ -95,7 +97,7 @@ const mainLinks = reactive([
 				name: "Nodes",
 				path: "/stats?tab=nodes",
 				queryParam: { tab: "nodes" },
-				show: isMainnet(),
+				show: isMainnet() && !!nodeStatsURL(),
 			},
 		],
 	},
@@ -122,6 +124,18 @@ const modularLinks = reactive([
 				name: "Register rollup",
 				path: "https://forms.gle/nimJyQJG4Lb4BTcG7",
 				external: true,
+				show: true,
+			},
+		],
+	},
+	{
+		icon: "hyperlane",
+		name: "Interop",
+		path: "/hyperlane",
+		children: [
+			{
+				name: "Transfers",
+				path: "/hyperlane/transfers",
 				show: true,
 			},
 		],
@@ -165,11 +179,17 @@ const modularLinks = reactive([
 const isToolsLinkCollapsed = ref(false)
 const toolsLinks = reactive([
 	{
+		icon: "widgets",
+		name: "Widgets",
+		path: "https://widgets.celenium.io",
+		external: true,
+		new: true,
+	},
+	{
 		icon: "explorable",
 		name: "Terminal",
 		path: "https://terminal.celenium.io",
 		external: true,
-		new: true,
 	},
 	{
 		icon: "drop",
@@ -294,7 +314,7 @@ const handleOnClose = () => {
 				<Text v-else size="12" weight="600" color="tertiary">{{ nodeStore.percentage.toFixed(0) }}%</Text>
 			</Flex>
 
-			<Dropdown position="end" fullWidth>
+			<Dropdown position="end" fullWidth :disabled="isSelfhosted()">
 				<Flex align="center" gap="8" justify="between" :class="$style.network_selector">
 					<Flex align="center" gap="8">
 						<Icon name="globe" size="14" :color="head.synced ? 'brand' : 'red'" />
