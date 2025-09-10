@@ -5,7 +5,7 @@ const updates = [
 		title: "Hardfork Title",
 		description: "Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description.",
 		block: 9_000_000,
-		expiry: 1758282382,
+		expiry: 1757416857,
 	},
 	{
 		name: "node_upgrade_1",
@@ -13,7 +13,7 @@ const updates = [
 		title: "Node Upgrade Title",
 		description: "Node Upgrade\nDescription Node Upgrade Description Node Upgrade Description Node Upgrade Description Upgrade Description Node Upgrade Description Upgrade Description Node Upgrade Description Upgrade Description Node Upgrade Description Upgrade Description Node Upgrade Description Node\nUpgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade\nDescription Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Description Node Upgrade Description Node Upgrade Description Node Upgrade\n Node Upgrade Description Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Description Node Upgrade Description Description Node Upgrade Description Node Upgrade Description Node Upgrade Description Node Upgrade Description.",
 		block: 9_000_001,
-		expiry: 1758282382,
+		expiry: 1757416857,
 	},
 ]
 
