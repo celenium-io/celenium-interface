@@ -2,15 +2,8 @@
 /** Vendor */
 import { DateTime } from "luxon"
 
-/** Services */
-import { isMainnet } from "@/services/utils"
-
 /** UI */
 import Badge from "@/components/ui/Badge.vue"
-
-/** Store */
-import { useAppStore } from "@/store/app.store"
-const appStore = useAppStore()
 
 const props = defineProps({
 	proposal: {
@@ -24,7 +17,7 @@ const expand = ref(["inactive", "active"].includes(props.proposal.status))
 const getStartDate = () => {
 	let timeToFormat = null
 
-	if (["inactive", "applied", "rejected", "removed"].includes(props.proposal.status)) {
+	if (["inactive", "applied", "rejected", "removed", "failed"].includes(props.proposal.status)) {
 		timeToFormat = props.proposal.created_at
 	} else if (props.proposal.status === "active") {
 		timeToFormat = props.proposal.activation_time
@@ -37,7 +30,7 @@ const getEndDate = () => {
 
 	if (["inactive", "removed"].includes(props.proposal.status)) {
 		timeToFormat = props.proposal.deposit_time
-	} else if (["applied", "rejected", "active"].includes(props.proposal.status)) {
+	} else if (["applied", "rejected", "active", "failed"].includes(props.proposal.status)) {
 		timeToFormat = props.proposal.end_time
 	}
 
@@ -48,7 +41,7 @@ const getTimelineDuration = () => {
 	let timeToFormat = null
 	let timeDiffToFormat = null
 
-	if (["inactive", "applied", "rejected", "removed"].includes(props.proposal.status)) {
+	if (["inactive", "applied", "rejected", "removed", "failed"].includes(props.proposal.status)) {
 		timeDiffToFormat = props.proposal.created_at
 	} else if (props.proposal.status === "active") {
 		timeDiffToFormat = props.proposal.activation_time
@@ -56,20 +49,20 @@ const getTimelineDuration = () => {
 
 	if (["inactive", "removed"].includes(props.proposal.status)) {
 		timeToFormat = props.proposal.deposit_time
-	} else if (["applied", "rejected", "active"].includes(props.proposal.status)) {
+	} else if (["applied", "rejected", "active", "failed"].includes(props.proposal.status)) {
 		timeToFormat = props.proposal.end_time
 	}
 
-	return DateTime.fromISO(timeToFormat).diff(DateTime.fromISO(timeDiffToFormat), "days").toObject().days.toFixed(0)
+	return DateTime.fromISO(timeToFormat).diff(DateTime.fromISO(timeDiffToFormat), "days").toObject().days?.toFixed(0)
 }
 
 const getStartLabel = () => {
 	if (["inactive", "removed"].includes(props.proposal.status)) return "Created at"
-	if (["active", "applied", "rejected"].includes(props.proposal.status)) return "Voting start"
+	if (["active", "applied", "rejected", "failed"].includes(props.proposal.status)) return "Voting start"
 }
 const getEndLabel = () => {
 	if (["inactive", "removed"].includes(props.proposal.status)) return "Deposit end"
-	if (["active", "applied", "rejected"].includes(props.proposal.status)) return "Voting end"
+	if (["active", "applied", "rejected", "failed"].includes(props.proposal.status)) return "Voting end"
 }
 </script>
 
@@ -119,21 +112,21 @@ const getEndLabel = () => {
 						<Text size="12" weight="500" color="tertiary">{{ DateTime.fromISO(proposal.created_at).toFormat("FF") }}</Text>
 					</Flex>
 				</Flex>
-				<Flex v-if="['removed', 'inactive'].includes(proposal.status)" gap="12">
+				<Flex v-if="['removed', 'inactive', 'failed'].includes(proposal.status)" gap="12">
 					<div :class="$style.circle" />
 					<Flex direction="column" gap="8">
 						<Text size="13" weight="600" color="secondary">Deposit end</Text>
 						<Text size="12" weight="500" color="tertiary">{{ DateTime.fromISO(proposal.deposit_time).toFormat("FF") }}</Text>
 					</Flex>
 				</Flex>
-				<Flex v-if="['active', 'applied', 'rejected'].includes(proposal.status)" gap="12">
+				<Flex v-if="['active', 'applied', 'rejected', 'failed'].includes(proposal.status)" gap="12">
 					<div :class="$style.circle" />
 					<Flex direction="column" gap="8">
 						<Text size="13" weight="600" color="secondary">Voting started</Text>
 						<Text size="12" weight="500" color="tertiary">{{ DateTime.fromISO(proposal.activation_time).toFormat("FF") }}</Text>
 					</Flex>
 				</Flex>
-				<Flex v-if="['active', 'applied', 'rejected'].includes(proposal.status)" gap="12">
+				<Flex v-if="['active', 'applied', 'rejected', 'failed'].includes(proposal.status)" gap="12">
 					<div :class="$style.circle" />
 					<Flex direction="column" gap="8">
 						<Text size="13" weight="600" color="secondary">End of voting</Text>
