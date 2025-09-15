@@ -202,9 +202,14 @@ const handleViewRawVotes = () => {
 						</Flex>
 					</Flex>
 
-					<Flex v-if="['rejected', 'removed'].includes(proposal.status)" direction="column" gap="10" :class="$style.key_value">
+					<Flex v-if="['rejected', 'removed', 'failed'].includes(proposal.status)" direction="column" gap="10" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">
-							{{ proposal.status === "removed" ? "Removal" : "Rejection" }} Reason
+							{{ proposal.status === "removed"
+								? "Removal"
+								: proposal.status === "rejected"
+									? "Rejection"
+									: "Failure"
+							}} Reason
 						</Text>
 
 						<Flex align="center" gap="6">
@@ -216,7 +221,14 @@ const handleViewRawVotes = () => {
 							<Text v-else-if="proposal.status === 'rejected'" size="13" weight="600" color="primary">
 								The quorum {{ Number(proposal.quorum) * 100 }}% was not reached
 							</Text>
+							<Text v-else-if="proposal.status === 'failed'" size="13" weight="600" color="primary">
+								The error occurred while executing the transaction
+							</Text>
 						</Flex>
+
+						<Text v-if="proposal.status === 'failed'" size="12" height="120" color="secondary" style="margin-top: -4px;">
+							{{ proposal.error }}
+						</Text>
 					</Flex>
 
 					<Flex direction="column" gap="10" :class="$style.key_value">

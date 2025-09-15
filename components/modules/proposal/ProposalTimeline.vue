@@ -112,7 +112,7 @@ const getEndLabel = () => {
 						<Text size="12" weight="500" color="tertiary">{{ DateTime.fromISO(proposal.created_at).toFormat("FF") }}</Text>
 					</Flex>
 				</Flex>
-				<Flex v-if="['removed', 'inactive', 'failed'].includes(proposal.status)" gap="12">
+				<Flex v-if="['removed', 'inactive'].includes(proposal.status)" gap="12">
 					<div :class="$style.circle" />
 					<Flex direction="column" gap="8">
 						<Text size="13" weight="600" color="secondary">Deposit end</Text>
