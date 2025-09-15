@@ -75,8 +75,8 @@ const seriesConfig = [
 		series: feeSeries,
 		title: "Fee Spent",
 		tooltipLabel: "Spent",
-		yAxisFormatter: (val) => (tia(val, 0) > 1 ? tia(val, 0) : tia(val, 2)),
-		tooltipValueFormatter: (val) => tia(val),
+		yAxisFormatter: (val) => `${(tia(val, 0) > 1 ? tia(val, 0) : tia(val, 2))} TIA`,
+		tooltipValueFormatter: (val) => `${tia(val)} TIA`,
 	},
 ]
 
