@@ -78,7 +78,7 @@ $grayscale: (
 	--block-progress-fill-background: #33a853;
 	--logo-name: var(--txt-primary);
 	--bar-fill: rgb(243, 147, 45);
-	--validator-active: #85f891;
+	--validator-active: #18d2a5;
 	--validator-inactive: #1ca7ed;
 	--validator-jailed: #f8774a;
 	--supply: #1ca7ed;
@@ -376,6 +376,21 @@ body {
 .slide-enter-from,
 .slide-leave-to {
 	transform: translateY(-25px);
+}
+
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.2s ease;
+  position: absolute;
+  width: 100%;
+}
+.slide-fade-enter-from {
+  opacity: 0;
+  transform: translateX(-30%);
+}
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateX(30%);
 }
 
 .table_column_alias {

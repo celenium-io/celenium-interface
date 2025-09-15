@@ -268,7 +268,7 @@ const buildChart = async (chart) => {
 	let legendValues = []
 	let legendGroup, legendCitiesMarkers, legendCitiesLabels
 	if (!isMobile()) {
-		if (chartView.value === "countries") {
+		if (chartView.value === "countries" && countryMaxAmount) {
 			legendGroup = svg
 				.append("g")
 				.attr("transform", `translate(${legend.marginLeft}, ${height - legend.marginBottom})`)

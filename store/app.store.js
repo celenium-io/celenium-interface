@@ -1,7 +1,11 @@
 /** API */
 import { fetchConstants } from "@/services/api/main"
+import { fetchActiveProposals, fetchProposals } from "@/services/api/proposal"
 
 import { useModalsStore } from "./modals.store"
+
+/** Constants */
+import { getActiveUpdates } from "@/services/constants/updates"
 
 export const useAppStore = defineStore("app", () => {
 	const version = ref()
@@ -14,6 +18,14 @@ export const useAppStore = defineStore("app", () => {
 	const initConstants = async () => {
 		const data = await fetchConstants()
 		constants.value = data?.module
+	}
+
+	const globalUpdates = ref([])
+	const initGlobalUpdates = async () => {
+		const { data } = await fetchActiveProposals()
+		globalUpdates.value = data.value?.map(p => ({...p, kind: "proposal"}))
+		const updates = getActiveUpdates()
+		globalUpdates.value = [...updates, ...globalUpdates.value]
 	}
 
 	const gas = ref({
@@ -60,6 +72,8 @@ export const useAppStore = defineStore("app", () => {
 		network,
 		constants,
 		initConstants,
+		globalUpdates,
+		initGlobalUpdates,
 		gas,
 		currentPrice,
 		tvs,

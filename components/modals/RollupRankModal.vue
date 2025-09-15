@@ -18,50 +18,57 @@ const rank = ref({})
 const rollup = ref({})
 const metrics = ref([
 	{
-		key: "day_blobs_count",
+		key: "blobs",
 		name: "Blobs count",
 		coefficient: 0.2,
-		type: "Quantitative",
+		type: "Logarithmic",
 	},
 	{
-		key: "avg_pfb_size",
-		name: "Avg PFB Size",
-		coefficient: 0.3,
-		type: "Quantitative",
-	},
-	{
-		key: "last_message_time",
+		key: "last_msg",
 		name: "Last activity time",
-		coefficient: 0.3,
+		coefficient: 0.2,
 		type: "Time-Based",
 	},
 	{
-		key: "commits_weekly",
+		key: "commits",
 		name: "Weekly commits",
-		coefficient: 0.1,
+		coefficient: 0.05,
 		type: "Quantitative",
 	},
 	{
-		key: "last_pushed_at",
+		key: "last_push",
 		name: "Last pushed",
-		coefficient: 0.1,
+		coefficient: 0.05,
 		type: "Time-Based",
+	},
+	{
+		key: "mb_price",
+		name: "MB price",
+		coefficient: 0.2,
+		type: "Reciprocal quantitative",
+	},
+	{
+		key: "tvl",
+		name: "TVL",
+		coefficient: 0.3,
+		type: "Custom",
 	},
 ])
 
 const getMetricValue = (key) => {
 	const coefficient = metrics.value.find((m) => m.key === key)?.coefficient
-	const metricValue = +rank.value?.ranking[key]?.score / +coefficient
+	const metricValue = rank.value?.scores[key] / coefficient
 
 	return roundTo(metricValue, 2)
 }
+
 watch(
 	() => props.show,
 	() => {
 		if (props.show) {
-			rank.value = cacheStore.selectedRollupRank
 			rollup.value = cacheStore.selectedRollup
-
+			rank.value = rollup.value?.ranking
+			
 			metrics.value = metrics.value.map((m) => {
 				return {
 					...m,
@@ -77,7 +84,7 @@ watch(
 </script>
 
 <template>
-	<Modal :show="show" @onClose="emit('onClose')" width="550" disable-trap>
+	<Modal :show="show" @onClose="emit('onClose')" width="600" disable-trap>
 		<Flex direction="column" gap="24" wide>
 			<Text size="14" weight="600" color="primary">Rollups Activity Rank Calculation</Text>
 
@@ -131,96 +138,12 @@ watch(
 				</Flex>
 
 				<Text size="12" color="secondary" :style="{ lineHeight: '1.4' }">
-					We use two metric categories: Quantitative Metrics and Time-Based Metrics
+					We use the following metric categories: Quantitative, Reciprocal quantitative, Time-Based, Logarithmic and Custom (for TVL rank calculation).
 				</Text>
 
-				<Flex direction="column" gap="8" wide>
-					<Text size="13" weight="600" color="secondary">Here are the formulas for each metric type.</Text>
-
-					<Flex align="center" justify="center" direction="column" gap="16" wide :class="$style.formula_wrapper">
-						<Flex align="center" justify="center" :class="$style.quantitative_metric">
-							<Flex :class="$style.part_1">
-								<math>
-									<mrow>
-										<mi>quantitative</mi>
-										<mo>(</mo>
-										<mi>value</mi><mo>,</mo><mi>maxValue</mi>
-										<mo>)</mo>
-									</mrow>
-								</math>
-							</Flex>
-							<Flex :class="$style.part_2">
-								<math>
-									<mrow>
-										<mo>=</mo>
-										<mi>min</mi>
-										<mo>(</mo>
-										<mfrac>
-											<mi>value</mi>
-											<mi>maxValue</mi>
-										</mfrac>
-										<mo>,</mo><mn>1</mn>
-										<mo>)</mo>
-									</mrow>
-								</math>
-							</Flex>
-						</Flex>
-
-						<div :class="$style.divider" />
-
-						<Flex align="center" justify="center" :class="$style.time_based_metric">
-							<Flex :class="$style.part_1">
-								<math>
-									<mrow>
-										<mi>timeBased</mi>
-										<mo>(</mo>
-										<mi>maxTime</mi><mo>,</mo><mi>lastTime</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>timeframe</mi>
-										<mo>)</mo>
-									</mrow>
-								</math>
-							</Flex>
-							<Flex :class="$style.part_2">
-								<math>
-									<mrow>
-										<mo>=</mo>
-										<mi>exp</mi>
-										<mo>(</mo>
-										<mo>−</mo>
-										<mfrac>
-											<mi>diff</mi>
-											<mi>t</mi>
-										</mfrac>
-										<mo>)</mo>
-									</mrow>
-								</math>
-							</Flex>
-						</Flex>
-					</Flex>
-
-					<Text size="12" color="secondary" :style="{ lineHeight: '1.4' }">
-						Where:
-						<ul>
-							<li>
-								<div :class="$style.inline_formula_wrapper">
-									<mi>diff</mi>
-									<mo>=</mo>
-									<mi>maxTime</mi>
-									<mo>-</mo>
-									<mi>lastTime</mi>
-								</div>
-								in the chosen <mi :class="$style.inline_formula_wrapper">timeframe</mi>.
-							</li>
-							<li>
-								<mi :class="$style.inline_formula_wrapper" :style="{ padding: '1px 4px' }">t</mi>
-								is the <strong>decay period</strong> (time constant) that controls how quickly the metric fades: after a
-								time span of
-								<mi :class="$style.inline_formula_wrapper" :style="{ padding: '1px 4px' }">t</mi>
-								, the value drops to
-								<msup :class="$style.inline_formula_wrapper"><mi>e</mi><mo>−1</mo></msup>
-							</li>
-						</ul>
-					</Text>
-				</Flex>
+				<!-- <Text size="12" color="secondary" :style="{ lineHeight: '1.4' }">
+					You can find the calculation formulas for each metric in the documentation.
+				</Text>				 -->
 
 				<table :class="$style.table_metric">
 					<thead>
@@ -279,7 +202,7 @@ watch(
 					</tbody>
 				</table>
 
-				<Flex align="center" justify="center" :class="$style.formula_wrapper">
+				<Flex align="center" justify="center" :class="[$style.formula_wrapper, $style.summary]">
 					<Flex align="center" justify="center" :class="$style.rank_calculation">
 						<Flex :class="$style.part_1">
 							<math>
@@ -303,12 +226,12 @@ watch(
 										<mn> {{ m.coefficient }} </mn>
 									</template>
 									<mo>=</mo>
-									<mn :style="{ color: `var(--${rank.ranking.rank.category.color})`, fontWeight: '800' }">
-										{{ rank.ranking.rank.score }}
+									<mn :style="{ color: `var(--${rank.category.color})`, fontWeight: '800' }">
+										{{ rank.rank }}
 									</mn>
 								</mrow>
 							</math>
-							<Icon name="laurel" size="20" :color="rank.ranking.rank.category.color" />
+							<Icon name="laurel" size="20" :color="rank.category.color" />
 						</Flex>
 					</Flex>
 				</Flex>
@@ -394,6 +317,10 @@ math {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+}
+
+.summary {
+	font-size: 14px;
 }
 
 @media (max-width: 550px) {

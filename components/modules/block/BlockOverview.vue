@@ -14,9 +14,10 @@ import Popover from "@/components/ui/Popover.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Shared Components */
-import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 import Events from "@/components/shared/tables/Events.vue"
+import MessageTypeBadge from "@/components/shared/MessageTypeBadge.vue"
 import TablePlaceholderView from "@/components/shared/TablePlaceholderView.vue"
+import UpcomingUpdate from "@/components/shared/tables/UpcomingUpdate.vue"
 
 /** Components */
 import UpcomingBlockCard from "./UpcomingBlockCard.vue"
@@ -78,11 +79,13 @@ const secondsToSelectedBlock = computed(() => {
 	return (props.height - latestBlock.value.height) * avgBlockTime.value
 })
 
-const preselectedTab = route.query.tab && ["transactions", "events"].includes(route.query.tab) ? route.query.tab : "transactions"
-const activeTab = ref(preselectedTab)
+// const preselectedTab = route.query.tab && ["transactions", "events"].includes(route.query.tab) ? route.query.tab : "transactions"
+// const activeTab = ref(preselectedTab)
+const activeTab = ref()
 
 const isLoading = ref(false)
 const transactions = ref([])
+const update = ref()
 
 const page = ref(1)
 const handleNext = () => {
@@ -267,7 +270,18 @@ const getTransactions = async () => {
 
 await getTransactions()
 
+onBeforeMount(async () => {
+})
+
 onMounted(async () => {
+	update.value = appStore.globalUpdates.find(upd => upd.block === props.height)
+	if (update.value?.kind) {
+		activeTab.value = "upcoming_update"
+	} else {
+		const preselectedTab = route.query.tab && ["transactions", "events"].includes(route.query.tab) ? route.query.tab : "transactions"
+		activeTab.value = preselectedTab
+	}
+	
 	router.replace({
 		query: {
 			tab: activeTab.value,
@@ -304,6 +318,15 @@ watch(
 	() => props.block,
 	() => {
 		getTransactions()
+	},
+)
+
+watch(
+	() => appStore.globalUpdates,
+	() => {
+		update.value = appStore.globalUpdates.find(upd => {
+			return upd.block === props.height
+		})
 	},
 )
 
@@ -523,6 +546,18 @@ const handleViewRawTransactions = () => {
 				<Flex align="center" justify="between" :class="$style.tabs_wrapper">
 					<Flex gap="4" :class="$style.tabs">
 						<Flex
+							v-if="update?.kind"
+							@click="activeTab = 'upcoming_update'"
+							align="center"
+							gap="6"
+							:class="[$style.tab, activeTab === 'upcoming_update' && $style.active]"
+						>
+							<Icon name="clock-forward" size="12" color="secondary" />
+
+							<Text size="13" weight="600">Upcoming Update</Text>
+						</Flex>
+
+						<Flex
 							@click="activeTab = 'transactions'"
 							align="center"
 							gap="6"
@@ -546,7 +581,8 @@ const handleViewRawTransactions = () => {
 					</Flex>
 				</Flex>
 
-				<Flex v-if="activeTab === 'transactions'" direction="column" :class="[$style.table, isLoading && $style.disabled]">
+				<UpcomingUpdate v-if="activeTab === 'upcoming_update'" :update="update" />
+				<Flex v-else-if="activeTab === 'transactions'" direction="column" :class="[$style.table, isLoading && $style.disabled]">
 					<Flex wrap="wrap" align="center" justify="start" gap="8" :class="$style.filters">
 						<Popover :open="isStatusPopoverOpen" @on-close="onStatusPopoverClose" width="200">
 							<Button @click="handleOpenStatusPopover" type="secondary" size="mini" :disabled="!transactions.length">

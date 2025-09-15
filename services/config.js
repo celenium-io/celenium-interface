@@ -1,96 +1,86 @@
-export const Server = {
-	API: {
-		mainnet: "https://api.celenium.io/v1",
-		mocha: "https://api-mocha-4.celenium.io/v1",
-		arabica: "https://api-arabica-11.celenium.io/v1",
-		mammoth: "https://api-mammoth.celenium.io/v1",
-		dev: "https://api-dev.celenium.io/v1",
-	},
-	WSS: {
-		mainnet: "wss://api.celenium.io/v1/ws",
-		mocha: "wss://api-mocha-4.celenium.io/v1/ws",
-		arabica: "wss://api-arabica-11.celenium.io/v1/ws",
-		mammoth: "wss://api-mammoth.celenium.io/v1/ws",
-		dev: "wss://api-dev.celenium.io/v1/ws",
-	},
-	BLOBSTREAM: {
-		mainnet: "https://api-blobstream.celenium.io/v1",
-		testnet: "https://api-blobstream-testnet.celenium.io/v1",
-	},
-}
-
 export const useServerURL = () => {
+	const { public: p } = useRuntimeConfig()
 	const requestURL = useRequestURL()
 
 	switch (requestURL.hostname) {
 		case "celenium.io":
-			return Server.API.mainnet
-
-		case "mocha-4.celenium.io":
-			return Server.API.mocha
+			return p.API_MAINNET
 
 		case "mocha.celenium.io":
-			return Server.API.mocha
+		case "mocha-4.celenium.io":
+			return p.API_MOCHA
 
 		case "arabica.celenium.io":
-			return Server.API.arabica
+			return p.API_ARABICA
 
 		case "mammoth.celenium.io":
-			return Server.API.mammoth
+			return p.API_MAMMOTH
 
 		case "dev.celenium.io":
-			return Server.API.dev
+			return p.API_DEV
 
 		default:
-			return Server.API.mocha
+			return p.API_DEV
+	}
+}
+
+export const getServerURL = (network) => {
+	const { public: p } = useRuntimeConfig()
+
+	switch (network) {
+		case "mainnet":
+			return p.API_MAINNET
+		case "mocha":
+			return p.API_MOCHA
+		case "arabica":
+			return p.API_ARABICA
+		case "mammoth":
+			return p.API_MAMMOTH
+
+		default:
+			return p.API_DEV
 	}
 }
 
 export const useSocketURL = () => {
+	const { public: p } = useRuntimeConfig()
 	const requestURL = useRequestURL()
 
 	switch (requestURL.hostname) {
 		case "celenium.io":
-			return Server.WSS.mainnet
-
-		case "mocha-4.celenium.io":
-			return Server.WSS.mocha
+			return p.WSS_MAINNET
 
 		case "mocha.celenium.io":
-			return Server.WSS.mocha
+		case "mocha-4.celenium.io":
+			return p.WSS_MOCHA
 
 		case "arabica.celenium.io":
-			return Server.WSS.arabica
+			return p.WSS_ARABICA
 
 		case "mammoth.celenium.io":
-			return Server.WSS.mammoth
+			return p.WSS_MAMMOTH
 
 		case "dev.celenium.io":
-			return Server.WSS.dev
+			return p.WSS_DEV
 
 		default:
-			return Server.WSS.mocha
+			return p.WSS_DEV
 	}
 }
 
 export const useBlobstreamURL = () => {
+	const { public: p } = useRuntimeConfig()
 	const requestURL = useRequestURL()
 
 	switch (requestURL.hostname) {
-		case "mocha-4.celenium.io":
-			return Server.BLOBSTREAM.testnet
-
 		case "mocha.celenium.io":
-			return Server.BLOBSTREAM.testnet
-
+		case "mocha-4.celenium.io":
 		case "arabica.celenium.io":
-			return Server.BLOBSTREAM.testnet
-
 		case "mammoth.celenium.io":
-			return Server.BLOBSTREAM.testnet
+			return p.BLOBSTREAM_TESTNET
 
 		default:
-			return Server.BLOBSTREAM.mainnet
+			return p.BLOBSTREAM_MAINNET
 	}
 }
 
@@ -121,13 +111,21 @@ export const getStartChainDate = () => {
 	}
 }
 
-export const blockscoutURL = "https://celestia-l2-router.k8s-dev.blockscout.com/api/v1/celestia/l2BatchMetadata"
-export const nodeStatsURL = "https://node-stats.celenium.io/v1"
-export const tvlServiceURL = "https://tvl.celenium.io/v1"
-export const githubServiceURL = "https://github.celenium.io/v1"
-export const quoteServiceURL = "https://quote.celenium.io/v1"
-export const faucetURL = {
-	mocha: "https://api-faucet.celenium.io/v1",
-	arabica: "https://api-arabica-faucet.celenium.io/v1",
-	mammoth: "https://api-mammoth-faucet.celenium.io/v1",
+export const faucetAddress = () => useRuntimeConfig().public.FAUCET_ADDRESS
+export const faucetURL = () => {
+	const { public: p } = useRuntimeConfig()
+	return {
+		mocha: p.FAUCET_MOCHA,
+		arabica: p.FAUCET_ARABICA,
+		mammoth: p.FAUCET_MAMMOTH,
+	}
 }
+
+export const blockscoutURL = () => useRuntimeConfig().public.BLOCKSCOUT
+export const githubServiceURL = () => useRuntimeConfig().public.GITHUB
+export const nodeStatsURL = () => useRuntimeConfig().public.NODE_STATS
+export const quoteServiceURL = () => useRuntimeConfig().public.QUOTE
+export const rollupRankingServiceURL = () => useRuntimeConfig().public.ROLLUP_RANKING
+export const tvlServiceURL = () => useRuntimeConfig().public.TVL
+
+export const isSelfhosted = () => useRuntimeConfig().public.SELFHOSTED
