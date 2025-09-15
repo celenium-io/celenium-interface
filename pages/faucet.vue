@@ -385,7 +385,7 @@ onMounted(() => {
 										</Text>
 
 										<Text size="13" weight="400" color="secondary">
-											{{ tia(account?.balance?.spendable || 0, 2) }} TIA
+											{{ tia(account?.balance?.spendable, 2) }} TIA
 										</Text>
 									</Flex>
 

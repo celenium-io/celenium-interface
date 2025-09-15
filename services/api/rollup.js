@@ -199,7 +199,7 @@ export const fetchRollupsRanking = async ({ limit, offset, sort_by, sort }) => {
 		if (offset) url.searchParams.append("offset", offset)
 		if (sort_by) url.searchParams.append("sort_by", sort_by)
 		if (sort) url.searchParams.append("sort", sort)
-
+		
 		const data = await $fetch(url.href)
 		return data
 	} catch (error) {

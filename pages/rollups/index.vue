@@ -280,18 +280,29 @@ const itemsPerPage = 20
 const limit = ref(100)
 
 const getRollups = async () => {
-	const data = await fetchRollups({ limit: limit.value })
+	const [data, rankingData] = await Promise.all([
+		fetchRollups({ limit: limit.value }).catch(err => {
+			console.error("fetchRollups", err)
+			return []
+		}),
+		showRanking.value
+			? fetchRollupsRanking({ limit: limit.value }).catch(err => {
+				console.error("fetchRollupsRanking", err)
+				return []
+				})
+			: Promise.resolve([]),
+	])
+
 	rollups.value = data
 
 	if (showRanking.value) {
 		let ranking = {}
-		const ranking_data = await fetchRollupsRanking({ limit: limit.value })
-		if (ranking_data?.length) {
-			ranking_data.forEach(rank => {
+		if (rankingData?.length) {
+			rankingData.forEach(rank => {
 				ranking[rank.slug] = rank
 			})
-
-			if (data.length) {
+			
+			if (data?.length) {
 				rollups.value = data.map((r) => {
 					const rank = ranking[r.slug]
 					if (!rank) return r
