@@ -61,8 +61,6 @@ const jails = ref([])
 const votes = ref([])
 const uptime = ref([])
 
-console.log('props.validator', props.validator);
-
 const page = ref(1)
 const handleNextCondition = ref(true)
 

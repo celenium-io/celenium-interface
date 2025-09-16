@@ -132,13 +132,15 @@ const config = reactive({
 		paid_per_mb: {
 			show: true,
 		},
-		today_blobs: {
-			show: true,
-			sortPath: "stats.day_blobs_count",
-		},
-		avg_pfb_size: {
+		type: {
 			show: false,
-			sortPath: "stats.avg_pfb_size",
+			sortPath: "type",
+			sortType: "string",
+		},
+		provider: {
+			show: false,
+			sortPath: "provider",
+			sortType: "string",
 		},
 		latest_activity: {
 			show: true,
@@ -191,10 +193,14 @@ const tags = computed(() => {
 
 	return res
 })
+const providers = computed(() => [...new Set(rollups.value
+	?.map(r => r.provider))]
+	.filter(Boolean)
+	.sort((a, b) => a.localeCompare(b))
+)
+const stacks = ref([])
 const showInactive = ref(false)
 
-const providers = ref([])
-const stacks = ref([])
 const getDisplayName = (name) => {
 	switch (name) {
 		case "nft":
@@ -209,19 +215,22 @@ const getDisplayName = (name) => {
 }
 const popovers = reactive({
 	categories: false,
-	types: false,
+	providers: false,
 	tags: false,
+	types: false,
 })
 const keyMap = {
 	categories: "category",
-	types: "type",
-	tags: "tag",
+	providers: "provider",
 	showInactive: "is_active",
+	tags: "tag",
+	types: "type",
 }
 const filters = reactive({
 	categories: categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
-	types: types.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	providers: providers.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	tags: tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	types: types.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	showInactive: showInactive.value,
 })
 const savedFiltersBeforeChanges = ref(null)
@@ -305,7 +314,12 @@ const getRollups = async () => {
 			if (data?.length) {
 				rollups.value = data.map((r) => {
 					const rank = ranking[r.slug]
-					if (!rank) return r
+					if (!rank) return {
+						...r,
+						rank: 0,
+						rounded_rank: 0,
+						rank_category: getRankCategory(0, 0),
+					}
 
 					return {
 						...r,
@@ -357,7 +371,7 @@ const processRollups = () => {
 		return matchMulti && matchActive
 	})
 
-	filteredRollups.value = sortArrayOfObjects(filteredRollups.value, sort.by, sort.dir === "asc").map((r, i) => ({ ...r, index: i + 1 }))
+	filteredRollups.value = sortArrayOfObjects(filteredRollups.value, sort.by, sort.dir === "asc", config.columns[sort.by]?.sortType === "string").map((r, i) => ({ ...r, index: i + 1 }))
 
 	pages.value = roundTo(filteredRollups.value?.length / itemsPerPage, 0, "ceil")
 	processedRollups.value = filteredRollups.value.slice(
@@ -421,6 +435,9 @@ watch(
 		filters.tags = tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
 	},
 )
+watchEffect(() => {
+	filters.providers = providers.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+})
 watch(
 	() => showInactive.value,
 	() => {
@@ -447,7 +464,15 @@ watch(
 
 onBeforeMount(() => {
 	if (localStorage.getItem("page:rollups:config:columns")) {
-		config.columns = JSON.parse(localStorage.getItem("page:rollups:config:columns"))
+		const savedConfig = JSON.parse(localStorage.getItem("page:rollups:config:columns"))
+		Object.keys(savedConfig).forEach(k => {
+			if (config.columns[k]) {
+				config.columns[k] = {
+					...config.columns[k],
+					show: savedConfig[k].show
+				}
+			}
+		})
 	}
 })
 </script>
@@ -503,9 +528,9 @@ onBeforeMount(() => {
 								:color="Object.keys(filters[p]).find((item) => filters[p][item]) ? 'brand' : 'tertiary'"
 							/>
 							<Text color="secondary">
-								{{ capitilize(keyMap[p])
-								}}<template v-if="Object.keys(filters[p]).find((item) => filters[p][item])">:</template></Text
-							>
+								{{ capitilize(keyMap[p]) }}
+								<template v-if="Object.keys(filters[p]).find((item) => filters[p][item])">:</template>
+							</Text>
 
 							<template v-if="Object.keys(filters[p]).find((item) => filters[p][item])">
 								<Text size="12" weight="600" color="primary">
@@ -752,17 +777,17 @@ onBeforeMount(() => {
 										</Flex>
 									</NuxtLink>
 								</td>
-								<td v-if="config.columns.today_blobs.show">
-									<NuxtLink :to="`/rollup/${r?.slug}`">
+								<td v-if="config.columns.type.show">
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
-											<Text size="13" weight="600" color="primary">{{ comma(r?.stats?.day_blobs_count) }}</Text>
+											<Text size="13" weight="600" color="primary"> {{ capitilize(r.type) }} </Text>
 										</Flex>
 									</NuxtLink>
 								</td>
-								<td v-if="config.columns.avg_pfb_size.show">
-									<NuxtLink :to="`/rollup/${r?.slug}`">
+								<td v-if="config.columns.provider.show">
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
-											<Text size="13" weight="600" color="primary">{{ formatBytes(r?.stats?.avg_pfb_size) }}</Text>
+											<Text size="13" weight="600" color="primary"> {{ capitilize(r.provider) }} </Text>
 										</Flex>
 									</NuxtLink>
 								</td>

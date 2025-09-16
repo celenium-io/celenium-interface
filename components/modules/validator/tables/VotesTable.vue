@@ -17,9 +17,6 @@ const props = defineProps({
 		required: true,
 	},
 })
-
-console.log(props.votes);
-
 </script>
 
 <template>

@@ -195,19 +195,28 @@ export function base64ToHex(base64) {
 	return hex
 }
 
-export function sortArrayOfObjects(arr, path, asc = true) {
+export function sortArrayOfObjects(arr, path, asc = true, isString = false) {
 	if (!arr || !arr?.length) return []
 
 	return arr.sort((a, b) => {
-		const getValue = (obj, path) => path.split(".").reduce((o, key) => o?.[key], obj) ?? 0
-
+		const getValue = (obj, path) => {
+			const value = path.split(".").reduce((o, key) => o?.[key], obj)
+			if (value == null) {
+				return isString ? "" : 0
+			}
+			return value
+		}
 		let valueA = getValue(a, path)
 		let valueB = getValue(b, path)
 
 		const dateA = Date.parse(valueA)
 		const dateB = Date.parse(valueB)
+		const bothAreStrings = typeof valueA === "string" && typeof valueB === "string"
+		const bothAreDates = bothAreStrings && !isNaN(dateA) && !isNaN(dateB)
 
-		const bothAreDates = typeof valueA === "string" && typeof valueB === "string" && !isNaN(dateA) && !isNaN(dateB)
+		if (bothAreStrings && !bothAreDates) {
+			return asc ? (valueB).localeCompare(valueA) : (valueA).localeCompare(valueB)
+		}
 
 		if (bothAreDates) {
 			valueA = dateA
