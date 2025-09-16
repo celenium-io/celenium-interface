@@ -15,7 +15,7 @@ useHead({
  * 
  */
 
- const lastUpdate = () => {
+const lastUpdate = () => {
 	const dt = DateTime.fromISO(PRIVACY_POLICY_DATE)
 	const day = dt.day
 	const suffix =
@@ -38,7 +38,7 @@ useHead({
 			<Text :class="$style.section_title">1. General information</Text>
 
 			<Flex :class="[$style.section, $style.section_content]">
-				<Text :class="$style.section_paragraph">PK Labs AG, a Swiss corporation, having its registered office at Gartenstrasse 6, Zug 6300, Switzerland, (“<b>Company</b>”, “<b>we</b>”, or “<b>us</b>”) is the operator of the Website <a href="https://celenium.io" :class="$style.link">https://celenium.io</a> (the “<b>Website</b>”).</Text>
+				<Text :class="$style.section_paragraph">BB Strategy Pte. Ltd, a Singapore corporation, having its registered office at 165b Telok Ayer St, 068617 Singapore, (“<b>Company</b>”, “<b>we</b>”, or “<b>us</b>”) is the operator of the Website <a href="https://celenium.io" :class="$style.link">https://celenium.io</a> (the “<b>Website</b>”).</Text>
 
 				<Text :class="$style.section_paragraph">As the operator of the Website, we take the protection of your personal data very seriously. We collect, process, and use your personal data in accordance with this privacy policy and in compliance with the Swiss Federal Act on Data Protection (“FADP”), the Swiss Ordinance to the Federal Act on Data Protection (“OFADP”), and the General European Data Protection Regulation (“GDPR”).</Text>
 
@@ -52,9 +52,9 @@ useHead({
 			<Text :class="$style.section_title">2. Controller for processing of your personal data</Text>
 
 			<Flex :class="[$style.section, $style.section_content]">
-				<Text :class="$style.section_paragraph">PK Labs AG is the controller for the processing under this Privacy Policy unless we tell you otherwise in an individual case.</Text>
+				<Text :class="$style.section_paragraph">BB Strategy Pte. Ltd is the controller for the processing under this Privacy Policy unless we tell you otherwise in an individual case.</Text>
 
-				<Text :class="$style.section_paragraph">For any matters, relating to data protection and to exercise your rights under Section 13, you may contact <a href="mailto:celenium@pklabs.me" :class="$style.link">celenium@pklabs.me</a> in writing by e-mail or letter to the following address: PK Labs AG, Gartenstrasse 6, Zug 6300, Switzerland</Text>
+				<Text :class="$style.section_paragraph">For any matters, relating to data protection and to exercise your rights under Section 13, you may contact <a href="mailto:celenium@baking-bad.org" :class="$style.link">celenium@baking-bad.org</a> in writing by e-mail or letter to the following address: BB Strategy Pte. Ltd, 165b Telok Ayer St, 068617 Singapore</Text>
 			</Flex>
 		</Flex>
 
@@ -413,7 +413,7 @@ useHead({
 					<li>Swiss Ordinance to the Federal Act on Data Protection: <a href="https://www.admin.ch/opc/en/classified-compilation/19930159/index.html" target="_blank" :class="$style.link">https://www.admin.ch/opc/en/classified-compilation/19930159/index.html</a></li>
 				</ul>
 
-				<Text :class="$style.section_paragraph">Please do not hesitate to contact us if you have any questions regarding this Privacy Policy by contacting us at <a href="mailto:celenium@pklabs.me" :class="$style.link">celenium@pklabs.me</a>.</Text>
+				<Text :class="$style.section_paragraph">Please do not hesitate to contact us if you have any questions regarding this Privacy Policy by contacting us at <a href="mailto:celenium@baking-bad.org" :class="$style.link">celenium@baking-bad.org</a>.</Text>
 			</Flex>
 		</Flex>
 	</Flex>

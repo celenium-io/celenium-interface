@@ -36,7 +36,7 @@ const lastUpdate = () => {
 
 		<Flex :class="$style.section">
 			<Flex :class="[$style.section, $style.section_content]">
-				<Text :class="$style.section_paragraph">Welcome to Celenium, provided by PK Labs AG, Gartenstrasse 6, 6300 Zug, Switzerland, (“Company”, “we”, “us”, or “our”). When we refer to “user”, "you" or "your" we mean you, the person accessing or using our website. The following Terms of Use (“<b>Terms</b>”), together with any documents which are expressly incorporated by reference govern your access to and use of <a href="https://celenium.io" :class="$style.link">https://celenium.io</a> (hereinafter the "<b>Website</b>”).</Text>
+				<Text :class="$style.section_paragraph">Welcome to Celenium, provided by BB Strategy Pte. Ltd, 165b Telok Ayer St, 068617 Singapore, (“Company”, “we”, “us”, or “our”). When we refer to “user”, "you" or "your" we mean you, the person accessing or using our website. The following Terms of Use (“<b>Terms</b>”), together with any documents which are expressly incorporated by reference govern your access to and use of <a href="https://celenium.io" :class="$style.link">https://celenium.io</a> (hereinafter the "<b>Website</b>”).</Text>
 				<Text :class="$style.section_paragraph">By using the Website and/or clicking “Accept,” or using and/or accessing any of our interfaces, applications, products and/or other services, you agree to these Terms and the general disclaimer on our website and to the privacy policy under this <a href="https://celenium.io/privacy-policy" :class="$style.link">https://celenium.io/privacy-policy</a>. If you are not in agreement with these Terms, you may not access our Website.</Text>
 				<Text :class="$style.section_paragraph">We reserve the right, at our sole discretion, to change, modify, add or remove portions of these Terms at any time. Your continued use of the Website following the posting of revised Terms means that you accept and agree to the changes. It is your responsibility to check these Terms periodically for changes.</Text>
 			</Flex>
@@ -200,7 +200,7 @@ const lastUpdate = () => {
 
 			<Flex :class="[$style.section, $style.section_content]">
 				<Text :class="$style.section_paragraph"><u>Termination by You</u></Text>
-				<Text :class="$style.section_paragraph">You may terminate your account and subscription at any time by providing us with 30 days' prior notice. This can be done by following the instructions provided on the website or by contacting our support team at <a href="mailto:celenium@pklabs.me" :class="$style.link">celenium@pklabs.me</a>. Upon termination, you will lose access to all Services provided through the Website, and any data associated with your account may be deleted.</Text>
+				<Text :class="$style.section_paragraph">You may terminate your account and subscription at any time by providing us with 30 days' prior notice. This can be done by following the instructions provided on the website or by contacting our support team at <a href="mailto:celenium@baking-bad.org" :class="$style.link">celenium@baking-bad.org</a>. Upon termination, you will lose access to all Services provided through the Website, and any data associated with your account may be deleted.</Text>
 				<Text :class="$style.section_paragraph"><u>Termination by Us</u></Text>
 				<Text :class="$style.section_paragraph">We reserve the right to terminate or suspend your account and access to the Services, with or without notice, for any reason, including but not limited to, if you violate these Terms, engage in fraudulent or illegal activities, or if we cease to provide the Services. In the event of a termination initiated by us, we will provide you with 30 days' prior notice, except in cases of violations of these Terms, fraudulent or illegal activities, or other urgent circumstances.</Text>
 				<Text :class="$style.section_paragraph"><u>Effects of Termination</u></Text>
@@ -241,7 +241,7 @@ const lastUpdate = () => {
 			<Flex :class="[$style.section, $style.section_content]">
 				<Text :class="$style.section_paragraph">These Terms do not create any relationship of association, partnership, joint venture or agency between us and you. Neither we nor you will have any right or authority to assume, create or incur any liability or obligation of any kind against or in the name of the other party. You shall not, under any circumstances, represent that you are an agent of the Company and you shall take all reasonable precautions to avoid any perception that such relationship exists. These Terms set forth the entire agreement and understanding between us and you with respect to the subject matter in these Terms. These Terms merge all previous discussions and negotiations between us and you and supersede them.</Text>
 				<Text :class="$style.section_paragraph">A person who is not a party to these Terms shall not have any rights whatsoever under these Terms or to enforce these Terms.</Text>
-				<Text :class="$style.section_paragraph">For support, contact us at <a href="mailto:celenium@pklabs.me" :class="$style.link">celenium@pklabs.me</a>.</Text>
+				<Text :class="$style.section_paragraph">For support, contact us at <a href="mailto:celenium@baking-bad.org" :class="$style.link">celenium@baking-bad.org</a>.</Text>
 			</Flex>
 		</Flex>
 	</Flex>
