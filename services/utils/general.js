@@ -195,32 +195,38 @@ export function base64ToHex(base64) {
 	return hex
 }
 
-export function sortArrayOfObjects(arr, path, asc = true, isString = false) {
+export function sortArrayOfObjects(arr, path, asc = true) {
 	if (!arr || !arr?.length) return []
 
 	return arr.sort((a, b) => {
-		const getValue = (obj, path) => {
-			const value = path.split(".").reduce((o, key) => o?.[key], obj)
-			if (value == null) {
-				return isString ? "" : 0
-			}
-			return value
-		}
+		const getValue = (obj, path) => path.split(".").reduce((o, key) => o?.[key], obj)
+
 		let valueA = getValue(a, path)
 		let valueB = getValue(b, path)
 
+		if (valueA == null) valueA = ""
+		if (valueB == null) valueB = ""
+
+		const numA = Number(valueA)
+		const numB = Number(valueB)
+		const bothAreNumbers = !isNaN(numA) && !isNaN(numB)
+
 		const dateA = Date.parse(valueA)
 		const dateB = Date.parse(valueB)
-		const bothAreStrings = typeof valueA === "string" && typeof valueB === "string"
-		const bothAreDates = bothAreStrings && !isNaN(dateA) && !isNaN(dateB)
-
-		if (bothAreStrings && !bothAreDates) {
-			return asc ? (valueB).localeCompare(valueA) : (valueA).localeCompare(valueB)
-		}
+		const bothAreDates = typeof valueA === "string" && typeof valueB === "string" && !isNaN(dateA) && !isNaN(dateB)
 
 		if (bothAreDates) {
 			valueA = dateA
 			valueB = dateB
+		} else if (bothAreNumbers) {
+			valueA = numA
+			valueB = numB
+		} else {
+			valueA = String(valueA)
+			valueB = String(valueB)
+			return asc
+				? valueA.localeCompare(valueB)
+				: valueB.localeCompare(valueA)
 		}
 
 		return asc ? valueA - valueB : valueB - valueA

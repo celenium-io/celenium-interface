@@ -64,6 +64,7 @@ const comparisonBarWidth = ref(0)
 
 /** Data */
 const isLoading = ref(false)
+const isLoadingComparisonData = ref(false)
 const sizeSeries = ref([])
 const pfbSeries = ref([])
 const feeSeries = ref([])
@@ -224,7 +225,9 @@ const handleSelectTvlDataSource = (ds) => {
 	isTvlDataSourcePopoverOpen.value = false
 }
 
-const prepareComparisonData = async (fetchFunction) => {
+const prepareComparisonData = async () => {
+	isLoadingComparisonData.value = true
+
 	comparisonData.value[1] = {}
 
 	comparisonBarWidth.value = comparisonChartEl.value.wrapper.getBoundingClientRect().width
@@ -260,6 +263,8 @@ const prepareComparisonData = async (fetchFunction) => {
 		let sum = firstRollup[el] + secondRollup[el]
 		firstRollup[el + "_graph"] = Math.max(Math.round((firstRollup[el] / sum) * 100, 2), 1)
 	})
+
+	isLoadingComparisonData.value = false
 }
 
 const isRollupPopoverOpen = ref(false)
@@ -294,7 +299,7 @@ const fetchAllData = async () => {
 
 	await generateSeries(seriesConfig.filter((el) => el.metric !== "tvl"))
 	await generateTVLSeries(seriesConfig.filter((el) => el.metric === "tvl"))
-	await prepareComparisonData(fetchRollupSeries)
+	await prepareComparisonData()
 
 	isLoading.value = false
 }
@@ -316,7 +321,7 @@ watch(
 	() => {
 		if (!isLoading.value) {
 			comparisonData.value[1] = {}
-			prepareComparisonData(fetchRollupSeries)
+			prepareComparisonData()
 		}
 	},
 )
@@ -622,7 +627,7 @@ onMounted(async () => {
 						</Popover>
 					</Flex>
 
-					<Flex v-if="comparisonData[0]?.size_graph" direction="column" gap="12" :class="$style.chart_wrapper_single">
+					<Flex v-if="comparisonData[0]?.size_graph || isLoadingComparisonData" direction="column" gap="12" :class="[$style.chart_wrapper_single, isLoadingComparisonData && $style.loading]">
 						<Flex direction="column" gap="12">
 							<Text size="13" weight="500" color="secondary">Size</Text>
 
@@ -753,6 +758,11 @@ onMounted(async () => {
 	position: relative;
 
 	width: 464px;
+}
+
+.loading {
+	opacity: 0.5;
+	pointer-events: none;
 }
 
 .graph_bar {

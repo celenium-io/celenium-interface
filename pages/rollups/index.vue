@@ -135,12 +135,10 @@ const config = reactive({
 		type: {
 			show: false,
 			sortPath: "type",
-			sortType: "string",
 		},
 		provider: {
 			show: false,
 			sortPath: "provider",
-			sortType: "string",
 		},
 		latest_activity: {
 			show: true,
@@ -198,7 +196,7 @@ const providers = computed(() => [...new Set(rollups.value
 	.filter(Boolean)
 	.sort((a, b) => a.localeCompare(b))
 )
-const stacks = ref([])
+const ranks = ["Legendary", "Epic", "Good", "Normal", "Offline"]
 const showInactive = ref(false)
 
 const getDisplayName = (name) => {
@@ -214,12 +212,14 @@ const getDisplayName = (name) => {
 	}
 }
 const popovers = reactive({
+	activity_rank: false,
 	categories: false,
 	providers: false,
 	tags: false,
 	types: false,
 })
 const keyMap = {
+	activity_rank: "activity_rank",
 	categories: "category",
 	providers: "provider",
 	showInactive: "is_active",
@@ -227,6 +227,7 @@ const keyMap = {
 	types: "type",
 }
 const filters = reactive({
+	activity_rank: ranks.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	categories: categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	providers: providers.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	tags: tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
@@ -314,18 +315,15 @@ const getRollups = async () => {
 			if (data?.length) {
 				rollups.value = data.map((r) => {
 					const rank = ranking[r.slug]
-					if (!rank) return {
-						...r,
-						rank: 0,
-						rounded_rank: 0,
-						rank_category: getRankCategory(0, 0),
-					}
+					const rounded_rank = roundTo(rank?.rank / 10, 0)
+					const rank_category = getRankCategory(rounded_rank)
 
 					return {
 						...r,
-						rank: +rank.rank,
-						rounded_rank: roundTo(rank.rank / 10, 0),
-						rank_category: getRankCategory(roundTo(rank.rank / 10, 0)),
+						rank: rank?.rank ? +rank.rank : 0,
+						rounded_rank,
+						rank_category,
+						activity_rank: rank_category.name,
 					}
 				})
 			}
@@ -371,7 +369,7 @@ const processRollups = () => {
 		return matchMulti && matchActive
 	})
 
-	filteredRollups.value = sortArrayOfObjects(filteredRollups.value, sort.by, sort.dir === "asc", config.columns[sort.by]?.sortType === "string").map((r, i) => ({ ...r, index: i + 1 }))
+	filteredRollups.value = sortArrayOfObjects(filteredRollups.value, sort.by, sort.dir === "asc").map((r, i) => ({ ...r, index: i + 1 }))
 
 	pages.value = roundTo(filteredRollups.value?.length / itemsPerPage, 0, "ceil")
 	processedRollups.value = filteredRollups.value.slice(
@@ -395,7 +393,6 @@ const handleSort = (by) => {
 
 		case "asc":
 			sort.dir = "desc"
-
 			break
 	}
 
@@ -520,7 +517,7 @@ onBeforeMount(() => {
 
 			<Flex align="center" justify="between" wrap="wrap" gap="8" :class="$style.settings">
 				<Flex wrap="wrap" align="center" gap="8">
-					<Popover v-for="p in Object.keys(popovers)" :open="popovers[p]" @on-close="onPopoverClose(p)" width="200">
+					<Popover v-for="p in Object.keys(popovers)" :open="popovers[p]" @on-close="onPopoverClose(p)" width="140">
 						<Button @click="handleOpenPopover(p)" type="secondary" size="mini">
 							<Icon
 								name="plus-circle"
@@ -528,7 +525,7 @@ onBeforeMount(() => {
 								:color="Object.keys(filters[p]).find((item) => filters[p][item]) ? 'brand' : 'tertiary'"
 							/>
 							<Text color="secondary">
-								{{ capitilize(keyMap[p]) }}
+								{{ capitalizeAndReplace(keyMap[p], "_") }}
 								<template v-if="Object.keys(filters[p]).find((item) => filters[p][item])">:</template>
 							</Text>
 
@@ -556,7 +553,7 @@ onBeforeMount(() => {
 
 						<template #content>
 							<Flex direction="column" gap="12">
-								<Text size="12" weight="600" color="secondary"> {{ `Filter by ${capitilize(keyMap[p])}` }} </Text>
+								<Text size="12" weight="600" color="secondary"> {{ `Filter by ${p === 'activity_rank' ? 'Rank' : capitilize(keyMap[p])}` }} </Text>
 
 								<Flex direction="column" gap="8" :class="$style.filters_list">
 									<Checkbox v-for="item in Object.keys(filters[p])" v-model="filters[p][item]">
