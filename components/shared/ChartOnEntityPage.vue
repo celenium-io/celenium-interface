@@ -221,9 +221,9 @@ onBeforeUnmount(() => {
 					<div
 						v-if="chartView === 'line'"
 						:style="{
-							transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 4}px)`,
-							background: color,
-							boxShadow: `0 0 0 4px color-mix(in srgb, ${color} 40%, transparent)`,
+							transform: `translate(${tooltipXOffset - 3}px, ${tooltipYDataOffset - 3}px)`,
+							background: color ?? 'var(--brand)',
+							boxShadow: `0 0 0 4px color-mix(in srgb, ${color ?? 'var(--brand)'} 40%, transparent)`,
 						}"
 						:class="$style.dot"
 					/>

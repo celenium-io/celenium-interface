@@ -8,12 +8,14 @@ import AmountInCurrency from "@/components/AmountInCurrency.vue"
 import BlocksTable from "./tables/BlocksTable.vue"
 import DelegatorsTable from "./tables/DelegatorsTable.vue"
 import JailsTable from "./tables/JailsTable.vue"
+import VotesTable from "./tables/VotesTable.vue"
 
 /** Services */
 import { comma, numToPercent, shortHex, splitAddress } from "@/services/utils"
 
 /** API */
 import { fetchValidatorBlocks, fetchValidatorDelegators, fetchValidatorJails, fetchValidatorUptime } from "@/services/api/validator"
+import { fetchVotesByAddressHash } from "@/services/api/address"
 
 /** Store */
 import { useCacheStore } from "@/store/cache.store"
@@ -44,6 +46,10 @@ const tabs = ref([
 		name: "Jails",
 		icon: "grid",
 	},
+	{
+		name: "Votes",
+		icon: "check-circle",
+	},
 ])
 const preselectedTab = route.query.tab && tabs.value.map((tab) => tab.name).includes(route.query.tab) ? route.query.tab : tabs.value[0].name
 const activeTab = ref(preselectedTab)
@@ -52,7 +58,10 @@ const isRefetching = ref(false)
 const delegators = ref([])
 const blocks = ref([])
 const jails = ref([])
+const votes = ref([])
 const uptime = ref([])
+
+console.log('props.validator', props.validator);
 
 const page = ref(1)
 const handleNextCondition = ref(true)
@@ -112,6 +121,21 @@ const getJails = async () => {
 	isRefetching.value = false
 }
 
+const getVotes = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchVotesByAddressHash({
+		hash: props.validator.delegator?.hash,
+		limit: 10,
+		offset: (page.value - 1) * 10,
+	})
+
+	votes.value = data.value
+	handleNextCondition.value = votes.value.length < 10
+
+	isRefetching.value = false
+}
+
 const getUptime = async () => {
 	const { data } = await fetchValidatorUptime({
 		id: props.validator.id,
@@ -127,6 +151,7 @@ const getUptime = async () => {
 if (activeTab.value === "Delegators") await getDelegators()
 if (activeTab.value === "Proposed Blocks") await getBlocks()
 if (activeTab.value === "Jails") await getJails()
+if (activeTab.value === "Votes") await getVotes()
 
 await getUptime()
 
@@ -207,6 +232,9 @@ watch(
 			case "Jails":
 				getJails()
 				break
+			case "Votes":
+				getVotes()
+				break
 		}
 	},
 )
@@ -231,6 +259,9 @@ watch(
 				break
 			case "Jails":
 				getJails()
+				break
+			case "Votes":
+				getVotes()
 				break
 		}
 	},
@@ -468,6 +499,17 @@ const handleDelegate = () => {
 							<Text size="13" weight="600" color="secondary" align="center"> No penalties </Text>
 							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
 								This validator doesn't have any {{ page === 1 ? "" : "more" }} penalties
+							</Text>
+						</Flex>
+					</template>
+
+					<template v-if="activeTab === 'Votes'">
+						<VotesTable v-if="votes.length" :votes="votes" />
+
+						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+							<Text size="13" weight="600" color="secondary" align="center"> No votes </Text>
+							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+								No {{ page === 1 ? "" : "more" }} votes from this address on any proposals
 							</Text>
 						</Flex>
 					</template>
