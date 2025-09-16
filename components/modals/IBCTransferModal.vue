@@ -159,10 +159,10 @@ const handleNavigate = (target) => {
 			</Flex>
 
 			<Flex wide direction="column" gap="8">
-				<Button @click="emit('onClose')" :link="`/tx/${transfer.tx_hash}`" wide type="secondary" size="small">
+				<Button @click="emit('onClose')" :link="`/tx/${transfer.tx_hash}`" type="secondary" size="small" wide>
 					View transaction
 				</Button>
-				<Button wide type="tertiary" size="small">Close</Button>
+				<Button @click="emit('onClose')" type="tertiary" size="small" wide>Close</Button>
 			</Flex>
 		</Flex>
 	</Modal>
