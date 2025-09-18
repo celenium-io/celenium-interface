@@ -19,10 +19,10 @@ import { getProposalIcon, getProposalIconColor, getProposalType, getProposalType
 import { fetchProposalVotes } from "@/services/api/proposal"
 
 /** Store */
-import { useModalsStore } from "@/store/modals.store"
 import { useCacheStore } from "@/store/cache.store"
-const modalsStore = useModalsStore()
+import { useModalsStore } from "@/store/modals.store"
 const cacheStore = useCacheStore()
+const modalsStore = useModalsStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -48,6 +48,7 @@ const defaultFilters = {
 		no_with_veto: false,
 		abstain: false,
 	},
+	address: "",
 }
 const { filters, setFilter, resetFilter } = useFilters(defaultFilters)
 const handleUpdateFilter = (target, newFilter, withRefetch) => {
@@ -55,6 +56,9 @@ const handleUpdateFilter = (target, newFilter, withRefetch) => {
 	if (withRefetch) {
 		getVotes()
 		page.value = 1
+	} else if (target === "address" && !newFilter) {
+		votes.value = []
+		cacheStore.current.votes = []
 	}
 }
 const handleResetFilters = (target, withRefetch) => {
@@ -85,6 +89,14 @@ const getVotes = async () => {
 			.filter((opt) => filters.value.option[opt])
 			.join(","),
 		voter: (activeTab.value === "validators_votes" && "validator") || (activeTab.value === "addresses_votes" && "address") || null,
+		...(filters.value.address
+				? activeTab.value === "validators_votes"
+					? { validator: filters.value.address }
+					: activeTab.value === "addresses_votes"
+						? { address: filters.value.address }
+						: {}
+				: {}
+		)
 	})
 	votes.value = data.value
 
@@ -123,6 +135,7 @@ watch(
 
 		page.value = 1
 		resetFilter("option")
+		resetFilter("address")
 
 		getVotes()
 	},
@@ -189,9 +202,14 @@ const handleViewRawVotes = () => {
 						</Flex>
 					</Flex>
 
-					<Flex v-if="['rejected', 'removed'].includes(proposal.status)" direction="column" gap="10" :class="$style.key_value">
+					<Flex v-if="['rejected', 'removed', 'failed'].includes(proposal.status)" direction="column" gap="10" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">
-							{{ proposal.status === "removed" ? "Removal" : "Rejection" }} Reason
+							{{ proposal.status === "removed"
+								? "Removal"
+								: proposal.status === "rejected"
+									? "Rejection"
+									: "Failure"
+							}} Reason
 						</Text>
 
 						<Flex align="center" gap="6">
@@ -203,7 +221,14 @@ const handleViewRawVotes = () => {
 							<Text v-else-if="proposal.status === 'rejected'" size="13" weight="600" color="primary">
 								The quorum {{ Number(proposal.quorum) * 100 }}% was not reached
 							</Text>
+							<Text v-else-if="proposal.status === 'failed'" size="13" weight="600" color="primary">
+								The error occurred while executing the transaction
+							</Text>
 						</Flex>
+
+						<Text v-if="proposal.status === 'failed'" size="12" height="120" color="secondary" style="margin-top: -4px;">
+							{{ proposal.error }}
+						</Text>
 					</Flex>
 
 					<Flex direction="column" gap="10" :class="$style.key_value">

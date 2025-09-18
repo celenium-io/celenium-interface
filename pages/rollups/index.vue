@@ -132,13 +132,13 @@ const config = reactive({
 		paid_per_mb: {
 			show: true,
 		},
-		today_blobs: {
-			show: true,
-			sortPath: "stats.day_blobs_count",
-		},
-		avg_pfb_size: {
+		type: {
 			show: false,
-			sortPath: "stats.avg_pfb_size",
+			sortPath: "type",
+		},
+		provider: {
+			show: false,
+			sortPath: "provider",
 		},
 		latest_activity: {
 			show: true,
@@ -191,10 +191,14 @@ const tags = computed(() => {
 
 	return res
 })
+const providers = computed(() => [...new Set(rollups.value
+	?.map(r => r.provider))]
+	.filter(Boolean)
+	.sort((a, b) => a.localeCompare(b))
+)
+const ranks = ["Legendary", "Epic", "Good", "Normal", "Offline"]
 const showInactive = ref(false)
 
-const providers = ref([])
-const stacks = ref([])
 const getDisplayName = (name) => {
 	switch (name) {
 		case "nft":
@@ -208,20 +212,26 @@ const getDisplayName = (name) => {
 	}
 }
 const popovers = reactive({
+	activity_rank: false,
 	categories: false,
-	types: false,
+	providers: false,
 	tags: false,
+	types: false,
 })
 const keyMap = {
+	activity_rank: "activity_rank",
 	categories: "category",
-	types: "type",
-	tags: "tag",
+	providers: "provider",
 	showInactive: "is_active",
+	tags: "tag",
+	types: "type",
 }
 const filters = reactive({
+	activity_rank: ranks.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	categories: categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
-	types: types.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	providers: providers.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	tags: tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	types: types.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	showInactive: showInactive.value,
 })
 const savedFiltersBeforeChanges = ref(null)
@@ -305,13 +315,15 @@ const getRollups = async () => {
 			if (data?.length) {
 				rollups.value = data.map((r) => {
 					const rank = ranking[r.slug]
-					if (!rank) return r
+					const rounded_rank = roundTo(rank?.rank / 10, 0)
+					const rank_category = getRankCategory(rounded_rank)
 
 					return {
 						...r,
-						rank: +rank.rank,
-						rounded_rank: roundTo(rank.rank / 10, 0),
-						rank_category: getRankCategory(roundTo(rank.rank / 10, 0)),
+						rank: rank?.rank ? +rank.rank : 0,
+						rounded_rank,
+						rank_category,
+						activity_rank: rank_category.name,
 					}
 				})
 			}
@@ -381,7 +393,6 @@ const handleSort = (by) => {
 
 		case "asc":
 			sort.dir = "desc"
-
 			break
 	}
 
@@ -421,6 +432,9 @@ watch(
 		filters.tags = tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
 	},
 )
+watchEffect(() => {
+	filters.providers = providers.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+})
 watch(
 	() => showInactive.value,
 	() => {
@@ -447,7 +461,15 @@ watch(
 
 onBeforeMount(() => {
 	if (localStorage.getItem("page:rollups:config:columns")) {
-		config.columns = JSON.parse(localStorage.getItem("page:rollups:config:columns"))
+		const savedConfig = JSON.parse(localStorage.getItem("page:rollups:config:columns"))
+		Object.keys(savedConfig).forEach(k => {
+			if (config.columns[k]) {
+				config.columns[k] = {
+					...config.columns[k],
+					show: savedConfig[k].show
+				}
+			}
+		})
 	}
 })
 </script>
@@ -495,7 +517,7 @@ onBeforeMount(() => {
 
 			<Flex align="center" justify="between" wrap="wrap" gap="8" :class="$style.settings">
 				<Flex wrap="wrap" align="center" gap="8">
-					<Popover v-for="p in Object.keys(popovers)" :open="popovers[p]" @on-close="onPopoverClose(p)" width="200">
+					<Popover v-for="p in Object.keys(popovers)" :open="popovers[p]" @on-close="onPopoverClose(p)" width="140">
 						<Button @click="handleOpenPopover(p)" type="secondary" size="mini">
 							<Icon
 								name="plus-circle"
@@ -503,9 +525,9 @@ onBeforeMount(() => {
 								:color="Object.keys(filters[p]).find((item) => filters[p][item]) ? 'brand' : 'tertiary'"
 							/>
 							<Text color="secondary">
-								{{ capitilize(keyMap[p])
-								}}<template v-if="Object.keys(filters[p]).find((item) => filters[p][item])">:</template></Text
-							>
+								{{ capitalizeAndReplace(keyMap[p], "_") }}
+								<template v-if="Object.keys(filters[p]).find((item) => filters[p][item])">:</template>
+							</Text>
 
 							<template v-if="Object.keys(filters[p]).find((item) => filters[p][item])">
 								<Text size="12" weight="600" color="primary">
@@ -531,7 +553,7 @@ onBeforeMount(() => {
 
 						<template #content>
 							<Flex direction="column" gap="12">
-								<Text size="12" weight="600" color="secondary"> {{ `Filter by ${capitilize(keyMap[p])}` }} </Text>
+								<Text size="12" weight="600" color="secondary"> {{ `Filter by ${p === 'activity_rank' ? 'Rank' : capitilize(keyMap[p])}` }} </Text>
 
 								<Flex direction="column" gap="8" :class="$style.filters_list">
 									<Checkbox v-for="item in Object.keys(filters[p])" v-model="filters[p][item]">
@@ -752,17 +774,17 @@ onBeforeMount(() => {
 										</Flex>
 									</NuxtLink>
 								</td>
-								<td v-if="config.columns.today_blobs.show">
-									<NuxtLink :to="`/rollup/${r?.slug}`">
+								<td v-if="config.columns.type.show">
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
-											<Text size="13" weight="600" color="primary">{{ comma(r?.stats?.day_blobs_count) }}</Text>
+											<Text size="13" weight="600" color="primary"> {{ capitilize(r.type) }} </Text>
 										</Flex>
 									</NuxtLink>
 								</td>
-								<td v-if="config.columns.avg_pfb_size.show">
-									<NuxtLink :to="`/rollup/${r?.slug}`">
+								<td v-if="config.columns.provider.show">
+									<NuxtLink :to="`/rollup/${r.slug}`">
 										<Flex align="center">
-											<Text size="13" weight="600" color="primary">{{ formatBytes(r?.stats?.avg_pfb_size) }}</Text>
+											<Text size="13" weight="600" color="primary"> {{ capitilize(r.provider) }} </Text>
 										</Flex>
 									</NuxtLink>
 								</td>

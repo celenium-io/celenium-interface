@@ -3,8 +3,9 @@
 import { DateTime } from "luxon"
 
 /** UI */
-import Modal from "@/components/ui/Modal.vue"
 import Button from "@/components/ui/Button.vue"
+import Modal from "@/components/ui/Modal.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
 import { comma } from "@/services/utils"
@@ -89,6 +90,106 @@ const handleNavigate = (target) => {
 				</Flex>
 			</Flex>
 
+			<Flex v-if="transfer.relayer" direction="column" gap="8" wide :class="$style.card">
+				<Text size="12" weight="600" color="secondary">Relayer</Text>
+
+				<Flex align="start" gap="8" wide>
+					<Flex :class="$style.logo_container">
+						<img v-if="transfer.relayer?.logo" :src="transfer.relayer?.logo" :class="$style.logo"/>
+						<Icon v-else name="relayer" size="24" color="brand" />
+					</Flex>
+					
+					<Flex direction="column" gap="8" wide style="max-width: calc(100% - 30px);">
+						<Flex align="center" gap="12" wide>
+							<Text size="14" weight="600" color="primary" mono :class="['overflow_ellipsis']">
+								{{ transfer.relayer?.name }}
+							</Text>
+
+							<Flex align="center" justify="end" gap="8">
+								<Tooltip v-if="transfer.relayer?.website" position="start" delay="300">
+									<a :href="transfer.relayer?.website" target="_blank">
+										<Flex align="end" gap="12" wide>
+											<Icon name="globe" size="14" color="secondary" />
+										</Flex>
+									</a>
+
+									<template #content>
+										{{ transfer.relayer?.website }}
+									</template>
+								</Tooltip>
+								
+								<Tooltip v-if="transfer.relayer?.twitter" position="start" delay="300">
+									<a :href="transfer.relayer?.twitter" target="_blank">
+										<Flex align="end" gap="12" wide>
+											<Icon name="twitter" size="14" color="secondary" />
+										</Flex>
+									</a>
+
+									<template #content>
+										{{ transfer.relayer?.twitter }}
+									</template>
+								</Tooltip>
+
+								<Tooltip v-if="transfer.relayer?.github" position="start" delay="300">
+									<a :href="transfer.relayer?.github" target="_blank">
+										<Flex align="end" gap="12" wide>
+											<Icon name="github" size="14" color="secondary" />
+										</Flex>
+									</a>
+
+									<template #content>
+										{{ transfer.relayer?.github }}
+									</template>
+								</Tooltip>
+
+								<Tooltip v-if="transfer.relayer?.telegram" position="start" delay="300">
+									<a :href="transfer.relayer?.telegram" target="_blank">
+										<Flex align="end" gap="12" wide>
+											<Icon name="telegram" size="14" color="secondary" />
+										</Flex>
+									</a>
+
+									<template #content>
+										{{ transfer.relayer?.telegram }}
+									</template>
+								</Tooltip>
+
+								<Tooltip v-if="transfer.relayer?.discord" position="start" delay="300">
+									<a :href="transfer.relayer?.discord" target="_blank">
+										<Flex align="end" gap="12" wide>
+											<Icon name="discord" size="14" color="secondary" />
+										</Flex>
+									</a>
+
+									<template #content>
+										{{ transfer.relayer?.discord }}
+									</template>
+								</Tooltip>
+
+								<Tooltip v-if="transfer.relayer?.medium" position="start" delay="300">
+									<a :href="transfer.relayer?.medium" target="_blank">
+										<Flex align="end" gap="12" wide>
+											<Icon name="medium" size="14" color="secondary" />
+										</Flex>
+									</a>
+
+									<template #content>
+										{{ transfer.relayer?.medium }}
+									</template>
+								</Tooltip>
+							</Flex>
+						</Flex>
+
+						<Flex align="center" wide>
+							<Text size="13" weight="600" color="primary" mono :class="['overflow_ellipsis', $style.address_text]">
+								{{ transfer.relayer?.addresses[0] }}
+							</Text>
+							<CopyButton :text="transfer.relayer?.addresses[0]" />
+						</Flex>
+					</Flex>
+				</Flex>
+			</Flex>
+
 			<Flex wide direction="column" gap="16" :class="$style.card">
 				<Text size="12" weight="600" color="secondary">Details</Text>
 
@@ -159,10 +260,10 @@ const handleNavigate = (target) => {
 			</Flex>
 
 			<Flex wide direction="column" gap="8">
-				<Button @click="emit('onClose')" :link="`/tx/${transfer.tx_hash}`" wide type="secondary" size="small">
+				<Button @click="emit('onClose')" :link="`/tx/${transfer.tx_hash}`" type="secondary" size="small" wide>
 					View transaction
 				</Button>
-				<Button wide type="tertiary" size="small">Close</Button>
+				<Button @click="emit('onClose')" type="tertiary" size="small" wide>Close</Button>
 			</Flex>
 		</Flex>
 	</Modal>
@@ -181,6 +282,35 @@ const handleNavigate = (target) => {
 
 	&.amount {
 		border-radius: 2px 2px 8px 8px;
+	}
+
+	.logo_container {
+		position: relative;
+		min-width: 24px;
+		width: 24px;
+		min-height: 24px;
+		height: 24px;
+
+		overflow: hidden;
+		border-radius: 50%;
+	}
+
+	.logo {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+
+		user-select: none;
+		-webkit-user-drag: none;
+	}
+
+	a {
+		cursor: pointer;
+		&:hover {
+			* {
+				fill: var(--txt-primary);
+			}
+		}
 	}
 }
 

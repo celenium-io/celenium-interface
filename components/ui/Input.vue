@@ -163,6 +163,10 @@ const handlePaste = (e) => {
 	height: 28px;
 }
 
+.base.mini {
+	height: 26px;
+}
+
 .base:hover {
 	box-shadow: inset 0 0 0 1px var(--op-10);
 }

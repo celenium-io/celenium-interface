@@ -186,10 +186,15 @@ onMounted(async () => {
 
 	if (showRanking.value) {
 		const data = await fetchRollupRankingBySlug(props.rollup?.slug)
-		if (data.slug) {
+		if (data?.slug) {
 			rollupRanking.value = {
 				category: getRankCategory(roundTo(data.rank / 10, 0)),
 				rank: +data.rank,
+			}
+		} else {
+			rollupRanking.value = {
+				category: getRankCategory(0, 0),
+				rank: 0,
 			}
 		}
 	}
@@ -303,7 +308,7 @@ const handleCSVDownload = async (value) => {
 			</Flex>
 
 			<Flex align="center" gap="12">
-				<Button v-if="showRanking" :link="`/rollup/rank/${rollup.slug}`" type="secondary" size="mini">
+				<Button v-if="showRanking && rollupRanking?.rank" :link="`/rollup/rank/${rollup.slug}`" type="secondary" size="mini">
 					<Icon name="laurel" size="12" color="secondary" />
 
 					<Text>Activity Rank</Text>

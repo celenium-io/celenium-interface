@@ -98,6 +98,8 @@ export const amountToString = (amount, decimal = 2) => {
 }
 
 export const roundTo = (num, decimal = 2, method = "round") => {
+	if (!num) return 0
+	
 	const factor = Math.pow(10, decimal)
 	return Math[method](num * factor) / factor
 }

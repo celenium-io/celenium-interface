@@ -8,6 +8,7 @@ export const getProposalIcon = (status) => {
 	if (status === "removed") return "close-circle"
 	if (status === "applied") return "check-circle"
 	if (status === "rejected") return "close-circle"
+	if (status === "failed") return "close-circle"
 }
 
 export const getProposalIconColor = (status) => {
@@ -16,6 +17,7 @@ export const getProposalIconColor = (status) => {
 	if (status === "removed") return "tertiary"
 	if (status === "applied") return "brand"
 	if (status === "rejected") return "red"
+	if (status === "failed") return "red"
 }
 
 export const getProposalType = (type) => {
