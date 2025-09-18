@@ -550,7 +550,7 @@ onMounted(async () => {
 
 				<Flex ref="comparisonChartEl" direction="column" gap="12" :style="{ minHeight: '207px' }">
 					<Flex align="center" justify="between">
-						<Text size="13" weight="600" color="primary">Rollups Comparison</Text>
+						<Text size="13" weight="600" color="primary">Networks Comparison</Text>
 
 						<Popover :open="isRollupPopoverOpen" @on-close="handleRollupPopoverClose" side="right" width="250">
 							<Flex
@@ -578,7 +578,7 @@ onMounted(async () => {
 
 							<template #content>
 								<Flex direction="column" justify="center" gap="12">
-									<Text size="12" weight="600" color="secondary">Filter by Rollup</Text>
+									<Text size="12" weight="600" color="secondary">Filter by Network</Text>
 
 									<Input v-model="searchTerm" size="small" placeholder="Search" autofocus />
 
@@ -707,7 +707,7 @@ onMounted(async () => {
 						:style="{ height: '100%', paddingBottom: '24px' }"
 					>
 						<Text size="12" color="secondary" weight="600">No data for comparison</Text>
-						<Text size="12" color="tertiary">Try to select a different rollup or period</Text>
+						<Text size="12" color="tertiary">Try to select a different network or period</Text>
 					</Flex>
 				</Flex>
 			</Flex>

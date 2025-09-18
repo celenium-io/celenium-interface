@@ -268,7 +268,7 @@ const handlePrev = () => {
 								<Text size="13" weight="600" color="primary">{{ blob.namespace?.version }}</Text>
 							</td>
 							<td style="width: 1px">
-								<NuxtLink v-if="blob.rollup?.logo" :to="`/rollup/${blob.rollup.slug}`" @click.stop>
+								<NuxtLink v-if="blob.rollup?.logo" :to="`/network/${blob.rollup.slug}`" @click.stop>
 									<Tooltip position="start" delay="500">
 										<Flex align="center" justify="center" :class="$style.avatar_container">
 											<img :src="blob.rollup.logo" :class="$style.avatar_image" />

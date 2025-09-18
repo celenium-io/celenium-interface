@@ -91,7 +91,7 @@ onMounted(async () => {
 		<Flex align="center" justify="between" gap="24" wide :class="$style.container">
 			<Flex align="center" gap="12" :class="$style.stats">
 				<template v-if="showTopRollup">
-					<NuxtLink :to="`/rollup/rank/${topRollup?.slug}`">
+					<NuxtLink :to="`/network/rank/${topRollup?.slug}`">
 						<Tooltip>
 							<Flex align="center" gap="6" :class="$style.stat">
 								<Icon
@@ -103,7 +103,7 @@ onMounted(async () => {
 								/>
 								<Icon v-else name="laurel" size="14" color="tertiary" :class="$style.icon" :style="{ marginTop: '1px' }" />
 								<Flex align="center" gap="4">
-									<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Top Rollup:</Text>
+									<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Top Network:</Text>
 
 									<Text v-if="topRollup?.name" size="12" weight="600" color="secondary" noWrap :class="$style.value">
 										{{ topRollup?.name }}

@@ -303,7 +303,7 @@ const getPaymentLink = () => {
 									:color="plans[selectedPlan].access.rollups ? 'brand' : 'tertiary'"
 								/>
 								<Text size="13" weight="600" :color="plans[selectedPlan].access.rollups ? 'primary' : 'tertiary'">
-									Rollups Data
+									Networks Data
 								</Text>
 							</Flex>
 						</Flex>

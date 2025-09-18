@@ -137,13 +137,13 @@ async function fetchData() {
 }
 
 defineOgImageComponent("RollupImage", {
-	title: "Rollup",
+	title: "Network",
 	rollup: rollup.value,
 	cacheKey: `${rollup.value?.name}`,
 })
 
 useHead({
-	title: `Rollup ${rollup.value?.name} - Celenium`,
+	title: `Network ${rollup.value?.name} - Celenium`,
 	link: [
 		{
 			rel: "canonical",
@@ -153,15 +153,15 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: `Rollup ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
+			content: `Network ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
 		},
 		{
 			property: "og:title",
-			content: `Rollup ${rollup.value?.name} - Celenium`,
+			content: `Network ${rollup.value?.name} - Celenium`,
 		},
 		{
 			property: "og:description",
-			content: `Rollup ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
+			content: `Network ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
 		},
 		{
 			property: "og:url",
@@ -169,11 +169,11 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: `Rollup ${rollup.value?.name} - Celenium`,
+			content: `Network ${rollup.value?.name} - Celenium`,
 		},
 		{
 			name: "twitter:description",
-			content: `Rollup ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
+			content: `Network ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
 		},
 		{
 			name: "twitter:card",
@@ -262,13 +262,13 @@ onMounted(() => {
 				<Breadcrumbs
 					:items="[
 						{ link: '/', name: 'Explore' },
-						{ link: '/rollups', name: 'Rollups Leaderboard' },
+						{ link: '/networks', name: 'Networks Leaderboard' },
 						{ link: route.fullPath, name: rollup.name },
 					]"
 				/>
 
 				<Button link="https://forms.gle/nimJyQJG4Lb4BTcG7" target="_blank" type="secondary" size="mini">
-					<Icon name="rollup-plus" size="12" color="secondary" /> Register rollup
+					<Icon name="rollup-plus" size="12" color="secondary" /> Register network
 				</Button>
 			</Flex>
 
@@ -288,7 +288,7 @@ onMounted(() => {
 								</Flex>
 							</Flex>
 
-							<Button :link="`/rollup/${rollup.slug}`" type="secondary" size="mini">
+							<Button :link="`/network/${rollup.slug}`" type="secondary" size="mini">
 								More about {{ rollup.name }}
 								<Icon name="arrow-narrow-up-right" size="12" color="secondary" />
 							</Button>
@@ -424,7 +424,7 @@ onMounted(() => {
 								<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 									<Text size="13" weight="600" color="secondary" align="center"> No repositories found </Text>
 									<Text size="12" weight="500" height="160" color="tertiary" align="center">
-										This rollup probably doesn't have an associated github account
+										This network probably doesn't have an associated github account
 									</Text>
 								</Flex>
 							</Flex>

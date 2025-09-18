@@ -22,7 +22,7 @@ const rollup = ref()
 const { data: rawRollup } = await fetchRollupBySlug(route.params.slug)
 
 if (!rawRollup.value) {
-	router.push("/rollups")
+	router.push("/networks")
 } else {
 	rollup.value = rawRollup.value
 	patchRollupColor()
@@ -41,13 +41,13 @@ function patchRollupColor() {
 }
 
 defineOgImageComponent("RollupImage", {
-	title: "Rollup",
+	title: "Network",
 	rollup: rollup.value,
 	cacheKey: `${rollup.value?.name}`,
 })
 
 useHead({
-	title: `Rollup ${rollup.value?.name} - Celenium`,
+	title: `Network ${rollup.value?.name} - Celenium`,
 	link: [
 		{
 			rel: "canonical",
@@ -57,15 +57,15 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: `Rollup ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
+			content: `Network ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
 		},
 		{
 			property: "og:title",
-			content: `Rollup ${rollup.value?.name} - Celenium`,
+			content: `Network ${rollup.value?.name} - Celenium`,
 		},
 		{
 			property: "og:description",
-			content: `Rollup ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
+			content: `Network ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
 		},
 		{
 			property: "og:url",
@@ -73,11 +73,11 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: `Rollup ${rollup.value?.name} - Celenium`,
+			content: `Network ${rollup.value?.name} - Celenium`,
 		},
 		{
 			name: "twitter:description",
-			content: `Rollup ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
+			content: `Network ${rollup.value?.name} blobs, namespaces, metadata, social links, contacts and other data.`,
 		},
 		{
 			name: "twitter:card",
@@ -100,13 +100,13 @@ watch(
 					v-if="rollup"
 					:items="[
 						{ link: '/', name: 'Explore' },
-						{ link: '/rollups', name: 'Rollups Leaderboard' },
+						{ link: '/networks', name: 'Networks Leaderboard' },
 						{ link: route.fullPath, name: rollup.name },
 					]"
 				/>
 
 				<Button link="https://forms.gle/nimJyQJG4Lb4BTcG7" target="_blank" type="secondary" size="mini">
-					<Icon name="rollup-plus" size="12" color="secondary" /> Register rollup
+					<Icon name="rollup-plus" size="12" color="secondary" /> Register network
 				</Button>
 			</Flex>
 

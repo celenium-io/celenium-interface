@@ -155,7 +155,7 @@ const getResultMetadata = (target) => {
 		case "rollup":
 			metadata.type = target.type
 			metadata.title = target.result.name
-			metadata.routerLink = `/rollup/${target.result.slug}`
+			metadata.routerLink = `/network/${target.result.slug}`
 			break
 
 		case "validator":

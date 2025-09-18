@@ -88,9 +88,9 @@ const mainLinks = reactive([
 				show: true,
 			},
 			{
-				name: "Rollups",
-				path: "/stats?tab=rollups",
-				queryParam: { tab: "rollups" },
+				name: "Networks",
+				path: "/stats?tab=networks",
+				queryParam: { tab: "networks" },
 				show: true,
 			},
 			{
@@ -112,8 +112,8 @@ const isModularLinksCollapsed = ref(false)
 const modularLinks = reactive([
 	{
 		icon: "rollup",
-		name: "Rollups",
-		path: "/rollups",
+		name: "Networks",
+		path: "/networks",
 		children: [
 			{
 				name: "Cost Savings",
@@ -121,7 +121,7 @@ const modularLinks = reactive([
 				show: true,
 			},
 			{
-				name: "Register rollup",
+				name: "Register network",
 				path: "https://forms.gle/nimJyQJG4Lb4BTcG7",
 				external: true,
 				show: true,
@@ -344,7 +344,7 @@ const handleOnClose = () => {
 						</Flex>
 					</DropdownTitle>
 					<DropdownDivider />
-					<DropdownTitle>Network</DropdownTitle>
+					<DropdownTitle>Celestia Network</DropdownTitle>
 					<DropdownItem @click="handleNavigate('https://celenium.io')">Mainnet</DropdownItem>
 					<DropdownItem @click="handleNavigate('https://mocha-4.celenium.io')">Mocha-4</DropdownItem>
 					<DropdownItem @click="handleNavigate('https://arabica.celenium.io')">Arabica</DropdownItem>
