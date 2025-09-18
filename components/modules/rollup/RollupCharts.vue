@@ -20,7 +20,7 @@ import { getFormatKey, createDataMap, generateDateForPeriod, generateSeriesData,
 
 /** API */
 import { fetchRollupSeries } from "@/services/api/stats"
-import { fetchRollups, fetchRollupTVL } from "@/services/api/rollup"
+import { fetchRollups, fetchRollupTVL, fetchRollupUops } from "@/services/api/rollup"
 
 /** Store */
 import { useSettingsStore } from "@/store/settings.store"
@@ -69,8 +69,10 @@ const sizeSeries = ref([])
 const pfbSeries = ref([])
 const feeSeries = ref([])
 const tvlSeries = ref([])
-const tvlDataSources = ref([])
-const selectedTvlDataSource = ref()
+const uopsSeries = ref([])
+const extDataSources = ref([])
+const tvlDataSource = ref()
+const uopsDataSource = ref()
 const rollupsList = ref()
 const comparisonData = ref([])
 const selectedRollup = ref()
@@ -115,15 +117,23 @@ const seriesConfig = [
 		tooltipValueFormatter: abbreviate,
 		unit: "$",
 	},
+	{
+		name: "uops",
+		metric: "uops",
+		series: uopsSeries,
+		title: "UOPS",
+		tooltipLabel: "UOPS",
+		yAxisFormatter: abbreviate,
+		tooltipValueFormatter: abbreviate,
+		unit: null,
+	},
 ]
 
 const sizeConfig = computed(() => seriesConfig.find((config) => config.metric === "size"))
-
 const pfbConfig = computed(() => seriesConfig.find((config) => config.metric === "pfb"))
-
 const feeConfig = computed(() => seriesConfig.find((config) => config.metric === "fee"))
-
 const tvlConfig = computed(() => seriesConfig.find((config) => config.metric === "tvl"))
+const uopsConfig = computed(() => seriesConfig.find((config) => config.metric === "uops"))
 
 const getRollupsList = async () => {
 	const data = await fetchRollups({
@@ -134,20 +144,37 @@ const getRollupsList = async () => {
 }
 
 const fetchTVLData = async () => {
-	if (!selectedTvlDataSource.value) return []
+	if (!tvlDataSource.value) return []
 
 	let from = ""
 	let tf = selectedPeriod.value.timeframe
-	let periodValue = selectedPeriod.value.value
 
 	if (["hour", "week"].includes(tf)) {
 		from = parseInt(DateTime.now().minus({ days: 30 }).ts / 1_000)
 		tf = "day"
-		periodValue = 30
 	}
 
 	return await fetchRollupTVL({
-		dataSource: selectedTvlDataSource.value?.name,
+		dataSource: tvlDataSource.value?.name,
+		slug: props.rollup.slug,
+		period: tf,
+		from,
+	})
+}
+
+const fetchUopsData = async () => {
+	if (!uopsDataSource.value) return []
+
+	let from = ""
+	let tf = selectedPeriod.value.timeframe
+
+	if (tf === "hour") {
+		from = parseInt(DateTime.now().minus({ days: 30 }).ts / 1_000)
+		tf = "day"
+	}
+
+	return await fetchRollupUops({
+		dataSource: uopsDataSource.value?.name,
 		slug: props.rollup.slug,
 		period: tf,
 		from,
@@ -186,7 +213,7 @@ const generateTVLSeriesData = (period, dataMap, series) => {
 	let tf = period.timeframe
 	let periodValue = period.value
 
-	if (["hour", "week"].includes(period.timeframe)) {
+	if (["hour", "week"].includes(tf)) {
 		tf = "day"
 		periodValue = 30
 	}
@@ -198,7 +225,7 @@ const generateTVLSeriesData = (period, dataMap, series) => {
 
 		series.value.push({
 			date: dt.toJSDate(),
-			value: parseFloat(dataMap[key]) || 0,
+			value: parseFloat(dataMap[key] ?? 0),
 		})
 	}
 }
@@ -214,15 +241,56 @@ const generateTVLSeries = async (configs) => {
 	)
 }
 
-const isTvlDataSourcePopoverOpen = ref(false)
+const generateUopsSeriesData = (period, dataMap, series) => {
+	series.value = []
 
+	let tf = period.timeframe
+	let periodValue = period.value
+
+	if (period.timeframe === "hour") {
+		tf = "day"
+		periodValue = 30
+	}
+
+	for (let i = 1; i < periodValue + 1; i++) {
+		const dt = generateDateForPeriod({ timeframe: tf, value: periodValue }, i)
+		const formatKey = getFormatKey(tf)
+		const key = dt.toFormat(formatKey)
+
+		series.value.push({
+			date: dt.toJSDate(),
+			value: parseFloat(dataMap[key] ?? 0),
+		})
+	}
+}
+
+const generateUopsSeries = async (configs) => {
+	await Promise.all(
+		configs.map(async (config) => {
+			const rawData = await fetchUopsData()
+			const dataMap = createDataMap(rawData, selectedPeriod.value.timeframe)
+
+			generateUopsSeriesData(selectedPeriod.value, dataMap, config.series)
+		}),
+	)
+}
+
+const isTvlDataSourcePopoverOpen = ref(false)
 const handleTvlDataSourcePopoverClose = () => {
 	isTvlDataSourcePopoverOpen.value = false
 }
-
 const handleSelectTvlDataSource = (ds) => {
-	selectedTvlDataSource.value = ds
+	tvlDataSource.value = ds
 	isTvlDataSourcePopoverOpen.value = false
+}
+
+const isUopsDataSourcePopoverOpen = ref(false)
+const handleUopsDataSourcePopoverClose = () => {
+	isUopsDataSourcePopoverOpen.value = false
+}
+const handleSelectUopsDataSource = (ds) => {
+	uopsDataSource.value = ds
+	isUopsDataSourcePopoverOpen.value = false
 }
 
 const prepareComparisonData = async () => {
@@ -233,7 +301,7 @@ const prepareComparisonData = async () => {
 	comparisonBarWidth.value = comparisonChartEl.value.wrapper.getBoundingClientRect().width
 	await getRollupsList()
 	if (!selectedRollup.value) {
-		selectedRollup.value = rollupsList.value[0]
+		selectedRollup.value = rollupsList.value.find(r => r.is_active)
 	}
 
 	if (!comparisonData.value[0]?.fee) {
@@ -297,8 +365,9 @@ const fetchAllData = async () => {
 	comparisonData.value[0] = {}
 	comparisonData.value[1] = {}
 
-	await generateSeries(seriesConfig.filter((el) => el.metric !== "tvl"))
-	await generateTVLSeries(seriesConfig.filter((el) => el.metric === "tvl"))
+	await generateSeries(seriesConfig.filter((el) => !["tvl", "uops"].includes(el.metric)))
+	await generateTVLSeries([tvlConfig.value])
+	await generateUopsSeries([uopsConfig.value])
 	await prepareComparisonData()
 
 	isLoading.value = false
@@ -327,12 +396,25 @@ watch(
 )
 
 watch(
-	() => selectedTvlDataSource.value,
+	() => tvlDataSource.value,
 	async (newDataSource, oldDataSource) => {
 		isLoading.value = true
 
 		if (oldDataSource && newDataSource?.name !== oldDataSource?.name) {
-			await generateTVLSeries([seriesConfig.find((el) => el.metric === "tvl")])
+			await generateTVLSeries([tvlConfig.value])
+		}
+
+		isLoading.value = false
+	},
+	{ deep: true },
+)
+watch(
+	() => uopsDataSource.value,
+	async (newDataSource, oldDataSource) => {
+		isLoading.value = true
+
+		if (oldDataSource && newDataSource?.name !== oldDataSource?.name) {
+			await generateUopsSeries([uopsConfig.value])
 		}
 
 		isLoading.value = false
@@ -349,12 +431,13 @@ onBeforeMount(() => {
 
 onMounted(async () => {
 	if (props.rollup["l2_beat"]) {
-		tvlDataSources.value.push({ name: "l2beat", title: "L2Beat" })
+		extDataSources.value.push({ name: "l2beat", title: "L2Beat" })
+		uopsDataSource.value = { name: "l2beat", title: "L2Beat" }
 	}
 	if (props.rollup["defi_lama"]) {
-		tvlDataSources.value.push({ name: "llama", title: "Defi Llama" })
+		extDataSources.value.push({ name: "llama", title: "Defi Llama" })
 	}
-	selectedTvlDataSource.value = tvlDataSources.value[0]
+	tvlDataSource.value = extDataSources.value[0]
 
 	await fetchAllData()
 })
@@ -465,104 +548,6 @@ onMounted(async () => {
 					:isLoading="isLoading"
 				/>
 
-				<ChartOnEntityPage
-					v-if="tvlSeries.length"
-					:series-config="tvlConfig"
-					:chart-view="chartView"
-					:color="rollupColor"
-					:load-last-value="loadLastValue"
-					:selected-period="selectedPeriod"
-					:isLoading="isLoading"
-				>
-					<template #header-content>
-						<Flex align="center" gap="8">
-							<Text v-if="tvlSeries.length" size="13" weight="600" color="brand">
-								{{
-									`${abbreviate(
-										tvlSeries[tvlSeries.length - 1].value
-											? tvlSeries[tvlSeries.length - 1].value
-											: tvlSeries[tvlSeries.length - 2].value,
-										2,
-									)} USD`
-								}}
-							</Text>
-
-							<Tooltip v-if="tvlSeries.length" position="end">
-								<Icon name="info" size="13" color="tertiary" />
-
-								<template #content>
-									<Flex align="center" :style="{ width: '160px' }">
-										<Text size="12" color="secondary" :style="{ lineHeight: '1.2' }">
-											Grouping by day or month is only available for this chart.
-										</Text>
-									</Flex>
-								</template>
-							</Tooltip>
-						</Flex>
-					</template>
-					<template #header-actions>
-						<Flex align="center" gap="8">
-							<Popover
-								v-if="selectedTvlDataSource"
-								:open="isTvlDataSourcePopoverOpen"
-								@on-close="handleTvlDataSourcePopoverClose"
-								side="right"
-								width="180"
-							>
-								<Flex
-									@click="isTvlDataSourcePopoverOpen = true"
-									align="center"
-									justify="between"
-									gap="12"
-									:class="[$style.popover_header, isTvlDataSourcePopoverOpen && $style.popover_header_active]"
-								>
-									<Flex align="center" gap="8">
-										<Icon :name="selectedTvlDataSource?.name" size="13" color="brand" />
-
-										<Text size="13" color="primary"> {{ selectedTvlDataSource?.title }} </Text>
-									</Flex>
-
-									<Icon
-										name="chevron"
-										size="14"
-										color="secondary"
-										:style="{
-											transform: `rotate(${isTvlDataSourcePopoverOpen ? '180' : '0'}deg)`,
-											transition: 'all 0.25s ease',
-										}"
-									/>
-								</Flex>
-
-								<template #content>
-									<Flex direction="column" justify="center" gap="12">
-										<Text size="12" weight="600" color="secondary">Select TVL Data Source</Text>
-
-										<Flex direction="column" gap="4" :class="$style.popover_list">
-											<Flex
-												v-for="ds in tvlDataSources"
-												@click="handleSelectTvlDataSource(ds)"
-												align="center"
-												justify="between"
-												gap="4"
-												:class="$style.popover_list_item"
-											>
-												<Flex align="center" gap="8">
-													<Icon :name="ds.name" size="13" color="secondary" />
-
-													<Text size="12" color="primary"> {{ ds.title }} </Text>
-												</Flex>
-
-												<Icon v-if="selectedTvlDataSource.name === ds.name" name="check" size="14" color="brand" />
-											</Flex>
-										</Flex>
-									</Flex>
-								</template>
-							</Popover>
-						</Flex>
-					</template>
-				</ChartOnEntityPage>
-			</Flex>
-			<Flex justify="between" gap="32" :class="[$style.data, $style.bottom]">
 				<Flex ref="comparisonChartEl" direction="column" gap="12" :style="{ minHeight: '207px' }">
 					<Flex align="center" justify="between">
 						<Text size="13" weight="600" color="primary">Rollups Comparison</Text>
@@ -725,6 +710,189 @@ onMounted(async () => {
 						<Text size="12" color="tertiary">Try to select a different rollup or period</Text>
 					</Flex>
 				</Flex>
+			</Flex>
+			<Flex justify="between" gap="32" :class="[$style.data, $style.bottom]">
+				<ChartOnEntityPage
+					v-if="tvlSeries.length"
+					:series-config="tvlConfig"
+					:chart-view="chartView"
+					:color="rollupColor"
+					:load-last-value="loadLastValue"
+					:selected-period="selectedPeriod"
+					:isLoading="isLoading"
+				>
+					<template #header-content>
+						<Flex align="center" gap="8">
+							<Text v-if="tvlSeries.length" size="13" weight="600" color="brand">
+								{{
+									`${abbreviate(
+										tvlSeries[tvlSeries.length - 1].value
+											? tvlSeries[tvlSeries.length - 1].value
+											: tvlSeries[tvlSeries.length - 2].value,
+										2,
+									)} USD`
+								}}
+							</Text>
+
+							<Tooltip v-if="tvlSeries.length" position="end">
+								<Icon name="info" size="13" color="tertiary" />
+
+								<template #content>
+									<Flex align="center" :style="{ width: '160px' }">
+										<Text size="12" color="secondary" :style="{ lineHeight: '1.2' }">
+											Grouping by day or month is only available for this chart.
+										</Text>
+									</Flex>
+								</template>
+							</Tooltip>
+						</Flex>
+					</template>
+					<template #header-actions>
+						<Flex align="center" gap="8" style="height: 22px;">
+							<Popover
+								v-if="tvlDataSource"
+								:open="isTvlDataSourcePopoverOpen"
+								@on-close="handleTvlDataSourcePopoverClose"
+								side="right"
+								width="180"
+							>
+								<Flex
+									@click="isTvlDataSourcePopoverOpen = true"
+									align="center"
+									justify="between"
+									gap="12"
+									:class="[$style.popover_header, isTvlDataSourcePopoverOpen && $style.popover_header_active]"
+								>
+									<Flex align="center" gap="8">
+										<Icon :name="tvlDataSource?.name" size="13" color="brand" />
+
+										<Text size="13" color="primary"> {{ tvlDataSource?.title }} </Text>
+									</Flex>
+
+									<Icon
+										name="chevron"
+										size="14"
+										color="secondary"
+										:style="{
+											transform: `rotate(${isTvlDataSourcePopoverOpen ? '180' : '0'}deg)`,
+											transition: 'all 0.25s ease',
+										}"
+									/>
+								</Flex>
+
+								<template #content>
+									<Flex direction="column" justify="center" gap="12">
+										<Text size="12" weight="600" color="secondary">Select TVL Data Source</Text>
+
+										<Flex direction="column" gap="4" :class="$style.popover_list">
+											<Flex
+												v-for="ds in extDataSources"
+												@click="handleSelectTvlDataSource(ds)"
+												align="center"
+												justify="between"
+												gap="4"
+												:class="$style.popover_list_item"
+											>
+												<Flex align="center" gap="8">
+													<Icon :name="ds.name" size="13" color="secondary" />
+
+													<Text size="12" color="primary"> {{ ds.title }} </Text>
+												</Flex>
+
+												<Icon v-if="tvlDataSource.name === ds.name" name="check" size="14" color="brand" />
+											</Flex>
+										</Flex>
+									</Flex>
+								</template>
+							</Popover>
+						</Flex>
+					</template>
+				</ChartOnEntityPage>
+				
+				<ChartOnEntityPage
+					v-if="uopsSeries.length"
+					:series-config="uopsConfig"
+					:chart-view="chartView"
+					:color="rollupColor"
+					:load-last-value="loadLastValue"
+					:selected-period="selectedPeriod"
+					:isLoading="isLoading"
+				>
+					<template #header-content>
+						<Tooltip v-if="uopsSeries.length" position="end">
+							<Icon name="info" size="13" color="tertiary" />
+
+							<template #content>
+								<Flex align="center" :style="{ width: '160px' }">
+									<Text size="12" color="secondary" :style="{ lineHeight: '1.2' }">
+										Grouping by day, week or month is only available for this chart.
+									</Text>
+								</Flex>
+							</template>
+						</Tooltip>
+					</template>
+					<template #header-actions>
+						<Flex align="center" gap="8" style="height: 22px;">
+							<Popover
+								v-if="uopsDataSource"
+								:open="isUopsDataSourcePopoverOpen"
+								@on-close="handleUopsDataSourcePopoverClose"
+								side="right"
+								width="180"
+								disabled
+							>
+								<Flex
+									@click="isUopsDataSourcePopoverOpen = true"
+									align="center"
+									justify="between"
+									gap="12"
+									:class="[$style.popover_header, isUopsDataSourcePopoverOpen && $style.popover_header_active]"
+								>
+									<Flex align="center" gap="8">
+										<Icon :name="uopsDataSource?.name" size="13" color="brand" />
+
+										<Text size="13" color="primary"> {{ uopsDataSource?.title }} </Text>
+									</Flex>
+
+									<Icon
+										name="chevron"
+										size="14"
+										color="secondary"
+										:style="{
+											transform: `rotate(${isUopsDataSourcePopoverOpen ? '180' : '0'}deg)`,
+											transition: 'all 0.25s ease',
+										}"
+									/>
+								</Flex>
+
+								<template #content>
+									<Flex direction="column" justify="center" gap="12">
+										<Text size="12" weight="600" color="secondary">Select UOPS Data Source</Text>
+
+										<Flex direction="column" gap="4" :class="$style.popover_list">
+											<Flex
+												v-for="ds in extDataSources"
+												@click="handleSelectUopsDataSource(ds)"
+												align="center"
+												justify="between"
+												gap="4"
+												:class="$style.popover_list_item"
+											>
+												<Flex align="center" gap="8">
+													<Icon :name="ds.name" size="13" color="secondary" />
+
+													<Text size="12" color="primary"> {{ ds.title }} </Text>
+												</Flex>
+
+												<Icon v-if="uopsDataSource.name === ds.name" name="check" size="14" color="brand" />
+											</Flex>
+										</Flex>
+									</Flex>
+								</template>
+							</Popover>
+						</Flex>
+					</template>
+				</ChartOnEntityPage>
 			</Flex>
 		</Flex>
 	</Flex>

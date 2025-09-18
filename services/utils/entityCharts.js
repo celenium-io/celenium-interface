@@ -95,7 +95,7 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipC
 	const marginLeft = 52
 
 	const MAX_VALUE = d3.max(data, (d) => d.value) ? d3.max(data, (d) => d.value) : 1
-	const showChart = metric === "tvl" ? MAX_VALUE > 1 : data.length
+	const showChart = ["tvl", "uops"].includes(metric) ? MAX_VALUE > 1 : data.length
 
 	/** Scale */
 	const x = d3.scaleUtc(
@@ -144,7 +144,7 @@ export const buildLineChart = (chartEl, data, onEnter, onLeave, metric, tooltipC
 		}
 
 		let tf = selectedPeriod?.timeframe
-		if (metric === "tvl" && ["hour", "week"].includes(selectedPeriod?.timeframe)) {
+		if (["tvl", "uops"].includes(metric) && ["hour", "week"].includes(selectedPeriod?.timeframe)) {
 			tf = "day"
 		}
 
@@ -343,7 +343,7 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric, tooltipCo
 	const barWidth = Math.max(Math.round((width - marginLeft - marginRight) / data.length - (data.length > 7 ? 2 : 8)), 3)
 
 	const MAX_VALUE = d3.max(data, (d) => d.value) ? d3.max(data, (d) => d.value) : 1
-	const showChart = metric === "tvl" ? MAX_VALUE > 1 : data.length
+	const showChart = ["tvl", "uops"].includes(metric) ? MAX_VALUE > 1 : data.length
 
 	/** Scale */
 	const xBand = d3
@@ -405,7 +405,7 @@ export const buildBarChart = (chartEl, data, onEnter, onLeave, metric, tooltipCo
 		}
 
 		let tf = selectedPeriod?.timeframe
-		if (metric === "tvl" && ["hour", "week"].includes(selectedPeriod?.timeframe)) {
+		if (["tvl", "uops"].includes(metric) && ["hour", "week"].includes(selectedPeriod?.timeframe)) {
 			tf = "day"
 		}
 

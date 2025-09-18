@@ -186,7 +186,7 @@ onMounted(async () => {
 
 	if (showRanking.value) {
 		const data = await fetchRollupRankingBySlug(props.rollup?.slug)
-		if (data.slug) {
+		if (data?.slug) {
 			rollupRanking.value = {
 				category: getRankCategory(roundTo(data.rank / 10, 0)),
 				rank: +data.rank,
