@@ -20,7 +20,7 @@ export const useServerURL = () => {
 			return p.API_DEV
 
 		default:
-			return p.API_DEV
+			return p.API_MAINNET
 	}
 }
 
@@ -38,7 +38,7 @@ export const getServerURL = (network) => {
 			return p.API_MAMMOTH
 
 		default:
-			return p.API_DEV
+			return p.API_MAINNET
 	}
 }
 
