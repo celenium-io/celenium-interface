@@ -363,7 +363,7 @@ watch(
 
 			<template v-if="!isLoading">
 				<Flex align="center" justify="between" wide :class="$style.segment">
-					<Text size="16" weight="600" color="primary" justify="start">Top Rollups</Text>
+					<Text size="16" weight="600" color="primary" justify="start">Top Networks</Text>
 				</Flex>
 
 				<Flex align="center" justify="between" gap="16" wide :class="$style.charts_wrapper">

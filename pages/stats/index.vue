@@ -23,7 +23,7 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: "Celestia Blockchain statistics. Explore data on blocks, transactions, rollups, blobs and more.",
+			content: "Celestia Blockchain statistics. Explore data on blocks, transactions, networks, blobs and more.",
 		},
 		{
 			property: "og:title",
@@ -31,7 +31,7 @@ useHead({
 		},
 		{
 			property: "og:description",
-			content: "Celestia Blockchain statistics. Explore data on blocks, transactions, rollups, blobs and more.",
+			content: "Celestia Blockchain statistics. Explore data on blocks, transactions, networks, blobs and more.",
 		},
 		{
 			property: "og:url",
@@ -47,7 +47,7 @@ useHead({
 		},
 		{
 			name: "twitter:description",
-			content: "Celestia Blockchain statistics. Explore data on blocks, transactions, rollups, blobs and more.",
+			content: "Celestia Blockchain statistics. Explore data on blocks, transactions, networks, blobs and more.",
 		},
 		{
 			name: "twitter:card",
@@ -73,7 +73,7 @@ const tabs = ref([
 		visible: true,
 	},
 	{
-		name: "rollups",
+		name: "networks",
 		visible: true,
 	},
 	{
@@ -155,17 +155,17 @@ watch(
 				</Text>
 			</Flex>
 
-			<Flex v-if="activeTab === 'rollups'" align="start" :class="$style.actions">
-				<Button link="/rollups" type="secondary" size="mini">
+			<Flex v-if="activeTab === 'networks'" align="start" :class="$style.actions">
+				<Button link="/networks" type="secondary" size="mini">
 					<Icon name="rollup-leaderboard" size="12" color="secondary" />
-					Rollups Leaderboard
+					Networks Leaderboard
 				</Button>
 			</Flex>
 		</Flex>
 
 		<GeneralTab v-if="activeTab === 'general'" />
 		<BlocksTab v-if="activeTab === 'blocks'" />
-		<RollupsTab v-if="activeTab === 'rollups'" @onUpdateSection="handleSectionUpdate" />
+		<RollupsTab v-if="activeTab === 'networks'" @onUpdateSection="handleSectionUpdate" />
 		<NodesTab v-if="activeTab === 'nodes'" />
 	</Flex>
 </template>

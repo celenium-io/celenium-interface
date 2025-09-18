@@ -140,7 +140,7 @@ const handleViewBlob = (blob) => {
 						</Text>
 					</td>
 					<td v-if="blob.rollup?.logo" style="width: 1px">
-						<NuxtLink :to="`/rollup/${blob.rollup.slug}`" @click.stop>
+						<NuxtLink :to="`/network/${blob.rollup.slug}`" @click.stop>
 							<Tooltip position="start" delay="500">
 								<Flex align="center" justify="center" :class="$style.avatar_container">
 									<img :src="blob.rollup.logo" :class="$style.avatar_image" />

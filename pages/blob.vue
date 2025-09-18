@@ -462,9 +462,9 @@ const handleCopy = (text) => {
 								</Flex>
 							</NuxtLink>
 
-							<NuxtLink v-if="metadata.rollup" :to="`/rollup/${metadata.rollup.slug}`" target="_blank">
+							<NuxtLink v-if="metadata.rollup" :to="`/network/${metadata.rollup.slug}`" target="_blank">
 								<Flex direction="column" gap="8">
-									<Text size="12" weight="600" color="tertiary"> Rollup </Text>
+									<Text size="12" weight="600" color="tertiary"> Network </Text>
 
 									<Flex align="center" gap="8">
 										<Flex align="center" justify="center" :class="$style.avatar_container">

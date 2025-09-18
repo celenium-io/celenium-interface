@@ -259,7 +259,7 @@ const handleHide = () => {
 }
 
 useHead({
-	title: `Celestia Rollup Cost Saving Calculator - Celenium`,
+	title: `Celestia Network Cost Saving Calculator - Celenium`,
 	link: [
 		{
 			rel: "canonical",
@@ -273,7 +273,7 @@ useHead({
 		},
 		{
 			property: "og:title",
-			content: `Celestia Rollup Cost Saving Calculator - Celenium`,
+			content: `Celestia Network Cost Saving Calculator - Celenium`,
 		},
 		{
 			property: "og:description",
@@ -289,7 +289,7 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: `Celestia Rollup Cost Saving Calculator - Celenium`,
+			content: `Celestia Network Cost Saving Calculator - Celenium`,
 		},
 		{
 			name: "twitter:description",
@@ -322,7 +322,7 @@ useHead({
 					</Flex>
 
 					<Flex direction="column" gap="6">
-						<Text size="20" weight="600" color="primary">Rollup Estimation Cost</Text>
+						<Text size="20" weight="600" color="primary">Network Estimation Cost</Text>
 						<Text size="14" weight="500" color="tertiary" style="line-height: 22px">
 							Discover the potential cost benefits of building on Celestia, modular blockchain network.
 						</Text>
@@ -333,11 +333,11 @@ useHead({
 				<Flex direction="column" gap="10">
 					<Tooltip side="top" position="start">
 						<Flex align="center" gap="6">
-							<Text size="13" weight="600" color="primary"> Rollup Stack </Text>
+							<Text size="13" weight="600" color="primary"> Network Stack </Text>
 							<Icon name="info" size="12" color="support" />
 						</Flex>
 
-						<template #content> Rollup underlying technology (SDK). </template>
+						<template #content> Network underlying technology (SDK). </template>
 					</Tooltip>
 
 					<Flex wide align="center" gap="8" :class="$style.items">

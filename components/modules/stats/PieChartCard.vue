@@ -206,7 +206,7 @@ const init = () => {
 
 const handleNavigate = (el) => {
 	if (el.slug) {
-		router.push(`/rollup/${el.slug}`)
+		router.push(`/network/${el.slug}`)
 	}
 }
 

@@ -277,7 +277,7 @@ const handleClose = () => {
 					</Flex>
 
 					<Flex align="center" justify="between">
-						<Text size="13" weight="500" color="tertiary"> Network: </Text>
+						<Text size="13" weight="500" color="tertiary"> Celestia Network: </Text>
 
 						<Flex align="center" gap="6">
 							<Text size="13" weight="600" color="secondary">

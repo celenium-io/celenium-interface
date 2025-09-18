@@ -406,7 +406,7 @@ watch(
 
 		<Flex v-if="rollups?.length" ref="chartEl" :class="$style.chart" />
 		<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
-			<Text size="13" weight="600" color="secondary" align="center"> No rollups to display </Text>
+			<Text size="13" weight="600" color="secondary" align="center"> No networks to display </Text>
 			<Text size="12" weight="500" height="160" color="tertiary" align="center">
 				Try to change the filters or
 				<Text @click="emit('clearFilters')" size="12" color="secondary" :style="{ cursor: 'pointer', textDecoration: 'underline' }"

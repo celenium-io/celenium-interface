@@ -281,10 +281,10 @@ const handleViewRawMessages = () => {
 					<Flex v-if="rollups.length" direction="column" gap="16">
 						<div :class="$style.horizontal_divider" />
 
-						<Text size="12" weight="600" color="secondary">Used By Rollups</Text>
+						<Text size="12" weight="600" color="secondary">Used By Networks</Text>
 						<Flex direction="row" gap="8">
 							<Tooltip v-for="r in rollups">
-								<NuxtLink :to="`/rollup/${r.slug}`">
+								<NuxtLink :to="`/network/${r.slug}`">
 									<Flex align="center" justify="center" :class="$style.avatar_container">
 										<img :src="r.logo" :class="$style.avatar_image" />
 									</Flex>

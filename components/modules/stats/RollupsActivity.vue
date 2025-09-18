@@ -39,7 +39,7 @@ const handleSelectView = () => {
 		<Flex align="center" justify="between" :class="$style.header">
 			<Flex align="center" gap="8">
 				<Icon name="rollup" size="16" color="secondary" />
-				<Text size="14" weight="600" color="primary">Rollups Activity</Text>
+				<Text size="14" weight="600" color="primary">Networks Activity</Text>
 				<Text size="13" color="tertiary">(last 24h)</Text>
 			</Flex>
 

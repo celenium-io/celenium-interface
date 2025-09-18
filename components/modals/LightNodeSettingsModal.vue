@@ -150,7 +150,7 @@ watch(
 					<Flex direction="column" gap="6">
 						<Tooltip position="start">
 							<Flex align="center" gap="6">
-								<Text size="13" weight="600" height="110" color="primary">Selected network</Text>
+								<Text size="13" weight="600" height="110" color="primary">Selected Celestia network</Text>
 								<Icon name="info" size="12" color="tertiary" />
 							</Flex>
 
@@ -158,7 +158,7 @@ watch(
 								<Flex align="start" direction="column" gap="6">
 									<Text>The network change will not be saved. </Text>
 									<Text> On each next visit to the site, the network is selected based on the current domain. </Text>
-									<Text color="tertiary"> For example: mocha.celenium.io -> Mocha Network</Text>
+									<Text color="tertiary"> For example: mocha.celenium.io -> Mocha Celestia Network</Text>
 								</Flex>
 							</template>
 						</Tooltip>
@@ -173,7 +173,7 @@ watch(
 						</template>
 
 						<template #popup>
-							<DropdownTitle>Networks</DropdownTitle>
+							<DropdownTitle>Celestia Networks</DropdownTitle>
 							<DropdownItem v-for="network in ['Mainnet', 'Arabica', 'Mocha']" @click="handleSelectNetwork(network)">
 								{{ network }}
 							</DropdownItem>

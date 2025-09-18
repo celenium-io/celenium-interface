@@ -67,8 +67,8 @@ if (!series.value?.page) {
 		case "tvl":
 			metricName.value = series.value?.title
 			break
-		case "rollups":
-			metricName.value = "Rollup Distribution"
+		case "networks":
+			metricName.value = "Network Distribution"
 			break
 		default:
 			metricName.value = capitalizeAndReplace(series.value?.page, "_")
@@ -87,7 +87,7 @@ useHead({
 	meta: [
 		{
 			name: "description",
-			content: `Explore Celestia ${metricName.value} statistics as well as statistics by rollups, blocks, transactions and more.`,
+			content: `Explore Celestia ${metricName.value} statistics as well as statistics by networks, blocks, transactions and more.`,
 		},
 		{
 			property: "og:title",
@@ -95,7 +95,7 @@ useHead({
 		},
 		{
 			property: "og:description",
-			content: `Explore Celestia ${metricName.value} statistics as well as statistics by rollups, blocks, transactions and more.`,
+			content: `Explore Celestia ${metricName.value} statistics as well as statistics by networks, blocks, transactions and more.`,
 		},
 		{
 			property: "og:url",
@@ -111,7 +111,7 @@ useHead({
 		},
 		{
 			name: "twitter:description",
-			content: `Explore Celestia ${metricName.value} statistics as well as statistics by rollups, blocks, transactions and more.`,
+			content: `Explore Celestia ${metricName.value} statistics as well as statistics by networks, blocks, transactions and more.`,
 		},
 		{
 			name: "twitter:card",
@@ -215,7 +215,7 @@ const updateUserSettings = () => {
 
 const filters = reactive({})
 const setDefaultFilters = () => {
-	if (series.value.page === "rollups") {
+	if (series.value.page === "networks") {
 		if (route.query.aggregate && rollupsSetting.value[0].items.includes(route.query.aggregate)) {
 			series.value.metric = route.query.aggregate
 			rollupsSetting.value[0].selected = route.query.aggregate
@@ -266,7 +266,7 @@ const fetchData = async () => {
 					color: "var(--brand)",
 				},
 				rollupTvl: {
-					name: "Rollups TVL",
+					name: "Networks TVL",
 					color: "var(--legendary)",
 				},
 			}
@@ -276,7 +276,7 @@ const fetchData = async () => {
 			slug: "celestia",
 			period: selectedTimeframe.value.timeframe,
 		})
-	} else if (series.value.page === "rollups") {
+	} else if (series.value.page === "networks") {
 		data = await fetchRollupsSeries({
 			timeframe: series.value.timeframe === "day" ? "hour" : series.value.timeframe === "month" ? "day" : "month",
 		})
@@ -313,7 +313,7 @@ const getData = async (fetch = true) => {
 		await fetchData()
 	}
 
-	if (series.value.page !== "rollups") {
+	if (series.value.page !== "networks") {
 		data = allData.value
 
 		if (data.length > 0 && !filters.from && !filters.to) {
@@ -421,9 +421,9 @@ const handleCSVDownload = async () => {
 	let data = []
 	let csvHeaders = ""
 	let csvRow = ""
-	if (series.value.page === "rollups") {
+	if (series.value.page === "networks") {
 		data = [...series.value.data]
-		csvHeaders = "timestamp,rollup,value\n"
+		csvHeaders = "timestamp,network,value\n"
 		let csvData = []
 		data.forEach((d) => {
 			d.items.forEach((item) => {
@@ -466,7 +466,7 @@ const handlePNGDownload = async () => {
 
 const handleOpenChartModal = () => {
 	cacheStore.chart.series = series.value
-	cacheStore.chart.view = series.value.page === "tvs" ? "barplot-stacked" : series.value.page === "rollups" ? "barplot-stacked-rollups" : chartView.value
+	cacheStore.chart.view = series.value.page === "tvs" ? "barplot-stacked" : series.value.page === "networks" ? "barplot-stacked-rollups" : chartView.value
 
 	modalsStore.open("chart")
 }
@@ -529,7 +529,7 @@ onBeforeMount(() => {
 				</Flex>
 
 				<Flex v-if="series?.name !== 'square_size'" align="center" gap="8" :class="$style.settings">
-					<Flex v-if="series?.page !== 'rollups'" align="center" gap="8">
+					<Flex v-if="series?.page !== 'networks'" align="center" gap="8">
 						<DatePicker
 							@on-update="handleDatePickerUpdate"
 							:period="selectedPeriod"
@@ -644,7 +644,7 @@ onBeforeMount(() => {
 
 		<Flex direction="column" gap="8">
 			<template v-if="series?.page">
-				<BarplotStakedRollupChart v-if="series?.page === 'rollups'" :series="series" />
+				<BarplotStakedRollupChart v-if="series?.page === 'networks'" :series="series" />
 				<BarplotStakedChart v-else-if="series?.name === 'tvs'" :series="series" />
 				<SquareSizeChart v-else-if="series?.name === 'square_size'" />
 				<LineChart v-else-if="chartView === 'line'" :series="series" />
@@ -652,7 +652,7 @@ onBeforeMount(() => {
 			</template>
 
 			<TimelineSlider
-				v-if="series?.name !== 'square_size' && series?.page !== 'rollups'"
+				v-if="series?.name !== 'square_size' && series?.page !== 'networks'"
 				:allData="allData"
 				:chartView="chartView"
 				:from="filters.from"
@@ -666,15 +666,15 @@ onBeforeMount(() => {
 			<Text :class="$style.section_title">Celenium: How We Calculate Celestia’s TVS</Text>
 
 			<Flex :class="[$style.section, $style.section_content]">
-				<Text :class="$style.section_paragraph">On Celenium, the Total Value Secured (TVS) of the Celestia network is calculated by aggregating the TVL of each rollup that posts data to Celestia. We consider a rollup “secured by Celestia” if it uses Celestia as its data availability (DA) layer, regardless of its execution or settlement environment.</Text>
+				<Text :class="$style.section_paragraph">On Celenium, the Total Value Secured (TVS) of the Celestia network is calculated by aggregating the TVL of each network that posts data to Celestia. We consider a network “secured by Celestia” if it uses Celestia as its data availability (DA) layer, regardless of its execution or settlement environment.</Text>
 
-				<Text :class="$style.section_paragraph">To determine each rollup’s TVL, we fetch data from one of the following public sources:</Text>
+				<Text :class="$style.section_paragraph">To determine each network’s TVL, we fetch data from one of the following public sources:</Text>
 				<ul style="margin-top: -8px">
 					<li><a href="https://l2beat.com" target="_blank" :class="$style.link">L2BEAT</a> - includes canonically and externally bridged assets, as well as natively minted tokens;</li>
-					<li><a href="https://defillama.com" target="_blank" :class="$style.link">DeFiLlama</a> - focuses on assets actively engaged in dApps on the rollup.</li>
+					<li><a href="https://defillama.com" target="_blank" :class="$style.link">DeFiLlama</a> - focuses on assets actively engaged in dApps on the network.</li>
 				</ul>
 
-				<Text :class="$style.section_paragraph">In addition to the rollup TVLs, we also include the circulating supply of the Celestia (TIA) token to reflect the value secured by the base layer itself. This gives a more holistic view of the total value secured by the Celestia network.</Text>
+				<Text :class="$style.section_paragraph">In addition to the network TVLs, we also include the circulating supply of the Celestia (TIA) token to reflect the value secured by the base layer itself. This gives a more holistic view of the total value secured by the Celestia network.</Text>
 			</Flex>
 		</Flex>
 	</Flex>

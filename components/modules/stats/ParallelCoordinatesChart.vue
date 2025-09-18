@@ -343,7 +343,7 @@ watch(
                 <template #content>
                     <Flex align="center" :style="{ width: '200px' }">
                         <Text size="12" color="secondary">
-                            This graph displays the rollup rankings for each metric, not the absolute values.
+                            This graph displays the network rankings for each metric, not the absolute values.
                         </Text>
                     </Flex>
                 </template>
@@ -358,7 +358,7 @@ watch(
                     <table>
                         <thead>
                             <tr>
-                                <th><Text size="12" weight="600" color="tertiary" noWrap>Rollup</Text></th>
+                                <th><Text size="12" weight="600" color="tertiary" noWrap>Network</Text></th>
                                 <th @click="handleSort('total_size')" :class="$style.sortable">
                                     <Flex align="center" gap="6">
                                         <Text size="12" weight="600" color="tertiary" noWrap>Total Size</Text>
@@ -449,7 +449,7 @@ watch(
                         <tbody>
                             <tr v-for="r in selectedRollupsData">
                                 <td style="width: 1px">
-                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                    <NuxtLink :to="`/network/${r.slug}`" target="_blank">
                                         <Flex align="center" gap="8">
                                             <Flex v-if="r.logo" align="center" justify="center" :class="$style.avatar_container">
                                                 <img :src="r.logo" :class="$style.avatar_image" />
@@ -462,14 +462,14 @@ watch(
                                     </NuxtLink>
                                 </td>
                                 <td>
-                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                    <NuxtLink :to="`/network/${r.slug}`" target="_blank">
                                         <Flex align="center">
                                             <Text size="12" weight="600" color="primary">{{ formatBytes(r.total_size) }}</Text>
                                         </Flex>
                                     </NuxtLink>
                                 </td>
                                 <td>
-                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                    <NuxtLink :to="`/network/${r.slug}`" target="_blank">
                                         <Flex align="center">
                                             <Text size="12" weight="600" color="primary">
                                                 {{ formatBytes(r.avg_pfb_size) }}
@@ -478,7 +478,7 @@ watch(
                                     </NuxtLink>
                                 </td>
                                 <td>
-                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                    <NuxtLink :to="`/network/${r.slug}`" target="_blank">
                                         <Flex align="center">
                                             <Text size="12" weight="600" color="primary">
                                                 {{ formatBytes(r.avg_size) }}
@@ -487,7 +487,7 @@ watch(
                                     </NuxtLink>
                                 </td>
                                 <td>
-                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                    <NuxtLink :to="`/network/${r.slug}`" target="_blank">
                                         <Tooltip position="start" delay="400">
                                             <Flex align="center">
                                                 <Text size="12" weight="600" color="primary">{{ abbreviate(r.blobs_count) }}</Text>
@@ -500,7 +500,7 @@ watch(
                                     </NuxtLink>
                                 </td>
                                 <td>
-                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                    <NuxtLink :to="`/network/${r.slug}`" target="_blank">
                                         <Flex align="center">
                                             <Text size="12" weight="600" color="primary">
                                                 {{ comma(r.pfb_hour_count) }}
@@ -509,7 +509,7 @@ watch(
                                     </NuxtLink>
                                 </td>
                                 <td>
-                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                    <NuxtLink :to="`/network/${r.slug}`" target="_blank">
                                         <Flex align="center">
                                             <Text size="12" weight="600" color="primary">
                                                 {{ comma(r.throughput) }}
@@ -518,7 +518,7 @@ watch(
                                     </NuxtLink>
                                 </td>
                                 <td>
-                                    <NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+                                    <NuxtLink :to="`/network/${r.slug}`" target="_blank">
                                         <Flex align="center">
                                             <AmountInCurrency :amount="{ value: r.mb_price }" />
                                         </Flex>
@@ -533,9 +533,9 @@ watch(
                 </div>
 
                 <Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
-                    <Text size="13" weight="600" color="secondary" align="center"> No rollups for comparison </Text>
+                    <Text size="13" weight="600" color="secondary" align="center"> No networks for comparison </Text>
                     <Text size="12" weight="500" height="160" color="tertiary" align="center">
-                        Click on the rollup name to add it here
+                        Click on the network name to add it here
                     </Text>
                 </Flex>
             </Transition>
