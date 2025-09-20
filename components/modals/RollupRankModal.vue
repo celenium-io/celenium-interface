@@ -141,9 +141,13 @@ watch(
 					We use the following metric categories: Quantitative, Reciprocal quantitative, Time-Based, Logarithmic and Custom (for TVL rank calculation).
 				</Text>
 
-				<!-- <Text size="12" color="secondary" :style="{ lineHeight: '1.4' }">
-					You can find the calculation formulas for each metric in the documentation.
-				</Text>				 -->
+				<Text size="12" color="secondary" :style="{ lineHeight: '1.4' }">
+					Learn more about rank calculation in the 
+					<NuxtLink to="https://docs.celenium.io/features/rollup-activity-rank" target="_blank">overview article</NuxtLink>
+					and the 
+					<NuxtLink to="https://docs.celenium.io/features/rollup-activity-rank-specification" target="_blank">detailed specification</NuxtLink>
+					.
+				</Text>				
 
 				<table :class="$style.table_metric">
 					<thead>
@@ -241,6 +245,14 @@ watch(
 </template>
 
 <style module>
+a {
+	color: var(--brand);
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
 .formula_wrapper {
 	padding: 10px;
 	background-color: var(--op-5);
