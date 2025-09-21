@@ -143,9 +143,9 @@ watch(
 
 				<Text size="12" color="secondary" :style="{ lineHeight: '1.4' }">
 					Learn more about rank calculation in the 
-					<NuxtLink to="https://docs.celenium.io/features/rollup-activity-rank" target="_blank">overview article</NuxtLink>
+					<NuxtLink to="https://docs.celenium.io/features/rollup-activity-rank" target="_blank" :class="$style.link">overview article</NuxtLink>
 					and the 
-					<NuxtLink to="https://docs.celenium.io/features/rollup-activity-rank-specification" target="_blank">detailed specification</NuxtLink>
+					<NuxtLink to="https://docs.celenium.io/features/rollup-activity-rank-specification" target="_blank" :class="$style.link">detailed specification</NuxtLink>
 					.
 				</Text>				
 
@@ -245,7 +245,7 @@ watch(
 </template>
 
 <style module>
-a {
+.link {
 	color: var(--brand);
 
 	&:hover {
