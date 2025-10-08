@@ -31,9 +31,7 @@ import { rollupRankingServiceURL } from "@/services/config"
 import { fetchRollups, fetchRollupsRanking } from "@/services/api/rollup"
 
 /** Stores */
-import { useAppStore } from "@/store/app.store"
 import { useEnumStore } from "@/store/enums.store"
-const appStore = useAppStore()
 const enumStore = useEnumStore()
 
 useHead({
