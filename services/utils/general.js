@@ -161,7 +161,7 @@ export const getNetworkName = () => {
 
 export const isMainnet = () => {
 	// return true
-	return getNetworkName() === "Mainnet" || isSelfhosted()
+	return getNetworkName() === "Mainnet" || getNetworkName() === "Development" || isSelfhosted()
 }
 
 export const isMac = () => {

@@ -78,6 +78,8 @@ const getBlobMetadata = async () => {
 		// console.error(err);
 		
 		notFound.value = true
+	} finally {
+		isLoading.value = false
 	}
 }
 
