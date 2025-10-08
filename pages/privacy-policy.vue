@@ -15,7 +15,7 @@ useHead({
  * 
  */
 
- const lastUpdate = () => {
+const lastUpdate = () => {
 	const dt = DateTime.fromISO(PRIVACY_POLICY_DATE)
 	const day = dt.day
 	const suffix =
@@ -38,9 +38,9 @@ useHead({
 			<Text :class="$style.section_title">1. General information</Text>
 
 			<Flex :class="[$style.section, $style.section_content]">
-				<Text :class="$style.section_paragraph">PK Labs AG, a Swiss corporation, having its registered office at Gartenstrasse 6, Zug 6300, Switzerland, (“<b>Company</b>”, “<b>we</b>”, or “<b>us</b>”) is the operator of the Website <a href="https://celenium.io" :class="$style.link">https://celenium.io</a> (the “<b>Website</b>”).</Text>
+				<Text :class="$style.section_paragraph">BB Strategy Pte. Ltd, a Singapore corporation, having its registered office at 165b Telok Ayer St, 068617 Singapore, (“<b>Company</b>”, “<b>we</b>”, or “<b>us</b>”) is the operator of the Website <a href="https://celenium.io" :class="$style.link">https://celenium.io</a> (the “<b>Website</b>”).</Text>
 
-				<Text :class="$style.section_paragraph">As the operator of the Website, we take the protection of your personal data very seriously. We collect, process, and use your personal data in accordance with this privacy policy and in compliance with the Swiss Federal Act on Data Protection (“FADP”), the Swiss Ordinance to the Federal Act on Data Protection (“OFADP”), and the General European Data Protection Regulation (“GDPR”).</Text>
+				<Text :class="$style.section_paragraph">As the operator of the Website, we take the protection of your personal data very seriously. We collect, process, and use your personal data in accordance with this privacy policy and in compliance with the Singapore Personal Data Protection Act 2012 (“PDPA”) and the General European Data Protection Regulation (“GDPR”).</Text>
 
 				<Text :class="$style.section_paragraph">This privacy policy (“Privacy Policy”) will provide you with information about the collection, processing and use of your personal data when using the Website, obtain services from us, interact with us in relation to a contract, communicate with us or otherwise deal with us. When appropriate we will provide a just-in-time notice to cover any additional processing activities not mentioned in this Privacy Policy. In addition, we may inform you about the processing of your personal data separately, for example in consent forms, terms and conditions, forms and other notices or provide a reference to this Privacy Policy or additional privacy notices.</Text>
 
@@ -52,9 +52,9 @@ useHead({
 			<Text :class="$style.section_title">2. Controller for processing of your personal data</Text>
 
 			<Flex :class="[$style.section, $style.section_content]">
-				<Text :class="$style.section_paragraph">PK Labs AG is the controller for the processing under this Privacy Policy unless we tell you otherwise in an individual case.</Text>
+				<Text :class="$style.section_paragraph">BB Strategy Pte. Ltd is the controller for the processing under this Privacy Policy unless we tell you otherwise in an individual case.</Text>
 
-				<Text :class="$style.section_paragraph">For any matters, relating to data protection and to exercise your rights under Section 13, you may contact <a href="mailto:celenium@pklabs.me" :class="$style.link">celenium@pklabs.me</a> in writing by e-mail or letter to the following address: PK Labs AG, Gartenstrasse 6, Zug 6300, Switzerland</Text>
+				<Text :class="$style.section_paragraph">For any matters, relating to data protection and to exercise your rights under Section 13, you may contact <a href="mailto:celenium@baking-bad.org" :class="$style.link">celenium@baking-bad.org</a> in writing by e-mail or letter to the following address: BB Strategy Pte. Ltd, 165b Telok Ayer St, 068617 Singapore</Text>
 			</Flex>
 		</Flex>
 
@@ -184,7 +184,7 @@ useHead({
 					</li>
 				</ul>
 
-				<Text :class="$style.section_paragraph">Some of the third-party providers we use may be located outside Switzerland. Information on data disclosure abroad can be found in the sections 6 and 7.</Text>
+				<Text :class="$style.section_paragraph">Some of the third-party providers we use may be located outside Singapore. Information on data disclosure abroad can be found in the sections 6 and 7.</Text>
 			</Flex>
 		</Flex>
 	
@@ -211,7 +211,7 @@ useHead({
 
 			<Flex :class="[$style.section, $style.section_content]">
 				<Text :class="$style.section_paragraph">Where we ask for your consent for certain processing activities (for example for the processing of sensitive personal data, for marketing mailings, for personalized motion profiles and for advertising management and behavior analysis on the Website), we will inform you separately about the relevant processing purposes. You may withdraw your consent at any time with effect for the future by providing us written notice (by mail) or, unless otherwise noted or agreed, by sending an e-mail to us; see our contact details in Section 2. For withdrawing consent for online tracking, see Section 4. Where you have a user account, you may also withdraw consent or contact us also through the relevant website or other service, as applicable. Once we have received notification of withdrawal of consent, we will no longer process your information for the purpose(s) you consented to, unless we have another legal basis to do so. Withdrawal of consent does not, however, affect the lawfulness of the processing based on the consent prior to withdrawal.</Text>
-				<Text :class="$style.section_paragraph">Where we do not ask for consent for processing, the processing of your personal data relies on the requirement of the processing for initiating or performing a contract with you (or the entity you represent) or on our or a third-party legitimate interest in the particular processing, in particular in pursuing the purposes and objectives set out in Section 6 and in implementing related measures. Our legitimate interests also include compliance with legal regulations, insofar as this is not already recognized as a legal basis by applicable data protection law (for example in the case of the GDPR, the laws in the EEA and in the case of the DPA, Swiss law). This also includes the marketing of our products and services, the interest in better understanding our markets and in managing and further developing our Company, including its operations, safely and efficiently.</Text>
+				<Text :class="$style.section_paragraph">Where we do not ask for consent for processing, the processing of your personal data relies on the requirement of the processing for initiating or performing a contract with you (or the entity you represent) or on our or a third-party legitimate interest in the particular processing, in particular in pursuing the purposes and objectives set out in Section 6 and in implementing related measures. Our legitimate interests also include compliance with legal regulations, insofar as this is not already recognized as a legal basis by applicable data protection law (for example in the case of the GDPR, the laws in the EEA and in the case of the PDPA, Singapore law). This also includes the marketing of our products and services, the interest in better understanding our markets and in managing and further developing our Company, including its operations, safely and efficiently.</Text>
 				<Text :class="$style.section_paragraph">Where we receive sensitive personal data (for example health data, data about political opinions, religious or philosophical beliefs, and biometric data for identification purposes), we may process your data on other legal basis, for example, in the event of a dispute, as required in relation to a potential litigation or for the enforcement or defense of legal claims. In some cases, other legal basis may apply, which we will communicate to you separately as necessary.</Text>
 			</Flex>
 		</Flex>
@@ -223,14 +223,14 @@ useHead({
 				<Text :class="$style.section_paragraph">In relation to our contracts, the Website, our services, our legal obligations or otherwise with protecting our legitimate interests and the other purposes set out in Section 5, we may disclose your personal data to third parties, in particular to the following categories of recipients:</Text>
 
 				<ul>
-					<li><b>Service Providers:</b> We work with service providers in Switzerland and abroad who process your data on our behalf or as joint controllers with us or who receive data about you from us as separate controllers (for example IT providers, shipping companies, advertising service providers, login service providers, security companies, banks, insurance companies, debt collection companies, credit information agencies, or address verification providers). Our Website service provider is Cloudflare, Inc., 101 Townsend St., San Francisco, California 94107. With the exception of the named provider of our Website, we do not make your personal data available to third parties unless you have expressly consented to it, if we are legally obligated to, or if this is necessary to enforce our rights concerning a contractual relationship.<br>In each case, we disclose to these providers the data they require for their services, which may also concern you. In addition, we enter into contract with these service providers that include provisions to protect personal data, where such protection does not follow from the law.</li>
+					<li><b>Service Providers:</b> We work with service providers in Singapore and abroad who process your data on our behalf or as joint controllers with us or who receive data about you from us as separate controllers (for example IT providers, shipping companies, advertising service providers, login service providers, security companies, banks, insurance companies, debt collection companies, credit information agencies, or address verification providers). Our Website service provider is Cloudflare, Inc., 101 Townsend St., San Francisco, California 94107. With the exception of the named provider of our Website, we do not make your personal data available to third parties unless you have expressly consented to it, if we are legally obligated to, or if this is necessary to enforce our rights concerning a contractual relationship.<br>In each case, we disclose to these providers the data they require for their services, which may also concern you. In addition, we enter into contract with these service providers that include provisions to protect personal data, where such protection does not follow from the law.</li>
 					<li><b>Contractual partners including customers:</b> This refers to customers (for example service recipients) and our other contractual partners as this data disclosure results from these contracts. For example, they may receive registration data in relation to issued and redeemed vouchers, invitations, etc. If you work for one of these contractual partners, we may also disclose data about you to that partner in this regard. These recipients also include contractual partners with whom we may cooperate or and to whom we may therefore disclose data about you for analysis purposes. We require these partners to send you or display advertising based on your data only with your consent.</li>
-					<li><b>Authorities:</b> We may disclose personal data to agencies, courts and other authorities in Switzerland and abroad if we are legally obliged or entitled to make such disclosures or if it appears necessary to protect our interests. These authorities act as separate controllers.</li>
+					<li><b>Authorities:</b> We may disclose personal data to agencies, courts and other authorities in Singapore and abroad if we are legally obliged or entitled to make such disclosures or if it appears necessary to protect our interests. These authorities act as separate controllers.</li>
 					<li><b>Other persons:</b> This means other cases where interactions with third parties follows from the purposes set out in Section 4, for example service recipients, the media and associations in which we participate or if you are included in one of our publications.</li>
 				</ul>
 
 				<Text :class="$style.section_paragraph">All these categories of recipients may involve third parties, so that your data may also be disclosed to them. We can restrict the processing by certain third parties (for example IT providers), but not by others (for example authorities, banks, etc.).</Text>
-				<Text :class="$style.section_paragraph">We reserve the right to make such disclosures even of secret data (unless we have expressly agreed with you that we will not disclose such data to certain third parties, except if we are required to do so by law). Notwithstanding the foregoing, your data will continue to be subject to adequate data protection in Switzerland and the rest of Europe, even after disclosure. For disclosure to other countries, the provisions of Section 10 apply. If you do not wish certain data to be disclosed, please let us know so that we can review if and to what extent we can accommodate your concern (Section 2).</Text>
+				<Text :class="$style.section_paragraph">We reserve the right to make such disclosures even of secret data (unless we have expressly agreed with you that we will not disclose such data to certain third parties, except if we are required to do so by law). Notwithstanding the foregoing, your data will continue to be subject to adequate data protection in Singapore and the EEA, even after disclosure. For disclosure to other countries, the provisions of Section 10 apply. If you do not wish certain data to be disclosed, please let us know so that we can review if and to what extent we can accommodate your concern (Section 2).</Text>
 				<Text :class="$style.section_paragraph">In addition, we enable certain third parties to collect personal data from you on our Website and at events organized by us (for example press photographers, providers of tools on our Website, etc.). Where we have no control over these data collections, these third parties are sole controllers. If you have concerns or wish to exercise your data protection rights, please contact these third parties directly.</Text>
 			</Flex>
 		</Flex>
@@ -239,7 +239,7 @@ useHead({
 			<Text :class="$style.section_title">8. International transfer of personal data</Text>
 
 			<Flex :class="[$style.section, $style.section_content]">
-				<Text :class="$style.section_paragraph">As referred in Section 6, we disclose data to other parties. These are not all located in Switzerland.</Text>
+				<Text :class="$style.section_paragraph">As referred in Section 6, we disclose data to other parties. These are not all located in Singapore.</Text>
 				<Text :class="$style.section_paragraph">If a recipient is located in a country without adequate statutory data protection, we require the recipient to undertake to comply with data protection (for this purpose, we use the revised European Commission’s standard contractual clauses, which can be accessed here: <a href="https://eur-lex.europa.eu/eli/dec_impl/2021/914/oj" target="_blank" :class="$style.link">https://eur-lex.europa.eu/eli/dec_impl/2021/914/oj</a>, unless the recipient is subject to a legally accepted set of rules to ensure data protection and unless we cannot rely on an exception. An exception may apply for example in case of legal proceedings abroad, but also in cases of overriding public interest or if the performance of a contract requires disclosure, if you have consented or if data has been made available generally by you and you have not objected against the processing.</Text>
 				<Text :class="$style.section_paragraph">Please note that data exchanged via the internet is often routed through third countries. Your data may therefore be sent abroad even if the sender and recipient are in the same country.</Text>
 			</Flex>
@@ -409,11 +409,10 @@ useHead({
 
 				<ul>
 					<li>EU General Data Protection Regulation: <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2016.119.01.0001.01.ENG" target="_blank" :class="$style.link">https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2016.119.01.0001.01.ENG</a></li>
-					<li>Swiss Federal Act on Data Protection: <a href="https://www.admin.ch/opc/en/classified-compilation/19920153/index.html" target="_blank" :class="$style.link">https://www.admin.ch/opc/en/classified-compilation/19920153/index.html</a></li>
-					<li>Swiss Ordinance to the Federal Act on Data Protection: <a href="https://www.admin.ch/opc/en/classified-compilation/19930159/index.html" target="_blank" :class="$style.link">https://www.admin.ch/opc/en/classified-compilation/19930159/index.html</a></li>
+					<li>Singapore Personal Data Protection Act 2012: <a href="https://sso.agc.gov.sg/Act/PDPA2012" target="_blank" :class="$style.link">https://sso.agc.gov.sg/Act/PDPA2012</a></li>
 				</ul>
 
-				<Text :class="$style.section_paragraph">Please do not hesitate to contact us if you have any questions regarding this Privacy Policy by contacting us at <a href="mailto:celenium@pklabs.me" :class="$style.link">celenium@pklabs.me</a>.</Text>
+				<Text :class="$style.section_paragraph">Please do not hesitate to contact us if you have any questions regarding this Privacy Policy by contacting us at <a href="mailto:celenium@baking-bad.org" :class="$style.link">celenium@baking-bad.org</a>.</Text>
 			</Flex>
 		</Flex>
 	</Flex>
