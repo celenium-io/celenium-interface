@@ -3,7 +3,7 @@
 import { DateTime } from "luxon"
 
 /** Services */
-import { comma, space, validateCelestiaAddress } from "@/services/utils"
+import { comma, space, validateCelestiaAddress, validateCelestiaValidatorAddress } from "@/services/utils"
 import { getVoteIcon, getVoteIconColor } from "@/services/utils/states"
 
 /** UI */
@@ -124,7 +124,7 @@ watch(
 	() => {
 		if (!searchTerm.value) {
 			emit("onFiltersReset", "address", true)
-		} else if (!validateCelestiaAddress(searchTerm.value)) {
+		} else if (!validateCelestiaAddress(searchTerm.value) && !validateCelestiaValidatorAddress(searchTerm.value)) {
 			emit("updateFilters", "address", "", false)
 		} else {
 			emit("updateFilters", "address", searchTerm.value, true)

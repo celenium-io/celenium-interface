@@ -93,7 +93,23 @@ export const splitAddress = (address, format = "string") => {
 export function validateCelestiaAddress(address) {
 	if (!address) return false
 
-	const prefixes = ["celestiavaloper", "celestiavalcons", "celestia"] // order is important
+	const prefix = "celestia1"
+
+	if (!address.startsWith(prefix)) return false
+
+	const hashPart = address.slice(prefix.length)
+	if (hashPart.length !== 38) return false
+
+	const validChars = /^[qpzry9x8gf2tvdw0s3jn54khce6mua7l]+$/
+	if (!validChars.test(hashPart)) return false
+
+	return true
+}
+
+export function validateCelestiaValidatorAddress(address) {
+	if (!address) return false
+
+	const prefixes = ["celestiavaloper", "celestiavalcons"]
 	const prefix = prefixes.find(p => address.startsWith(p))
 	if (!prefix) return false
 	
@@ -103,6 +119,7 @@ export function validateCelestiaAddress(address) {
 	if (hashPart.length !== 38) return false
 
 	const validChars = /^[qpzry9x8gf2tvdw0s3jn54khce6mua7l]+$/
+
 	if (!validChars.test(hashPart)) return false
 
 	return true
@@ -256,4 +273,25 @@ export function hexToRgba(hex, alpha = 255) {
 	}
 
 	return `rgba(${r}, ${g}, ${b}, ${a})`
+}
+
+export function isValidId(id, type) {
+	switch (type) {
+		case "block":
+		case "proposal":
+		case "validator":
+			return /^[0-9]+$/.test(id);
+
+		case "tx":
+			return /^[A-Fa-f0-9]{64}$/.test(id);
+
+		case "namespace":
+			return /^[0-9a-f]{56}$/.test(id);
+
+		case "address":
+			return validateCelestiaAddress(id);
+	
+		default:
+			return false;
+	}
 }

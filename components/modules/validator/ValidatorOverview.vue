@@ -431,7 +431,7 @@ const handleDelegate = () => {
 						</Flex>
 
 						<Flex :class="$style.uptime_wrapper">
-							<Tooltip v-for="t in uptime">
+							<Tooltip v-for="t in uptime" @click="navigateTo(`/block/${t.height}`)">
 								<Flex
 									:class="$style.uptime"
 									:style="{

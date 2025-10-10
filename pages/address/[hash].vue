@@ -4,25 +4,32 @@ import AddressOverview from "@/components/modules/address/AddressOverview.vue"
 import VotesTable from "@/components/modules/address/VotesTable.vue"
 import AddressCharts from "@/components/modules/address/AddressCharts.vue"
 
+/** Services */
+import { isValidId } from "@/services/utils"
+
 /** API */
 import { fetchAddressByHash } from "@/services/api/address"
 
 /** Store */
 import { useCacheStore } from "@/store/cache.store"
-
 const cacheStore = useCacheStore()
 
 const route = useRoute()
 const router = useRouter()
 
 const address = ref()
-const { data: rawAddress } = await fetchAddressByHash(route.params.hash)
+const hash = route.params.hash.startsWith("0x") ? route.params.hash.slice(2) : route.params.hash
+if (isValidId(hash, "address")) {
+	const { data: rawAddress } = await fetchAddressByHash(hash)
 
-if (!rawAddress.value) {
-	router.push("/")
+	if (!rawAddress.value) {
+		router.push("/")
+	} else {
+		address.value = rawAddress.value
+		cacheStore.current.address = address.value
+	}
 } else {
-	address.value = rawAddress.value
-	cacheStore.current.address = address.value
+	router.push("/")
 }
 
 defineOgImageComponent("AddressImage", {

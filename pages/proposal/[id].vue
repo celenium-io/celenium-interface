@@ -4,6 +4,9 @@ import ProposalOverview from "@/components/modules/proposal/ProposalOverview.vue
 import ProposalChanges from "@/components/modules/proposal/ProposalChanges.vue"
 import ProposalDescription from "@/components/modules/proposal/ProposalDescription.vue"
 
+/** Services */
+import { isValidId } from "@/services/utils"
+
 /** API */
 import { fetchProposalById } from "@/services/api/proposal"
 
@@ -14,10 +17,25 @@ const cacheStore = useCacheStore()
 const route = useRoute()
 
 const proposal = ref()
-const { data: rawProposal } = await fetchProposalById({ id: route.params.id })
 
-if (!rawProposal.value) {
-	navigateTo({
+if (isValidId(route.params.id, "proposal")) {
+	const { data: rawProposal } = await fetchProposalById({ id: route.params.id })
+
+	if (!rawProposal.value) {
+		navigateTo({
+			path: "/",
+			query: {
+				error: "not_found",
+				target: "proposal",
+				id: route.params.id,
+			},
+		})
+	} else {
+		proposal.value = rawProposal.value
+		cacheStore.current.proposal = proposal.value
+	}
+} else {
+		navigateTo({
 		path: "/",
 		query: {
 			error: "not_found",
@@ -25,9 +43,6 @@ if (!rawProposal.value) {
 			id: route.params.id,
 		},
 	})
-} else {
-	proposal.value = rawProposal.value
-	cacheStore.current.proposal = proposal.value
 }
 
 defineOgImageComponent("ProposalImage", {
