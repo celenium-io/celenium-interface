@@ -9,13 +9,12 @@ import { IbcChainName } from "@/services/constants/ibc"
 import { fetchIbcChainsStats } from "@/services/api/stats"
 
 const route = useRoute()
-const router = useRouter()
 
 const { data } = await useAsyncData(`ibc-chains`, () => fetchIbcChainsStats({ limit: 100 }))
 const chain = ref(data.value.find((c) => c.chain === route.params.id))
 
 if (!chain.value) {
-	router.push("/")
+	throw createError({ statusCode: 404, statusMessage: `IBC chain ${route.params.id} not found` })
 }
 
 useHead({

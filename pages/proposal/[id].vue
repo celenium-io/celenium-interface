@@ -22,27 +22,29 @@ if (isValidId(route.params.id, "proposal")) {
 	const { data: rawProposal } = await fetchProposalById({ id: route.params.id })
 
 	if (!rawProposal.value) {
-		navigateTo({
-			path: "/",
-			query: {
-				error: "not_found",
-				target: "proposal",
-				id: route.params.id,
-			},
-		})
+		throw createError({ statusCode: 404, statusMessage: `Proposal ${route.params.id} not found` })
+		// navigateTo({
+		// 	path: "/",
+		// 	query: {
+		// 		error: "not_found",
+		// 		target: "proposal",
+		// 		id: route.params.id,
+		// 	},
+		// })
 	} else {
 		proposal.value = rawProposal.value
 		cacheStore.current.proposal = proposal.value
 	}
 } else {
-		navigateTo({
-		path: "/",
-		query: {
-			error: "not_found",
-			target: "proposal",
-			id: route.params.id,
-		},
-	})
+	throw createError({ statusCode: 404, statusMessage: `Proposal ${route.params.id} not found` })
+	// navigateTo({
+	// 	path: "/",
+	// 	query: {
+	// 		error: "not_found",
+	// 		target: "proposal",
+	// 		id: route.params.id,
+	// 	},
+	// })
 }
 
 defineOgImageComponent("ProposalImage", {

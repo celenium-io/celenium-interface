@@ -16,13 +16,12 @@ const appStore = useAppStore()
 const cacheStore = useCacheStore()
 
 const route = useRoute()
-const router = useRouter()
 
 const rollup = ref()
 const { data: rawRollup } = await fetchRollupBySlug(route.params.slug)
 
 if (!rawRollup.value) {
-	router.push("/networks")
+	throw createError({ statusCode: 404, statusMessage: `Network ${route.params.slug} not found` })
 } else {
 	rollup.value = rawRollup.value
 	patchRollupColor()

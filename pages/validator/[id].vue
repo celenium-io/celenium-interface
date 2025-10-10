@@ -13,20 +13,19 @@ import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const route = useRoute()
-const router = useRouter()
 
 const validator = ref()
 if (isValidId(route.params.id, "validator")) {
 	const { data: rawValidator } = await fetchValidatorByID(route.params.id)
 
 	if (!rawValidator.value) {
-		router.push("/")
+		throw createError({ statusCode: 404, statusMessage: `Validator ${route.params.id} not found` })
 	} else {
 		validator.value = rawValidator.value
 		cacheStore.current.validator = validator.value
 	}
 } else {
-	router.push("/")
+	throw createError({ statusCode: 404, statusMessage: `Validator ${route.params.id} not found` })
 }
 
 defineOgImageComponent("ValidatorImage", {

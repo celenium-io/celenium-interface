@@ -14,20 +14,19 @@ import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const route = useRoute()
-const router = useRouter()
 
 const tx = ref()
 const hash = route.params.hash.startsWith("0x") ? route.params.hash.slice(2) : route.params.hash
 if (isValidId(hash, "tx")) {
 	const { data: rawTx } = await fetchTxByHash(hash)
 	if (!rawTx.value) {
-		router.push("/")
+		throw createError({ statusCode: 404, statusMessage: `Transaction ${route.params.hash} not found` })
 	} else {
 		tx.value = rawTx.value
 		cacheStore.current.transaction = tx.value
 	}
 } else {
-	router.push("/")
+	throw createError({ statusCode: 404, statusMessage: `Transaction ${route.params.hash} not found` })
 }
 
 defineOgImageComponent("TxImage", {

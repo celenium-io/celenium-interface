@@ -92,6 +92,10 @@ async function fetchData() {
 		fetchRollupRankingBySlug(slug),
 	])
 
+	if (!rollupData?.data?.value) {
+		throw createError({ statusCode: 404, statusMessage: `Network ${slug} not found` })
+	}
+
 	let description = []
 	for (const [key, value] of Object.entries(rankData?.scores)) {
 		const category = getMetricCategory(key, value)
@@ -244,7 +248,7 @@ const handleHowItWorksClick = () => {
 watch(
 	() => page.value,
 	async () => {
-		repos.value = await getRollupRepos(rollup.value.slug)
+		repos.value = await getRollupRepos(rollup.value?.slug)
 	},
 )
 

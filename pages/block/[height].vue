@@ -20,7 +20,7 @@ const route = useRoute()
 const block = ref()
 
 if (!isValidId(route.params.height, "block")) {
-	navigateTo("/")
+	throw createError({ statusCode: 404, statusMessage: `Block ${route.params.height} not found` })
 }
 
 const { data: rawBlock } = await fetchBlockByHeight(route.params.height)

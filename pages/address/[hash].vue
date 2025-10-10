@@ -18,18 +18,18 @@ const route = useRoute()
 const router = useRouter()
 
 const address = ref()
-const hash = route.params.hash.startsWith("0x") ? route.params.hash.slice(2) : route.params.hash
-if (isValidId(hash, "address")) {
-	const { data: rawAddress } = await fetchAddressByHash(hash)
+
+if (isValidId(route.params.hash, "address")) {
+	const { data: rawAddress } = await fetchAddressByHash(route.params.hash)
 
 	if (!rawAddress.value) {
-		router.push("/")
+		throw createError({ statusCode: 404, statusMessage: `Address ${route.params.hash} not found` })
 	} else {
 		address.value = rawAddress.value
 		cacheStore.current.address = address.value
 	}
 } else {
-	router.push("/")
+	throw createError({ statusCode: 404, statusMessage: `Address ${route.params.hash} not found` })
 }
 
 defineOgImageComponent("AddressImage", {

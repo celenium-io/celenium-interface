@@ -14,7 +14,6 @@ import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const route = useRoute()
-const router = useRouter()
 
 const namespace = ref()
 
@@ -22,13 +21,13 @@ if (isValidId(route.params.id, "namespace")) {
 	const { data: rawNamespace } = await fetchNamespaceByID(route.params.id)
 
 	if (!rawNamespace.value) {
-		router.push("/")
+		throw createError({ statusCode: 404, statusMessage: `Namespace ${route.params.id} not found` })
 	} else {
 		namespace.value = rawNamespace.value[0]
 		cacheStore.current.namespace = namespace.value
 	}
 } else {
-	router.push("/")
+	throw createError({ statusCode: 404, statusMessage: `Namespace ${route.params.id} not found` })
 }
 
 defineOgImageComponent("NamespaceImage", {

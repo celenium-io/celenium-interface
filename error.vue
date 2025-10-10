@@ -51,6 +51,15 @@ const getGithubIssueLink = computed(() => {
 				<Text v-if="error?.statusCode == 404" size="16" weight="500" color="secondary">
 					{{ error?.statusMessage }}
 				</Text>
+				<!-- <Flex v-if="error?.statusCode == 404" direction="column" gap="6">
+					<Text size="16" weight="500" color="secondary">
+						{{ error?.statusMessage }}
+					</Text>
+
+					<Text v-if="error?.data?.value" size="16" weight="500" color="secondary">
+						{{ error?.statusMessage }}
+					</Text>
+				</Flex> -->
 				<Text v-else size="16" weight="500" color="secondary"> Unknown Error </Text>
 
 				<Text
