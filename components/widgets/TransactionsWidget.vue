@@ -32,7 +32,10 @@ const getHistogram = async (sectorOffset) => {
 		period: "hour",
 		from: parseInt(DateTime.now().minus({ hours: 24 - sectorOffset }).ts / 1_000),
 	})
-	histogram.value = data.reverse()
+
+	if (!data?.length) return
+	
+	histogram.value = data?.reverse()
 }
 
 const buildHistogram = async () => {
@@ -48,6 +51,8 @@ const buildHistogram = async () => {
 	const sectorOffset = 5 - currentHourIdx
 
 	await getHistogram(sectorOffset)
+
+	if (!histogram.value.length) return
 
 	const items = [...histogram.value]
 
@@ -138,7 +143,7 @@ const getSectorName = (item) => {
 						</Flex>
 					</Flex>
 
-					<Skeleton w="20" h="12" />
+					<Skeleton v-if="isLoading" w="20" h="12" />
 				</Flex>
 			</Flex>
 
