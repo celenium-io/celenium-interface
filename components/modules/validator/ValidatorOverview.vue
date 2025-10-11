@@ -62,6 +62,7 @@ const votes = ref([])
 const uptime = ref([])
 
 const page = ref(1)
+const limit = 10
 const handleNextCondition = ref(true)
 
 const handleNext = () => {
@@ -76,14 +77,14 @@ const getBlocks = async () => {
 
 	const { data } = await fetchValidatorBlocks({
 		id: props.validator.id,
-		limit: 10,
-		offset: (page.value - 1) * 10,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 	})
 
 	if (data.value?.length) {
 		blocks.value = data.value
 		cacheStore.current.blocks = blocks.value
-		handleNextCondition.value = blocks.value.length < 10
+		handleNextCondition.value = blocks.value?.length < limit
 	}
 
 	isRefetching.value = false
@@ -94,12 +95,12 @@ const getDelegators = async () => {
 
 	const { data } = await fetchValidatorDelegators({
 		id: props.validator.id,
-		limit: 10,
-		offset: (page.value - 1) * 10,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 	})
 
 	delegators.value = data.value
-	handleNextCondition.value = delegators.value.length < 10
+	handleNextCondition.value = delegators.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -109,12 +110,12 @@ const getJails = async () => {
 
 	const { data } = await fetchValidatorJails({
 		id: props.validator.id,
-		limit: 10,
-		offset: (page.value - 1) * 10,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 	})
 
 	jails.value = data.value
-	handleNextCondition.value = jails.value.length < 10
+	handleNextCondition.value = jails.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -124,12 +125,12 @@ const getVotes = async () => {
 
 	const { data } = await fetchVotesByAddressHash({
 		hash: props.validator.delegator?.hash,
-		limit: 10,
-		offset: (page.value - 1) * 10,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 	})
 
 	votes.value = data.value
-	handleNextCondition.value = votes.value.length < 10
+	handleNextCondition.value = votes.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -571,8 +572,6 @@ const handleDelegate = () => {
 	}
 
 	.uptime {
-		/* width: 10px;
-		height: 10px; */
 		width: 0.6rem;
 		height: 0.6rem;
 

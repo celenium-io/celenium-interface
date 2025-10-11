@@ -1,7 +1,4 @@
 <script setup>
-/** Vendor */
-import * as Sentry from "@sentry/vue"
-
 /** Services */
 import Socket from "@/services/api/socket"
 import amp from "@/services/amp"
@@ -132,22 +129,6 @@ onMounted(async () => {
 					},
 				],
 			},
-		})
-	}
-
-	if (window.location.hostname !== "localhost") {
-		Sentry.init({
-			dsn: "https://2801a6c0442d2b0cd4df995e4bbe45dc@newsentry.baking-bad.org/12",
-			integrations: [
-				Sentry.replayIntegration({
-					maskAllText: false,
-					blockAllMedia: false,
-				}),
-			],
-
-			// Session Replay
-			replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
-			replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
 		})
 	}
 
