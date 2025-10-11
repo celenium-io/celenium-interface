@@ -5,7 +5,7 @@ import topLevelAwait from "vite-plugin-top-level-await"
 import path from "path"
 
 export default defineNuxtConfig({
-	modules: ["nuxt-site-config", "@nuxtjs/robots", "@pinia/nuxt", "nuxt-og-image", "@nuxtjs/sitemap"],
+	modules: ["nuxt-site-config", "@nuxtjs/robots", "@pinia/nuxt", "nuxt-og-image", "@nuxtjs/sitemap", "@sentry/nuxt/module"],
 
 	site: {
 		url: "https://celenium.io",
@@ -68,6 +68,10 @@ export default defineNuxtConfig({
 		public: {
 			AMP: process.env.AMP,
 			version: "1.20.0",
+
+			sentry: {
+				dsn: process.env.SENTRY_DSN || "",
+			},
 
 			API_MAINNET: "",
 			API_MOCHA: "",
