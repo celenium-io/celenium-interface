@@ -345,7 +345,7 @@ const handleViewRawTransactions = () => {
 }
 
 function triggerClientError() {
-	throw new Error("Nuxt Button Error");
+	throw new Error("Nuxt Button Error")
 }
 </script>
 
@@ -367,7 +367,7 @@ function triggerClientError() {
 					</Button>
 
 					<!-- <Button @click="router.push(`/block/${height + 1}`)" type="secondary" size="mini"> -->
-					<Button @click="triggerClientError" type="secondary" size="mini"></Button>
+					<Button @click="triggerClientError" type="secondary" size="mini">
 						<Text :class="$style.block_nav__txt">Next</Text>
 						<Icon name="arrow-redo-right" size="16" color="secondary" />
 					</Button>
