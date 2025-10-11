@@ -64,6 +64,12 @@ export default defineNuxtConfig({
 		},
 	},
 
+	sentry: {
+		sourcemaps: {
+			disable: true,
+		},
+	},
+
 	runtimeConfig: {
 		public: {
 			AMP: process.env.AMP,
