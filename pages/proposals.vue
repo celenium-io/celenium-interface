@@ -75,17 +75,18 @@ const isRefetching = ref(false)
 const proposals = ref([])
 const count = ref(1)
 
-const getProposalsCount = async () => {
-	const { data: proposalsCount } = await fetchProposalsCount()
-	count.value = proposalsCount.value
-}
+// const getProposalsCount = async () => {
+// 	const { data: proposalsCount } = await fetchProposalsCount()
+// 	count.value = proposalsCount.value
+// }
 
 // await getProposalsCount()
 
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = computed(() => Math.ceil(count.value / 20))
+const pages = computed(() => Math.ceil(count.value / limit))
+const limit = 20
 
-const { data } = await fetchProposals({ limit: 20, offset: (page.value - 1) * 20 })
+const { data } = await fetchProposals({ limit: limit, offset: (page.value - 1) * limit })
 proposals.value = data.value.filter((proposal) => proposal.status !== "removed")
 
 watch(
@@ -93,7 +94,7 @@ watch(
 	async () => {
 		isRefetching.value = true
 
-		const { data } = await fetchProposals({ limit: 20, offset: (page.value - 1) * 20 })
+		const { data } = await fetchProposals({ limit: limit, offset: (page.value - 1) * limit })
 		proposals.value = data.value
 
 		isRefetching.value = false
@@ -103,13 +104,13 @@ watch(
 )
 
 const handlePrev = () => {
-	// if (page.value === 1) return
-	// page.value -= 1
+	if (page.value === 1) return
+	page.value -= 1
 }
 
 const handleNext = () => {
 	// if (page.value === pages.value) return
-	// page.value += 1
+	page.value += 1
 }
 
 const handleLast = async () => {
@@ -136,23 +137,26 @@ const handleLast = async () => {
 				</Flex>
 
 				<Flex align="center" gap="6">
-					<Button @click="page = 1" type="secondary" size="mini" disabled>
+					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 						<Icon name="arrow-left-stop" size="12" color="primary" />
 					</Button>
-					<Button type="secondary" @click="handlePrev" size="mini" disabled>
+					<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
 						<Icon name="arrow-left" size="12" color="primary" />
 					</Button>
 
-					<Button type="secondary" size="mini" disabled>
+					<!-- <Button type="secondary" size="mini" disabled>
 						<Text size="12" weight="600" color="primary"> {{ comma(page) }} of {{ comma(pages) }} </Text>
+					</Button> -->
+					<Button type="secondary" size="mini" disabled>
+						<Text size="12" weight="600" color="primary"> Page {{ comma(page) }} </Text>
 					</Button>
 
-					<Button @click="handleNext" type="secondary" size="mini" disabled>
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="proposals.length < limit">
 						<Icon name="arrow-right" size="12" color="primary" />
 					</Button>
-					<Button @click="handleLast" type="secondary" size="mini" disabled>
+					<!-- <Button @click="handleLast" type="secondary" size="mini" disabled>
 						<Icon name="arrow-right-stop" size="12" color="primary" />
-					</Button>
+					</Button> -->
 				</Flex>
 			</Flex>
 
@@ -292,14 +296,14 @@ const handleLast = async () => {
 										</Flex>
 									</NuxtLink>
 								</td>
-								<td>
+								<td v-if="proposal.end_time">
 									<NuxtLink :to="`/proposal/${proposal.id}`">
 										<Flex justify="center" direction="column" gap="4">
 											<Text size="12" weight="600" color="primary">
-												{{ DateTime.fromISO(proposal.deposit_time).toRelative({ locale: "en", style: "short" }) }}
+												{{ DateTime.fromISO(proposal.end_time).toRelative({ locale: "en", style: "short" }) }}
 											</Text>
 											<Text size="12" weight="500" color="tertiary">
-												{{ DateTime.fromISO(proposal.deposit_time).setLocale("en").toFormat("LLL d, t") }}
+												{{ DateTime.fromISO(proposal.end_time).setLocale("en").toFormat("LLL d, t") }}
 											</Text>
 										</Flex>
 									</NuxtLink>
