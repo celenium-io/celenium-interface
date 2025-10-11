@@ -10,13 +10,13 @@
 
 import * as Sentry from "@sentry/nuxt";
 
-export default defineNuxtPlugin(() => {
-    const config = useRuntimeConfig();
-    const sentryConfig = config.public.sentry as { dsn: string };
+const config = useRuntimeConfig();
+const sentryConfig = config.public.sentry as { dsn: string };
 
-    Sentry.init({
-        dsn: sentryConfig.dsn,
-        tracesSampleRate: 1.0,
-        enableLogs: true,
-    });
+console.log("[SENTRY DSN SERVER]", sentryConfig.dsn);
+
+Sentry.init({
+    dsn: sentryConfig.dsn,
+    tracesSampleRate: 1.0,
+    enableLogs: true,
 });

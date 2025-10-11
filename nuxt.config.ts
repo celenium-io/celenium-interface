@@ -76,7 +76,7 @@ export default defineNuxtConfig({
 			version: "1.20.0",
 
 			sentry: {
-				dsn: process.env.SENTRY_DSN || "",
+				dsn: process.env.SENTRY_DSN,
 			},
 
 			API_MAINNET: "",

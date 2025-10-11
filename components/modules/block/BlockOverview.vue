@@ -1,5 +1,6 @@
 <script setup>
 /** Vendor */
+import * as Sentry from "@sentry/nuxt";
 import { DateTime } from "luxon"
 
 /** UI */
@@ -344,6 +345,9 @@ const handleViewRawTransactions = () => {
 	modalsStore.open("rawData")
 }
 
+function name123() {
+	Sentry.captureException(new Error("Test Sentry direct capture"));
+}
 function triggerClientError() {
 	throw new Error("Nuxt Button Error")
 }
@@ -361,7 +365,8 @@ function triggerClientError() {
 				</Flex>
 
 				<Flex align="center" gap="8">
-					<Button @click="router.push(`/block/${height - 1}`)" type="secondary" size="mini" :disabled="height === 0">
+					<!-- <Button @click="router.push(`/block/${height - 1}`)" type="secondary" size="mini" :disabled="height === 0"> -->
+					<Button @click="name123" type="secondary" size="mini" :disabled="height === 0">
 						<Icon name="arrow-redo-right" size="16" color="secondary" :style="{ transform: 'scaleX(-1)' }" />
 						<Text :class="$style.block_nav__txt">Prev</Text>
 					</Button>

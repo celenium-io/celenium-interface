@@ -21,25 +21,25 @@
 
 import * as Sentry from "@sentry/nuxt";
 
-export default defineNuxtPlugin(() => {
-    const config = useRuntimeConfig();
-    const sentryConfig = (config.public.sentry as { dsn: string });
+const config = useRuntimeConfig();
+const sentryConfig = (config.public.sentry as { dsn: string });
 
-    Sentry.init({
-        dsn: sentryConfig.dsn,
+console.log("[SENTRY DSN CLIENT]", sentryConfig.dsn);
 
-        sendDefaultPii: true,
+Sentry.init({
+    dsn: sentryConfig.dsn,
 
-        integrations: [
-            Sentry.replayIntegration(),
-            Sentry.feedbackIntegration({
-            colorScheme: "system",
-            }),
-        ],
+    sendDefaultPii: true,
 
-        tracesSampleRate: 1.0,
-        replaysSessionSampleRate: 0.1,
-        replaysOnErrorSampleRate: 1.0,
-        enableLogs: true,
-    });
+    integrations: [
+        Sentry.replayIntegration(),
+        Sentry.feedbackIntegration({
+        colorScheme: "system",
+        }),
+    ],
+
+    tracesSampleRate: 1.0,
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1.0,
+    enableLogs: true,
 });
