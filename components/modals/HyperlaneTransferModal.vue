@@ -144,6 +144,15 @@ const handleNavigate = (target) => {
 					</Flex>
 				</Flex>
 
+				<Flex v-if="transfer.gas_payment?.amount" align="center" justify="between">
+					<Text size="12" weight="600" color="tertiary">Gas Used</Text>
+
+					<Text size="12" weight="600" color="primary" mono>
+						{{ comma(transfer.gas_payment?.amount) }}
+						<Text color="tertiary"> utia </Text>
+					</Text>
+				</Flex>
+
 				<Flex align="center" justify="between">
 					<Text size="12" weight="600" color="tertiary">Mailbox</Text>
 
