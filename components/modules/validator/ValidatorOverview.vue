@@ -169,15 +169,15 @@ const validatorStatus = computed(() => {
 	}
 
 	if (!props.validator.jailed) {
-		if (uptime.value?.slice(-1)[0].signed) {
-			res.name = "Active"
-			res.color = "var(--validator-active)"
-			res.description = "This validator is in the active set and can|propose or sign blocks and receive rewards".split("|")
-		} else {
-			res.name = "Inactive"
-			res.color = "var(--validator-inactive)"
-			res.description = "This validator is not in the active set and cannot|propose or sign blocks and earn rewards".split("|")
-		}
+		// if (uptime.value?.slice(-1)[0].signed) {
+		// 	res.name = "Active"
+		// 	res.color = "var(--validator-active)"
+		// 	res.description = "This validator is in the active set and can|propose or sign blocks and receive rewards".split("|")
+		// } else {
+		// 	res.name = "Inactive"
+		// 	res.color = "var(--validator-inactive)"
+		// 	res.description = "This validator is not in the active set and cannot|propose or sign blocks and earn rewards".split("|")
+		// }
 	} else {
 		res.name = "Jailed"
 		res.color = "var(--validator-jailed)"
@@ -296,7 +296,7 @@ const handleDelegate = () => {
 							<Text v-if="validator.moniker" size="13" weight="600" color="primary">{{ validator.moniker }} </Text>
 							<Text v-else size="13" weight="600" color="primary">Validator</Text>
 
-							<Tooltip position="start" textAlign="left" delay="200">
+							<Tooltip v-if="validatorStatus.name" position="start" textAlign="left" delay="200">
 								<Text size="13" weight="600" :style="{ color: validatorStatus.color }"> {{ validatorStatus.name }} </Text>
 
 								<template #content>
