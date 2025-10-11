@@ -343,6 +343,10 @@ const handleViewRawTransactions = () => {
 	cacheStore.current._target = "transactions"
 	modalsStore.open("rawData")
 }
+
+function triggerClientError() {
+	throw new Error("Nuxt Button Error");
+}
 </script>
 
 <template>
@@ -362,7 +366,8 @@ const handleViewRawTransactions = () => {
 						<Text :class="$style.block_nav__txt">Prev</Text>
 					</Button>
 
-					<Button @click="router.push(`/block/${height + 1}`)" type="secondary" size="mini">
+					<!-- <Button @click="router.push(`/block/${height + 1}`)" type="secondary" size="mini"> -->
+					<Button @click="triggerClientError" type="secondary" size="mini"></Button>
 						<Text :class="$style.block_nav__txt">Next</Text>
 						<Icon name="arrow-redo-right" size="16" color="secondary" />
 					</Button>
