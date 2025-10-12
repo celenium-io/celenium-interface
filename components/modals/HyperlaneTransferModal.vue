@@ -89,6 +89,27 @@ const handleNavigate = (target) => {
 				</Flex>
 			</Flex>
 
+			<Flex v-if="transfer.gas_payment?.amount" direction="column" gap="8" wide :class="$style.card">
+				<Text size="12" weight="600" color="secondary">Interchain Gas Payments</Text>
+
+				<Flex align="center" gap="48">
+					<Text size="12" weight="600" color="tertiary">Fee</Text>
+
+					<Text size="12" weight="600" color="primary" mono>
+						{{ comma(transfer.gas_payment?.amount) }}
+						<Text color="tertiary"> utia </Text>
+					</Text>
+				</Flex>
+
+				<Flex align="center" gap="14">
+					<Text size="12" weight="600" color="tertiary">Gas Limit</Text>
+
+					<Text size="12" weight="600" color="primary" mono>
+						{{ comma(transfer.gas_payment?.gas_amount) }}
+					</Text>
+				</Flex>
+			</Flex>
+
 			<Flex wide direction="column" gap="16" :class="$style.card">
 				<Text size="12" weight="600" color="secondary">Details</Text>
 
@@ -142,15 +163,6 @@ const handleNavigate = (target) => {
 
 						<CopyButton :text="transfer.tx_hash" size="12" />
 					</Flex>
-				</Flex>
-
-				<Flex v-if="transfer.gas_payment?.amount" align="center" justify="between">
-					<Text size="12" weight="600" color="tertiary">Gas Used</Text>
-
-					<Text size="12" weight="600" color="primary" mono>
-						{{ comma(transfer.gas_payment?.amount) }}
-						<Text color="tertiary"> utia </Text>
-					</Text>
 				</Flex>
 
 				<Flex align="center" justify="between">
