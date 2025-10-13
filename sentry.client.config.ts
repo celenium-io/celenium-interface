@@ -11,7 +11,7 @@ Sentry.init({
     integrations: [
         Sentry.replayIntegration(),
         Sentry.feedbackIntegration({
-        colorScheme: "system",
+            autoInject: false,
         }),
     ],
 
