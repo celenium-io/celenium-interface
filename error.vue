@@ -48,18 +48,9 @@ const getGithubIssueLink = computed(() => {
 			<Icon name="search" size="24" color="tertiary" />
 
 			<Flex direction="column" align="center" gap="12">
-				<Text v-if="error?.statusCode == 404" size="16" weight="500" color="secondary">
+				<Text v-if="error?.statusCode == 404" size="16" weight="500" height="160" color="secondary" :class="$style.status_title">
 					{{ error?.statusMessage }}
 				</Text>
-				<!-- <Flex v-if="error?.statusCode == 404" direction="column" gap="6">
-					<Text size="16" weight="500" color="secondary">
-						{{ error?.statusMessage }}
-					</Text>
-
-					<Text v-if="error?.data?.value" size="16" weight="500" color="secondary">
-						{{ error?.statusMessage }}
-					</Text>
-				</Flex> -->
 				<Text v-else size="16" weight="500" color="secondary"> Unknown Error </Text>
 
 				<Text
@@ -111,5 +102,11 @@ const getGithubIssueLink = computed(() => {
 
 	padding: 0 24px;
 	margin-top: 120px;
+}
+
+.status_title {
+	white-space: normal;
+	word-break: break-all;
+	overflow-wrap: anywhere;
 }
 </style>

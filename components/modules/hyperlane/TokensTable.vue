@@ -188,6 +188,9 @@ const handleOpenTokenModal = (token) => {
 			height: 40px;
 
 			padding: 0;
+			padding-right: 24px;
+			padding-top: 8px;
+			padding-bottom: 8px;
 
 			white-space: nowrap;
 

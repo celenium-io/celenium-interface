@@ -177,6 +177,7 @@ const handleOpenTransferModal = (transfer) => {
 
 		& tr th {
 			text-align: left;
+			
 			padding: 0;
 			padding-right: 16px;
 			padding-top: 12px;
