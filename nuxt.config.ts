@@ -73,7 +73,7 @@ export default defineNuxtConfig({
 	runtimeConfig: {
 		public: {
 			AMP: process.env.AMP,
-			version: "1.20.0",
+			version: "1.26.0",
 
 			sentry: {
 				dsn: process.env.SENTRY_DSN,
