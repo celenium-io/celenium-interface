@@ -90,6 +90,41 @@ export const splitAddress = (address, format = "string") => {
 	}
 }
 
+export function validateCelestiaAddress(address) {
+	if (!address) return false
+
+	const prefix = "celestia1"
+
+	if (!address.startsWith(prefix)) return false
+
+	const hashPart = address.slice(prefix.length)
+	if (hashPart.length !== 38) return false
+
+	const validChars = /^[qpzry9x8gf2tvdw0s3jn54khce6mua7l]+$/
+	if (!validChars.test(hashPart)) return false
+
+	return true
+}
+
+export function validateCelestiaValidatorAddress(address) {
+	if (!address) return false
+
+	const prefixes = ["celestiavaloper", "celestiavalcons"]
+	const prefix = prefixes.find(p => address.startsWith(p))
+	if (!prefix) return false
+	
+	if (address[prefix.length] !== "1") return false
+
+	const hashPart = address.slice(prefix.length + 1)
+	if (hashPart.length !== 38) return false
+
+	const validChars = /^[qpzry9x8gf2tvdw0s3jn54khce6mua7l]+$/
+
+	if (!validChars.test(hashPart)) return false
+
+	return true
+}
+
 const REGEX_MOBILE1 =
 	/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|FBAN|FBAV|fennec|hiptop|iemobile|ip(hone|od)|Instagram|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i
 const REGEX_MOBILE2 =
@@ -142,7 +177,8 @@ export const getNetworkName = () => {
 }
 
 export const isMainnet = () => {
-	return getNetworkName() === "Mainnet" || isSelfhosted()
+	return true
+	// return getNetworkName() === "Mainnet" || getNetworkName() === "Development" || isSelfhosted()
 }
 
 export const isMac = () => {
@@ -180,19 +216,34 @@ export function sortArrayOfObjects(arr, path, asc = true) {
 	if (!arr || !arr?.length) return []
 
 	return arr.sort((a, b) => {
-		const getValue = (obj, path) => path.split(".").reduce((o, key) => o?.[key], obj) ?? 0
+		const getValue = (obj, path) => path.split(".").reduce((o, key) => o?.[key], obj)
 
 		let valueA = getValue(a, path)
 		let valueB = getValue(b, path)
 
+		if (valueA == null) valueA = ""
+		if (valueB == null) valueB = ""
+
+		const numA = Number(valueA)
+		const numB = Number(valueB)
+		const bothAreNumbers = !isNaN(numA) && !isNaN(numB)
+
 		const dateA = Date.parse(valueA)
 		const dateB = Date.parse(valueB)
-
 		const bothAreDates = typeof valueA === "string" && typeof valueB === "string" && !isNaN(dateA) && !isNaN(dateB)
 
 		if (bothAreDates) {
 			valueA = dateA
 			valueB = dateB
+		} else if (bothAreNumbers) {
+			valueA = numA
+			valueB = numB
+		} else {
+			valueA = String(valueA)
+			valueB = String(valueB)
+			return asc
+				? valueA.localeCompare(valueB)
+				: valueB.localeCompare(valueA)
 		}
 
 		return asc ? valueA - valueB : valueB - valueA
@@ -222,4 +273,25 @@ export function hexToRgba(hex, alpha = 255) {
 	}
 
 	return `rgba(${r}, ${g}, ${b}, ${a})`
+}
+
+export function isValidId(id, type) {
+	switch (type) {
+		case "block":
+		case "proposal":
+		case "validator":
+			return /^[0-9]+$/.test(id);
+
+		case "tx":
+			return /^[A-Fa-f0-9]{64}$/.test(id);
+
+		case "namespace":
+			return /^[0-9a-f]{56}$/.test(id);
+
+		case "address":
+			return validateCelestiaAddress(id);
+	
+		default:
+			return false;
+	}
 }

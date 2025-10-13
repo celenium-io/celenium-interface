@@ -93,25 +93,29 @@ const constantsToPercentage = [
 const constantsToFormat = [...constantsToMb, ...constantsToDays, ...constantsToTia, ...constantsToPercentage]
 
 const formatConstant = (key, value) => {
-	if (key === "allow_messages")
-		return JSON.parse(value)
-			.map((v) => v.split(".").slice(-1)[0])
-			.join(", ")
+	try {
+		if (key === "allow_messages")
+			return JSON.parse(value)
+				.map((v) => v.split(".").slice(-1)[0])
+				.join(", ")
 
-	if (constantsToMb.includes(key)) return formatBytes(value)
-	if (constantsToDays.includes(key)) {
-		const dur = Duration.fromMillis(value / 1_000_000)
+		if (constantsToMb.includes(key)) return formatBytes(value)
+		if (constantsToDays.includes(key)) {
+			const dur = Duration.fromMillis(value / 1_000_000)
 
-		if (dur.toFormat("s") >= 86_400) {
-			return `${dur.toFormat("d")} day${dur.toFormat("d") > 1 ? "s" : ""}`
-		} else {
-			return `${dur.toFormat("s")} seconds`
+			if (dur.toFormat("s") >= 86_400) {
+				return `${dur.toFormat("d")} day${dur.toFormat("d") > 1 ? "s" : ""}`
+			} else {
+				return `${dur.toFormat("s")} seconds`
+			}
 		}
-	}
-	if (constantsToTia.includes(key)) return `${comma(value.replace("utia", "") / 1_000_000, ",", 8)} TIA`
-	if (constantsToPercentage.includes(key)) return `${round(value * 100, 6)}%`
+		if (constantsToTia.includes(key)) return `${comma(value.replace("utia", "") / 1_000_000, ",", 8)} TIA`
+		if (constantsToPercentage.includes(key)) return `${round(value * 100, 6)}%`
 
-	return value
+		return value
+	} catch {
+		return ""
+	}
 }
 
 const DescriptionMap = {

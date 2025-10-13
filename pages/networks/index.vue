@@ -31,37 +31,35 @@ import { rollupRankingServiceURL } from "@/services/config"
 import { fetchRollups, fetchRollupsRanking } from "@/services/api/rollup"
 
 /** Stores */
-import { useAppStore } from "@/store/app.store"
 import { useEnumStore } from "@/store/enums.store"
-const appStore = useAppStore()
 const enumStore = useEnumStore()
 
 useHead({
-	title: "Rollups - Celestia Explorer",
+	title: "Networks - Celestia Explorer",
 	link: [
 		{
 			rel: "canonical",
-			href: "https://celenium.io/rollups",
+			href: "https://celenium.io/networks",
 		},
 	],
 	meta: [
 		{
 			name: "description",
 			content:
-				"View all rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
+				"View all networks in the Celestia Blockchain. Network name, description, size, blobs, social links, contacts are shown.",
 		},
 		{
 			property: "og:title",
-			content: "Rollups Leaderboard - Celestia Explorer",
+			content: "Networks Leaderboard - Celestia Explorer",
 		},
 		{
 			property: "og:description",
 			content:
-				"View all rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
+				"View all networks in the Celestia Blockchain. Network name, description, size, blobs, social links, contacts are shown.",
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io/rollups`,
+			content: `https://celenium.io/networks`,
 		},
 		{
 			property: "og:image",
@@ -69,12 +67,12 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: "Rollups Leaderboard - Celestia Explorer",
+			content: "Networks Leaderboard - Celestia Explorer",
 		},
 		{
 			name: "twitter:description",
 			content:
-				"View all rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
+				"View all networks in the Celestia Blockchain. Network name, description, size, blobs, social links, contacts are shown.",
 		},
 		{
 			name: "twitter:card",
@@ -132,13 +130,13 @@ const config = reactive({
 		paid_per_mb: {
 			show: true,
 		},
-		today_blobs: {
-			show: true,
-			sortPath: "stats.day_blobs_count",
-		},
-		avg_pfb_size: {
+		type: {
 			show: false,
-			sortPath: "stats.avg_pfb_size",
+			sortPath: "type",
+		},
+		provider: {
+			show: false,
+			sortPath: "provider",
 		},
 		latest_activity: {
 			show: true,
@@ -191,10 +189,14 @@ const tags = computed(() => {
 
 	return res
 })
+const providers = computed(() => [...new Set(rollups.value
+	?.map(r => r.provider))]
+	.filter(Boolean)
+	.sort((a, b) => a.localeCompare(b))
+)
+const ranks = ["Legendary", "Epic", "Good", "Normal", "Offline"]
 const showInactive = ref(false)
 
-const providers = ref([])
-const stacks = ref([])
 const getDisplayName = (name) => {
 	switch (name) {
 		case "nft":
@@ -208,20 +210,26 @@ const getDisplayName = (name) => {
 	}
 }
 const popovers = reactive({
+	activity_rank: false,
 	categories: false,
-	types: false,
+	providers: false,
 	tags: false,
+	types: false,
 })
 const keyMap = {
+	activity_rank: "activity_rank",
 	categories: "category",
-	types: "type",
-	tags: "tag",
+	providers: "provider",
 	showInactive: "is_active",
+	tags: "tag",
+	types: "type",
 }
 const filters = reactive({
+	activity_rank: ranks.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	categories: categories.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
-	types: types.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	providers: providers.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	tags: tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
+	types: types.value?.reduce((a, b) => ({ ...a, [b]: false }), {}),
 	showInactive: showInactive.value,
 })
 const savedFiltersBeforeChanges = ref(null)
@@ -305,13 +313,15 @@ const getRollups = async () => {
 			if (data?.length) {
 				rollups.value = data.map((r) => {
 					const rank = ranking[r.slug]
-					if (!rank) return r
+					const rounded_rank = roundTo(rank?.rank / 10, 0)
+					const rank_category = getRankCategory(rounded_rank)
 
 					return {
 						...r,
-						rank: +rank.rank,
-						rounded_rank: roundTo(rank.rank / 10, 0),
-						rank_category: getRankCategory(roundTo(rank.rank / 10, 0)),
+						rank: rank?.rank ? +rank.rank : 0,
+						rounded_rank,
+						rank_category,
+						activity_rank: rank_category.name,
 					}
 				})
 			}
@@ -381,7 +391,6 @@ const handleSort = (by) => {
 
 		case "asc":
 			sort.dir = "desc"
-
 			break
 	}
 
@@ -421,6 +430,9 @@ watch(
 		filters.tags = tags.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
 	},
 )
+watchEffect(() => {
+	filters.providers = providers.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+})
 watch(
 	() => showInactive.value,
 	() => {
@@ -447,7 +459,15 @@ watch(
 
 onBeforeMount(() => {
 	if (localStorage.getItem("page:rollups:config:columns")) {
-		config.columns = JSON.parse(localStorage.getItem("page:rollups:config:columns"))
+		const savedConfig = JSON.parse(localStorage.getItem("page:rollups:config:columns"))
+		Object.keys(savedConfig).forEach(k => {
+			if (config.columns[k]) {
+				config.columns[k] = {
+					...config.columns[k],
+					show: savedConfig[k].show
+				}
+			}
+		})
 	}
 })
 </script>
@@ -458,12 +478,12 @@ onBeforeMount(() => {
 			<Breadcrumbs
 				:items="[
 					{ link: '/', name: 'Explore' },
-					{ link: '/rollups', name: 'Rollups Leaderboard' },
+					{ link: '/networks', name: 'Networks Leaderboard' },
 				]"
 			/>
 
 			<Button link="https://forms.gle/nimJyQJG4Lb4BTcG7" target="_blank" type="secondary" size="mini">
-				<Icon name="rollup-plus" size="12" color="secondary" /> Register rollup
+				<Icon name="rollup-plus" size="12" color="secondary" /> Register network
 			</Button>
 		</Flex>
 
@@ -471,7 +491,7 @@ onBeforeMount(() => {
 			<Flex justify="between" :class="$style.header">
 				<Flex align="center" gap="8">
 					<Icon name="rollup" size="16" color="secondary" />
-					<Text as="h1" size="14" weight="600" color="primary">Rollups Leaderboard</Text>
+					<Text as="h1" size="14" weight="600" color="primary">Networks Leaderboard</Text>
 				</Flex>
 
 				<!-- Pagination -->
@@ -495,7 +515,7 @@ onBeforeMount(() => {
 
 			<Flex align="center" justify="between" wrap="wrap" gap="8" :class="$style.settings">
 				<Flex wrap="wrap" align="center" gap="8">
-					<Popover v-for="p in Object.keys(popovers)" :open="popovers[p]" @on-close="onPopoverClose(p)" width="200">
+					<Popover v-for="p in Object.keys(popovers)" :open="popovers[p]" @on-close="onPopoverClose(p)" width="140">
 						<Button @click="handleOpenPopover(p)" type="secondary" size="mini">
 							<Icon
 								name="plus-circle"
@@ -503,9 +523,9 @@ onBeforeMount(() => {
 								:color="Object.keys(filters[p]).find((item) => filters[p][item]) ? 'brand' : 'tertiary'"
 							/>
 							<Text color="secondary">
-								{{ capitilize(keyMap[p])
-								}}<template v-if="Object.keys(filters[p]).find((item) => filters[p][item])">:</template></Text
-							>
+								{{ capitalizeAndReplace(keyMap[p], "_") }}
+								<template v-if="Object.keys(filters[p]).find((item) => filters[p][item])">:</template>
+							</Text>
 
 							<template v-if="Object.keys(filters[p]).find((item) => filters[p][item])">
 								<Text size="12" weight="600" color="primary">
@@ -531,7 +551,7 @@ onBeforeMount(() => {
 
 						<template #content>
 							<Flex direction="column" gap="12">
-								<Text size="12" weight="600" color="secondary"> {{ `Filter by ${capitilize(keyMap[p])}` }} </Text>
+								<Text size="12" weight="600" color="secondary"> {{ `Filter by ${p === 'activity_rank' ? 'Rank' : capitilize(keyMap[p])}` }} </Text>
 
 								<Flex direction="column" gap="8" :class="$style.filters_list">
 									<Checkbox v-for="item in Object.keys(filters[p])" v-model="filters[p][item]">
@@ -569,7 +589,7 @@ onBeforeMount(() => {
 
 							<Flex direction="column" gap="8">
 								<Checkbox :checked="true" :disabled="true">
-									<Text size="12" weight="500" color="primary">Rollup</Text>
+									<Text size="12" weight="500" color="primary">Network</Text>
 								</Checkbox>
 							</Flex>
 
@@ -593,7 +613,7 @@ onBeforeMount(() => {
 						<thead>
 							<tr>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>#</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Rollup</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Network</Text></th>
 								<th
 									v-for="column in Object.keys(config.columns).filter((c) => config.columns[c].show)"
 									@click="handleSort(config.columns[column].sortPath)"
@@ -622,14 +642,14 @@ onBeforeMount(() => {
 						<tbody>
 							<tr v-for="r in processedRollups">
 								<td>
-									<NuxtLink :to="`/rollup/${r?.slug}`">
+									<NuxtLink :to="`/network/${r?.slug}`">
 										<Flex align="center">
 											<Text size="13" weight="600" color="primary">{{ r.index }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td style="width: 1px">
-									<NuxtLink :to="`/rollup/${r?.slug}`">
+									<NuxtLink :to="`/network/${r?.slug}`">
 										<Flex align="center" gap="8">
 											<Flex v-if="r?.logo" align="center" :class="$style.avatar_wrapper">
 												<div :class="$style.avatar_container">
@@ -649,7 +669,7 @@ onBeforeMount(() => {
 									</NuxtLink>
 								</td>
 								<td v-if="config.columns.activity?.show">
-									<NuxtLink :to="`/rollup/${r?.slug}`">
+									<NuxtLink :to="`/network/${r?.slug}`">
 										<Flex justify="center" direction="column" gap="4">
 											<Text size="12" weight="600" :color="r?.rank_category?.color" mono>
 												{{ r?.rank_category?.name }}
@@ -666,14 +686,14 @@ onBeforeMount(() => {
 									</NuxtLink>
 								</td>
 								<td v-if="config.columns.da_change.show">
-									<NuxtLink :to="`/rollup/${r.slug}`">
+									<NuxtLink :to="`/network/${r.slug}`">
 										<Flex align="center">
 											<DiffChip :value="r.da_pct.toFixed(2)" tooltip="Difference between current and previous week" />
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td v-if="config.columns.size.show">
-									<NuxtLink :to="`/rollup/${r?.slug}`">
+									<NuxtLink :to="`/network/${r?.slug}`">
 										<Flex align="start" justify="center" direction="column" gap="4">
 											<Tooltip position="start" delay="400">
 												<Flex direction="column" gap="4">
@@ -698,7 +718,7 @@ onBeforeMount(() => {
 									</NuxtLink>
 								</td>
 								<td v-if="config.columns.blobs.show">
-									<NuxtLink :to="`/rollup/${r.slug}`">
+									<NuxtLink :to="`/network/${r.slug}`">
 										<Flex align="start" justify="center" direction="column" gap="4">
 											<Tooltip position="start" delay="400">
 												<Flex direction="column" gap="4">
@@ -723,7 +743,7 @@ onBeforeMount(() => {
 									</NuxtLink>
 								</td>
 								<td v-if="config.columns.blobs_fee_paid.show">
-									<NuxtLink :to="`/rollup/${r.slug}`">
+									<NuxtLink :to="`/network/${r.slug}`">
 										<Flex align="start" justify="center" direction="column" gap="4">
 											<AmountInCurrency :amount="{ value: r.fee }" />
 
@@ -746,28 +766,28 @@ onBeforeMount(() => {
 									</NuxtLink>
 								</td>
 								<td v-if="config.columns.paid_per_mb.show">
-									<NuxtLink :to="`/rollup/${r.slug}`">
+									<NuxtLink :to="`/network/${r.slug}`">
 										<Flex align="center">
 											<AmountInCurrency :amount="{ value: utiaPerMB(r) }" />
 										</Flex>
 									</NuxtLink>
 								</td>
-								<td v-if="config.columns.today_blobs.show">
-									<NuxtLink :to="`/rollup/${r?.slug}`">
+								<td v-if="config.columns.type.show">
+									<NuxtLink :to="`/network/${r.slug}`">
 										<Flex align="center">
-											<Text size="13" weight="600" color="primary">{{ comma(r?.stats?.day_blobs_count) }}</Text>
+											<Text size="13" weight="600" color="primary"> {{ capitilize(r.type) }} </Text>
 										</Flex>
 									</NuxtLink>
 								</td>
-								<td v-if="config.columns.avg_pfb_size.show">
-									<NuxtLink :to="`/rollup/${r?.slug}`">
+								<td v-if="config.columns.provider.show">
+									<NuxtLink :to="`/network/${r.slug}`">
 										<Flex align="center">
-											<Text size="13" weight="600" color="primary">{{ formatBytes(r?.stats?.avg_pfb_size) }}</Text>
+											<Text size="13" weight="600" color="primary"> {{ capitilize(r.provider) }} </Text>
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td v-if="config.columns.latest_activity.show">
-									<NuxtLink :to="`/rollup/${r?.slug}`">
+									<NuxtLink :to="`/network/${r?.slug}`">
 										<Flex align="center" gap="4">
 											<Icon
 												name="clock-forward-2"
@@ -787,15 +807,15 @@ onBeforeMount(() => {
 
 				<Flex v-else-if="isRefetching" align="center" justify="center" gap="8" wide :class="$style.empty">
 					<Spinner size="14" />
-					<Text size="13" weight="500" color="secondary"> Loading rollups.. </Text>
+					<Text size="13" weight="500" color="secondary"> Loading networks.. </Text>
 				</Flex>
 
 				<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
-					<Text size="13" weight="600" color="secondary" align="center"> No rollups found </Text>
+					<Text size="13" weight="600" color="secondary" align="center"> No networks found </Text>
 					<Text size="12" weight="500" height="160" color="tertiary" align="center">
-						This network does not contain any
+						This Celestia network does not contain any
 						<Text v-if="!showInactive" weight="600">active</Text>
-						rollups
+						networks
 					</Text>
 				</Flex>
 			</Flex>

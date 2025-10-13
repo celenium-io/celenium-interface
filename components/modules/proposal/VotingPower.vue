@@ -133,14 +133,14 @@ const isQuorumReached = computed(() => {
 				<Text size="12" weight="600" :color="proposal[vote] ? 'secondary' : 'tertiary'">
 					<template
 						v-if="
-							(Number(proposal[`${vote}_voting_power`]) * 100) / (Number(proposal.voting_power) * 2) > 0 &&
-							(Number(proposal[`${vote}_voting_power`]) * 100) / (Number(proposal.voting_power) * 2) < 1
+							(Number(proposal[`${vote}_voting_power`]) * 100) / (Number(proposal.voting_power)) > 0 &&
+							(Number(proposal[`${vote}_voting_power`]) * 100) / (Number(proposal.voting_power)) < 1
 						"
 					>
 						<Text color="tertiary">< 1%</Text>
 					</template>
 					<template v-else>
-						{{ ((Number(proposal[`${vote}_voting_power`]) * 100) / (Number(proposal.voting_power) * 2)).toFixed(0) }}%
+						{{ ((Number(proposal[`${vote}_voting_power`]) * 100) / (Number(proposal.voting_power))).toFixed(0) }}%
 					</template>
 				</Text>
 			</Flex>

@@ -3,6 +3,9 @@
 import TxOverview from "@/components/modules/tx/TxOverview.vue"
 import BlobsTable from "@/components/modules/block/BlobsTable.vue"
 
+/** Services */
+import { isValidId } from "@/services/utils"
+
 /** API */
 import { fetchTxByHash } from "@/services/api/tx"
 
@@ -11,15 +14,19 @@ import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const route = useRoute()
-const router = useRouter()
 
 const tx = ref()
-const { data: rawTx } = await fetchTxByHash(route.params.hash)
-if (!rawTx.value) {
-	router.push("/")
+const hash = route.params.hash.startsWith("0x") ? route.params.hash.slice(2) : route.params.hash
+if (isValidId(hash, "tx")) {
+	const { data: rawTx } = await fetchTxByHash(hash)
+	if (!rawTx.value) {
+		throw createError({ statusCode: 404, statusMessage: `Transaction ${route.params.hash} not found` })
+	} else {
+		tx.value = rawTx.value
+		cacheStore.current.transaction = tx.value
+	}
 } else {
-	tx.value = rawTx.value
-	cacheStore.current.transaction = tx.value
+	throw createError({ statusCode: 404, statusMessage: `Transaction ${route.params.hash} not found` })
 }
 
 defineOgImageComponent("TxImage", {

@@ -17,29 +17,29 @@ import { useEnumStore } from "@/store/enums.store"
 const enumStore = useEnumStore()
 
 useHead({
-	title: "Rollups - Celestia Explorer",
+	title: "Networks - Celestia Explorer",
 	link: [
 		{
 			rel: "canonical",
-			href: "https://celenium.io/rollups",
+			href: "https://celenium.io/networks",
 		},
 	],
 	meta: [
 		{
 			name: "description",
-			content: "Rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
+			content: "Networks in the Celestia Blockchain. Network name, description, size, blobs, social links, contacts are shown.",
 		},
 		{
 			property: "og:title",
-			content: "Rollups Leaderboard - Celestia Explorer",
+			content: "Networks Leaderboard - Celestia Explorer",
 		},
 		{
 			property: "og:description",
-			content: "Rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
+			content: "Networks in the Celestia Blockchain. Network name, description, size, blobs, social links, contacts are shown.",
 		},
 		{
 			property: "og:url",
-			content: `https://celenium.io/rollups`,
+			content: `https://celenium.io/networks`,
 		},
 		{
 			property: "og:image",
@@ -47,11 +47,11 @@ useHead({
 		},
 		{
 			name: "twitter:title",
-			content: "Rollups Leaderboard - Celestia Explorer",
+			content: "Networks Leaderboard - Celestia Explorer",
 		},
 		{
 			name: "twitter:description",
-			content: "Rollups in the Celestia Blockchain. Rollup name, description, size, blobs, social links, contacts are shown.",
+			content: "Networks in the Celestia Blockchain. Network name, description, size, blobs, social links, contacts are shown.",
 		},
 		{
 			name: "twitter:card",
@@ -546,7 +546,7 @@ watch(
 				</Flex>
 
 				<Flex align="center" justify="end" wide>
-					<NuxtLink :to="`/rollup/${r.slug}`" target="_blank">
+					<NuxtLink :to="`/network/${r.slug}`" target="_blank">
 						<Flex align="center" gap="4">
 							<Text size="11" color="tertiary">View Details</Text>
 							<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
@@ -557,9 +557,9 @@ watch(
 		</Flex>
 
 		<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
-			<Text size="13" weight="600" color="secondary" align="center"> No rollups found </Text>
+			<Text size="13" weight="600" color="secondary" align="center"> No networks found </Text>
 			<Text size="12" weight="500" height="160" color="tertiary" align="center">
-				{{ `There are no ${page > 1 ? "more" : ""} rollups to display` }}
+				{{ `There are no ${page > 1 ? "more" : ""} networks to display` }}
 			</Text>
 		</Flex>
 	</Flex>

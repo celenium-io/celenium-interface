@@ -136,6 +136,23 @@ export const fetchRollupTVL = async ({ dataSource, slug, period, from, to }) => 
 	}
 }
 
+export const fetchRollupUops = async ({ dataSource, slug, period, from, to }) => {
+	if (!tvlServiceURL()) return []
+
+	try {
+		const url = new URL(`${tvlServiceURL()}/uops/${dataSource}/${slug}/${period}`)
+
+		if (from) url.searchParams.append("from", from)
+		if (to) url.searchParams.append("to", to)
+
+		const data = await $fetch(url.href)
+		
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchRollupOrgBySlug = async (slug) => {
 	if (!githubServiceURL()) return {}
 

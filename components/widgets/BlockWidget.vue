@@ -3,7 +3,7 @@
 import { DateTime } from "luxon"
 
 /** Services */
-import { comma } from "@/services/utils"
+import { comma, roundTo } from "@/services/utils"
 
 /** UI */
 import Tooltip from "@/components/ui/Tooltip.vue"
@@ -122,7 +122,7 @@ onBeforeUnmount(() => {
 
 			<Tooltip>
 				<Flex direction="column" gap="12" align="end" justify="end">
-					<Text v-if="lastBlock" size="14" weight="600" color="primary"> ~{{ Math.ceil(avgBlockTime) }}s </Text>
+					<Text v-if="lastBlock" size="14" weight="600" color="primary"> ~{{ roundTo(avgBlockTime) }}s </Text>
 					<Skeleton v-else w="32" h="14" />
 
 					<Flex align="center" gap="4">

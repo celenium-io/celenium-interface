@@ -4,7 +4,7 @@ import NamespaceOverview from "@/components/modules/namespace/NamespaceOverview.
 import NamespaceCharts from "@/components/modules/namespace/NamespaceCharts.vue"
 
 /** Services */
-import { getNamespaceID } from "@/services/utils"
+import { getNamespaceID, isValidId } from "@/services/utils"
 
 /** API */
 import { fetchNamespaceByID } from "@/services/api/namespace"
@@ -14,16 +14,20 @@ import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const route = useRoute()
-const router = useRouter()
 
 const namespace = ref()
-const { data: rawNamespace } = await fetchNamespaceByID(route.params.id)
 
-if (!rawNamespace.value) {
-	router.push("/")
+if (isValidId(route.params.id, "namespace")) {
+	const { data: rawNamespace } = await fetchNamespaceByID(route.params.id)
+
+	if (!rawNamespace.value) {
+		throw createError({ statusCode: 404, statusMessage: `Namespace ${route.params.id} not found` })
+	} else {
+		namespace.value = rawNamespace.value[0]
+		cacheStore.current.namespace = namespace.value
+	}
 } else {
-	namespace.value = rawNamespace.value[0]
-	cacheStore.current.namespace = namespace.value
+	throw createError({ statusCode: 404, statusMessage: `Namespace ${route.params.id} not found` })
 }
 
 defineOgImageComponent("NamespaceImage", {

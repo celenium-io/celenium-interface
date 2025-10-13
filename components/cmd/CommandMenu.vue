@@ -232,10 +232,10 @@ const rawNavigationActions = [
 	{
 		type: "callback",
 		icon: "arrow-narrow-right",
-		title: "Go to Rollups",
-		runText: "Open Rollups",
+		title: "Go to Networks",
+		runText: "Open Networks",
 		callback: () => {
-			router.push("/rollups")
+			router.push("/networks")
 		},
 	},
 	{
@@ -970,7 +970,7 @@ const searchAction = {
 				break
 
 			case "rollup":
-				router.push(`/rollup/${data.value[0].result.slug}`)
+				router.push(`/network/${data.value[0].result.slug}`)
 				break
 
 			case "validator":
@@ -1037,7 +1037,7 @@ const debouncedSearch = useDebounceFn(async (e) => {
 
 			case "rollup":
 				title = data.value[i].result.name
-				routerLink = `/rollup/${data.value[i].result.slug}`
+				routerLink = `/network/${data.value[i].result.slug}`
 				break
 
 			case "validator":
@@ -1425,7 +1425,7 @@ const runBounce = () => {
 						<input
 							v-model="searchTerm"
 							ref="inputEl"
-							:placeholder="placeholder || 'Find blocks, validators, namespaces, rollups, transactions or quick actions...'"
+							:placeholder="placeholder || 'Find blocks, validators, namespaces, networks, transactions or quick actions...'"
 							tabindex="1"
 							autocomplete="off"
 							autocorrect="off"

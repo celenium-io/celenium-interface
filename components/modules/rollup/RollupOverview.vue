@@ -186,10 +186,15 @@ onMounted(async () => {
 
 	if (showRanking.value) {
 		const data = await fetchRollupRankingBySlug(props.rollup?.slug)
-		if (data.slug) {
+		if (data?.slug) {
 			rollupRanking.value = {
 				category: getRankCategory(roundTo(data.rank / 10, 0)),
 				rank: +data.rank,
+			}
+		} else {
+			rollupRanking.value = {
+				category: getRankCategory(0, 0),
+				rank: 0,
 			}
 		}
 	}
@@ -298,12 +303,12 @@ const handleCSVDownload = async (value) => {
 				<Icon name="rollup" size="14" color="primary" />
 
 				<Text as="h1" size="13" weight="600" color="primary">
-					Rollup <Text color="secondary">{{ rollup.name }}</Text>
+					Network <Text color="secondary">{{ rollup.name }}</Text>
 				</Text>
 			</Flex>
 
 			<Flex align="center" gap="12">
-				<Button v-if="showRanking" :link="`/rollup/rank/${rollup.slug}`" type="secondary" size="mini">
+				<Button v-if="showRanking && rollupRanking?.rank" :link="`/network/rank/${rollup.slug}`" type="secondary" size="mini">
 					<Icon name="laurel" size="12" color="secondary" />
 
 					<Text>Activity Rank</Text>
@@ -315,7 +320,7 @@ const handleCSVDownload = async (value) => {
 					<Text>Blobstream</Text>
 				</Button>
 
-				<Button link="/stats?tab=rollups&section=daily_stats" type="secondary" size="mini">
+				<Button link="/stats?tab=networks&section=daily_stats" type="secondary" size="mini">
 					<Icon name="line-chart" size="12" color="secondary" />
 
 					<Text>Daily Stats</Text>
@@ -418,14 +423,14 @@ const handleCSVDownload = async (value) => {
 						<img
 							v-if="showBadges.settled"
 							:src="`/img/badges/settled/${rollup.settled_on.toLowerCase()}.png`"
-							alt="Rollup badge"
+							alt="Network badge"
 							:class="$style.badge"
 						/>
 
 						<img
 							v-if="showBadges.provider"
 							:src="`/img/badges/provider/${rollup.provider.toLowerCase()}.png`"
-							alt="Rollup badge"
+							alt="Network badge"
 							:class="$style.badge"
 						/>
 					</Flex>
@@ -637,7 +642,7 @@ const handleCSVDownload = async (value) => {
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 							<Text size="13" weight="600" color="secondary" align="center"> No blobs </Text>
 							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-								This rollup did not push any blob
+								This network did not push any blob
 							</Text>
 						</Flex>
 
@@ -669,7 +674,7 @@ const handleCSVDownload = async (value) => {
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 							<Text size="13" weight="600" color="secondary" align="center"> No namespaces </Text>
 							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-								This rollup is not linked to any namespace
+								This network is not linked to any namespace
 							</Text>
 						</Flex>
 

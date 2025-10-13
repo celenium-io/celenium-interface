@@ -116,8 +116,8 @@ const handleChangeTheme = (target) => {
 
 						<Flex direction="column" gap="12">
 							<Text size="13" weight="500" color="tertiary">Modular</Text>
-							<NuxtLink to="/rollups">
-								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Rollups</Text>
+							<NuxtLink to="/networks">
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Networks</Text>
 							</NuxtLink>
 							<NuxtLink to="/namespaces">
 								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Namespaces</Text>

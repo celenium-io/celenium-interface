@@ -1,43 +1,21 @@
 <script setup>
 /** Services */
-import { comma, abbreviate } from "@/services/utils"
+import { abbreviate } from "@/services/utils"
 import { IbcChainName, IbcChainLogo } from "@/services/constants/ibc"
-
-/** UI */
-import Button from "@/components/ui/Button.vue"
 
 /** Shared Components */
 import TablePlaceholderView from "@/components/shared/TablePlaceholderView.vue"
 
-const emit = defineEmits(["onPrevPage", "onNextPage", "updatePage"])
 const props = defineProps({
 	chains: {
 		type: Array,
 		default: [],
-	},
-	page: {
-		type: Number,
-		default: 1,
 	},
 	isLoading: {
 		type: Boolean,
 		default: false,
 	},
 })
-
-/** Pagination */
-const handlePrevPage = () => {
-	if (props.page === 1) return
-	emit("onPrevPage")
-}
-
-const isNextPageDisabled = computed(() => {
-	return !props.chains.length || props.chains.length !== 10
-})
-const handleNextPage = () => {
-	if (isNextPageDisabled.value) return
-	emit("onNextPage")
-}
 </script>
 
 <template>
@@ -123,31 +101,11 @@ const handleNextPage = () => {
 			:descriptionWidth="260"
 			style="height: 100%"
 		/>
-
-		<!-- Pagination -->
-		<Flex align="center" gap="6" :class="$style.pagination">
-			<Button @click="emit('updatePage', 1)" type="secondary" size="mini" :disabled="page === 1">
-				<Icon name="arrow-left-stop" size="12" color="primary" />
-			</Button>
-			<Button type="secondary" @click="handlePrevPage" size="mini" :disabled="page === 1">
-				<Icon name="arrow-left" size="12" color="primary" />
-			</Button>
-
-			<Button type="secondary" size="mini" disabled>
-				<Text size="12" weight="600" color="primary"> Page {{ comma(page) }} </Text>
-			</Button>
-
-			<Button @click="handleNextPage" type="secondary" size="mini" :disabled="isNextPageDisabled">
-				<Icon name="arrow-right" size="12" color="primary" />
-			</Button>
-		</Flex>
 	</Flex>
 </template>
 
 <style module>
 .wrapper {
-	height: 100%;
-
 	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
 
@@ -220,7 +178,7 @@ const handleNextPage = () => {
 }
 
 .pagination {
-	padding: 8px 16px 16px 16px;
+	padding: 10px 16px 10px 16px;
 }
 
 @media (max-width: 800px) {

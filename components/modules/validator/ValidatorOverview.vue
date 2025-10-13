@@ -8,12 +8,14 @@ import AmountInCurrency from "@/components/AmountInCurrency.vue"
 import BlocksTable from "./tables/BlocksTable.vue"
 import DelegatorsTable from "./tables/DelegatorsTable.vue"
 import JailsTable from "./tables/JailsTable.vue"
+import VotesTable from "./tables/VotesTable.vue"
 
 /** Services */
 import { comma, numToPercent, shortHex, splitAddress } from "@/services/utils"
 
 /** API */
 import { fetchValidatorBlocks, fetchValidatorDelegators, fetchValidatorJails, fetchValidatorUptime } from "@/services/api/validator"
+import { fetchVotesByAddressHash } from "@/services/api/address"
 
 /** Store */
 import { useCacheStore } from "@/store/cache.store"
@@ -44,6 +46,10 @@ const tabs = ref([
 		name: "Jails",
 		icon: "grid",
 	},
+	{
+		name: "Votes",
+		icon: "check-circle",
+	},
 ])
 const preselectedTab = route.query.tab && tabs.value.map((tab) => tab.name).includes(route.query.tab) ? route.query.tab : tabs.value[0].name
 const activeTab = ref(preselectedTab)
@@ -52,9 +58,11 @@ const isRefetching = ref(false)
 const delegators = ref([])
 const blocks = ref([])
 const jails = ref([])
+const votes = ref([])
 const uptime = ref([])
 
 const page = ref(1)
+const limit = 10
 const handleNextCondition = ref(true)
 
 const handleNext = () => {
@@ -69,14 +77,14 @@ const getBlocks = async () => {
 
 	const { data } = await fetchValidatorBlocks({
 		id: props.validator.id,
-		limit: 10,
-		offset: (page.value - 1) * 10,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 	})
 
 	if (data.value?.length) {
 		blocks.value = data.value
 		cacheStore.current.blocks = blocks.value
-		handleNextCondition.value = blocks.value.length < 10
+		handleNextCondition.value = blocks.value?.length < limit
 	}
 
 	isRefetching.value = false
@@ -87,12 +95,12 @@ const getDelegators = async () => {
 
 	const { data } = await fetchValidatorDelegators({
 		id: props.validator.id,
-		limit: 10,
-		offset: (page.value - 1) * 10,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 	})
 
 	delegators.value = data.value
-	handleNextCondition.value = delegators.value.length < 10
+	handleNextCondition.value = delegators.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -102,12 +110,27 @@ const getJails = async () => {
 
 	const { data } = await fetchValidatorJails({
 		id: props.validator.id,
-		limit: 10,
-		offset: (page.value - 1) * 10,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 	})
 
 	jails.value = data.value
-	handleNextCondition.value = jails.value.length < 10
+	handleNextCondition.value = jails.value?.length < limit
+
+	isRefetching.value = false
+}
+
+const getVotes = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchVotesByAddressHash({
+		hash: props.validator.delegator?.hash,
+		limit: limit,
+		offset: (page.value - 1) * limit,
+	})
+
+	votes.value = data.value
+	handleNextCondition.value = votes.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -127,6 +150,7 @@ const getUptime = async () => {
 if (activeTab.value === "Delegators") await getDelegators()
 if (activeTab.value === "Proposed Blocks") await getBlocks()
 if (activeTab.value === "Jails") await getJails()
+if (activeTab.value === "Votes") await getVotes()
 
 await getUptime()
 
@@ -146,15 +170,15 @@ const validatorStatus = computed(() => {
 	}
 
 	if (!props.validator.jailed) {
-		if (uptime.value?.slice(-1)[0].signed) {
-			res.name = "Active"
-			res.color = "var(--validator-active)"
-			res.description = "This validator is in the active set and can|propose or sign blocks and receive rewards".split("|")
-		} else {
-			res.name = "Inactive"
-			res.color = "var(--validator-inactive)"
-			res.description = "This validator is not in the active set and cannot|propose or sign blocks and earn rewards".split("|")
-		}
+		// if (uptime.value?.slice(-1)[0].signed) {
+		// 	res.name = "Active"
+		// 	res.color = "var(--validator-active)"
+		// 	res.description = "This validator is in the active set and can|propose or sign blocks and receive rewards".split("|")
+		// } else {
+		// 	res.name = "Inactive"
+		// 	res.color = "var(--validator-inactive)"
+		// 	res.description = "This validator is not in the active set and cannot|propose or sign blocks and earn rewards".split("|")
+		// }
 	} else {
 		res.name = "Jailed"
 		res.color = "var(--validator-jailed)"
@@ -207,6 +231,9 @@ watch(
 			case "Jails":
 				getJails()
 				break
+			case "Votes":
+				getVotes()
+				break
 		}
 	},
 )
@@ -231,6 +258,9 @@ watch(
 				break
 			case "Jails":
 				getJails()
+				break
+			case "Votes":
+				getVotes()
 				break
 		}
 	},
@@ -267,7 +297,7 @@ const handleDelegate = () => {
 							<Text v-if="validator.moniker" size="13" weight="600" color="primary">{{ validator.moniker }} </Text>
 							<Text v-else size="13" weight="600" color="primary">Validator</Text>
 
-							<Tooltip position="start" textAlign="left" delay="200">
+							<Tooltip v-if="validatorStatus.name" position="start" textAlign="left" delay="200">
 								<Text size="13" weight="600" :style="{ color: validatorStatus.color }"> {{ validatorStatus.name }} </Text>
 
 								<template #content>
@@ -402,7 +432,7 @@ const handleDelegate = () => {
 						</Flex>
 
 						<Flex :class="$style.uptime_wrapper">
-							<Tooltip v-for="t in uptime">
+							<Tooltip v-for="t in uptime" @click="navigateTo(`/block/${t.height}`)">
 								<Flex
 									:class="$style.uptime"
 									:style="{
@@ -472,6 +502,17 @@ const handleDelegate = () => {
 						</Flex>
 					</template>
 
+					<template v-if="activeTab === 'Votes'">
+						<VotesTable v-if="votes.length" :votes="votes" />
+
+						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+							<Text size="13" weight="600" color="secondary" align="center"> No votes </Text>
+							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+								No {{ page === 1 ? "" : "more" }} votes from this address on any proposals
+							</Text>
+						</Flex>
+					</template>
+
 					<!-- Pagination -->
 					<Flex align="center" gap="6" :class="$style.pagination">
 						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
@@ -531,8 +572,6 @@ const handleDelegate = () => {
 	}
 
 	.uptime {
-		/* width: 10px;
-		height: 10px; */
 		width: 0.6rem;
 		height: 0.6rem;
 

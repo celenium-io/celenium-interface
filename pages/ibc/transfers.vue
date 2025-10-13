@@ -5,6 +5,12 @@ import TransfersTable from "@/components/modules/ibc/TransfersTable.vue"
 /** API */
 import { fetchIbcTransfers } from "@/services/api/ibc"
 
+/** UI */
+import Button from "@/components/ui/Button.vue"
+
+/** Utils */
+import { comma } from "@/services/utils"
+
 useHead({
 	title: `Celestia IBC Transfers - Celenium`,
 	link: [
@@ -58,7 +64,12 @@ const isLoading = ref(true)
 
 /** Pagination */
 const page = ref(1)
+const limit = 20
+const isNextPageDisabled = computed(() => {
+	return !transfers.value.length || transfers.value.length !== limit
+})
 const handleNext = () => {
+	if (isNextPageDisabled.value) return
 	page.value += 1
 }
 const handlePrev = () => {
@@ -71,8 +82,8 @@ const getTransfers = async () => {
 
 	const { data } = await useAsyncData(`ibc-transfers-${page.value}`, () =>
 		fetchIbcTransfers({
-			offset: (page.value - 1) * 10,
-			limit: 10,
+			offset: (page.value - 1) * limit,
+			limit: limit,
 		}),
 	)
 	transfers.value = data.value
@@ -87,12 +98,16 @@ await getTransfers()
 watch(
 	() => page.value,
 	async () => {
+		isLoading.value = true
+
 		const data = await fetchIbcTransfers({
-			offset: (page.value - 1) * 10,
-			limit: 10,
+			offset: (page.value - 1) * limit,
+			limit: limit,
 		})
 		transfers.value = data
 		transfers.value.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+
+		isLoading.value = false
 	},
 )
 </script>
@@ -114,17 +129,49 @@ watch(
 					<Icon name="arrow-narrow-up-right-circle" size="16" color="secondary" />
 					<Text size="13" weight="600" color="primary">IBC Transfers</Text>
 				</Flex>
+
+				<!-- Pagination -->
+				<Flex align="center" gap="6">
+					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
+						<Icon name="arrow-left-stop" size="12" color="primary" />
+					</Button>
+					<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
+						<Icon name="arrow-left" size="12" color="primary" />
+					</Button>
+
+					<Button type="secondary" size="mini" disabled>
+						<Text size="12" weight="600" color="primary"> Page {{ comma(page) }} </Text>
+					</Button>
+
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="isNextPageDisabled">
+						<Icon name="arrow-right" size="12" color="primary" />
+					</Button>
+				</Flex>
 			</Flex>
 
 			<TransfersTable
 				:transfers
-				:page
 				:isLoading="isLoading"
 				@onRefetch="getTransfers"
-				@onPrevPage="handlePrev"
-				@onNextPage="handleNext"
-				@updatePage="(newPage) => (page = newPage)"
 			/>
+
+			<!-- Pagination -->
+			<Flex align="center" justify="end" gap="6" :class="$style.footer">
+				<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
+					<Icon name="arrow-left-stop" size="12" color="primary" />
+				</Button>
+				<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
+					<Icon name="arrow-left" size="12" color="primary" />
+				</Button>
+
+				<Button type="secondary" size="mini" disabled>
+					<Text size="12" weight="600" color="primary"> Page {{ comma(page) }} </Text>
+				</Button>
+
+				<Button @click="handleNext" type="secondary" size="mini" :disabled="isNextPageDisabled">
+					<Icon name="arrow-right" size="12" color="primary" />
+				</Button>
+			</Flex>
 		</Flex>
 	</Flex>
 </template>
@@ -139,12 +186,21 @@ watch(
 }
 
 .header {
-	height: 40px;
+	height: 46px;
 
 	border-radius: 8px 8px 4px 4px;
 	background: var(--card-background);
 
-	padding: 0 12px;
+	padding: 0 16px;
+}
+
+.footer {
+	height: 46px;
+
+	border-radius: 4px 4px 8px 8px;
+	background: var(--card-background);
+
+	padding: 0 16px;
 }
 
 @media (max-width: 500px) {

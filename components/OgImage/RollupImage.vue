@@ -30,7 +30,7 @@ const bgStyles = computed(() => {
 
 		<div :style="{ height: '100%', display: 'flex', flexDirection: 'column', gap: '80px' }">
 			<div :style="{ display: 'flex', alignItems: 'center' }">
-				<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.9)' }">rollup</span>
+				<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.9)' }">network</span>
 				<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.3)' }">('</span>
 				<span :style="{ fontSize: '50px', color: '#FF8351' }">
 					{{ rollup.name }}

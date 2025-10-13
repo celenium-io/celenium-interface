@@ -2,9 +2,7 @@
 /** Vendor */
 import { useDebounceFn } from "@vueuse/core"
 
-/**
- * Composable
- */
+/** Composable */
 import { useOutside } from "@/composables/outside"
 
 /** UI */
@@ -13,8 +11,7 @@ import Spinner from "@/components/ui/Spinner.vue"
 /** API */
 import { search } from "@/services/api/search"
 
-/** Services */
-import { shortHex } from "@/services/utils"
+const router = useRouter()
 
 const wrapperEl = ref()
 const inputRef = ref()
@@ -28,19 +25,61 @@ const handleClick = () => {
 	inputRef.value.focus()
 }
 
-onMounted(() => {
-	document.addEventListener("keydown", (e) => {
-		if (e.code === "Escape") {
-			show.value = false
-		}
-		if (e.ctrlKey && e.code === "Slash" && !show.value) {
-			e.preventDefault()
-			show.value = true
-			inputRef.value.focus()
-		}
-	})
-})
+const onKeydown = (e) => {
+	if (e.ctrlKey && e.code === "Slash" && !show.value) {
+		e.preventDefault()
+		show.value = true
+		inputRef.value.focus()
+		return
+	}
 
+	if (!show.value) return
+
+	if (e.code === "Escape") {
+		show.value = false
+	}
+
+	if (!results.value.length) return
+
+	if (["ArrowDown", "ArrowUp", "PageUp", "PageDown"].includes(e.key)) {
+		e.preventDefault()
+
+		const items = results.value
+		let idx = items.findIndex(item => item.selected)
+
+		if (idx === -1) {
+			idx = 0
+			items[idx].selected = true
+			return
+		}
+
+		let new_idx
+		if (e.key === "ArrowDown" || e.key === "PageDown") {
+			new_idx = (idx + 1) % items.length
+		} else if (e.key === "ArrowUp" || e.key === "PageUp") {
+			new_idx = (idx - 1 + items.length) % items.length
+		}
+
+		items[idx].selected = false
+		items[new_idx].selected = true
+	}
+
+	if (e.key === "Enter") {
+		const activeItem = results.value.find(item => item.selected)
+		if (activeItem) {
+			router.push(activeItem.routerLink)
+			handleSelect()
+			inputRef.value.blur()
+		}
+	}
+}
+
+onMounted(() => {
+	document.addEventListener("keydown", onKeydown)
+})
+onBeforeUnmount(() => {
+	document.removeEventListener("keydown", onKeydown)
+})
 let removeOutside
 watch(
 	() => show.value,
@@ -61,7 +100,7 @@ const debouncedSearch = useDebounceFn(async () => {
 
 	const { data } = await search(searchTerm.value.trim())
 	if (data.value?.length) {
-		results.value = data.value.map(res => {
+		results.value = data.value.map((res, i) => {
 			const metadata = getResultMetadata(res)
 			return {
 				...res,
@@ -69,6 +108,7 @@ const debouncedSearch = useDebounceFn(async () => {
 				title: metadata.title,
 				subtitle: metadata.subtitle,
 				routerLink: metadata.routerLink,
+				selected: i === 0,
 			}
 		})
 	} else {
@@ -115,7 +155,7 @@ const getResultMetadata = (target) => {
 		case "rollup":
 			metadata.type = target.type
 			metadata.title = target.result.name
-			metadata.routerLink = `/rollup/${target.result.slug}`
+			metadata.routerLink = `/network/${target.result.slug}`
 			break
 
 		case "validator":
@@ -169,7 +209,7 @@ const handleSelect = () => {
 
 					<Flex direction="column">
 						<NuxtLink v-for="result in results" :to="result.routerLink">
-							<Flex align="center" justify="between" gap="4" :class="$style.item">
+							<Flex align="center" justify="between" gap="4" :class="[$style.item, result.selected && $style.item_selected]">
 								<Flex align="center" gap="8" :class="$style.title_wrapper">
 									<Icon :name="result.type" size="12" color="tertiary" />
 									<Text size="13" weight="600" color="primary" :class="$style.title">{{ result.title }}</Text>
@@ -267,6 +307,10 @@ const handleSelect = () => {
 			white-space: nowrap;
 		}
 	}
+}
+
+.item_selected {
+	background: var(--op-5);
 }
 
 @media (max-width: 800px) {

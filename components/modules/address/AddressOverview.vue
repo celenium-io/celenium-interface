@@ -147,6 +147,7 @@ const handleSelect = (tab) => {
 
 /** Pagination */
 const page = ref(1)
+const limit = 10
 const handleNextCondition = ref(true)
 const handleNext = () => {
 	page.value += 1
@@ -332,8 +333,8 @@ const getTransactions = async () => {
 
 	const { data } = await fetchTxsByAddressHash({
 		hash: props.address.hash,
-		limit: 10,
-		offset: (page.value - 1) * 10,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 		sort: sort.dir,
 		sort_by: sort.by,
 		status:
@@ -350,7 +351,7 @@ const getTransactions = async () => {
 
 	transactions.value = data.value
 	cacheStore.current.transactions = transactions.value
-	handleNextCondition.value = transactions.value.length < 10
+	handleNextCondition.value = transactions.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -360,14 +361,14 @@ const getMessages = async () => {
 
 	const { data } = await fetchMessagesByAddressHash({
 		hash: props.address.hash,
-		limit: 10,
-		offset: (page.value - 1) * 10,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 		sort: "desc",
 	})
 
 	messages.value = data.value
 	cacheStore.current.messages = messages.value
-	handleNextCondition.value = messages.value.length < 10
+	handleNextCondition.value = messages.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -377,15 +378,15 @@ const getBlobs = async () => {
 
 	const { data } = await fetchBlobsByAddressHash({
 		hash: props.address.hash,
-		limit: 10,
-		offset: (page.value - 1) * 10,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 		sort: "desc",
 	})
 
 	if (data.value?.length) {
 		blobs.value = data.value.map((b) => ({ ...b, signer: props.address }))
 	}
-	handleNextCondition.value = data.value.length < 10
+	handleNextCondition.value = data.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -420,14 +421,14 @@ const getDelegations = async () => {
 
 	const { data } = await fetchAddressDelegations({
 		hash: props.address.hash,
-		limit: 10,
-		offset: (page.value - 1) * 10,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 	})
 
 	if (data.value?.length) {
 		delegations.value = data.value
 	}
-	handleNextCondition.value = data.value.length < 10
+	handleNextCondition.value = data.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -437,14 +438,14 @@ const getRedelegations = async () => {
 
 	const { data } = await fetchAddressRedelegations({
 		hash: props.address.hash,
-		limit: 10,
-		offset: (page.value - 1) * 10,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 	})
 
 	if (data.value?.length) {
 		redelegations.value = data.value
 	}
-	handleNextCondition.value = data.value.length < 10
+	handleNextCondition.value = data.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -454,14 +455,14 @@ const getUndelegations = async () => {
 
 	const { data } = await fetchAddressUndelegations({
 		hash: props.address.hash,
-		limit: 10,
-		offset: (page.value - 1) * 10,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 	})
 
 	if (data.value?.length) {
 		undelegations.value = data.value
 	}
-	handleNextCondition.value = data.value.length < 10
+	handleNextCondition.value = data.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -475,14 +476,14 @@ const getGrants = async () => {
 
 	const { data } = await fetchAddressGrants({
 		hash: props.address.hash,
-		limit: 10,
-		offset: (page.value - 1) * 10,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 	})
 
 	if (data.value?.length) {
 		grants.value = data.value
 	}
-	handleNextCondition.value = data.value.length < 10
+	handleNextCondition.value = data.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -492,14 +493,14 @@ const getGranters = async () => {
 
 	const { data } = await fetchAddressGranters({
 		hash: props.address.hash,
-		limit: 10,
-		offset: (page.value - 1) * 10,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 	})
 
 	if (data.value?.length) {
 		granters.value = data.value
 	}
-	handleNextCondition.value = data.value.length < 10
+	handleNextCondition.value = data.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -513,13 +514,13 @@ const getVestings = async () => {
 	const { data } = await fetchAddressVestings({
 		hash: props.address.hash,
 		showEnded: showEnded.value,
-		limit: 10,
-		offset: (page.value - 1) * 10,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 	})
 
 	vestings.value = data.value
 
-	handleNextCondition.value = data.value.length < 10
+	handleNextCondition.value = data.value?.length < limit
 
 	isRefetching.value = false
 }

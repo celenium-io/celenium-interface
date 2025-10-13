@@ -213,19 +213,19 @@ const brushed = ({ selection, sourceEvent }) => {
 			fixedX1Index = Math.floor(currentX / xBand.step())
 			fixedX0Index = Math.floor(currentX / xBand.step())
 
-			fixedX0 = xBand(new Date(currentData[fixedX0Index].time).toISOString()) - padding
-			fixedX1 = xBand(new Date(currentData[currentIndex].time).toISOString()) - padding + xBand.step()
+			fixedX0 = xBand(new Date(currentData[fixedX0Index]?.time).toISOString()) - padding
+			fixedX1 = xBand(new Date(currentData[currentIndex]?.time).toISOString()) - padding + xBand.step()
 		}
 
 		if (fixedX0Index - currentIndex > 0) {
-			fixedX0 = xBand(new Date(currentData[currentIndex].time).toISOString()) - padding
+			fixedX0 = xBand(new Date(currentData[currentIndex]?.time).toISOString()) - padding
 			setStartEndFromIndex(currentData, currentIndex, fixedX1Index)
 		} else if (fixedX0Index - currentIndex < 0) {
-			fixedX1 = xBand(new Date(currentData[currentIndex].time).toISOString()) - padding + xBand.step()
+			fixedX1 = xBand(new Date(currentData[currentIndex]?.time).toISOString()) - padding + xBand.step()
 			setStartEndFromIndex(currentData, fixedX0Index, currentIndex)
 		} else {
-			fixedX0 = xBand(new Date(currentData[currentIndex].time).toISOString()) - padding
-			fixedX1 = xBand(new Date(currentData[currentIndex].time).toISOString()) - padding + xBand.step()
+			fixedX0 = xBand(new Date(currentData[currentIndex]?.time).toISOString()) - padding
+			fixedX1 = xBand(new Date(currentData[currentIndex]?.time).toISOString()) - padding + xBand.step()
 			setStartEndFromIndex(currentData, currentIndex, currentIndex)
 		}
 		const newX0 = fixedX0

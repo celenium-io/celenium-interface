@@ -9,7 +9,7 @@ import Tooltip from "@/components/ui/Tooltip.vue"
 import TablePlaceholderView from "@/components/shared/TablePlaceholderView.vue"
 
 /** Services */
-import { space } from "@/services/utils"
+import { comma, space } from "@/services/utils"
 import { getVoteIcon, getVoteIconColor } from "@/services/utils/states"
 
 /** API */
@@ -48,13 +48,14 @@ votes.value = await fetchVotes()
 					<thead>
 						<tr>
 							<th><Text size="12" weight="600" color="tertiary">Option</Text></th>
+							<th><Text size="12" weight="600" color="tertiary">Block</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Validator</Text></th>
 						</tr>
 					</thead>
 
 					<tbody>
-						<tr v-for="vote in votes" @click="navigateTo(`/proposal/${vote.proposal_id}`)">
+						<tr v-for="vote in votes" @click="navigateTo(`/proposal/${vote.proposal_id}`)" style="cursor: pointer;">
 							<td>
 								<NuxtLink :to="`/proposal/${vote.proposal_id}`">
 									<Flex align="center" gap="4">
@@ -62,6 +63,19 @@ votes.value = await fetchVotes()
 										<Text size="13" weight="600" color="primary" style="text-transform: capitalize">
 											{{ vote.status.replaceAll("_", " ") }}
 										</Text>
+									</Flex>
+								</NuxtLink>
+							</td>
+							<td>
+								<NuxtLink :to="`/block/${vote.height}`">
+									<Flex align="center">
+										<Outline>
+											<Flex align="center" gap="6">
+												<Icon name="block" size="14" color="secondary" />
+
+												<Text size="13" weight="600" color="primary" tabular>{{ comma(vote.height) }}</Text>
+											</Flex>
+										</Outline>
 									</Flex>
 								</NuxtLink>
 							</td>
@@ -115,7 +129,7 @@ votes.value = await fetchVotes()
 			<TablePlaceholderView
 				v-else
 				title="There's no votes"
-				description="This address does not contain any votes."
+				description="No votes from this address on any proposals."
 				icon="governance"
 				subIcon="search"
 				:descriptionWidth="260"

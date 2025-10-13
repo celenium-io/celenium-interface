@@ -48,7 +48,7 @@ const handleSort = (by) => {
                 <thead>
                     <tr>
                         <th><Text size="12" weight="600" color="tertiary" noWrap>#</Text></th>
-                        <th><Text size="12" weight="600" color="tertiary" noWrap>Rollup</Text></th>
+                        <th><Text size="12" weight="600" color="tertiary" noWrap>Network</Text></th>
                         <th @click="handleSort('total_size')" :class="$style.sortable">
                             <Flex align="center" gap="6">
                                 <Text size="12" weight="600" color="tertiary" noWrap>Total Size</Text>
@@ -139,14 +139,14 @@ const handleSort = (by) => {
                 <tbody>
                     <tr v-for="(r, index) in sortedRollups">
                         <td>
-                            <NuxtLink :to="`/rollup/${r.slug}`">
+                            <NuxtLink :to="`/network/${r.slug}`">
                                 <Flex align="center">
                                     <Text size="13" weight="600" color="primary">{{ index + 1 }}</Text>
                                 </Flex>
                             </NuxtLink>
                         </td>
                         <td style="width: 1px">
-                            <NuxtLink :to="`/rollup/${r.slug}`">
+                            <NuxtLink :to="`/network/${r.slug}`">
                                 <Flex align="center" gap="8">
                                     <Flex v-if="r.logo" align="center" justify="center" :class="$style.avatar_container">
                                         <img :src="r.logo" :class="$style.avatar_image" />
@@ -159,14 +159,14 @@ const handleSort = (by) => {
                             </NuxtLink>
                         </td>
                         <td>
-                            <NuxtLink :to="`/rollup/${r.slug}`">
+                            <NuxtLink :to="`/network/${r.slug}`">
                                 <Flex align="center">
                                     <Text size="12" weight="600" color="primary">{{ formatBytes(r.total_size) }}</Text>
                                 </Flex>
                             </NuxtLink>
                         </td>
                         <td>
-                            <NuxtLink :to="`/rollup/${r.slug}`">
+                            <NuxtLink :to="`/network/${r.slug}`">
                                 <Flex align="center">
                                     <Text size="12" weight="600" color="primary">
                                         {{ formatBytes(r.avg_pfb_size) }}
@@ -175,7 +175,7 @@ const handleSort = (by) => {
                             </NuxtLink>
                         </td>
                         <td>
-                            <NuxtLink :to="`/rollup/${r.slug}`">
+                            <NuxtLink :to="`/network/${r.slug}`">
                                 <Flex align="center">
                                     <Text size="12" weight="600" color="primary">
                                         {{ formatBytes(r.avg_size) }}
@@ -184,7 +184,7 @@ const handleSort = (by) => {
                             </NuxtLink>
                         </td>
                         <td>
-                            <NuxtLink :to="`/rollup/${r.slug}`">
+                            <NuxtLink :to="`/network/${r.slug}`">
                                 <Tooltip position="start" delay="400">
                                     <Flex align="center">
                                         <Text size="12" weight="600" color="primary">{{ abbreviate(r.blobs_count) }}</Text>
@@ -197,7 +197,7 @@ const handleSort = (by) => {
                             </NuxtLink>
                         </td>
                         <td>
-                            <NuxtLink :to="`/rollup/${r.slug}`">
+                            <NuxtLink :to="`/network/${r.slug}`">
                                 <Flex align="center">
                                     <Text size="12" weight="600" color="primary">
                                         {{ comma(r.pfb_hour_count) }}
@@ -206,7 +206,7 @@ const handleSort = (by) => {
                             </NuxtLink>
                         </td>
                         <td>
-                            <NuxtLink :to="`/rollup/${r.slug}`">
+                            <NuxtLink :to="`/network/${r.slug}`">
                                 <Flex align="center" gap="4">
                                     <Text size="12" weight="600" color="primary">
                                         {{ comma(r.throughput) }}
@@ -216,7 +216,7 @@ const handleSort = (by) => {
                             </NuxtLink>
                         </td>
                         <td>
-                            <NuxtLink :to="`/rollup/${r.slug}`">
+                            <NuxtLink :to="`/network/${r.slug}`">
                                 <Flex align="center">
                                     <AmountInCurrency :amount="{ value: r.mb_price }" />
                                 </Flex>
@@ -230,7 +230,7 @@ const handleSort = (by) => {
         <Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
             <Text size="13" weight="600" color="secondary" align="center"> No activity </Text>
             <Text v-if="!isFilterActive" size="12" weight="500" height="160" color="tertiary" align="center">
-                There has been no rollup activity in the last 24 hours
+                There has been no network activity in the last 24 hours
             </Text>
             <Text v-else size="12" weight="500" height="160" color="tertiary" align="center">
                 Try to change the filters or <Text @click="emit('clearFilters')" size="12" color="secondary" :style="{cursor: 'pointer', textDecoration: 'underline'}">clear</Text> them

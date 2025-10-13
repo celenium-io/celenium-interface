@@ -3,15 +3,15 @@
 import { DateTime } from "luxon"
 
 /** Services */
-import { space, comma } from "@/services/utils"
+import { comma, space, validateCelestiaAddress, validateCelestiaValidatorAddress } from "@/services/utils"
 import { getVoteIcon, getVoteIconColor } from "@/services/utils/states"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
-import Tooltip from "@/components/ui/Tooltip.vue"
-import Popover from "@/components/ui/Popover.vue"
-import Radio from "@/components/ui/Radio.vue"
 import Checkbox from "@/components/ui/Checkbox.vue"
+import Input from "@/components/ui/Input.vue"
+import Popover from "@/components/ui/Popover.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Shared Components */
 import TablePlaceholderView from "@/components/shared/TablePlaceholderView.vue"
@@ -59,6 +59,8 @@ const setDefaultOptionFilter = () => {
 }
 const optionFilter = reactive({})
 setDefaultOptionFilter()
+
+const searchTerm = ref("")
 
 const cachedOptionFilter = ref()
 
@@ -117,11 +119,26 @@ watch(
 		if (!props.filters.option) setDefaultOptionFilter()
 	},
 )
+watch(
+	() => searchTerm.value,
+	() => {
+		if (!searchTerm.value) {
+			emit("onFiltersReset", "address", true)
+		} else if (!validateCelestiaAddress(searchTerm.value) && !validateCelestiaValidatorAddress(searchTerm.value)) {
+			emit("updateFilters", "address", "", false)
+		} else {
+			emit("updateFilters", "address", searchTerm.value, true)
+		}
+	}
+)
 </script>
 
 <template>
 	<Flex direction="column" :class="[$style.wrapper, isLoadingVotes && $style.disabled]">
 		<Flex wrap="wrap" align="center" gap="8" :class="$style.filters">
+			<Flex align="center" justify="start">
+				<Input v-model="searchTerm" size="mini" icon="search" placeholder="Search by address" />
+			</Flex>
 			<Popover :open="isOptionPopoverOpen" @on-close="onOptionPopoverClose" width="200">
 				<Button @click="handleOpenOptionPopover" type="secondary" size="mini" :disabled="!votes.length && !hasActiveOptionFilters">
 					<Icon name="plus-circle" size="12" :color="hasActiveOptionFilters ? 'brand' : 'tertiary'" />

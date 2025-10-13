@@ -98,7 +98,9 @@ onMounted(() => {
 		if (rainEl.value) rainEl.value.appendChild(blockIcon)
 
 		setTimeout(() => {
-			rainEl.value?.removeChild(blockIcon)
+			if (rainEl.value && rainEl.value?.contains(blockIcon)) {
+				rainEl.value.removeChild(blockIcon)
+			}
 		}, 5_000)
 	}, 500)
 })

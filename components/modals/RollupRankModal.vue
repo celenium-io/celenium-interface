@@ -86,11 +86,11 @@ watch(
 <template>
 	<Modal :show="show" @onClose="emit('onClose')" width="600" disable-trap>
 		<Flex direction="column" gap="24" wide>
-			<Text size="14" weight="600" color="primary">Rollups Activity Rank Calculation</Text>
+			<Text size="14" weight="600" color="primary">Networks Activity Rank Calculation</Text>
 
 			<Flex direction="column" gap="16" wide :class="$style.wrapper">
 				<Text size="12" color="secondary" :style="{ lineHeight: '1.4' }">
-					This score reflects a rollup’s overall activity by aggregating its key performance indicators.
+					This score reflects a network’s overall activity by aggregating its key performance indicators.
 				</Text>
 
 				<Flex direction="column" gap="8">

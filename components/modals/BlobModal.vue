@@ -78,6 +78,8 @@ const getBlobMetadata = async () => {
 		// console.error(err);
 		
 		notFound.value = true
+	} finally {
+		isLoading.value = false
 	}
 }
 
@@ -350,9 +352,9 @@ const handlePreviewContent = () => {
 					</Flex>
 
 					<Flex v-if="cacheStore.selectedBlob.rollup" align="center" justify="between" wide :class="$style.metadata">
-						<Text size="12" weight="500" color="tertiary">Rollup:</Text>
+						<Text size="12" weight="500" color="tertiary">Network:</Text>
 
-						<NuxtLink :to="`/rollup/${cacheStore.selectedBlob.rollup.slug}`" target="_blank">
+						<NuxtLink :to="`/network/${cacheStore.selectedBlob.rollup.slug}`" target="_blank">
 							<Flex align="center" gap="6">
 								<Flex align="center" justify="center" :class="$style.avatar_container">
 									<img :src="cacheStore.selectedBlob.rollup.logo" :class="$style.avatar_image" />

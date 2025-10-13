@@ -4,7 +4,7 @@ import BlockOverview from "@/components/modules/block/BlockOverview.vue"
 import BlobsTable from "@/components/modules/block/BlobsTable.vue"
 
 /** Services */
-import { comma } from "@/services/utils"
+import { comma, isValidId } from "@/services/utils"
 
 /** API */
 import { fetchBlockByHeight } from "@/services/api/block"
@@ -18,6 +18,11 @@ const cacheStore = useCacheStore()
 const route = useRoute()
 
 const block = ref()
+
+if (!isValidId(route.params.height, "block")) {
+	throw createError({ statusCode: 404, statusMessage: `Block ${route.params.height} not found` })
+}
+
 const { data: rawBlock } = await fetchBlockByHeight(route.params.height)
 
 const height = rawBlock.value ? rawBlock.value.height : Number(route.params.height)
@@ -28,7 +33,7 @@ const isUpcomingBlock = ref(!rawBlock.value)
 const isWaited = ref(isUpcomingBlock.value)
 
 if (isUpcomingBlock.value && height > 1_000_000_000_000) {
-	navigateTo(`/blocks`)
+	navigateTo("/")
 }
 
 watch(

@@ -71,7 +71,7 @@ const chartBlocksEl = ref(null)
 const chartWidth = ref()
 
 const barWidth = computed(() => Math.max(Math.round(chartWidth.value / 80 - 4), 4))
-const marginBar = computed(() => (chartWidth.value - barWidth.value * 80) / 79)
+const marginBar = computed(() => Math.round((chartWidth.value - barWidth.value * 80) / 79))
 
 const debouncedRedraw = () => {
 	chartWidth.value = chartBlocksEl.value?.wrapper?.offsetWidth

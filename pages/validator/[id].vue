@@ -2,6 +2,9 @@
 /** Components: Modules */
 import ValidatorOverview from "@/components/modules/validator/ValidatorOverview.vue"
 
+/** Services */
+import { isValidId } from "@/services/utils"
+
 /** API */
 import { fetchValidatorByID } from "@/services/api/validator"
 
@@ -10,22 +13,25 @@ import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
 
 const route = useRoute()
-const router = useRouter()
 
 const validator = ref()
-const { data: rawValidator } = await fetchValidatorByID(route.params.id)
+if (isValidId(route.params.id, "validator")) {
+	const { data: rawValidator } = await fetchValidatorByID(route.params.id)
 
-if (!rawValidator.value) {
-	router.push("/")
+	if (!rawValidator.value) {
+		throw createError({ statusCode: 404, statusMessage: `Validator ${route.params.id} not found` })
+	} else {
+		validator.value = rawValidator.value
+		cacheStore.current.validator = validator.value
+	}
 } else {
-	validator.value = rawValidator.value
-	cacheStore.current.validator = validator.value
+	throw createError({ statusCode: 404, statusMessage: `Validator ${route.params.id} not found` })
 }
 
 defineOgImageComponent("ValidatorImage", {
 	title: "Validator",
 	validator: validator.value,
-	cacheKey: `${validator.value?.moniker || validator.value.address.hash}`,
+	cacheKey: `${validator.value?.moniker || validator.value?.address?.hash}`,
 })
 
 useHead({

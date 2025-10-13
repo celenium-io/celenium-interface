@@ -124,6 +124,16 @@ const handleClose = (e) => {
 const onKeydown = (e) => {
 	if (e.code === "Escape") handleClose()
 }
+
+const route = useRoute()
+watch(
+	() => route.fullPath,
+	() => {
+		if (props.show) {
+			handleClose()
+		}
+	}
+)
 </script>
 
 <template>

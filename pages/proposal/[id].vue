@@ -4,6 +4,9 @@ import ProposalOverview from "@/components/modules/proposal/ProposalOverview.vue
 import ProposalChanges from "@/components/modules/proposal/ProposalChanges.vue"
 import ProposalDescription from "@/components/modules/proposal/ProposalDescription.vue"
 
+/** Services */
+import { isValidId } from "@/services/utils"
+
 /** API */
 import { fetchProposalById } from "@/services/api/proposal"
 
@@ -14,20 +17,34 @@ const cacheStore = useCacheStore()
 const route = useRoute()
 
 const proposal = ref()
-const { data: rawProposal } = await fetchProposalById({ id: route.params.id })
 
-if (!rawProposal.value) {
-	navigateTo({
-		path: "/",
-		query: {
-			error: "not_found",
-			target: "proposal",
-			id: route.params.id,
-		},
-	})
+if (isValidId(route.params.id, "proposal")) {
+	const { data: rawProposal } = await fetchProposalById({ id: route.params.id })
+
+	if (!rawProposal.value) {
+		throw createError({ statusCode: 404, statusMessage: `Proposal ${route.params.id} not found` })
+		// navigateTo({
+		// 	path: "/",
+		// 	query: {
+		// 		error: "not_found",
+		// 		target: "proposal",
+		// 		id: route.params.id,
+		// 	},
+		// })
+	} else {
+		proposal.value = rawProposal.value
+		cacheStore.current.proposal = proposal.value
+	}
 } else {
-	proposal.value = rawProposal.value
-	cacheStore.current.proposal = proposal.value
+	throw createError({ statusCode: 404, statusMessage: `Proposal ${route.params.id} not found` })
+	// navigateTo({
+	// 	path: "/",
+	// 	query: {
+	// 		error: "not_found",
+	// 		target: "proposal",
+	// 		id: route.params.id,
+	// 	},
+	// })
 }
 
 defineOgImageComponent("ProposalImage", {
