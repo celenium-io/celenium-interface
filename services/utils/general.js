@@ -98,7 +98,7 @@ export function validateCelestiaAddress(address) {
 	if (!address.startsWith(prefix)) return false
 
 	const hashPart = address.slice(prefix.length)
-	if (hashPart.length !== 38) return false
+	if (hashPart.length < 38 || hashPart.length > 119) return false
 
 	const validChars = /^[qpzry9x8gf2tvdw0s3jn54khce6mua7l]+$/
 	if (!validChars.test(hashPart)) return false
