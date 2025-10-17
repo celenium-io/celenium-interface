@@ -1,3 +1,4 @@
+import { isSelfhosted } from "@/services/config.js"
 import { space } from "./strings.js"
 
 export const formatBytes = (bytes, decimals = 2) => {
