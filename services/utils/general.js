@@ -1,4 +1,3 @@
-import { isSelfhosted } from "@/services/config.js"
 import { space } from "./strings.js"
 
 export const formatBytes = (bytes, decimals = 2) => {
@@ -177,8 +176,8 @@ export const getNetworkName = () => {
 }
 
 export const isMainnet = () => {
-	return true
-	// return getNetworkName() === "Mainnet" || getNetworkName() === "Development" || isSelfhosted()
+	// return true
+	return getNetworkName() === "Mainnet" || getNetworkName() === "Development" || isSelfhosted()
 }
 
 export const isMac = () => {
