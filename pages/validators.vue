@@ -271,6 +271,7 @@ onMounted(() => {
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Rate</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Max Rate</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Max Change Rate</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Version</Text></th>
 							</tr>
 						</thead>
 
@@ -345,6 +346,13 @@ onMounted(() => {
 									<NuxtLink :to="`/validator/${v.id}`">
 										<Flex align="center">
 											<Text size="13" weight="600" color="primary">{{ numToPercent(v.max_change_rate) }}</Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink v-if="v.version" :to="`/validator/${v.id}`">
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary">{{ `v${v.version}` }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>

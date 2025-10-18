@@ -2,12 +2,15 @@
 /** Vendor */
 import { DateTime } from "luxon"
 
+/** UI */
+import AmountInCurrency from "@/components/AmountInCurrency.vue"
+
 /** Services */
 import { comma } from "@/services/utils"
 import { getVoteIcon, getVoteIconColor } from "@/services/utils/states"
 
 const props = defineProps({
-	votes: {
+	signals: {
 		type: Array,
 		required: true,
 	},
@@ -19,45 +22,55 @@ const props = defineProps({
 		<table :class="$style.table">
 			<thead>
 				<tr>
-					<th><Text size="12" weight="600" color="tertiary">Option</Text></th>
+					<th><Text size="12" weight="600" color="tertiary">Hash</Text></th>
 					<th><Text size="12" weight="600" color="tertiary">Block</Text></th>
-					<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
+					<th><Text size="12" weight="600" color="tertiary">Voting Power</Text></th>
+					<th><Text size="12" weight="600" color="tertiary">Version</Text></th>
 				</tr>
 			</thead>
 
 			<tbody>
-				<tr v-for="v in votes" @click="navigateTo(`/proposal/${v.proposal_id}`)">
+				<tr v-for="s in signals" @click="navigateTo(`/tx/${s.tx_hash}`)">
 					<td>
-						<NuxtLink :to="`/proposal/${v.proposal_id}`">
-							<Flex align="center" gap="4">
-								<Icon :name="getVoteIcon(v.status)" size="12" :color="getVoteIconColor(v.status)" />
-								<Text size="13" weight="600" color="primary" style="text-transform: capitalize">
-									{{ v.status.replaceAll("_", " ") }}
+						<NuxtLink :to="`/tx/${s.tx_hash}`">
+							<Flex align="center" gap="8">
+								<Icon
+									name="check-circle"
+									size="13"
+									color="green"
+								/>
+
+								<Text size="12" weight="600" color="primary" mono class="table_column_alias">
+									{{ $getDisplayName('txs', s.tx_hash) }}
 								</Text>
+
+								<CopyButton :text="s.tx_hash" />
 							</Flex>
 						</NuxtLink>
 					</td>
 					<td>
-						<NuxtLink :to="`/block/${v.height}`">
+						<NuxtLink :to="`/block/${s.height}`">
 							<Flex align="center">
 								<Outline>
 									<Flex align="center" gap="6">
 										<Icon name="block" size="14" color="secondary" />
 
-										<Text size="13" weight="600" color="primary" tabular>{{ comma(v.height) }}</Text>
+										<Text size="13" weight="600" color="primary" tabular>{{ comma(s.height) }}</Text>
 									</Flex>
 								</Outline>
 							</Flex>
 						</NuxtLink>
 					</td>
 					<td>
-						<NuxtLink :to="`/proposal/${v.proposal_id}`">
-							<Flex justify="center" direction="column" gap="4">
-								<Text size="12" weight="600" color="primary">
-									{{ DateTime.fromISO(v.deposit_time).toRelative({ locale: "en", style: "short" }) }}
-								</Text>
-								<Text size="12" weight="500" color="tertiary">
-									{{ DateTime.fromISO(v.deposit_time).setLocale("en").toFormat("LLL d, t") }}
+						<NuxtLink :to="`/tx/${s.tx_hash}`">
+							<AmountInCurrency :amount="{ value: s.voting_power, decimal: 2 }" :styles="{ amount: { size: '13' }, currency: { size: '13' }}" />
+						</NuxtLink>
+					</td>
+					<td>
+						<NuxtLink :to="`/tx/${s.tx_hash}`">
+							<Flex align="center" gap="4">
+								<Text size="13" weight="600" color="primary">
+									{{ `v${s.version}` }}
 								</Text>
 							</Flex>
 						</NuxtLink>
