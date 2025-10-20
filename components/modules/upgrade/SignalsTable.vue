@@ -37,7 +37,7 @@ const props = defineProps({
 				<tr v-for="s in signals">
 					<td>
 						<NuxtLink :to="`/validator/${s.validator.id}`">
-							<Flex align="center" gap="4" wide>
+							<Flex align="center" wide>
 								<Text size="13" weight="600" color="primary" mono style="text-overflow: ellipsis; overflow: hidden;">
 									{{ s.validator.moniker ? s.validator.moniker : shortHex(s.validator.cons_address) }}
 								</Text>

@@ -52,12 +52,12 @@ const signals = ref([])
 const totalStake = computed(() => (props.upgrade?.voting_power && props.upgrade?.voting_power !== "0") ? props.upgrade.voting_power : appStore.lastHead?.total_voting_power)
 const votingShare = computed(() => parseFloat(props.upgrade.voted_power) * 100 / parseFloat(totalStake.value))
 
-const page = ref(route.query.page && isValidQueryParam(route.query.page) ? parseInt(route.query.page) : 1)
 const limit = 10
-const handleNextCondition = ref(true)
+const page = ref(route.query.page && isValidQueryParam(route.query.page) ? parseInt(route.query.page) : 1)
+const pages = computed(() => Math.ceil(props.upgrade?.signals_count / limit))
 
 const handleNext = () => {
-	if (!handleNextCondition.value) return
+	if (page.value === pages.value) return
 
 	page.value += 1
 }
@@ -79,8 +79,6 @@ const getSignals = async () => {
 	signals.value = data.value
 	cacheStore.current.signals = signals.value
 
-	handleNextCondition.value = signals.value?.length === limit
-
 	isRefetching.value = false
 }
 
@@ -96,14 +94,14 @@ const handleViewRawSignals = () => {
 /** Initital fetch */
 if (activeTab.value?.toLowerCase() === "signals") await getSignals()
 
-onMounted(() => {
-	router.replace({
-		query: {
-			tab: activeTab.value?.toLowerCase(),
-			page: page.value,
-		},
-	})
-})
+watch(
+	() => route.query,
+	() => {		
+		if (route.query.page && isValidQueryParam(route.query.page)) {
+			page.value = parseInt(route.query.page)
+		}
+	},
+)
 
 watch(
 	() => page.value,
@@ -113,6 +111,15 @@ watch(
 		router.replace({ query: { page: page.value } })
 	},
 )
+
+onMounted(() => {
+	router.replace({
+		query: {
+			tab: activeTab.value?.toLowerCase(),
+			page: page.value,
+		},
+	})
+})
 </script>
 
 <template>
@@ -236,7 +243,21 @@ watch(
 						</Flex>
 
 						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Total Stake</Text>
+							<Flex align="center" gap="6">
+								<Text size="12" weight="600" color="tertiary">Total Stake</Text>
+
+								<Tooltip>
+									<Icon
+										name="warning"
+										size="12"
+										color="tertiary"
+									/>
+
+									<template #content>
+										{{ upgrade.end_height ? "At the time of the upgrade." : "The current value of the total stake." }}
+									</template>
+								</Tooltip>
+							</Flex>
 							<AmountInCurrency :amount="{ value: totalStake, unit: 'TIA' }" />
 						</Flex>
 						<Flex align="center" justify="between">
@@ -256,7 +277,21 @@ watch(
 						</Flex>
 
 						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Initial Block</Text>
+							<Flex align="center" gap="6">
+								<Text size="12" weight="600" color="tertiary">Initial Block</Text>
+
+								<Tooltip>
+									<Icon
+										name="warning"
+										size="12"
+										color="tertiary"
+									/>
+
+									<template #content>
+										When the first signal was sent.
+									</template>
+								</Tooltip>
+							</Flex>
 
 							<NuxtLink :to="`/block/${upgrade.height}`" target="_blank">
 								<Flex align="center" gap="6">
@@ -267,7 +302,21 @@ watch(
 						</Flex>
 
 						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Initial Time</Text>
+							<Flex align="center" gap="6">
+								<Text size="12" weight="600" color="tertiary">Initial Time</Text>
+
+								<Tooltip>
+									<Icon
+										name="warning"
+										size="12"
+										color="tertiary"
+									/>
+
+									<template #content>
+										When the first signal was sent.
+									</template>
+								</Tooltip>
+							</Flex>
 
 							<Flex gap="6">
 								<Text size="12" weight="600" color="secondary">
@@ -280,7 +329,21 @@ watch(
 						</Flex>
 
 						<Flex v-if="upgrade.end_height" align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">End Block</Text>
+							<Flex align="center" gap="6">
+								<Text size="12" weight="600" color="tertiary">End Block</Text>
+
+								<Tooltip>
+									<Icon
+										name="warning"
+										size="12"
+										color="tertiary"
+									/>
+
+									<template #content>
+										When a successful TryUpgrade transaction was sent.
+									</template>
+								</Tooltip>
+							</Flex>
 
 							<NuxtLink :to="`/block/${upgrade.end_height}`" target="_blank">
 								<Flex align="center" gap="6">
@@ -291,7 +354,21 @@ watch(
 						</Flex>
 
 						<Flex v-if="upgrade.end_time" align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">End Time</Text>
+							<Flex align="center" gap="6">
+								<Text size="12" weight="600" color="tertiary">End Time</Text>
+
+								<Tooltip>
+									<Icon
+										name="warning"
+										size="12"
+										color="tertiary"
+									/>
+
+									<template #content>
+										When a successful TryUpgrade transaction was sent.
+									</template>
+								</Tooltip>
+							</Flex>
 
 							<Flex gap="6">
 								<Text size="12" weight="600" color="secondary">
@@ -304,7 +381,23 @@ watch(
 						</Flex>
 
 						<Flex v-if="upgrade.signer" align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Tx Signer</Text>
+							<Flex align="center" gap="6">
+								<Text size="12" weight="600" color="tertiary">Tx Signer</Text>
+
+								<Tooltip>
+									<Icon
+										name="warning"
+										size="12"
+										color="tertiary"
+									/>
+
+									<template #content>
+										Address that sent a successful TryUpgrade transaction.
+									</template>
+								</Tooltip>
+							</Flex>
+
+
 							<Flex gap="6">
 								<AddressBadge :account="upgrade.signer" color="tertiary" />
 								<CopyButton :text="upgrade.signer.hash" />
@@ -352,12 +445,15 @@ watch(
 						</Button>
 
 						<Button type="secondary" size="mini" disabled>
-							<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
+							<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
 						</Button>
 
-						<Button @click="handleNext" type="secondary" size="mini" :disabled="!handleNextCondition">
+						<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
 							<Icon name="arrow-right" size="12" color="primary" />
 						</Button>
+						<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages">
+							<Icon name="arrow-right-stop" size="12" color="primary" />
+						</Button>						
 					</Flex>
 				</Flex>
 			</Flex>

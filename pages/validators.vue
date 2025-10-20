@@ -281,8 +281,8 @@ onMounted(() => {
 							<tr v-for="v in validators">
 								<td style="width: 1px">
 									<NuxtLink :to="`/validator/${v.id}`">
-										<Flex align="center" gap="6">
-											<Text size="13" weight="600" color="primary" mono>
+										<Flex align="center" wide>
+											<Text size="13" weight="600" color="primary" mono style="text-overflow: ellipsis; overflow: hidden;">
 												{{ v.moniker ? v.moniker : splitAddress(v.address?.hash) }}
 											</Text>
 										</Flex>
@@ -460,6 +460,11 @@ onMounted(() => {
 
 			&:first-child {
 				padding-left: 16px;
+				max-width: 350px;
+			}
+
+			&:last-child {
+				padding-right: 16px;
 			}
 
 			& > a {

@@ -4,10 +4,13 @@ import { DateTime } from "luxon"
 
 /** UI */
 import Button from "@/components/ui/Button.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
+
+/** Components */
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
-import { comma, isValidQueryParam } from "@/services/utils"
+import { isValidQueryParam, roundTo } from "@/services/utils"
 
 /** API */
 import { fetchValidatorsUpgrades } from "@/services/api/validator"
@@ -71,7 +74,17 @@ const router = useRouter()
 
 const isLoading = ref(false)
 const upgrades = ref([])
-const lastHead = computed(() => appStore.lastHead)
+
+const totalStake = computed(() => (props.upgrade?.voting_power && props.upgrade?.voting_power !== "0") ? props.upgrade.voting_power : appStore.lastHead?.total_voting_power)
+const votingShare = computed(() => parseFloat(props.upgrade.voted_power) * 100 / parseFloat(totalStake.value))
+
+const getTotalStake = (upgrade) => {
+	return (upgrade?.voting_power && upgrade?.voting_power !== "0") ? upgrade.voting_power : appStore.lastHead?.total_voting_power
+}
+
+const getVotingShare = (upgrade) => {
+	return parseFloat(upgrade.voted_power) * 100 / parseFloat(getTotalStake(upgrade))
+}
 
 const getUpgrades = async () => {
 	isLoading.value = true
@@ -112,7 +125,7 @@ watch(
 	() => route.query,
 	() => {
 		if (route.query.page && isValidQueryParam(route.query.page)) {
-			page.value = route.query.page
+			page.value = parseInt(route.query.page)
 		}
 	},
 )
@@ -174,13 +187,13 @@ onMounted(() => {
 					<table>
 						<thead>
 							<tr>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Version</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Total Stake</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Upgrade</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Status</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Progress</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Total Voted</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Total Stake</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Signals</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Start Block</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Start Time</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>End Block</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Init Time</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>End Time</Text></th>
 							</tr>
 						</thead>
@@ -191,15 +204,53 @@ onMounted(() => {
 									<NuxtLink :to="`/upgrade/${u.version}`">
 										<Flex align="center" gap="6">
 											<Text size="13" weight="600" color="primary" mono>
-												{{ `v${u.version}` }}
+												{{ `Version ${u.version}` }}
 											</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td>
 									<NuxtLink :to="`/upgrade/${u.version}`">
+										<Flex v-if="u.end_time" align="center" gap="6">
+											<Icon name="check-circle" size="14" color="brand" />
+											<Text size="13" weight="600" color="primary">Applied</Text>
+										</Flex>
+										<Flex v-else-if="getVotingShare(u) > 83.3" align="center" gap="6">
+											<Icon name="zap-circle" size="14" color="brand" />
+											<Text size="13" weight="600" color="primary">Ready for upgrade</Text>
+										</Flex>
+										<Flex v-else align="center" gap="6">
+											<Icon name="zap-circle" size="14" color="tertiary" />
+											<Text size="13" weight="600" color="primary">In Progress</Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+
+								<td>
+									<NuxtLink :to="`/upgrade/${u.version}`" style="align-items: center;">
+										<Tooltip>
+											<Flex align="center" :class="$style.voting_wrapper">
+												<div
+													:style="{
+														background: 'var(--brand)',
+														width: `${Math.max(5, roundTo(getVotingShare(u), 0, 'ceil'))}%`
+													}"
+													:class="$style.voting_bar"
+												/>
+											</Flex>
+
+											<template #content>
+												<Text size="12" weight="600" color="primary"> 
+													<Text :color="getVotingShare(u) > 83.3 ? 'brand' : 'tertiary'"> {{ roundTo(getVotingShare(u), 2) }}% </Text> / 83.3%
+												</Text>
+											</template>
+										</Tooltip>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/upgrade/${u.version}`">
 										<AmountInCurrency
-											:amount="{ value: u.voting_power !== '0' ? u.voting_power : appStore.lastHead.total_voting_power, unit: 'TIA' }"
+											:amount="{ value: u.voted_power, unit: 'TIA' }"
 											:styles="{ amount: { size: '13' }, currency: { size: '13' } }"
 										/>
 									</NuxtLink>
@@ -207,7 +258,7 @@ onMounted(() => {
 								<td>
 									<NuxtLink :to="`/upgrade/${u.version}`">
 										<AmountInCurrency
-											:amount="{ value: u.voted_power, unit: 'TIA' }"
+											:amount="{ value: getTotalStake(u), unit: 'TIA' }"
 											:styles="{ amount: { size: '13' }, currency: { size: '13' } }"
 										/>
 									</NuxtLink>
@@ -222,19 +273,6 @@ onMounted(() => {
 									</NuxtLink>
 								</td>
 								<td>
-									<NuxtLink :to="`/block/${u.height}`">
-										<Flex align="center">
-											<Outline>
-												<Flex align="center" gap="6">
-													<Icon name="block" size="14" color="secondary" />
-
-													<Text size="13" weight="600" color="primary" tabular>{{ comma(u.height) }}</Text>
-												</Flex>
-											</Outline>
-										</Flex>
-									</NuxtLink>
-								</td>
-								<td>
 									<NuxtLink :to="`/upgrade/${u.version}`">
 										<Flex justify="center" direction="column" gap="4">
 											<Text size="12" weight="600" color="primary">
@@ -243,19 +281,6 @@ onMounted(() => {
 											<Text size="12" weight="500" color="tertiary">
 												{{ DateTime.fromISO(u.time).setLocale("en").toFormat("LLL d, t") }}
 											</Text>
-										</Flex>
-									</NuxtLink>
-								</td>
-								<td>
-									<NuxtLink v-if="u.end_height" :to="`/block/${u.end_height}`">
-										<Flex align="center">
-											<Outline>
-												<Flex align="center" gap="6">
-													<Icon name="block" size="14" color="secondary" />
-
-													<Text size="13" weight="600" color="primary" tabular>{{ comma(u.end_height) }}</Text>
-												</Flex>
-											</Outline>
 										</Flex>
 									</NuxtLink>
 								</td>
@@ -389,6 +414,24 @@ onMounted(() => {
 .table.disabled {
 	opacity: 0.5;
 	pointer-events: none;
+}
+
+.voting_wrapper {
+	width: 100px;
+	min-height: 10px;
+	height: 10px;
+
+	border-radius: 50px;
+	background: var(--op-8);
+
+	padding: 2px;
+}
+
+.voting_bar {
+	width: 100%;
+	height: 4px;
+
+	border-radius: 50px;
 }
 
 @media (max-width: 500px) {
