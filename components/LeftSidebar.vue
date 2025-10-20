@@ -106,6 +106,12 @@ const mainLinks = reactive([
 		name: "Governance",
 		path: "/proposals",
 	},
+	{
+		icon: "node",
+		name: "Node Upgrades",
+		path: "/upgrades",
+		new: true,
+	},
 ])
 
 const isModularLinksCollapsed = ref(false)
@@ -178,12 +184,6 @@ const modularLinks = reactive([
 
 const isToolsLinkCollapsed = ref(false)
 const toolsLinks = reactive([
-	{
-		icon: "node",
-		name: "Node Upgrades",
-		path: "/upgrades",
-		new: true,
-	},
 	{
 		icon: "widgets",
 		name: "Widgets",
