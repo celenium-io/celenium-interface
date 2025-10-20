@@ -304,6 +304,15 @@ const rawNavigationActions = [
 	{
 		type: "callback",
 		icon: "arrow-narrow-right",
+		title: "Go to Upgrades",
+		runText: "Open Upgrades",
+		callback: () => {
+			router.push("/upgrades")
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
 		title: "Go to Cost Savings Calculator",
 		runText: "Open Cost Savings",
 		callback: () => {

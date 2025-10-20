@@ -1,8 +1,10 @@
 <script setup>
 /** UI */
 import Button from "@/components/ui/Button.vue"
-import Tooltip from "@/components/ui/Tooltip.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
+import Tooltip from "@/components/ui/Tooltip.vue"
+
+/** Components */
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */

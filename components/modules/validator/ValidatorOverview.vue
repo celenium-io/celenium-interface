@@ -12,7 +12,7 @@ import SignalsTable from "./tables/SignalsTable.vue"
 import VotesTable from "./tables/VotesTable.vue"
 
 /** Services */
-import { comma, numToPercent, shortHex, splitAddress } from "@/services/utils"
+import { capitilize, comma, numToPercent, shortHex, splitAddress } from "@/services/utils"
 
 /** API */
 import {
@@ -42,23 +42,23 @@ const props = defineProps({
 
 const tabs = ref([
 	{
-		name: "Delegators",
+		name: "delegators",
 		icon: "address",
 	},
 	{
-		name: "Proposed Blocks",
+		name: "proposed blocks",
 		icon: "block",
 	},
 	{
-		name: "Jails",
+		name: "jails",
 		icon: "grid",
 	},
 	{
-		name: "Votes",
+		name: "votes",
 		icon: "check-circle",
 	},
 	{
-		name: "Signals",
+		name: "signals",
 		icon: "bell-ringing",
 	},
 ])
@@ -173,19 +173,18 @@ const getUptime = async () => {
 	}
 }
 
-/** Initital fetch for delegators and uptime */
-if (activeTab.value === "Delegators") await getDelegators()
-if (activeTab.value === "Proposed Blocks") await getBlocks()
-if (activeTab.value === "Jails") await getJails()
-if (activeTab.value === "Signals") await getSignals()
-if (activeTab.value === "Votes") await getVotes()
-
+/** Initital fetch */
+if (activeTab.value?.toLowerCase() === "delegators") await getDelegators()
+if (activeTab.value?.toLowerCase() === "proposed blocks") await getBlocks()
+if (activeTab.value?.toLowerCase() === "jails") await getJails()
+if (activeTab.value?.toLowerCase() === "signals") await getSignals()
+if (activeTab.value?.toLowerCase() === "votes") await getVotes()
 await getUptime()
 
 onMounted(() => {
 	router.replace({
 		query: {
-			tab: activeTab.value,
+			tab: activeTab.value?.toLowerCase(),
 		},
 	})
 })
@@ -249,20 +248,20 @@ const parsedContacts = computed(() => {
 watch(
 	() => page.value,
 	() => {
-		switch (activeTab.value) {
-			case "Delegators":
+		switch (activeTab.value?.toLowerCase()) {
+			case "delegators":
 				getDelegators()
 				break
-			case "Proposed Blocks":
+			case "proposed blocks":
 				getBlocks()
 				break
-			case "Jails":
+			case "jails":
 				getJails()
 				break
-			case "Signals":
+			case "signals":
 				getSignals()
 				break
-			case "Votes":
+			case "votes":
 				getVotes()
 				break
 		}
@@ -274,26 +273,26 @@ watch(
 	() => {
 		router.replace({
 			query: {
-				tab: activeTab.value,
+				tab: activeTab.value?.toLowerCase(),
 			},
 		})
 
 		page.value = 1
 
-		switch (activeTab.value) {
-			case "Delegators":
+		switch (activeTab.value?.toLowerCase()) {
+			case "delegators":
 				getDelegators()
 				break
-			case "Proposed Blocks":
+			case "proposed blocks":
 				getBlocks()
 				break
-			case "Jails":
+			case "jails":
 				getJails()
 				break
-			case "Signals":
+			case "signals":
 				getSignals()
 				break
-			case "Votes":
+			case "votes":
 				getVotes()
 				break
 		}
@@ -502,13 +501,13 @@ const handleDelegate = () => {
 							:class="[$style.tab, activeTab === tab.name && $style.active]"
 						>
 							<Icon :name="tab.icon" size="12" color="secondary" />
-							<Text size="13" weight="600">{{ tab.name }}</Text>
+							<Text size="13" weight="600">{{ capitilize(tab.name) }}</Text>
 						</Flex>
 					</Flex>
 				</Flex>
 
 				<Flex direction="column" justify="center" gap="8" :class="[$style.table, isRefetching && $style.disabled]">
-					<template v-if="activeTab === 'Delegators'">
+					<template v-if="activeTab === 'delegators'">
 						<DelegatorsTable v-if="delegators.length" :delegators="delegators" :validator="validator" />
 
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
@@ -519,7 +518,7 @@ const handleDelegate = () => {
 						</Flex>
 					</template>
 
-					<template v-if="activeTab === 'Proposed Blocks'">
+					<template v-if="activeTab === 'proposed blocks'">
 						<BlocksTable v-if="blocks.length" :blocks="blocks" />
 
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
@@ -530,7 +529,7 @@ const handleDelegate = () => {
 						</Flex>
 					</template>
 
-					<template v-if="activeTab === 'Jails'">
+					<template v-if="activeTab === 'jails'">
 						<JailsTable v-if="jails.length" :jails="jails" />
 
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
@@ -541,7 +540,7 @@ const handleDelegate = () => {
 						</Flex>
 					</template>
 
-					<template v-if="activeTab === 'Votes'">
+					<template v-if="activeTab === 'votes'">
 						<VotesTable v-if="votes.length" :votes="votes" />
 
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
@@ -552,7 +551,7 @@ const handleDelegate = () => {
 						</Flex>
 					</template>
 
-					<template v-if="activeTab === 'Signals'">
+					<template v-if="activeTab === 'signals'">
 						<SignalsTable v-if="signals.length" :signals="signals" />
 
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">

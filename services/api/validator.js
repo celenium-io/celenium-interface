@@ -116,6 +116,18 @@ export const fetchValidatorsUpgrades = ({ limit, offset }) => {
 	}
 }
 
+export const fetchValidatorsUpgradeByVersion = (version) => {
+	try {
+		const url = new URL(`${useServerURL()}/signal/upgrade/${version}`)
+
+		return useFetch(encodeURI(url.href), {
+			key: "validators_upgrade_by_version",
+		})
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchSignals = ({ validatorId, version, limit, offset }) => {
 	try {
 		const url = new URL(`${useServerURL()}/signal`)

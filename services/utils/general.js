@@ -279,6 +279,7 @@ export function isValidId(id, type) {
 	switch (type) {
 		case "block":
 		case "proposal":
+		case "upgrade_version":
 		case "validator":
 			return /^[0-9]+$/.test(id);
 
@@ -290,6 +291,16 @@ export function isValidId(id, type) {
 
 		case "address":
 			return validateCelestiaAddress(id);
+	
+		default:
+			return false;
+	}
+}
+
+export function isValidQueryParam(value, type = "page") {
+	switch (type) {
+		case "page":
+			return /^[0-9]+$/.test(value);
 	
 		default:
 			return false;

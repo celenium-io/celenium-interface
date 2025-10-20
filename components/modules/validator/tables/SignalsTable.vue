@@ -1,13 +1,9 @@
 <script setup>
-/** Vendor */
-import { DateTime } from "luxon"
-
 /** UI */
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
 import { comma } from "@/services/utils"
-import { getVoteIcon, getVoteIconColor } from "@/services/utils/states"
 
 const props = defineProps({
 	signals: {
@@ -18,7 +14,7 @@ const props = defineProps({
 </script>
 
 <template>
-	<div :class="$style.wrapper_blocks">
+	<div :class="$style.wrapper_signals">
 		<table :class="$style.table">
 			<thead>
 				<tr>
@@ -63,7 +59,7 @@ const props = defineProps({
 					</td>
 					<td>
 						<NuxtLink :to="`/tx/${s.tx_hash}`">
-							<AmountInCurrency :amount="{ value: s.voting_power, decimal: 2 }" :styles="{ amount: { size: '13' }, currency: { size: '13' }}" />
+							<AmountInCurrency :amount="{ value: s.voting_power, decimal: 0 }" :styles="{ amount: { size: '13' }, currency: { size: '13' }}" />
 						</NuxtLink>
 					</td>
 					<td>
@@ -82,7 +78,7 @@ const props = defineProps({
 </template>
 
 <style module>
-.wrapper_blocks {
+.wrapper_signals {
 	min-width: 100%;
 	width: 0;
 	height: 100%;
