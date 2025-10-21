@@ -21,10 +21,8 @@ import { capitilize, comma, isValidQueryParam, roundTo } from "@/services/utils"
 import { fetchSignals } from "@/services/api/validator"
 
 /** Store */
-import { useAppStore } from "@/store/app.store"
 import { useCacheStore } from "@/store/cache.store"
 import { useModalsStore } from "@/store/modals.store"
-const appStore = useAppStore()
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
 
@@ -49,8 +47,6 @@ const activeTab = ref(preselectedTab)
 
 const isRefetching = ref(false)
 const signals = ref([])
-const totalStake = computed(() => (props.upgrade?.voting_power && props.upgrade?.voting_power !== "0") ? props.upgrade.voting_power : appStore.lastHead?.total_voting_power)
-const votingShare = computed(() => parseFloat(props.upgrade.voted_power) * 100 / parseFloat(totalStake.value))
 
 const limit = 10
 const page = ref(route.query.page && isValidQueryParam(route.query.page) ? parseInt(route.query.page) : 1)
@@ -181,9 +177,9 @@ onMounted(() => {
 								<Icon name="check-circle" size="14" color="brand" />
 								<Text size="13" weight="600" color="primary">Applied</Text>
 							</Flex>
-							<Flex v-else-if="votingShare > 83.3" align="center" gap="6">
+							<Flex v-else-if="upgrade.votedShare > 83.3" align="center" gap="6">
 								<Icon name="zap-circle" size="14" color="brand" />
-								<Text size="13" weight="600" color="primary">Ready for upgrade</Text>
+								<Text size="13" weight="600" color="primary">Ready for Upgrade</Text>
 							</Flex>
 							<Flex v-else align="center" gap="6">
 								<Icon name="zap-circle" size="14" color="tertiary" />
@@ -227,7 +223,7 @@ onMounted(() => {
 							</Tooltip>
 
 							<Text size="12" weight="600" color="primary"> 
-								<Text :color="votingShare > 83.3 ? 'brand' : 'tertiary'"> {{ roundTo(votingShare, 2) }}% </Text> / 83.3%
+								<Text :color="upgrade.votedShare > 83.3 ? 'brand' : 'tertiary'"> {{ roundTo(upgrade.votedShare, 2) }}% </Text> / 83.3%
 							</Text>
 						</Flex>
 						<Flex align="center" gap="4" :class="$style.voting_wrapper">
@@ -236,7 +232,7 @@ onMounted(() => {
 							<div
 								:style="{
 									background: 'var(--brand)',
-									width: `${Math.max(2, roundTo(votingShare, 0, 'ceil'))}%`
+									width: `${Math.max(2, roundTo(upgrade.votedShare, 0, 'ceil'))}%`
 								}"
 								:class="$style.voting_bar"
 							/>
@@ -258,7 +254,7 @@ onMounted(() => {
 									</template>
 								</Tooltip>
 							</Flex>
-							<AmountInCurrency :amount="{ value: totalStake, unit: 'TIA' }" />
+							<AmountInCurrency :amount="{ value: upgrade?.voting_power, unit: 'TIA' }" />
 						</Flex>
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Total Voted</Text>
@@ -425,7 +421,7 @@ onMounted(() => {
 
 				<Flex direction="column" justify="center" gap="8" :class="[$style.table, isRefetching && $style.disabled]">
 					<template v-if="activeTab === 'signals'">
-						<SignalsTable v-if="signals.length" :signals="signals" :totalStake="totalStake" />
+						<SignalsTable v-if="signals.length" :signals="signals" :totalStake="upgrade?.voting_power" />
 
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 							<Text size="13" weight="600" color="secondary" align="center"> No signals </Text>

@@ -6,6 +6,7 @@ import UpgradeOverview from "@/components/modules/upgrade/UpgradeOverview.vue"
 import { isValidId } from "@/services/utils"
 
 /** API */
+import { fetchHead } from "@/services/api/main"
 import { fetchValidatorsUpgradeByVersion } from "@/services/api/validator"
 
 /** Store */
@@ -21,6 +22,14 @@ if (isValidId(route.params.version, "upgrade_version")) {
     
     if (data.value) {
         upgrade.value = data.value
+        if (!upgrade.value.tx_hash) {
+            const head = await fetchHead()
+            if (head) {
+                upgrade.value.voting_power = head.total_voting_power
+            }
+        }
+
+        upgrade.value.votedShare = parseFloat(upgrade.value.voted_power) * 100 / parseFloat(upgrade.value.voting_power)
         cacheStore.current.upgrade = upgrade.value
     } else {
         throw createError({ statusCode: 404, statusMessage: `Upgrade to version ${route.params.version} not found` })
@@ -29,51 +38,51 @@ if (isValidId(route.params.version, "upgrade_version")) {
 	throw createError({ statusCode: 404, statusMessage: `Upgrade to version ${route.params.version} not found` })
 }
 
-// defineOgImageComponent("ValidatorImage", {
-// 	title: "Validator",
-// 	validator: validator.value,
-// 	cacheKey: `${validator.value?.moniker || validator.value?.address?.hash}`,
-// })
+defineOgImageComponent("UpgradeImage", {
+	title: "Upgrade",
+	upgrade: upgrade.value,
+	cacheKey: `${upgrade.value?.version}`,
+})
 
-// useHead({
-// 	title: `Validator ${validator.value?.moniker} - Celenium`,
-// 	link: [
-// 		{
-// 			rel: "canonical",
-// 			href: `${useRequestURL().origin}${useRequestURL().pathname}`,
-// 		},
-// 	],
-// 	meta: [
-// 		{
-// 			name: "description",
-// 			content: `Validator ${validator.value?.moniker} blocks, metadata, uptime, rates, social links, contacts and other data.`,
-// 		},
-// 		{
-// 			property: "og:title",
-// 			content: `Validator ${validator.value?.moniker} - Celenium`,
-// 		},
-// 		{
-// 			property: "og:description",
-// 			content: `Validator ${validator.value?.moniker} blocks, metadata, uptime, rates, social links, contacts and other data.`,
-// 		},
-// 		{
-// 			property: "og:url",
-// 			content: `${useRequestURL().origin}${useRequestURL().pathname}`,
-// 		},
-// 		{
-// 			name: "twitter:title",
-// 			content: `Validator ${validator.value?.moniker} - Celenium`,
-// 		},
-// 		{
-// 			name: "twitter:description",
-// 			content: `Validator ${validator.value?.moniker} blocks, metadata, uptime, rates, social links, contacts and other data.`,
-// 		},
-// 		{
-// 			name: "twitter:card",
-// 			content: "summary_large_image",
-// 		},
-// 	],
-// })
+useHead({
+	title: `Celestia Node Upgrade to version ${upgrade.value?.version} - Celenium`,
+	link: [
+		{
+			rel: "canonical",
+			href: `${useRequestURL().origin}${useRequestURL().pathname}`,
+		},
+	],
+	meta: [
+		{
+			name: "description",
+			content: `Upgrade v${upgrade.value?.version} signals, metadata, stake, voting, progress and other data.`,
+		},
+		{
+			property: "og:title",
+			content: `Celestia Node Upgrade to version ${upgrade.value?.version} - Celenium`,
+		},
+		{
+			property: "og:description",
+			content: `Upgrade v${upgrade.value?.version} signals, metadata, stake, voting, progress and other data.`,
+		},
+		{
+			property: "og:url",
+			content: `${useRequestURL().origin}${useRequestURL().pathname}`,
+		},
+		{
+			name: "twitter:title",
+			content: `Celestia Node Upgrade to version ${upgrade.value?.version} - Celenium`,
+		},
+		{
+			name: "twitter:description",
+			content: `Upgrade v${upgrade.value?.version} signals, metadata, stake, voting, progress and other data.`,
+		},
+		{
+			name: "twitter:card",
+			content: "summary_large_image",
+		},
+	],
+})
 </script>
 
 <template>
