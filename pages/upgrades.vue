@@ -192,9 +192,9 @@ onMounted(() => {
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Progress</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Total Voted</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Total Stake</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Signals</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Init Time</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>End Time</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Signals</Text></th>
 							</tr>
 						</thead>
 
@@ -265,15 +265,6 @@ onMounted(() => {
 								</td>
 								<td>
 									<NuxtLink :to="`/upgrade/${u.version}`">
-										<Flex align="center" gap="6">
-											<Text size="13" weight="600" color="primary">
-												{{ u.signals_count }}
-											</Text>
-										</Flex>
-									</NuxtLink>
-								</td>
-								<td>
-									<NuxtLink :to="`/upgrade/${u.version}`">
 										<Flex justify="center" direction="column" gap="4">
 											<Text size="12" weight="600" color="primary">
 												{{ DateTime.fromISO(u.time).toRelative({ locale: "en", style: "short" }) }}
@@ -292,6 +283,15 @@ onMounted(() => {
 											</Text>
 											<Text size="12" weight="500" color="tertiary">
 												{{ DateTime.fromISO(u.end_time).setLocale("en").toFormat("LLL d, t") }}
+											</Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/upgrade/${u.version}`">
+										<Flex align="center" gap="6">
+											<Text size="13" weight="600" color="primary">
+												{{ u.signals_count }}
 											</Text>
 										</Flex>
 									</NuxtLink>
