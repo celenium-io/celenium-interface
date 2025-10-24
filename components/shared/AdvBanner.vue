@@ -1,9 +1,11 @@
 <script setup>
 /** Services */
 import { getAdvByName, getRandomAdv } from "@/services/constants/advertising"
+import { DEFAULT_SETTINGS } from "~/services/constants/settings.js"
 
 /** Store */
 import { useModalsStore } from "@/store/modals.store"
+
 const modalsStore = useModalsStore()
 
 const props = defineProps({
@@ -18,6 +20,12 @@ const props = defineProps({
 })
 
 const router = useRouter()
+
+const settings = useCookie("localSettings", {
+	default: () => {
+		return DEFAULT_SETTINGS
+	},
+})
 
 const adv = ref({})
 const isDisplayed = ref(true)
@@ -43,7 +51,7 @@ onMounted(() => {
 
 <template>
 	<Flex
-		v-if="adv.name"
+		v-if="adv.name && settings.advanced.other.showAds"
 		@click="handleClick()"
 		:class="[$style.wrapper, orientation === 'horizontal' && $style.wrapper_horizontal, !isDisplayed && $style.not_display]"
 	>
@@ -52,28 +60,30 @@ onMounted(() => {
 				<Icon v-if="adv.icon" :name="adv.icon" size="24" color="brand" />
 
 				<Flex direction="column" gap="8">
-					<Text size="13" weight="600" color="primary"> {{ adv.header }} </Text>
-					<Text size="13" weight="500" color="tertiary" height="150"> {{ adv.body }} </Text>
+					<Text size="13" weight="600" color="primary"> {{ adv.header }}</Text>
+					<Text size="13" weight="500" color="tertiary" height="150"> {{ adv.body }}</Text>
 				</Flex>
 			</Flex>
 
 			<Flex align="center" justify="between">
-				<Text size="13" weight="600" color="brand" :class="$style.footer"> {{ adv.footer }} </Text>
-				<Icon @click.prevent.stop="isDisplayed = false" name="close" size="16" color="secondary" :class="$style.close_icon" />
+				<Text size="13" weight="600" color="brand" :class="$style.footer"> {{ adv.footer }}</Text>
+				<Icon @click.prevent.stop="isDisplayed = false" name="close" size="16" color="secondary"
+					  :class="$style.close_icon" />
 			</Flex>
 		</Flex>
 
 		<Flex v-else-if="orientation === 'horizontal'" align="center" gap="12" wide :class="$style.ad_horizontal">
 			<Flex align="center" gap="8">
 				<Icon v-if="adv.icon" :name="adv.icon" size="14" color="brand" />
-				<Text size="13" weight="600" color="primary" :class="$style.text"> {{ adv.header }} </Text>
+				<Text size="13" weight="600" color="primary" :class="$style.text"> {{ adv.header }}</Text>
 			</Flex>
 
-			<Text size="13" weight="600" color="tertiary" height="140" :class="$style.text"> {{ adv.body }} </Text>
+			<Text size="13" weight="600" color="tertiary" height="140" :class="$style.text"> {{ adv.body }}</Text>
 
 			<Flex align="center" gap="8" :class="$style.footer">
-				<Text size="13" weight="600" color="brand" :class="$style.text"> {{ adv.footer }} </Text>
-				<Icon @click.prevent.stop="isDisplayed = false" name="close" size="16" color="secondary" :class="$style.close_icon" />
+				<Text size="13" weight="600" color="brand" :class="$style.text"> {{ adv.footer }}</Text>
+				<Icon @click.prevent.stop="isDisplayed = false" name="close" size="16" color="secondary"
+					  :class="$style.close_icon" />
 			</Flex>
 		</Flex>
 	</Flex>
@@ -117,6 +127,7 @@ onMounted(() => {
 	& .footer {
 		padding: 2px;
 	}
+
 	& .close_icon {
 		display: none;
 		padding: 2px;

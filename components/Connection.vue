@@ -12,6 +12,7 @@ import { arabica, mainnet, mammoth, mocha } from "@/services/chains"
 import { useAppStore } from "@/store/app.store"
 import { useModalsStore } from "@/store/modals.store"
 import { useNotificationsStore } from "@/store/notifications.store"
+
 const appStore = useAppStore()
 const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
@@ -84,7 +85,7 @@ const handleDisconnect = () => {
 </script>
 
 <template>
-	<Button v-if="!appStore.address" @click="handleConnect" type="white" size="mini"> Connect </Button>
+	<Button v-if="!appStore.address" @click="handleConnect" type="secondary" size="mini"> Connect Wallet</Button>
 
 	<Dropdown v-else>
 		<Button type="secondary" size="mini">

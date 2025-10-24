@@ -80,6 +80,9 @@ dependencies:
   vite-plugin-node-polyfills:
     specifier: ^0.21.0
     version: 0.21.0(rollup@4.50.0)(vite@6.3.5)
+  zod:
+    specifier: ^4.1.12
+    version: 4.1.12
 
 devDependencies:
   '@nuxt/devtools':
@@ -9422,3 +9425,7 @@ packages:
       archiver-utils: 5.0.2
       compress-commons: 6.0.2
       readable-stream: 4.7.0
+
+  /zod@4.1.12:
+    resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
+    dev: false

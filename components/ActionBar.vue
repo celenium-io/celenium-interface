@@ -12,7 +12,13 @@ import { isMobile } from "@/services/utils"
 
 /** Store */
 import { useAppStore } from "@/store/app.store"
+import { useAuthStore } from "@/store/auth.store.js"
+import { useModalsStore } from "@/store/modals.store.js"
+
 const appStore = useAppStore()
+const authStore = useAuthStore()
+const modalsStore = useModalsStore()
+
 </script>
 
 <template>
@@ -32,6 +38,9 @@ const appStore = useAppStore()
 		</Flex>
 
 		<Flex align="center" gap="12">
+			<Button v-if="authStore.isAuthenticated" @click="modalsStore.open('settings')" type="secondary" size="mini">
+				<Icon name="settings" size="14" color="secondary" />
+			</Button>
 			<Button @click="appStore.showCmd = true" type="secondary" size="mini">
 				<Icon name="terminal_square" size="16" color="secondary" />
 			</Button>
@@ -39,6 +48,7 @@ const appStore = useAppStore()
 			<div style="width: 2px; height: 16px; background: var(--op-10)" />
 
 			<Connection :class="$style.connection_btn" />
+			<Auth />
 		</Flex>
 	</Flex>
 </template>

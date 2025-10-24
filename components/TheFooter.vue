@@ -2,48 +2,10 @@
 /** UI */
 import { Dropdown, DropdownItem, DropdownTitle } from "@/components/ui/Dropdown"
 
-/** Services */
-import { isPrefersDarkScheme } from "@/services/utils"
-
 /** Store */
 import { useAppStore } from "@/store/app.store"
+
 const appStore = useAppStore()
-
-const theme = useCookie("theme", { default: () => "dark" })
-switch (theme.value) {
-	case "dark":
-	case "dimmed":
-	case "light":
-		appStore.theme = theme.value
-
-		break
-
-	case "system":
-		appStore.theme = "system"
-
-		break
-}
-
-onMounted(() => {
-	let root = document.querySelector("html")
-
-	if (appStore.theme === "system") {
-		root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
-	} else {
-		root.setAttribute("theme", appStore.theme)
-	}
-})
-
-watch(
-	() => appStore.theme,
-	() => {
-		if (appStore.theme === "system") {
-			window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (event) => {
-				root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
-			})
-		}
-	},
-)
 
 const handleChangeTheme = (target) => {
 	const root = document.querySelector("html")
@@ -85,7 +47,8 @@ const handleChangeTheme = (target) => {
 							<a href="https://github.com/celenium-io" target="_blank">
 								<Icon name="github" size="14" color="tertiary" />
 							</a>
-							<a href="https://discord.com/channels/846362414039695391/1168936555302355005" target="_blank">
+							<a href="https://discord.com/channels/846362414039695391/1168936555302355005"
+							   target="_blank">
 								<Icon name="discord" size="14" color="tertiary" />
 							</a>
 							<a
@@ -104,13 +67,15 @@ const handleChangeTheme = (target) => {
 								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Browse</Text>
 							</NuxtLink>
 							<NuxtLink to="/txs">
-								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Transactions</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Transactions
+								</Text>
 							</NuxtLink>
 							<NuxtLink to="/blocks">
 								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Blocks</Text>
 							</NuxtLink>
 							<NuxtLink to="/addresses">
-								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Addresses</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Addresses
+								</Text>
 							</NuxtLink>
 						</Flex>
 
@@ -120,10 +85,12 @@ const handleChangeTheme = (target) => {
 								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Networks</Text>
 							</NuxtLink>
 							<NuxtLink to="/namespaces">
-								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Namespaces</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Namespaces
+								</Text>
 							</NuxtLink>
 							<NuxtLink to="/validators">
-								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Validators</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Validators
+								</Text>
 							</NuxtLink>
 						</Flex>
 
@@ -131,7 +98,8 @@ const handleChangeTheme = (target) => {
 							<Text size="13" weight="500" color="tertiary">Tools</Text>
 							<NuxtLink to="https://terminal.celenium.io">
 								<Flex align="center" gap="6">
-									<Text size="13" weight="500" color="secondary" :class="$style.link_text">Terminal</Text>
+									<Text size="13" weight="500" color="secondary" :class="$style.link_text">Terminal
+									</Text>
 									<Icon name="arrow-narrow-up-right-circle" size="12" color="tertiary" />
 								</Flex>
 							</NuxtLink>
@@ -139,16 +107,20 @@ const handleChangeTheme = (target) => {
 								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Faucet</Text>
 							</NuxtLink>
 							<NuxtLink to="/blobstream">
-								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Blobstream</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Blobstream
+								</Text>
 							</NuxtLink>
 							<NuxtLink to="/calculators/savings">
-								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Cost Savings</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Cost Savings
+								</Text>
 							</NuxtLink>
 							<NuxtLink to="/gas">
-								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Gas Tracker</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Gas Tracker
+								</Text>
 							</NuxtLink>
 							<NuxtLink to="/bookmarks">
-								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Bookmarks</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Bookmarks
+								</Text>
 							</NuxtLink>
 						</Flex>
 
@@ -158,7 +130,8 @@ const handleChangeTheme = (target) => {
 								<Text size="13" weight="500" color="secondary" :class="$style.link_text">API</Text>
 							</NuxtLink>
 							<NuxtLink to="https://docs.celenium.io" target="_blank">
-								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Documentation</Text>
+								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Documentation
+								</Text>
 							</NuxtLink>
 							<NuxtLink to="https://hubble.celenium.io" target="_blank">
 								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Hubble</Text>
@@ -169,12 +142,14 @@ const handleChangeTheme = (target) => {
 
 				<Flex align="center" gap="12" style="height: fit-content">
 					<Flex align="center" gap="6" :class="$style.btn">
-						<Text size="12" weight="600" color="tertiary"> Donate </Text>
-						<a href="https://celenium.io/address/celestia1avr0gh0v6errxr8g8rjkscxf3jqx4k6ypkh2rl" target="_blank">
-							<Text size="12" weight="600" color="secondary"> TIA </Text>
+						<Text size="12" weight="600" color="tertiary"> Donate</Text>
+						<a href="https://celenium.io/address/celestia1avr0gh0v6errxr8g8rjkscxf3jqx4k6ypkh2rl"
+						   target="_blank">
+							<Text size="12" weight="600" color="secondary"> TIA</Text>
 						</a>
-						<a href="https://etherscan.io/address/0x9FfB1cb28c55735e77B352eE918b4F0c3595a761" target="_blank">
-							<Text size="12" weight="600" color="secondary"> ETH </Text>
+						<a href="https://etherscan.io/address/0x9FfB1cb28c55735e77B352eE918b4F0c3595a761"
+						   target="_blank">
+							<Text size="12" weight="600" color="secondary"> ETH</Text>
 						</a>
 					</Flex>
 
