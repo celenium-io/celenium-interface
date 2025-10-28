@@ -170,3 +170,18 @@ export const fetchSignals = ({ validatorId, version, limit, offset }) => {
 		console.error(error)
 	}
 }
+
+export const fetchValidatorMessages = ({ id, limit, offset }) => {
+	try {
+		const url = new URL(`${useServerURL()}/validators/${id}/messages`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+
+		return useFetch(encodeURI(url.href), {
+			key: "validator_messages",
+		})
+	} catch (error) {
+		console.error(error)
+	}
+}

@@ -11,6 +11,7 @@ import ValidatorMetrics from "./ValidatorMetrics.vue"
 import BlocksTable from "./tables/BlocksTable.vue"
 import DelegatorsTable from "./tables/DelegatorsTable.vue"
 import JailsTable from "./tables/JailsTable.vue"
+import MessagesTable from "./tables/MessagesTable.vue"
 import SignalsTable from "./tables/SignalsTable.vue"
 import VotesTable from "./tables/VotesTable.vue"
 
@@ -22,6 +23,7 @@ import {
 	fetchValidatorBlocks,
 	fetchValidatorDelegators,
 	fetchValidatorJails,
+	fetchValidatorMessages,
 	fetchValidatorUptime,
 	fetchSignals
 } from "@/services/api/validator"
@@ -64,6 +66,10 @@ const tabs = ref([
 		name: "signals",
 		icon: "bell-ringing",
 	},
+	{
+		name: "messages",
+		icon: "message",
+	},
 ])
 const preselectedTab = route.query.tab && tabs.value.map((tab) => tab.name).includes(route.query.tab) ? route.query.tab : tabs.value[0].name
 const activeTab = ref(preselectedTab)
@@ -72,6 +78,7 @@ const isRefetching = ref(false)
 const delegators = ref([])
 const blocks = ref([])
 const jails = ref([])
+const messages = ref([])
 const signals = ref([])
 const votes = ref([])
 const uptime = ref([])
@@ -165,6 +172,23 @@ const getVotes = async () => {
 	isRefetching.value = false
 }
 
+const getMessages = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchValidatorMessages({
+		id: props.validator.id,
+		limit: limit,
+		offset: (page.value - 1) * limit,
+	})
+
+	if (data.value?.length) {
+		messages.value = data.value
+		handleNextCondition.value = blocks.value?.length < limit
+	}
+
+	isRefetching.value = false
+}
+
 const getUptime = async () => {
 	const { data } = await fetchValidatorUptime({
 		id: props.validator.id,
@@ -180,6 +204,7 @@ const getUptime = async () => {
 if (activeTab.value?.toLowerCase() === "delegators") await getDelegators()
 if (activeTab.value?.toLowerCase() === "proposed blocks") await getBlocks()
 if (activeTab.value?.toLowerCase() === "jails") await getJails()
+if (activeTab.value?.toLowerCase() === "messages") await getMessages()
 if (activeTab.value?.toLowerCase() === "signals") await getSignals()
 if (activeTab.value?.toLowerCase() === "votes") await getVotes()
 await getUptime()
@@ -267,6 +292,9 @@ watch(
 			case "votes":
 				getVotes()
 				break
+			case "messages":
+				getMessages()
+				break
 		}
 	},
 )
@@ -297,6 +325,9 @@ watch(
 				break
 			case "votes":
 				getVotes()
+				break
+			case "messages":
+				getMessages()
 				break
 		}
 	},
@@ -567,6 +598,17 @@ const handleDelegate = () => {
 							<Text size="13" weight="600" color="secondary" align="center"> No signals </Text>
 							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
 								No {{ page === 1 ? "" : "more" }} signals from this validator
+							</Text>
+						</Flex>
+					</template>
+
+					<template v-if="activeTab === 'messages'">
+						<MessagesTable v-if="messages.length" :messages="messages" />
+
+						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+							<Text size="13" weight="600" color="secondary" align="center"> No messages </Text>
+							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+								No {{ page === 1 ? "" : "more" }} messages from this validator
 							</Text>
 						</Flex>
 					</template>
