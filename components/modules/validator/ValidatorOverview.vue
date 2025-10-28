@@ -4,6 +4,9 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
+/** Components */
+import ValidatorMetrics from "./ValidatorMetrics.vue"
+
 /** Tables */
 import BlocksTable from "./tables/BlocksTable.vue"
 import DelegatorsTable from "./tables/DelegatorsTable.vue"
@@ -322,171 +325,177 @@ const handleDelegate = () => {
 			</Flex>
 		</Flex>
 
-		<Flex gap="4" :class="$style.content">
-			<Flex direction="column" :class="$style.data">
-				<Flex direction="column" gap="24" :class="$style.main">
-					<Flex direction="column" gap="8" :class="$style.key_value">
-						<Flex align="center" justify="between">
-							<Text v-if="validator.moniker" size="13" weight="600" color="primary">{{ validator.moniker }} </Text>
-							<Text v-else size="13" weight="600" color="primary">Validator</Text>
+		<Flex direction="column" gap="4" :class="$style.content">
+			<Flex gap="4" :class="$style.content">
+				<Flex direction="column" :class="$style.data" wide>
+					<Flex direction="column" gap="24" :class="$style.main">
+						<Flex direction="column" gap="8" :class="$style.key_value">
+							<Flex align="center" justify="between">
+								<Text v-if="validator.moniker" size="13" weight="600" color="primary">{{ validator.moniker }} </Text>
+								<Text v-else size="13" weight="600" color="primary">Validator</Text>
 
-							<Tooltip v-if="validatorStatus.name" position="start" textAlign="left" delay="200">
-								<Text size="13" weight="600" :style="{ color: validatorStatus.color }"> {{ validatorStatus.name }} </Text>
+								<Tooltip v-if="validatorStatus.name" position="start" textAlign="left" delay="200">
+									<Text size="13" weight="600" :style="{ color: validatorStatus.color }"> {{ validatorStatus.name }} </Text>
 
-								<template #content>
-									<Flex direction="column" gap="4">
-										<Text v-for="s in validatorStatus.description" color="secondary">{{ s }}</Text>
-									</Flex>
-								</template>
-							</Tooltip>
+									<template #content>
+										<Flex direction="column" gap="4">
+											<Text v-for="s in validatorStatus.description" color="secondary">{{ s }}</Text>
+										</Flex>
+									</template>
+								</Tooltip>
+							</Flex>
+							<Flex align="center" gap="6">
+								<Text size="12" weight="600" color="tertiary"> {{ splitAddress(validator.address.hash) }} </Text>
+
+								<CopyButton :text="validator.address.hash" />
+							</Flex>
 						</Flex>
-						<Flex align="center" gap="6">
-							<Text size="12" weight="600" color="tertiary"> {{ splitAddress(validator.address.hash) }} </Text>
 
-							<CopyButton :text="validator.address.hash" />
+						<Flex v-if="validator.details" direction="column" gap="6">
+							<Text size="12" weight="600" color="secondary">Description</Text>
+
+							<Flex align="center" gap="6">
+								<Text size="12" height="140" weight="600" color="tertiary" mono selectable :class="$style.memo">
+									{{ validator.details }}
+								</Text>
+							</Flex>
 						</Flex>
-					</Flex>
-
-					<Flex v-if="validator.details" direction="column" gap="6">
-						<Text size="12" weight="600" color="secondary">Description</Text>
-
-						<Flex align="center" gap="6">
-							<Text size="12" height="140" weight="600" color="tertiary" mono selectable :class="$style.memo">
-								{{ validator.details }}
-							</Text>
-						</Flex>
-					</Flex>
-					<Flex v-if="validator.website || parsedContacts.length" align="center" justify="start" gap="12">
-						<Tooltip v-if="validator.website" position="start" delay="500">
-							<a :href="validator.website" target="_blank">
-								<Icon name="globe" size="14" color="secondary" :class="$style.btn" />
-							</a>
-
-							<template #content>
-								{{ validator.website }}
-							</template>
-						</Tooltip>
-
-						<template v-for="c in parsedContacts">
-							<Tooltip v-if="c.type !== 'unknown'" position="start" delay="500">
-								<a :href="c.value" target="_blank">
-									<Icon :name="c.type" size="14" color="secondary" :class="$style.btn" />
+						<Flex v-if="validator.website || parsedContacts.length" align="center" justify="start" gap="12">
+							<Tooltip v-if="validator.website" position="start" delay="500">
+								<a :href="validator.website" target="_blank">
+									<Icon name="globe" size="14" color="secondary" :class="$style.btn" />
 								</a>
 
 								<template #content>
-									{{ c.value }}
+									{{ validator.website }}
 								</template>
 							</Tooltip>
-						</template>
-					</Flex>
 
-					<!-- Staking -->
-					<Flex direction="column" gap="16">
-						<Text size="12" weight="600" color="secondary">Staking</Text>
+							<template v-for="c in parsedContacts">
+								<Tooltip v-if="c.type !== 'unknown'" position="start" delay="500">
+									<a :href="c.value" target="_blank">
+										<Icon :name="c.type" size="14" color="secondary" :class="$style.btn" />
+									</a>
 
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Voting Power</Text>
-							<AmountInCurrency
-								:amount="{ value: validator.voting_power, unit: 'TIA' }"
-								:styles="{ amount: { color: 'tertiary' } }"
-							/>
+									<template #content>
+										{{ c.value }}
+									</template>
+								</Tooltip>
+							</template>
 						</Flex>
 
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Outgoing Rewards</Text>
-							<AmountInCurrency :amount="{ value: validator.rewards }" :styles="{ amount: { color: 'tertiary' } }" />
-						</Flex>
+						<!-- Staking -->
+						<Flex direction="column" gap="16">
+							<Text size="12" weight="600" color="secondary">Staking</Text>
 
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Commissions</Text>
-							<AmountInCurrency :amount="{ value: validator.commissions }" :styles="{ amount: { color: 'tertiary' } }" />
-						</Flex>
-					</Flex>
-
-					<!-- Details -->
-					<Flex direction="column" gap="16">
-						<Text size="12" weight="600" color="secondary">Details</Text>
-
-						<Flex v-if="!parsedContacts.length && validator.contacts" align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Contact</Text>
-							<Text size="12" weight="600" color="tertiary" selectable> {{ validator.contacts }} </Text>
-						</Flex>
-
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Delegator Address</Text>
-							<Flex gap="6">
-								<AddressBadge :account="validator.delegator" color="tertiary" />
-								<CopyButton :text="validator.delegator.hash" />
-							</Flex>
-						</Flex>
-
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Consensus Address</Text>
-							<Flex gap="6">
-								<Text size="12" weight="600" color="tertiary"> {{ shortHex(validator.cons_address) }} </Text>
-								<CopyButton :text="validator.cons_address" />
-							</Flex>
-						</Flex>
-
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Identity</Text>
-							<Flex gap="6">
-								<Text size="12" weight="600" color="tertiary"> {{ validator.identity }} </Text>
-								<CopyButton :text="validator.identity" />
-							</Flex>
-						</Flex>
-
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Rate</Text>
-							<Text size="12" weight="600" color="secondary"> {{ numToPercent(validator.rate) }} </Text>
-						</Flex>
-
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Max Rate</Text>
-							<Text size="12" weight="600" color="secondary"> {{ numToPercent(validator.max_rate) }} </Text>
-						</Flex>
-
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Max Change Rate</Text>
-							<Text size="12" weight="600" color="secondary"> {{ numToPercent(validator.max_change_rate) }} </Text>
-						</Flex>
-
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Min Self Delegation</Text>
-							<Text size="12" weight="600" color="secondary"> {{ comma(validator.min_self_delegation) }} </Text>
-						</Flex>
-
-						<Flex v-if="validator.version" align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Version</Text>
-							<Text size="12" weight="600" color="secondary"> {{ `v${validator.version}` }} </Text>
-						</Flex>
-
-						<div :class="$style.horizontal_divider" />
-
-						<!-- Validator Uptime -->
-						<Flex align="center" gap="6">
-							<Text size="12" weight="600" color="secondary">Validator Uptime</Text>
-							<Text size="12" weight="600" color="tertiary">(last 100 blocks)</Text>
-						</Flex>
-
-						<Flex :class="$style.uptime_wrapper">
-							<Tooltip v-for="t in uptime" @click="navigateTo(`/block/${t.height}`)">
-								<Flex
-									:class="$style.uptime"
-									:style="{
-										background: t.signed ? 'var(--brand)' : 'var(--red)',
-									}"
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Voting Power</Text>
+								<AmountInCurrency
+									:amount="{ value: validator.voting_power, unit: 'TIA' }"
+									:styles="{ amount: { color: 'tertiary' } }"
 								/>
+							</Flex>
 
-								<template #content>
-									<Flex direction="column" gap="4">
-										<Text color="primary">{{ t.height }}</Text>
-										<Text color="secondary">{{ t.signed ? "Signed" : "Missed" }}</Text>
-									</Flex>
-								</template>
-							</Tooltip>
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Outgoing Rewards</Text>
+								<AmountInCurrency :amount="{ value: validator.rewards }" :styles="{ amount: { color: 'tertiary' } }" />
+							</Flex>
+
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Commissions</Text>
+								<AmountInCurrency :amount="{ value: validator.commissions }" :styles="{ amount: { color: 'tertiary' } }" />
+							</Flex>
+						</Flex>
+
+						<!-- Details -->
+						<Flex direction="column" gap="16">
+							<Text size="12" weight="600" color="secondary">Details</Text>
+
+							<Flex v-if="!parsedContacts.length && validator.contacts" align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Contact</Text>
+								<Text size="12" weight="600" color="tertiary" selectable> {{ validator.contacts }} </Text>
+							</Flex>
+
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Delegator Address</Text>
+								<Flex gap="6">
+									<AddressBadge :account="validator.delegator" color="tertiary" />
+									<CopyButton :text="validator.delegator.hash" />
+								</Flex>
+							</Flex>
+
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Consensus Address</Text>
+								<Flex gap="6">
+									<Text size="12" weight="600" color="tertiary"> {{ shortHex(validator.cons_address) }} </Text>
+									<CopyButton :text="validator.cons_address" />
+								</Flex>
+							</Flex>
+
+							<Flex v-if="validator.identity" align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Identity</Text>
+								<Flex gap="6">
+									<Text size="12" weight="600" color="tertiary"> {{ validator.identity }} </Text>
+									<CopyButton :text="validator.identity" />
+								</Flex>
+							</Flex>
+
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Rate</Text>
+								<Text size="12" weight="600" color="secondary"> {{ numToPercent(validator.rate) }} </Text>
+							</Flex>
+
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Max Rate</Text>
+								<Text size="12" weight="600" color="secondary"> {{ numToPercent(validator.max_rate) }} </Text>
+							</Flex>
+
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Max Change Rate</Text>
+								<Text size="12" weight="600" color="secondary"> {{ numToPercent(validator.max_change_rate) }} </Text>
+							</Flex>
+
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Min Self Delegation</Text>
+								<Text size="12" weight="600" color="secondary"> {{ comma(validator.min_self_delegation) }} </Text>
+							</Flex>
+
+							<Flex v-if="validator.version" align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Version</Text>
+								<Text size="12" weight="600" color="secondary"> {{ `v${validator.version}` }} </Text>
+							</Flex>
+
+							<div :class="$style.horizontal_divider" />
+
+							<!-- Validator Uptime -->
+							<Flex align="center" gap="6">
+								<Text size="12" weight="600" color="secondary">Validator Uptime</Text>
+								<Text size="12" weight="600" color="tertiary">(last 100 blocks)</Text>
+							</Flex>
+
+							<Flex :class="$style.uptime_wrapper">
+								<Tooltip v-for="t in uptime" @click="navigateTo(`/block/${t.height}`)">
+									<Flex
+										:class="$style.uptime"
+										:style="{
+											background: t.signed ? 'var(--brand)' : 'var(--red)',
+										}"
+									/>
+
+									<template #content>
+										<Flex direction="column" gap="4">
+											<Text color="primary">{{ t.height }}</Text>
+											<Text color="secondary">{{ t.signed ? "Signed" : "Missed" }}</Text>
+										</Flex>
+									</template>
+								</Tooltip>
+							</Flex>
 						</Flex>
 					</Flex>
+				</Flex>
+
+				<Flex justify="center" :class="$style.metrics_wrapper">
+					<ValidatorMetrics :validator="validator" />
 				</Flex>
 			</Flex>
 
@@ -610,7 +619,7 @@ const handleDelegate = () => {
 	}
 
 	.memo {
-		max-width: 352px;
+		max-width: 100%;
 		text-overflow: ellipsis;
 		overflow: hidden;
 	}
@@ -639,6 +648,14 @@ const handleDelegate = () => {
 		margin-top: 4px;
 		margin-bottom: 4px;
 	}
+}
+
+.metrics_wrapper {
+	border-radius: 4px 4px 4px 4px;
+
+	/* min-width: 0; */
+
+	background: var(--card-background);
 }
 
 .txs_wrapper {

@@ -1,6 +1,7 @@
 <script setup>
 /** Components: Modules */
 import ValidatorOverview from "@/components/modules/validator/ValidatorOverview.vue"
+import ValidatorCharts from "@/components/modules/validator/ValidatorCharts.vue"
 
 /** Services */
 import { isValidId } from "@/services/utils"
@@ -91,6 +92,8 @@ useHead({
 
 			<ValidatorOverview v-if="validator" :validator="validator" />
 		</Flex>
+
+		<ValidatorCharts v-if="validator" :validator="validator" />
 	</Flex>
 </template>
 

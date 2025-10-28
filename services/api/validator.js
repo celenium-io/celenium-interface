@@ -101,6 +101,32 @@ export const fetchValidatorUptime = ({ id, limit }) => {
 	}
 }
 
+export const fetchValidatorsMetrics = (count) => {
+	try {
+		const url = new URL(`${useServerURL()}/validators/metrics`)
+
+		if (count) url.searchParams.append("count", count)
+
+		return useFetch(encodeURI(url.href), {
+			key: "validators_metrics",
+		})
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchValidatorMetrics = (id) => {
+	try {
+		const url = new URL(`${useServerURL()}/validators/${id}/metrics`)
+
+		return useFetch(encodeURI(url.href), {
+			key: "validator_metric",
+		})
+	} catch (error) {
+		console.error(error)
+	}
+}
+
 export const fetchValidatorsUpgrades = ({ limit, offset }) => {
 	try {
 		const url = new URL(`${useServerURL()}/signal/upgrade`)
