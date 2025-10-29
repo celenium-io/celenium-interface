@@ -162,9 +162,6 @@ export const getNetworkName = () => {
 		case "arabica.celenium.io":
 			return "Arabica"
 
-		case "mammoth.celenium.io":
-			return "Mammoth"
-
 		case "dev.celenium.io":
 			return "Development"
 
@@ -177,8 +174,8 @@ export const getNetworkName = () => {
 }
 
 export const isMainnet = () => {
-	return true
-	// return getNetworkName() === "Mainnet" || getNetworkName() === "Development" || isSelfhosted()
+	// return true
+	return getNetworkName() === "Mainnet" || getNetworkName() === "Development" || isSelfhosted()
 }
 
 export const isMac = () => {

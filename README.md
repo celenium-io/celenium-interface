@@ -85,7 +85,6 @@ If you want to use a prebuilt image from **GitHub Container Registry**, specify 
 - **NUXT_PUBLIC_FAUCET_ADDRESS** — faucet address.
 - **NUXT_PUBLIC_FAUCET_MOCHA** — faucet API for the Mocha network.
 - **NUXT_PUBLIC_FAUCET_ARABICA** — faucet API for the Arabica network.
-- **NUXT_PUBLIC_FAUCET_MAMMOTH** — faucet API for the Mammoth network.
 
 #### External Services Configuration
 - **NUXT_PUBLIC_BLOCKSCOUT** — used to check whether a batch exists in Blockscout. If found, a dedicated button will appear on the blob form/page.

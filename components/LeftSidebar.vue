@@ -239,8 +239,7 @@ const handleOnClose = () => {
 			<Flex justify="between" align="center">
 				<NuxtLink to="/" :class="$style.logo">
 					<Flex align="center" gap="8">
-						<Icon v-if="getNetworkName() !== 'Mammoth'" name="logo" size="16" color="tertiary" :class="$style.logo_symbol" />
-						<Text v-else size="16" style="filter: grayscale(1)">🦣</Text>
+						<Icon name="logo" size="16" color="tertiary" :class="$style.logo_symbol" />
 
 						<svg width="86" height="14" viewBox="0 0 96 16" xmlns="http://www.w3.org/2000/svg" :class="$style.logo_name">
 							<path
@@ -354,7 +353,6 @@ const handleOnClose = () => {
 					<DropdownItem @click="handleNavigate('https://celenium.io')">Mainnet</DropdownItem>
 					<DropdownItem @click="handleNavigate('https://mocha-4.celenium.io')">Mocha-4</DropdownItem>
 					<DropdownItem @click="handleNavigate('https://arabica.celenium.io')">Arabica</DropdownItem>
-					<DropdownItem @click="handleNavigate('https://mammoth.celenium.io')">Mammoth</DropdownItem>
 				</template>
 			</Dropdown>
 		</Flex>
