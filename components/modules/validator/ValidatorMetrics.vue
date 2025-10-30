@@ -1,29 +1,16 @@
 <script setup>
-/** Vendor */
-import { DateTime } from "luxon"
-
 /** UI */
-import Button from "@/components/ui/Button.vue"
-import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Input from "@/components/ui/Input.vue"
 import Popover from "@/components/ui/Popover.vue"
-import Toggle from "@/components/ui/Toggle.vue"
 
 /** Components */
-import ChartOnEntityPage from "~/components/shared/ChartOnEntityPage.vue"
 import RadarChart from "@/components/modules/stats/RadarChart.vue"
 
 /** Services */
-import { abbreviate, formatBytes, roundTo, sortArrayOfObjects, tia } from "@/services/utils"
-import { createDataMap, generateSeriesData, PERIODS as periods } from "@/services/utils/entityCharts"
+import { roundTo, sortArrayOfObjects, tia } from "@/services/utils"
 
 /** API */
-import { fetchStakingSeries } from "@/services/api/stats"
 import { fetchValidators, fetchValidatorsMetrics, fetchValidatorMetrics } from "@/services/api/validator"
-
-/** Store */
-import { useSettingsStore } from "@/store/settings.store"
-const settingsStore = useSettingsStore()
 
 const props = defineProps({
 	validator: {
@@ -80,13 +67,13 @@ function prepareData(data, name) {
 const getValidators = async () => {
     const { data } = await fetchValidators({ limit: 100 })
     if (data.value) {
-        itemsList.value = [...itemsList.value, ...sortArrayOfObjects(data.value.filter(v => v.id !== props.validator.id), "moniker")]
+        validators.value = sortArrayOfObjects(data.value.filter(v => v.id !== props.validator.id), "moniker")
     }
 }
 
 const isPopoverOpen = ref(false)
 const searchTerm = ref("")
-const itemsList = ref([
+const topList = ref([
     {
         name: "Top 25",
         value: 25,
@@ -100,7 +87,7 @@ const itemsList = ref([
         value: 100,
     },
 ])
-const selectedItem = ref(itemsList.value?.at(0))
+const selectedItem = ref(topList.value?.at(0))
 
 const handlePopoverClose = () => {
 	isPopoverOpen.value = false
@@ -110,10 +97,12 @@ const handleSelectItem = (item) => {
 	selectedItem.value = item
     handlePopoverClose()
 }
-const filteredItemsList = computed(() => {
-	if (!searchTerm.value) return itemsList.value
+const filteredValidators = computed(() => {
+	if (!searchTerm.value) return validators.value
 
-	return itemsList.value.filter((item) => item.name?.toLowerCase().includes(searchTerm.value.trim().toLowerCase()) || item.moniker?.toLowerCase().includes(searchTerm.value.trim().toLowerCase()))
+	return validators.value.filter(v =>
+        v.moniker?.toLowerCase().includes(searchTerm.value.trim().toLowerCase())
+    )
 })
 
 watch(
@@ -130,79 +119,87 @@ onBeforeMount(async() => {
 </script>
 
 <template>
-    <Flex direction="column" justify="between" gap="12" wide :class="$style.wrapper">
-        <Flex direction="column" gap="12" wide>
-            <Flex align="center" justify="between" wide>
-                <Text size="13" weight="600" color="primary">Validator Metrics Comparison</Text>
+    <Flex direction="column" justify="between" align="center" gap="12" wide :class="$style.wrapper">
+        <Flex align="center" justify="between" wide>
+            <Text size="13" weight="600" color="primary">Validator Metrics Comparison</Text>
 
-                <Popover :open="isPopoverOpen" @on-close="handlePopoverClose" side="right" width="160">
-                    <Flex
-                        @click="isPopoverOpen = true"
-                        align="center"
-                        justify="between"
-                        gap="12"
-                        :class="[$style.popover_header, isPopoverOpen && $style.popover_header_active]"
-                    >
-                        <Flex align="center" gap="4">
-                            <Text size="13" color="secondary"> vs </Text>
-                            <Text size="13" color="primary" :class="$style.title"> {{ selectedItem?.name || selectedItem?.moniker }} </Text>
-                        </Flex>
-
-                        <Icon
-                            name="chevron"
-                            size="14"
-                            color="secondary"
-                            :style="{ transform: `rotate(${isPopoverOpen ? '180' : '0'}deg)`, transition: 'all 0.25s ease' }"
-                        />
+            <Popover :open="isPopoverOpen" @on-close="handlePopoverClose" side="right" width="160">
+                <Flex
+                    @click="isPopoverOpen = true"
+                    align="center"
+                    justify="between"
+                    gap="12"
+                    :class="[$style.popover_header, isPopoverOpen && $style.popover_header_active]"
+                >
+                    <Flex align="center" gap="4">
+                        <Text size="13" color="secondary"> vs </Text>
+                        <Text size="13" color="primary" :class="$style.title"> {{ selectedItem?.name || selectedItem?.moniker }} </Text>
                     </Flex>
 
-                    <template #content>
-                        <Flex direction="column" justify="center" gap="12">
-                            <Text size="12" weight="600" color="secondary">Compare with</Text>
+                    <Icon
+                        name="chevron"
+                        size="14"
+                        color="secondary"
+                        :style="{ transform: `rotate(${isPopoverOpen ? '180' : '0'}deg)`, transition: 'all 0.25s ease' }"
+                    />
+                </Flex>
 
-                            <Input v-model="searchTerm" size="small" placeholder="Search" autofocus />
+                <template #content>
+                    <Flex direction="column" justify="center" gap="12" wide>
+                        <Text size="12" weight="600" color="secondary">Compare with</Text>
 
-                            <Flex direction="column" gap="4" :class="$style.popover_list">
-                                <template v-if="filteredItemsList.length">
-                                    <Flex
-                                        v-for="item in filteredItemsList"
-                                        @click="handleSelectItem(item)"
-                                        align="center"
-                                        justify="end"
-                                        gap="8"
-                                        :class="$style.popover_list_item"
-                                    >
-                                        <Icon v-if="item.name ? selectedItem.name === item.name : selectedItem.moniker === item.moniker" name="check" size="14" color="brand" />
+                        <Flex align="center" justify="between" gap="12" wide>
+                            <Text size="12" color="secondary">Top</Text>
 
-                                        <Text size="12" color="primary" :class="$style.title"> {{ item.name || item.moniker }} </Text>
-                                    </Flex>
-                                </template>
-                                <Flex v-else justify="center" :style="{ paddingTop: '10px' }">
-                                    <Text size="12" weight="500" color="tertiary">Nothing was found</Text>
+                            <Flex align="center" justify="between" wide>
+                                <Flex
+                                    v-for="item in topList"
+                                    @click="handleSelectItem(item)"
+                                    align="center"
+                                    :class="[$style.top_item, selectedItem.value === item.value && $style.top_item_active]"
+                                >
+                                    <Text size="12" color="secondary"> {{ item.value }} </Text>
                                 </Flex>
                             </Flex>
                         </Flex>
-                    </template>
-                </Popover>
-            </Flex>
 
-            <RadarChart
-                :series="metricsSeries"
-                :isLoading="isLoading"
-                style="width: 400px; height: 400px;"
-            />
+                        <Input v-model="searchTerm" size="small" placeholder="Search" autofocus />
+
+                        <Flex direction="column" gap="4" :class="$style.popover_list">
+                            <template v-if="filteredValidators.length">
+                                <Flex
+                                    v-for="v in filteredValidators"
+                                    @click="handleSelectItem(v)"
+                                    align="center"
+                                    justify="end"
+                                    gap="8"
+                                    :class="$style.popover_list_item"
+                                >
+                                    <Icon v-if="selectedItem.moniker === v.moniker" name="check" size="14" color="brand" />
+
+                                    <Text size="12" color="primary" :weight="selectedItem.moniker === v.moniker ? '600' : '500'" :class="$style.title"> {{ v.moniker }} </Text>
+                                </Flex>
+                            </template>
+                            <Flex v-else-if="searchTerm" justify="center" :style="{ paddingTop: '10px' }">
+                                <Text size="12" weight="500" color="tertiary">Nothing was found</Text>
+                            </Flex>
+                        </Flex>
+                    </Flex>
+                </template>
+            </Popover>
         </Flex>
 
-        <Text size="12" weight="500" color="tertiary" style="line-height: 1.2;">
-            This chart summarizes validator performance based on several key metrics, including participation in consensus, reliability, commission policy, self-delegation, and operational history. Together, these indicators help evaluate how stable, committed, and aligned a validator is within the network, supporting more informed delegation decisions.
-        </Text>
+        <RadarChart
+            :series="metricsSeries"
+            :isLoading="isLoading"
+            :class="$style.chart"
+        />
     </Flex>
 </template>
 
 <style module lang="scss">
 .wrapper {
-    max-width: 432px;
-    padding: 16px;
+    max-width: 384px;
 }
 
 .popover_header {
@@ -221,6 +218,7 @@ onBeforeMount(async() => {
 
 .title {
     max-width: 120px;
+    min-height: 14px;
 
     white-space: nowrap;
     overflow: hidden;
@@ -239,13 +237,34 @@ onBeforeMount(async() => {
 	overscroll-behavior: contain;
 }
 
+.top_item {
+    cursor: pointer;
+
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--op-10);
+
+    &:hover {
+        border: 1px solid var(--op-20);
+    }
+}
+
+.top_item_active {
+    border: 1px solid var(--dark-mint);
+
+    * {
+        color: var(--brand);
+        font-weight: 600;
+    }    
+}
+
 .popover_list_item {
-	padding: 8px 2px;
+	cursor: pointer;
+
+	padding: 8px 6px;
 	border-radius: 2px;
 
     max-width: 160px;
-
-	cursor: pointer;
 
 	&:hover {
 		background-color: var(--op-5);
@@ -253,6 +272,7 @@ onBeforeMount(async() => {
 
     .title {
         max-width: 160px;
+        min-height: 13px;
 
         white-space: nowrap;
         overflow: hidden;
@@ -260,6 +280,20 @@ onBeforeMount(async() => {
     }
 }
 
+.chart {
+    height: 380px;
+}
+
 @media (max-width: 800px) {
+    .wrapper {
+        width: 100%;
+        max-width: 100%;
+        height: 100%;
+        max-height: 100%;
+    }
+
+    .chart {
+        width: 90%;
+    }
 }
 </style>

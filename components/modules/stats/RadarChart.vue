@@ -12,6 +12,7 @@ const props = defineProps({
 	},
 })
 
+const wrapperEl = ref()
 const chartEl = ref()
 const tooltipEl = ref()
 const tooltip = ref({
@@ -20,11 +21,11 @@ const tooltip = ref({
 })
 
 const buildChart = (chart) => {
-	const { width, height } = chart.getBoundingClientRect()
+	const { width } = chart.getBoundingClientRect()
 
     const radialScale = d3.scaleLinear()
         .domain([0, 100])
-        .range([0, (width - 150) / 2])
+        .range([0, (width - 160) / 2])
     
     const maxRadius = radialScale(100)
     const ticks = [25, 50, 75, 100]
@@ -160,8 +161,8 @@ const buildChart = (chart) => {
 	const svg = d3
 		.create("svg")
 		.attr("width", width)
-		.attr("height", height)
-        .attr("viewBox", [-width / 2, -height / 2 + 20, width, height])
+		.attr("height", width)
+        .attr("viewBox", [-width / 2, -width / 2 + 20, width, width])
 		.attr("preserveAspectRatio", "none")
 		.attr("style", "max-width: 100%;")
 		.attr("id", "chart")
@@ -185,17 +186,25 @@ const buildChart = (chart) => {
     for (let i = 0; i < features.length; i++) {
         const angle = (-Math.PI / 2) + (2 * Math.PI * i / features.length)
         const lineCoordinate = angleToCoordinate(angle, 100)
-        const labelCoordinate = angleToCoordinate(angle, 130)
+        const labelCoordinate = angleToCoordinate(angle, 116)
+        let labelAnchor = "start"
+        
         if (angle < 0 && angle > -Math.PI / 4) {
-            labelCoordinate.x += 4
+            labelCoordinate.x -= width > 400 ? 16 : 4
         }
         if (angle < 0 && angle < -Math.PI / 3) {
-            labelCoordinate.y += 4
+            labelCoordinate.y -= 12
+        }
+
+        if (angle > Math.PI / 2) {
+            labelAnchor = "end"
+        } else if (angle < -Math.PI / 3) {
+            labelAnchor = "middle"
         }
 
         // Draw axis labels and values
         const label = svg.append("text")
-            .attr("text-anchor", "middle")
+            .attr("text-anchor", labelAnchor)
             .attr("x", labelCoordinate.x)
             .attr("y", labelCoordinate.y)
             .attr("font-size", "12px")
@@ -291,7 +300,7 @@ const buildChart = (chart) => {
     const legendSpacing = 22
     const legendGroup = svg.append("g")
         .attr("class", "legend-group")
-        .attr("transform", `translate(${-width / 2 + 20}, ${height / 2 - 20})`)
+        .attr("transform", `translate(${-width / 2 + 20}, ${width / 2 - 20})`)
 
     legendItems.forEach((item, i) => {
         const y = i * legendSpacing
@@ -334,7 +343,7 @@ onMounted(() => {
 </script>
 
 <template>
-	<Flex direction="column" wide :class="$style.wrapper">
+	<Flex ref="wrapperEl" direction="column" wide :class="$style.wrapper">
 		<Flex :class="$style.chart_wrapper">
 			<Transition name="fastfade">
 				<div v-if="tooltip.show" :class="$style.tooltip_wrapper">
@@ -378,21 +387,22 @@ onMounted(() => {
 
 <style module lang="scss">
 .wrapper {
-	height: 800px;
+    flex: 1;
+
+    aspect-ratio: 1 / 1;
 
 	border-radius: 12px;
 }
 
 .chart_wrapper {
-	position: relative;
+    flex: 1;
 
-	height: 800px;
+	position: relative;
 }
 
 .chart {
-	height: 100%;
 	position: absolute;
-
+    
 	overflow: hidden;
 
 	& svg {
@@ -434,13 +444,6 @@ onMounted(() => {
 		width: 100%;
 		height: 1px;
 		background: var(--op-5);
-	}
-}
-
-@media (max-width: 1000px) {
-	.wrapper {
-		max-width: initial;
-		width: 100%;
 	}
 }
 </style>
