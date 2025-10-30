@@ -12,7 +12,6 @@ const props = defineProps({
 	},
 })
 
-const wrapperEl = ref()
 const chartEl = ref()
 const tooltipEl = ref()
 const tooltip = ref({
@@ -343,7 +342,7 @@ onMounted(() => {
 </script>
 
 <template>
-	<Flex ref="wrapperEl" direction="column" wide :class="$style.wrapper">
+	<Flex direction="column" wide :class="$style.wrapper">
 		<Flex :class="$style.chart_wrapper">
 			<Transition name="fastfade">
 				<div v-if="tooltip.show" :class="$style.tooltip_wrapper">
