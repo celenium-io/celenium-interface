@@ -8,7 +8,7 @@
 # General Description
 # ─────────────────────────────────────────────
 Celenium is an advanced explorer for the Celestia blockchain.  
-It provides data and analytics for blocks, transactions, addresses, validators, namespaces, rollups, networks, and related ecosystem metrics.  
+It provides data and analytics for blocks, transactions, addresses, validators, namespaces, rollups, networks, upgrades and related ecosystem metrics.  
 The content on this website is factual, technical, and derived from publicly available blockchain data.
 
 # ─────────────────────────────────────────────

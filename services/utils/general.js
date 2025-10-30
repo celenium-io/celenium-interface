@@ -162,9 +162,6 @@ export const getNetworkName = () => {
 		case "arabica.celenium.io":
 			return "Arabica"
 
-		case "mammoth.celenium.io":
-			return "Mammoth"
-
 		case "dev.celenium.io":
 			return "Development"
 
@@ -177,8 +174,8 @@ export const getNetworkName = () => {
 }
 
 export const isMainnet = () => {
-	return true
-	// return getNetworkName() === "Mainnet" || getNetworkName() === "Development" || isSelfhosted()
+	// return true
+	return getNetworkName() === "Mainnet" || getNetworkName() === "Development" || isSelfhosted()
 }
 
 export const isMac = () => {
@@ -279,6 +276,7 @@ export function isValidId(id, type) {
 	switch (type) {
 		case "block":
 		case "proposal":
+		case "upgrade_version":
 		case "validator":
 			return /^[0-9]+$/.test(id);
 
@@ -290,6 +288,16 @@ export function isValidId(id, type) {
 
 		case "address":
 			return validateCelestiaAddress(id);
+	
+		default:
+			return false;
+	}
+}
+
+export function isValidQueryParam(value, type = "page") {
+	switch (type) {
+		case "page":
+			return /^[0-9]+$/.test(value);
 	
 		default:
 			return false;

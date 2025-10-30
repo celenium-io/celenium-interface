@@ -582,7 +582,8 @@ const handleViewRawTransactions = () => {
 				</Flex>
 
 				<UpcomingUpdate v-if="activeTab === 'upcoming_update'" :update="update" />
-				<Flex v-else-if="activeTab === 'transactions'" direction="column" :class="[$style.table, isLoading && $style.disabled]">
+				
+				<Flex v-else-if="activeTab === 'transactions'" direction="column" justify="between" :class="[$style.table, isLoading && $style.disabled]">
 					<Flex wrap="wrap" align="center" justify="start" gap="8" :class="$style.filters">
 						<Popover :open="isStatusPopoverOpen" @on-close="onStatusPopoverClose" width="200">
 							<Button @click="handleOpenStatusPopover" type="secondary" size="mini" :disabled="!transactions.length">
@@ -918,7 +919,7 @@ const handleViewRawTransactions = () => {
 					/>
 
 					<!-- Pagination -->
-					<Flex v-if="transactions.length" align="center" gap="6" :class="$style.pagination">
+					<Flex align="center" gap="6" :class="$style.pagination">
 						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
 							<Icon name="arrow-left-stop" size="12" color="primary" />
 						</Button>

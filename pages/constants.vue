@@ -9,7 +9,7 @@ import { formatBytes, comma, round } from "@/services/utils"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** API */
-import { fetchMainnetConstants, fetchMochaConstants, fetchArabicaConstants, fetchMammothConstants } from "@/services/api/main"
+import { fetchMainnetConstants, fetchMochaConstants, fetchArabicaConstants } from "@/services/api/main"
 
 /** Store */
 import { useNotificationsStore } from "@/store/notifications.store"
@@ -64,16 +64,15 @@ useHead({
 })
 
 const { data: constants } = await useAsyncData(`all-constants`, async () => {
-	const [mainnet, mocha, arabica, mammoth] = await Promise.all([
+	const [mainnet, mocha, arabica ] = await Promise.all([
 		fetchMainnetConstants(),
 		fetchMochaConstants(),
 		fetchArabicaConstants(),
-		fetchMammothConstants(),
 	])
-	return { mainnet, mocha, arabica, mammoth }
+	return { mainnet, mocha, arabica }
 })
 
-const networks = ["mainnet", "mocha", "arabica", "mammoth"]
+const networks = ["mainnet", "mocha", "arabica"]
 const modules = Object.keys(constants.value.mainnet.module)
 
 const constantsToMb = ["block_max_bytes", "evidence_max_bytes"]
@@ -206,9 +205,6 @@ const handleCopy = (text) => {
 							</th>
 							<th>
 								<Text size="13" weight="600" color="tertiary" mono> Arabica </Text>
-							</th>
-							<th>
-								<Text size="13" weight="600" color="tertiary" mono> Mammoth </Text>
 							</th>
 						</tr>
 					</thead>

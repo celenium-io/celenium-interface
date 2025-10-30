@@ -82,13 +82,11 @@ export default defineNuxtConfig({
 			API_MAINNET: "",
 			API_MOCHA: "",
 			API_ARABICA: "",
-			API_MAMMOTH: "",
 			API_DEV: "",
 
 			WSS_MAINNET: "",
 			WSS_MOCHA: "",
 			WSS_ARABICA: "",
-			WSS_MAMMOTH: "",
 			WSS_DEV: "",
 
 			BLOBSTREAM_MAINNET: "",
@@ -97,7 +95,6 @@ export default defineNuxtConfig({
 			FAUCET_ADDRESS: "",
 			FAUCET_MOCHA: "",
 			FAUCET_ARABICA: "",
-			FAUCET_MAMMOTH: "",
 
 			BLOCKSCOUT: "",
 			GITHUB: "",

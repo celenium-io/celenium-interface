@@ -1,8 +1,10 @@
 <script setup>
 /** UI */
 import Button from "@/components/ui/Button.vue"
-import Tooltip from "@/components/ui/Tooltip.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
+import Tooltip from "@/components/ui/Tooltip.vue"
+
+/** Components */
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
 /** Services */
@@ -271,6 +273,7 @@ onMounted(() => {
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Rate</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Max Rate</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Max Change Rate</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Version</Text></th>
 							</tr>
 						</thead>
 
@@ -278,8 +281,8 @@ onMounted(() => {
 							<tr v-for="v in validators">
 								<td style="width: 1px">
 									<NuxtLink :to="`/validator/${v.id}`">
-										<Flex align="center" gap="6">
-											<Text size="13" weight="600" color="primary" mono>
+										<Flex align="center" wide>
+											<Text size="13" weight="600" color="primary" mono style="text-overflow: ellipsis; overflow: hidden;">
 												{{ v.moniker ? v.moniker : splitAddress(v.address?.hash) }}
 											</Text>
 										</Flex>
@@ -345,6 +348,13 @@ onMounted(() => {
 									<NuxtLink :to="`/validator/${v.id}`">
 										<Flex align="center">
 											<Text size="13" weight="600" color="primary">{{ numToPercent(v.max_change_rate) }}</Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink v-if="v.version" :to="`/validator/${v.id}`">
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary">{{ `v${v.version}` }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>
@@ -450,6 +460,11 @@ onMounted(() => {
 
 			&:first-child {
 				padding-left: 16px;
+				max-width: 350px;
+			}
+
+			&:last-child {
+				padding-right: 16px;
 			}
 
 			& > a {

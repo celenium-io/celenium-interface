@@ -40,7 +40,6 @@ const appConfig = useAppConfig()
 
 const developerMode = useCookie("developerMode", { default: () => false })
 const theme = useCookie("theme", { default: () => "dark" })
-const showPromoBackground = useCookie("showPromoBackground", { default: () => true })
 
 const route = useRoute()
 const router = useRouter()
@@ -299,6 +298,15 @@ const rawNavigationActions = [
 		runText: "Open Blobstream",
 		callback: () => {
 			router.push("/blobstream")
+		},
+	},
+	{
+		type: "callback",
+		icon: "arrow-narrow-right",
+		title: "Go to Upgrades",
+		runText: "Open Upgrades",
+		callback: () => {
+			router.push("/upgrades")
 		},
 	},
 	{
@@ -828,36 +836,6 @@ const developerGroup = computed(() => {
 })
 
 const rawOtherActions = [
-	{
-		type: "callback",
-		icon: "settings",
-		title: "Toggle Promo Background",
-		subtitle: "Command",
-		runText: "Toggle",
-		callback: () => {
-			if (getNetworkName() !== "Mammoth") {
-				notificationsStore.create({
-					notification: {
-						type: "info",
-						icon: "info",
-						title: `Available for the mammoth network only`,
-						autoDestroy: true,
-					},
-				})
-				return
-			}
-
-			showPromoBackground.value = !showPromoBackground.value
-			notificationsStore.create({
-				notification: {
-					type: "info",
-					icon: "info",
-					title: `Promo background ${showPromoBackground.value ? "enabled" : "disabled"}`,
-					autoDestroy: true,
-				},
-			})
-		},
-	},
 	{
 		type: "callback",
 		icon: "terminal",
