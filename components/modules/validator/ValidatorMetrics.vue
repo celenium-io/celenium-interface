@@ -7,7 +7,7 @@ import Popover from "@/components/ui/Popover.vue"
 import RadarChart from "@/components/modules/stats/RadarChart.vue"
 
 /** Services */
-import { roundTo, sortArrayOfObjects, tia } from "@/services/utils"
+import { roundTo, sortArrayOfObjects } from "@/services/utils"
 
 /** API */
 import { fetchValidators, fetchValidatorsMetrics, fetchValidatorMetrics } from "@/services/api/validator"
@@ -101,7 +101,8 @@ const filteredValidators = computed(() => {
 	if (!searchTerm.value) return validators.value
 
 	return validators.value.filter(v =>
-        v.moniker?.toLowerCase().includes(searchTerm.value.trim().toLowerCase())
+        v.moniker?.toLowerCase().includes(searchTerm.value.trim().toLowerCase()) ||
+        v.address?.hash === searchTerm.value.trim().toLowerCase()
     )
 })
 
@@ -133,7 +134,7 @@ onBeforeMount(async() => {
                 >
                     <Flex align="center" gap="4">
                         <Text size="13" color="secondary"> vs </Text>
-                        <Text size="13" color="primary" :class="$style.title"> {{ selectedItem?.name || selectedItem?.moniker }} </Text>
+                        <Text size="13" color="primary" :class="$style.title"> {{ selectedItem?.name || selectedItem?.moniker || selectedItem?.address?.hash }} </Text>
                     </Flex>
 
                     <Icon
@@ -163,7 +164,7 @@ onBeforeMount(async() => {
                             </Flex>
                         </Flex>
 
-                        <Input v-model="searchTerm" size="small" placeholder="Search" autofocus />
+                        <Input v-model="searchTerm" size="small" placeholder="Search.." autofocus />
 
                         <Flex direction="column" gap="4" :class="$style.popover_list">
                             <template v-if="filteredValidators.length">
@@ -175,9 +176,9 @@ onBeforeMount(async() => {
                                     gap="8"
                                     :class="$style.popover_list_item"
                                 >
-                                    <Icon v-if="selectedItem.moniker === v.moniker" name="check" size="14" color="brand" />
+                                    <Icon v-if="selectedItem.address?.hash === v.address?.hash" name="check" size="14" color="brand" />
 
-                                    <Text size="12" color="primary" :weight="selectedItem.moniker === v.moniker ? '600' : '500'" :class="$style.title"> {{ v.moniker }} </Text>
+                                    <Text size="12" color="primary" :weight="selectedItem.moniker === v.moniker ? '600' : '500'" :class="$style.title"> {{ v.moniker || v.address?.hash }} </Text>
                                 </Flex>
                             </template>
                             <Flex v-else-if="searchTerm" justify="center" :style="{ paddingTop: '10px' }">
@@ -205,7 +206,7 @@ onBeforeMount(async() => {
 .popover_header {
 	cursor: pointer;
 
-    max-width: 180px;
+    max-width: 150px;
 
 	padding: 8px;
 	box-shadow: 0 0 0 1px var(--op-10);
@@ -217,7 +218,7 @@ onBeforeMount(async() => {
 }
 
 .title {
-    max-width: 120px;
+    max-width: 90px;
     min-height: 14px;
 
     white-space: nowrap;
