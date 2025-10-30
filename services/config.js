@@ -17,7 +17,7 @@ export const useServerURL = () => {
 			return p.API_DEV
 
 		default:
-			return p.API_MAINNET
+			return p.API_DEV
 	}
 }
 
@@ -33,7 +33,7 @@ export const getServerURL = (network) => {
 			return p.API_ARABICA
 
 		default:
-			return p.API_MAINNET
+			return p.API_DEV
 	}
 }
 
@@ -56,7 +56,7 @@ export const useSocketURL = () => {
 			return p.WSS_DEV
 
 		default:
-			return p.WSS_MAINNET
+			return p.WSS_DEV
 	}
 }
 
