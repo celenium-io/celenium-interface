@@ -14,7 +14,7 @@ export const useServerURL = () => {
 			return p.API_ARABICA
 
 		case "dev.celenium.io":
-			return p.API_DEV
+			return p.API_MAINNET
 
 		default:
 			return p.API_DEV
@@ -33,7 +33,7 @@ export const getServerURL = (network) => {
 			return p.API_ARABICA
 
 		default:
-			return p.API_DEV
+			return p.API_MAINNET
 	}
 }
 
@@ -53,7 +53,7 @@ export const useSocketURL = () => {
 			return p.WSS_ARABICA
 
 		case "dev.celenium.io":
-			return p.WSS_DEV
+			return p.WSS_MAINNET
 
 		default:
 			return p.WSS_DEV
