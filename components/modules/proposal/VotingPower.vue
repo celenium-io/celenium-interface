@@ -3,7 +3,7 @@
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { comma } from "@/services/utils"
+import { comma, roundTo } from "@/services/utils"
 
 /** Store */
 import { useAppStore } from "@/store/app.store"
@@ -27,6 +27,45 @@ const expand = ref(["active"].includes(props.proposal.status))
 const totalVotingPower = computed(() => {
 	if (Number(props.proposal.total_voting_power)) return Number(props.proposal.total_voting_power)
 	return lastHead.value?.total_voting_power ?? 0
+})
+
+const voteKinds = {
+	yes: {
+		name: "Yes",
+		color: "var(--brand)",
+	},
+	no: {
+		name: "No",
+		color: "var(--red)",
+	},
+	no_with_veto: {
+		name: "No with veto",
+		color: "var(--red)",
+	},
+	abstain: {
+		name: "Abstain",
+		color: "var(--op-40)",
+	},
+}
+const voteDistribution = computed(() => {
+	const distribution = {}
+
+	Object.keys(voteKinds).forEach((kind) => {
+		distribution[kind] = {
+			...voteKinds[kind],
+			power: Number(props.proposal[`${kind}_voting_power`] / 1_000_000 || 0),
+			shareOfTotal: Number(props.proposal[`${kind}_voting_power`] / 1_000_000 * 100 || 0) / totalVotingPower.value,
+		}
+
+		const shareOfVotes = roundTo(Number(props.proposal[`${kind}_voting_power`] / 1_000_000 * 100 || 0) / (props.proposal.voting_power / 1_000_000), 0)
+		distribution[kind].shareOfVotes = shareOfVotes === 0 && props.proposal[kind]
+			? "< 1%"
+			: shareOfVotes === 100 && props.proposal[kind] < props.proposal.votes_count
+				? "> 99%"
+				: `${shareOfVotes}%`
+	})
+
+	return distribution
 })
 
 const quorum = props.proposal.status === "active" ? Number(appStore.constants?.gov.quorum) : Number(props.proposal.quorum)
@@ -55,67 +94,22 @@ const isQuorumReached = computed(() => {
 			<div :style="{ left: `${quorum * 100}%` }" :class="[$style.threshold, !isQuorumReached && $style.red]" />
 
 			<Tooltip
-				v-if="proposal.yes"
+				v-for="v in Object.keys(voteDistribution)"
 				wide
-				:trigger-width="`${Math.max(5, ((proposal.yes_voting_power / 1_000_000) * 100) / totalVotingPower)}%`"
+				:trigger-width="`${voteDistribution[v].power ? Math.max(5, voteDistribution[v].shareOfTotal) : 0}%`"
 			>
 				<div
 					:style="{
-						background: 'var(--brand)',
+						background: voteDistribution[v].color,
 					}"
 					:class="$style.voting_bar"
 				/>
 				<template #content>
-					Yes:
+					{{ voteDistribution[v].name }}:
 					<Text color="primary">
-						{{ comma(Number(proposal.yes_voting_power) / 1_000_000) }}
+						{{ comma(voteDistribution[v].power) }}
 					</Text>
 					TIA
-				</template>
-			</Tooltip>
-			<Tooltip
-				v-if="proposal.no"
-				wide
-				:trigger-width="`${Math.max(5, ((proposal.no_voting_power / 1_000_000) * 100) / totalVotingPower)}%`"
-			>
-				<div
-					:style="{
-						background: 'var(--red)',
-					}"
-					:class="$style.voting_bar"
-				/>
-				<template #content>
-					No: <Text color="primary">{{ comma(Number(proposal.no_voting_power) / 1_000_000) }}</Text> TIA
-				</template>
-			</Tooltip>
-			<Tooltip
-				v-if="proposal.no_with_veto"
-				wide
-				:trigger-width="`${Math.max(5, ((proposal.no_with_veto_voting_power / 1_000_000) * 100) / totalVotingPower)}%`"
-			>
-				<div
-					:style="{
-						background: 'var(--red)',
-					}"
-					:class="$style.voting_bar"
-				/>
-				<template #content>
-					No with veto: <Text color="primary">{{ comma(Number(proposal.no_with_veto_voting_power) / 1_000_000) }}</Text> TIA
-				</template>
-			</Tooltip>
-			<Tooltip
-				v-if="proposal.abstain"
-				wide
-				:trigger-width="`${Math.max(5, ((proposal.abstain_voting_power / 1_000_000) * 100) / totalVotingPower)}%`"
-			>
-				<div
-					:style="{
-						background: 'var(--op-40)',
-					}"
-					:class="$style.voting_bar"
-				/>
-				<template #content>
-					Abstain: <Text color="primary">{{ comma(Number(proposal.abstain_voting_power / 1_000_000)) }}</Text> TIA
 				</template>
 			</Tooltip>
 		</Flex>
@@ -124,24 +118,14 @@ const isQuorumReached = computed(() => {
 			<Flex v-for="vote in votes" align="center" justify="between">
 				<Flex align="center" gap="6">
 					<div :class="[$style.dot, $style[vote]]" />
-					<Text size="12" weight="600" color="secondary" style="text-transform: capitalize">{{ vote.replaceAll("_", " ") }}</Text>
-					<Text v-if="Number(proposal[`${vote}_voting_power`])" size="12" weight="600" color="tertiary">
-						{{ comma(proposal[`${vote}_voting_power`] / 1_000_000) }} TIA
+					<Text size="12" weight="600" color="secondary">{{ voteDistribution[vote].name }}</Text>
+					<Text v-if="voteDistribution[vote].power" size="12" weight="600" color="tertiary">
+						{{ comma(voteDistribution[vote].power) }} TIA
 					</Text>
 				</Flex>
 
-				<Text size="12" weight="600" :color="proposal[vote] ? 'secondary' : 'tertiary'">
-					<template
-						v-if="
-							(Number(proposal[`${vote}_voting_power`]) * 100) / (Number(proposal.voting_power)) > 0 &&
-							(Number(proposal[`${vote}_voting_power`]) * 100) / (Number(proposal.voting_power)) < 1
-						"
-					>
-						<Text color="tertiary">< 1%</Text>
-					</template>
-					<template v-else>
-						{{ ((Number(proposal[`${vote}_voting_power`]) * 100) / (Number(proposal.voting_power))).toFixed(0) }}%
-					</template>
+				<Text size="12" weight="600" :color="!proposal[vote] || voteDistribution[vote].shareOfVotes === '< 1%' ? 'tertiary' : 'secondary'">
+					{{ voteDistribution[vote].shareOfVotes }}
 				</Text>
 			</Flex>
 

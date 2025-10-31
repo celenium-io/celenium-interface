@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Popover from "@/components/ui/Popover.vue"
 import Toggle from "@/components/ui/Toggle.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Components */
 import ChartOnEntityPage from "~/components/shared/ChartOnEntityPage.vue"
@@ -324,7 +325,21 @@ onBeforeMount(async() => {
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
 					:isLoading="isLoading"
-				/>
+				>
+					<template #header-content>
+						<Tooltip position="start">
+							<Icon name="info" size="13" color="tertiary" />
+
+							<template #content>
+								<Flex align="center" :style="{ width: '250px' }">
+									<Text size="12" color="secondary" :style="{ lineHeight: '1.2' }">
+										This chart show completed unbondings. Unbonding takes 21 days, so all unbondings will appear here only after that period.
+									</Text>
+								</Flex>
+							</template>
+						</Tooltip>
+					</template>
+				</ChartOnEntityPage>
 
 				<ChartOnEntityPage
 					:series-config="unbondingsCountConfig"
@@ -332,7 +347,21 @@ onBeforeMount(async() => {
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
 					:isLoading="isLoading"
-				/>
+				>
+					<template #header-content>
+						<Tooltip position="start">
+							<Icon name="info" size="13" color="tertiary" />
+
+							<template #content>
+								<Flex align="center" :style="{ width: '250px' }">
+									<Text size="12" color="secondary" :style="{ lineHeight: '1.2' }">
+										This chart show completed unbondings. Unbonding takes 21 days, so all unbondings will appear here only after that period.
+									</Text>
+								</Flex>
+							</template>
+						</Tooltip>
+					</template>
+				</ChartOnEntityPage>
 			</Flex>
 		</Flex>
 	</Flex>
