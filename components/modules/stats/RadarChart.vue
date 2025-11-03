@@ -3,7 +3,7 @@
 import * as d3 from "d3"
 
 /** Services */
-import { capitalizeAndReplace } from "@/services/utils"
+import { capitalizeAndReplace, isMobile } from "@/services/utils"
 
 const props = defineProps({
 	series: {
@@ -62,7 +62,7 @@ const buildChart = (chart) => {
         const cursorAngle = Math.atan2(y, x)
         const cursorDist = Math.sqrt(x * x + y * y)
 
-        if (cursorDist > maxRadius) {
+        if (cursorDist < 10 || cursorDist > maxRadius) {
             clearHighlight()
             return
         }
@@ -99,7 +99,12 @@ const buildChart = (chart) => {
                 
                 nextTick(() => {
                     const tooltipWidth = tooltipEl.value?.wrapper ? tooltipEl.value?.wrapper?.getBoundingClientRect()?.width : 100
-                    const offsetX = (cursorAngle < 0 && cursorAngle - 0.5 > -Math.PI / 2) || (cursorAngle > 0 && cursorAngle < Math.PI / 2) ? -(tooltipWidth + 20) : 20
+                    const offsetX =
+                        (cursorAngle < 0 && cursorAngle - 0.5 > -Math.PI / 2) ||
+                        (cursorAngle > 0 && cursorAngle < Math.PI / 2) ||
+                        isMobile()
+                            ? -(tooltipWidth + 20)
+                            : 20
                     const offsetY = -40
                     tooltip.value.x = event.offsetX + offsetX
                     tooltip.value.y = event.offsetY + offsetY
