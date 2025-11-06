@@ -10,7 +10,7 @@ import Skeleton from "@/components/Skeleton.vue"
 import Flex from "@/components/Flex.vue"
 
 /** Services */
-import { buildLineChart, buildBarChart } from "@/services/utils/entityCharts"
+import { buildBarChart, buildLineChart } from "@/services/utils/entityCharts"
 
 /** Props */
 const props = defineProps({

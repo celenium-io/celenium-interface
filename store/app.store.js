@@ -1,6 +1,6 @@
 /** API */
 import { fetchConstants } from "@/services/api/main"
-import { fetchActiveProposals, fetchProposals } from "@/services/api/proposal"
+import { fetchActiveProposals } from "@/services/api/proposal"
 
 import { useModalsStore } from "./modals.store"
 
@@ -48,7 +48,7 @@ export const useAppStore = defineStore("app", () => {
 	const isConnected = ref(false)
 
 	const latestBlocks = ref([])
-	const lastBlock = computed(() => latestBlocks.value[0])
+	const lastBlock = computed(() => latestBlocks.value?.at(0))
 	const lastHead = ref({})
 	const isLatestBlocksLoaded = ref(false)
 	const isPaused = ref(false)

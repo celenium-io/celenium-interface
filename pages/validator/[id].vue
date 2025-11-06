@@ -1,6 +1,8 @@
 <script setup>
 /** Components: Modules */
+import ValidatorCharts from "@/components/modules/validator/ValidatorCharts.vue"
 import ValidatorOverview from "@/components/modules/validator/ValidatorOverview.vue"
+import ValidatorUptime from "@/components/modules/validator/ValidatorUptime.vue"
 
 /** Services */
 import { isValidId } from "@/services/utils"
@@ -76,7 +78,7 @@ useHead({
 </script>
 
 <template>
-	<Flex direction="column" gap="32" wide :class="$style.wrapper">
+	<Flex direction="column" gap="16" wide :class="$style.wrapper">
 		<Flex direction="column" gap="16">
 			<Flex align="end" justify="between" :class="$style.breadcrumbs">
 				<Breadcrumbs
@@ -91,6 +93,10 @@ useHead({
 
 			<ValidatorOverview v-if="validator" :validator="validator" />
 		</Flex>
+
+		<ValidatorUptime v-if="validator" :validator="validator" />
+
+		<ValidatorCharts v-if="validator" :validator="validator" />
 	</Flex>
 </template>
 

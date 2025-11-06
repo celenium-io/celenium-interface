@@ -23,28 +23,12 @@ if (isValidId(route.params.id, "proposal")) {
 
 	if (!rawProposal.value) {
 		throw createError({ statusCode: 404, statusMessage: `Proposal ${route.params.id} not found` })
-		// navigateTo({
-		// 	path: "/",
-		// 	query: {
-		// 		error: "not_found",
-		// 		target: "proposal",
-		// 		id: route.params.id,
-		// 	},
-		// })
 	} else {
 		proposal.value = rawProposal.value
 		cacheStore.current.proposal = proposal.value
 	}
 } else {
 	throw createError({ statusCode: 404, statusMessage: `Proposal ${route.params.id} not found` })
-	// navigateTo({
-	// 	path: "/",
-	// 	query: {
-	// 		error: "not_found",
-	// 		target: "proposal",
-	// 		id: route.params.id,
-	// 	},
-	// })
 }
 
 defineOgImageComponent("ProposalImage", {
@@ -108,7 +92,7 @@ useHead({
 
 		<Flex v-if="proposal" direction="column" gap="40">
 			<ProposalOverview :proposal />
-			<ProposalChanges :proposal v-if="proposal.type === 'param_changed'" />
+			<ProposalChanges v-if="proposal.type === 'param_changed'" :proposal />
 			<ProposalDescription :proposal />
 		</Flex>
 	</Flex>

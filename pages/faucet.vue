@@ -74,7 +74,7 @@ useHead({
 const isLoading = ref(false)
 const address = ref("")
 const account = ref()
-const networks = ["Mocha", "Arabica", "Mammoth"]
+const networks = ["Mocha", "Arabica"]
 const network = ref((networks.find((n) => n === getNetworkName()) || networks[0]).toLowerCase())
 
 const isNetworkSelectorOpen = ref(false)
@@ -166,8 +166,7 @@ const handleExecute = async () => {
 const handleReturnTokensClick = () => {
 	if (
 		(useServerURL().includes("mocha") && network.value === "mocha") ||
-		(useServerURL().includes("arabica") && network.value === "arabica") ||
-		(useServerURL().includes("mammoth") && network.value === "mammoth")
+		(useServerURL().includes("arabica") && network.value === "arabica")
 	) {
 		cacheStore.current.address = { hash: faucetAddress() }
 		modalsStore.open("send")
@@ -237,7 +236,7 @@ watch(
 await refreshFaucetBalance()
 onMounted(() => {
 	if (
-		(useServerURL().includes("mocha") || useServerURL().includes("arabica") || useServerURL().includes("mammoth")) &&
+		(useServerURL().includes("mocha") || useServerURL().includes("arabica")) &&
 		appStore.address
 	) {
 		address.value = appStore.address
@@ -338,7 +337,7 @@ onMounted(() => {
 							:loading="isLoading"
 							:disabled="validation.type === 'error' || !address"
 						>
-							{{ `Recieve ${network === "mammoth" ? 100 : 1} TIA` }}
+							Recieve 1 TIA
 						</Button>
 					</Flex>
 				</Flex>
@@ -494,11 +493,7 @@ onMounted(() => {
 
 						<Flex id="2" :class="[$style.answer, openedQuestion === 2 && $style.answer_extended]">
 							<Text size="13" weight="500" color="tertiary" height="160">
-								{{
-									`You can request testnet tokens by entering your Celestia testnet address, and clicking the "Receive ${
-										network === "mammoth" ? 100 : 1
-									} TIA" button. Tokens will be sent to your wallet within a few moments.`
-								}}
+								You can request testnet tokens by entering your Celestia testnet address, and clicking the "Receive TIA" button. Tokens will be sent to your wallet within a few moments.
 							</Text>
 						</Flex>
 
@@ -520,7 +515,7 @@ onMounted(() => {
 							<Text size="13" weight="500" color="tertiary" height="160">
 								To ensure fair distribution and prevent abuse, the faucet has the following limitations:<br />
 								&nbsp;&nbsp;• You can receive
-								<b>100 TIA for Mammoth network and 1 TIA for other testnets per request</b>.<br />
+								<b>1 TIA for all testnets per request</b>.<br />
 								&nbsp;&nbsp;• You can request tokens <b>only once per hour</b> per
 								<b>IP address or wallet address</b>.<br />
 								&nbsp;&nbsp;• If you reach the limit, you will need to wait before requesting again.

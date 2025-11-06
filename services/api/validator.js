@@ -100,3 +100,89 @@ export const fetchValidatorUptime = ({ id, limit }) => {
 		console.error(error)
 	}
 }
+
+export const fetchValidatorsMetrics = (count) => {
+	try {
+		const url = new URL(`${useServerURL()}/validators/metrics`)
+
+		if (count) url.searchParams.append("count", count)
+
+		return useFetch(encodeURI(url.href), {
+			key: "validators_metrics",
+		})
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchValidatorMetrics = (id) => {
+	try {
+		const url = new URL(`${useServerURL()}/validators/${id}/metrics`)
+
+		return useFetch(encodeURI(url.href), {
+			key: "validator_metric",
+		})
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchValidatorsUpgrades = ({ limit, offset }) => {
+	try {
+		const url = new URL(`${useServerURL()}/signal/upgrade`)
+
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+
+		return useFetch(encodeURI(url.href), {
+			key: "validators_upgrades",
+		})
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchValidatorsUpgradeByVersion = (version) => {
+	try {
+		const url = new URL(`${useServerURL()}/signal/upgrade/${version}`)
+
+		return useFetch(encodeURI(url.href), {
+			key: "validators_upgrade_by_version",
+		})
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchSignals = ({ validatorId, version, limit, offset }) => {
+	try {
+		const url = new URL(`${useServerURL()}/signal`)
+
+		if (validatorId) url.searchParams.append("validator_id", validatorId)
+		if (version) url.searchParams.append("version", version)
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+
+		return useFetch(encodeURI(url.href), {
+			key: "upgrades_signals",
+		})
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchValidatorMessages = ({ id, sort, limit, offset }) => {
+	try {
+		const url = new URL(`${useServerURL()}/validators/${id}/messages`)
+
+		url.searchParams.append("sort", sort ?? "desc")
+		if (limit) url.searchParams.append("limit", limit)
+		if (offset) url.searchParams.append("offset", offset)
+
+		return useFetch(encodeURI(url.href), {
+			key: "validator_messages",
+		})
+	} catch (error) {
+		console.error(error)
+	}
+}

@@ -7,24 +7,26 @@ import Button from "@/components/ui/Button.vue"
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 import Popover from "@/components/ui/Popover.vue"
 import Toggle from "@/components/ui/Toggle.vue"
+import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Components */
 import ChartOnEntityPage from "~/components/shared/ChartOnEntityPage.vue"
 
 /** Services */
-import { abbreviate, formatBytes } from "@/services/utils"
+import { abbreviate, roundTo, tia } from "@/services/utils"
 import { createDataMap, generateSeriesData, PERIODS as periods } from "@/services/utils/entityCharts"
 
 /** API */
-import { fetchNamespaceSeries } from "@/services/api/stats"
+import { fetchStakingSeries } from "@/services/api/stats"
+import { fetchValidatorsMetrics, fetchValidatorMetrics } from "@/services/api/validator"
 
 /** Store */
 import { useSettingsStore } from "@/store/settings.store"
 const settingsStore = useSettingsStore()
 
 const props = defineProps({
-	id: {
-		type: String,
+	validator: {
+		type: Object,
 		required: true,
 	},
 })
@@ -53,39 +55,88 @@ const updateUserSettings = () => {
 
 /** Data */
 const isLoading = ref(false)
-const sizeSeries = ref([])
-const pfbSeries = ref([])
+const metricsSeries = ref([])
+const flowSeries = ref([])
+const cumulativeFlowSeries = ref([])
+const delegationsSeries = ref([])
+const delegationsCountSeries = ref([])
+const unbondingsSeries = ref([])
+const unbondingsCountSeries = ref([])
 
 /** Series config */
 const seriesConfig = [
 	{
-		name: "size",
-		metric: "size",
-		series: sizeSeries,
-		title: "DA Usage",
-		tooltipLabel: "Usage",
-		yAxisFormatter: (value) => formatBytes(value, 0),
-		tooltipValueFormatter: formatBytes,
+		name: "cumulative_flow",
+		metric: "cumulative_flow",
+		series: cumulativeFlowSeries,
+		title: "Cumulative Stake",
+		tooltipLabel: "TIA",
+		yAxisFormatter: (v) => abbreviate(tia(v)),
+		tooltipValueFormatter: (v) => abbreviate(tia(v)),
 		unit: null,
 	},
 	{
-		name: "pfb_count",
-		metric: "pfb",
-		series: pfbSeries,
-		title: "Pay For Blobs Count",
+		name: "flow",
+		metric: "flow",
+		series: flowSeries,
+		title: "Stake Flow",
+		tooltipLabel: "TIA",
+		yAxisFormatter: (v) => abbreviate(tia(v)),
+		tooltipValueFormatter: (v) => abbreviate(tia(v)),
+		unit: null,
+	},
+	{
+		name: "delegations",
+		metric: "delegations",
+		series: delegationsSeries,
+		title: "Delegations",
+		tooltipLabel: "Amount",
+		yAxisFormatter: (v) => abbreviate(tia(v, 2)),
+		tooltipValueFormatter: (v) => abbreviate(tia(v, 2)),
+		unit: "TIA",
+	},
+	{
+		name: "delegations_count",
+		metric: "delegations_count",
+		series: delegationsCountSeries,
+		title: "Delegations Count",
 		tooltipLabel: "Count",
 		yAxisFormatter: abbreviate,
-		tooltipValueFormatter: abbreviate,
+		tooltipValueFormatter: (v) => v,
+		unit: null,
+	},
+	{
+		name: "unbondings",
+		metric: "unbondings",
+		series: unbondingsSeries,
+		title: "Unbondings",
+		tooltipLabel: "Amount",
+		yAxisFormatter: (v) => abbreviate(tia(v, 2)),
+		tooltipValueFormatter: (v) => abbreviate(tia(v, 2)),
+		unit: "TIA",
+	},
+	{
+		name: "unbondings_count",
+		metric: "unbondings_count",
+		series: unbondingsCountSeries,
+		title: "Unbondings Count",
+		tooltipLabel: "Count",
+		yAxisFormatter: abbreviate,
+		tooltipValueFormatter:  (v) => v,
 		unit: null,
 	},
 ]
 
-const sizeConfig = computed(() => seriesConfig.find((config) => config.metric === "size"))
-const pfbConfig = computed(() => seriesConfig.find((config) => config.metric === "pfb"))
+const flowConfig = computed(() => seriesConfig.find((config) => config.metric === "flow"))
+const cumulativeFlowConfig = computed(() => seriesConfig.find((config) => config.metric === "cumulative_flow"))
+const delegationsConfig = computed(() => seriesConfig.find((config) => config.metric === "delegations"))
+const delegationsCountConfig = computed(() => seriesConfig.find((config) => config.metric === "delegations_count"))
+const unbondingsConfig = computed(() => seriesConfig.find((config) => config.metric === "unbondings"))
+const unbondingsCountConfig = computed(() => seriesConfig.find((config) => config.metric === "unbondings_count"))
 
 const fetchData = async (metric) => {
-	return await fetchNamespaceSeries({
-		id: props.id,
+	return await fetchStakingSeries({
+		id: props.validator.id,
 		name: metric,
 		timeframe: selectedPeriod.value.timeframe,
 		from: parseInt(
@@ -98,18 +149,40 @@ const fetchData = async (metric) => {
 	})
 }
 
+const fetchMetrics = async () => {
+	const { data: allMetrics } = await fetchValidatorsMetrics()
+	const { data: validatorMetrics } = await fetchValidatorMetrics(props.validator.id)
+
+	if (allMetrics.value && validatorMetrics.value) {
+		let _allMetrics = {}
+		let _validatorMetrics = {}
+
+		Object.entries(allMetrics.value).forEach(([key, value]) => {
+			const _key = key.replace('_metric', '')
+			_allMetrics[_key] = roundTo(value * 100, 2)
+			_validatorMetrics[_key] = roundTo(validatorMetrics.value[key] * 100, 2)
+		})
+
+		metricsSeries.value = [_allMetrics, _validatorMetrics]
+	}
+}
+
 const generateSeries = async (configs) => {
 	isLoading.value = true
 
-	await Promise.all(
-		configs.map(async (config) => {
-			const rawData = await fetchData(config.name)
-			const dataMap = createDataMap(rawData, selectedPeriod.value.timeframe)
-			generateSeriesData(selectedPeriod.value, dataMap, config.series)
-		}),
-	)
+	try {
+		await fetchMetrics()
 
-	isLoading.value = false
+		await Promise.all(
+			configs.map(async (config) => {
+				const rawData = await fetchData(config.name)
+				const dataMap = createDataMap(rawData, selectedPeriod.value.timeframe)
+				generateSeriesData(selectedPeriod.value, dataMap, config.series)
+			}),
+		)
+	} finally {
+		isLoading.value = false
+	}
 }
 
 const handleChangeChartView = () => {
@@ -136,14 +209,12 @@ watch(
 	},
 )
 
-onBeforeMount(() => {
+onBeforeMount(async() => {
 	isLoading.value = true
 	const settings = JSON.parse(localStorage.getItem("settings"))
 	chartView.value = settings?.chart?.view || "bar"
 	loadLastValue.value = settings?.chart?.view ? settings.chart.loadLastValue : true
-})
 
-onMounted(async () => {
 	await fetchAllData()
 })
 </script>
@@ -218,24 +289,80 @@ onMounted(async () => {
 			</Flex>
 		</Flex>
 
-		<Flex justify="between" gap="32" :class="$style.data">
-			<ChartOnEntityPage
-				v-if="sizeSeries.length"
-				:series-config="sizeConfig"
-				:chart-view="chartView"
-				:load-last-value="loadLastValue"
-				:selected-period="selectedPeriod"
-				:isLoading="isLoading"
-			/>
+		<Flex direction="column" :class="$style.data_wrapper">
+			<Flex :class="$style.data">
+				<ChartOnEntityPage
+					:series-config="cumulativeFlowConfig"
+					:chart-view="chartView"
+					:load-last-value="loadLastValue"
+					:selected-period="selectedPeriod"
+					:isLoading="isLoading"
+				/>
+			</Flex>
 
-			<ChartOnEntityPage
-				v-if="pfbSeries.length"
-				:series-config="pfbConfig"
-				:chart-view="chartView"
-				:load-last-value="loadLastValue"
-				:selected-period="selectedPeriod"
-				:isLoading="isLoading"
-			/>
+			<Flex justify="between" gap="32" :class="$style.data">
+				<ChartOnEntityPage
+					:series-config="delegationsConfig"
+					:chart-view="chartView"
+					:load-last-value="loadLastValue"
+					:selected-period="selectedPeriod"
+					:isLoading="isLoading"
+				/>
+
+				<ChartOnEntityPage
+					:series-config="delegationsCountConfig"
+					:chart-view="chartView"
+					:load-last-value="loadLastValue"
+					:selected-period="selectedPeriod"
+					:isLoading="isLoading"
+				/>
+			</Flex>
+
+			<Flex justify="between" gap="32" :class="$style.data">
+				<ChartOnEntityPage
+					:series-config="unbondingsConfig"
+					:chart-view="chartView"
+					:load-last-value="loadLastValue"
+					:selected-period="selectedPeriod"
+					:isLoading="isLoading"
+				>
+					<template #header-content>
+						<Tooltip position="start">
+							<Icon name="info" size="13" color="tertiary" />
+
+							<template #content>
+								<Flex align="center" :style="{ width: '250px' }">
+									<Text size="12" color="secondary" :style="{ lineHeight: '1.2' }">
+										This chart show completed unbondings. Unbonding takes 21 days, so all unbondings will appear here only after that period.
+									</Text>
+								</Flex>
+							</template>
+						</Tooltip>
+					</template>
+				</ChartOnEntityPage>
+
+				<ChartOnEntityPage
+					:series-config="unbondingsCountConfig"
+					:chart-view="chartView"
+					:load-last-value="loadLastValue"
+					:selected-period="selectedPeriod"
+					:isLoading="isLoading"
+				>
+					<template #header-content>
+						<Tooltip position="start">
+							<Icon name="info" size="13" color="tertiary" />
+
+							<template #content>
+								<Flex align="center" :style="{ width: '250px' }">
+									<Text size="12" color="secondary" :style="{ lineHeight: '1.2' }">
+										This chart show completed unbondings. Unbonding takes 21 days, so all unbondings will appear here only after that period.
+									</Text>
+								</Flex>
+							</template>
+						</Tooltip>
+					</template>
+				</ChartOnEntityPage>
+			</Flex>
 		</Flex>
 	</Flex>
 </template>
@@ -262,10 +389,12 @@ onMounted(async () => {
 	transition: all 1s ease-in-out;
 }
 
-.data {
+.data_wrapper {
 	border-radius: 4px 4px 8px 8px;
 	background: var(--card-background);
+}
 
+.data {
 	padding: 16px;
 }
 
