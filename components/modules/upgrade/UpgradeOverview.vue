@@ -201,7 +201,7 @@ onMounted(() => {
 						</NuxtLink>
 					</Flex>
 
-					<Flex direction="column" gap="6" :class="$style.key_value">
+					<Flex v-if="upgrade.title" direction="column" gap="6" :class="$style.key_value">
 						<Text size="13" weight="600" color="primary"> {{ upgrade.title }} </Text>
 
 						<Flex direction="column" gap="4">
