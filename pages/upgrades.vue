@@ -211,13 +211,13 @@ onMounted(() => {
 								</td>
 								<td>
 									<NuxtLink :to="`/upgrade/${u.version}`">
-										<Flex v-if="u.end_time" align="center" gap="6">
+										<Flex v-if="u.status === 'applied'" align="center" gap="6">
 											<Icon name="check-circle" size="14" color="brand" />
 											<Text size="13" weight="600" color="primary">Applied</Text>
 										</Flex>
-										<Flex v-else-if="getVotingShare(u) > 83.3" align="center" gap="6">
+										<Flex v-else-if="u.status === 'waiting_upgrade'" align="center" gap="6">
 											<Icon name="zap-circle" size="14" color="brand" />
-											<Text size="13" weight="600" color="primary">Ready for upgrade</Text>
+											<Text size="13" weight="600" color="primary">Waiting Upgrade</Text>
 										</Flex>
 										<Flex v-else align="center" gap="6">
 											<Icon name="zap-circle" size="14" color="tertiary" />
@@ -276,13 +276,13 @@ onMounted(() => {
 									</NuxtLink>
 								</td>
 								<td>
-									<NuxtLink v-if="u.end_time" :to="`/upgrade/${u.version}`">
+									<NuxtLink v-if="u.applied_at" :to="`/upgrade/${u.version}`">
 										<Flex justify="center" direction="column" gap="4">
 											<Text size="12" weight="600" color="primary">
-												{{ DateTime.fromISO(u.end_time).toRelative({ locale: "en", style: "short" }) }}
+												{{ DateTime.fromISO(u.applied_at).toRelative({ locale: "en", style: "short" }) }}
 											</Text>
 											<Text size="12" weight="500" color="tertiary">
-												{{ DateTime.fromISO(u.end_time).setLocale("en").toFormat("LLL d, t") }}
+												{{ DateTime.fromISO(u.applied_at).setLocale("en").toFormat("LLL d, t") }}
 											</Text>
 										</Flex>
 									</NuxtLink>

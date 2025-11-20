@@ -2,10 +2,14 @@
 import { fetchConstants } from "@/services/api/main"
 import { fetchActiveProposals } from "@/services/api/proposal"
 
-import { useModalsStore } from "./modals.store"
+/** Services */
+import { getNetworkName } from "@/services/utils/general"
 
 /** Constants */
 import { getActiveUpdates } from "@/services/constants/updates"
+
+/** Stores */
+import { useModalsStore } from "./modals.store"
 
 export const useAppStore = defineStore("app", () => {
 	const version = ref()
@@ -24,7 +28,8 @@ export const useAppStore = defineStore("app", () => {
 	const initGlobalUpdates = async () => {
 		const { data } = await fetchActiveProposals()
 		globalUpdates.value = data.value?.map(p => ({...p, kind: "proposal"}))
-		const updates = getActiveUpdates()
+		const network = getNetworkName()
+		const updates = getActiveUpdates(network === "Mocha-4" ? "mocha" : network.toLowerCase())
 		globalUpdates.value = [...updates, ...globalUpdates.value]
 	}
 

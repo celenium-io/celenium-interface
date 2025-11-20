@@ -1,4 +1,7 @@
 <script setup>
+/** API */
+import { fetchValidatorsUpgradeByVersion } from "@/services/api/validator"
+
 /** Components */
 import TransactionsWidget from "./TransactionsWidget.vue"
 
@@ -6,7 +9,7 @@ import TransactionsWidget from "./TransactionsWidget.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** Services */
-import { capitilize, comma } from "@/services/utils"
+import { capitilize, capitalizeAndReplace, comma, roundTo } from "@/services/utils"
 
 /** Stores */
 import { useAppStore } from "@/store/app.store"
@@ -45,7 +48,7 @@ function handleClick() {
 			navigateTo(`/block/${showingUpdate.value?.block}`)
 			break;
 		case "node_upgrade":
-			navigateTo(`/block/${showingUpdate.value?.block}`)
+			navigateTo(`/upgrade/${showingUpdate.value?.version?.replace("v", "")}`)
 			break;
 	
 		default:
@@ -64,6 +67,16 @@ watch(
 	() => {
 		if (!showingUpdate.value && updates.value?.length) {
 			showingUpdate.value = updates.value[0]
+		}
+	}
+)
+watch(
+	() => showingUpdate.value,
+	async () => {
+		if (showingUpdate.value.kind === "node_upgrade") {
+			const { data } = await fetchValidatorsUpgradeByVersion(showingUpdate.value?.version)
+			showingUpdate.value.status = data.value?.status
+			showingUpdate.value.votedShare = parseFloat(data.value?.voted_power) * 100 / parseFloat(data.value?.voting_power)
 		}
 	}
 )
@@ -175,14 +188,56 @@ watch(
 				</Flex>
 			</Flex>
 
-			<Flex v-else-if="showingUpdate?.kind" justify="between" direction="column" gap="20" style="padding-top: 12px;">
-				<Flex direction="column" gap="6" wide>
-					<Text size="12" weight="600" color="primary" :class="$style.title"> {{ showingUpdate.title }} </Text>
-					<Text size="12" weight="500" color="secondary" :class="[$style.description, $style.description_four_lines]"> {{ showingUpdate.description.replace('\n', ' ') }} </Text>
+			<Flex v-else-if="showingUpdate?.kind === 'node_upgrade'" justify="between" direction="column" gap="12" style="flex: 1;">
+				<Flex direction="column" gap="16">
+					<Flex align="center" gap="8" wide>
+						<Text size="12" weight="500" color="tertiary">Status</Text>
+						<Text v-if="showingUpdate?.status" size="12" weight="600" color="brand"> {{ capitalizeAndReplace(showingUpdate?.status, "_") }} </Text>
+					</Flex>
+
+					<Flex direction="column" gap="6" wide>
+						<Text size="12" weight="600" color="primary" :class="$style.title"> {{ showingUpdate?.title }} </Text>
+						<Text size="12" weight="500" color="secondary" :class="$style.description"> {{ showingUpdate?.description }} </Text>
+					</Flex>
 				</Flex>
 
-				<Flex align="center" justify="end" wide>
-					<Text size="11" weight="600" color="tertiary"> {{ `Expected on block ${comma(showingUpdate.block)}` }} </Text>
+				<Flex direction="column" justify="between" gap="8" wide>
+					<Flex align="center" justify="between" wide>
+						<Tooltip position="start">
+							<Flex align="center" gap="6">
+								<Text size="12" weight="600" color="secondary"> Upgrade progress </Text>
+								<Icon
+									name="warning"
+									size="12"
+									color="secondary"
+								/>
+							</Flex>
+
+							<template #content>
+								<Flex wide>
+									<Text size="12" color="secondary" style="width: 300px; line-height: 1.2; white-space: normal; overflow-wrap: anywhere;">
+										The upgrade requires at least 5/6 (83.33%) of the total stake to be voted power.
+									</Text>
+								</Flex>
+							</template>
+						</Tooltip>
+
+						<Text size="12" weight="600" color="primary"> 
+							<Text :color="showingUpdate?.votedShare > 83.3 ? 'brand' : 'tertiary'"> {{ roundTo(showingUpdate?.votedShare, 2) }}% </Text> / 83.3%
+						</Text>
+					</Flex>
+
+					<Flex align="center" gap="4" :class="$style.signaling_wrapper">
+						<div :style="{ left: `83.33%` }" :class="$style.signaling_threshold" />
+
+						<div
+							:style="{
+								background: 'var(--brand)',
+								width: `${Math.max(2, roundTo(showingUpdate?.votedShare, 0, 'ceil'))}%`
+							}"
+							:class="$style.signaling_bar"
+						/>
+					</Flex>
 				</Flex>
 			</Flex>
 		</Flex>
@@ -256,6 +311,37 @@ watch(
 
 .voting_bar {
 	width: 100%;
+	height: 4px;
+
+	border-radius: 50px;
+}
+
+.signaling_wrapper {
+	position: relative;
+	width: 100%;
+
+	border-radius: 50px;
+	background: var(--op-8);
+
+	padding: 4px;
+}
+
+.signaling_threshold {
+	position: absolute;
+	top: 0;
+
+	width: 4px;
+	height: 12px;
+
+	border-radius: 50px;
+	background: #fff;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+	z-index: 1;
+
+	transform: translateX(-50%);
+}
+
+.signaling_bar {
 	height: 4px;
 
 	border-radius: 50px;

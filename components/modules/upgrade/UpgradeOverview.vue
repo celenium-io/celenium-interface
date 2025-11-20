@@ -154,8 +154,8 @@ onMounted(() => {
 							<div v-for="dot in 12" class="dot" />
 
 							<Text size="12" weight="600" color="secondary" align="right">
-								{{ upgrade.end_time
-									? DateTime.fromISO(upgrade.end_time).setLocale("en").toLocaleString(DateTime.DATE_MED)
+								{{ upgrade.applied_at
+									? DateTime.fromISO(upgrade.applied_at).setLocale("en").toLocaleString(DateTime.DATE_MED)
 									: 'In progress'
 								}}
 							</Text>
@@ -173,13 +173,13 @@ onMounted(() => {
 						<Flex direction="column" gap="10" :class="$style.key_value">
 							<Text size="12" weight="600" color="secondary">Status</Text>
 
-							<Flex v-if="upgrade.end_time" align="center" gap="6">
+							<Flex v-if="upgrade.status === 'applied'" align="center" gap="6">
 								<Icon name="check-circle" size="14" color="brand" />
 								<Text size="13" weight="600" color="primary">Applied</Text>
 							</Flex>
-							<Flex v-else-if="upgrade.votedShare > 83.3" align="center" gap="6">
+							<Flex v-else-if="upgrade.status === 'waiting_upgrade'" align="center" gap="6">
 								<Icon name="zap-circle" size="14" color="brand" />
-								<Text size="13" weight="600" color="primary">Ready for Upgrade</Text>
+								<Text size="13" weight="600" color="primary">Waiting Upgrade</Text>
 							</Flex>
 							<Flex v-else align="center" gap="6">
 								<Icon name="zap-circle" size="14" color="tertiary" />
@@ -199,6 +199,28 @@ onMounted(() => {
 								</Flex>
 							</Flex>
 						</NuxtLink>
+					</Flex>
+
+					<Flex direction="column" gap="6" :class="$style.key_value">
+						<Text size="13" weight="600" color="primary"> {{ upgrade.title }} </Text>
+
+						<Flex direction="column" gap="4">
+							<Text size="12" height="120" color="secondary">
+								{{ upgrade.description }}
+							</Text>
+
+							<Text v-if="upgrade.link" size="12" height="120" color="secondary">
+								For more information, see the 
+								<Text
+									@click="navigateTo(upgrade.link, {external: true, open: {target: '_blank'}})"
+									color="primary"
+									:class="$style.link"
+								>
+									docs
+								</Text>
+								.
+							</Text>
+						</Flex>
 					</Flex>
 
 					<Flex justify="center" direction="column" gap="10" wide>
@@ -226,6 +248,7 @@ onMounted(() => {
 								<Text :color="upgrade.votedShare > 83.3 ? 'brand' : 'tertiary'"> {{ roundTo(upgrade.votedShare, 2) }}% </Text> / 83.3%
 							</Text>
 						</Flex>
+
 						<Flex align="center" gap="4" :class="$style.voting_wrapper">
 							<div :style="{ left: `83.33%` }" :class="$style.threshold" />
 
@@ -250,7 +273,7 @@ onMounted(() => {
 									/>
 
 									<template #content>
-										{{ upgrade.end_height ? "At the time of the upgrade." : "The current value of the total stake." }}
+										{{ upgrade.end_height ? "At the time of the successful upgrade transaction." : "The current value of the total stake." }}
 									</template>
 								</Tooltip>
 							</Flex>
@@ -324,9 +347,9 @@ onMounted(() => {
 							</Flex>
 						</Flex>
 
-						<Flex v-if="upgrade.end_height" align="center" justify="between">
+						<Flex v-if="upgrade.applied_at_level" align="center" justify="between">
 							<Flex align="center" gap="6">
-								<Text size="12" weight="600" color="tertiary">End Block</Text>
+								<Text size="12" weight="600" color="tertiary">Apply Block</Text>
 
 								<Tooltip>
 									<Icon
@@ -336,22 +359,22 @@ onMounted(() => {
 									/>
 
 									<template #content>
-										When a successful TryUpgrade transaction was sent.
+										When the network was updated to a new version.
 									</template>
 								</Tooltip>
 							</Flex>
 
-							<NuxtLink :to="`/block/${upgrade.end_height}`" target="_blank">
+							<NuxtLink :to="`/block/${upgrade.applied_at_level}`" target="_blank">
 								<Flex align="center" gap="6">
-									<Text size="12" weight="600" color="secondary">{{ comma(upgrade.end_height) }}</Text>
+									<Text size="12" weight="600" color="secondary">{{ comma(upgrade.applied_at_level) }}</Text>
 									<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
 								</Flex>
 							</NuxtLink>
 						</Flex>
 
-						<Flex v-if="upgrade.end_time" align="center" justify="between">
+						<Flex v-if="upgrade.applied_at" align="center" justify="between">
 							<Flex align="center" gap="6">
-								<Text size="12" weight="600" color="tertiary">End Time</Text>
+								<Text size="12" weight="600" color="tertiary">Apply Time</Text>
 
 								<Tooltip>
 									<Icon
@@ -361,17 +384,17 @@ onMounted(() => {
 									/>
 
 									<template #content>
-										When a successful TryUpgrade transaction was sent.
+										When the network was updated to a new version.
 									</template>
 								</Tooltip>
 							</Flex>
 
 							<Flex gap="6">
 								<Text size="12" weight="600" color="secondary">
-									{{ DateTime.fromISO(upgrade.end_time).toRelative({ locale: "en", style: "short" }) }}
+									{{ DateTime.fromISO(upgrade.applied_at).toRelative({ locale: "en", style: "short" }) }}
 								</Text>
 								<Text size="12" weight="500" color="tertiary">
-									{{ DateTime.fromISO(upgrade.end_time).setLocale("en").toFormat("LLL d, t") }}
+									{{ DateTime.fromISO(upgrade.applied_at).setLocale("en").toFormat("LLL d, t") }}
 								</Text>
 							</Flex>
 						</Flex>
@@ -388,7 +411,7 @@ onMounted(() => {
 									/>
 
 									<template #content>
-										Address that sent a successful TryUpgrade transaction.
+										Address that sent a successful upgrade transaction.
 									</template>
 								</Tooltip>
 							</Flex>
@@ -531,6 +554,14 @@ onMounted(() => {
 
 		margin-top: 4px;
 		margin-bottom: 4px;
+	}
+}
+
+.link {
+	cursor: pointer;
+
+	&:hover {
+		color: var(--brand);
 	}
 }
 
