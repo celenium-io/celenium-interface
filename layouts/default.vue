@@ -1,10 +1,6 @@
 <script setup>
 /** Components */
 import AdvBanner from "@/components/shared/AdvBanner.vue"
-
-/** Services */
-import { getNetworkName } from "@/services/utils/general"
-
 </script>
 
 <template>

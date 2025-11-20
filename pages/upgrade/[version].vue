@@ -9,6 +9,9 @@ import { isValidId } from "@/services/utils"
 import { fetchHead } from "@/services/api/main"
 import { fetchValidatorsUpgradeByVersion } from "@/services/api/validator"
 
+/** Constants */
+import { getNodeUpgrades } from "@/services/constants/updates"
+
 /** Store */
 import { useCacheStore } from "@/store/cache.store"
 const cacheStore = useCacheStore()
@@ -28,8 +31,16 @@ if (isValidId(route.params.version, "upgrade_version")) {
                 upgrade.value.voting_power = head.total_voting_power
             }
         }
+		
+		const _upgrade = getNodeUpgrades(upgrade.value?.version)?.at(0)
+		if (_upgrade) {
+			upgrade.value.title = _upgrade.title
+			upgrade.value.description = _upgrade.description
+			upgrade.value.link = _upgrade.link
+		}
 
         upgrade.value.votedShare = parseFloat(upgrade.value.voted_power) * 100 / parseFloat(upgrade.value.voting_power)
+
         cacheStore.current.upgrade = upgrade.value
     } else {
         throw createError({ statusCode: 404, statusMessage: `Upgrade to version ${route.params.version} not found` })
