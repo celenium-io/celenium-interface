@@ -48,7 +48,7 @@ function handleClick() {
 			navigateTo(`/block/${showingUpdate.value?.block}`)
 			break;
 		case "node_upgrade":
-			navigateTo(`/upgrade/${showingUpdate.value?.version?.replace("v", "")}`)
+			navigateTo(`/upgrade/${showingUpdate.value?.version}`)
 			break;
 	
 		default:
