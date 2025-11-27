@@ -93,25 +93,27 @@ const isQuorumReached = computed(() => {
 		<Flex align="center" gap="4" :class="$style.voting_wrapper">
 			<div :style="{ left: `${quorum * 100}%` }" :class="[$style.threshold, !isQuorumReached && $style.red]" />
 
-			<Tooltip
-				v-for="v in Object.keys(voteDistribution)"
-				wide
-				:trigger-width="`${voteDistribution[v].power ? Math.max(5, voteDistribution[v].shareOfTotal) : 0}%`"
-			>
-				<div
-					:style="{
-						background: voteDistribution[v].color,
-					}"
-					:class="$style.voting_bar"
-				/>
-				<template #content>
-					{{ voteDistribution[v].name }}:
-					<Text color="primary">
-						{{ comma(voteDistribution[v].power) }}
-					</Text>
-					TIA
-				</template>
-			</Tooltip>
+			<template v-for="v in Object.keys(voteDistribution)">
+				<Tooltip
+					v-if="voteDistribution[v].power"
+					wide
+					:trigger-width="`${voteDistribution[v].power ? Math.max(5, voteDistribution[v].shareOfTotal) : 0}%`"
+				>
+					<div
+						:style="{
+							background: voteDistribution[v].color,
+						}"
+						:class="$style.voting_bar"
+					/>
+					<template #content>
+						{{ voteDistribution[v].name }}:
+						<Text color="primary">
+							{{ comma(voteDistribution[v].power) }}
+						</Text>
+						TIA
+					</template>
+				</Tooltip>
+			</template>
 		</Flex>
 
 		<Flex v-if="expand" direction="column" gap="16">

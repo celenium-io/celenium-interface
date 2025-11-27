@@ -358,7 +358,7 @@ const handleCopy = (text) => {
 									<Flex justify="between" :class="$style.namespace">
 										<Flex direction="column" gap="8">
 											<Text size="12" weight="600" color="secondary">Namespace</Text>
-											<Text size="13" weight="600" color="primary">{{ space(metadata.namespace.name) }}</Text>
+											<Text size="13" weight="600" color="primary">{{ metadata.namespace.name }}</Text>
 
 											<Text size="12" weight="500" color="tertiary">
 												{{ formatBytes(metadata.namespace.size) }}&nbsp;&nbsp;•&nbsp;&nbsp;{{
@@ -383,6 +383,13 @@ const handleCopy = (text) => {
 									<Text size="12" weight="600" color="tertiary"> Blob Size </Text>
 									<Text size="12" weight="600" color="primary">
 										{{ formatBytes(metadata.size) }}
+									</Text>
+								</Flex>
+
+								<Flex align="center" justify="between">
+									<Text size="12" weight="600" color="tertiary"> Version </Text>
+									<Text size="12" weight="600" color="primary">
+										{{ metadata.share_version }}
 									</Text>
 								</Flex>
 

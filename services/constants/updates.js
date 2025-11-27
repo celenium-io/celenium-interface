@@ -94,12 +94,12 @@ const updates = [
 		link: "https://docs.celestia.org/how-to-guides/network-upgrade-process#matcha-network-upgrade",
 		timeline: {
 			mainnet: {
-				time: 0,
-				block: 0,
+				time: 1763987592,
+				block: 8662012,
 			},
 			development: {
-				time: 0,
-				block: 0,
+				time: 1763987592,
+				block: 8662012,
 			},
 			mocha: {
 				time: 1759454702,
