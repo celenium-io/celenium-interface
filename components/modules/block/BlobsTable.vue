@@ -122,6 +122,7 @@ const handleViewBlob = (blob) => {
 		height: blob.height,
 		signer: blob.signer,
 		size: blob.size,
+		share_version: blob.share_version,
 		tx: blob.tx,
 		rollup: blob.rollup,
 	}
@@ -265,7 +266,7 @@ const handlePrev = () => {
 								</Text>
 							</td>
 							<td>
-								<Text size="13" weight="600" color="primary">{{ blob.namespace?.version }}</Text>
+								<Text size="13" weight="600" color="primary">{{ blob.share_version }}</Text>
 							</td>
 							<td style="width: 1px">
 								<NuxtLink v-if="blob.rollup?.logo" :to="`/network/${blob.rollup.slug}`" @click.stop>

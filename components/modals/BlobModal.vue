@@ -300,11 +300,11 @@ const handlePreviewContent = () => {
 						<Text size="13" weight="600" color="primary">{{ formatBytes(cacheStore.selectedBlob.size) }}</Text>
 					</Flex>
 
-					<Flex v-if="blob?.share_version !== null && blob?.share_version !== undefined" direction="column" gap="8" :class="$style.badge">
+					<Flex direction="column" gap="8" :class="$style.badge">
 						<Text size="12" weight="500" color="secondary"> Version </Text>
 
-						<Flex align="center" justify="end">
-							<Text size="13" weight="600" color="primary">{{ blob?.share_version }}</Text>
+						<Flex align="center" justify="end" :class="$style.value">
+							<Text size="13" weight="600" color="primary">{{ cacheStore.selectedBlob.share_version }}</Text>
 						</Flex>
 					</Flex>
 				</Flex>
@@ -529,7 +529,7 @@ const handlePreviewContent = () => {
 	object-fit: cover;
 }
 
-@media (max-width: 550px) {
+@media (max-width: 650px) {
 	.metadata {
 		flex-direction: column;
 		align-items: flex-start;
@@ -542,6 +542,10 @@ const handlePreviewContent = () => {
 
 	.badge {
 		width: 100%;
+
+		.value {
+			justify-content: flex-start;
+		}
 	}
 
 	.buttons {

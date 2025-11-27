@@ -47,6 +47,7 @@ const handleViewBlob = (blob) => {
 					<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
 					<th><Text size="12" weight="600" color="tertiary">Share Commitments</Text></th>
 					<th><Text size="12" weight="600" color="tertiary">Size</Text></th>
+					<th><Text size="12" weight="600" color="tertiary">Version</Text></th>
 				</tr>
 			</thead>
 
@@ -69,9 +70,15 @@ const handleViewBlob = (blob) => {
 						</Flex>
 					</td>
 					<td>
-						<Text size="13" weight="600" color="primary">
-							{{ DateTime.fromISO(blob.time).setLocale("en").toFormat("ff") }}
-						</Text>
+						<Flex direction="column" justify="center" gap="4">
+							<Text size="12" weight="600" color="primary">
+								{{ DateTime.fromISO(blob.time).toRelative({ locale: "en", style: "short" }) }}
+							</Text>
+
+							<Text size="12" weight="500" color="tertiary">
+								{{ DateTime.fromISO(blob.time).setLocale("en").toFormat("LLL d, t") }}
+							</Text>
+						</Flex>
 					</td>
 					<td>
 						<Tooltip position="start" delay="500">
@@ -99,6 +106,11 @@ const handleViewBlob = (blob) => {
 					<td>
 						<Text size="13" weight="600" color="primary">
 							{{ formatBytes(blob.size) }}
+						</Text>
+					</td>
+					<td>
+						<Text size="13" weight="600" color="primary">
+							{{ blob.share_version }}
 						</Text>
 					</td>
 				</tr>

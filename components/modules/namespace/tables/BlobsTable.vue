@@ -53,6 +53,7 @@ const handleViewBlob = (blob) => {
 					<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
 					<th><Text size="12" weight="600" color="tertiary">Share Commitments</Text></th>
 					<th><Text size="12" weight="600" color="tertiary">Size</Text></th>
+					<th><Text size="12" weight="600" color="tertiary">Version</Text></th>
 				</tr>
 			</thead>
 
@@ -139,6 +140,11 @@ const handleViewBlob = (blob) => {
 							{{ formatBytes(blob.size) }}
 						</Text>
 					</td>
+					<td>
+						<Text size="13" weight="600" color="primary">
+							{{ blob.share_version }}
+						</Text>
+					</td>
 					<td v-if="blob.rollup?.logo" style="width: 1px">
 						<NuxtLink :to="`/network/${blob.rollup.slug}`" @click.stop>
 							<Tooltip position="start" delay="500">
@@ -211,12 +217,15 @@ const handleViewBlob = (blob) => {
 		padding: 0;
 		padding-top: 8px;
 		padding-bottom: 8px;
-		padding-right: 24px;
+		padding-right: 12px;
 
 		white-space: nowrap;
 
 		&:first-child {
 			padding-left: 16px;
+		}
+		&:last-child {
+			padding-right: 16px;
 		}
 	}
 }
