@@ -71,8 +71,6 @@ export const useAuthStore = defineStore("auth", {
 
 				const data = await response.json()
 
-				alert(data)
-
 				localStorage.removeItem("code_verifier")
 				localStorage.setItem("access_token", data.access_token)
 				localStorage.setItem("refresh_token", data.refresh_token)
