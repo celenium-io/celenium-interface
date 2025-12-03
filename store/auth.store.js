@@ -38,7 +38,7 @@ export const useAuthStore = defineStore("auth", {
 					code_challenge_method: "S256",
 				})
 
-				window.location.href = `${Auth.baseUrl}${Auth.authorizeUrl}?${queryParams.toString()}`
+				window.location.href = `https://auth-back.celenium.io${Auth.authorizeUrl}?${queryParams.toString()}`
 			} catch (error) {
 				console.error("Login error:", error)
 			}

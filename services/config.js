@@ -131,7 +131,7 @@ export const tvlServiceURL = () => useRuntimeConfig().public.TVL
 export const isSelfhosted = () => useRuntimeConfig().public.SELFHOSTED
 
 export const Auth = {
-	clientId: "5tgdN5oPVVbNFh5qUcbgvkASQDeYP3Wez2SdSKpw",
+	clientId: "jXqMTqkexWpVuE1ssMDrC2rMm9wv4ior4C9tBcuI",
 	scope: "read",
 	baseUrl: "https://auth.celenium.io",
 	authorizeUrl: "/oauth/authorize/",
