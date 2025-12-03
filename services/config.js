@@ -137,7 +137,7 @@ export const Auth = {
 	authorizeUrl: "/oauth/authorize/",
 	getTokenUrl: "/oauth/token/",
 	revokeTokenUrl: "/oauth/revoke_token/",
-	getCurrentUserUrl: "/api/user/get/",
-	saveSettingsUrl: "/api/user/settings/",
+	getCurrentUserUrl: "/api/v1/user/me/",
+	saveSettingsUrl: "/api/v1/user/settings/",
 	redirectPath: "/auth/callback",
 }

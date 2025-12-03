@@ -51,7 +51,7 @@ export const useAuthStore = defineStore("auth", {
 					throw new Error("сode verifier not found")
 				}
 
-				const response = await fetch(`${Auth.baseUrl}${Auth.getTokenUrl}`, {
+				const response = await fetch(`https://auth-back.celenium.io${Auth.getTokenUrl}`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/x-www-form-urlencoded",
@@ -88,7 +88,7 @@ export const useAuthStore = defineStore("auth", {
 					throw new Error("No access token")
 				}
 
-				const response = await fetch(`${Auth.baseUrl}${Auth.getCurrentUserUrl}`, {
+				const response = await fetch(`$https://auth-back.celenium.io${Auth.getCurrentUserUrl}`, {
 					headers: {
 						"Authorization": `Bearer ${token}`,
 					},
@@ -119,7 +119,7 @@ export const useAuthStore = defineStore("auth", {
 
 		async refreshToken(refreshToken) {
 			try {
-				const response = await fetch(`${Auth.baseUrl}${Auth.getTokenUrl}`, {
+				const response = await fetch(`https://auth-back.celenium.io${Auth.getTokenUrl}`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/x-www-form-urlencoded",
@@ -149,7 +149,7 @@ export const useAuthStore = defineStore("auth", {
 		async revokeToken() {
 			try {
 				const refreshToken = localStorage.getItem("refresh_token")
-				const response = await fetch(`${Auth.baseUrl}${Auth.revokeTokenUrl}`, {
+				const response = await fetch(`https://auth-back.celenium.io${Auth.revokeTokenUrl}`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/x-www-form-urlencoded",
@@ -176,7 +176,7 @@ export const useAuthStore = defineStore("auth", {
 					throw new Error("No access token")
 				}
 
-				const response = await fetch(`${Auth.baseUrl}${Auth.saveSettingsUrl}`, {
+				const response = await fetch(`https://auth-back.celenium.io${Auth.saveSettingsUrl}`, {
 						method: "POST",
 						headers: {
 							"Accept": "application/json",
