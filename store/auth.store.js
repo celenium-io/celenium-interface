@@ -177,7 +177,7 @@ export const useAuthStore = defineStore("auth", {
 				}
 
 				const response = await fetch(`https://auth-back.celenium.io${Auth.saveSettingsUrl}`, {
-						method: "POST",
+						method: "PUT",
 						headers: {
 							"Accept": "application/json",
 							"Authorization": `Bearer ${token}`,

@@ -68,7 +68,7 @@ switch (settings.value.appearance.general.theme) {
 
 watch(() => settings.value.appearance.general.theme, () => {
 	let root = document.querySelector("html")
-	
+
 	if (appStore.theme === "system") {
 		window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (event) => {
 			root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
