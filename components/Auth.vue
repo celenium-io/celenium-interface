@@ -5,8 +5,10 @@ import { Dropdown, DropdownItem } from "@/components/ui/Dropdown"
 
 /** Store */
 import { useAuthStore } from "@/store/auth.store.js"
+import { useModalsStore } from "@/store/modals.store.js"
 
 const authStore = useAuthStore()
+const modalsStore = useModalsStore()
 
 const login = () => {
 	authStore.login()
@@ -30,6 +32,9 @@ onMounted(() => {
 		</Button>
 
 		<template #popup>
+			<DropdownItem @click="modalsStore.open('settings')">
+				Settings
+			</DropdownItem>
 			<DropdownItem @click="logout">
 				Logout
 			</DropdownItem>
