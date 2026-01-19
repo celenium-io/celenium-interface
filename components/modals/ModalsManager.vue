@@ -13,6 +13,7 @@ import QRCodeModal from "./QRCodeModal.vue"
 import RawDataModal from "./RawDataModal.vue"
 import SendModal from "./SendModal.vue"
 import StakingModal from "./StakingModal.vue"
+import SettingsModal from "~/components/modals/SettingsModal.vue"
 import VestingDetailsModal from "./VestingDetailsModal.vue"
 import HexSettingsModal from "./HexSettingsModal.vue"
 import APIModal from "./APIModal.vue"
@@ -25,9 +26,12 @@ import HyperlaneTokenModal from "./HyperlaneTokenModal.vue"
 import HyperlaneMailboxModal from "./HyperlaneMailboxModal.vue"
 import IBCTransferModal from "./IBCTransferModal.vue"
 import IBCClientModal from "./IBCClientModal.vue"
+import LoginModal from "~/components/modals/LoginModal.vue"
+import SignupModal from "~/components/modals/SignupModal.vue"
 
 /** Store */
 import { useModalsStore } from "@/store/modals.store"
+
 const modalsStore = useModalsStore()
 </script>
 
@@ -46,16 +50,22 @@ const modalsStore = useModalsStore()
 	<SendModal :show="modalsStore.modals.send" @onClose="modalsStore.close('send')" />
 	<VestingDetailsModal :show="modalsStore.modals.vestingDetails" @onClose="modalsStore.close('vestingDetails')" />
 	<StakingModal :show="modalsStore.modals.staking" @onClose="modalsStore.close('staking')" />
+	<SettingsModal :show="modalsStore.modals.settings" @onClose="modalsStore.close('settings')" />
 	<HexSettingsModal :show="modalsStore.modals.hexSettings" @onClose="modalsStore.close('hexSettings')" />
 	<APIModal :show="modalsStore.modals.api" @onClose="modalsStore.close('api')" />
 	<LightNodeModal :show="modalsStore.modals.lightNode" @onClose="modalsStore.close('lightNode')" />
-	<LightNodeSettingsModal :show="modalsStore.modals.lightNodeSettings" @onClose="modalsStore.close('lightNodeSettings')" />
+	<LightNodeSettingsModal :show="modalsStore.modals.lightNodeSettings"
+							@onClose="modalsStore.close('lightNodeSettings')" />
 	<ConnectModal :show="modalsStore.modals.connect" @onClose="modalsStore.close('connect')" />
 	<ChartModal :show="modalsStore.modals.chart" @onClose="modalsStore.close('chart')" />
 	<RollupRankModal :show="modalsStore.modals.rollupRank" @onClose="modalsStore.close('rollupRank')" />
-	<HyperlaneTransferModal :show="modalsStore.modals.hyperlaneTransfer" @onClose="modalsStore.close('hyperlaneTransfer')" />
+	<HyperlaneTransferModal :show="modalsStore.modals.hyperlaneTransfer"
+							@onClose="modalsStore.close('hyperlaneTransfer')" />
 	<HyperlaneTokenModal :show="modalsStore.modals.hyperlaneToken" @onClose="modalsStore.close('hyperlaneToken')" />
-	<HyperlaneMailboxModal :show="modalsStore.modals.hyperlaneMailbox" @onClose="modalsStore.close('hyperlaneMailbox')" />
+	<HyperlaneMailboxModal :show="modalsStore.modals.hyperlaneMailbox"
+						   @onClose="modalsStore.close('hyperlaneMailbox')" />
 	<IBCTransferModal :show="modalsStore.modals.ibcTransfer" @onClose="modalsStore.close('ibcTransfer')" />
 	<IBCClientModal :show="modalsStore.modals.ibcClient" @onClose="modalsStore.close('ibcClient')" />
+	<LoginModal :show="modalsStore.modals.login" @onClose="modalsStore.close('login')" />
+	<SignupModal :show="modalsStore.modals.signup" @onClose="modalsStore.close('signup')" />
 </template>

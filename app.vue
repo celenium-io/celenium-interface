@@ -3,6 +3,8 @@
 import Socket from "@/services/api/socket"
 import amp from "@/services/amp"
 import { watchForUpdate } from "@/services/version"
+import { DEFAULT_SETTINGS } from "@/services/constants/settings.js"
+import { isPrefersDarkScheme } from "@/services/utils"
 
 /** Components */
 import ModalsManager from "@/components/modals/ModalsManager.vue"
@@ -21,6 +23,7 @@ import { useSettingsStore } from "@/store/settings.store"
 import { useEnumStore } from "@/store/enums.store"
 import { useLegalStore } from "@/store/legal.store"
 import { useNotificationsStore } from "@/store/notifications.store"
+
 const nodeStore = useNodeStore()
 const appStore = useAppStore()
 const bookmarksStore = useBookmarksStore()
@@ -43,7 +46,47 @@ appStore.initConstants()
 
 let watchInterval = null
 
+const settings = useCookie("localSettings", {
+	default: () => {
+		return DEFAULT_SETTINGS
+	},
+})
+
+switch (settings.value.appearance.general.theme) {
+	case "dark":
+	case "dimmed":
+	case "light":
+		appStore.theme = settings.value.appearance.general.theme
+
+		break
+
+	case "system":
+		appStore.theme = "system"
+
+		break
+}
+
+watch(() => settings.value.appearance.general.theme, () => {
+	let root = document.querySelector("html")
+
+	if (appStore.theme === "system") {
+		window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (event) => {
+			root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
+		})
+	} else {
+		root.setAttribute("theme", settings.value.appearance.general.theme)
+	}
+}, { deep: true })
+
 onMounted(async () => {
+	let root = document.querySelector("html")
+
+	if (appStore.theme === "system") {
+		root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
+	} else {
+		root.setAttribute("theme", appStore.theme)
+	}
+
 	/**
 	 * Watch for package.json->version and notify users about the new version
 	 */
@@ -92,7 +135,7 @@ onMounted(async () => {
 	settingsStore.init()
 
 	appStore.initGlobalUpdates()
-	
+
 	const runtimeConfig = useRuntimeConfig()
 	amp.init(runtimeConfig.public.AMP)
 
@@ -132,7 +175,7 @@ onMounted(async () => {
 		})
 	}
 
-	window.onbeforeunload = function () {
+	window.onbeforeunload = function() {
 		Socket.close()
 	}
 })

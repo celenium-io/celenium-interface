@@ -12,6 +12,7 @@ import { isMobile } from "@/services/utils"
 
 /** Store */
 import { useAppStore } from "@/store/app.store"
+
 const appStore = useAppStore()
 </script>
 
@@ -39,6 +40,7 @@ const appStore = useAppStore()
 			<div style="width: 2px; height: 16px; background: var(--op-10)" />
 
 			<Connection :class="$style.connection_btn" />
+			<Auth />
 		</Flex>
 	</Flex>
 </template>
