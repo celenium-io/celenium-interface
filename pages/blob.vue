@@ -229,7 +229,7 @@ const handleCopy = (text) => {
 
 <template>
 	<Flex wide direction="column" gap="16" :class="$style.wrapper">
-		<Flex align="center" justify="between">
+		<Flex align="center" justify="between" :class="$style.tabs_tools">
 			<Flex align="center" gap="8">
 				<Flex @click="currTab = 'viewer'" align="center" gap="6" :class="[$style.tab, currTab === 'viewer' && $style.active]">
 					<Text size="12" weight="600" color="secondary" mono>01</Text>
@@ -241,7 +241,7 @@ const handleCopy = (text) => {
 				</Flex>
 			</Flex>
 
-			<Flex align="center" gap="8">
+			<Flex align="center" gap="8" :class="$style.tools">
 				<Button v-if="l2BlockscoutUrl" :link="l2BlockscoutUrl" target="_blank" size="mini" type="secondary">
 					<Icon name="blockscout" size="12" color="secondary" />
 					View batch
@@ -254,7 +254,7 @@ const handleCopy = (text) => {
 					<Icon name="blob" size="12" color="secondary" />
 					Select blob
 				</Button>
-				<Button @click="handleDownload" type="secondary" size="mini" wide>
+				<Button @click="handleDownload" type="secondary" size="mini">
 					<Icon name="download" size="14" color="secondary" />
 				</Button>
 				<Button @click="modalsStore.open('hexSettings')" size="mini" type="secondary">
@@ -358,7 +358,7 @@ const handleCopy = (text) => {
 									<Flex justify="between" :class="$style.namespace">
 										<Flex direction="column" gap="8">
 											<Text size="12" weight="600" color="secondary">Namespace</Text>
-											<Text size="13" weight="600" color="primary">{{ space(metadata.namespace.name) }}</Text>
+											<Text size="13" weight="600" color="primary">{{ metadata.namespace.name }}</Text>
 
 											<Text size="12" weight="500" color="tertiary">
 												{{ formatBytes(metadata.namespace.size) }}&nbsp;&nbsp;•&nbsp;&nbsp;{{
@@ -383,6 +383,13 @@ const handleCopy = (text) => {
 									<Text size="12" weight="600" color="tertiary"> Blob Size </Text>
 									<Text size="12" weight="600" color="primary">
 										{{ formatBytes(metadata.size) }}
+									</Text>
+								</Flex>
+
+								<Flex align="center" justify="between">
+									<Text size="12" weight="600" color="tertiary"> Version </Text>
+									<Text size="12" weight="600" color="primary">
+										{{ metadata.share_version }}
 									</Text>
 								</Flex>
 
@@ -650,6 +657,19 @@ const handleCopy = (text) => {
 
 	.right {
 		max-width: initial;
+	}
+}
+
+@media (max-width: 600px) {
+	.tabs_tools {
+		flex-direction: column-reverse;
+		align-items: flex-start;
+		gap: 12px;
+
+		.tools {
+			width: 100%;
+			justify-content: flex-end;
+		}
 	}
 }
 </style>

@@ -47,8 +47,10 @@ const handleChangeTheme = (target) => {
 							<a href="https://github.com/celenium-io" target="_blank">
 								<Icon name="github" size="14" color="tertiary" />
 							</a>
-							<a href="https://discord.com/channels/846362414039695391/1168936555302355005"
-							   target="_blank">
+							<a
+								href="https://discord.com/channels/846362414039695391/1168936555302355005"
+								target="_blank"
+							>
 								<Icon name="discord" size="14" color="tertiary" />
 							</a>
 							<a
@@ -141,17 +143,16 @@ const handleChangeTheme = (target) => {
 				</Flex>
 
 				<Flex align="center" gap="12" style="height: fit-content">
-					<Flex align="center" gap="6" :class="$style.btn">
-						<Text size="12" weight="600" color="tertiary"> Donate</Text>
-						<a href="https://celenium.io/address/celestia1avr0gh0v6errxr8g8rjkscxf3jqx4k6ypkh2rl"
-						   target="_blank">
-							<Text size="12" weight="600" color="secondary"> TIA</Text>
+					<!-- <Flex align="center" gap="6" :class="$style.btn">
+						<Text size="12" weight="600" color="tertiary"> Donate </Text>
+						<a href="https://celenium.io/address/celestia1avr0gh0v6errxr8g8rjkscxf3jqx4k6ypkh2rl" target="_blank">
+							<Text size="12" weight="600" color="secondary"> TIA </Text>
 						</a>
 						<a href="https://etherscan.io/address/0x9FfB1cb28c55735e77B352eE918b4F0c3595a761"
 						   target="_blank">
 							<Text size="12" weight="600" color="secondary"> ETH</Text>
 						</a>
-					</Flex>
+					</Flex> -->
 
 					<Dropdown side="top">
 						<Flex align="center" gap="6" :class="$style.btn">

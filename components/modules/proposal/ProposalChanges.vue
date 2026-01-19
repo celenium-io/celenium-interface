@@ -22,7 +22,7 @@ const props = defineProps({
 		<div :class="$style.content">
 			<Flex v-if="Array.isArray(proposal.changes)" gap="16" :class="$style.changes">
 				<Flex v-for="change in proposal.changes" wide direction="column" gap="4" :class="$style.change">
-					<Flex justify="between" align="center" :class="$style.key">
+					<Flex justify="between" align="center" gap="12" :class="$style.key">
 						<Text size="13" weight="600" color="primary" mono> {{ change.key }} </Text>
 						<Text size="13" weight="600" color="tertiary" mono> {{ change.subspace }} </Text>
 					</Flex>

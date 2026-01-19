@@ -4,17 +4,28 @@ import Button from "@/components/ui/Button.vue"
 import Tooltip from "@/components/ui/Tooltip.vue"
 import AmountInCurrency from "@/components/AmountInCurrency.vue"
 
+/** Components */
+import ValidatorMetrics from "./ValidatorMetrics.vue"
+
 /** Tables */
 import BlocksTable from "./tables/BlocksTable.vue"
 import DelegatorsTable from "./tables/DelegatorsTable.vue"
 import JailsTable from "./tables/JailsTable.vue"
+import MessagesTable from "./tables/MessagesTable.vue"
+import SignalsTable from "./tables/SignalsTable.vue"
 import VotesTable from "./tables/VotesTable.vue"
 
 /** Services */
-import { comma, numToPercent, shortHex, splitAddress } from "@/services/utils"
+import { capitilize, comma, numToPercent, shortHex, splitAddress } from "@/services/utils"
 
 /** API */
-import { fetchValidatorBlocks, fetchValidatorDelegators, fetchValidatorJails, fetchValidatorUptime } from "@/services/api/validator"
+import {
+	fetchValidatorBlocks,
+	fetchValidatorDelegators,
+	fetchValidatorJails,
+	fetchValidatorMessages,
+	fetchSignals
+} from "@/services/api/validator"
 import { fetchVotesByAddressHash } from "@/services/api/address"
 
 /** Store */
@@ -35,20 +46,28 @@ const props = defineProps({
 
 const tabs = ref([
 	{
-		name: "Delegators",
+		name: "delegators",
 		icon: "address",
 	},
 	{
-		name: "Proposed Blocks",
+		name: "proposed blocks",
 		icon: "block",
 	},
 	{
-		name: "Jails",
+		name: "jails",
 		icon: "grid",
 	},
 	{
-		name: "Votes",
+		name: "votes",
 		icon: "check-circle",
+	},
+	{
+		name: "signals",
+		icon: "bell-ringing",
+	},
+	{
+		name: "messages",
+		icon: "message",
 	},
 ])
 const preselectedTab = route.query.tab && tabs.value.map((tab) => tab.name).includes(route.query.tab) ? route.query.tab : tabs.value[0].name
@@ -58,8 +77,12 @@ const isRefetching = ref(false)
 const delegators = ref([])
 const blocks = ref([])
 const jails = ref([])
+const messages = ref([])
+const signals = ref([])
 const votes = ref([])
-const uptime = ref([])
+
+const collapseDetails = ref(true)
+const collapseStaking = ref(true)
 
 const page = ref(1)
 const limit = 10
@@ -120,6 +143,21 @@ const getJails = async () => {
 	isRefetching.value = false
 }
 
+const getSignals = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchSignals({
+		validatorId: props.validator.id,
+		limit: limit,
+		offset: (page.value - 1) * limit,
+	})
+
+	signals.value = data.value
+	handleNextCondition.value = signals.value?.length < limit
+
+	isRefetching.value = false
+}
+
 const getVotes = async () => {
 	isRefetching.value = true
 
@@ -135,29 +173,35 @@ const getVotes = async () => {
 	isRefetching.value = false
 }
 
-const getUptime = async () => {
-	const { data } = await fetchValidatorUptime({
+const getMessages = async () => {
+	isRefetching.value = true
+
+	const { data } = await fetchValidatorMessages({
 		id: props.validator.id,
-		limit: 100,
+		limit: limit,
+		offset: (page.value - 1) * limit,
 	})
 
-	if (data.value?.blocks?.length) {
-		uptime.value = data.value.blocks.sort((a, b) => a.height - b.height)
+	if (data.value?.length) {
+		messages.value = data.value
+		handleNextCondition.value = blocks.value?.length < limit
 	}
+
+	isRefetching.value = false
 }
 
-/** Initital fetch for delegators and uptime */
-if (activeTab.value === "Delegators") await getDelegators()
-if (activeTab.value === "Proposed Blocks") await getBlocks()
-if (activeTab.value === "Jails") await getJails()
-if (activeTab.value === "Votes") await getVotes()
-
-await getUptime()
+/** Initital fetch */
+if (activeTab.value?.toLowerCase() === "delegators") await getDelegators()
+if (activeTab.value?.toLowerCase() === "proposed blocks") await getBlocks()
+if (activeTab.value?.toLowerCase() === "jails") await getJails()
+if (activeTab.value?.toLowerCase() === "messages") await getMessages()
+if (activeTab.value?.toLowerCase() === "signals") await getSignals()
+if (activeTab.value?.toLowerCase() === "votes") await getVotes()
 
 onMounted(() => {
 	router.replace({
 		query: {
-			tab: activeTab.value,
+			tab: activeTab.value?.toLowerCase(),
 		},
 	})
 })
@@ -221,18 +265,24 @@ const parsedContacts = computed(() => {
 watch(
 	() => page.value,
 	() => {
-		switch (activeTab.value) {
-			case "Delegators":
+		switch (activeTab.value?.toLowerCase()) {
+			case "delegators":
 				getDelegators()
 				break
-			case "Proposed Blocks":
+			case "proposed blocks":
 				getBlocks()
 				break
-			case "Jails":
+			case "jails":
 				getJails()
 				break
-			case "Votes":
+			case "signals":
+				getSignals()
+				break
+			case "votes":
 				getVotes()
+				break
+			case "messages":
+				getMessages()
 				break
 		}
 	},
@@ -243,24 +293,30 @@ watch(
 	() => {
 		router.replace({
 			query: {
-				tab: activeTab.value,
+				tab: activeTab.value?.toLowerCase(),
 			},
 		})
 
 		page.value = 1
 
-		switch (activeTab.value) {
-			case "Delegators":
+		switch (activeTab.value?.toLowerCase()) {
+			case "delegators":
 				getDelegators()
 				break
-			case "Proposed Blocks":
+			case "proposed blocks":
 				getBlocks()
 				break
-			case "Jails":
+			case "jails":
 				getJails()
 				break
-			case "Votes":
+			case "signals":
+				getSignals()
+				break
+			case "votes":
 				getVotes()
+				break
+			case "messages":
+				getMessages()
 				break
 		}
 	},
@@ -348,8 +404,20 @@ const handleDelegate = () => {
 					</Flex>
 
 					<!-- Staking -->
-					<Flex direction="column" gap="16">
-						<Text size="12" weight="600" color="secondary">Staking</Text>
+					<Flex direction="column" gap="12">
+						<Flex @click="collapseStaking = !collapseStaking" align="center" justify="between" gap="12" style="cursor: pointer;">
+							<Text size="12" weight="600" color="secondary">Staking</Text>
+
+							<Icon
+								name="chevron"
+								size="14"
+								color="secondary"
+								:style="{
+									transform: `rotate(${collapseStaking ? '0' : '180'}deg)`,
+									transition: 'all 400ms ease',
+								}"
+							/>
+						</Flex>
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Voting Power</Text>
@@ -359,12 +427,12 @@ const handleDelegate = () => {
 							/>
 						</Flex>
 
-						<Flex align="center" justify="between">
+						<Flex v-if="!collapseStaking" align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Outgoing Rewards</Text>
 							<AmountInCurrency :amount="{ value: validator.rewards }" :styles="{ amount: { color: 'tertiary' } }" />
 						</Flex>
 
-						<Flex align="center" justify="between">
+						<Flex v-if="!collapseStaking" align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Commissions</Text>
 							<AmountInCurrency :amount="{ value: validator.commissions }" :styles="{ amount: { color: 'tertiary' } }" />
 						</Flex>
@@ -372,83 +440,80 @@ const handleDelegate = () => {
 
 					<!-- Details -->
 					<Flex direction="column" gap="16">
-						<Text size="12" weight="600" color="secondary">Details</Text>
+						<Flex @click="collapseDetails = !collapseDetails" align="center" justify="between" gap="12" style="cursor: pointer;">
+							<Text size="12" weight="600" color="secondary">Details</Text>
 
-						<Flex v-if="!parsedContacts.length && validator.contacts" align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Contact</Text>
-							<Text size="12" weight="600" color="tertiary" selectable> {{ validator.contacts }} </Text>
+							<Icon
+								name="chevron"
+								size="14"
+								color="secondary"
+								:style="{
+									transform: `rotate(${collapseDetails ? '0' : '180'}deg)`,
+									transition: 'all 400ms ease',
+								}"
+							/>
 						</Flex>
-
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Delegator Address</Text>
-							<Flex gap="6">
-								<AddressBadge :account="validator.delegator" color="tertiary" />
-								<CopyButton :text="validator.delegator.hash" />
+						
+						<template v-if="!collapseDetails">
+							<Flex v-if="!parsedContacts.length && validator.contacts" align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Contact</Text>
+								<Text size="12" weight="600" color="tertiary" selectable> {{ validator.contacts }} </Text>
 							</Flex>
-						</Flex>
 
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Consensus Address</Text>
-							<Flex gap="6">
-								<Text size="12" weight="600" color="tertiary"> {{ shortHex(validator.cons_address) }} </Text>
-								<CopyButton :text="validator.cons_address" />
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Delegator Address</Text>
+								<Flex gap="6">
+									<AddressBadge :account="validator.delegator" color="tertiary" />
+									<CopyButton :text="validator.delegator.hash" />
+								</Flex>
 							</Flex>
-						</Flex>
 
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Identity</Text>
-							<Flex gap="6">
-								<Text size="12" weight="600" color="tertiary"> {{ validator.identity }} </Text>
-								<CopyButton :text="validator.identity" />
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Consensus Address</Text>
+								<Flex gap="6">
+									<Text size="12" weight="600" color="tertiary"> {{ shortHex(validator.cons_address) }} </Text>
+									<CopyButton :text="validator.cons_address" />
+								</Flex>
 							</Flex>
-						</Flex>
 
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Rate</Text>
-							<Text size="12" weight="600" color="secondary"> {{ numToPercent(validator.rate) }} </Text>
-						</Flex>
+							<Flex v-if="validator.identity" align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Identity</Text>
+								<Flex gap="6">
+									<Text size="12" weight="600" color="tertiary"> {{ validator.identity }} </Text>
+									<CopyButton :text="validator.identity" />
+								</Flex>
+							</Flex>
 
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Max Rate</Text>
-							<Text size="12" weight="600" color="secondary"> {{ numToPercent(validator.max_rate) }} </Text>
-						</Flex>
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Rate</Text>
+								<Text size="12" weight="600" color="secondary"> {{ numToPercent(validator.rate) }} </Text>
+							</Flex>
 
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Max Change Rate</Text>
-							<Text size="12" weight="600" color="secondary"> {{ numToPercent(validator.max_change_rate) }} </Text>
-						</Flex>
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Max Rate</Text>
+								<Text size="12" weight="600" color="secondary"> {{ numToPercent(validator.max_rate) }} </Text>
+							</Flex>
 
-						<Flex align="center" justify="between">
-							<Text size="12" weight="600" color="tertiary">Min Self Delegation</Text>
-							<Text size="12" weight="600" color="secondary"> {{ comma(validator.min_self_delegation) }} </Text>
-						</Flex>
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Max Change Rate</Text>
+								<Text size="12" weight="600" color="secondary"> {{ numToPercent(validator.max_change_rate) }} </Text>
+							</Flex>
+
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Min Self Delegation</Text>
+								<Text size="12" weight="600" color="secondary"> {{ comma(validator.min_self_delegation) }} </Text>
+							</Flex>
+
+							<Flex v-if="validator.version" align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Version</Text>
+								<Text size="12" weight="600" color="secondary"> {{ `v${validator.version}` }} </Text>
+							</Flex>
+						</template>
 
 						<div :class="$style.horizontal_divider" />
-
-						<!-- Validator Uptime -->
-						<Flex align="center" gap="6">
-							<Text size="12" weight="600" color="secondary">Validator Uptime</Text>
-							<Text size="12" weight="600" color="tertiary">(last 100 blocks)</Text>
-						</Flex>
-
-						<Flex :class="$style.uptime_wrapper">
-							<Tooltip v-for="t in uptime" @click="navigateTo(`/block/${t.height}`)">
-								<Flex
-									:class="$style.uptime"
-									:style="{
-										background: t.signed ? 'var(--brand)' : 'var(--red)',
-									}"
-								/>
-
-								<template #content>
-									<Flex direction="column" gap="4">
-										<Text color="primary">{{ t.height }}</Text>
-										<Text color="secondary">{{ t.signed ? "Signed" : "Missed" }}</Text>
-									</Flex>
-								</template>
-							</Tooltip>
-						</Flex>
 					</Flex>
+
+					<ValidatorMetrics :validator="validator" style="margin-top: -16px;" />
 				</Flex>
 			</Flex>
 
@@ -463,13 +528,13 @@ const handleDelegate = () => {
 							:class="[$style.tab, activeTab === tab.name && $style.active]"
 						>
 							<Icon :name="tab.icon" size="12" color="secondary" />
-							<Text size="13" weight="600">{{ tab.name }}</Text>
+							<Text size="13" weight="600">{{ capitilize(tab.name) }}</Text>
 						</Flex>
 					</Flex>
 				</Flex>
 
 				<Flex direction="column" justify="center" gap="8" :class="[$style.table, isRefetching && $style.disabled]">
-					<template v-if="activeTab === 'Delegators'">
+					<template v-if="activeTab === 'delegators'">
 						<DelegatorsTable v-if="delegators.length" :delegators="delegators" :validator="validator" />
 
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
@@ -480,7 +545,7 @@ const handleDelegate = () => {
 						</Flex>
 					</template>
 
-					<template v-if="activeTab === 'Proposed Blocks'">
+					<template v-if="activeTab === 'proposed blocks'">
 						<BlocksTable v-if="blocks.length" :blocks="blocks" />
 
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
@@ -491,7 +556,7 @@ const handleDelegate = () => {
 						</Flex>
 					</template>
 
-					<template v-if="activeTab === 'Jails'">
+					<template v-if="activeTab === 'jails'">
 						<JailsTable v-if="jails.length" :jails="jails" />
 
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
@@ -502,13 +567,35 @@ const handleDelegate = () => {
 						</Flex>
 					</template>
 
-					<template v-if="activeTab === 'Votes'">
+					<template v-if="activeTab === 'votes'">
 						<VotesTable v-if="votes.length" :votes="votes" />
 
 						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
 							<Text size="13" weight="600" color="secondary" align="center"> No votes </Text>
 							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
-								No {{ page === 1 ? "" : "more" }} votes from this address on any proposals
+								No {{ page === 1 ? "" : "more" }} votes from this validator on any proposals
+							</Text>
+						</Flex>
+					</template>
+
+					<template v-if="activeTab === 'signals'">
+						<SignalsTable v-if="signals.length" :signals="signals" />
+
+						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+							<Text size="13" weight="600" color="secondary" align="center"> No signals </Text>
+							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+								No {{ page === 1 ? "" : "more" }} signals from this validator
+							</Text>
+						</Flex>
+					</template>
+
+					<template v-if="activeTab === 'messages'">
+						<MessagesTable v-if="messages.length" :messages="messages" />
+
+						<Flex v-else align="center" justify="center" direction="column" gap="8" wide :class="$style.empty">
+							<Text size="13" weight="600" color="secondary" align="center"> No messages </Text>
+							<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
+								No {{ page === 1 ? "" : "more" }} messages from this validator
 							</Text>
 						</Flex>
 					</template>
@@ -566,22 +653,6 @@ const handleDelegate = () => {
 		overflow: hidden;
 	}
 
-	.uptime_wrapper {
-		max-width: 384px;
-		flex-wrap: wrap;
-	}
-
-	.uptime {
-		width: 0.6rem;
-		height: 0.6rem;
-
-		border-radius: 2px;
-		cursor: pointer;
-
-		margin-right: 0.35rem;
-		margin-bottom: 0.35rem;
-	}
-
 	.horizontal_divider {
 		width: 100%;
 		height: 2px;
@@ -589,6 +660,12 @@ const handleDelegate = () => {
 
 		margin-top: 4px;
 		margin-bottom: 4px;
+	}
+
+	@media (max-width: 800px) {
+		.memo {
+			max-width: 100%;
+		}
 	}
 }
 
@@ -622,6 +699,8 @@ const handleDelegate = () => {
 
 	& span {
 		color: var(--txt-tertiary);
+
+		text-wrap: nowrap;
 
 		transition: all 0.1s ease;
 	}
