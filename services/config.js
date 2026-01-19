@@ -116,3 +116,15 @@ export const rollupRankingServiceURL = () => useRuntimeConfig().public.ROLLUP_RA
 export const tvlServiceURL = () => useRuntimeConfig().public.TVL
 
 export const isSelfhosted = () => useRuntimeConfig().public.SELFHOSTED
+
+export const Auth = {
+	clientId: "jXqMTqkexWpVuE1ssMDrC2rMm9wv4ior4C9tBcuI",
+	scope: "read",
+	baseUrl: "https://auth.celenium.io",
+	authorizeUrl: "/oauth/authorize/",
+	getTokenUrl: "/oauth/token/",
+	revokeTokenUrl: "/oauth/revoke_token/",
+	getCurrentUserUrl: "/api/v1/user/me/",
+	saveSettingsUrl: "/api/v1/user/settings/",
+	redirectPath: "/auth/callback",
+}

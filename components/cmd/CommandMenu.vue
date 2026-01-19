@@ -30,6 +30,7 @@ import { useCacheStore } from "@/store/cache.store"
 import { useModalsStore } from "@/store/modals.store"
 import { useBookmarksStore } from "@/store/bookmarks.store"
 import { useNotificationsStore } from "@/store/notifications.store"
+
 const appStore = useAppStore()
 const cacheStore = useCacheStore()
 const modalsStore = useModalsStore()
@@ -39,7 +40,6 @@ const notificationsStore = useNotificationsStore()
 const appConfig = useAppConfig()
 
 const developerMode = useCookie("developerMode", { default: () => false })
-const theme = useCookie("theme", { default: () => "dark" })
 
 const route = useRoute()
 const router = useRouter()
@@ -525,70 +525,6 @@ const quickCommandsGroup = computed(() => {
 })
 
 const rawSettingsActions = [
-	{
-		type: "command:nested",
-		icon: "moon",
-		title: "Switch Theme",
-		subtitle: "Command",
-		placeholder: "Choose Theme...",
-		runText: "Switch Theme",
-		nestedTitle: "Theme",
-
-		actions: [
-			{
-				id: id(),
-				type: "callback",
-				icon: "moon",
-				title: "Dark Theme",
-				subtitle: "Theme",
-				runText: "Switch to Dark Theme",
-				callback: () => {
-					root.setAttribute("theme", "dark")
-					appStore.theme = "dark"
-					theme.value = "dark"
-				},
-			},
-			{
-				id: id(),
-				type: "callback",
-				icon: "sun",
-				title: "Light Theme",
-				subtitle: "Theme",
-				runText: "Switch to Light Theme",
-				callback: () => {
-					root.setAttribute("theme", "light")
-					appStore.theme = "light"
-					theme.value = "light"
-				},
-			},
-			{
-				id: id(),
-				type: "callback",
-				icon: "moon",
-				title: "Dimmed Theme",
-				subtitle: "Theme",
-				runText: "Switch to Dimmed Theme",
-				callback: () => {
-					root.setAttribute("theme", "dimmed")
-					appStore.theme = "dimmed"
-					theme.value = "dimmed"
-				},
-			},
-			{
-				id: id(),
-				type: "callback",
-				icon: "settings",
-				title: "System Preferences",
-				subtitle: "Theme",
-				runText: "Switch to System",
-				callback: () => {
-					root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
-					appStore.theme = "system"
-					theme.value = "system"
-				},
-			},
-		],
-	},
 	{
 		type: "command:nested",
 		icon: "globe",
@@ -1386,11 +1322,17 @@ const runBounce = () => {
 <template>
 	<Transition name="fastpopup">
 		<div v-if="appStore.showCmd" :class="$style.wrapper">
-			<Flex @click.stop="handleFocus" ref="popupEl" direction="column" :class="[$style.popup, bounce && $style.bounce]">
+			<Flex
+				@click.stop="handleFocus" ref="popupEl" direction="column"
+				:class="[$style.popup, bounce && $style.bounce]"
+			>
 				<!-- Input Field -->
 				<Flex direction="column" :class="$style.header">
 					<Flex v-if="isCommandMode" align="center" gap="8" :class="$style.breadcrumbs">
-						<Icon @click="exitCommandMode" name="arrow-narrow-left" size="12" color="secondary" :class="$style.back_btn" />
+						<Icon
+							@click="exitCommandMode" name="arrow-narrow-left" size="12" color="secondary"
+							:class="$style.back_btn"
+						/>
 
 						<Flex align="center" gap="6">
 							<Text size="12" weight="600" color="tertiary">Quick Actions</Text>
@@ -1419,7 +1361,9 @@ const runBounce = () => {
 				<Flex v-if="!mode" ref="listEl" direction="column" :class="$style.list">
 					<template v-for="group in groups">
 						<Flex v-if="group.value.actions.length" direction="column" :class="$style.group">
-							<Text size="12" weight="500" color="tertiary" :class="$style.label">{{ group.value.title }}</Text>
+							<Text size="12" weight="500" color="tertiary" :class="$style.label">{{ group.value.title
+								}}
+							</Text>
 
 							<Flex direction="column" :class="$style.actions">
 								<Item
@@ -1438,7 +1382,10 @@ const runBounce = () => {
 				<!-- Command Mode -->
 				<Flex v-else-if="isCommandMode" direction="column" :class="$style.list">
 					<Flex direction="column" :class="$style.group">
-						<Text v-if="commandMetadata.action.nestedTitle" size="12" weight="500" color="tertiary" :class="$style.label">
+						<Text
+							v-if="commandMetadata.action.nestedTitle" size="12" weight="500" color="tertiary"
+							:class="$style.label"
+						>
 							{{ commandMetadata.action.nestedTitle }}
 						</Text>
 
@@ -1463,7 +1410,10 @@ const runBounce = () => {
 				<Flex align="center" justify="between" :class="$style.footer">
 					<Icon name="logo" size="14" color="tertiary" />
 
-					<Flex v-if="runText.length" @click="handleExecute(getActionById())" align="center" gap="8" :class="$style.button">
+					<Flex
+						v-if="runText.length" @click="handleExecute(getActionById())" align="center" gap="8"
+						:class="$style.button"
+					>
 						<Text size="13" weight="600" color="secondary">{{ runText }}</Text>
 						<Kbd>
 							<Icon name="return" size="12" color="secondary" />
@@ -1471,8 +1421,12 @@ const runBounce = () => {
 					</Flex>
 					<Flex v-else align="center" gap="8">
 						<Text size="13" weight="600" color="tertiary">Navigate</Text>
-						<Kbd><Text size="12" weight="600" color="primary">↓</Text></Kbd>
-						<Kbd><Text size="12" weight="600" color="primary">↑</Text></Kbd>
+						<Kbd>
+							<Text size="12" weight="600" color="primary">↓</Text>
+						</Kbd>
+						<Kbd>
+							<Text size="12" weight="600" color="primary">↑</Text>
+						</Kbd>
 					</Flex>
 				</Flex>
 			</Flex>
