@@ -16,6 +16,7 @@ import { fetchBlockEvents } from "@/services/api/block"
 /** Store */
 import { useModalsStore } from "@/store/modals.store"
 import { useCacheStore } from "@/store/cache.store"
+
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
 
@@ -119,6 +120,15 @@ watch(
 		getEvents()
 	},
 )
+
+const formatEventAmount = (amount) => {
+	console.log(amount)
+	if (amount.endsWith("utia")) {
+		return `${tia(amount.replace("utia", ""))} TIA`
+	}
+
+	return amount.replace(/^(\d+)(.*)/, "$1 $2")
+}
 </script>
 
 <template>
@@ -161,8 +171,8 @@ watch(
 						<Text size="12" weight="500" color="secondary">spent</Text>
 
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ tia(event.data.amount.replace("utia", "")) }} TIA</Text
-						>
+							{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
+						</Text>
 					</Flex>
 					<!-- Event: coin_received -->
 					<Flex v-else-if="event.type === 'coin_received'" align="center" gap="4" color="secondary" :class="$style.text">
@@ -181,7 +191,7 @@ watch(
 						<Text size="12" weight="500" color="secondary">received</Text>
 
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ tia(event.data.amount.replace("utia", "")) }} TIA
+							{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
 						</Text>
 					</Flex>
 					<!-- Event: delegate -->
@@ -223,8 +233,8 @@ watch(
 						<Text size="12" weight="500" color="secondary">sent</Text>
 
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ tia(event.data.amount.replace("utia", "")) }} TIA</Text
-						>
+							{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
+						</Text>
 
 						<Text size="12" weight="500" color="secondary">to</Text>
 
@@ -297,8 +307,8 @@ watch(
 							<Text size="12" weight="500" color="secondary">paid</Text>
 
 							<Text size="12" weight="500" color="primary" mono no-wrap>
-								{{ tia(event.data.fee.replace("utia", "")) }} TIA</Text
-							>
+								{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
+							</Text>
 
 							<Text size="12" weight="500" color="secondary">fee</Text>
 						</template>
@@ -343,8 +353,8 @@ watch(
 						<Text size="12" weight="500" color="secondary">Withdrawal</Text>
 
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ tia(event.data.amount.replace("utia", "")) }} TIA</Text
-						>
+							{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
+						</Text>
 
 						<Text size="12" weight="500" color="secondary">from</Text>
 
@@ -365,7 +375,7 @@ watch(
 						<Text size="12" weight="500" color="secondary">Commission</Text>
 
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ tia(event.data.amount.replace("utia", "")) }} TIA
+							{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
 						</Text>
 					</Flex>
 					<!-- Event: proposer_reward -->
@@ -387,7 +397,7 @@ watch(
 						<Text size="12" weight="500" color="secondary">received rewards</Text>
 
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA
+							{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
 						</Text>
 					</Flex>
 					<!-- Event: rewards -->
@@ -409,7 +419,7 @@ watch(
 						<Text size="12" weight="500" color="secondary">received rewards</Text>
 
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA
+							{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
 						</Text>
 					</Flex>
 					<!-- Event: commission -->
@@ -429,7 +439,7 @@ watch(
 						<Text size="12" weight="500" color="secondary">received commission of</Text>
 
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA
+							{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
 						</Text>
 					</Flex>
 					<!-- Event: coinbase -->
@@ -449,30 +459,30 @@ watch(
 						<Text size="12" weight="500" color="secondary">received</Text>
 
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA
+							{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
 						</Text>
 					</Flex>
 					<!-- Event: mint -->
 					<Flex v-else-if="event.type === 'mint'" align="center" gap="4" color="secondary" :class="$style.text">
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA</Text
-						>
+							{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
+						</Text>
 
 						<Text size="12" weight="500" color="secondary">was minted</Text>
 					</Flex>
 					<!-- Event: burn -->
 					<Flex v-else-if="event.type === 'burn'" align="center" gap="4" color="secondary" :class="$style.text">
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA</Text
-						>
+							{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
+						</Text>
 
 						<Text size="12" weight="500" color="secondary">was burned</Text>
 					</Flex>
 					<!-- Event: unbond -->
 					<Flex v-else-if="event.type === 'unbond'" align="center" gap="4" color="secondary" :class="$style.text">
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA</Text
-						>
+							{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
+						</Text>
 
 						<Text size="12" weight="500" color="secondary">will unbond from</Text>
 
@@ -503,8 +513,8 @@ watch(
 					<!-- Event: redelegate -->
 					<Flex v-else-if="event.type === 'redelegate'" align="center" gap="4" color="secondary" :class="$style.text">
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA</Text
-						>
+							{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
+						</Text>
 
 						<Text size="12" weight="500" color="secondary">will redelegate from</Text>
 
@@ -549,8 +559,8 @@ watch(
 					<!-- Event: complete_unbonding -->
 					<Flex v-else-if="event.type === 'complete_unbonding'" align="center" gap="4" color="secondary" :class="$style.text">
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA</Text
-						>
+							{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
+						</Text>
 
 						<Text size="12" weight="500" color="secondary">was unbonded from</Text>
 
@@ -583,8 +593,8 @@ watch(
 					<!-- Event: complete_redelegation -->
 					<Flex v-else-if="event.type === 'complete_redelegation'" align="center" gap="4" color="secondary" :class="$style.text">
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA</Text
-						>
+							{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
+						</Text>
 
 						<Text size="12" weight="500" color="secondary">was redelegated from</Text>
 
@@ -651,8 +661,8 @@ watch(
 						<Text size="12" weight="500" color="secondary">Unbonding</Text>
 
 						<Text size="12" weight="500" color="primary" mono no-wrap>
-							{{ event.data.amount ? tia(event.data.amount.replace("utia", "")) : 0 }} TIA</Text
-						>
+							{{ event.data.amount ? formatEventAmount(event.data.amount) : 0 }}
+						</Text>
 
 						<Text size="12" weight="500" color="secondary">from</Text>
 
@@ -806,7 +816,7 @@ watch(
 			</Flex>
 
 			<Flex v-else direction="column" align="center" justify="center" gap="8" :class="$style.empty">
-				<Text size="13" weight="600" color="secondary" align="center"> No events </Text>
+				<Text size="13" weight="600" color="secondary" align="center"> No events</Text>
 				<Text size="12" weight="500" height="160" color="tertiary" align="center" style="max-width: 220px">
 					This block does not contain any events
 				</Text>
@@ -822,7 +832,7 @@ watch(
 			</Button>
 
 			<Button type="secondary" size="mini" disabled>
-				<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
+				<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }}</Text>
 			</Button>
 
 			<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
