@@ -122,7 +122,6 @@ watch(
 )
 
 const formatEventAmount = (amount) => {
-	console.log(amount)
 	if (amount.endsWith("utia")) {
 		return `${tia(amount.replace("utia", ""))} TIA`
 	}
