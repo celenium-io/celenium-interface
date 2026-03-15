@@ -88,6 +88,7 @@ const transactions = ref([])
 const update = ref()
 
 const page = ref(1)
+const pages = computed(() => Math.ceil(props.block.stats.tx_count / 10))
 const handleNext = () => {
 	page.value += 1
 }
@@ -270,18 +271,17 @@ const getTransactions = async () => {
 
 await getTransactions()
 
-onBeforeMount(async () => {
-})
+onBeforeMount(async () => {})
 
 onMounted(async () => {
-	update.value = appStore.globalUpdates.find(upd => upd.block === props.height)
+	update.value = appStore.globalUpdates.find((upd) => upd.block === props.height)
 	if (update.value?.kind) {
 		activeTab.value = "upcoming_update"
 	} else {
 		const preselectedTab = route.query.tab && ["transactions", "events"].includes(route.query.tab) ? route.query.tab : "transactions"
 		activeTab.value = preselectedTab
 	}
-	
+
 	router.replace({
 		query: {
 			tab: activeTab.value,
@@ -324,7 +324,7 @@ watch(
 watch(
 	() => appStore.globalUpdates,
 	() => {
-		update.value = appStore.globalUpdates.find(upd => {
+		update.value = appStore.globalUpdates.find((upd) => {
 			return upd.block === props.height
 		})
 	},
@@ -582,8 +582,13 @@ const handleViewRawTransactions = () => {
 				</Flex>
 
 				<UpcomingUpdate v-if="activeTab === 'upcoming_update'" :update="update" />
-				
-				<Flex v-else-if="activeTab === 'transactions'" direction="column" justify="between" :class="[$style.table, isLoading && $style.disabled]">
+
+				<Flex
+					v-else-if="activeTab === 'transactions'"
+					direction="column"
+					justify="between"
+					:class="[$style.table, isLoading && $style.disabled]"
+				>
 					<Flex wrap="wrap" align="center" justify="start" gap="8" :class="$style.filters">
 						<Popover :open="isStatusPopoverOpen" @on-close="onStatusPopoverClose" width="200">
 							<Button @click="handleOpenStatusPopover" type="secondary" size="mini" :disabled="!transactions.length">
@@ -652,7 +657,7 @@ const handleViewRawTransactions = () => {
 														.filter((f) => filters.message_type[f])[0]
 														.replace("Msg", "")} and ${
 														Object.keys(filters.message_type).filter((f) => filters.message_type[f]).length - 1
-												  } more`
+													} more`
 										}}
 									</Text>
 
@@ -928,10 +933,10 @@ const handleViewRawTransactions = () => {
 						</Button>
 
 						<Button type="secondary" size="mini" disabled>
-							<Text size="12" weight="600" color="primary">Page {{ page }}</Text>
+							<Text size="12" weight="600" color="primary">Page {{ page }} of {{ pages }}</Text>
 						</Button>
 
-						<Button @click="handleNext" type="secondary" size="mini" :disabled="transactions.length !== 10">
+						<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
 							<Icon name="arrow-right" size="12" color="primary" />
 						</Button>
 					</Flex>
