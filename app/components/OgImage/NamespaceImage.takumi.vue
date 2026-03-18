@@ -22,10 +22,10 @@ const bgStyles = computed(() => {
 </script>
 
 <template>
-	<div class="w-full h-full" :style="{ background: '#111111', padding: '100px', fontFamily: 'IBM+Plex+Mono', overflow: 'hidden' }">
-		<img src="/img/bg.png" width="1200" height="600" class="absolute" v-bind="bgStyles" />
+	<div class="wrapper w-full h-full" class="wrapper">
+		<img src="/img/bg.png" width="1200" height="600" class="img" v-bind="bgStyles" />
 
-		<div :style="{ height: '100%', display: 'flex', flexDirection: 'column', gap: '40px' }">
+		<div class="content">
 			<div :style="{ display: 'flex', alignItems: 'center' }">
 				<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.9)' }">namespace</span>
 				<span :style="{ fontSize: '70px', color: 'rgba(255,255,255, 0.3)' }">('</span>
@@ -56,3 +56,26 @@ const bgStyles = computed(() => {
 		</div>
 	</div>
 </template>
+
+<style scoped>
+.wrapper {
+	position: relative;
+
+	font-family: "JetBrains Mono";
+
+	background: #111111;
+	overflow: hidden;
+}
+
+.img {
+	position: absolute;
+}
+
+.content {
+	display: flex;
+	flex-direction: column;
+	gap: 40px;
+
+	margin: 100px;
+}
+</style>
