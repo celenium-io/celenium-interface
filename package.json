@@ -1,6 +1,6 @@
 {
 	"name": "celestia-explorer",
-	"version": "1.26.0",
+	"version": "1.27.0",
 	"homepage": "https://celenium.io/",
 	"license": "MIT",
 	"type": "module",
