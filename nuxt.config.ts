@@ -145,6 +145,9 @@ export default defineNuxtConfig({
 			inline: ["@takumi-rs/wasm", "nuxt-og-image"],
 		},
 	},
+	build: {
+		transpile: ["@takumi-rs/wasm"],
+	},
 
 	css: ["@/assets/styles/base.scss", "@/assets/styles/flex.scss", "@/assets/styles/text.scss"],
 
