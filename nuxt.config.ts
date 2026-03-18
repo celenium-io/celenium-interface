@@ -179,7 +179,14 @@ export default defineNuxtConfig({
 	plugins: ["~/plugins/force.client.js"],
 
 	vite: {
-		plugins: [wasm(), topLevelAwait()],
+		plugins: [
+			{
+				...wasm(),
+				apply: "build",
+				enforce: "post",
+			},
+			topLevelAwait(),
+		],
 		define: {
 			global: "globalThis",
 			"process.env": "{}",
