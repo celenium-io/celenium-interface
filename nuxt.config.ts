@@ -137,6 +137,15 @@ export default defineNuxtConfig({
 		},
 	},
 
+	nitro: {
+		experimental: {
+			wasm: true,
+		},
+		externals: {
+			inline: ["@takumi-rs/wasm", "nuxt-og-image"],
+		},
+	},
+
 	css: ["@/assets/styles/base.scss", "@/assets/styles/flex.scss", "@/assets/styles/text.scss"],
 
 	fonts: {
