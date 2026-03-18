@@ -7,7 +7,7 @@ import AdvBanner from "~/components/shared/AdvBanner.vue"
 	<Flex direction="column">
 		<Flex justify="center" :class="$style.wrapper">
 			<Flex direction="column" align="center" :class="$style.content">
-				<NuxtLink to="/public" :class="$style.logo">
+				<NuxtLink to="/" :class="$style.logo">
 					<Flex align="center" justify="start" gap="8" wide>
 						<Icon name="logo" size="16" color="tertiary" :class="$style.logo_symbol" />
 

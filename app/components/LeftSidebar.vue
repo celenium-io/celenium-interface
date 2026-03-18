@@ -246,7 +246,7 @@ const handleOnClose = () => {
 	<Flex direction="column" gap="32" justify="between" :class="[$style.wrapper, appStore.showSidebar && $style.show]">
 		<Flex direction="column" gap="32" :class="$style.content">
 			<Flex justify="between" align="center">
-				<NuxtLink to="/public" :class="$style.logo">
+				<NuxtLink to="/" :class="$style.logo">
 					<Flex align="center" gap="8">
 						<Icon name="logo" size="16" color="tertiary" :class="$style.logo_symbol" />
 

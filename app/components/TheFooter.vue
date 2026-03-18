@@ -22,7 +22,7 @@ const handleChangeTheme = (target) => {
 			<Flex wide justify="between" :class="$style.main">
 				<Flex>
 					<Flex direction="column" gap="24" :class="$style.left">
-						<NuxtLink to="/public" :class="$style.logo">
+						<NuxtLink to="/" :class="$style.logo">
 							<Flex align="center" gap="8">
 								<Icon name="logo" size="16" color="secondary" :class="$style.logo_symbol" />
 
@@ -62,7 +62,7 @@ const handleChangeTheme = (target) => {
 					<Flex wrap="wrap" :class="$style.content">
 						<Flex direction="column" gap="12">
 							<Text size="13" weight="500" color="tertiary">General</Text>
-							<NuxtLink to="/public">
+							<NuxtLink to="/">
 								<Text size="13" weight="500" color="secondary" :class="$style.link_text">Browse</Text>
 							</NuxtLink>
 							<NuxtLink to="/txs">
