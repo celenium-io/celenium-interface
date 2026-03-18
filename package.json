@@ -56,5 +56,8 @@
 		"protobufjs": "^7.2.6",
 		"qrcode": "^1.5.3",
 		"zod": "^4.1.12"
+	},
+	"overrides": {
+		"vite": "npm:rolldown-vite@latest"
 	}
 }
