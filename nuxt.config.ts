@@ -141,12 +141,6 @@ export default defineNuxtConfig({
 		experimental: {
 			wasm: true,
 		},
-		externals: {
-			inline: ["@takumi-rs/wasm", "nuxt-og-image"],
-		},
-	},
-	build: {
-		transpile: ["@takumi-rs/wasm"],
 	},
 
 	css: ["@/assets/styles/base.scss", "@/assets/styles/flex.scss", "@/assets/styles/text.scss"],
@@ -179,14 +173,7 @@ export default defineNuxtConfig({
 	plugins: ["~/plugins/force.client.js"],
 
 	vite: {
-		plugins: [
-			{
-				...wasm(),
-				apply: "build",
-				enforce: "post",
-			},
-			topLevelAwait(),
-		],
+		plugins: [wasm(), topLevelAwait()],
 		define: {
 			global: "globalThis",
 			"process.env": "{}",
