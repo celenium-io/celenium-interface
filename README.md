@@ -8,8 +8,8 @@
 Clone the repository and run on the root folder:
 
 ```
-pnpm i
-pnpm dev
+bun i
+bun dev
 ```
 ### Node.js Server
 

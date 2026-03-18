@@ -1,0 +1,235 @@
+<script setup>
+/** Vendor */
+import { DateTime } from "luxon"
+
+/** Services */
+import { comma } from "~/services/utils/index.js"
+import { IbcChainName, IbcChainLogo } from "~/services/constants/ibc.js"
+
+/** Shared Components */
+import TablePlaceholderView from "~/components/shared/TablePlaceholderView.vue"
+
+/** Store */
+import { useModalsStore } from "~/store/modals.store.js"
+import { useCacheStore } from "~/store/cache.store.js"
+const modalsStore = useModalsStore()
+const cacheStore = useCacheStore()
+
+const props = defineProps({
+	transfers: {
+		type: Array,
+		default: [],
+	},
+	isLoading: {
+		type: Boolean,
+		default: false,
+	},
+})
+
+const handleOpenTransferModal = (transfer) => {
+	cacheStore.current.transfer = transfer
+	modalsStore.open("ibcTransfer")
+}
+
+const getChainLogo = (transfer, target) => {
+	return transfer[target].hash.startsWith("celestia")
+		? IbcChainLogo["_celestia"]
+		: (IbcChainLogo[transfer.chain_id] ?? IbcChainLogo["_unknown"])
+}
+</script>
+
+<template>
+	<Flex direction="column" :class="[$style.wrapper, isLoading && $style.disabled]">
+		<Flex v-if="transfers.length" :class="$style.scroller">
+			<table>
+				<thead>
+					<tr>
+						<th><Text size="12" weight="600" color="tertiary">Source Hash</Text></th>
+						<th><Text size="12" weight="600" color="tertiary">From</Text></th>
+						<th></th>
+						<th><Text size="12" weight="600" color="tertiary">To</Text></th>
+						<th><Text size="12" weight="600" color="tertiary">Chain</Text></th>
+						<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
+						<th><Text size="12" weight="600" color="tertiary">Amount</Text></th>
+					</tr>
+				</thead>
+
+				<tbody>
+					<tr v-for="transfer in transfers" @click="handleOpenTransferModal(transfer)">
+						<td style="width: 1px">
+							<Flex align="center" gap="8">
+								<Icon name="check-circle" size="13" color="brand" />
+
+								<Text size="13" weight="600" color="primary" mono>
+									{{ transfer.tx_hash.slice(0, 4).toUpperCase() }}
+								</Text>
+
+								<Flex align="center" gap="3">
+									<div v-for="dot in 3" class="dot" />
+								</Flex>
+
+								<Text size="13" weight="600" color="primary" mono>
+									{{ transfer.tx_hash.slice(-4).toUpperCase() }}
+								</Text>
+
+								<CopyButton :text="transfer.tx_hash" />
+							</Flex>
+						</td>
+						<td style="width: 1px">
+							<Flex align="center" gap="6">
+								<img :src="getChainLogo(transfer, 'sender')" width="12px" height="12px" />
+								<Text size="13" weight="600" color="primary" mono>
+									{{ transfer.sender.hash.slice(0, 6) }}
+								</Text>
+								<Flex align="center" gap="3">
+									<div v-for="_ in 3" class="dot" />
+								</Flex>
+								<Text size="13" weight="600" color="primary" mono>
+									{{ transfer.sender.hash.slice(-6) }}
+								</Text>
+							</Flex>
+						</td>
+						<td style="width: 1px">
+							<Text size="13" weight="600" color="tertiary">-></Text>
+						</td>
+						<td>
+							<Flex align="center" gap="6">
+								<img :src="getChainLogo(transfer, 'receiver')" width="12px" height="12px" />
+								<Text size="13" weight="600" color="primary" mono>
+									{{ transfer.receiver.hash.slice(0, 6) }}
+								</Text>
+								<Flex align="center" gap="3">
+									<div v-for="_ in 3" class="dot" />
+								</Flex>
+								<Text size="13" weight="600" color="primary" mono>
+									{{ transfer.receiver.hash.slice(-6) }}
+								</Text>
+							</Flex>
+						</td>
+						<td>
+							<Flex direction="column" gap="4">
+								<Text size="12" weight="600" color="primary">
+									{{ IbcChainName[transfer.chain_id] ?? "Celestia" }}
+								</Text>
+								<Text size="12" weight="500" color="tertiary" mono>
+									<template v-if="transfer.chain_id"> {{ transfer.chain_id }} ⋅ </template> {{ transfer.channel_id }}
+								</Text>
+							</Flex>
+						</td>
+						<td>
+							<Flex justify="center" direction="column" gap="4">
+								<Text size="12" weight="600" color="primary">
+									{{ DateTime.fromISO(transfer.time).toRelative({ locale: "en", style: "short" }) }}
+								</Text>
+								<Text size="12" weight="500" color="tertiary">
+									{{ DateTime.fromISO(transfer.time).setLocale("en").toFormat("LLL d, t") }}
+								</Text>
+							</Flex>
+						</td>
+						<td>
+							<Flex align="center" gap="6">
+								<Text v-if="transfer.amount / 1_000_000 < 0.01" size="13" weight="600" color="tertiary" mono>
+									< 0.01 TIA
+								</Text>
+								<Text v-else size="13" weight="600" color="primary" mono>
+									{{ comma(transfer.amount / 1_000_000) }}
+									<Text color="tertiary">TIA</Text>
+								</Text>
+							</Flex>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</Flex>
+
+		<TablePlaceholderView
+			v-else
+			title="There's no transfers"
+			description="Probably something went wrong... ?"
+			icon="ibc"
+			subIcon="warning"
+			:descriptionWidth="260"
+			style="height: 100%"
+		/>
+	</Flex>
+</template>
+
+<style module>
+.wrapper {
+	border-radius: 4px 4px 8px 8px;
+	background: var(--card-background);
+
+	& table {
+		width: 100%;
+		height: fit-content;
+
+		border-spacing: 0px;
+
+		padding-bottom: 8px;
+
+		& tbody {
+			& tr {
+				cursor: pointer;
+
+				transition: all 0.05s ease;
+
+				&:hover {
+					background: var(--op-5);
+				}
+
+				&:active {
+					background: var(--op-8);
+				}
+			}
+		}
+
+		& tr th {
+			text-align: left;
+			padding: 0;
+			padding-right: 16px;
+			padding-top: 12px;
+			padding-bottom: 8px;
+
+			&:first-child {
+				padding-left: 16px;
+			}
+
+			& span {
+				display: flex;
+			}
+		}
+
+		& tr td {
+			padding: 0;
+			padding-right: 24px;
+			padding-top: 8px;
+			padding-bottom: 8px;
+
+			white-space: nowrap;
+
+			&:first-child {
+				padding-left: 16px;
+			}
+		}
+	}
+}
+
+.scroller {
+	min-width: 100%;
+	width: 0;
+	height: 100%;
+
+	overflow-x: auto;
+}
+
+.disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+@media (max-width: 800px) {
+	.table {
+		border-radius: 4px 4px 8px 8px;
+	}
+}
+</style>
