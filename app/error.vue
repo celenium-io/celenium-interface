@@ -17,9 +17,6 @@ const router = useRouter()
 const error = useError()
 
 onMounted(async () => {
-	const runtimeConfig = useRuntimeConfig()
-	amp.init(runtimeConfig.public.AMP)
-
 	const data = await fetchHead()
 	if (data) appStore.lastHead = data
 })

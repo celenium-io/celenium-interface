@@ -139,9 +139,6 @@ onMounted(async () => {
 
 	appStore.initGlobalUpdates()
 
-	const runtimeConfig = useRuntimeConfig()
-	amp.init(runtimeConfig.public.AMP)
-
 	const data = await fetchLatestBlocks({ limit: 100 })
 	appStore.latestBlocks = data
 	appStore.isLatestBlocksLoaded = true
