@@ -8,7 +8,6 @@ import Button from "~/components/ui/Button.vue"
 import { fetchEstimatedGas } from "~/services/api/gas.js"
 
 /** Services */
-import amp from "~/services/amp.js"
 import { getNamespaceID } from "~/services/utils/index.js"
 import { sendPayForBlob } from "~/services/wallet.js"
 import { prepareBlob } from "~/services/utils/encode.js"
@@ -29,6 +28,8 @@ const emit = defineEmits(["onClose"])
 const props = defineProps({
 	show: Boolean,
 })
+
+const ph = usePostHog()
 
 const namespace = ref("")
 const namespaceError = ref("")
@@ -72,7 +73,7 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
-			amp.log("showPfbModal")
+			ph.capture("show_pfb_modal")
 
 			if (!appStore.address?.length) {
 				warningBannerText.value = "Wallet connection is required to submit a blob."
@@ -178,7 +179,7 @@ const handleContinue = async () => {
 			return
 		}
 
-		amp.log("successfulPfb")
+		ph.capture("successful_pfb")
 
 		cacheStore.tx.hash = txHash
 		cacheStore.tx.from = appStore.address
@@ -192,7 +193,7 @@ const handleContinue = async () => {
 	} catch (e) {
 		isAwaiting.value = false
 
-		amp.log("failedPfb")
+		ph.capture("failed_pfb")
 
 		if (e.message.startsWith("Request rejected")) {
 			notificationsStore.create({

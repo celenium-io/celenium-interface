@@ -12,7 +12,6 @@ import Button from "~/components/ui/Button.vue"
 import { search } from "~/services/api/search.js"
 
 /** Services */
-import amp from "~/services/amp.js"
 import { normalizeAmount, purgeNumber, comma } from "~/services/utils/amounts.js"
 import { SIMULATE_ADDRESS_FROM, SIMULATE_VALIDATOR, simulateMsgs, sendMsgs } from "~/services/wallet.js"
 import { MsgDelegate } from "~/services/proto/gen/staking.ts"
@@ -33,6 +32,8 @@ const emit = defineEmits(["onClose"])
 const props = defineProps({
 	show: Boolean,
 })
+
+const ph = usePostHog()
 
 const MAX_DIGITS = 6
 
@@ -199,7 +200,7 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
-			amp.log("showStakingModal")
+			ph.capture("show_staking_modal")
 
 			if (!appStore.address?.length) {
 				warningBannerText.value = "Wallet connection is required to delegate."
@@ -309,7 +310,7 @@ const handleContinue = async () => {
 		const txHash = await sendMsgs(appStore.network, key.bech32Address, proto, stdFee)
 		isAwaiting.value = false
 
-		amp.log("successfulDelegate")
+		ph.capture("successful_delegate")
 
 		cacheStore.tx.hash = txHash
 		cacheStore.tx.from = appStore.address
@@ -323,7 +324,7 @@ const handleContinue = async () => {
 	} catch (e) {
 		isAwaiting.value = false
 
-		amp.log("failedDelegate")
+		ph.capture("failed_delegate")
 
 		if (e.message.startsWith("Request rejected")) {
 			notificationsStore.create({

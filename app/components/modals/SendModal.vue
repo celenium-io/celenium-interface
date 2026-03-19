@@ -12,7 +12,6 @@ import Button from "~/components/ui/Button.vue"
 import { search } from "~/services/api/search.js"
 
 /** Services */
-import amp from "~/services/amp.js"
 import { normalizeAmount, purgeNumber, comma } from "~/services/utils/amounts.js"
 import { SIMULATE_ADDRESS_FROM, SIMULATE_ADDRESS_TO, simulateMsgs, sendMsgs } from "~/services/wallet.js"
 import { MsgSend } from "~/services/proto/gen/msg_send.ts"
@@ -33,6 +32,8 @@ const emit = defineEmits(["onClose"])
 const props = defineProps({
 	show: Boolean,
 })
+
+const ph = usePostHog()
 
 const MAX_DIGITS = 6
 
@@ -203,7 +204,7 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
-			amp.log("showSendModal")
+			ph.capture("show_send_modal")
 
 			if (!appStore.address?.length) {
 				warningBannerText.value = "Wallet connection is required to send TIA."
@@ -316,7 +317,7 @@ const handleContinue = async () => {
 		const txHash = await sendMsgs(appStore.network, key.bech32Address, proto, stdFee)
 		isAwaiting.value = false
 
-		amp.log("successfulSend")
+		ph.capture("successful_send")
 
 		cacheStore.tx.hash = txHash
 		cacheStore.tx.from = appStore.address
@@ -330,7 +331,7 @@ const handleContinue = async () => {
 	} catch (e) {
 		isAwaiting.value = false
 
-		amp.log("failedSend")
+		ph.capture("failed_send")
 
 		if (e.message.startsWith("Request rejected")) {
 			notificationsStore.create({

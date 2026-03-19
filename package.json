@@ -35,11 +35,11 @@
 		"vite-plugin-wasm": "^3.3.0"
 	},
 	"dependencies": {
-		"@amplitude/analytics-browser": "^2.3.3",
 		"@codemirror/lang-json": "^6.0.1",
 		"@keplr-wallet/cosmos": "^0.12.70",
 		"@openzeppelin/merkle-tree": "^1.0.6",
 		"@pinia/nuxt": "0.11.3",
+		"@posthog/nuxt": "^1.5.87",
 		"@sentry/nuxt": "^10.19.0",
 		"@vueuse/core": "^10.9.0",
 		"codemirror": "^6.0.1",

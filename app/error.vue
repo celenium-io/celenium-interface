@@ -1,7 +1,6 @@
 <script setup>
 /** Services */
 import { fetchHead } from "~/services/api/main.js"
-import amp from "~/services/amp.js"
 
 /** Components */
 import ModalsManager from "~/components/modals/ModalsManager.vue"

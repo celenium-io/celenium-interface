@@ -12,6 +12,7 @@ export default defineNuxtConfig({
 		"nuxt-og-image",
 		"@nuxtjs/sitemap",
 		"@sentry/nuxt/module",
+		"@posthog/nuxt",
 	],
 
 	site: {
@@ -77,6 +78,11 @@ export default defineNuxtConfig({
 		},
 	},
 
+	posthogConfig: {
+		publicKey: "phc_tcqeIINi9GbfhqO7JwuIJc6YcbyEdhdiv1QKGNYi6MN",
+		host: "https://lt.celenium.io",
+	},
+
 	runtimeConfig: {
 		public: {
 			AMP: process.env.AMP,
@@ -85,6 +91,9 @@ export default defineNuxtConfig({
 			sentry: {
 				dsn: process.env.SENTRY_DSN,
 			},
+			posthogPublicKey: "phc_tcqeIINi9GbfhqO7JwuIJc6YcbyEdhdiv1QKGNYi6MN",
+			posthogHost: "https://lt.celenium.io/",
+			posthogDefaults: "2026-01-30",
 
 			API_MAINNET: "",
 			API_MOCHA: "",

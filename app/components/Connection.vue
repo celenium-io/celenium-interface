@@ -4,7 +4,6 @@ import Button from "~/components/ui/Button.vue"
 import { Dropdown, DropdownTitle, DropdownItem, DropdownDivider } from "~/components/ui/Dropdown/index.js"
 
 /** Services */
-import amp from "~/services/amp.js"
 import { disconnect } from "~/services/wallet.js"
 import { arabica, mainnet, mocha } from "~/services/chains.js"
 
@@ -18,6 +17,8 @@ const modalsStore = useModalsStore()
 const notificationsStore = useNotificationsStore()
 
 const router = useRouter()
+
+const ph = usePostHog()
 
 const { hostname } = useRequestURL()
 
@@ -64,7 +65,7 @@ const handleChangeWallet = () => {
 const handleDisconnect = () => {
 	disconnect()
 
-	amp.log("disconnect")
+	ph.capture("wallet_disconnect")
 
 	appStore.address = ""
 	appStore.balance = 0

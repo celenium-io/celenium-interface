@@ -1,9 +1,4 @@
-/** Services */
-import amp from "@/services/amp"
-
 export async function exportToCSV(data, fileName) {
-	amp.log("exportCSV", { file: fileName })
-
 	const blob = new Blob([data], { type: "text/csv;charset=utf-8;" })
 	const link = document.createElement("a")
 
@@ -21,8 +16,6 @@ export async function exportToCSV(data, fileName) {
 }
 
 export async function exportSVGToPNG(svgElement, fileName, width = 1920, height = 1080) {
-	amp.log("exportPNG", { file: fileName })
-
 	// Load SVG styles
 	const styleSheets = Array.from(document.styleSheets)
 		.filter((style) => style.href === null)

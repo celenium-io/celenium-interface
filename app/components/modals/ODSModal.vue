@@ -7,7 +7,6 @@ import Modal from "~/components/ui/Modal.vue"
 import Spinner from "~/components/ui/Spinner.vue"
 
 /** Services */
-import amp from "~/services/amp.js"
 import { capitalizeAndReplace, comma, getNamespaceIDFromBase64, shortHex } from "~/services/utils/index.js"
 
 /** Store */
@@ -18,6 +17,8 @@ const emit = defineEmits(["onClose"])
 const props = defineProps({
 	show: Boolean,
 })
+
+const ph = usePostHog()
 
 const isLoading = ref(false)
 
@@ -203,7 +204,7 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
-			amp.log("showODSModal")
+			ph.capture("show_ods_modal")
 			blockODS.value = {}
 			nextTick(async () => {
 				isLoading.value = true

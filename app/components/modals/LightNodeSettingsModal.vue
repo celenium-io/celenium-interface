@@ -7,7 +7,6 @@ import Tooltip from "~/components/ui/Tooltip.vue"
 import { Dropdown, DropdownItem, DropdownTitle } from "~/components/ui/Dropdown/index.js"
 
 /** Services */
-import amp from "~/services/amp.js"
 import { StatusMap } from "~/services/constants/node.js"
 
 /** Stores */
@@ -21,6 +20,8 @@ const props = defineProps({
 	show: Boolean,
 })
 
+const ph = usePostHog()
+
 const status = computed(() => nodeStore.status)
 
 onMounted(async () => {
@@ -30,7 +31,7 @@ onMounted(async () => {
 watch(
 	() => nodeStore.settings.autostart,
 	() => {
-		amp.log(`sampling:${nodeStore.settings.autostart ? "enableAutostart" : "disableAutostart"}`)
+		ph.capture(`sampling:${nodeStore.settings.autostart ? "enable_autostart" : "disable_autostart"}`)
 
 		localStorage.setItem("nodeSettings", JSON.stringify(nodeStore.settings))
 	},
@@ -38,7 +39,7 @@ watch(
 watch(
 	() => nodeStore.settings.charger,
 	() => {
-		amp.log(`sampling:${nodeStore.settings.charger ? "enableChargerRequirement" : "disableChargerRequirement"}`)
+		ph.capture(`sampling:${nodeStore.settings.charger ? "enable_charger_requirement" : "disable_charger_requirement"}`)
 
 		localStorage.setItem("nodeSettings", JSON.stringify(nodeStore.settings))
 	},

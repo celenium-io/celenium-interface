@@ -1,7 +1,6 @@
 <script setup>
 /** Services */
 import Socket from "~/services/api/socket.js"
-import amp from "~/services/amp.js"
 import { watchForUpdate } from "~/services/version.js"
 import { DEFAULT_SETTINGS } from "~/services/constants/settings.js"
 import { isPrefersDarkScheme } from "~/services/utils/index.js"

@@ -12,7 +12,6 @@ import Spinner from "~/components/ui/Spinner.vue"
 import { StatusMap, StatusLabelMap, NodeSpeedMap } from "~/services/constants/node.js"
 
 /** Services */
-import amp from "~/services/amp.js"
 import { comma, isMobile } from "~/services/utils/index.js"
 
 /** Stores */
@@ -32,6 +31,8 @@ const emit = defineEmits(["onClose"])
 const props = defineProps({
 	show: Boolean,
 })
+
+const ph = usePostHog()
 
 let bc
 onMounted(async () => {
@@ -58,7 +59,7 @@ onMounted(async () => {
 		const delayedStart = setTimeout(() => {
 			handleStart()
 
-			amp.log("sampling:autostartTrigger", { network: networks[selectedNetwork.value], mobile: isMobile() })
+			ph.capture("sampling:autostart_trigger", { network: networks[selectedNetwork.value], mobile: isMobile() })
 
 			setTimeout(() => {
 				notificationsStore.create({
@@ -96,7 +97,7 @@ onMounted(async () => {
 						callback: () => {
 							clearTimeout(delayedStart)
 
-							amp.log("sampling:cancelAutostart", { network: networks[selectedNetwork.value], mobile: isMobile() })
+							ph.capture("sampling:cancel_autostart", { network: networks[selectedNetwork.value], mobile: isMobile() })
 						},
 					},
 					{
@@ -106,7 +107,7 @@ onMounted(async () => {
 							clearTimeout(delayedStart)
 							nodeStore.settings.autostart = false
 
-							amp.log("sampling:disableAutostartFromNotification", {
+							ph.capture("sampling:disable_autostart_from_notification", {
 								network: networks[selectedNetwork.value],
 								mobile: isMobile(),
 							})
@@ -314,7 +315,7 @@ const handleStart = async () => {
 	bc.postMessage("start")
 
 	nodeStore.status = StatusMap.Starting
-	amp.log("sampling:start", { network: networks[selectedNetwork.value], mobile: isMobile() })
+	ph.capture("sampling:start", { network: networks[selectedNetwork.value], mobile: isMobile() })
 
 	try {
 		const logVisual = (event) => {
@@ -405,14 +406,14 @@ const handleStart = async () => {
 		}, 1_000)
 
 		nodeStore.status = StatusMap.Started
-		amp.log("sampling:started", { network: networks[selectedNetwork.value], mobile: isMobile() })
+		ph.capture("sampling:started", { network: networks[selectedNetwork.value], mobile: isMobile() })
 
 		showDetails.value = true
 
 		pid.value = await node.value.localPeerId()
 	} catch (error) {
 		nodeStore.status = StatusMap.Failed
-		amp.log("sampling:failed", { network: networks[selectedNetwork.value], mobile: isMobile() })
+		ph.capture("sampling:failed", { network: networks[selectedNetwork.value], mobile: isMobile() })
 
 		console.error("Error initializing Node:", error)
 		console.dir(error)
@@ -423,7 +424,7 @@ watch(
 	() => props.show,
 	() => {
 		if (props.show) {
-			amp.log("sampling:open", { network: networks[selectedNetwork.value], mobile: isMobile() })
+			ph.capture("sampling:open", { network: networks[selectedNetwork.value], mobile: isMobile() })
 
 			initConfig()
 		}

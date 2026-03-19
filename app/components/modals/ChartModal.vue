@@ -1,10 +1,4 @@
 <script setup>
-/** Vendor */
-import { generate } from "lean-qr"
-
-/** Services */
-import amp from "~/services/amp.js"
-
 /** UI */
 import Modal from "~/components/ui/Modal.vue"
 
@@ -23,13 +17,15 @@ const props = defineProps({
 	show: Boolean,
 })
 
+const ph = usePostHog()
+
 const series = ref()
 const chartView = ref()
 watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
-			amp.log("showChartModal")
+			ph.capture("show_chart_modal")
 			series.value = {}
 			nextTick(() => {
 				chartView.value = cacheStore.chart.view

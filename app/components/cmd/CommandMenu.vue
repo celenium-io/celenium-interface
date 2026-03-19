@@ -16,8 +16,7 @@ import Item from "./Item.vue"
 import FeeCalculator from "./custom/FeeCalculator.vue"
 
 /** Services */
-import amp from "~/services/amp.js"
-import { isMac, isPrefersDarkScheme, getNetworkName } from "~/services/utils/general.js"
+import { isMac } from "~/services/utils/general.js"
 import { capitilize } from "~/services/utils/strings.js"
 
 /** API */
@@ -42,6 +41,8 @@ const developerMode = useCookie("developerMode", { default: () => false })
 
 const route = useRoute()
 const router = useRouter()
+
+const ph = usePostHog()
 
 let root = null
 
@@ -499,8 +500,6 @@ const rawQuickCommandsActions = [
 		],
 
 		callback: () => {
-			amp.log("copyFeeResult", { loc: "cmd" })
-
 			window.navigator.clipboard.writeText(copyData.value)
 
 			notificationsStore.create({
@@ -918,8 +917,6 @@ const debouncedSearch = useDebounceFn(async (e) => {
 
 	data.value = [...bookmarks, ...data.value]
 
-	amp.log("showAutocomplete", { count: data.value.length, firstType: data.value[0].type })
-
 	autocompleteActions.value = []
 
 	for (let i = 0; i < Math.min(5, data.value.length); i++) {
@@ -1019,7 +1016,7 @@ onMounted(() => {
 			appStore.showCmd = !appStore.showCmd
 
 			if (appStore.showCmd) {
-				amp.log("openCmd")
+				ph.capture("show_command_menu")
 			}
 		}
 	})
@@ -1183,7 +1180,7 @@ const handleExecute = (action) => {
 			case "command:custom":
 				mode.value = "custom"
 
-				amp.log("openFeeCalculator")
+				ph.capture("show_fee_calculator")
 
 				runText.value = target.runText
 

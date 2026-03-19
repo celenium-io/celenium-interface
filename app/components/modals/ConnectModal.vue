@@ -7,7 +7,6 @@ import Tooltip from "~/components/ui/Tooltip.vue"
 /** Utils */
 import { connect, syncBalance, getAccounts } from "~/services/wallet.js"
 import { getNetworkName, isMainnet } from "~/services/utils/general.js"
-import amp from "~/services/amp.js"
 
 /** Store */
 import { useAppStore } from "~/store/app.store.js"
@@ -19,6 +18,8 @@ const emit = defineEmits(["onClose"])
 const props = defineProps({
 	show: Boolean,
 })
+
+const ph = usePostHog()
 
 watch(
 	() => props.show,
@@ -50,7 +51,7 @@ const handleConnect = async (target) => {
 
 		appStore.balance = await syncBalance(appStore.address)
 
-		amp.log("connect")
+		ph.capture("wallet_connect")
 
 		notificationsStore.create({
 			notification: {
@@ -65,7 +66,7 @@ const handleConnect = async (target) => {
 
 		emit("onClose")
 	} catch (e) {
-		amp.log("rejectConnect")
+		ph.capture("error_during_wallet_connect")
 
 		console.log(e)
 	}
