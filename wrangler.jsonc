@@ -4,7 +4,7 @@
 	"assets": {
 		"binding": "ASSETS"
 	},
-	"compatibility_flags": ["nodejs_compat", "no_nodejs_compat_v2"],
+	"compatibility_flags": ["nodejs_compat"],
 	"workers_dev": true,
 	"vars": {
 		"NETWORK": "mainnet",
