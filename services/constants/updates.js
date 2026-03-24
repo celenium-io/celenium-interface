@@ -111,6 +111,32 @@ const updates = [
 			},
 		},
 	},
+	{
+		name: "Hibiscus",
+		kind: "node_upgrade",
+		version: 7,
+		title: "Hibiscus upgrade",
+		description: "This upgrade (v7) included several important changes.",
+		link: "https://docs.celestia.org/operate/maintenance/network-upgrades/#hibiscus-network-upgrade",
+		timeline: {
+			// mainnet: {
+			// 	time: 0,
+			// 	block: 10364847,
+			// },
+			// development: {
+			// 	time: 0,
+			// 	block: 10364847,
+			// },
+			mocha: {
+				time: 1771860112,
+				block: 10209986,
+			},
+			arabica: {
+				time: 1771025786,
+				block: 10133989,
+			},
+		},
+	},
 ]
 
 export function getActiveUpdates(network) {
