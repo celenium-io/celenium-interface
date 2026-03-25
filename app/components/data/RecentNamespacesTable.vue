@@ -1,7 +1,4 @@
 <script setup>
-/** Vendor */
-import { DateTime } from "luxon"
-
 /** UI */
 import Button from "~/components/ui/Button.vue"
 import Tooltip from "~/components/ui/Tooltip.vue"
@@ -138,7 +135,7 @@ const handleSort = async (by) => {
 								<NuxtLink :to="`/namespace/${ns.namespace_id}`">
 									<Flex align="center">
 										<Text size="12" weight="600" color="primary">
-											{{ DateTime.fromISO(ns.last_message_time).toRelative({ locale: "en", style: "short" }) }}
+											<NuxtTime :datetime="ns.last_message_time" relative relative-style="short" />
 										</Text>
 									</Flex>
 								</NuxtLink>

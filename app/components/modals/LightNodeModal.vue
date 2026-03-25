@@ -334,7 +334,6 @@ const handleStart = async () => {
 		}
 
 		const onNodeEvent = async (event) => {
-			console.log(event)
 			if (!event.data) {
 				return
 			}

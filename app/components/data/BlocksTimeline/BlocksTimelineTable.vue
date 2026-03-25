@@ -249,11 +249,11 @@ watch(
 								<td>
 									<Flex align="center">
 										<Text size="12" weight="600" color="primary">
-											{{
-												DateTime.fromISO(block.time)
-													.plus({ seconds: block.stats.block_time / 1_000 })
-													.toRelative({ locale: "en", style: "short" })
-											}}
+											<NuxtTime
+												:datetime="new Date(block.time).getTime() + block.stats.block_time"
+												relative
+												relative-style="short"
+											/>
 										</Text>
 									</Flex>
 								</td>
