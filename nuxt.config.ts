@@ -4,16 +4,7 @@ import topLevelAwait from "vite-plugin-top-level-await"
 import path from "path"
 
 export default defineNuxtConfig({
-	modules: [
-		"@nuxt/fonts",
-		"nuxt-site-config",
-		"@nuxtjs/robots",
-		"@pinia/nuxt",
-		"nuxt-og-image",
-		"@nuxtjs/sitemap",
-		"@sentry/nuxt/module",
-		"@posthog/nuxt",
-	],
+	modules: ["@nuxt/fonts", "nuxt-site-config", "@nuxtjs/robots", "@pinia/nuxt", "nuxt-og-image", "@nuxtjs/sitemap", "@posthog/nuxt"],
 
 	site: {
 		url: "https://celenium.io",
@@ -21,6 +12,7 @@ export default defineNuxtConfig({
 
 	sitemap: {
 		xsl: false,
+		zeroRuntime: true,
 	},
 
 	robots: {
@@ -72,10 +64,9 @@ export default defineNuxtConfig({
 		},
 	},
 
-	sentry: {
-		sourcemaps: {
-			disable: true,
-		},
+	sourcemap: {
+		server: false,
+		client: false,
 	},
 
 	posthogConfig: {
@@ -83,14 +74,25 @@ export default defineNuxtConfig({
 		host: "https://lt.celenium.io",
 	},
 
+	hooks: {
+		"build:before": () => {
+			const interval = setInterval(() => {
+				const mem = process.memoryUsage()
+				console.log(
+					`🧠 [RAM] RSS: ${(mem.rss / 1024 / 1024).toFixed(0)} MB ` +
+						`| Heap Used: ${(mem.heapUsed / 1024 / 1024).toFixed(0)} MB`,
+				)
+			}, 1000)
+
+			interval.unref()
+		},
+	},
+
 	runtimeConfig: {
 		public: {
 			AMP: process.env.AMP,
 			version: "1.26.0",
 
-			sentry: {
-				dsn: process.env.SENTRY_DSN,
-			},
 			posthogPublicKey: "phc_tcqeIINi9GbfhqO7JwuIJc6YcbyEdhdiv1QKGNYi6MN",
 			posthogHost: "https://lt.celenium.io/",
 			posthogDefaults: "2026-01-30",
@@ -147,6 +149,7 @@ export default defineNuxtConfig({
 	},
 
 	nitro: {
+		sourceMap: false,
 		experimental: {
 			wasm: true,
 		},
