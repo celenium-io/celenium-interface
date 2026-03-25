@@ -1,5 +1,5 @@
 import wasm from "vite-plugin-wasm"
-import topLevelAwait from "vite-plugin-top-level-await"
+import { analyzer, unstableRolldownAdapter } from "vite-bundle-analyzer"
 
 import path from "path"
 
@@ -66,26 +66,13 @@ export default defineNuxtConfig({
 
 	sourcemap: {
 		server: false,
-		client: false,
+		client: "hidden",
 	},
 
 	posthogConfig: {
 		publicKey: "phc_tcqeIINi9GbfhqO7JwuIJc6YcbyEdhdiv1QKGNYi6MN",
 		host: "https://lt.celenium.io",
-	},
-
-	hooks: {
-		"build:before": () => {
-			const interval = setInterval(() => {
-				const mem = process.memoryUsage()
-				console.log(
-					`🧠 [RAM] RSS: ${(mem.rss / 1024 / 1024).toFixed(0)} MB ` +
-						`| Heap Used: ${(mem.heapUsed / 1024 / 1024).toFixed(0)} MB`,
-				)
-			}, 1000)
-
-			interval.unref()
-		},
+		debug: false,
 	},
 
 	runtimeConfig: {
@@ -185,7 +172,13 @@ export default defineNuxtConfig({
 	plugins: ["~/plugins/force.client.js"],
 
 	vite: {
-		plugins: [wasm(), topLevelAwait()],
+		plugins: [wasm()],
+		build: {
+			target: "esnext",
+			rolldownOptions: {
+				devtools: true,
+			},
+		},
 		define: {
 			global: "globalThis",
 			"process.env": "{}",
@@ -197,8 +190,9 @@ export default defineNuxtConfig({
 		},
 		worker: {
 			format: "es",
-			plugins: () => [wasm(), topLevelAwait()],
+			plugins: () => [wasm()],
 		},
+		optimizeDeps: { exclude: ["lumina-node"] },
 	},
 
 	compatibilityDate: "2025-04-02",

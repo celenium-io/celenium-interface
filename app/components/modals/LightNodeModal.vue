@@ -1,6 +1,7 @@
 <script setup>
 /** Vendor */
 import { DateTime } from "luxon"
+import { spawnNode, NodeConfig } from "lumina-node"
 
 /** UI */
 import Modal from "~/components/ui/Modal.vue"
@@ -123,38 +124,38 @@ const disableStart = ref(false)
 const status = computed(() => nodeStore.status)
 
 const networks = ["Mainnet", "Arabica", "Mocha"]
-const selectedNetwork = ref()
+const selectedNetwork = ref(0)
 
-const { hostname } = useRequestURL()
-switch (hostname) {
-	case "celenium.io":
-		selectedNetwork.value = 0
-		break
-
-	case "mocha-4.celenium.io":
-		selectedNetwork.value = 2
-		break
-
-	case "mocha.celenium.io":
-		selectedNetwork.value = 2
-		break
-
-	case "arabica.celenium.io":
-		selectedNetwork.value = 1
-		break
-
-	case "dev.celenium.io":
-		selectedNetwork.value = 1
-		break
-
-	case "localhost":
-		selectedNetwork.value = 1
-		break
-
-	default:
-		selectedNetwork.value = 1
-		break
-}
+// const { hostname } = useRequestURL()
+// switch (hostname) {
+// 	case "celenium.io":
+// 		selectedNetwork.value = 0
+// 		break
+//
+// 	case "mocha-4.celenium.io":
+// 		selectedNetwork.value = 2
+// 		break
+//
+// 	case "mocha.celenium.io":
+// 		selectedNetwork.value = 2
+// 		break
+//
+// 	case "arabica.celenium.io":
+// 		selectedNetwork.value = 1
+// 		break
+//
+// 	case "dev.celenium.io":
+// 		selectedNetwork.value = 1
+// 		break
+//
+// 	case "localhost":
+// 		selectedNetwork.value = 1
+// 		break
+//
+// 	default:
+// 		selectedNetwork.value = 1
+// 		break
+// }
 
 const handleOpenSettings = () => {
 	modalsStore.open("lightNodeSettings")
@@ -230,9 +231,7 @@ const getEventsLogIconColor = () => {
 }
 
 const initConfig = () => {
-	const { $lumina } = useNuxtApp()
-
-	config.value = $lumina.NodeConfig.default(selectedNetwork.value)
+	config.value = NodeConfig.default(selectedNetwork.value)
 	nodeStore.rawBootnodes = config.value.bootnodes
 	nodeStore.bootnodes = config.value.bootnodes
 }
@@ -281,8 +280,7 @@ watch(
 
 const normalizeStoredRanges = (networkHead, storedRanges) => {
 	const syncingWindowTail = Number.parseInt(networkHead) - approxSyncingWindowSize
-
-	const normalizedRanges = storedRanges.map((range) => {
+	return storedRanges.map((range) => {
 		const adjustedStart = Math.max(Number.parseInt(range.start), syncingWindowTail)
 		const adjustedEnd = Math.max(Number.parseInt(range.end), syncingWindowTail)
 		return {
@@ -290,8 +288,6 @@ const normalizeStoredRanges = (networkHead, storedRanges) => {
 			end: adjustedEnd,
 		}
 	})
-
-	return normalizedRanges
 }
 
 const syncingPercentage = (ranges) => {
@@ -309,8 +305,6 @@ const handleStop = async () => {
 
 const handleStart = async () => {
 	if (disableStart.value) return
-
-	const { $lumina } = useNuxtApp()
 
 	bc.postMessage("start")
 
@@ -340,6 +334,7 @@ const handleStart = async () => {
 		}
 
 		const onNodeEvent = async (event) => {
+			console.log(event)
 			if (!event.data) {
 				return
 			}
@@ -381,9 +376,6 @@ const handleStart = async () => {
 			}
 		}
 
-		const worker = new Worker(new URL("@/assets/workers/worker.js?url", import.meta.url), { type: "module" })
-		node.value = await new $lumina.NodeClient(worker)
-
 		const events = await node.value.eventsChannel()
 		events.onmessage = onNodeEvent
 
@@ -422,11 +414,12 @@ const handleStart = async () => {
 
 watch(
 	() => props.show,
-	() => {
+	async () => {
 		if (props.show) {
 			ph.capture("sampling:open", { network: networks[selectedNetwork.value], mobile: isMobile() })
 
 			initConfig()
+			node.value = await spawnNode()
 		}
 	},
 )
