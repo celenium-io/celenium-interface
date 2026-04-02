@@ -5,13 +5,15 @@ import Button from "@/components/ui/Button.vue"
 import Spinner from "@/components/ui/Spinner.vue"
 
 /** Services */
-import { comma, formatBytes, getNamespaceID, shortHash, space, strToHex } from "@/services/utils"
+import { comma, formatBytes, getNamespaceID, shortHash, strToHex, getNetworkName } from "@/services/utils"
 
 /** API */
 import { fetchBlobBlockscoutData, fetchBlobByMetadata } from "@/services/api/namespace"
 
 /** Store */
+import { useAppStore } from "@/store/app.store.js"
 import { useCacheStore } from "@/store/cache.store"
+const appStore = useAppStore()
 const cacheStore = useCacheStore()
 
 const emit = defineEmits(["onClose"])
@@ -23,6 +25,8 @@ const supportedContentTypeForPreview = ["image/png", "image/jpeg", "video/mp4", 
 
 const isLoading = ref(true)
 const isStopped = ref(false)
+const isOldBlob = ref(false)
+
 const blob = ref({})
 const notFound = ref(false)
 
@@ -76,7 +80,7 @@ const getBlobMetadata = async () => {
 		}
 	} catch (err) {
 		// console.error(err);
-		
+
 		notFound.value = true
 	} finally {
 		isLoading.value = false
@@ -87,6 +91,16 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
+			/** Skip on the old blobs for Mocha & Arabica */
+			if (["Mocha-4", "Arabica", "Local"].includes(getNetworkName())) {
+				if (new Date(cacheStore.selectedBlob.tx.time).getTime() < new Date(appStore.blobsState.oldest_blob_time).getTime()) {
+					isOldBlob.value = true
+					isStopped.value = true
+					isLoading.value = false
+					return
+				}
+			}
+
 			if (cacheStore.selectedBlob.size > 1_000_000) {
 				isStopped.value = true
 				return
@@ -117,7 +131,7 @@ watch(
 			showPreviewImage.value = false
 			showPreviewText.value = false
 			contentPreviewText.value = ""
-			
+
 			notFound.value = false
 			cacheStore.selectedBlob = null
 		}
@@ -127,6 +141,8 @@ watch(
 )
 
 const handleDownload = () => {
+	if (isLoading.value || isOldBlob.value) return
+
 	const byteArray = new Uint8Array(
 		strToHex(atob(blob.value.data))
 			.match(/.{2}/g)
@@ -214,14 +230,24 @@ const handlePreviewContent = () => {
 						<Flex v-else-if="isStopped" direction="column" align="center" justify="center" gap="16">
 							<Icon name="info" size="16" color="secondary" />
 
-							<Flex direction="column" align="center" gap="8">
-								<Text size="13" weight="600" color="secondary">Download not started</Text>
-								<Text size="12" weight="500" color="tertiary">Auto download for data over 1 MiB is paused</Text>
-							</Flex>
+							<template v-if="!isOldBlob">
+								<Flex direction="column" align="center" gap="8">
+									<Text size="13" weight="600" color="secondary">Download not started</Text>
+									<Text size="12" weight="500" color="tertiary">Auto download for data over 1 MiB is paused</Text>
+								</Flex>
 
-							<Text @click="handleLoadAnyway" size="12" weight="600" color="tertiary" :class="$style.load_btn"
-								>Load anyway</Text
-							>
+								<Text @click="handleLoadAnyway" size="12" weight="600" color="tertiary" :class="$style.load_btn">
+									Load anyway
+								</Text>
+							</template>
+							<template v-else>
+								<Flex direction="column" align="center" gap="8">
+									<Text size="13" weight="600" color="secondary">The blob is beyond retention</Text>
+									<Text size="12" weight="500" color="tertiary">
+										Deadline for availability - {{ new Date(appStore.blobsState.oldest_blob_time).toDateString() }}
+									</Text>
+								</Flex>
+							</template>
 						</Flex>
 						<Flex v-else direction="column" align="center" justify="center" gap="16">
 							<Spinner size="16" />
@@ -386,6 +412,7 @@ const handlePreviewContent = () => {
 						target="_blank"
 						type="secondary"
 						size="small"
+						:disabled="isOldBlob"
 					>
 						Open Blob Page
 						<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
@@ -397,7 +424,7 @@ const handlePreviewContent = () => {
 						<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
 					</Button>
 
-					<Button @click="handleDownload" type="secondary" size="small" :disabled="isLoading">
+					<Button @click="handleDownload" type="secondary" size="small" :disabled="isLoading || isOldBlob">
 						<Icon name="download" size="14" color="secondary" />
 
 						<Text>Download</Text>
@@ -409,7 +436,7 @@ const handlePreviewContent = () => {
 						@click="isDecode = !isDecode"
 						type="secondary"
 						size="small"
-						:disabled="showPreviewImage || showPreviewText || isLoading"
+						:disabled="showPreviewImage || showPreviewText || isLoading || isOldBlob"
 					>
 						{{ isDecode ? "Encode" : "Decode" }} Base64
 					</Button>
