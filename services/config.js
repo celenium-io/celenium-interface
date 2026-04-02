@@ -114,6 +114,22 @@ export const nodeStatsURL = () => useRuntimeConfig().public.NODE_STATS
 export const quoteServiceURL = () => useRuntimeConfig().public.QUOTE
 export const rollupRankingServiceURL = () => useRuntimeConfig().public.ROLLUP_RANKING
 export const tvlServiceURL = () => useRuntimeConfig().public.TVL
+export const getBlobsURL = () => {
+	const { public: p } = useRuntimeConfig()
+	const requestURL = useRequestURL()
+
+	switch (requestURL.hostname) {
+		case "mocha.celenium.io":
+		case "mocha-4.celenium.io":
+			return p.BLOBS_MOCHA
+		case "arabica.celenium.io":
+		case "localhost":
+			return p.BLOBS_ARABICA
+
+		default:
+			return null
+	}
+}
 
 export const isSelfhosted = () => useRuntimeConfig().public.SELFHOSTED
 

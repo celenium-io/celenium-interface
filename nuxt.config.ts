@@ -102,6 +102,8 @@ export default defineNuxtConfig({
 			QUOTE: "",
 			ROLLUP_RANKING: "",
 			TVL: "",
+			BLOBS_MOCHA: "",
+			BLOBS_ARABICA: "",
 
 			SELFHOSTED: false,
 		},

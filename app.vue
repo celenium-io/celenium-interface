@@ -4,7 +4,7 @@ import Socket from "@/services/api/socket"
 import amp from "@/services/amp"
 import { watchForUpdate } from "@/services/version"
 import { DEFAULT_SETTINGS } from "@/services/constants/settings.js"
-import { isPrefersDarkScheme } from "@/services/utils"
+import { isPrefersDarkScheme, getNetworkName } from "@/services/utils"
 
 /** Components */
 import ModalsManager from "@/components/modals/ModalsManager.vue"
@@ -14,6 +14,7 @@ import CommandMenu from "@/components/cmd/CommandMenu.vue"
 import { fetchGasPrice } from "@/services/api/gas"
 import { fetchHead } from "@/services/api/main"
 import { fetchLatestBlocks } from "@/services/api/block"
+import { fetchBlobsState } from "@/services/api/main"
 
 /** Store */
 import { useNodeStore } from "@/store/node.store"
@@ -66,17 +67,21 @@ switch (settings.value.appearance.general.theme) {
 		break
 }
 
-watch(() => settings.value.appearance.general.theme, () => {
-	let root = document.querySelector("html")
+watch(
+	() => settings.value.appearance.general.theme,
+	() => {
+		let root = document.querySelector("html")
 
-	if (appStore.theme === "system") {
-		window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (event) => {
-			root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
-		})
-	} else {
-		root.setAttribute("theme", settings.value.appearance.general.theme)
-	}
-}, { deep: true })
+		if (appStore.theme === "system") {
+			window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (event) => {
+				root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
+			})
+		} else {
+			root.setAttribute("theme", settings.value.appearance.general.theme)
+		}
+	},
+	{ deep: true },
+)
 
 onMounted(async () => {
 	let root = document.querySelector("html")
@@ -175,7 +180,11 @@ onMounted(async () => {
 		})
 	}
 
-	window.onbeforeunload = function() {
+	if (["Mocha-4", "Arabica", "Local"].includes(getNetworkName())) {
+		appStore.blobsState = await fetchBlobsState()
+	}
+
+	window.onbeforeunload = function () {
 		Socket.close()
 	}
 })

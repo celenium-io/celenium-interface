@@ -1,9 +1,18 @@
 /** Services */
-import { nodeStatsURL, useServerURL } from "@/services/config"
+import { getBlobsURL, nodeStatsURL, useServerURL } from "@/services/config"
 
 export const fetchHead = async () => {
 	try {
 		const data = await $fetch(`${useServerURL()}/head`)
+		return data
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+export const fetchBlobsState = async () => {
+	try {
+		const data = await $fetch(`${getBlobsURL()}/state`)
 		return data
 	} catch (error) {
 		console.error(error)
@@ -52,7 +61,7 @@ export const fetchEnums = async () => {
 		if (nodeStatsURL()) {
 			nodeEnums = await $fetch(`${nodeStatsURL()}/enums`)
 		}
-		
+
 		return { ...mainEnums, ...nodeEnums }
 	} catch (error) {
 		console.error("Failed to fetch enums: ", error)
