@@ -6,7 +6,7 @@ import { Dropdown, DropdownTitle, DropdownItem, DropdownDivider } from "@/compon
 /** Services */
 import amp from "@/services/amp"
 import { disconnect } from "@/services/wallet"
-import { arabica, mainnet, mocha } from "@/services/chains"
+import { mainnet, mocha } from "@/services/chains"
 
 /** Store */
 import { useAppStore } from "@/store/app.store"
@@ -32,11 +32,11 @@ switch (hostname) {
 		break
 
 	case "localhost":
-		appStore.network = arabica
+		appStore.network = mocha
 		break
 
 	default:
-		appStore.network = arabica
+		appStore.network = mocha
 		break
 }
 

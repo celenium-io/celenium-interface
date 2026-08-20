@@ -159,9 +159,6 @@ export const getNetworkName = () => {
 		case "mocha.celenium.io":
 			return "Mocha-4"
 
-		case "arabica.celenium.io":
-			return "Arabica"
-
 		case "dev.celenium.io":
 			return "Development"
 

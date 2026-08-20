@@ -180,7 +180,7 @@ onMounted(async () => {
 		})
 	}
 
-	if (["Mocha-4", "Arabica", "Local"].includes(getNetworkName())) {
+	if (["Mocha-4", "Local"].includes(getNetworkName())) {
 		appStore.blobsState = await fetchBlobsState()
 	}
 

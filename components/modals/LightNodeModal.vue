@@ -121,7 +121,7 @@ onMounted(async () => {
 const disableStart = ref(false)
 const status = computed(() => nodeStore.status)
 
-const networks = ["Mainnet", "Arabica", "Mocha"]
+const networks = ["Mainnet", "Mocha"]
 const selectedNetwork = ref()
 
 const { hostname } = useRequestURL()
@@ -138,20 +138,16 @@ switch (hostname) {
 		selectedNetwork.value = 2
 		break
 
-	case "arabica.celenium.io":
-		selectedNetwork.value = 1
-		break
-
 	case "dev.celenium.io":
-		selectedNetwork.value = 1
+		selectedNetwork.value = 2
 		break
 
 	case "localhost":
-		selectedNetwork.value = 1
+		selectedNetwork.value = 2
 		break
 
 	default:
-		selectedNetwork.value = 1
+		selectedNetwork.value = 2
 		break
 }
 

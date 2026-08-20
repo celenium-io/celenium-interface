@@ -91,8 +91,8 @@ watch(
 	() => props.show,
 	async () => {
 		if (props.show) {
-			/** Skip on the old blobs for Mocha & Arabica */
-			if (["Mocha-4", "Arabica", "Local"].includes(getNetworkName())) {
+			/** Skip on the old blobs for Mocha */
+			if (["Mocha-4", "Local"].includes(getNetworkName())) {
 				if (new Date(cacheStore.selectedBlob.tx.time).getTime() < new Date(appStore.blobsState.oldest_blob_time).getTime()) {
 					isOldBlob.value = true
 					isStopped.value = true

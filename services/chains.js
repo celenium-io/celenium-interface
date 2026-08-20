@@ -42,51 +42,6 @@ export const mocha = {
 	features: [],
 }
 
-export const arabica = {
-	chainId: "arabica-11",
-	chainName: "Celestia Arabica Testnet",
-	rpc: "https://rpc.celestia-arabica-11.com",
-	rest: "https://api.celestia-arabica-11.com",
-	bip44: {
-		coinType: 118,
-	},
-	bech32Config: {
-		bech32PrefixAccAddr: "celestia",
-		bech32PrefixAccPub: "celestia" + "pub",
-		bech32PrefixValAddr: "celestia" + "valoper",
-		bech32PrefixValPub: "celestia" + "valoperpub",
-		bech32PrefixConsAddr: "celestia" + "valcons",
-		bech32PrefixConsPub: "celestia" + "valconspub",
-	},
-	currencies: [
-		{
-			coinDenom: "TIA",
-			coinMinimalDenom: "utia",
-			coinDecimals: 6,
-			coinGeckoId: "celestia",
-		},
-	],
-	feeCurrencies: [
-		{
-			coinDenom: "TIA",
-			coinMinimalDenom: "utia",
-			coinDecimals: 6,
-			coinGeckoId: "celestia",
-			gasPriceStep: {
-				low: 0.01,
-				average: 0.025,
-				high: 0.3,
-			},
-		},
-	],
-	stakeCurrency: {
-		coinDenom: "TIA",
-		coinMinimalDenom: "utia",
-		coinDecimals: 6,
-		coinGeckoId: "celestia",
-	},
-}
-
 export const mainnet = {
 	bech32Config: {
 		bech32PrefixAccAddr: "celestia",

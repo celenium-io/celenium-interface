@@ -557,17 +557,6 @@ const rawSettingsActions = [
 					window.open("https://mocha-4.celenium.io", "_blank")
 				},
 			},
-			{
-				id: id(),
-				type: "callback",
-				icon: "globe",
-				title: "Arabica",
-				subtitle: "Network",
-				runText: "Switch to Arabica",
-				callback: () => {
-					window.open("https://arabica.celenium.io", "_blank")
-				},
-			},
 		],
 	},
 ]

@@ -10,9 +10,6 @@ export const useServerURL = () => {
 		case "mocha-4.celenium.io":
 			return p.API_MOCHA
 
-		case "arabica.celenium.io":
-			return p.API_ARABICA
-
 		case "dev.celenium.io":
 			return p.API_DEV
 
@@ -29,8 +26,6 @@ export const getServerURL = (network) => {
 			return p.API_MAINNET
 		case "mocha":
 			return p.API_MOCHA
-		case "arabica":
-			return p.API_ARABICA
 
 		default:
 			return p.API_DEV
@@ -49,9 +44,6 @@ export const useSocketURL = () => {
 		case "mocha-4.celenium.io":
 			return p.WSS_MOCHA
 
-		case "arabica.celenium.io":
-			return p.WSS_ARABICA
-
 		case "dev.celenium.io":
 			return p.WSS_DEV
 
@@ -67,7 +59,6 @@ export const useBlobstreamURL = () => {
 	switch (requestURL.hostname) {
 		case "mocha.celenium.io":
 		case "mocha-4.celenium.io":
-		case "arabica.celenium.io":
 			return p.BLOBSTREAM_TESTNET
 
 		default:
@@ -88,11 +79,8 @@ export const getStartChainDate = () => {
 		case "mocha.celenium.io":
 			return "2023-09-06T03:15:51.510579Z"
 
-		case "arabica.celenium.io":
-			return "2024-01-02T12:18:46.936662Z"
-
 		case "dev.celenium.io":
-			return "2024-01-02T12:18:46.936662Z"
+			return "2023-09-06T03:15:51.510579Z"
 
 		default:
 			return "2023-09-06T03:15:51.510579Z"
@@ -104,7 +92,6 @@ export const faucetURL = () => {
 	const { public: p } = useRuntimeConfig()
 	return {
 		mocha: p.FAUCET_MOCHA,
-		arabica: p.FAUCET_ARABICA,
 	}
 }
 
@@ -122,9 +109,8 @@ export const getBlobsURL = () => {
 		case "mocha.celenium.io":
 		case "mocha-4.celenium.io":
 			return p.BLOBS_MOCHA
-		case "arabica.celenium.io":
 		case "localhost":
-			return p.BLOBS_ARABICA
+			return p.BLOBS_MOCHA
 
 		default:
 			return null
