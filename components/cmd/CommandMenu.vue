@@ -557,6 +557,17 @@ const rawSettingsActions = [
 					window.open("https://mocha-4.celenium.io", "_blank")
 				},
 			},
+			{
+				id: id(),
+				type: "callback",
+				icon: "globe",
+				title: "Mocha-5",
+				subtitle: "Network",
+				runText: "Switch to Mocha-5",
+				callback: () => {
+					window.open("https://mocha-5.celenium.io", "_blank")
+				},
+			},
 		],
 	},
 ]

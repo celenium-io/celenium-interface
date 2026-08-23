@@ -138,6 +138,10 @@ switch (hostname) {
 		selectedNetwork.value = 2
 		break
 
+	case "mocha-5.celenium.io":
+		selectedNetwork.value = 2
+		break
+
 	case "dev.celenium.io":
 		selectedNetwork.value = 2
 		break

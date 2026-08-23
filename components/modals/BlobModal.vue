@@ -92,7 +92,7 @@ watch(
 	async () => {
 		if (props.show) {
 			/** Skip on the old blobs for Mocha */
-			if (["Mocha-4", "Local"].includes(getNetworkName())) {
+			if (["Mocha-4", "Mocha-5", "Local"].includes(getNetworkName())) {
 				if (new Date(cacheStore.selectedBlob.tx.time).getTime() < new Date(appStore.blobsState.oldest_blob_time).getTime()) {
 					isOldBlob.value = true
 					isStopped.value = true
