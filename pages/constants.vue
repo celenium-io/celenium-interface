@@ -88,6 +88,7 @@ const constantsToPercentage = [
 	"slash_fraction_downtime",
 	"min_commission_rate",
 ]
+const constantsPostfix = [{ "network_min_gas_price": "utia" }]
 
 const constantsToFormat = [...constantsToMb, ...constantsToDays, ...constantsToTia, ...constantsToPercentage]
 
@@ -111,6 +112,11 @@ const formatConstant = (key, value) => {
 		if (constantsToTia.includes(key)) return `${comma(value.replace("utia", "") / 1_000_000, ",", 8)} TIA`
 		if (constantsToPercentage.includes(key)) return `${round(value * 100, 6)}%`
 
+		if (constantsPostfix.some((postfix) => Object.keys(postfix).includes(key))) {
+			const postfix = constantsPostfix.find((p) => Object.keys(p).includes(key))
+			return `${value} ${postfix[key]}`
+		}
+		
 		return value
 	} catch {
 		return ""
@@ -156,6 +162,8 @@ const DescriptionMap = {
 	evidence_max_age_num_blocks: "The maximum number of blocks before evidence is considered invalid",
 	evidence_max_bytes: "Maximum size in bytes used by evidence in a given block",
 	validator_pub_key_types: "The type of public key used by validators",
+	network_min_gas_price: "The network minimum gas price",
+	allow_messages: "An allowlist of Protobuf message type URLs that hosted interchain accounts are authorized to execute on a host chain",
 }
 
 const handleCopy = (text) => {
