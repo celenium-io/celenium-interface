@@ -27,10 +27,6 @@ const updates = [
 				time: 1731609071,
 				block: 3140052,
 			},
-			arabica: {
-				time: 1730843713,
-				block: 2348907,
-			},
 		},
 	},
 	{
@@ -52,10 +48,6 @@ const updates = [
 			mocha: {
 				time: 1751370718,
 				block: 6915786,
-			},
-			arabica: {
-				time: 1747381895,
-				block: 5975265,
 			},
 		},
 	},
@@ -79,10 +71,6 @@ const updates = [
 				time: 1753895249,
 				block: 7401191,
 			},
-			arabica: {
-				time: 1753819140,
-				block: 7316464,
-			},
 		},
 	},
 	{
@@ -105,10 +93,6 @@ const updates = [
 				time: 1759454702,
 				block: 8236886,
 			},
-			arabica: {
-				time: 1757398091,
-				block: 8105605,
-			},
 		},
 	},
 	{
@@ -130,10 +114,6 @@ const updates = [
 			mocha: {
 				time: 1771860112,
 				block: 10209986,
-			},
-			arabica: {
-				time: 1771025786,
-				block: 10133989,
 			},
 		},
 	},

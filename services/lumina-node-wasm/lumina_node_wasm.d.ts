@@ -13,10 +13,6 @@ export enum Network {
 */
   Mainnet = 0,
 /**
-* Arabica testnet.
-*/
-  Arabica = 1,
-/**
 * Mocha testnet.
 */
   Mocha = 2,
