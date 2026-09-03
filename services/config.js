@@ -1,3 +1,5 @@
+import { mocha } from "./chains"
+
 export const useServerURL = () => {
 	const { public: p } = useRuntimeConfig()
 	const requestURL = useRequestURL()
@@ -103,6 +105,7 @@ export const faucetAddress = () => useRuntimeConfig().public.FAUCET_ADDRESS
 export const faucetURL = () => {
 	const { public: p } = useRuntimeConfig()
 	return {
+		mocha: p.FAUCET_MOCHA,
 		mocha_4: p.FAUCET_MOCHA_4,
 	}
 }
