@@ -384,11 +384,6 @@ export const Network = Object.freeze({
 	Mainnet: 0,
 	0: "Mainnet",
 	/**
-	 * Arabica testnet.
-	 */
-	Arabica: 1,
-	1: "Arabica",
-	/**
 	 * Mocha testnet.
 	 */
 	Mocha: 2,
