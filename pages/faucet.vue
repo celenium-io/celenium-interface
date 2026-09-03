@@ -74,7 +74,7 @@ useHead({
 const isLoading = ref(false)
 const address = ref("")
 const account = ref()
-const networks = ["Mocha"]
+const networks = ["Mocha-4"]
 const network = ref((networks.find((n) => n === getNetworkName()) || networks[0]).toLowerCase())
 
 const isNetworkSelectorOpen = ref(false)
@@ -164,7 +164,7 @@ const handleExecute = async () => {
 }
 
 const handleReturnTokensClick = () => {
-	if (useServerURL().includes("mocha") && network.value === "mocha") {
+	if (useServerURL().includes("mocha-4") && network.value === "mocha-4") {
 		cacheStore.current.address = { hash: faucetAddress() }
 		modalsStore.open("send")
 	} else {
@@ -232,7 +232,7 @@ watch(
 
 await refreshFaucetBalance()
 onMounted(() => {
-	if (useServerURL().includes("mocha") &&appStore.address) {
+	if (useServerURL().includes("mocha-4") && appStore.address) {
 		address.value = appStore.address
 	}
 

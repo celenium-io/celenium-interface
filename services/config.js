@@ -7,11 +7,11 @@ export const useServerURL = () => {
 			return p.API_MAINNET
 
 		case "mocha.celenium.io":
-		case "mocha-4.celenium.io":
+		case "mocha-5.celenium.io":
 			return p.API_MOCHA
 
-		case "mocha-5.celenium.io":
-			return p.API_MOCHA_5
+		case "mocha-4.celenium.io":
+			return p.API_MOCHA_4
 
 		case "dev.celenium.io":
 			return p.API_DEV
@@ -29,8 +29,8 @@ export const getServerURL = (network) => {
 			return p.API_MAINNET
 		case "mocha":
 			return p.API_MOCHA
-		case "mocha-5":
-			return p.API_MOCHA_5
+		case "mocha-4":
+			return p.API_MOCHA_4
 
 		default:
 			return p.API_DEV
@@ -46,11 +46,11 @@ export const useSocketURL = () => {
 			return p.WSS_MAINNET
 
 		case "mocha.celenium.io":
-		case "mocha-4.celenium.io":
+		case "mocha-5.celenium.io":
 			return p.WSS_MOCHA
 
-		case "mocha-5.celenium.io":
-			return p.WSS_MOCHA_5
+		case "mocha-4.celenium.io":
+			return p.WSS_MOCHA_4
 		
 		case "dev.celenium.io":
 			return p.WSS_DEV
@@ -103,7 +103,7 @@ export const faucetAddress = () => useRuntimeConfig().public.FAUCET_ADDRESS
 export const faucetURL = () => {
 	const { public: p } = useRuntimeConfig()
 	return {
-		mocha: p.FAUCET_MOCHA,
+		mocha_4: p.FAUCET_MOCHA_4,
 	}
 }
 
@@ -119,10 +119,10 @@ export const getBlobsURL = () => {
 
 	switch (requestURL.hostname) {
 		case "mocha.celenium.io":
-		case "mocha-4.celenium.io":
-			return p.BLOBS_MOCHA
 		case "mocha-5.celenium.io":
-			return p.BLOBS_MOCHA_5
+			return p.BLOBS_MOCHA
+		case "mocha-4.celenium.io":
+			return p.BLOBS_MOCHA_4
 		case "localhost":
 			return p.BLOBS_MOCHA
 

@@ -9,7 +9,7 @@ import { formatBytes, comma, round } from "@/services/utils"
 import Tooltip from "@/components/ui/Tooltip.vue"
 
 /** API */
-import { fetchMainnetConstants, fetchMochaConstants, fetchMocha5Constants } from "@/services/api/main"
+import { fetchMainnetConstants, fetchMochaConstants, fetchMocha4Constants } from "@/services/api/main"
 
 /** Store */
 import { useNotificationsStore } from "@/store/notifications.store"
@@ -64,15 +64,15 @@ useHead({
 })
 
 const { data: constants } = await useAsyncData(`all-constants`, async () => {
-	const [mainnet, mocha, mocha5] = await Promise.all([
+	const [mainnet, mocha, mocha4] = await Promise.all([
 		fetchMainnetConstants(),
 		fetchMochaConstants(),
-		fetchMocha5Constants(),
+		fetchMocha4Constants(),
 	])
-	return { mainnet, mocha, mocha5 }
+	return { mainnet, mocha, mocha4 }
 })
 
-const networks = ["mainnet", "mocha", "mocha5"]
+const networks = ["mainnet", "mocha", "mocha4"]
 const modules = Object.keys(constants.value.mainnet.module)
 
 const constantsToMb = ["block_max_bytes", "evidence_max_bytes"]
@@ -209,10 +209,10 @@ const handleCopy = (text) => {
 								<Text size="13" weight="600" color="tertiary" mono> Mainnet </Text>
 							</th>
 							<th>
-								<Text size="13" weight="600" color="tertiary" mono> Mocha-4 </Text>
+								<Text size="13" weight="600" color="tertiary" mono> Mocha </Text>
 							</th>
 							<th>
-								<Text size="13" weight="600" color="tertiary" mono> Mocha-5 </Text>
+								<Text size="13" weight="600" color="tertiary" mono> Mocha-4 </Text>
 							</th>
 						</tr>
 					</thead>
