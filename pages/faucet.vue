@@ -74,7 +74,7 @@ useHead({
 const isLoading = ref(false)
 const address = ref("")
 const account = ref()
-const networks = ["Mocha", "Mocha-4"]
+const networks = ["Mocha"]
 const network = ref((networks.find((n) => n === getNetworkName()) || networks[0]).toLowerCase())
 
 const isNetworkSelectorOpen = ref(false)
@@ -117,7 +117,7 @@ const fillValidation = (type, title) => {
 
 const faucetBalance = ref(0)
 const refreshFaucetBalance = async () => {
-	const { data } = await fetchBalance(network.value?.replace("-", "_"))
+	const { data } = await fetchBalance(network.value)
 	faucetBalance.value = data?.value ?? faucetBalance.value
 }
 
@@ -141,7 +141,7 @@ const handleExecute = async () => {
 	executionResult.value = {}
 
 	try {
-		const { data, error } = await executeFaucet(network.value?.replace("-", "_"), address.value)
+		const { data, error } = await executeFaucet(network.value, address.value)
 
 		if (error?.value?.data) {
 			fillExecutionResult(
