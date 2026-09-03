@@ -88,13 +88,13 @@ export const getStartChainDate = () => {
 			return "2023-09-06T03:15:51.510579Z"
 
 		case "mocha-5.celenium.io":
-			return "2023-09-06T03:15:51.510579Z"
+			return "2026-08-18T15:00:00.000000Z"
 
 		case "mocha.celenium.io":
-			return "2023-09-06T03:15:51.510579Z"
+			return "2026-08-18T15:00:00.000000Z"
 
 		case "dev.celenium.io":
-			return "2023-09-06T03:15:51.510579Z"
+			return "2023-10-31T14:00:00Z"
 
 		default:
 			return "2023-09-06T03:15:51.510579Z"
@@ -106,7 +106,6 @@ export const faucetURL = () => {
 	const { public: p } = useRuntimeConfig()
 	return {
 		mocha: p.FAUCET_MOCHA,
-		mocha_4: p.FAUCET_MOCHA_4,
 	}
 }
 
