@@ -96,7 +96,7 @@ const tags = computed(() =>
 const showBadges = computed(() => {
 	const showSettled = props.rollup?.settled_on && badges?.settled?.includes(props.rollup?.settled_on?.toLowerCase())
 	const showProvider = props.rollup?.provider && badges?.provider?.includes(props.rollup?.provider?.toLowerCase())
-	
+
 	return {
 		show: showSettled || showProvider,
 		provider: showProvider,
@@ -312,12 +312,6 @@ const handleCSVDownload = async (value) => {
 					<Icon name="laurel" size="12" color="secondary" />
 
 					<Text>Activity Rank</Text>
-				</Button>
-
-				<Button v-if="rollup.settled_on" :link="`/blobstream?network=${rollup.settled_on?.toLowerCase()}&page=1`" type="secondary" size="mini">
-					<Icon name="blob" size="12" color="secondary" />
-
-					<Text>Blobstream</Text>
 				</Button>
 
 				<Button link="/stats?tab=networks&section=daily_stats" type="secondary" size="mini">

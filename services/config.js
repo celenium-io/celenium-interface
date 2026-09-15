@@ -1,5 +1,3 @@
-import { mocha } from "./chains"
-
 export const useServerURL = () => {
 	const { public: p } = useRuntimeConfig()
 	const requestURL = useRequestURL()
@@ -53,27 +51,12 @@ export const useSocketURL = () => {
 
 		case "mocha-4.celenium.io":
 			return p.WSS_MOCHA_4
-		
+
 		case "dev.celenium.io":
 			return p.WSS_DEV
 
 		default:
 			return p.WSS_DEV
-	}
-}
-
-export const useBlobstreamURL = () => {
-	const { public: p } = useRuntimeConfig()
-	const requestURL = useRequestURL()
-
-	switch (requestURL.hostname) {
-		case "mocha.celenium.io":
-		case "mocha-4.celenium.io":
-		case "mocha-5.celenium.io":
-			return p.BLOBSTREAM_TESTNET
-
-		default:
-			return p.BLOBSTREAM_MAINNET
 	}
 }
 
