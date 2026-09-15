@@ -89,9 +89,6 @@ export default defineNuxtConfig({
 			WSS_MOCHA_4: "",
 			WSS_DEV: "",
 
-			BLOBSTREAM_MAINNET: "",
-			BLOBSTREAM_TESTNET: "",
-
 			FAUCET_ADDRESS: "",
 			FAUCET_MOCHA: "",
 			FAUCET_MOCHA_4: "",
