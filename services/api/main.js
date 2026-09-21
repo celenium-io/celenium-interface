@@ -44,15 +44,6 @@ export const fetchMochaConstants = async () => {
 	}
 }
 
-export const fetchMocha4Constants = async () => {
-	try {
-		const data = await $fetch(`https://api-mocha-4.celenium.io/v1/constants`)
-		return data
-	} catch (error) {
-		console.error(error)
-	}
-}
-
 export const fetchEnums = async () => {
 	try {
 		const mainEnums = await $fetch(`${useServerURL()}/enums`)

@@ -1,6 +1,5 @@
 const origins = [
 	"https://mocha.celenium.io/",
-	"https://mocha-4.celenium.io/",
 	"https://mocha-5.celenium.io/",
 ]
 

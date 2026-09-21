@@ -81,17 +81,14 @@ export default defineNuxtConfig({
 
 			API_MAINNET: "",
 			API_MOCHA: "",
-			API_MOCHA_4: "",
 			API_DEV: "",
 
 			WSS_MAINNET: "",
 			WSS_MOCHA: "",
-			WSS_MOCHA_4: "",
 			WSS_DEV: "",
 
 			FAUCET_ADDRESS: "",
 			FAUCET_MOCHA: "",
-			FAUCET_MOCHA_4: "",
 
 			BLOCKSCOUT: "",
 			GITHUB: "",
@@ -100,7 +97,6 @@ export default defineNuxtConfig({
 			ROLLUP_RANKING: "",
 			TVL: "",
 			BLOBS_MOCHA: "",
-			BLOBS_MOCHA_4: "",
 
 			SELFHOSTED: false,
 		},

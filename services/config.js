@@ -10,9 +10,6 @@ export const useServerURL = () => {
 		case "mocha-5.celenium.io":
 			return p.API_MOCHA
 
-		case "mocha-4.celenium.io":
-			return p.API_MOCHA_4
-
 		case "dev.celenium.io":
 			return p.API_DEV
 
@@ -29,8 +26,6 @@ export const getServerURL = (network) => {
 			return p.API_MAINNET
 		case "mocha":
 			return p.API_MOCHA
-		case "mocha-4":
-			return p.API_MOCHA_4
 
 		default:
 			return p.API_DEV
@@ -49,9 +44,6 @@ export const useSocketURL = () => {
 		case "mocha-5.celenium.io":
 			return p.WSS_MOCHA
 
-		case "mocha-4.celenium.io":
-			return p.WSS_MOCHA_4
-
 		case "dev.celenium.io":
 			return p.WSS_DEV
 
@@ -67,9 +59,6 @@ export const getStartChainDate = () => {
 		case "celenium.io":
 			return "2023-10-31T14:00:00Z"
 
-		case "mocha-4.celenium.io":
-			return "2023-09-06T03:15:51.510579Z"
-
 		case "mocha-5.celenium.io":
 			return "2026-08-18T15:00:00.000000Z"
 
@@ -80,7 +69,7 @@ export const getStartChainDate = () => {
 			return "2023-10-31T14:00:00Z"
 
 		default:
-			return "2023-09-06T03:15:51.510579Z"
+			return "2026-08-18T15:00:00.000000Z"
 	}
 }
 
@@ -106,8 +95,6 @@ export const getBlobsURL = () => {
 		case "mocha.celenium.io":
 		case "mocha-5.celenium.io":
 			return p.BLOBS_MOCHA
-		case "mocha-4.celenium.io":
-			return p.BLOBS_MOCHA_4
 		case "localhost":
 			return p.BLOBS_MOCHA
 
