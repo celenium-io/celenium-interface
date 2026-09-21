@@ -27,7 +27,6 @@ switch (hostname) {
 		break
 
 	case "mocha.celenium.io":
-	case "mocha-4.celenium.io":
 	case "mocha-5.celenium.io":
 		appStore.network = mocha
 		break
