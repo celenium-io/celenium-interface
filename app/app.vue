@@ -3,7 +3,7 @@
 import Socket from "~/services/api/socket.js"
 import { watchForUpdate } from "~/services/version.js"
 import { DEFAULT_SETTINGS } from "~/services/constants/settings.js"
-import { isPrefersDarkScheme } from "~/services/utils/index.js"
+import { isPrefersDarkScheme, getNetworkName } from "~/services/utils/index.js"
 
 /** Components */
 import ModalsManager from "~/components/modals/ModalsManager.vue"
@@ -13,6 +13,7 @@ import CommandMenu from "~/components/cmd/CommandMenu.vue"
 import { fetchGasPrice } from "~/services/api/gas.js"
 import { fetchHead } from "~/services/api/main.js"
 import { fetchLatestBlocks } from "~/services/api/block.js"
+import { fetchBlobsState } from "~/services/api/main.js"
 
 /** Store */
 import { useNodeStore } from "~/store/node.store.js"
@@ -173,6 +174,10 @@ onMounted(async () => {
 				],
 			},
 		})
+	}
+
+	if (["Mocha", "Local"].includes(getNetworkName())) {
+		appStore.blobsState = await fetchBlobsState()
 	}
 
 	window.onbeforeunload = function () {

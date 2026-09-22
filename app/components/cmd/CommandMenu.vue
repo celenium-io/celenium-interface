@@ -294,15 +294,6 @@ const rawNavigationActions = [
 	{
 		type: "callback",
 		icon: "arrow-narrow-right",
-		title: "Go to Blobstream",
-		runText: "Open Blobstream",
-		callback: () => {
-			router.push("/blobstream")
-		},
-	},
-	{
-		type: "callback",
-		icon: "arrow-narrow-right",
 		title: "Go to Upgrades",
 		runText: "Open Upgrades",
 		callback: () => {
@@ -548,22 +539,11 @@ const rawSettingsActions = [
 				id: crypto.randomUUID(),
 				type: "callback",
 				icon: "globe",
-				title: "Mocha-4",
+				title: "Mocha-5",
 				subtitle: "Network",
-				runText: "Switch to Mocha-4",
+				runText: "Switch to Mocha-5",
 				callback: () => {
-					window.open("https://mocha-4.celenium.io", "_blank")
-				},
-			},
-			{
-				id: crypto.randomUUID(),
-				type: "callback",
-				icon: "globe",
-				title: "Arabica",
-				subtitle: "Network",
-				runText: "Switch to Arabica",
-				callback: () => {
-					window.open("https://arabica.celenium.io", "_blank")
+					window.open("https://mocha-5.celenium.io", "_blank")
 				},
 			},
 		],

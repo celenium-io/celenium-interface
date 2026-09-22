@@ -7,11 +7,8 @@ export const useServerURL = () => {
 			return p.API_MAINNET
 
 		case "mocha.celenium.io":
-		case "mocha-4.celenium.io":
+		case "mocha-5.celenium.io":
 			return p.API_MOCHA
-
-		case "arabica.celenium.io":
-			return p.API_ARABICA
 
 		case "dev.celenium.io":
 			return p.API_DEV
@@ -29,8 +26,6 @@ export const getServerURL = (network) => {
 			return p.API_MAINNET
 		case "mocha":
 			return p.API_MOCHA
-		case "arabica":
-			return p.API_ARABICA
 
 		default:
 			return p.API_DEV
@@ -46,32 +41,14 @@ export const useSocketURL = () => {
 			return p.WSS_MAINNET
 
 		case "mocha.celenium.io":
-		case "mocha-4.celenium.io":
+		case "mocha-5.celenium.io":
 			return p.WSS_MOCHA
-
-		case "arabica.celenium.io":
-			return p.WSS_ARABICA
 
 		case "dev.celenium.io":
 			return p.WSS_DEV
 
 		default:
 			return p.WSS_MAINNET
-	}
-}
-
-export const useBlobstreamURL = () => {
-	const { public: p } = useRuntimeConfig()
-	const requestURL = useRequestURL()
-
-	switch (requestURL.hostname) {
-		case "mocha.celenium.io":
-		case "mocha-4.celenium.io":
-		case "arabica.celenium.io":
-			return p.BLOBSTREAM_TESTNET
-
-		default:
-			return p.BLOBSTREAM_MAINNET
 	}
 }
 
@@ -82,20 +59,17 @@ export const getStartChainDate = () => {
 		case "celenium.io":
 			return "2023-10-31T14:00:00Z"
 
-		case "mocha-4.celenium.io":
-			return "2023-09-06T03:15:51.510579Z"
+		case "mocha-5.celenium.io":
+			return "2026-08-18T15:00:00.000000Z"
 
 		case "mocha.celenium.io":
-			return "2023-09-06T03:15:51.510579Z"
-
-		case "arabica.celenium.io":
-			return "2024-01-02T12:18:46.936662Z"
+			return "2026-08-18T15:00:00.000000Z"
 
 		case "dev.celenium.io":
-			return "2024-01-02T12:18:46.936662Z"
+			return "2023-10-31T14:00:00Z"
 
 		default:
-			return "2023-09-06T03:15:51.510579Z"
+			return "2026-08-18T15:00:00.000000Z"
 	}
 }
 
@@ -104,7 +78,6 @@ export const faucetURL = () => {
 	const { public: p } = useRuntimeConfig()
 	return {
 		mocha: p.FAUCET_MOCHA,
-		arabica: p.FAUCET_ARABICA,
 	}
 }
 
@@ -114,6 +87,21 @@ export const nodeStatsURL = () => useRuntimeConfig().public.NODE_STATS
 export const quoteServiceURL = () => useRuntimeConfig().public.QUOTE
 export const rollupRankingServiceURL = () => useRuntimeConfig().public.ROLLUP_RANKING
 export const tvlServiceURL = () => useRuntimeConfig().public.TVL
+export const getBlobsURL = () => {
+	const { public: p } = useRuntimeConfig()
+	const requestURL = useRequestURL()
+
+	switch (requestURL.hostname) {
+		case "mocha.celenium.io":
+		case "mocha-5.celenium.io":
+			return p.BLOBS_MOCHA
+		case "localhost":
+			return p.BLOBS_MOCHA
+
+		default:
+			return null
+	}
+}
 
 export const isSelfhosted = () => useRuntimeConfig().public.SELFHOSTED
 

@@ -140,7 +140,7 @@ watch(
 
 						<template #popup>
 							<DropdownTitle>Celestia Networks</DropdownTitle>
-							<DropdownItem v-for="network in ['Mainnet', 'Arabica', 'Mocha']" @click="handleSelectNetwork(network)">
+							<DropdownItem v-for="network in ['Mainnet', 'Mocha']" @click="handleSelectNetwork(network)">
 								{{ network }}
 							</DropdownItem>
 						</template>

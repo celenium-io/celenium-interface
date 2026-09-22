@@ -9,7 +9,7 @@ import { formatBytes, comma, round } from "~/services/utils/index.js"
 import Tooltip from "~/components/ui/Tooltip.vue"
 
 /** API */
-import { fetchMainnetConstants, fetchMochaConstants, fetchArabicaConstants } from "~/services/api/main.js"
+import { fetchMainnetConstants, fetchMochaConstants } from "~/services/api/main.js"
 
 /** Store */
 import { useNotificationsStore } from "~/store/notifications.store.js"
@@ -64,11 +64,14 @@ useHead({
 })
 
 const { data: constants } = await useAsyncData(`all-constants`, async () => {
-	const [mainnet, mocha, arabica] = await Promise.all([fetchMainnetConstants(), fetchMochaConstants(), fetchArabicaConstants()])
-	return { mainnet, mocha, arabica }
+	const [mainnet, mocha] = await Promise.all([
+		fetchMainnetConstants(),
+		fetchMochaConstants(),
+	])
+	return { mainnet, mocha }
 })
 
-const networks = ["mainnet", "mocha", "arabica"]
+const networks = ["mainnet", "mocha"]
 const modules = Object.keys(constants.value.mainnet.module)
 
 const constantsToMb = ["block_max_bytes", "evidence_max_bytes"]
@@ -84,6 +87,7 @@ const constantsToPercentage = [
 	"slash_fraction_downtime",
 	"min_commission_rate",
 ]
+const constantsPostfix = [{ "network_min_gas_price": "utia" }]
 
 const constantsToFormat = [...constantsToMb, ...constantsToDays, ...constantsToTia, ...constantsToPercentage]
 
@@ -106,6 +110,11 @@ const formatConstant = (key, value) => {
 		}
 		if (constantsToTia.includes(key)) return `${comma(value.replace("utia", "") / 1_000_000, ",", 8)} TIA`
 		if (constantsToPercentage.includes(key)) return `${round(value * 100, 6)}%`
+
+		if (constantsPostfix.some((postfix) => Object.keys(postfix).includes(key))) {
+			const postfix = constantsPostfix.find((p) => Object.keys(p).includes(key))
+			return `${value} ${postfix[key]}`
+		}
 
 		return value
 	} catch {
@@ -152,6 +161,8 @@ const DescriptionMap = {
 	evidence_max_age_num_blocks: "The maximum number of blocks before evidence is considered invalid",
 	evidence_max_bytes: "Maximum size in bytes used by evidence in a given block",
 	validator_pub_key_types: "The type of public key used by validators",
+	network_min_gas_price: "The network minimum gas price",
+	allow_messages: "An allowlist of Protobuf message type URLs that hosted interchain accounts are authorized to execute on a host chain",
 }
 
 const handleCopy = (text) => {
@@ -199,9 +210,6 @@ const handleCopy = (text) => {
 							<th>
 								<Text size="13" weight="600" color="tertiary" mono> Mocha </Text>
 							</th>
-							<th>
-								<Text size="13" weight="600" color="tertiary" mono> Arabica </Text>
-							</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -215,8 +223,6 @@ const handleCopy = (text) => {
 										<Text size="12" weight="600" color="tertiary" mono> Module</Text>
 									</Flex>
 								</td>
-								<td module></td>
-								<td module></td>
 								<td module></td>
 								<td module></td>
 							</tr>

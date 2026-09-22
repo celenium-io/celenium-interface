@@ -110,9 +110,9 @@ export function validateCelestiaValidatorAddress(address) {
 	if (!address) return false
 
 	const prefixes = ["celestiavaloper", "celestiavalcons"]
-	const prefix = prefixes.find(p => address.startsWith(p))
+	const prefix = prefixes.find((p) => address.startsWith(p))
 	if (!prefix) return false
-	
+
 	if (address[prefix.length] !== "1") return false
 
 	const hashPart = address.slice(prefix.length + 1)
@@ -153,14 +153,9 @@ export const getNetworkName = () => {
 		case "celenium.io":
 			return "Mainnet"
 
-		case "mocha-4.celenium.io":
-			return "Mocha-4"
-
 		case "mocha.celenium.io":
-			return "Mocha-4"
-
-		case "arabica.celenium.io":
-			return "Arabica"
+		case "mocha-5.celenium.io":
+			return "Mocha"
 
 		case "dev.celenium.io":
 			return "Development"
@@ -174,7 +169,6 @@ export const getNetworkName = () => {
 }
 
 export const isMainnet = () => {
-	// return true
 	return getNetworkName() === "Mainnet" || getNetworkName() === "Development" || isSelfhosted()
 }
 
@@ -238,9 +232,7 @@ export function sortArrayOfObjects(arr, path, asc = true) {
 		} else {
 			valueA = String(valueA)
 			valueB = String(valueB)
-			return asc
-				? valueA.localeCompare(valueB)
-				: valueB.localeCompare(valueA)
+			return asc ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA)
 		}
 
 		return asc ? valueA - valueB : valueB - valueA
@@ -249,7 +241,7 @@ export function sortArrayOfObjects(arr, path, asc = true) {
 
 export function hexToRgba(hex, alpha = 255) {
 	if (!hex) return ""
-	
+
 	let h = hex.replace(/^#/, "")
 
 	if (h.length === 3) {
@@ -278,28 +270,28 @@ export function isValidId(id, type) {
 		case "proposal":
 		case "upgrade_version":
 		case "validator":
-			return /^[0-9]+$/.test(id);
+			return /^[0-9]+$/.test(id)
 
 		case "tx":
-			return /^[A-Fa-f0-9]{64}$/.test(id);
+			return /^[A-Fa-f0-9]{64}$/.test(id)
 
 		case "namespace":
-			return /^[0-9a-f]{56}$/.test(id);
+			return /^[0-9a-f]{56}$/.test(id)
 
 		case "address":
-			return validateCelestiaAddress(id);
-	
+			return validateCelestiaAddress(id)
+
 		default:
-			return false;
+			return false
 	}
 }
 
 export function isValidQueryParam(value, type = "page") {
 	switch (type) {
 		case "page":
-			return /^[0-9]+$/.test(value);
-	
+			return /^[0-9]+$/.test(value)
+
 		default:
-			return false;
+			return false
 	}
 }

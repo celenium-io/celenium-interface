@@ -13,7 +13,7 @@ const updates = [
 		version: 3,
 		title: "Ginger upgrade",
 		description: "This upgrade (v3) was the first to use the in-protocol signaling mechanism.",
-		link: "https://docs.celestia.org/how-to-guides/network-upgrade-process#ginger-network-upgrade",
+		link: "https://docs.celestia.org/operate/maintenance/network-upgrades/#ginger-network-upgrade",
 		timeline: {
 			mainnet: {
 				time: 1734013612,
@@ -27,10 +27,6 @@ const updates = [
 				time: 1731609071,
 				block: 3140052,
 			},
-			arabica: {
-				time: 1730843713,
-				block: 2348907,
-			},
 		},
 	},
 	{
@@ -39,7 +35,7 @@ const updates = [
 		version: 4,
 		title: "Lotus upgrade",
 		description: "This upgrade (v4) included several important changes.",
-		link: "https://docs.celestia.org/how-to-guides/network-upgrade-process#lotus-network-upgrade",
+		link: "https://docs.celestia.org/operate/maintenance/network-upgrades/#lotus-network-upgrade",
 		timeline: {
 			mainnet: {
 				time: 1753710387,
@@ -53,10 +49,6 @@ const updates = [
 				time: 1751370718,
 				block: 6915786,
 			},
-			arabica: {
-				time: 1747381895,
-				block: 5975265,
-			},
 		},
 	},
 	{
@@ -65,7 +57,7 @@ const updates = [
 		version: 5,
 		title: "v5 upgrade",
 		description: "This upgrade (v4) included a fix to restore IBC support which was broken in v4.",
-		link: "https://docs.celestia.org/how-to-guides/network-upgrade-process#v5-network-upgrade",
+		link: "https://docs.celestia.org/operate/maintenance/network-upgrades/#v5-network-upgrade",
 		timeline: {
 			mainnet: {
 				time: 1754058629,
@@ -79,10 +71,6 @@ const updates = [
 				time: 1753895249,
 				block: 7401191,
 			},
-			arabica: {
-				time: 1753819140,
-				block: 7316464,
-			},
 		},
 	},
 	{
@@ -91,7 +79,7 @@ const updates = [
 		version: 6,
 		title: "Matcha upgrade",
 		description: "This upgrade (v6) included several important changes.",
-		link: "https://docs.celestia.org/how-to-guides/network-upgrade-process#matcha-network-upgrade",
+		link: "https://docs.celestia.org/operate/maintenance/network-upgrades/#matcha-network-upgrade",
 		timeline: {
 			mainnet: {
 				time: 1763987592,
@@ -105,9 +93,27 @@ const updates = [
 				time: 1759454702,
 				block: 8236886,
 			},
-			arabica: {
-				time: 1757398091,
-				block: 8105605,
+		},
+	},
+	{
+		name: "Hibiscus",
+		kind: "node_upgrade",
+		version: 7,
+		title: "Hibiscus upgrade",
+		description: "This upgrade (v7) included several important changes.",
+		link: "https://docs.celestia.org/operate/maintenance/network-upgrades/#hibiscus-network-upgrade",
+		timeline: {
+			// mainnet: {
+			// 	time: 0,
+			// 	block: 10364847,
+			// },
+			// development: {
+			// 	time: 0,
+			// 	block: 10364847,
+			// },
+			mocha: {
+				time: 1771860112,
+				block: 10209986,
 			},
 		},
 	},
