@@ -8,9 +8,7 @@ export const useNodeStore = defineStore("node", () => {
 	const rawBootnodes = ref([])
 
 	const settings = reactive({
-		autostart: false,
 		charger: false,
-
 		network: "",
 	})
 

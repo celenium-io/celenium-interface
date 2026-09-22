@@ -28,23 +28,6 @@ onMounted(async () => {
 	indexDBStores.value = await window.indexedDB.databases()
 })
 
-watch(
-	() => nodeStore.settings.autostart,
-	() => {
-		ph.capture(`sampling:${nodeStore.settings.autostart ? "enable_autostart" : "disable_autostart"}`)
-
-		localStorage.setItem("nodeSettings", JSON.stringify(nodeStore.settings))
-	},
-)
-watch(
-	() => nodeStore.settings.charger,
-	() => {
-		ph.capture(`sampling:${nodeStore.settings.charger ? "enable_charger_requirement" : "disable_charger_requirement"}`)
-
-		localStorage.setItem("nodeSettings", JSON.stringify(nodeStore.settings))
-	},
-)
-
 const hasWrongBootnode = ref(false)
 const bootnodesTerm = ref()
 const isBootnodesChanged = ref(false)
@@ -129,24 +112,6 @@ watch(
 			<Text size="14" weight="600" color="primary">Light Node Settings</Text>
 
 			<Flex direction="column" gap="16">
-				<Flex justify="between">
-					<Flex direction="column" gap="6">
-						<Text size="13" weight="600" color="primary">Autostart</Text>
-						<Text size="12" weight="500" color="tertiary"> Automatically launch a node every time you visit the Celenium </Text>
-					</Flex>
-
-					<Toggle v-model="nodeStore.settings.autostart" />
-				</Flex>
-
-				<!-- <Flex justify="between" :class="$style.disabled">
-					<Flex direction="column" gap="6">
-						<Text size="13" weight="600" color="primary">Battery charger requiremenet</Text>
-						<Text size="12" weight="500" color="tertiary">Prohibit node startup if no charger is connected on mobile</Text>
-					</Flex>
-
-					<Toggle v-model="nodeStore.settings.charger" :disabled="true" />
-				</Flex> -->
-
 				<Flex justify="between">
 					<Flex direction="column" gap="6">
 						<Tooltip position="start">
