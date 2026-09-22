@@ -80,10 +80,6 @@ export default defineNuxtConfig({
 			AMP: process.env.AMP,
 			version: "1.26.0",
 
-			posthogPublicKey: "phc_tcqeIINi9GbfhqO7JwuIJc6YcbyEdhdiv1QKGNYi6MN",
-			posthogHost: "https://lt.celenium.io/",
-			posthogDefaults: "2026-01-30",
-
 			API_MAINNET: "",
 			API_MOCHA: "",
 			API_ARABICA: "",
@@ -124,7 +120,6 @@ export default defineNuxtConfig({
 					content: "en",
 				},
 			],
-			script: [{ src: "https://analytics.ahrefs.com/analytics.js", "data-key": "/cIm/4LxIX1R+OK+XMnXRg", async: true }],
 			link: [
 				{
 					id: "favicon",
