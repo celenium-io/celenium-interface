@@ -238,7 +238,7 @@ const decode = (byte) => {
 	& span {
 		min-width: 24px;
 
-		font-family: "Source Code Pro";
+		font-family: "JetBrains Mono";
 
 		line-height: 20px;
 		text-align: center;
@@ -358,7 +358,7 @@ const decode = (byte) => {
 }
 
 .char {
-	font-family: "Source Code Pro";
+	font-family: "JetBrains Mono";
 
 	&.hover {
 		box-shadow: inset 0 0 0 1px var(--op-5);

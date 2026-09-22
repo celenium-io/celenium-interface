@@ -160,13 +160,6 @@ const gasFee = computed(() => {
 	background: var(--op-8);
 }
 
-.hint {
-	& kbd {
-		font-weight: 700;
-		color: var(--txt-tertiary);
-	}
-}
-
 @media (max-width: 700px) {
 	.calculator {
 		padding-top: 32px;
