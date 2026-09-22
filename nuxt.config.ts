@@ -1,5 +1,4 @@
 import wasm from "vite-plugin-wasm"
-import { analyzer, unstableRolldownAdapter } from "vite-bundle-analyzer"
 
 import path from "path"
 
