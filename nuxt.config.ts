@@ -131,6 +131,7 @@ export default defineNuxtConfig({
 	},
 
 	nitro: {
+		preset: "cloudflare-module",
 		sourceMap: false,
 		experimental: {
 			wasm: true,
