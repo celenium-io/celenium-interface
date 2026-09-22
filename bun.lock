@@ -21,7 +21,7 @@
         "js-sha256": "^0.11.0",
         "lean-qr": "^2.3.2",
         "long": "^5.2.3",
-        "lumina-node": "^0.13.2",
+        "lumina-node": "1.0.0",
         "luxon": "3.4.3",
         "nuxt-site-config": "^3.2.21",
         "pinia": "3.0.4",
@@ -1744,9 +1744,9 @@
 
     "lru-cache": ["lru-cache@11.2.7", "", {}, "sha512-aY/R+aEsRelme17KGQa/1ZSIpLpNYYrhcrepKTZgE+W3WM16YMCaPwOHLHsmopZHELU0Ojin1lPVxKR0MihncA=="],
 
-    "lumina-node": ["lumina-node@0.13.2", "", { "dependencies": { "lumina-node-wasm": "0.13.2" } }, "sha512-+1arTMhmnowcKd3POO9MWL3pxezW00IxmDLNyyVaTtodckAlew5WD0Ubb07p//74spSSWw0BPToeJsyDyPsdgQ=="],
+    "lumina-node": ["lumina-node@1.0.0", "", { "dependencies": { "lumina-node-wasm": "1.0.0" } }, "sha512-SLbvSbZ05C60KJQcROqcqN6Izco0hEAjeDqMYX9+U62YEwff/TQIzE4uyYCbJujFlQTVFANVa4FF+scVXAKhQQ=="],
 
-    "lumina-node-wasm": ["lumina-node-wasm@0.13.2", "", {}, "sha512-RgjJTUMPAoGeAlv6C11kXyneJVRaq6gqYMCqAKTrIo6HAb7UPLhgyPT4in6j+JoZXZe9OLmVV1gZbi6JUl0v4w=="],
+    "lumina-node-wasm": ["lumina-node-wasm@1.0.0", "", {}, "sha512-VEXo6oNwXCKkBfzt7+Awm4SyIb9Jla9KSNgwgm7Jlaopvww2wSlE8Uq7iajBNDQZtqoY+VKe/KBc8yX/wAZbAg=="],
 
     "luxon": ["luxon@3.4.3", "", {}, "sha512-tFWBiv3h7z+T/tDaoxA8rqTxy1CHV6gHS//QdaH4pulbq/JuBSGgQspQQqcgnwdAx6pNI7cmvz5Sv/addzHmUg=="],
 

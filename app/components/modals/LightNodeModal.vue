@@ -35,25 +35,10 @@ const props = defineProps({
 
 const ph = usePostHog()
 
-let bc
 onMounted(async () => {
 	nodeStore.status = StatusMap.Initialized
 
 	nodeStore.settings.network = networks[selectedNetwork.value]
-
-	bc = new BroadcastChannel("node")
-	bc.postMessage("ping")
-	bc.onmessage = (e) => {
-		if (e.data === "ping" && status.value === StatusMap.Started) {
-			bc.postMessage("running")
-		}
-		if (e.data === "running") {
-			disableStart.value = true
-		}
-		if (e.data === "start" && status.value === StatusMap.Initialized) {
-			disableStart.value = true
-		}
-	}
 
 	/** autostart */
 	if (nodeStore.settings.autostart) {
@@ -126,36 +111,32 @@ const status = computed(() => nodeStore.status)
 const networks = ["Mainnet", "Arabica", "Mocha"]
 const selectedNetwork = ref(0)
 
-// const { hostname } = useRequestURL()
-// switch (hostname) {
-// 	case "celenium.io":
-// 		selectedNetwork.value = 0
-// 		break
-//
-// 	case "mocha-4.celenium.io":
-// 		selectedNetwork.value = 2
-// 		break
-//
-// 	case "mocha.celenium.io":
-// 		selectedNetwork.value = 2
-// 		break
-//
-// 	case "arabica.celenium.io":
-// 		selectedNetwork.value = 1
-// 		break
-//
-// 	case "dev.celenium.io":
-// 		selectedNetwork.value = 1
-// 		break
-//
-// 	case "localhost":
-// 		selectedNetwork.value = 1
-// 		break
-//
-// 	default:
-// 		selectedNetwork.value = 1
-// 		break
-// }
+const { hostname } = useRequestURL()
+switch (hostname) {
+	case "celenium.io":
+		selectedNetwork.value = 0
+		break
+
+	case "mocha.celenium.io":
+		selectedNetwork.value = 2
+		break
+
+	case "arabica.celenium.io":
+		selectedNetwork.value = 1
+		break
+
+	case "dev.celenium.io":
+		selectedNetwork.value = 1
+		break
+
+	case "localhost":
+		selectedNetwork.value = 1
+		break
+
+	default:
+		selectedNetwork.value = 1
+		break
+}
 
 const handleOpenSettings = () => {
 	modalsStore.open("lightNodeSettings")
@@ -305,8 +286,6 @@ const handleStop = async () => {
 
 const handleStart = async () => {
 	if (disableStart.value) return
-
-	bc.postMessage("start")
 
 	nodeStore.status = StatusMap.Starting
 	ph.capture("sampling:start", { network: networks[selectedNetwork.value], mobile: isMobile() })

@@ -51,7 +51,7 @@
 		"js-sha256": "^0.11.0",
 		"lean-qr": "^2.3.2",
 		"long": "^5.2.3",
-		"lumina-node": "^0.13.2",
+		"lumina-node": "1.0.0",
 		"luxon": "3.4.3",
 		"nuxt-site-config": "^3.2.21",
 		"pinia": "3.0.4",
