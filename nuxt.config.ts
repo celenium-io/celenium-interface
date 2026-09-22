@@ -1,6 +1,29 @@
+import fs from "node:fs"
+
 import wasm from "vite-plugin-wasm"
 
 import path from "path"
+
+function ignorePosthogSm() {
+	return {
+		name: "ignore-posthog-sm",
+		enforce: "pre" as const,
+		load(id: string) {
+			const file = id.split("?")[0]
+			if (!file.includes("/node_modules/posthog-js/") || !/\.(?:[cm]?js)$/.test(file)) return null
+
+			let code: string
+			try {
+				code = fs.readFileSync(file, "utf8")
+			} catch {
+				return null
+			}
+
+			if (!code.includes("sourceMappingURL")) return null
+			return code.replace(/\/\/[#@]\s*sourceMappingURL=\S+/g, "")
+		},
+	}
+}
 
 export default defineNuxtConfig({
 	modules: ["@nuxt/fonts", "nuxt-site-config", "@nuxtjs/robots", "@pinia/nuxt", "nuxt-og-image", "@nuxtjs/sitemap", "@posthog/nuxt"],
@@ -167,7 +190,7 @@ export default defineNuxtConfig({
 	plugins: ["~/plugins/force.client.js"],
 
 	vite: {
-		plugins: [wasm()],
+		plugins: [ignorePosthogSm(), wasm()],
 		build: {
 			target: "esnext",
 			rolldownOptions: {
