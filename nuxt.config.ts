@@ -70,8 +70,8 @@ export default defineNuxtConfig({
 	},
 
 	posthogConfig: {
-		publicKey: "phc_tcqeIINi9GbfhqO7JwuIJc6YcbyEdhdiv1QKGNYi6MN",
-		host: "https://lt.celenium.io",
+		publicKey: process.env.NUXT_PUBLIC_POSTHOG_KEY,
+		host: process.env.NUXT_PUBLIC_POSTHOG_HOST,
 		debug: false,
 	},
 
