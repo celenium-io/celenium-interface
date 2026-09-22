@@ -190,5 +190,5 @@ export default defineNuxtConfig({
 		optimizeDeps: { exclude: ["lumina-node"] },
 	},
 
-	compatibilityDate: "2025-04-02",
+	compatibilityDate: "2026-09-22",
 })
