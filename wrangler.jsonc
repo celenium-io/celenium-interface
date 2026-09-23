@@ -8,6 +8,17 @@
     "nodejs_compat"
   ],
   "workers_dev": true,
+  "env": {
+    "dev": {
+      "name": "celenium-interface-dev",
+      "routes": [
+        {
+          "pattern": "dev.celenium.io",
+          "custom_domain": true
+        }
+      ]
+    }
+  },
   "vars": {
     "NETWORK": "mainnet",
     "NUXT_PUBLIC_API_MAINNET": "https://api.celenium.io/v1",
