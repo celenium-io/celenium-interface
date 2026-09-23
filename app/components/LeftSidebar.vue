@@ -119,7 +119,6 @@ const mainLinks = reactive([
 		icon: "node",
 		name: "Node Upgrades",
 		path: "/upgrades",
-		new: true,
 	},
 ])
 
@@ -198,7 +197,6 @@ const toolsLinks = reactive([
 		name: "Widgets",
 		path: "https://widgets.celenium.io",
 		external: true,
-		new: true,
 	},
 	{
 		icon: "explorable",

@@ -1,8 +1,3 @@
-<script setup>
-/** Components */
-import AdvBanner from "~/components/shared/AdvBanner.vue"
-</script>
-
 <template>
 	<Flex direction="column">
 		<Flex justify="center" :class="$style.wrapper">
@@ -10,7 +5,6 @@ import AdvBanner from "~/components/shared/AdvBanner.vue"
 
 			<Flex direction="column" align="center" :class="$style.content">
 				<Feed />
-				<AdvBanner orientation="horizontal" />
 				<ActionBar />
 
 				<Flex direction="column" align="center" wide :class="$style.container">

@@ -104,40 +104,17 @@ const getSectorName = (item) => {
 <template>
 	<Flex direction="column" gap="20" :class="$style.wrapper">
 		<Flex justify="between">
-			<Flex align="center" gap="6">
-				<Icon name="tx" size="16" color="primary" />
-				<Flex gap="4" align="end">
-					<Skeleton v-if="isLoading" w="36" h="16" />
-
-					<Tooltip v-else>
-						<Flex gap="4" align="end">
-							<Text size="16" weight="600" color="primary">{{ abbreviate(txCounter) }}</Text>
-
-							<Text size="12" weight="700" color="tertiary">TXs</Text>
-						</Flex>
-						<template #content>
-							<Flex gap="4" align="end">
-								<Text size="14" weight="600" color="primary">{{ txCounter }}</Text>
-								<Text size="11" weight="700" color="tertiary">TXs/24h</Text>
-							</Flex>
-						</template>
-					</Tooltip>
-				</Flex>
+			<Flex direction="column" gap="6">
+				<Skeleton v-if="isLoading" w="50" h="15" />
+				<Text v-else size="15" weight="600" color="primary">{{ comma(txCounter) }}</Text>
+				<Text size="12" weight="600" color="tertiary">Transactions</Text>
 			</Flex>
 
-			<Text size="12" weight="600" color="tertiary">24h</Text>
+			<Text size="12" weight="500" color="tertiary">Past 24 hours</Text>
 		</Flex>
 
 		<!-- Chart -->
 		<Flex gap="16" :class="$style.chart">
-			<Flex direction="column" justify="between" :class="$style.yAxis">
-				<Skeleton v-if="isLoading" w="35" h="12" />
-				<Text v-else-if="roundedMax" size="12" weight="600" color="tertiary">{{ abbreviate(roundedMax) }}</Text>
-
-				<Skeleton v-if="isLoading" w="15" h="12" />
-				<Text v-else-if="min" size="12" weight="600" color="tertiary">{{ comma(min) }}</Text>
-			</Flex>
-
 			<Flex v-if="!sectors[0].length" wide :class="$style.sectors">
 				<Flex v-for="i in 4" direction="column" gap="8" wide :class="$style.sector">
 					<Flex justify="between" wide :class="$style.hours">
@@ -146,10 +123,9 @@ const getSectorName = (item) => {
 						</Flex>
 					</Flex>
 
-					<Skeleton v-if="isLoading" w="20" h="12" />
+					<Skeleton v-if="isLoading" w="12" h="12" />
 				</Flex>
 			</Flex>
-
 			<Flex v-else wide :class="$style.sectors">
 				<Flex v-for="(sector, idx) in sectors" direction="column" gap="8" wide :class="$style.sector">
 					<Flex justify="between" :class="$style.hours">
@@ -170,15 +146,15 @@ const getSectorName = (item) => {
 
 							<template #content>
 								<Flex direction="column" gap="4">
-									<Flex justify="between" align="center" gap="8">
+									<Flex justify="between" align="center" gap="12">
 										<Text color="secondary">Time</Text>
 										<Text color="primary">
 											{{ DateTime.fromISO(item.time).setLocale("en").toLocaleString(DateTime.TIME_SIMPLE) }}
 										</Text>
 									</Flex>
 
-									<Flex justify="between" align="center" gap="8">
-										<Text color="secondary">Txs</Text>
+									<Flex justify="between" align="center" gap="12">
+										<Text color="secondary">Transactions</Text>
 										<Text color="primary">{{ comma(item.value) }}</Text>
 									</Flex>
 								</Flex>
@@ -190,6 +166,14 @@ const getSectorName = (item) => {
 						{{ getSectorName(sector[0]) }}
 					</Text>
 				</Flex>
+			</Flex>
+
+			<Flex direction="column" justify="between" :class="$style.yAxis">
+				<Skeleton v-if="isLoading" w="18" h="12" />
+				<Text v-else-if="roundedMax" size="12" weight="600" color="tertiary">{{ abbreviate(roundedMax) }}</Text>
+
+				<Skeleton v-if="isLoading" w="15" h="12" />
+				<Text v-else size="12" weight="600" color="tertiary">0</Text>
 			</Flex>
 		</Flex>
 	</Flex>
@@ -218,9 +202,13 @@ const getSectorName = (item) => {
 }
 
 .sector {
-	border-left: 2px solid var(--op-5);
+	border-right: 2px solid var(--op-5);
 
 	padding: 0 8px;
+
+	&:first-child {
+		padding-left: 0;
+	}
 
 	&:last-child {
 		border-right: 2px solid var(--op-5);

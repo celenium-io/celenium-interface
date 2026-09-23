@@ -5,9 +5,6 @@ import { DateTime } from "luxon"
 /** Services */
 import { comma, roundTo } from "~/services/utils/index.js"
 
-/** UI */
-import Tooltip from "~/components/ui/Tooltip.vue"
-
 /** API */
 import { fetchAvgBlockTime } from "~/services/api/block.js"
 
@@ -105,34 +102,26 @@ onBeforeUnmount(() => {
 
 <template>
 	<NuxtLink :to="lastBlock && `/block/${lastBlock.height}`" :class="$style.wrapper">
-		<Flex justify="between">
+		<Flex align="start" justify="between">
 			<Flex direction="column" gap="10">
 				<Flex align="center" gap="4">
-					<Text size="16" weight="600" color="primary"> Block </Text>
+					<Text size="16" weight="600" color="secondary"> Block </Text>
 
-					<Text v-if="lastBlock" size="16" weight="600" color="brand"> {{ comma(lastBlock.height) }}</Text>
-					<Skeleton v-else w="60" h="12" />
+					<Text v-if="lastBlock" size="16" weight="600" color="primary"> {{ comma(lastBlock.height) }}</Text>
+					<Skeleton v-else w="88" h="12" />
 				</Flex>
 
 				<Flex align="center" gap="6">
-					<Icon name="time" size="12" color="tertiary" :class="$style.time_icon" />
-					<Text size="12" weight="500" color="tertiary">Awaiting new block</Text>
+					<Text size="12" weight="500" color="tertiary">Average Block Time:</Text>
+					<Text v-if="avgBlockTime" size="12" weight="600" color="secondary">{{ roundTo(avgBlockTime) }}s </Text>
+					<Skeleton v-else w="36" h="12" />
 				</Flex>
 			</Flex>
 
-			<Tooltip>
-				<Flex direction="column" gap="12" align="end" justify="end">
-					<Text v-if="lastBlock" size="14" weight="600" color="primary"> ~{{ roundTo(avgBlockTime) }}s </Text>
-					<Skeleton v-else w="32" h="14" />
-
-					<Flex align="center" gap="4">
-						<Text size="12" weight="500" color="tertiary"> Block Time </Text>
-						<Icon name="help" size="12" color="tertiary" />
-					</Flex>
-				</Flex>
-
-				<template #content> Average block time based on the last 3 hours </template>
-			</Tooltip>
+			<Flex gap="4" align="center">
+				<Text size="12" weight="600" color="secondary">View the Block </Text>
+				<Icon name="arrow-narrow-up-right-circle" size="12" color="tertiary" />
+			</Flex>
 		</Flex>
 
 		<Flex align="center" justify="center" :class="$style.bar">
@@ -253,9 +242,7 @@ onBeforeUnmount(() => {
 
 	width: 100%;
 
-	/* background: var(--dark-mint); */
 	background: var(--neutral-mint);
-	/* background: var(--block-progress-fill-background); */
 
 	z-index: -1;
 
@@ -265,32 +252,6 @@ onBeforeUnmount(() => {
 
 	&.delayed {
 		background: var(--op-10);
-	}
-}
-
-.time_icon {
-	animation: rotation 1.5s ease infinite;
-}
-
-@keyframes rotation {
-	0% {
-		transform: rotate(0deg);
-	}
-
-	20% {
-		transform: rotate(180deg);
-	}
-
-	30% {
-		transform: rotate(-30deg);
-	}
-
-	50% {
-		transform: rotate(0deg);
-	}
-
-	100% {
-		transform: rotate(0deg);
 	}
 }
 </style>
