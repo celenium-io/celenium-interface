@@ -249,10 +249,6 @@ onMounted(async () => {
 	min-height: 32px;
 	height: 32px;
 	max-width: var(--base-width);
-
-	border-top: 1px solid var(--op-5);
-	border-bottom: 1px solid var(--op-5);
-	background: var(--feed-background);
 }
 
 .container {
@@ -260,8 +256,6 @@ onMounted(async () => {
 	height: 100%;
 	overflow: hidden;
 	overflow-x: scroll;
-
-	margin: 0 12px;
 
 	&::-webkit-scrollbar {
 		display: none;
