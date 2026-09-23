@@ -18,6 +18,7 @@ import FeeCalculator from "./custom/FeeCalculator.vue"
 /** Services */
 import { isMac } from "~/services/utils/general.js"
 import { capitilize } from "~/services/utils/strings.js"
+import { randomString } from "~/services/utils/general.js"
 
 /** API */
 import { search } from "~/services/api/search.js"
@@ -201,7 +202,7 @@ const makeSuggestions = () => {
 	}
 }
 const suggestionGroup = computed(() => {
-	const actions = suggestedActions.value.map((a) => ({ id: crypto.randomUUID(), ...a }))
+	const actions = suggestedActions.value.map((a) => ({ id: randomString(), ...a }))
 
 	return {
 		title: "Suggestion",
@@ -356,7 +357,7 @@ const rawNavigationActions = [
 	},
 ]
 const navigationGroup = computed(() => {
-	const actions = rawNavigationActions.map((a) => ({ id: crypto.randomUUID(), ...a }))
+	const actions = rawNavigationActions.map((a) => ({ id: randomString(), ...a }))
 
 	return {
 		title: "Navigation",
@@ -505,7 +506,7 @@ const rawQuickCommandsActions = [
 	},
 ]
 const quickCommandsGroup = computed(() => {
-	const actions = rawQuickCommandsActions.map((a) => ({ id: crypto.randomUUID(), ...a }))
+	const actions = rawQuickCommandsActions.map((a) => ({ id: randomString(), ...a }))
 
 	return {
 		title: "Quick Actions",
@@ -525,7 +526,7 @@ const rawSettingsActions = [
 
 		actions: [
 			{
-				id: crypto.randomUUID(),
+				id: randomString(),
 				type: "callback",
 				icon: "globe",
 				title: "Mainnet",
@@ -536,7 +537,7 @@ const rawSettingsActions = [
 				},
 			},
 			{
-				id: crypto.randomUUID(),
+				id: randomString(),
 				type: "callback",
 				icon: "globe",
 				title: "Mocha-5",
@@ -550,7 +551,7 @@ const rawSettingsActions = [
 	},
 ]
 const settingsGroup = computed(() => {
-	const actions = rawSettingsActions.map((a) => ({ id: crypto.randomUUID(), ...a }))
+	const actions = rawSettingsActions.map((a) => ({ id: randomString(), ...a }))
 
 	return {
 		title: "Settings",
@@ -741,7 +742,7 @@ const rawDeveloperActions = [
 	},
 ]
 const developerGroup = computed(() => {
-	const actions = rawDeveloperActions.map((a) => ({ id: crypto.randomUUID(), ...a }))
+	const actions = rawDeveloperActions.map((a) => ({ id: randomString(), ...a }))
 
 	return {
 		title: "Developer",
@@ -812,7 +813,7 @@ const rawOtherActions = [
 	},
 ]
 const otherGroup = computed(() => {
-	const actions = rawOtherActions.map((a) => ({ id: crypto.randomUUID(), ...a }))
+	const actions = rawOtherActions.map((a) => ({ id: randomString(), ...a }))
 
 	return {
 		title: "Other",
@@ -821,7 +822,7 @@ const otherGroup = computed(() => {
 })
 
 const searchAction = {
-	id: crypto.randomUUID(),
+	id: randomString(),
 	type: "callback",
 	icon: "search",
 	title: "Search your query on the blockchain...",
@@ -941,7 +942,7 @@ const debouncedSearch = useDebounceFn(async (e) => {
 		}
 
 		autocompleteActions.value.push({
-			id: crypto.randomUUID(),
+			id: randomString(),
 			type: "callback",
 			bookmark: data.value[i].bookmark,
 			icon: data.value[i].type,
