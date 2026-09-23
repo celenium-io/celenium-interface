@@ -31,9 +31,7 @@
     "NUXT_PUBLIC_QUOTE": "https://quote.celenium.io/v1",
     "NUXT_PUBLIC_ROLLUP_RANKING": "https://ranking.celenium.io/v1",
     "NUXT_PUBLIC_TVL": "https://tvl.celenium.io/v1",
-    "NUXT_PUBLIC_SELFHOSTED": "false",
-    "NUXT_PUBLIC_POSTHOG_HOST": "https://lt.celenium.io",
-    "NUXT_PUBLIC_POSTHOG_KEY": "phc_tcqeIINi9GbfhqO7JwuIJc6YcbyEdhdiv1QKGNYi6MN"
+    "NUXT_PUBLIC_SELFHOSTED": "false"
   },
   "previews": {
     "vars": {
