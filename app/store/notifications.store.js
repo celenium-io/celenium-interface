@@ -4,11 +4,16 @@
 import { ref } from "vue"
 import { defineStore } from "pinia"
 
+/**
+ * Services
+ */
+import { randomString } from "~/services/utils/general.js"
+
 export const useNotificationsStore = defineStore("notifications", () => {
 	const items = ref([])
 
 	const create = ({ notification }) => {
-		const id = crypto.randomUUID()
+		const id = randomString()
 
 		if (items.value.length > 3) {
 			items.value.pop()
