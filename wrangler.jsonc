@@ -9,6 +9,7 @@
   ],
   "workers_dev": true,
   "vars": {
+    "ENVIRONMENT": "production",
     "NETWORK": "mainnet",
     "NUXT_PUBLIC_API_MAINNET": "https://api.celenium.io/v1",
     "NUXT_PUBLIC_API_MOCHA": "https://api-mocha-4.celenium.io/v1",
@@ -20,8 +21,6 @@
     "NUXT_PUBLIC_WSS_ARABICA": "wss://api-arabica-11.celenium.io/v1/ws",
     "NUXT_PUBLIC_WSS_MAMMOTH": "wss://api-mammoth.celenium.io/v1/ws",
     "NUXT_PUBLIC_WSS_DEV": "wss://api-dev.celenium.io/v1/ws",
-    "NUXT_PUBLIC_BLOBSTREAM_MAINNET": "https://api-blobstream.celenium.io/v1",
-    "NUXT_PUBLIC_BLOBSTREAM_TESTNET": "https://api-blobstream-testnet.celenium.io/v1",
     "NUXT_PUBLIC_BLOCKSCOUT": "https://celestia-l2-router.k8s-dev.blockscout.com/api/v1/celestia/l2BatchMetadata",
     "NUXT_PUBLIC_FAUCET_ADDRESS": "celestia16etnwjxg6dsjuavjpr9tk822czfeylfm9f7x5g",
     "NUXT_PUBLIC_FAUCET_MOCHA": "https://api-faucet.celenium.io/v1",
@@ -33,6 +32,11 @@
     "NUXT_PUBLIC_ROLLUP_RANKING": "https://ranking.celenium.io/v1",
     "NUXT_PUBLIC_TVL": "https://tvl.celenium.io/v1",
     "NUXT_PUBLIC_SELFHOSTED": "false"
+  },
+  "previews": {
+    "vars": {
+      "ENVIRONMENT": "preview"
+    }
   },
   "observability": {
     "logs": {
