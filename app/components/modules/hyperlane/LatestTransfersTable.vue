@@ -101,8 +101,13 @@ const handleOpenTransferModal = (transfer) => {
 							</td>
 							<td>
 								<Flex align="center" gap="6">
-									<Text size="13" weight="600" color="primary" mono>
-										{{ transfer.counterparty.chain_metadata.name }}
+									<Text
+										size="13"
+										weight="600"
+										:color="transfer.counterparty.chain_metadata?.name ? 'primary' : 'tertiary'"
+										mono
+									>
+										{{ transfer.counterparty.chain_metadata?.name ?? "Unknown" }}
 									</Text>
 								</Flex>
 							</td>

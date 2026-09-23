@@ -77,8 +77,14 @@ const handleNavigate = (target) => {
 			<Flex wide direction="column" gap="8" :class="$style.card">
 				<Text size="12" weight="600" color="secondary">Counterparty</Text>
 
-				<Text size="13" weight="600" color="primary" mono :class="['overflow_ellipsis', $style.address_text]">
-					{{ transfer.counterparty.chain_metadata.name }}
+				<Text
+					size="13"
+					weight="600"
+					:color="transfer.counterparty.chain_metadata?.name ? 'primary' : 'tertiary'"
+					mono
+					:class="['overflow_ellipsis', $style.address_text]"
+				>
+					{{ transfer.counterparty.chain_metadata?.name ?? "Unknown" }}
 				</Text>
 
 				<Flex align="center" justify="between">
