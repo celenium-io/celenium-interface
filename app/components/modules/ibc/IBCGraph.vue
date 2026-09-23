@@ -175,7 +175,7 @@ watch(
 )
 
 onBeforeUnmount(() => {
-	simulation.stop()
+	if (simulation) simulation.stop()
 })
 </script>
 
