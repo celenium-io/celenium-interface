@@ -31,6 +31,7 @@
     "NUXT_PUBLIC_QUOTE": "https://quote.celenium.io/v1",
     "NUXT_PUBLIC_ROLLUP_RANKING": "https://ranking.celenium.io/v1",
     "NUXT_PUBLIC_TVL": "https://tvl.celenium.io/v1",
+    "NUXT_PUBLIC_BLOBS_MOCHA": "https://blobs-mocha.celenium.io/v1",
     "NUXT_PUBLIC_SELFHOSTED": "false"
   },
   "previews": {
