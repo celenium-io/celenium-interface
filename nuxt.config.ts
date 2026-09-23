@@ -1,11 +1,32 @@
-import { nodePolyfills } from "vite-plugin-node-polyfills"
+import fs from "node:fs"
+
 import wasm from "vite-plugin-wasm"
-import topLevelAwait from "vite-plugin-top-level-await"
 
 import path from "path"
 
+function ignorePosthogSm() {
+	return {
+		name: "ignore-posthog-sm",
+		enforce: "pre" as const,
+		load(id: string) {
+			const file = id.split("?")[0]
+			if (!file.includes("/node_modules/posthog-js/") || !/\.(?:[cm]?js)$/.test(file)) return null
+
+			let code: string
+			try {
+				code = fs.readFileSync(file, "utf8")
+			} catch {
+				return null
+			}
+
+			if (!code.includes("sourceMappingURL")) return null
+			return code.replace(/\/\/[#@]\s*sourceMappingURL=\S+/g, "")
+		},
+	}
+}
+
 export default defineNuxtConfig({
-	modules: ["nuxt-site-config", "@nuxtjs/robots", "@pinia/nuxt", "nuxt-og-image", "@nuxtjs/sitemap", "@sentry/nuxt/module"],
+	modules: ["@nuxt/fonts", "nuxt-site-config", "@nuxtjs/robots", "@pinia/nuxt", "nuxt-og-image", "@nuxtjs/sitemap", "@posthog/nuxt"],
 
 	site: {
 		url: "https://celenium.io",
@@ -13,6 +34,7 @@ export default defineNuxtConfig({
 
 	sitemap: {
 		xsl: false,
+		zeroRuntime: true,
 	},
 
 	robots: {
@@ -64,20 +86,21 @@ export default defineNuxtConfig({
 		},
 	},
 
-	sentry: {
-		sourcemaps: {
-			disable: true,
-		},
+	sourcemap: {
+		server: false,
+		client: "hidden",
+	},
+
+	posthogConfig: {
+		publicKey: process.env.NUXT_PUBLIC_POSTHOG_KEY,
+		host: process.env.NUXT_PUBLIC_POSTHOG_HOST,
+		debug: false,
 	},
 
 	runtimeConfig: {
 		public: {
 			AMP: process.env.AMP,
 			version: "1.26.0",
-
-			sentry: {
-				dsn: process.env.SENTRY_DSN,
-			},
 
 			API_MAINNET: "",
 			API_MOCHA: "",
@@ -114,52 +137,45 @@ export default defineNuxtConfig({
 					content: "en",
 				},
 			],
-			script: [{ src: "https://analytics.ahrefs.com/analytics.js", "data-key": "/cIm/4LxIX1R+OK+XMnXRg", async: true }],
 			link: [
 				{
 					id: "favicon",
 					rel: "icon",
 					type: "image/png",
 				},
-				{
-					rel: "preconnect",
-					href: "https://fonts.googleapis.com",
-				},
-				{
-					rel: "preconnect",
-					href: "https://fonts.gstatic.com",
-					crossorigin: "anonymous",
-				},
-				{
-					rel: "preload",
-					as: "style",
-					href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
-					onload: "this.onload=null;this.rel='stylesheet'",
-				},
-				{
-					rel: "preload",
-					as: "style",
-					href: "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap",
-					onload: "this.onload=null;this.rel='stylesheet'",
-				},
-				{
-					rel: "preload",
-					as: "style",
-					href: "https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap",
-					onload: "this.onload=null;this.rel='stylesheet'",
-				},
 			],
+		},
+	},
+
+	nitro: {
+		preset: "cloudflare-module",
+		sourceMap: false,
+		experimental: {
+			wasm: true,
 		},
 	},
 
 	css: ["@/assets/styles/base.scss", "@/assets/styles/flex.scss", "@/assets/styles/text.scss"],
 
-	pinia: {
-		autoImports: ["defineStore"],
+	fonts: {
+		families: [
+			{
+				name: "Inter",
+				weights: [400, 500, 600, 700],
+				provider: "google",
+				global: true,
+			},
+			{
+				name: "JetBrains Mono",
+				weights: [500, 600],
+				provider: "google",
+				global: true,
+			},
+		],
 	},
 
-	ogImage: {
-		fonts: ["Inter:400", "Inter:600", "IBM+Plex+Mono:400"],
+	pinia: {
+		autoImports: ["defineStore"],
 	},
 
 	devtools: {
@@ -169,21 +185,28 @@ export default defineNuxtConfig({
 	plugins: ["~/plugins/force.client.js"],
 
 	vite: {
+		plugins: [ignorePosthogSm(), wasm()],
+		build: {
+			target: "esnext",
+			rolldownOptions: {
+				devtools: true,
+			},
+		},
 		define: {
 			global: "globalThis",
+			"process.env": "{}",
 		},
 		resolve: {
 			alias: {
-				"unenv/runtime/node/buffer/index/": path.resolve(__dirname, "./node_modules/buffer/index"),
 				"@data": path.resolve(__dirname, "src/data"),
 			},
 		},
-		plugins: [wasm(), topLevelAwait(), nodePolyfills()],
 		worker: {
 			format: "es",
-			plugins: () => [wasm(), topLevelAwait()],
+			plugins: () => [wasm()],
 		},
+		optimizeDeps: { exclude: ["lumina-node"] },
 	},
 
-	compatibilityDate: "2025-04-02",
+	compatibilityDate: "2026-09-22",
 })
