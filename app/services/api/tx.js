@@ -14,21 +14,7 @@ export const fetchTransactions = ({ msg_type, status, from, to, limit, offset, s
 		if (sort_by) url.searchParams.append("sort_by", sort_by)
 		if (sort) url.searchParams.append("sort", sort)
 
-		return useFetch(url.href, {
-			key: "transactions",
-		})
-	} catch (error) {
-		console.error(error)
-	}
-}
-
-export const fetchTxsCount = () => {
-	try {
-		const url = new URL(`${useServerURL()}/tx/count`)
-
-		return useFetch(url.href, {
-			key: "transactions_count",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
