@@ -89,7 +89,13 @@ export const DEFAULT_ENUMS = {
 		"MsgEnrollRemoteRouter",
 		"MsgUnrollRemoteRouter",
 		"MsgRemoteTransfer",
-		"MsgUpdateMinfeeParams"
+		"MsgUpdateMinfeeParams",
+		"MsgDepositToEscrow",
+		"MsgRequestWithdrawal",
+		"MsgPayForFibre",
+		"MsgPaymentPromiseTimeout",
+		"MsgUpdateFibreParams",
+		"MsgSetFibreProviderInfo",
 	],
 	event_type: [
 		"unknown",

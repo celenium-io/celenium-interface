@@ -26,8 +26,8 @@ export const useAppStore = defineStore("app", () => {
 
 	const globalUpdates = ref([])
 	const initGlobalUpdates = async () => {
-		const { data } = await fetchActiveProposals()
-		globalUpdates.value = data.value?.map((p) => ({ ...p, kind: "proposal" }))
+		const data = await fetchActiveProposals()
+		globalUpdates.value = data?.map((p) => ({ ...p, kind: "proposal" }))
 		const updates = getActiveUpdates(getNetworkName().toLowerCase())
 		globalUpdates.value = [...updates, ...globalUpdates.value]
 	}

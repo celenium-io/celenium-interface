@@ -24,8 +24,7 @@ export const fetchActiveProposals = async () => {
 		url.searchParams.append("sort", "desc")
 		url.searchParams.append("status", "active")
 
-		const data = await useAsyncData(`proposals`, () => $fetch(url.href))
-		return data
+		return await $fetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
