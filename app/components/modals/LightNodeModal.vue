@@ -61,7 +61,7 @@ switch (hostname) {
 		selectedNetwork.value = 2
 		break
 
-	case "dev.celenium.io":
+	case "dev.preview.celenium.io":
 		selectedNetwork.value = 2
 		break
 

@@ -159,7 +159,7 @@ export const getNetworkName = () => {
 		case "mocha-5.celenium.io":
 			return "Mocha"
 
-		case "dev.celenium.io":
+		case "dev.preview.celenium.io":
 			return "Development"
 
 		case "localhost":
