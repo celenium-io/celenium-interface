@@ -427,8 +427,6 @@ const handleOnClose = () => {
 	padding: 6px 6px;
 	margin: 0 2px;
 
-	transition: all 0.2s ease;
-
 	&:hover {
 		background: var(--op-5);
 	}
