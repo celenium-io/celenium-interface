@@ -197,9 +197,7 @@ export const fetchAddresses = ({ limit, offset, sort, sort_by }) => {
 		if (sort) url.searchParams.append("sort", sort)
 		if (sort_by) url.searchParams.append("sort_by", sort_by)
 
-		return useFetch(url.href, {
-			key: "addresses",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -209,9 +207,7 @@ export const fetchAddressesCount = () => {
 	try {
 		const url = new URL(`${useServerURL()}/address/count`)
 
-		return useFetch(url.href, {
-			key: "addresses_count",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -221,9 +217,7 @@ export const fetchAddressByHash = (hash) => {
 	try {
 		const url = new URL(`${useServerURL()}/address/${hash}`)
 
-		return useFetch(url.href, {
-			key: "address_by_hash",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -239,9 +233,7 @@ export const fetchTxsByAddressHash = ({ limit, offset, sort, hash, status, msg_t
 		if (msg_type) url.searchParams.append("msg_type", msg_type)
 		if (status) url.searchParams.append("status", status)
 
-		return useFetch(url.href, {
-			key: "address_txs_by_hash",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -256,9 +248,7 @@ export const fetchMessagesByAddressHash = ({ limit, offset, sort, hash, msg_type
 		if (sort) url.searchParams.append("sort", sort)
 		if (msg_type) url.searchParams.append("msg_type", msg_type)
 
-		return useFetch(url.href, {
-			key: "address_msgs_by_hash",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -274,9 +264,7 @@ export const fetchBlobsByAddressHash = ({ limit, offset, sort, hash }) => {
 		if (offset) url.searchParams.append("offset", offset)
 		if (sort) url.searchParams.append("sort", sort)
 
-		return useFetch(url.href, {
-			key: "address_blobs_by_hash",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -303,9 +291,7 @@ export const fetchAddressDelegations = ({ hash, limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		return useFetch(url.href, {
-			key: "address_delegations",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -318,9 +304,7 @@ export const fetchAddressRedelegations = ({ hash, limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		return useFetch(url.href, {
-			key: "address_redelegations",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -333,9 +317,7 @@ export const fetchAddressUndelegations = ({ hash, limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		return useFetch(url.href, {
-			key: "address_undelegations",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -348,9 +330,7 @@ export const fetchAddressGrants = ({ hash, limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		return useFetch(url.href, {
-			key: "address_grants",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -363,9 +343,7 @@ export const fetchAddressGranters = ({ hash, limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		return useFetch(url.href, {
-			key: "address_granters",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -379,9 +357,7 @@ export const fetchAddressVestings = ({ hash, showEnded, limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		return useFetch(url.href, {
-			key: "address_vestings",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -394,9 +370,7 @@ export const fetchVestingPeriods = ({ id, limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		return useFetch(url.href, {
-			key: "vesting_periods",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -409,9 +383,7 @@ export const fetchCelestials = ({ hash, limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		return useFetch(url.href, {
-			key: "address_celestials",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
