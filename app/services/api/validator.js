@@ -10,9 +10,7 @@ export const fetchValidators = ({ jailed = false, limit, offset, sort }) => {
 		if (offset) url.searchParams.append("offset", offset)
 		if (sort) url.searchParams.append("sort", sort)
 
-		return useFetch(url.href, {
-			key: "validators",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
