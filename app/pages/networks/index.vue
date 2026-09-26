@@ -323,7 +323,7 @@ const getRollups = async () => {
 		}
 	}
 
-	pages.value = roundTo(rollups.value?.length / itemsPerPage, 0, "ceil")
+	pages.value = Math.max(1, Math.ceil((rollups.value?.length || 0) / itemsPerPage))
 	if (page.value > pages.value) {
 		page.value = pages.value
 		router.replace({ query: { page: page.value } })
@@ -332,6 +332,7 @@ const getRollups = async () => {
 const processRollups = () => {
 	if (!rollups.value?.length) {
 		processedRollups.value = []
+		page.value = 1
 		isRefetching.value = false
 		return
 	}
@@ -364,7 +365,11 @@ const processRollups = () => {
 
 	filteredRollups.value = sortArrayOfObjects(filteredRollups.value, sort.by, sort.dir === "asc").map((r, i) => ({ ...r, index: i + 1 }))
 
-	pages.value = roundTo(filteredRollups.value?.length / itemsPerPage, 0, "ceil")
+	pages.value = Math.max(1, Math.ceil((filteredRollups.value?.length || 0) / itemsPerPage))
+	if (page.value > pages.value) {
+		page.value = pages.value
+	}
+
 	processedRollups.value = filteredRollups.value.slice(
 		(page.value - 1) * itemsPerPage,
 		Math.min(page.value * itemsPerPage, rollups.value?.length),

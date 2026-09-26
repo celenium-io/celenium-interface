@@ -293,7 +293,7 @@ watch(
 				</Dropdown>
 
 				<Flex align="center" gap="6">
-					<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
+					<Button @click="handlePrev" type="secondary" size="mini" :disabled="page === 1">
 						<Icon name="arrow-left" size="12" color="primary" />
 					</Button>
 
