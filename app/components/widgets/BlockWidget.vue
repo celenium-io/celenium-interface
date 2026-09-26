@@ -36,18 +36,20 @@ const init = async () => {
 	const data = await fetchAvgBlockTime({ from: parseInt(DateTime.now().minus({ hours: 3 }).ts / 1_000) })
 	avgBlockTime.value = data / 1_000
 
-	const offsetSinceLastBlock = Math.abs(DateTime.fromISO(lastBlock.value.time).diffNow("seconds").values.seconds + avgBlockTime.value)
+	if (avgBlockTime.value) {
+		const offsetSinceLastBlock = Math.abs(DateTime.fromISO(lastBlock.value.time).diffNow("seconds").values.seconds + avgBlockTime.value)
 
-	if (offsetSinceLastBlock > avgBlockTime.value) {
-		isDelayed.value = true
-		delay.value = Math.floor(offsetSinceLastBlock - avgBlockTime.value)
-		delayInterval = setInterval(() => {
-			delay.value += 1
-		}, 1_000)
+		if (offsetSinceLastBlock > avgBlockTime.value) {
+			isDelayed.value = true
+			delay.value = Math.floor(offsetSinceLastBlock - avgBlockTime.value)
+			delayInterval = setInterval(() => {
+				delay.value += 1
+			}, 1_000)
+		}
+
+		blockProgress.value = Math.floor(offsetSinceLastBlock)
+		if (!isDelayed.value) startBlockProgress()
 	}
-
-	blockProgress.value = Math.floor(offsetSinceLastBlock)
-	if (!isDelayed.value) startBlockProgress()
 
 	isInited.value = true
 }
@@ -113,7 +115,9 @@ onBeforeUnmount(() => {
 
 				<Flex align="center" gap="6">
 					<Text size="12" weight="500" color="tertiary">Average Block Time:</Text>
-					<Text v-if="avgBlockTime" size="12" weight="600" color="secondary">{{ roundTo(avgBlockTime) }}s </Text>
+					<Text v-if="avgBlockTime !== null" size="12" weight="600" color="secondary">
+						{{ avgBlockTime ? `${roundTo(avgBlockTime)}s` : `Unknown` }}
+					</Text>
 					<Skeleton v-else w="36" h="12" />
 				</Flex>
 			</Flex>
