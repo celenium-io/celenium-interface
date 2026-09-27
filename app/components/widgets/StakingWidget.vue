@@ -26,7 +26,7 @@ const totalVotingPowerUSD = computed(() => totalVotingPower.value * currentPrice
 
 const bondedShare = computed(() => shareOfTotal(lastHead.value?.total_voting_power * 1_000_000, lastHead.value?.total_supply, 2))
 
-const isRefetching = ref(true)
+const isLoading = ref(true)
 const totalValidators = ref(0)
 const activeValidators = ref(0)
 const validatorsGraph = ref([
@@ -51,7 +51,7 @@ const validatorsGraph = ref([
 ])
 
 const getValidatorsStats = async () => {
-	isRefetching.value = true
+	isLoading.value = true
 
 	const { data } = await fetchValidatorsCount()
 	if (data.value?.total) {
@@ -68,7 +68,7 @@ const getValidatorsStats = async () => {
 		}
 	}
 
-	isRefetching.value = false
+	isLoading.value = false
 }
 
 await getValidatorsStats()
@@ -127,7 +127,7 @@ onMounted(async () => {
 			</template>
 
 			<Flex v-else direction="column" gap="20">
-				<Skeleton :w="barWidth" h="5" />
+				<Skeleton :w="barWidth" h="4" />
 
 				<Flex direction="column" gap="12">
 					<Flex justify="between">
@@ -155,8 +155,8 @@ onMounted(async () => {
 				</NuxtLink>
 			</Flex>
 
-			<Tooltip v-if="!isRefetching" position="start" side="top">
-				<Flex :style="`width: ${barWidth}px`">
+			<Tooltip v-if="!isLoading" wide position="start" side="top">
+				<Flex wide>
 					<div
 						v-for="v in validatorsGraph.filter((item) => item.width !== 0)"
 						:class="$style.validator_bar"
@@ -164,7 +164,7 @@ onMounted(async () => {
 							width: `${v.width}%`,
 							background: v.color,
 						}"
-					></div>
+					/>
 				</Flex>
 
 				<template #content>
@@ -181,9 +181,9 @@ onMounted(async () => {
 					</Flex>
 				</template>
 			</Tooltip>
-			<Skeleton v-else :w="barWidth" h="5" />
+			<Skeleton v-else w="50" h="4" />
 
-			<Flex v-if="!isRefetching" direction="column" gap="6">
+			<Flex v-if="!isLoading" direction="column" gap="6">
 				<Flex v-for="v in validatorsGraph" justify="between" gap="4">
 					<Text size="12" weight="500" color="tertiary"> {{ capitilize(v.title) }} </Text>
 
