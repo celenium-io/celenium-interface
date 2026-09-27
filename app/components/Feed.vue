@@ -35,7 +35,7 @@ const showPrice = ref(!!quoteServiceURL())
 const topRollup = ref(null)
 const showTopRollup = ref(isMainnet() && !!rollupRankingServiceURL())
 const tvs = computed(() => appStore.tvs)
-const txCount24h = ref(0)
+const transactionsCount = ref(0)
 const bytesInBlocks24h = ref(0)
 
 onMounted(async () => {
@@ -82,7 +82,7 @@ onMounted(async () => {
 		func: "sum",
 		from: startTime,
 	}
-	txCount24h.value = await fetchSummary({ ...params, column: "tx_count" })
+	transactionsCount.value = await fetchSummary({ ...params, column: "tx_count" })
 	bytesInBlocks24h.value = await fetchSummary({ ...params, column: "bytes_in_block" })
 
 	isLoading.value = false
@@ -137,14 +137,14 @@ onMounted(async () => {
 
 				<Tooltip>
 					<Flex align="center" gap="6" :class="$style.stat">
-						<Icon name="coins" size="12" color="secondary" :class="$style.icon" />
+						<Icon name="coins" size="12" color="tertiary" :class="$style.icon" />
 						<Flex align="center" gap="4">
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Current TVS:</Text>
 
 							<Text v-if="!isLoading" size="12" weight="600" noWrap :class="$style.value">
 								{{ abbreviate(tvs, 2) }} USD
 							</Text>
-							<Skeleton v-else w="40" h="12" />
+							<Skeleton v-else w="58" h="12" />
 						</Flex>
 					</Flex>
 
@@ -160,11 +160,13 @@ onMounted(async () => {
 
 				<Tooltip>
 					<Flex align="center" gap="6" :class="$style.stat">
-						<Icon name="tx" size="12" color="secondary" :class="$style.icon" />
+						<Icon name="tx" size="12" color="tertiary" :class="$style.icon" />
 						<Flex align="center" gap="4">
-							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Txs:</Text>
+							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Transactions:</Text>
 
-							<Text v-if="!isLoading" size="12" weight="600" noWrap :class="$style.value">{{ abbreviate(txCount24h) }}</Text>
+							<Text v-if="!isLoading" size="12" weight="600" noWrap :class="$style.value">
+								{{ transactionsCount ? abbreviate(transactionsCount) : 0 }}
+							</Text>
 							<Skeleton v-else w="40" h="12" />
 						</Flex>
 					</Flex>
@@ -172,7 +174,7 @@ onMounted(async () => {
 					<template #content>
 						<Flex align="center" justify="between" gap="8">
 							<Text size="12" weight="500" color="tertiary">24h Tx Count:</Text>
-							<Text size="12" weight="600" color="secondary"> {{ comma(txCount24h) }} </Text>
+							<Text size="12" weight="600" color="secondary"> {{ comma(transactionsCount) }} </Text>
 						</Flex>
 					</template>
 				</Tooltip>
@@ -181,14 +183,14 @@ onMounted(async () => {
 
 				<Tooltip>
 					<Flex align="center" gap="6" :class="$style.stat">
-						<Icon name="block" size="12" color="secondary" :class="$style.icon" />
+						<Icon name="block" size="12" color="tertiary" :class="$style.icon" />
 						<Flex align="center" gap="4">
 							<Text size="12" weight="500" color="tertiary" noWrap :class="$style.key">Bytes In Blocks:</Text>
 
 							<Text v-if="!isLoading" size="12" weight="600" noWrap :class="$style.value">{{
 								formatBytes(bytesInBlocks24h)
 							}}</Text>
-							<Skeleton v-else w="40" h="12" />
+							<Skeleton v-else w="50" h="12" />
 						</Flex>
 					</Flex>
 

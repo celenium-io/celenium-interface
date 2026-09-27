@@ -1,5 +1,5 @@
 /** Services */
-import { isSelfhosted, nodeStatsURL, quoteServiceURL, tvlServiceURL, useServerURL } from "@/services/config"
+import { nodeStatsURL, quoteServiceURL, tvlServiceURL, useServerURL } from "@/services/config"
 
 export const fetchGeneralStats = async ({ name }) => {
 	try {
@@ -47,8 +47,7 @@ export const fetchSummary = async ({ table, func, column, from, to }) => {
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
 
-		const data = await $fetch(url.href)
-		return data
+		return await $fetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -77,14 +76,14 @@ export const fetchTVL = async ({ slug, period, from, to }) => {
 			if (from) url.searchParams.append("from", from)
 			if (to) url.searchParams.append("to", to)
 		} else {
-			url = new URL(`${tvlServiceURL()}/supply${period ? `/${period}` : ''}`)
+			url = new URL(`${tvlServiceURL()}/supply${period ? `/${period}` : ""}`)
 
 			if (from) url.searchParams.append("from", from)
 			if (to) url.searchParams.append("to", to)
 		}
 
 		const data = await $fetch(url.href)
-		
+
 		return data
 	} catch (error) {
 		console.error(error)
@@ -243,13 +242,13 @@ export const fetchNodeStats = async ({ name, timeframe, from, to }) => {
 	if (!nodeStatsURL()) return []
 
 	try {
-		const url = new URL(`${nodeStatsURL()}/stats/${name}${timeframe ? `/${timeframe}` : ''}`)
+		const url = new URL(`${nodeStatsURL()}/stats/${name}${timeframe ? `/${timeframe}` : ""}`)
 
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
 
 		const data = await $fetch(url.href)
-		
+
 		return data
 	} catch (error) {
 		console.error(error)
@@ -260,7 +259,7 @@ export const fetchNodeVersionStats = async ({ name, timeframe, from, to }) => {
 	if (!nodeStatsURL()) return []
 
 	try {
-		const url = new URL(`${nodeStatsURL()}/stats/version/${name}${timeframe ? `/${timeframe}` : ''}`)
+		const url = new URL(`${nodeStatsURL()}/stats/version/${name}${timeframe ? `/${timeframe}` : ""}`)
 
 		if (from) url.searchParams.append("from", from)
 		if (to) url.searchParams.append("to", to)
