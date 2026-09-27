@@ -10,16 +10,27 @@ const props = defineProps({
 		type: String,
 		default: "50",
 	},
+	disabled: {
+		type: Boolean,
+		default: false,
+	},
 })
 </script>
 
 <template>
-	<div :style="{ width: `${w}px`, height: `${h}px`, borderRadius: `${r}px` }" :class="[$style.wrapper, $style[c]]" />
+	<div
+		:style="{ width: `${w}px`, height: `${h}px`, borderRadius: `${r}px` }"
+		:class="[$style.wrapper, disabled && $style.disabled, $style[c]]"
+	/>
 </template>
 
 <style module>
 .wrapper {
 	animation: skeleton 1s ease infinite;
+
+	&.disabled {
+		animation: initial;
+	}
 
 	&.green {
 		background: rgba(10, 219, 111, 30%);

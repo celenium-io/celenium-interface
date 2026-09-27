@@ -13,6 +13,8 @@ import { fetchSeries } from "~/services/api/stats.js"
 
 const router = useRouter()
 
+const isLoading = ref(true)
+
 const days = ref([])
 const weeks = ref([])
 
@@ -24,46 +26,58 @@ const minValue = ref(0)
 const maxValue = ref(0)
 
 onMounted(async () => {
-	const data = await fetchSeries({
-		table: "blobs_size",
-		period: "day",
-		from: parseInt(DateTime.now().minus({ days: 168 }).ts / 1_000),
-	})
+	try {
+		isLoading.value = true
+		const data = await fetchSeries({
+			table: "blobs_size",
+			period: "day",
+			from: parseInt(DateTime.now().minus({ days: 168 }).ts / 1_000),
+		})
 
-	days.value = data
-	days.value.reverse()
+		if (!data?.length) {
+			isLoading.value = false
+			return
+		}
 
-	totalSize.value = days.value.reduce((a, b) => (a += parseInt(b.value)), 0)
-	minValue.value = Math.min(...days.value.map((d) => d.value).filter((value) => value > 0))
-	maxValue.value = Math.max(...days.value.map((d) => d.value))
+		days.value = data
+		days.value.reverse()
 
-	const firstDayDt = DateTime.fromISO(days.value[0].time)
-	if (firstDayDt.weekday !== 1) {
-		days.value.unshift(...Array.from({ length: firstDayDt.weekday - 1 }))
+		totalSize.value = days.value.reduce((a, b) => (a += parseInt(b.value)), 0)
+		minValue.value = Math.min(...days.value.map((d) => d.value).filter((value) => value > 0))
+		maxValue.value = Math.max(...days.value.map((d) => d.value))
+
+		const firstDayDt = DateTime.fromISO(days.value[0].time)
+		if (firstDayDt.weekday !== 1) {
+			days.value.unshift(...Array.from({ length: firstDayDt.weekday - 1 }))
+		}
+
+		/** days -> weeks */
+		while (days.value.length) {
+			weeks.value.push(days.value.slice(0, 7))
+			days.value.splice(0, 7)
+		}
+
+		/** fill the last available week with days */
+		while (weeks.value[weeks.value.length - 1].length < 7) {
+			weeks.value[weeks.value.length - 1].push(null)
+		}
+
+		/** fill empty weeks */
+		while (weeks.value.length < 24) {
+			weeks.value.push(Array.from({ length: 7 }))
+		}
+
+		/** remove first weeks */
+		while (weeks.value.length > 24) {
+			weeks.value.shift()
+		}
+
+		totalSize.time = Object.values(weeks.value[0]).find(Boolean).time
+
+		isLoading.value = false
+	} catch (e) {
+		console.log(e)
 	}
-
-	/** days -> weeks */
-	while (days.value.length) {
-		weeks.value.push(days.value.slice(0, 7))
-		days.value.splice(0, 7)
-	}
-
-	/** fill the last available week with days */
-	while (weeks.value[weeks.value.length - 1].length < 7) {
-		weeks.value[weeks.value.length - 1].push(null)
-	}
-
-	/** fill empty weeks */
-	while (weeks.value.length < 24) {
-		weeks.value.push(Array.from({ length: 7 }))
-	}
-
-	/** remove first weeks */
-	while (weeks.value.length > 24) {
-		weeks.value.shift()
-	}
-
-	totalSize.time = Object.values(weeks.value[0]).find(Boolean).time
 })
 
 const calculateOpacity = (val) => {
@@ -95,7 +109,7 @@ const selectDay = (d) => {
 				<Flex align="center" gap="6">
 					<Icon name="namespace" size="12" color="primary" />
 
-					<Text v-if="totalSize.value" size="13" color="primary" weight="600">{{ formatBytes(totalSize.value) }}</Text>
+					<Text v-if="!isLoading" size="13" color="primary" weight="600">{{ formatBytes(totalSize.value) }}</Text>
 					<Skeleton v-else w="56" h="13" />
 				</Flex>
 
@@ -105,7 +119,7 @@ const selectDay = (d) => {
 			</Tooltip>
 		</Flex>
 
-		<Flex v-if="weeks.length == 24" justify="between" wide :class="$style.weeks">
+		<Flex v-if="!isLoading && weeks.length === 24" justify="between" wide :class="$style.weeks">
 			<Flex v-for="week in weeks" direction="column" justify="between">
 				<Tooltip v-for="day in week" :disabled="!day">
 					<Flex
@@ -129,7 +143,7 @@ const selectDay = (d) => {
 
 		<Flex v-else :class="$style.weeks">
 			<Flex v-for="week in 24" direction="column" justify="between" wide>
-				<Skeleton v-for="i in 7" w="10" h="5" r="2" />
+				<Skeleton v-for="i in 7" w="10" h="5" r="2" :disabled="!isLoading" />
 			</Flex>
 		</Flex>
 	</Flex>
