@@ -115,7 +115,14 @@ const getSectorName = (item) => {
 
 		<!-- Chart -->
 		<Flex gap="16" :class="$style.chart">
-			<Flex v-if="!sectors[0].length" wide :class="$style.sectors">
+			<Flex v-if="!isLoading && !sectors[0].length" direction="column" gap="6" style="position: absolute">
+				<Text size="13" weight="600" color="secondary">The widget is not available</Text>
+				<Text size="12" weight="500" height="140" color="tertiary" style="text-wrap: balance">
+					There is no data available for the past 24 hours to display on the chart
+				</Text>
+			</Flex>
+
+			<Flex v-if="!sectors[0].length" wide :class="[!isLoading && !sectors[0].length && $style.hidden]">
 				<Flex v-for="i in 4" direction="column" gap="8" wide :class="$style.sector">
 					<Flex justify="between" wide :class="$style.hours">
 						<Flex v-for="j in 6" direction="column" justify="end" gap="6" :class="$style.hour">
@@ -124,9 +131,12 @@ const getSectorName = (item) => {
 					</Flex>
 
 					<Skeleton v-if="isLoading" w="12" h="12" />
+					<Text v-else size="12" weight="600" color="tertiary">
+						{{ (i - 1) * 6 }}
+					</Text>
 				</Flex>
 			</Flex>
-			<Flex v-else wide :class="$style.sectors">
+			<Flex v-else wide>
 				<Flex v-for="(sector, idx) in sectors" direction="column" gap="8" wide :class="$style.sector">
 					<Flex justify="between" :class="$style.hours">
 						<Tooltip v-for="item in sector" :disabled="!item.time">
@@ -168,7 +178,7 @@ const getSectorName = (item) => {
 				</Flex>
 			</Flex>
 
-			<Flex direction="column" justify="between" :class="$style.yAxis">
+			<Flex direction="column" justify="between" :class="[$style.yAxis, !isLoading && !sectors[0].length && $style.hidden]">
 				<Skeleton v-if="isLoading" w="18" h="12" />
 				<Text v-else-if="roundedMax" size="12" weight="600" color="tertiary">{{ abbreviate(roundedMax) }}</Text>
 
@@ -192,6 +202,7 @@ const getSectorName = (item) => {
 }
 
 .chart {
+	position: relative;
 	flex: 1;
 }
 
@@ -199,6 +210,10 @@ const getSectorName = (item) => {
 	height: auto;
 
 	padding-bottom: 20px;
+}
+
+.hidden {
+	filter: blur(3px);
 }
 
 .sector {
@@ -257,10 +272,6 @@ const getSectorName = (item) => {
 
 	border-radius: 50%;
 	background: var(--op-5);
-}
-
-.empty {
-	height: 100%;
 }
 
 @media (max-width: 1100px) {
