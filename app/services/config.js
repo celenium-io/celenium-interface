@@ -10,6 +10,8 @@ export const useServerURL = () => {
 		case "mocha-5.celenium.io":
 			return p.API_MOCHA
 
+		case "staging.preview.celenium.io":
+			return p.API_MAINNET
 		case "dev.preview.celenium.io":
 			return p.API_DEV
 
@@ -44,6 +46,8 @@ export const useSocketURL = () => {
 		case "mocha-5.celenium.io":
 			return p.WSS_MOCHA
 
+		case "staging.preview.celenium.io":
+			return p.WSS_MAINNET
 		case "dev.preview.celenium.io":
 			return p.WSS_DEV
 
@@ -64,6 +68,9 @@ export const getStartChainDate = () => {
 
 		case "mocha.celenium.io":
 			return "2026-08-18T15:00:00.000000Z"
+
+		case "staging.preview.celenium.io":
+			return "2023-10-31T14:00:00Z"
 
 		case "dev.preview.celenium.io":
 			return "2023-10-31T14:00:00Z"

@@ -24,6 +24,8 @@ const { hostname } = useRequestURL()
 
 switch (hostname) {
 	case "celenium.io":
+	case "staging.preview.celenium.io":
+	case "dev.preview.celenium.io":
 		appStore.network = mainnet
 		break
 

@@ -159,6 +159,9 @@ export const getNetworkName = () => {
 		case "mocha-5.celenium.io":
 			return "Mocha"
 
+		case "staging.preview.celenium.io":
+			return "Staging"
+
 		case "dev.preview.celenium.io":
 			return "Development"
 
@@ -171,7 +174,7 @@ export const getNetworkName = () => {
 }
 
 export const isMainnet = () => {
-	return getNetworkName() === "Mainnet" || getNetworkName() === "Development" || isSelfhosted()
+	return ["Mainnet", "Staging", "Development"].includes(getNetworkName()) || isSelfhosted()
 }
 
 export const isMac = () => {

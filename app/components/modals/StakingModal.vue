@@ -204,7 +204,7 @@ watch(
 
 			if (!appStore.address?.length) {
 				warningBannerText.value = "Wallet connection is required to delegate."
-			} else if (hostname !== "celenium.io") {
+			} else if (!["celenium.io", "staging.preview.celenium.io", "dev.preview.celenium.io"].includes(hostname)) {
 				warningBannerText.value = `You are currently on ${hostname}. The transaction will be performed on the test network.`
 			} else {
 				warningBannerText.value = ``
@@ -252,12 +252,10 @@ const continueButton = computed(() => {
 		}
 	}
 
-	if (
-		!(
-			(selectedGasLimit.value === "Estimated" && estimatedGasLimit.value) ||
-			(selectedGasLimit.value === "Custom" && customGasLimit.value)
-		)
-	) {
+	if (!(
+		(selectedGasLimit.value === "Estimated" && estimatedGasLimit.value) ||
+		(selectedGasLimit.value === "Custom" && customGasLimit.value)
+	)) {
 		return {
 			title: "Define the gas limit",
 			disable: true,
