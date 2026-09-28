@@ -27,10 +27,10 @@ await getUptime()
 </script>
 
 <template>
-	<Flex direction="column" gap="12" wide :class="$style.wrapper">
-		<Flex align="center" gap="6">
-			<Text size="12" weight="600" color="secondary">Validator Uptime</Text>
-			<Text size="12" weight="600" color="tertiary">(last 100 blocks)</Text>
+	<Flex direction="column" gap="16" wide :class="$style.wrapper">
+		<Flex wide justify="between">
+			<Text size="13" weight="600" color="secondary">Validator Uptime</Text>
+			<Text size="12" weight="600" color="tertiary">Last 100 blocks</Text>
 		</Flex>
 
 		<!-- <Flex align="center" justify="between" :class="$style.uptime_wrapper"> -->
@@ -59,7 +59,7 @@ await getUptime()
 	border-radius: 8px;
 	background: var(--card-background);
 
-	padding: 12px;
+	padding: 16px;
 }
 
 .uptime_wrapper {

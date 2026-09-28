@@ -115,41 +115,4 @@ const handleSave = () => {
 	</Modal>
 </template>
 
-<style module>
-.drop_zone {
-	height: 150px;
-
-	border: 2px dashed var(--op-5);
-	border-radius: 12px;
-
-	padding: 40px;
-
-	animation: blink 3s ease infinite;
-}
-
-.warning {
-	border-radius: 6px;
-	background: var(--op-5);
-
-	padding: 8px;
-}
-
-.disabled {
-	opacity: 0.3;
-	pointer-events: none;
-}
-
-@keyframes blink {
-	0% {
-		border-color: var(--op-5);
-	}
-
-	50% {
-		border-color: var(--op-15);
-	}
-
-	100% {
-		border-color: var(--op-5);
-	}
-}
-</style>
+<style module></style>

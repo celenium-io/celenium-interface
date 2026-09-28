@@ -1,11 +1,11 @@
 /** Services */
 import { useServerURL } from "@/services/config"
 
-export const fetchValidators = ({ jailed = false, limit, offset, sort }) => {
+export const fetchValidators = ({ status = "active", limit, offset, sort }) => {
 	try {
 		const url = new URL(`${useServerURL()}/validators`)
 
-		url.searchParams.append("jailed", jailed)
+		if (status) url.searchParams.append("status", status)
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 		if (sort) url.searchParams.append("sort", sort)

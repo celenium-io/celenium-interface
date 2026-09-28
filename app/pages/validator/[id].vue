@@ -95,7 +95,6 @@ useHead({
 		</Flex>
 
 		<ValidatorUptime v-if="validator" :validator="validator" />
-
 		<ValidatorCharts v-if="validator" :validator="validator" />
 	</Flex>
 </template>

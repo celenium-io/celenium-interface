@@ -265,7 +265,7 @@ const onKeydown = (event) => {
 	position: fixed;
 	z-index: 2001;
 
-	border-radius: 5px;
+	border-radius: 8px;
 	background: var(--card-background);
 	box-shadow: rgb(0 0 0 / 20%) 0px 2px 6px;
 	border: 1px solid var(--op-5);

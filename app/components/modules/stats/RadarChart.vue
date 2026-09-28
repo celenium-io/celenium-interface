@@ -25,7 +25,7 @@ const buildChart = (chart) => {
     const radialScale = d3.scaleLinear()
         .domain([0, 100])
         .range([0, (width - 160) / 2])
-    
+
     const maxRadius = radialScale(100)
     const ticks = [25, 50, 75, 100]
     const features = Object.keys(props.series?.mainData).filter(k => k !== "name")
@@ -96,7 +96,7 @@ const buildChart = (chart) => {
                         })
                     }
                 })
-                
+
                 nextTick(() => {
                     const tooltipWidth = tooltipEl.value?.wrapper ? tooltipEl.value?.wrapper?.getBoundingClientRect()?.width : 100
                     const offsetX =
@@ -110,7 +110,7 @@ const buildChart = (chart) => {
                     tooltip.value.y = event.offsetY + offsetY
                 })
             })
-            
+
             tooltip.value.show = true
         } else {
             clearHighlight()
@@ -157,7 +157,7 @@ const buildChart = (chart) => {
             .transition()
             .duration(150)
             .style("filter", "none")
-        
+
         tooltip.value.show = false
     }
 
@@ -192,7 +192,7 @@ const buildChart = (chart) => {
         const lineCoordinate = angleToCoordinate(angle, 100)
         const labelCoordinate = angleToCoordinate(angle, 116)
         let labelAnchor = "start"
-        
+
         if (angle < 0 && angle > -Math.PI / 4) {
             labelCoordinate.x -= width > 400 ? 16 : 4
         }
@@ -259,7 +259,7 @@ const buildChart = (chart) => {
         .attr("stroke-opacity", 1)
         .attr("fill", "var(--brand)")
         .attr("fill-opacity", 0.2)
-    
+
     mainCoords.forEach((d, i) => {
         svg.append("circle")
             .attr("r", 4)
@@ -268,7 +268,7 @@ const buildChart = (chart) => {
             .attr("cy", d.y)
             .attr("opacity", baseOpacity)
             .attr("data-feature", features[i])
-    })    
+    })
 
     // Draw datasets for comparison
     props.series?.comparisonData?.forEach((data, i) => {
@@ -406,7 +406,7 @@ onMounted(() => {
 
 .chart {
 	position: absolute;
-    
+
 	overflow: hidden;
 
 	& svg {
