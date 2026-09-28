@@ -55,7 +55,6 @@
 		"nuxt-site-config": "^3.2.21",
 		"pinia": "3.0.4",
 		"protobufjs": "^7.2.6",
-		"qrcode": "^1.5.3",
 		"zod": "^4.1.12"
 	}
 }
