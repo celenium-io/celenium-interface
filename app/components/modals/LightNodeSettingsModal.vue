@@ -2,7 +2,6 @@
 /** UI */
 import Modal from "~/components/ui/Modal.vue"
 import Button from "~/components/ui/Button.vue"
-import Toggle from "~/components/ui/Toggle.vue"
 import Tooltip from "~/components/ui/Tooltip.vue"
 import { Dropdown, DropdownItem, DropdownTitle } from "~/components/ui/Dropdown/index.js"
 
@@ -19,8 +18,6 @@ const emit = defineEmits(["onClose"])
 const props = defineProps({
 	show: Boolean,
 })
-
-const ph = usePostHog()
 
 const status = computed(() => nodeStore.status)
 

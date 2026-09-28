@@ -18,9 +18,7 @@ import { IbcChainName } from "~/services/constants/ibc.js"
 import { fetchIbcConnections } from "~/services/api/ibc.js"
 
 /** Stores */
-import { useAppStore } from "~/store/app.store.js"
 import { useCacheStore } from "~/store/cache.store.js"
-const appStore = useAppStore()
 const cacheStore = useCacheStore()
 
 const emit = defineEmits(["onClose"])

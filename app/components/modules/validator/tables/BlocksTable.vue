@@ -7,7 +7,7 @@ import Tooltip from "~/components/ui/Tooltip.vue"
 import AmountInCurrency from "~/components/AmountInCurrency.vue"
 
 /** Services */
-import { amountToString, comma, tia } from "~/services/utils/index.js"
+import { comma } from "~/services/utils/index.js"
 
 const props = defineProps({
 	blocks: {

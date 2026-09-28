@@ -15,7 +15,6 @@ import { useCacheStore } from "~/store/cache.store.js"
 const cacheStore = useCacheStore()
 
 const route = useRoute()
-const router = useRouter()
 
 const address = ref()
 

@@ -195,8 +195,6 @@ const handleReset = () => {
 	useEIP.value = true
 }
 
-const showComparisonBlock = useCookie("showComparisonBlock", { default: () => true })
-
 /** calc */
 const useEIP = ref(true)
 const avgCallDataCostPerMb = computed(() => {
@@ -251,12 +249,6 @@ const payLessPercentCelestia = computed(() => {
 	if (!savingsUsingCelestia.value) return 0
 	return (savingsUsingCelestia.value * 100) / expectedCostL2.value
 })
-
-/** celenium api */
-const hideCeleniumAPIBlock = useCookie("hideCeleniumAPIBlock", { default: () => false })
-const handleHide = () => {
-	hideCeleniumAPIBlock.value = true
-}
 
 useHead({
 	title: `Celestia Network Cost Saving Calculator - Celenium`,
@@ -516,14 +508,10 @@ useHead({
 					</Flex>
 				</Flex>
 
-				<Flex direction="column" gap="12">
-					<div :class="$style.divider" />
-
-					<Text size="13" weight="600" color="support" height="160" style="max-width: 500px">
-						This estimation assumes a constant <Text color="tertiary">$TIA</Text> price. It should only be used as an estimation
-						and reference to compare what-if scenarios.
-					</Text>
-				</Flex>
+				<Text size="13" weight="500" color="support" height="160" style="max-width: 500px">
+					This estimation assumes a constant <Text color="tertiary">$TIA</Text> price. It should only be used as an estimation and
+					reference to compare what-if scenarios.
+				</Text>
 			</Flex>
 
 			<Flex wide direction="column" gap="24" :class="$style.right">
@@ -660,53 +648,8 @@ useHead({
 					</Flex>
 				</Flex>
 
-				<!-- <Flex direction="column" gap="20" :class="$style.card">
-					<Flex @click="showComparisonBlock = !showComparisonBlock" align="center" gap="8" :class="$style.head">
-						<Text size="13" weight="600" color="primary">Transaction stack comparison</Text>
-						<Icon
-							name="chevron"
-							size="12"
-							color="secondary"
-							:style="{ transform: `rotate(${showComparisonBlock ? '0' : '-90'}deg)` }"
-						/>
-					</Flex>
-
-					<Flex v-if="showComparisonBlock" direction="column" gap="16">
-						<Flex direction="column" gap="10">
-							<Flex gap="4">
-								<div v-for="idx in 40" :class="$style.bar" />
-							</Flex>
-
-							<Flex align="center" justify="between">
-								<Text size="12" weight="600" color="secondary">ERC20 Transfer</Text>
-								<Text size="12" weight="600" color="brand">120 Bytes</Text>
-							</Flex>
-						</Flex>
-						<Flex direction="column" gap="10">
-							<Flex gap="4">
-								<div v-for="idx in 40" :class="$style.bar" />
-							</Flex>
-
-							<Flex align="center" justify="between">
-								<Text size="12" weight="600" color="secondary">ERC20 Transfer</Text>
-								<Text size="12" weight="600" color="primary">120 Bytes</Text>
-							</Flex>
-						</Flex>
-						<Flex direction="column" gap="10">
-							<Flex gap="4">
-								<div v-for="idx in 40" :class="$style.bar" />
-							</Flex>
-
-							<Flex align="center" justify="between">
-								<Text size="12" weight="600" color="secondary">ERC20 Transfer</Text>
-								<Text size="12" weight="600" color="primary">120 Bytes</Text>
-							</Flex>
-						</Flex>
-					</Flex>
-				</Flex> -->
-
 				<NuxtLink to="https://api-plans.celenium.io" target="_blank">
-					<Flex v-if="!hideCeleniumAPIBlock" direction="column" gap="12" :class="$style.ad">
+					<Flex direction="column" gap="12" :class="$style.ad">
 						<Flex direction="column" gap="8">
 							<Flex align="center" gap="6">
 								<Icon name="slash" size="14" color="brand" />
@@ -822,25 +765,11 @@ useHead({
 	}
 }
 
-.divider {
-	width: 100%;
-	height: 2px;
-
-	background: var(--op-5);
-	border-radius: 50px;
-}
-
 .card {
 	border-radius: 6px;
 	background: var(--card-background);
 
 	padding: 12px;
-
-	& .head {
-		cursor: pointer;
-
-		user-select: none;
-	}
 
 	&.clickable {
 		cursor: pointer;
@@ -861,14 +790,6 @@ useHead({
 	border-radius: 50%;
 }
 
-.bar {
-	width: 3px;
-	height: 16px;
-
-	border-radius: 50px;
-	background: var(--op-10);
-}
-
 .ad {
 	position: relative;
 
@@ -881,20 +802,6 @@ useHead({
 
 	&:hover {
 		background: var(--op-3);
-	}
-
-	& .close_icon {
-		position: absolute;
-		top: 16px;
-		right: 16px;
-
-		cursor: pointer;
-
-		transition: all 0.2s ease;
-
-		&:hover {
-			fill: var(--txt-secondary);
-		}
 	}
 }
 

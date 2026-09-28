@@ -127,7 +127,6 @@ const seriesConfig = [
 	},
 ]
 
-const flowConfig = computed(() => seriesConfig.find((config) => config.metric === "flow"))
 const cumulativeFlowConfig = computed(() => seriesConfig.find((config) => config.metric === "cumulative_flow"))
 const delegationsConfig = computed(() => seriesConfig.find((config) => config.metric === "delegations"))
 const delegationsCountConfig = computed(() => seriesConfig.find((config) => config.metric === "delegations_count"))

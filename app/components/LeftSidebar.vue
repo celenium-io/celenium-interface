@@ -17,10 +17,8 @@ import { DEFAULT_SETTINGS } from "~/services/constants/settings.js"
 
 /** Store */
 import { useAppStore } from "~/store/app.store.js"
-import { useAuthStore } from "~/store/auth.store.js"
 import { useNodeStore } from "~/store/node.store.js"
 import { useModalsStore } from "~/store/modals.store.js"
-
 const appStore = useAppStore()
 const nodeStore = useNodeStore()
 const modalsStore = useModalsStore()

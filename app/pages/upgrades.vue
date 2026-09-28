@@ -78,7 +78,6 @@ const upgrades = ref([])
 const totalStake = computed(() =>
 	props.upgrade?.voting_power && props.upgrade?.voting_power !== "0" ? props.upgrade.voting_power : appStore.lastHead?.total_voting_power,
 )
-const votingShare = computed(() => (parseFloat(props.upgrade.voted_power) * 100) / parseFloat(totalStake.value))
 
 const getTotalStake = (upgrade) => {
 	return upgrade?.voting_power && upgrade?.voting_power !== "0" ? upgrade.voting_power : appStore.lastHead?.total_voting_power
