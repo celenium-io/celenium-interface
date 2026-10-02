@@ -160,3 +160,28 @@ export const fetchValidatorMessages = ({ id, sort, limit, offset }) => {
 		console.error(error)
 	}
 }
+
+export const fetchValidatorVotingPowerHistory = async (options) => {
+	try {
+		const url = new URL(`${useServerURL()}/validators/${options.id}/bond_updates`)
+
+		if (options?.limit) url.searchParams.append("limit", options.limit)
+		if (options?.offset) url.searchParams.append("offset", options.offset)
+		if (options?.sort) url.searchParams.append("sort", options.sort)
+
+		return await $fetch(url, {
+			method: "GET",
+			headers: {
+				Accept: "application/json",
+			},
+		})
+	} catch (err) {
+		console.error(`Error during fetching validator's voting power history:`, err)
+
+		throw createError({
+			statusCode: err.statusCode || 500,
+			statusMessage: err.statusMessage || "Failed to fetch validator's voting power history",
+			fatal: false,
+		})
+	}
+}

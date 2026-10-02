@@ -39,7 +39,7 @@ const props = defineProps({
 							<Flex align="center">
 								<Outline>
 									<Flex align="center" gap="6">
-										<Icon name="block" size="14" :color="hintedBlock == block.height ? 'blue' : 'tertiary'" />
+										<Icon name="block" size="14" color="tertiary" />
 
 										<Text size="13" weight="600" color="primary" tabular>{{ comma(block.height) }}</Text>
 									</Flex>

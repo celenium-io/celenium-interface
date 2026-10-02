@@ -100,7 +100,6 @@ const signals = ref([])
 const votes = ref([])
 
 const collapseDetails = ref(true)
-const collapseStaking = ref(true)
 
 const page = ref(1)
 const limit = 10
@@ -403,37 +402,25 @@ const handleDelegate = () => {
 					</Flex>
 
 					<!-- Staking -->
-					<Flex direction="column" gap="12">
-						<Flex @click="collapseStaking = !collapseStaking" align="center" justify="between" gap="12" style="cursor: pointer">
-							<Text size="12" weight="600" color="secondary">Staking</Text>
-
-							<Icon
-								name="chevron"
-								size="14"
-								color="secondary"
-								:style="{
-									transform: `rotate(${collapseStaking ? '0' : '180'}deg)`,
-									transition: 'all 400ms ease',
-								}"
-							/>
-						</Flex>
+					<Flex direction="column" gap="16">
+						<Text size="12" weight="600" color="secondary">Staking</Text>
 
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Voting Power</Text>
 							<AmountInCurrency
 								:amount="{ value: validator.voting_power, unit: 'TIA' }"
-								:styles="{ amount: { color: 'tertiary' } }"
+								:styles="{ amount: { color: 'secondary' } }"
 							/>
 						</Flex>
 
-						<Flex v-if="!collapseStaking" align="center" justify="between">
+						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Outgoing Rewards</Text>
-							<AmountInCurrency :amount="{ value: validator.rewards }" :styles="{ amount: { color: 'tertiary' } }" />
+							<AmountInCurrency :amount="{ value: validator.rewards }" :styles="{ amount: { color: 'secondary' } }" />
 						</Flex>
 
-						<Flex v-if="!collapseStaking" align="center" justify="between">
+						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary">Commissions</Text>
-							<AmountInCurrency :amount="{ value: validator.commissions }" :styles="{ amount: { color: 'tertiary' } }" />
+							<AmountInCurrency :amount="{ value: validator.commissions }" :styles="{ amount: { color: 'secondary' } }" />
 						</Flex>
 					</Flex>
 
@@ -462,7 +449,7 @@ const handleDelegate = () => {
 							<Flex align="center" justify="between">
 								<Text size="12" weight="600" color="tertiary">Delegator Address</Text>
 								<Flex gap="6">
-									<AddressBadge :account="validator.delegator" color="tertiary" />
+									<AddressBadge :account="validator.delegator" color="secondary" />
 									<CopyButton :text="validator.delegator.hash" />
 								</Flex>
 							</Flex>
@@ -470,7 +457,7 @@ const handleDelegate = () => {
 							<Flex align="center" justify="between">
 								<Text size="12" weight="600" color="tertiary">Consensus Address</Text>
 								<Flex gap="6">
-									<Text size="12" weight="600" color="tertiary"> {{ shortHex(validator.cons_address) }} </Text>
+									<Text size="12" weight="600" color="secondary"> {{ shortHex(validator.cons_address) }} </Text>
 									<CopyButton :text="validator.cons_address" />
 								</Flex>
 							</Flex>
@@ -478,7 +465,7 @@ const handleDelegate = () => {
 							<Flex v-if="validator.identity" align="center" justify="between">
 								<Text size="12" weight="600" color="tertiary">Identity</Text>
 								<Flex gap="6">
-									<Text size="12" weight="600" color="tertiary"> {{ validator.identity }} </Text>
+									<Text size="12" weight="600" color="secondary"> {{ validator.identity }} </Text>
 									<CopyButton :text="validator.identity" />
 								</Flex>
 							</Flex>
@@ -501,6 +488,11 @@ const handleDelegate = () => {
 							<Flex align="center" justify="between">
 								<Text size="12" weight="600" color="tertiary">Min Self Delegation</Text>
 								<Text size="12" weight="600" color="secondary"> {{ comma(validator.min_self_delegation) }} </Text>
+							</Flex>
+
+							<Flex align="center" justify="between">
+								<Text size="12" weight="600" color="tertiary">Bond Updates</Text>
+								<Text size="12" weight="600" color="secondary"> {{ comma(validator.bond_updates_count) }} </Text>
 							</Flex>
 
 							<Flex v-if="validator.version" align="center" justify="between">
