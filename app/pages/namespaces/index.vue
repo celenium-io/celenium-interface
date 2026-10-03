@@ -213,12 +213,27 @@ const handleLast = async () => {
 										/>
 									</Flex>
 								</th>
+								<th>
+									<Text size="12" weight="600" color="tertiary" noWrap>Fibre Size</Text>
+								</th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Version</Text></th>
 								<th @click="handleSort('pfb_count')" :class="$style.sortable">
 									<Flex align="center" gap="6">
 										<Text size="12" weight="600" color="tertiary" noWrap>Pay For Blobs</Text>
 										<Icon
 											v-if="sort.by === 'pfb_count'"
+											name="chevron"
+											size="12"
+											color="secondary"
+											:style="{ transform: `rotate(${sort.dir === 'asc' ? '180' : '0'}deg)` }"
+										/>
+									</Flex>
+								</th>
+								<th @click="handleSort('pff_count')" :class="$style.sortable">
+									<Flex align="center" gap="6">
+										<Text size="12" weight="600" color="tertiary" noWrap>Pay For Fibre</Text>
+										<Icon
+											v-if="sort.by === 'pff_count'"
 											name="chevron"
 											size="12"
 											color="secondary"
@@ -309,6 +324,13 @@ const handleLast = async () => {
 								<td>
 									<NuxtLink :to="`/namespace/${ns.namespace_id}`">
 										<Flex align="center">
+											<Text size="13" weight="600" color="primary">{{ formatBytes(ns.fibre_size) }}</Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/namespace/${ns.namespace_id}`">
+										<Flex align="center">
 											<Text size="13" weight="600" color="primary">{{ ns.version }}</Text>
 										</Flex>
 									</NuxtLink>
@@ -317,6 +339,13 @@ const handleLast = async () => {
 									<NuxtLink :to="`/namespace/${ns.namespace_id}`">
 										<Flex align="center">
 											<Text size="13" weight="600" color="primary">{{ comma(ns.pfb_count) }}</Text>
+										</Flex>
+									</NuxtLink>
+								</td>
+								<td>
+									<NuxtLink :to="`/namespace/${ns.namespace_id}`">
+										<Flex align="center">
+											<Text size="13" weight="600" color="primary">{{ comma(ns.pff_count) }}</Text>
 										</Flex>
 									</NuxtLink>
 								</td>

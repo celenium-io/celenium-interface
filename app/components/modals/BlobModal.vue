@@ -91,7 +91,7 @@ watch(
 		if (props.show) {
 			/** Skip on the old blobs for Mocha */
 			if (["Mocha", "Local"].includes(getNetworkName())) {
-				if (new Date(cacheStore.selectedBlob.tx.time).getTime() < new Date(appStore.blobsState.oldest_blob_time).getTime()) {
+				if (new Date(cacheStore.selectedBlob.tx.time).getTime() < new Date(appStore.blobsState?.oldest_blob_time).getTime()) {
 					isOldBlob.value = true
 					isStopped.value = true
 					isLoading.value = false
@@ -100,6 +100,11 @@ watch(
 			}
 
 			if (cacheStore.selectedBlob.size > 1_000_000) {
+				isStopped.value = true
+				return
+			}
+
+			if (cacheStore.selectedBlob.source === "fibre") {
 				isStopped.value = true
 				return
 			}
@@ -212,7 +217,7 @@ const handlePreviewContent = () => {
 					</video>
 				</template>
 
-				<Flex v-else direction="column" gap="12">
+				<Flex v-else-if="cacheStore.selectedBlob.source !== 'fibre'" direction="column" gap="12">
 					<Flex direction="column" :justify="isLoading || isStopped ? 'center' : 'start'" gap="8" :class="$style.data">
 						<Text
 							v-if="!isLoading && !isStopped"
@@ -319,7 +324,9 @@ const handlePreviewContent = () => {
 					</NuxtLink>
 
 					<Flex direction="column" gap="8" :class="$style.badge">
-						<Text size="12" weight="500" color="secondary"> Size </Text>
+						<Text size="12" weight="500" color="secondary">
+							{{ cacheStore.selectedBlob.source === "fibre" ? "Paid" : "" }} Size
+						</Text>
 
 						<Text size="13" weight="600" color="primary">{{ formatBytes(cacheStore.selectedBlob.size) }}</Text>
 					</Flex>
@@ -334,6 +341,22 @@ const handlePreviewContent = () => {
 				</Flex>
 
 				<Flex direction="column" align="center" gap="12">
+					<Flex align="center" justify="between" wide :class="$style.metadata">
+						<Text size="12" weight="500" color="tertiary">Source:</Text>
+
+						<Flex align="center" gap="6" :class="$style.value_wrapper">
+							<Icon
+								:name="cacheStore.selectedBlob.source === 'pfb' ? 'coins' : 'fibre'"
+								size="14"
+								:color="cacheStore.selectedBlob.source === 'pfb' ? 'brand' : 'orange'"
+							/>
+
+							<Text size="13" weight="600" color="primary" :class="$style.value">
+								{{ cacheStore.selectedBlob.source === "pfb" ? "PFB" : "Fibre" }}
+							</Text>
+						</Flex>
+					</Flex>
+
 					<Flex align="center" justify="between" wide :class="$style.metadata">
 						<Text size="12" weight="500" color="tertiary">Namespace ID:</Text>
 

@@ -248,8 +248,12 @@ const handleViewRawMessages = () => {
 
 					<Flex direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Size</Text>
-
 						<Text size="13" weight="600" color="primary">{{ formatBytes(namespace.size) }} </Text>
+					</Flex>
+
+					<Flex direction="column" gap="8" :class="$style.key_value">
+						<Text size="12" weight="600" color="secondary">Fibre Size</Text>
+						<Text size="13" weight="600" color="primary">{{ formatBytes(namespace.fibre_size) }} </Text>
 					</Flex>
 
 					<Flex direction="column" gap="16">
@@ -258,6 +262,11 @@ const handleViewRawMessages = () => {
 						<Flex align="center" justify="between">
 							<Text size="12" weight="600" color="tertiary"> Pay For Blobs</Text>
 							<Text size="12" weight="600" color="secondary"> {{ comma(namespace.pfb_count) }} </Text>
+						</Flex>
+
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary"> Pay For Fibre</Text>
+							<Text size="12" weight="600" color="secondary"> {{ comma(namespace.pff_count) }} </Text>
 						</Flex>
 
 						<Flex align="center" justify="between">

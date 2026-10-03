@@ -6,6 +6,7 @@ import Spinner from "~/components/ui/Spinner.vue"
 
 /** Components */
 import TablePlaceholderView from "~/components/shared/TablePlaceholderView.vue"
+import BlobSourceBadge from "~/components/shared/BlobSourceBadge.vue"
 
 /** Services */
 import { space, formatBytes, getNamespaceID } from "~/services/utils/index.js"
@@ -125,6 +126,7 @@ const handleViewBlob = (blob) => {
 		share_version: blob.share_version,
 		tx: blob.tx,
 		rollup: blob.rollup,
+		source: blob.source,
 	}
 
 	modalsStore.open("blob")
@@ -186,6 +188,7 @@ const handlePrev = () => {
 					<thead>
 						<tr>
 							<th><Text size="12" weight="600" color="tertiary">Namespace </Text></th>
+							<th><Text size="12" weight="600" color="tertiary">Source</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Signer</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Share Commitments</Text></th>
 							<th><Text size="12" weight="600" color="tertiary">Size</Text></th>
@@ -196,7 +199,7 @@ const handlePrev = () => {
 
 					<tbody>
 						<tr v-for="blob in blobs" @click.stop="handleViewBlob(blob)">
-							<td>
+							<td style="width: 1px">
 								<NuxtLink :to="`/namespace/${blob.namespace?.namespace_id}`" @click.stop>
 									<Tooltip position="start" delay="500">
 										<Flex direction="column" gap="4">
@@ -223,6 +226,9 @@ const handlePrev = () => {
 										</template>
 									</Tooltip>
 								</NuxtLink>
+							</td>
+							<td>
+								<BlobSourceBadge :source="blob.source" />
 							</td>
 							<td>
 								<Tooltip position="start" delay="500">
