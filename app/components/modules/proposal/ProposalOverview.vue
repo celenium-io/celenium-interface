@@ -208,9 +208,7 @@ const handleViewRawVotes = () => {
 						:class="$style.key_value"
 					>
 						<Text size="12" weight="600" color="secondary">
-							{{
-								proposal.status === "removed" ? "Removal" : proposal.status === "rejected" ? "Rejection" : "Failure"
-							}}
+							{{ proposal.status === "removed" ? "Removal" : proposal.status === "rejected" ? "Rejection" : "Failure" }}
 							Reason
 						</Text>
 
@@ -252,7 +250,7 @@ const handleViewRawVotes = () => {
 						</Badge>
 					</Flex>
 
-					<VotesAllocation v-if="proposal.status !== 'removed'" :proposal />
+					<VotesAllocation v-if="!['removed', 'cancelled'].includes(proposal.status)" :proposal />
 
 					<VotingPower v-if="!['inactive', 'removed'].includes(proposal.status)" :proposal />
 
