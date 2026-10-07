@@ -7,7 +7,7 @@ import Tooltip from "~/components/ui/Tooltip.vue"
 import AmountInCurrency from "~/components/AmountInCurrency.vue"
 
 /** Services */
-import { amountToString, comma, tia } from "~/services/utils/index.js"
+import { comma } from "~/services/utils/index.js"
 
 const props = defineProps({
 	blocks: {
@@ -39,7 +39,7 @@ const props = defineProps({
 							<Flex align="center">
 								<Outline>
 									<Flex align="center" gap="6">
-										<Icon name="block" size="14" :color="hintedBlock == block.height ? 'blue' : 'tertiary'" />
+										<Icon name="block" size="14" color="tertiary" />
 
 										<Text size="13" weight="600" color="primary" tabular>{{ comma(block.height) }}</Text>
 									</Flex>

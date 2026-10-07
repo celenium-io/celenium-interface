@@ -78,7 +78,6 @@ const upgrades = ref([])
 const totalStake = computed(() =>
 	props.upgrade?.voting_power && props.upgrade?.voting_power !== "0" ? props.upgrade.voting_power : appStore.lastHead?.total_voting_power,
 )
-const votingShare = computed(() => (parseFloat(props.upgrade.voted_power) * 100) / parseFloat(totalStake.value))
 
 const getTotalStake = (upgrade) => {
 	return upgrade?.voting_power && upgrade?.voting_power !== "0" ? upgrade.voting_power : appStore.lastHead?.total_voting_power
@@ -221,6 +220,10 @@ onMounted(() => {
 											<Icon name="zap-circle" size="14" color="brand" />
 											<Text size="13" weight="600" color="primary">Waiting Upgrade</Text>
 										</Flex>
+										<Flex v-else-if="u.status === 'skipped'" align="center" gap="6">
+											<Icon name="arrow-circle-broken-right" size="14" color="tertiary" />
+											<Text size="13" weight="600" color="primary">Skipped</Text>
+										</Flex>
 										<Flex v-else align="center" gap="6">
 											<Icon name="zap-circle" size="14" color="tertiary" />
 											<Text size="13" weight="600" color="primary">In Progress</Text>
@@ -234,8 +237,11 @@ onMounted(() => {
 											<Flex align="center" :class="$style.voting_wrapper">
 												<div
 													:style="{
-														background: 'var(--brand)',
-														width: `${Math.max(5, roundTo(getVotingShare(u), 0, 'ceil'))}%`,
+														background: u.status === 'skipped' ? 'transparent' : 'var(--brand)',
+														width:
+															u.status !== 'skipped'
+																? `${Math.max(5, roundTo(getVotingShare(u), 0, 'ceil'))}%`
+																: '100%',
 													}"
 													:class="$style.voting_bar"
 												/>
@@ -289,6 +295,11 @@ onMounted(() => {
 											<Text size="12" weight="500" color="tertiary">
 												{{ DateTime.fromISO(u.applied_at).setLocale("en").toFormat("LLL d, t") }}
 											</Text>
+										</Flex>
+									</NuxtLink>
+									<NuxtLink v-else>
+										<Flex align="center">
+											<Text size="13" weight="600" color="tertiary">Empty</Text>
 										</Flex>
 									</NuxtLink>
 								</td>

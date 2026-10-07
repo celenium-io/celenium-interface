@@ -138,7 +138,9 @@ const handleViewRawTransaction = () => {
 					<Flex v-if="tx.error" direction="column" gap="6">
 						<Text size="12" weight="600" color="secondary">Error Message</Text>
 
-						<Text size="12" height="140" weight="600" color="tertiary" mono selectable>{{ tx.error }}</Text>
+						<Text size="12" height="140" weight="600" color="tertiary" mono selectable style="overflow-wrap: break-word">
+							{{ tx.error }}
+						</Text>
 					</Flex>
 
 					<Flex direction="column" gap="10" :class="$style.key_value">

@@ -3,6 +3,7 @@
 import ValidatorCharts from "~/components/modules/validator/ValidatorCharts.vue"
 import ValidatorOverview from "~/components/modules/validator/ValidatorOverview.vue"
 import ValidatorUptime from "~/components/modules/validator/ValidatorUptime.vue"
+import ValidatorVotingPowerHistory from "~/components/modules/validator/ValidatorVotingPowerHistory.vue"
 
 /** Services */
 import { isValidId } from "~/services/utils/index.js"
@@ -12,6 +13,7 @@ import { fetchValidatorByID } from "~/services/api/validator.js"
 
 /** Store */
 import { useCacheStore } from "~/store/cache.store.js"
+
 const cacheStore = useCacheStore()
 
 const route = useRoute()
@@ -91,18 +93,27 @@ useHead({
 				/>
 			</Flex>
 
-			<ValidatorOverview v-if="validator" :validator="validator" />
+			<ValidatorOverview v-if="validator" :validator />
 		</Flex>
 
-		<ValidatorUptime v-if="validator" :validator="validator" />
+		<Flex gap="16" :class="$style.uptime_history_tables">
+			<ValidatorUptime v-if="validator" :validator />
+			<ValidatorVotingPowerHistory v-if="validator" :validator />
+		</Flex>
 
-		<ValidatorCharts v-if="validator" :validator="validator" />
+		<ValidatorCharts v-if="validator" :validator />
 	</Flex>
 </template>
 
 <style module>
 .wrapper {
 	padding: 20px 24px 60px 24px;
+}
+
+@media (max-width: 800px) {
+	.uptime_history_tables {
+		flex-direction: column;
+	}
 }
 
 @media (max-width: 500px) {

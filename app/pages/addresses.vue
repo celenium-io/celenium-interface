@@ -5,7 +5,7 @@ import Tooltip from "~/components/ui/Tooltip.vue"
 import AmountInCurrency from "~/components/AmountInCurrency.vue"
 
 /** Services */
-import { comma, tia } from "~/services/utils/index.js"
+import { comma } from "~/services/utils/index.js"
 
 /** API */
 import { fetchAddresses, fetchAddressesCount } from "~/services/api/address.js"

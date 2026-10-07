@@ -175,7 +175,7 @@ onMounted(async () => {
 
 				<Popover :open="isOpen" @on-close="handleClose" width="200" side="right">
 					<Button @click="handleOpen" type="secondary" size="mini">
-						<Icon name="settings" size="12" color="tertiary" />
+						<Icon name="settings" size="12" color="secondary" />
 					</Button>
 
 					<template #content>

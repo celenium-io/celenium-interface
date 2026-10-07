@@ -22,7 +22,6 @@ const head = computed(() => appStore.lastHead)
 const currentPrice = computed(() => appStore.currentPrice)
 
 const totalFees = computed(() => head.value.total_fee / 1_000_000)
-const totalFeesUSD = computed(() => totalFees.value * currentPrice.value?.close)
 
 const isLoading = ref(true)
 const series = ref([])

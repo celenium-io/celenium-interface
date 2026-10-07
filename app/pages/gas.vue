@@ -9,14 +9,6 @@ import GasFeeCalculator from "~/components/modules/gas/GasFeeCalculator.vue"
 import { Dropdown, DropdownItem } from "~/components/ui/Dropdown/index.js"
 import Button from "~/components/ui/Button.vue"
 
-/** Store */
-import { useAppStore } from "~/store/app.store.js"
-const appStore = useAppStore()
-
-const route = useRoute()
-
-const gasPrice = computed(() => appStore.gas)
-
 const visualizations = ref([
 	{
 		title: "Heatmap",

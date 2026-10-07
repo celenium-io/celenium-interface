@@ -1,8 +1,3 @@
-<script setup>
-/** Components */
-import AdvBanner from "~/components/shared/AdvBanner.vue"
-</script>
-
 <template>
 	<Flex direction="column">
 		<Flex justify="center" :class="$style.wrapper">

@@ -1,17 +1,35 @@
+<script setup>
+defineProps({
+	size: { type: String, default: "medium" },
+	border: { type: Boolean, default: true },
+})
+</script>
+
 <template>
-	<Flex align="center" gap="8" :class="$style.wrapper">
+	<Flex align="center" gap="8" :class="[$style.wrapper, $style[size], border && $style.border]">
 		<slot />
 	</Flex>
 </template>
 
 <style module>
 .wrapper {
-	height: 26px;
-
 	background: linear-gradient(var(--op-8), var(--op-3));
-	box-shadow: inset 0 0 0 1px var(--op-5);
+
 	border-radius: 6px;
 
-	padding: 0 8px;
+	&.border {
+		box-shadow: inset 0 0 0 1px var(--op-5);
+	}
+
+	&.medium {
+		height: 26px;
+
+		padding: 0 8px;
+	}
+	&.small {
+		height: 20px;
+
+		padding: 0 6px;
+	}
 }
 </style>

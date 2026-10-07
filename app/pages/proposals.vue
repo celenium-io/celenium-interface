@@ -15,7 +15,7 @@ import { comma } from "~/services/utils/index.js"
 import { getProposalIcon, getProposalIconColor, getProposalType } from "~/services/utils/states.js"
 
 /** API */
-import { fetchProposals, fetchProposalsCount } from "~/services/api/proposal.js"
+import { fetchProposals } from "~/services/api/proposal.js"
 
 useHead({
 	title: "Governance: Celestia Proposals - Celenium",

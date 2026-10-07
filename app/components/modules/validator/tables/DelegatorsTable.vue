@@ -4,7 +4,7 @@ import Tooltip from "~/components/ui/Tooltip.vue"
 import AmountInCurrency from "~/components/AmountInCurrency.vue"
 
 /** Services */
-import { shareOfTotalString, splitAddress } from "~/services/utils/index.js"
+import { shareOfTotalString } from "~/services/utils/index.js"
 
 const props = defineProps({
 	delegators: {

@@ -728,7 +728,6 @@ const handleOpenQRModal = () => {
 					</Flex>
 					<Flex v-else direction="column" gap="8" :class="$style.key_value">
 						<Text size="12" weight="600" color="secondary">Address</Text>
-
 						<Text size="13" weight="600" color="primary" class="overflow_ellipsis"> {{ address.hash }} </Text>
 					</Flex>
 

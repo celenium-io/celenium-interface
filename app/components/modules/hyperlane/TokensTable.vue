@@ -14,8 +14,6 @@ import { useCacheStore } from "~/store/cache.store.js"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
 
-const router = useRouter()
-
 const isLoading = ref(true)
 const tokens = ref([])
 

@@ -577,7 +577,7 @@ onBeforeMount(() => {
 
 				<Popover :open="isConfigurePopoverOpen" @on-close="isConfigurePopoverOpen = false" width="150" side="right">
 					<Button @click="isConfigurePopoverOpen = true" type="secondary" size="mini">
-						<Icon name="settings" size="12" color="tertiary" />
+						<Icon name="settings" size="12" color="secondary" />
 						Configure
 					</Button>
 

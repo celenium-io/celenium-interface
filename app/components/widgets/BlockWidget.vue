@@ -19,7 +19,7 @@ const isInited = ref(false)
 let blockProgressInterval = null
 let delayInterval = null
 
-const avgBlockTime = ref(0)
+const avgBlockTime = ref(null)
 
 const delay = ref(0)
 const isDelayed = ref(false)
