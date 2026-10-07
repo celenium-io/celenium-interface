@@ -25,7 +25,7 @@ const props = defineProps({
 const expand = ref(["active"].includes(props.proposal.status))
 
 const totalVotingPower = computed(() => {
-	if (Number(props.proposal.total_voting_power)) return Number(props.proposal.total_voting_power)
+	if (Number(props.proposal.total_voting_power)) return Number(props.proposal.total_voting_power) / 1_000_000
 	return lastHead.value?.total_voting_power ?? 0
 })
 
@@ -167,7 +167,7 @@ const isQuorumReached = computed(() => {
 
 .threshold {
 	position: absolute;
-	top: 0;
+	top: 50%;
 
 	width: 4px;
 	height: 12px;
@@ -177,7 +177,7 @@ const isQuorumReached = computed(() => {
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 	z-index: 1;
 
-	transform: translateX(-50%);
+	transform: translateY(-50%);
 
 	&.red {
 		background: var(--red);

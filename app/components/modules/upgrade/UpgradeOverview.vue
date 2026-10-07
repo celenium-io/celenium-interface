@@ -228,7 +228,7 @@ onMounted(() => {
 						</Flex>
 					</Flex>
 
-					<Flex justify="center" direction="column" gap="10" wide>
+					<Flex v-if="upgrade.status !== 'skipped'" justify="center" direction="column" gap="10" wide>
 						<Flex align="center" justify="between" wide>
 							<Tooltip position="start">
 								<Flex align="center" gap="6">
