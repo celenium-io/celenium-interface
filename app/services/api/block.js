@@ -11,9 +11,7 @@ export const fetchBlocks = ({ limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		return useFetch(url.href, {
-			key: "blocks",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -23,9 +21,7 @@ export const fetchBlocksCount = () => {
 	try {
 		const url = new URL(`${useServerURL()}/block/count`)
 
-		return useFetch(url.href, {
-			key: "blocks_count",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -60,9 +56,7 @@ export const fetchAvgBlockTime = async ({ from }) => {
 
 export const fetchBlockByHeight = async (height) => {
 	try {
-		return useFetch(`${useServerURL()}/block/${height}?stats=true&q=${new Date().getTime()}`, {
-			key: "block",
-		})
+		return useFetch(`${useServerURL()}/block/${height}?stats=true&q=${new Date().getTime()}`)
 	} catch (error) {
 		console.error(error)
 	}

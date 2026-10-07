@@ -24,9 +24,7 @@ export const fetchTxByHash = (hash) => {
 	try {
 		const url = new URL(`${useServerURL()}/tx/${hash}`)
 
-		return useFetch(url.href, {
-			key: "transaction",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -111,9 +109,7 @@ export const fetchTxBlobsCount = async (hash) => {
 
 export const fetchLatestPFBs = () => {
 	try {
-		return useFetch(`${useServerURL()}/tx?msg_type=MsgPayForBlobs&sort=desc&limit=5`, {
-			key: "latest_pfbs",
-		})
+		return useFetch(`${useServerURL()}/tx?msg_type=MsgPayForBlobs&sort=desc&limit=5`)
 	} catch (error) {
 		console.error(error)
 	}
@@ -133,9 +129,7 @@ export const fetchTransactionsByBlock = ({ limit, offset, sort, height, from, to
 		if (type) url.searchParams.append("msg_type", type)
 		if (excluded_types) url.searchParams.append("excluded_msg_type", excluded_types)
 
-		return useFetch(url.href, {
-			key: "transactions_by_block",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}

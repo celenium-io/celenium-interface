@@ -3,7 +3,7 @@
 import Spinner from "~/components/ui/Spinner.vue"
 
 /** Services */
-import { comma } from "~/services/utils/index.js"
+import { abbreviate } from "~/services/utils/index.js"
 
 /** API */
 import { fetchHyperlaneTokens } from "~/services/api/hyperlane.js"
@@ -13,8 +13,6 @@ import { useModalsStore } from "~/store/modals.store.js"
 import { useCacheStore } from "~/store/cache.store.js"
 const modalsStore = useModalsStore()
 const cacheStore = useCacheStore()
-
-const router = useRouter()
 
 const isLoading = ref(true)
 const tokens = ref([])
@@ -90,14 +88,14 @@ const handleOpenTokenModal = (token) => {
 							<td>
 								<Flex align="center">
 									<Text size="13" weight="600" color="primary" mono>
-										{{ comma(token.sent / 1_000_000) }} <Text color="tertiary">TIA</Text>
+										{{ abbreviate(token.sent / 1_000_000) }} <Text color="tertiary">TIA</Text>
 									</Text>
 								</Flex>
 							</td>
 							<td>
 								<Flex align="center">
 									<Text size="13" weight="600" color="primary" mono>
-										{{ comma(token.received / 1_000_000) }} <Text color="tertiary">TIA</Text>
+										{{ abbreviate(token.received / 1_000_000) }} <Text color="tertiary">TIA</Text>
 									</Text>
 								</Flex>
 							</td>
@@ -205,13 +203,7 @@ const handleOpenTokenModal = (token) => {
 	margin: 32px 0 16px 0;
 }
 
-.bottom {
-	padding: 0 16px 16px 16px;
-}
-
 .table_scroller {
-	flex: 1;
-
 	overflow-x: auto;
 }
 </style>

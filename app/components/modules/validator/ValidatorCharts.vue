@@ -8,6 +8,7 @@ import { Dropdown, DropdownItem } from "~/components/ui/Dropdown/index.js"
 import Popover from "~/components/ui/Popover.vue"
 import Toggle from "~/components/ui/Toggle.vue"
 import Tooltip from "~/components/ui/Tooltip.vue"
+import Picker from "~/components/ui/Picker.vue"
 
 /** Components */
 import ChartOnEntityPage from "~/components/shared/ChartOnEntityPage.vue"
@@ -34,7 +35,10 @@ const props = defineProps({
 /** Chart settings */
 const selectedPeriodIdx = ref(2)
 const selectedPeriod = computed(() => periods[selectedPeriodIdx.value])
-const chartView = ref("line")
+
+const chartTypes = ["line", "bar"]
+const selectedChartType = ref(chartTypes[0])
+
 const loadLastValue = ref(true)
 
 const isOpen = ref(false)
@@ -48,7 +52,7 @@ const handleClose = () => {
 const updateUserSettings = () => {
 	settingsStore.chart = {
 		...settingsStore.chart,
-		view: chartView.value,
+		view: selectedChartType.value,
 		loadLastValue: loadLastValue.value,
 	}
 }
@@ -127,7 +131,6 @@ const seriesConfig = [
 	},
 ]
 
-const flowConfig = computed(() => seriesConfig.find((config) => config.metric === "flow"))
 const cumulativeFlowConfig = computed(() => seriesConfig.find((config) => config.metric === "cumulative_flow"))
 const delegationsConfig = computed(() => seriesConfig.find((config) => config.metric === "delegations"))
 const delegationsCountConfig = computed(() => seriesConfig.find((config) => config.metric === "delegations_count"))
@@ -185,14 +188,6 @@ const generateSeries = async (configs) => {
 	}
 }
 
-const handleChangeChartView = () => {
-	if (chartView.value === "line") {
-		chartView.value = "bar"
-	} else {
-		chartView.value = "line"
-	}
-}
-
 const fetchAllData = async () => {
 	await generateSeries(seriesConfig)
 }
@@ -203,7 +198,7 @@ watch(
 )
 
 watch(
-	() => [chartView.value, loadLastValue.value],
+	() => [selectedChartType.value, loadLastValue.value],
 	() => {
 		updateUserSettings()
 	},
@@ -211,8 +206,10 @@ watch(
 
 onBeforeMount(async () => {
 	isLoading.value = true
+
 	const settings = JSON.parse(localStorage.getItem("settings"))
-	chartView.value = settings?.chart?.view || "bar"
+
+	selectedChartType.value = settings?.chart?.view || "bar"
 	loadLastValue.value = settings?.chart?.view ? settings.chart.loadLastValue : true
 
 	await fetchAllData()
@@ -246,41 +243,21 @@ onBeforeMount(async () => {
 
 				<Popover :open="isOpen" @on-close="handleClose" width="200" side="right">
 					<Button @click="handleOpen" type="secondary" size="mini">
-						<Icon name="settings" size="12" color="tertiary" />
+						<Icon name="settings" size="12" color="secondary" />
 					</Button>
 
 					<template #content>
-						<Flex direction="column" gap="12">
-							<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
-								<Text size="12" color="secondary">Chart view</Text>
+						<Flex direction="column" gap="16">
+							<Flex align="center" justify="between" gap="8" :class="$style.setting_item">
+								<Text size="12" weight="600" color="secondary">Chart Type</Text>
 
-								<Flex
-									@click="handleChangeChartView"
-									align="center"
-									gap="12"
-									:class="$style.chart_selector"
-									:style="{
-										background: `linear-gradient(to ${
-											chartView === 'line' ? 'right' : 'left'
-										}, var(--op-5) 50%, transparent 50%)`,
-									}"
-								>
-									<Icon
-										name="line-chart"
-										size="14"
-										:style="{ fill: `${chartView === 'line' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
-									/>
-
-									<Icon
-										name="bar-chart"
-										size="14"
-										:style="{ fill: `${chartView === 'bar' ? 'var(--mint)' : 'var(--txt-tertiary)'}` }"
-									/>
+								<Flex>
+									<Picker v-model="selectedChartType" :options="chartTypes" />
 								</Flex>
 							</Flex>
 
 							<Flex align="center" justify="between" gap="6" :class="$style.setting_item">
-								<Text size="12" :color="loadLastValue ? 'secondary' : 'tertiary'">Show last value</Text>
+								<Text size="12" weight="600" :color="loadLastValue ? 'secondary' : 'tertiary'">Show Last Value</Text>
 								<Toggle v-model="loadLastValue" color="var(--neutral-mint)" />
 							</Flex>
 						</Flex>
@@ -293,7 +270,7 @@ onBeforeMount(async () => {
 			<Flex :class="$style.data">
 				<ChartOnEntityPage
 					:series-config="cumulativeFlowConfig"
-					:chart-view="chartView"
+					:chart-view="selectedChartType"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
 					:isLoading="isLoading"
@@ -303,7 +280,7 @@ onBeforeMount(async () => {
 			<Flex justify="between" gap="32" :class="$style.data">
 				<ChartOnEntityPage
 					:series-config="delegationsConfig"
-					:chart-view="chartView"
+					:chart-view="selectedChartType"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
 					:isLoading="isLoading"
@@ -311,7 +288,7 @@ onBeforeMount(async () => {
 
 				<ChartOnEntityPage
 					:series-config="delegationsCountConfig"
-					:chart-view="chartView"
+					:chart-view="selectedChartType"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
 					:isLoading="isLoading"
@@ -321,7 +298,7 @@ onBeforeMount(async () => {
 			<Flex justify="between" gap="32" :class="$style.data">
 				<ChartOnEntityPage
 					:series-config="unbondingsConfig"
-					:chart-view="chartView"
+					:chart-view="selectedChartType"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
 					:isLoading="isLoading"
@@ -344,7 +321,7 @@ onBeforeMount(async () => {
 
 				<ChartOnEntityPage
 					:series-config="unbondingsCountConfig"
-					:chart-view="chartView"
+					:chart-view="selectedChartType"
 					:load-last-value="loadLastValue"
 					:selected-period="selectedPeriod"
 					:isLoading="isLoading"
@@ -381,14 +358,6 @@ onBeforeMount(async () => {
 
 .setting_item {
 	min-height: 24px;
-}
-
-.chart_selector {
-	padding: 4px 6px 4px 6px;
-	box-shadow: inset 0 0 0 1px var(--op-10);
-	border-radius: 5px;
-	cursor: pointer;
-	transition: all 1s ease-in-out;
 }
 
 .data_wrapper {

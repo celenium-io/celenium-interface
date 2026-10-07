@@ -12,10 +12,8 @@ import { comma } from "~/services/utils/index.js"
 /** Stores */
 import { useAppStore } from "~/store/app.store.js"
 import { useCacheStore } from "~/store/cache.store.js"
-import { useModalsStore } from "~/store/modals.store.js"
 const appStore = useAppStore()
 const cacheStore = useCacheStore()
-const modalsStore = useModalsStore()
 
 const emit = defineEmits(["onClose"])
 const props = defineProps({

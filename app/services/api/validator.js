@@ -1,18 +1,16 @@
 /** Services */
 import { useServerURL } from "@/services/config"
 
-export const fetchValidators = ({ jailed = false, limit, offset, sort }) => {
+export const fetchValidators = ({ status = "active", limit, offset, sort }) => {
 	try {
 		const url = new URL(`${useServerURL()}/validators`)
 
-		url.searchParams.append("jailed", jailed)
+		if (status) url.searchParams.append("status", status)
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 		if (sort) url.searchParams.append("sort", sort)
 
-		return useFetch(url.href, {
-			key: "validators",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -22,9 +20,7 @@ export const fetchValidatorsCount = () => {
 	try {
 		const url = new URL(`${useServerURL()}/validators/count`)
 
-		return useFetch(url.href, {
-			key: "validators_count",
-		})
+		return useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -34,9 +30,7 @@ export const fetchValidatorByID = (id) => {
 	try {
 		const url = new URL(`${useServerURL()}/validators/${id}`)
 
-		return useFetch(encodeURI(url.href), {
-			key: "validator_by_id",
-		})
+		return useFetch(encodeURI(url.href))
 	} catch (error) {
 		console.error(error)
 	}
@@ -49,9 +43,7 @@ export const fetchValidatorBlocks = ({ id, limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		return useFetch(encodeURI(url.href), {
-			key: "validator_blocks",
-		})
+		return useFetch(encodeURI(url.href))
 	} catch (error) {
 		console.error(error)
 	}
@@ -64,9 +56,7 @@ export const fetchValidatorDelegators = ({ id, limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		return useFetch(encodeURI(url.href), {
-			key: "validator_delegators",
-		})
+		return useFetch(encodeURI(url.href))
 	} catch (error) {
 		console.error(error)
 	}
@@ -79,9 +69,7 @@ export const fetchValidatorJails = ({ id, limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		return useFetch(encodeURI(url.href), {
-			key: "validator_jails",
-		})
+		return useFetch(encodeURI(url.href))
 	} catch (error) {
 		console.error(error)
 	}
@@ -93,9 +81,7 @@ export const fetchValidatorUptime = ({ id, limit }) => {
 
 		if (limit) url.searchParams.append("limit", limit)
 
-		return useFetch(encodeURI(url.href), {
-			key: "validator_uptime",
-		})
+		return useFetch(encodeURI(url.href))
 	} catch (error) {
 		console.error(error)
 	}
@@ -107,9 +93,7 @@ export const fetchValidatorsMetrics = (count) => {
 
 		if (count) url.searchParams.append("count", count)
 
-		return useFetch(encodeURI(url.href), {
-			key: "validators_metrics",
-		})
+		return useFetch(encodeURI(url.href))
 	} catch (error) {
 		console.error(error)
 	}
@@ -119,9 +103,7 @@ export const fetchValidatorMetrics = (id) => {
 	try {
 		const url = new URL(`${useServerURL()}/validators/${id}/metrics`)
 
-		return useFetch(encodeURI(url.href), {
-			key: "validator_metric",
-		})
+		return useFetch(encodeURI(url.href))
 	} catch (error) {
 		console.error(error)
 	}
@@ -134,9 +116,7 @@ export const fetchValidatorsUpgrades = ({ limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		return useFetch(encodeURI(url.href), {
-			key: "validators_upgrades",
-		})
+		return useFetch(encodeURI(url.href))
 	} catch (error) {
 		console.error(error)
 	}
@@ -146,9 +126,7 @@ export const fetchValidatorsUpgradeByVersion = (version) => {
 	try {
 		const url = new URL(`${useServerURL()}/signal/upgrade/${version}`)
 
-		return useFetch(encodeURI(url.href), {
-			key: "validators_upgrade_by_version",
-		})
+		return useFetch(encodeURI(url.href))
 	} catch (error) {
 		console.error(error)
 	}
@@ -163,9 +141,7 @@ export const fetchSignals = ({ validatorId, version, limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		return useFetch(encodeURI(url.href), {
-			key: "upgrades_signals",
-		})
+		return useFetch(encodeURI(url.href))
 	} catch (error) {
 		console.error(error)
 	}
@@ -179,10 +155,33 @@ export const fetchValidatorMessages = ({ id, sort, limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		return useFetch(encodeURI(url.href), {
-			key: "validator_messages",
-		})
+		return useFetch(encodeURI(url.href))
 	} catch (error) {
 		console.error(error)
+	}
+}
+
+export const fetchValidatorVotingPowerHistory = async (options) => {
+	try {
+		const url = new URL(`${useServerURL()}/validators/${options.id}/bond_updates`)
+
+		if (options?.limit) url.searchParams.append("limit", options.limit)
+		if (options?.offset) url.searchParams.append("offset", options.offset)
+		if (options?.sort) url.searchParams.append("sort", options.sort)
+
+		return await $fetch(url, {
+			method: "GET",
+			headers: {
+				Accept: "application/json",
+			},
+		})
+	} catch (err) {
+		console.error(`Error during fetching validator's voting power history:`, err)
+
+		throw createError({
+			statusCode: err.statusCode || 500,
+			statusMessage: err.statusMessage || "Failed to fetch validator's voting power history",
+			fatal: false,
+		})
 	}
 }

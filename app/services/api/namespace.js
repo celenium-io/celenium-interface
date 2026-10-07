@@ -10,8 +10,7 @@ export const fetchNamespaces = async ({ limit, offset, sort, sort_by }) => {
 		if (sort) url.searchParams.append("sort", sort)
 		if (sort_by) url.searchParams.append("sort_by", sort_by)
 
-		const data = await useFetch(url.href)
-		return data
+		return await useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}
@@ -159,7 +158,7 @@ export const fetchBlobBlockscoutData = async ({ height, namespace, commitment })
 		url.searchParams.append("commitment", commitment)
 
 		const data = useFetch(url.href)
-		
+
 		return data
 	} catch (error) {
 		console.error(error)

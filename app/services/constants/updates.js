@@ -3,7 +3,8 @@ const updates = [
 		name: "hardfork_1",
 		kind: "hardfork",
 		title: "Hardfork Title",
-		description: "Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description.",
+		description:
+			"Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description Hardfork Description.",
 		block: 9_000_000,
 		expiry: 1757416857,
 	},
@@ -16,6 +17,10 @@ const updates = [
 		link: "https://docs.celestia.org/operate/maintenance/network-upgrades/#ginger-network-upgrade",
 		timeline: {
 			mainnet: {
+				time: 1734013612,
+				block: 2993219,
+			},
+			staging: {
 				time: 1734013612,
 				block: 2993219,
 			},
@@ -41,6 +46,10 @@ const updates = [
 				time: 1753710387,
 				block: 6680339,
 			},
+			staging: {
+				time: 1753710387,
+				block: 6680339,
+			},
 			development: {
 				time: 1753710387,
 				block: 6680339,
@@ -63,6 +72,10 @@ const updates = [
 				time: 1754058629,
 				block: 6748821,
 			},
+			staging: {
+				time: 1754058629,
+				block: 6748821,
+			},
 			development: {
 				time: 1754058629,
 				block: 6748821,
@@ -82,6 +95,10 @@ const updates = [
 		link: "https://docs.celestia.org/operate/maintenance/network-upgrades/#matcha-network-upgrade",
 		timeline: {
 			mainnet: {
+				time: 1763987592,
+				block: 8662012,
+			},
+			staging: {
 				time: 1763987592,
 				block: 8662012,
 			},
@@ -122,7 +139,7 @@ const updates = [
 export function getActiveUpdates(network) {
 	const now = Math.floor(Date.now() / 1_000)
 
-	return updates.filter(upd => {
+	return updates.filter((upd) => {
 		if (upd.timeline?.[network] && network) {
 			return !upd.timeline[network].time || upd.timeline[network].time > now
 		}
@@ -132,5 +149,5 @@ export function getActiveUpdates(network) {
 }
 
 export function getNodeUpgrades(version) {
-	return updates.filter(upd => upd.kind === "node_upgrade" && (version ? upd.version === version : true))
+	return updates.filter((upd) => upd.kind === "node_upgrade" && (version ? upd.version === version : true))
 }

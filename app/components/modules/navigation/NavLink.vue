@@ -111,8 +111,6 @@ const handleClick = () => {
 
 	padding: 0 4px 0 8px;
 
-	transition: all 0.2s ease;
-
 	&:hover {
 		background: var(--op-5);
 	}

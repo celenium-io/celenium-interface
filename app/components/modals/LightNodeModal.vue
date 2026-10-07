@@ -19,11 +19,9 @@ import { comma, isMobile } from "~/services/utils/index.js"
 import { useAppStore } from "~/store/app.store.js"
 import { useNodeStore } from "~/store/node.store.js"
 import { useModalsStore } from "~/store/modals.store.js"
-import { useNotificationsStore } from "~/store/notifications.store.js"
 const appStore = useAppStore()
 const nodeStore = useNodeStore()
 const modalsStore = useModalsStore()
-const notificationsStore = useNotificationsStore()
 
 const showMobileWarning = useCookie("showMobileWarning", { default: () => true })
 const showOnboardingBanner = useCookie("showOnboardingBanner", { default: () => true })
@@ -61,7 +59,11 @@ switch (hostname) {
 		selectedNetwork.value = 2
 		break
 
-	case "dev.celenium.io":
+	case "staging.preview.celenium.io":
+		selectedNetwork.value = 0
+		break
+
+	case "dev.preview.celenium.io":
 		selectedNetwork.value = 2
 		break
 

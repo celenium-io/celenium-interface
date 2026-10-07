@@ -4,7 +4,7 @@ import * as d3 from "d3"
 import { DateTime } from "luxon"
 
 /** Services */
-import { abbreviate, comma, formatBytes, isMobile, sortArrayOfObjects, tia, truncateDecimalPart } from "~/services/utils/index.js"
+import { abbreviate, comma, formatBytes, isMobile, tia, truncateDecimalPart } from "~/services/utils/index.js"
 
 const props = defineProps({
 	series: {
@@ -33,14 +33,15 @@ const buildChart = (chart, data) => {
 		left: 50,
 		axisX: 44,
 	}
-	const maxValue = d3.max(data, (d) => d3.sum(keys.value, (key) => d[key]))	
-	
+	const maxValue = d3.max(data, (d) => d3.sum(keys.value, (key) => d[key]))
+
 	/** Scales */
-	const xDomain = data.map(d => d.time)
+	const xDomain = data.map((d) => d.time)
 	const maxTicks = data.length > 30 ? 30 : data.length
 	const step = Math.ceil(xDomain.length / maxTicks)
 	const filteredDomain = xDomain.filter((_, i) => i % step === 0)
-	const x = d3.scaleBand()
+	const x = d3
+		.scaleBand()
 		.domain(xDomain)
 		.range([margin.left, width - margin.right])
 		.padding(0.1)
@@ -50,7 +51,6 @@ const buildChart = (chart, data) => {
 		acc[time] = 0
 		return acc
 	}, {})
-
 
 	/** Colors */
 	const defaultColorScale = d3.scaleOrdinal().domain(keys.value).range(d3.schemeSet2)
@@ -100,7 +100,7 @@ const buildChart = (chart, data) => {
 					return "%d %b"
 				case "month":
 					return "%b %y"
-				
+
 				default:
 					return "%b"
 			}
@@ -123,7 +123,13 @@ const buildChart = (chart, data) => {
 	svg.append("g")
 		.attr("transform", `translate(0,0)`)
 		.attr("color", "var(--op-20)")
-		.call(d3.axisRight(y).ticks(4).tickSize(width).tickFormat(v => formatScaleValue("y", v)))
+		.call(
+			d3
+				.axisRight(y)
+				.ticks(4)
+				.tickSize(width)
+				.tickFormat((v) => formatScaleValue("y", v)),
+		)
 		.call((g) => g.select(".domain").remove())
 		.call((g) => g.selectAll(".tick line").attr("stroke-opacity", 0.7).attr("stroke-dasharray", "10, 10"))
 		.call((g) => g.selectAll(".tick text").attr("x", 4).attr("dy", -4))
@@ -131,7 +137,12 @@ const buildChart = (chart, data) => {
 	svg.append("g")
 		.attr("transform", `translate(0, ${height - margin.axisX} )`)
 		.attr("color", "#ffffff33")
-		.call(d3.axisBottom(x).tickValues(filteredDomain).tickFormat(d3.timeFormat(formatScaleValue("x"))),)
+		.call(
+			d3
+				.axisBottom(x)
+				.tickValues(filteredDomain)
+				.tickFormat(d3.timeFormat(formatScaleValue("x"))),
+		)
 		.selectAll("text")
 		.each(function (d) {
 			const text = d3.select(this)
@@ -211,12 +222,12 @@ const buildChart = (chart, data) => {
 
 const drawChart = () => {
 	let data = JSON.parse(JSON.stringify(props.series.data))
-	data.forEach(d => {
+	data.forEach((d) => {
 		d.time = new Date(d.time)
-		delete(d.date)
-		delete(d.timestamp)
+		delete d.date
+		delete d.timestamp
 	})
-	
+
 	buildChart(chartEl.value.wrapper, data)
 }
 
@@ -318,7 +329,10 @@ onMounted(async () => {
 
 		background: var(--card-background);
 		border-radius: 6px;
-		box-shadow: inset 0 0 0 1px var(--op-5), 0 14px 34px rgba(0, 0, 0, 15%), 0 4px 14px rgba(0, 0, 0, 5%);
+		box-shadow:
+			inset 0 0 0 1px var(--op-5),
+			0 14px 34px rgba(0, 0, 0, 15%),
+			0 4px 14px rgba(0, 0, 0, 5%);
 
 		padding: 10px 10px 0 10px;
 

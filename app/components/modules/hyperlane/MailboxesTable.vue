@@ -2,6 +2,9 @@
 /** Vendor */
 import { DateTime } from "luxon"
 
+/** Services */
+import { comma } from "~/services/utils/index.js"
+
 /** UI */
 import Spinner from "~/components/ui/Spinner.vue"
 
@@ -83,7 +86,7 @@ const handleOpenMailboxModal = (mailbox) => {
 									<Icon name="arrow-narrow-up-right-circle" size="14" color="tertiary" />
 									<Text size="13" weight="600" color="secondary"> Sent:</Text>
 									<Text size="13" weight="600" color="primary">
-										{{ mailbox.sent_messages }}
+										{{ comma(mailbox.sent_messages) }}
 									</Text>
 								</Flex>
 							</td>
@@ -92,7 +95,7 @@ const handleOpenMailboxModal = (mailbox) => {
 									<Icon name="arrow-narrow-up-right-circle" size="14" color="tertiary" style="transform: scale(1, -1)" />
 									<Text size="13" weight="600" color="secondary">Received:</Text>
 									<Text size="13" weight="600" color="primary">
-										{{ mailbox.received_messages }}
+										{{ comma(mailbox.received_messages) }}
 									</Text>
 								</Flex>
 							</td>

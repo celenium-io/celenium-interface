@@ -1,14 +1,14 @@
 <script setup>
 /** UI */
 import Button from "~/components/ui/Button.vue"
-import { Dropdown, DropdownItem } from "~/components/ui/Dropdown/index.js"
+import Picker from "~/components/ui/Picker.vue"
 import Tooltip from "~/components/ui/Tooltip.vue"
 
 /** Components */
 import AmountInCurrency from "~/components/AmountInCurrency.vue"
 
 /** Services */
-import { capitilize, comma, numToPercent, shareOfTotalString, splitAddress } from "~/services/utils/index.js"
+import { comma, numToPercent, shareOfTotalString, splitAddress } from "~/services/utils/index.js"
 
 /** API */
 import { fetchValidators, fetchValidatorsCount } from "~/services/api/validator.js"
@@ -73,129 +73,102 @@ const router = useRouter()
 
 const isLoading = ref(false)
 const validators = ref([])
-const validatorsStats = ref({})
+const statistics = ref({})
 const totalVotingPower = computed(() => appStore.lastHead?.total_voting_power)
 
-const getValidatorsStats = async () => {
+const getStatistics = async () => {
 	isLoading.value = true
 
 	const { data } = await fetchValidatorsCount()
-	validatorsStats.value = data.value
-
-	isLoading.value = false
-}
-
-const getActiveValidators = async () => {
-	isLoading.value = true
-
-	const { data } = await fetchValidators({
-		limit: 20,
-		offset: (page.value - 1) * 20,
-	})
-	validators.value = data.value
-
-	isLoading.value = false
-}
-
-const getInactiveValidators = async () => {
-	isLoading.value = true
-
-	const { data } = await fetchValidators({
-		jailed: false,
-		limit: 20,
-		offset: validatorsStats.value.active + (page.value - 1) * 20,
-	})
-	validators.value = data.value
-
-	isLoading.value = false
-}
-
-const getJailedValidators = async () => {
-	isLoading.value = true
-
-	const { data } = await fetchValidators({
-		jailed: true,
-		limit: 20,
-		offset: (page.value - 1) * 20,
-	})
-	validators.value = data.value
-
-	isLoading.value = false
-}
-
-const getValidators = async () => {
-	switch (activeTab.value) {
-		case "active":
-			getActiveValidators()
-			break
-		case "inactive":
-			getInactiveValidators()
-			break
-		case "jailed":
-			getJailedValidators()
-			break
-		default:
-			break
+	statistics.value = {
+		active: data.value.active,
+		not_active: data.value.inactive,
+		jailed: data.value.jailed,
 	}
+
+	isLoading.value = false
 }
+
+const loadValidators = async () => {
+	isLoading.value = true
+
+	const { data } = await fetchValidators({
+		status: filters.status,
+		limit: 20,
+		offset: (page.value - 1) * 20,
+	})
+	validators.value = data.value
+
+	isLoading.value = false
+}
+
+/**
+ * Filters
+ */
+const statuses = [
+	{
+		text: "Active",
+		value: "active",
+	},
+	{
+		text: "Idle",
+		value: "not_active",
+	},
+	{
+		text: "Jailed",
+		value: "jailed",
+	},
+]
+const filters = reactive({
+	status: route.query.status ?? statuses[0].value,
+})
+watch(
+	() => filters.status,
+	async () => {
+		if (page.value !== 1) {
+			page.value = 1
+			router.replace({ query: { status: filters.status, page: page.value } })
+			return
+		}
+
+		loadValidators()
+		router.replace({ query: { status: filters.status, page: page.value } })
+	},
+)
 
 /** Pagination */
 const page = ref(route.query.page ? parseInt(route.query.page) : 1)
-const pages = computed(() => Math.max(1, Math.ceil(validatorsStats.value[activeTab.value.toLowerCase()] / 20)))
+const pages = computed(() => Math.max(1, Math.ceil(statistics.value[filters.status] / 20)))
 
 const handleNext = () => {
 	if (page.value === pages.value) return
 
 	page.value += 1
 }
-
 const handlePrev = () => {
 	if (page.value === 1) return
 
 	page.value -= 1
 }
 
-/** Tabs */
-const tabs = ref(["active", "inactive", "jailed"])
-const activeTab = ref(
-	route.query.status && tabs.value.filter((tab) => tab === route.query.status).length > 0 ? route.query.status.toLowerCase() : "active",
-)
-const dropdownItems = computed(() => tabs.value.filter((tab) => tab !== activeTab.value))
-
 watch(
 	() => route.query,
 	() => {
-		if (route.query.status) activeTab.value = route.query.status
+		if (route.query.status) filters.status = route.query.status
 	},
 )
 
-await getValidatorsStats()
-await getValidators()
+await getStatistics()
+await loadValidators()
 
 /** Refetch validators */
 watch(
 	() => page.value,
 	async () => {
-		getValidators()
-
-		router.replace({ query: { status: activeTab.value, page: page.value } })
+		loadValidators()
+		router.replace({ query: { status: filters.status, page: page.value } })
 	},
 )
-
-watch(
-	() => activeTab.value,
-	async () => {
-		page.value = 1
-
-		getValidators()
-
-		router.replace({ query: { status: activeTab.value, page: page.value } })
-	},
-)
-
-onMounted(() => {
-	router.replace({ query: { status: activeTab.value, page: page.value } })
-})
 </script>
 
 <template>
@@ -217,48 +190,28 @@ onMounted(() => {
 				</Flex>
 
 				<Flex align="center" gap="6">
-					<Dropdown>
-						<template #trigger="{ isOpen }">
-							<Button type="secondary" size="mini">
-								{{ capitilize(activeTab) }}
-								<Icon
-									name="chevron"
-									size="16"
-									color="secondary"
-									:style="{
-										transform: `rotate(${!isOpen ? '0' : '180deg'})`,
-										transition: 'all 200ms ease',
-									}"
-								/>
-							</Button>
-						</template>
+					<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
+						<Icon name="arrow-left-stop" size="12" color="primary" />
+					</Button>
+					<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
+						<Icon name="arrow-left" size="12" color="primary" />
+					</Button>
 
-						<template #popup>
-							<DropdownItem v-for="item in dropdownItems" @click="activeTab = item"> {{ capitilize(item) }} </DropdownItem>
-						</template>
-					</Dropdown>
+					<Button type="secondary" size="mini" disabled>
+						<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
+					</Button>
 
-					<!-- Pagination -->
-					<Flex align="center" gap="6">
-						<Button @click="page = 1" type="secondary" size="mini" :disabled="page === 1">
-							<Icon name="arrow-left-stop" size="12" color="primary" />
-						</Button>
-						<Button type="secondary" @click="handlePrev" size="mini" :disabled="page === 1">
-							<Icon name="arrow-left" size="12" color="primary" />
-						</Button>
-
-						<Button type="secondary" size="mini" disabled>
-							<Text size="12" weight="600" color="primary"> {{ page }} of {{ pages }} </Text>
-						</Button>
-
-						<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
-							<Icon name="arrow-right" size="12" color="primary" />
-						</Button>
-						<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages">
-							<Icon name="arrow-right-stop" size="12" color="primary" />
-						</Button>
-					</Flex>
+					<Button @click="handleNext" type="secondary" size="mini" :disabled="page === pages">
+						<Icon name="arrow-right" size="12" color="primary" />
+					</Button>
+					<Button @click="page = pages" type="secondary" size="mini" :disabled="page === pages">
+						<Icon name="arrow-right-stop" size="12" color="primary" />
+					</Button>
 				</Flex>
+			</Flex>
+
+			<Flex align="center" justify="between" wrap="wrap" gap="8" :class="$style.settings">
+				<Picker v-model="filters.status" :options="statuses" labelKey="text" valueKey="value" />
 			</Flex>
 
 			<Flex direction="column" gap="16" wide :class="[$style.table, isLoading && $style.disabled]">
@@ -266,14 +219,13 @@ onMounted(() => {
 					<table>
 						<thead>
 							<tr>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Validator</Text></th>
+								<th><Text size="12" weight="600" color="tertiary" noWrap>Name</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Voting Power</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Outgoing Rewards</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Commissions</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Rate</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Max Rate</Text></th>
 								<th><Text size="12" weight="600" color="tertiary" noWrap>Max Change Rate</Text></th>
-								<th><Text size="12" weight="600" color="tertiary" noWrap>Version</Text></th>
 							</tr>
 						</thead>
 
@@ -281,38 +233,34 @@ onMounted(() => {
 							<tr v-for="v in validators">
 								<td style="width: 1px">
 									<NuxtLink :to="`/validator/${v.id}`">
-										<Flex align="center" wide>
-											<Text
-												size="13"
-												weight="600"
-												color="primary"
-												mono
-												style="text-overflow: ellipsis; overflow: hidden"
-											>
+										<Flex justify="center" direction="column" gap="4" wide>
+											<Text size="12" weight="600" color="primary" style="text-overflow: ellipsis; overflow: hidden">
 												{{ v.moniker ? v.moniker : splitAddress(v.address?.hash) }}
 											</Text>
+											<Text v-if="v.version" size="12" weight="500" color="tertiary"> Version {{ v.version }} </Text>
 										</Flex>
 									</NuxtLink>
 								</td>
 								<td>
 									<NuxtLink :to="`/validator/${v.id}`">
-										<Flex v-if="activeTab === 'active'" align="start" justify="center" direction="column" gap="4">
+										<Flex v-if="filters.status === 'active'" align="start" justify="center" direction="column" gap="4">
 											<Tooltip position="start" delay="400">
 												<Text size="12" weight="600" color="primary">{{ comma(v.voting_power) }}</Text>
 
 												<template #content>
 													<Flex align="center" justify="between" gap="8">
 														<Text size="12" weight="600" color="tertiary">Staking Share</Text>
-														<Text size="12" weight="600" color="primary"
-															>{{ shareOfTotalString(v.voting_power, totalVotingPower) }}%</Text
-														>
+														<Text size="12" weight="600" color="primary">
+															{{ shareOfTotalString(v.voting_power, totalVotingPower) }}%
+														</Text>
 													</Flex>
 												</template>
 											</Tooltip>
 
-											<Text size="12" weight="600" color="tertiary"
-												>{{ shareOfTotalString(v.voting_power, totalVotingPower) }}%</Text
-											>
+											<Text v-if="totalVotingPower" size="12" weight="600" color="tertiary">
+												{{ shareOfTotalString(v.voting_power, totalVotingPower) }}%
+											</Text>
+											<Skeleton v-else w="24" h="12" />
 										</Flex>
 
 										<Flex v-else align="center" justify="center">
@@ -357,13 +305,6 @@ onMounted(() => {
 										</Flex>
 									</NuxtLink>
 								</td>
-								<td>
-									<NuxtLink v-if="v.version" :to="`/validator/${v.id}`">
-										<Flex align="center">
-											<Text size="13" weight="600" color="primary">{{ `v${v.version}` }}</Text>
-										</Flex>
-									</NuxtLink>
-								</td>
 							</tr>
 						</tbody>
 					</table>
@@ -395,6 +336,13 @@ onMounted(() => {
 	background: var(--card-background);
 
 	padding: 0 16px;
+}
+
+.settings {
+	border-radius: 4px;
+	background: var(--card-background);
+
+	padding: 8px 16px;
 }
 
 .table_scroller {

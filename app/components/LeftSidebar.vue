@@ -17,10 +17,8 @@ import { DEFAULT_SETTINGS } from "~/services/constants/settings.js"
 
 /** Store */
 import { useAppStore } from "~/store/app.store.js"
-import { useAuthStore } from "~/store/auth.store.js"
 import { useNodeStore } from "~/store/node.store.js"
 import { useModalsStore } from "~/store/modals.store.js"
-
 const appStore = useAppStore()
 const nodeStore = useNodeStore()
 const modalsStore = useModalsStore()
@@ -66,15 +64,15 @@ const mainLinks = reactive([
 				show: true,
 			},
 			{
-				name: "Jailed",
-				path: "/validators?status=jailed&page=1",
-				queryParam: { status: "jailed" },
+				name: "Idle",
+				path: "/validators?status=not_active&page=1",
+				queryParam: { status: "not_active" },
 				show: true,
 			},
 			{
-				name: "Inactive",
-				path: "/validators?status=inactive&page=1",
-				queryParam: { status: "inactive" },
+				name: "Jailed",
+				path: "/validators?status=jailed&page=1",
+				queryParam: { status: "jailed" },
 				show: true,
 			},
 		],
@@ -117,7 +115,7 @@ const mainLinks = reactive([
 	},
 	{
 		icon: "node",
-		name: "Node Upgrades",
+		name: "Upgrades",
 		path: "/upgrades",
 	},
 ])
@@ -426,8 +424,6 @@ const handleOnClose = () => {
 
 	padding: 6px 6px;
 	margin: 0 2px;
-
-	transition: all 0.2s ease;
 
 	&:hover {
 		background: var(--op-5);

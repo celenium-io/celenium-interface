@@ -66,10 +66,10 @@ useHead({
 		<Flex direction="column" gap="24">
 			<LatestTransfersTable />
 
-			<Flex gap="24" :class="$style.tables">
+			<div :class="$style.tables">
 				<TokensTable />
 				<MailboxesTable />
-			</Flex>
+			</div>
 		</Flex>
 	</Flex>
 </template>
@@ -83,9 +83,17 @@ useHead({
 	margin-bottom: 16px;
 }
 
-@media (max-width: 1020px) {
+.tables {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(486px, 1fr));
+	gap: 20px;
+
+	max-width: 100%;
+}
+
+@media (max-width: 1024px) {
 	.tables {
-		flex-direction: column;
+		grid-template-columns: 100%;
 	}
 }
 

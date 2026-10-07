@@ -77,7 +77,7 @@ watch(
 
 			if (!appStore.address?.length) {
 				warningBannerText.value = "Wallet connection is required to submit a blob."
-			} else if (hostname !== "celenium.io") {
+			} else if (!["celenium.io", "staging.preview.celenium.io", "dev.preview.celenium.io"].includes(hostname)) {
 				warningBannerText.value = `You are currently on ${hostname}. The transaction will be performed on the test network.`
 			} else {
 				warningBannerText.value = ""

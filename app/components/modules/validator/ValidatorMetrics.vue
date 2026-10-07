@@ -1,6 +1,7 @@
 <script setup>
 /** UI */
 import Input from "~/components/ui/Input.vue"
+import Button from "~/components/ui/Button.vue"
 import Popover from "~/components/ui/Popover.vue"
 
 /** Components */
@@ -126,19 +127,13 @@ onBeforeMount(async () => {
 <template>
 	<Flex direction="column" justify="between" align="center" gap="12" wide :class="$style.wrapper">
 		<Flex align="center" justify="between" wide>
-			<Text size="13" weight="600" color="primary">Validator Metrics Comparison</Text>
+			<Text size="13" weight="600" color="primary">Metrics Comparison</Text>
 
 			<Popover :open="isPopoverOpen" @on-close="handlePopoverClose" side="right" width="160">
-				<Flex
-					@click="isPopoverOpen = true"
-					align="center"
-					justify="between"
-					gap="12"
-					:class="[$style.popover_header, isPopoverOpen && $style.popover_header_active]"
-				>
+				<Button @click="isPopoverOpen = true" type="secondary" size="mini">
 					<Flex align="center" gap="4">
-						<Text size="13" color="secondary"> vs </Text>
-						<Text size="13" color="primary" :class="$style.title">
+						<Text size="13" weight="600" color="secondary"> Versus </Text>
+						<Text size="13" weight="600" color="primary" :class="$style.title">
 							{{ selectedItem?.name || selectedItem?.moniker || selectedItem?.address?.hash }}
 						</Text>
 					</Flex>
@@ -147,9 +142,9 @@ onBeforeMount(async () => {
 						name="chevron"
 						size="14"
 						color="secondary"
-						:style="{ transform: `rotate(${isPopoverOpen ? '180' : '0'}deg)`, transition: 'all 0.25s ease' }"
+						:style="{ transform: `rotate(${isPopoverOpen ? '180' : '0'}deg)`, transition: 'all 0.1s ease' }"
 					/>
-				</Flex>
+				</Button>
 
 				<template #content>
 					<Flex direction="column" justify="center" gap="12" wide>
@@ -212,20 +207,6 @@ onBeforeMount(async () => {
 	max-width: 384px;
 }
 
-.popover_header {
-	cursor: pointer;
-
-	max-width: 150px;
-
-	padding: 8px;
-	box-shadow: 0 0 0 1px var(--op-10);
-	border-radius: 6px;
-
-	&:hover {
-		box-shadow: 0 0 0 1px var(--op-20);
-	}
-}
-
 .title {
 	max-width: 90px;
 	min-height: 14px;
@@ -233,10 +214,6 @@ onBeforeMount(async () => {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-}
-
-.popover_header_active {
-	box-shadow: 0 0 0 1px var(--op-20);
 }
 
 .popover_list {

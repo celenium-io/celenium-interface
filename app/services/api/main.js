@@ -12,8 +12,7 @@ export const fetchHead = async () => {
 
 export const fetchBlobsState = async () => {
 	try {
-		const data = await $fetch(`${getBlobsURL()}/state`)
-		return data
+		return await $fetch(`${getBlobsURL()}/state`)
 	} catch (error) {
 		console.error(error)
 	}

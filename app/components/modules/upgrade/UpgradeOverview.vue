@@ -153,13 +153,13 @@ onMounted(() => {
 
 							<div v-for="dot in 12" class="dot" />
 
-							<Text size="12" weight="600" color="secondary" align="right">
-								{{
-									upgrade.applied_at
-										? DateTime.fromISO(upgrade.applied_at).setLocale("en").toLocaleString(DateTime.DATE_MED)
-										: "In progress"
-								}}
+							<Text v-if="upgrade.applied_at" size="12" weight="600" color="secondary" align="right">
+								{{ DateTime.fromISO(upgrade.applied_at).setLocale("en").toLocaleString(DateTime.DATE_MED) }}
 							</Text>
+							<Text v-else-if="upgrade.status === 'skipped'" size="12" weight="600" color="secondary" align="right">
+								Skipped
+							</Text>
+							<Text v-else size="12" weight="600" color="secondary" align="right"> In progress </Text>
 						</Flex>
 					</Badge>
 
@@ -181,6 +181,10 @@ onMounted(() => {
 							<Flex v-else-if="upgrade.status === 'waiting_upgrade'" align="center" gap="6">
 								<Icon name="zap-circle" size="14" color="brand" />
 								<Text size="13" weight="600" color="primary">Waiting Upgrade</Text>
+							</Flex>
+							<Flex v-else-if="upgrade.status === 'skipped'" align="center" gap="6">
+								<Icon name="arrow-circle-broken-right" size="14" color="tertiary" />
+								<Text size="13" weight="600" color="primary">Skipped</Text>
 							</Flex>
 							<Flex v-else align="center" gap="6">
 								<Icon name="zap-circle" size="14" color="tertiary" />

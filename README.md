@@ -1,7 +1,6 @@
 ### Official Deployment
 
 - Production: [celenium.io](https://celenium.io)
-- Development: [dev.celenium.io](https://dev.celenium.io)
 
 ### Local Setup
 

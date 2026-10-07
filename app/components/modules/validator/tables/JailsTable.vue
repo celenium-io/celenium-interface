@@ -8,8 +8,6 @@ import Tooltip from "~/components/ui/Tooltip.vue"
 /** Services */
 import { comma, tia } from "~/services/utils/index.js"
 
-const router = useRouter()
-
 const props = defineProps({
 	jails: {
 		type: Array,

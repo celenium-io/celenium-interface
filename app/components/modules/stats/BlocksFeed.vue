@@ -8,9 +8,6 @@ import Tooltip from "~/components/ui/Tooltip.vue"
 /** Services */
 import { comma, formatBytes } from "~/services/utils/index.js"
 
-/** API */
-import { fetchAvgBlockTime } from "~/services/api/block.js"
-
 /** Store */
 import { useAppStore } from "~/store/app.store.js"
 const appStore = useAppStore()
@@ -59,7 +56,6 @@ const maxSize = computed(() => {
 
 	return Math.max(...blocks.value.map((b) => b.stats.bytes_in_block))
 })
-const avgBlockTime = ref(0)
 
 const calculateHeight = (size) => {
 	if (!size) return 2
@@ -91,9 +87,6 @@ watch(
 onMounted(async () => {
 	chartWidth.value = chartBlocksEl.value?.wrapper?.offsetWidth
 
-	const data = await fetchAvgBlockTime({ from: parseInt(DateTime.now().minus({ hours: 3 }).ts / 1_000) })
-	avgBlockTime.value = data / 1_000
-
 	window.addEventListener("resize", debouncedRedraw)
 })
 
@@ -104,12 +97,6 @@ onBeforeUnmount(() => {
 
 <template>
 	<Flex direction="column" :class="$style.card_wrapper">
-		<Flex align="center" justify="between">
-			<Text size="13" weight="600" height="110" color="primary"> Blocks Feed </Text>
-
-			<Text size="13" weight="600" height="110" color="primary"> {{ `~${Math.ceil(avgBlockTime)}s` }} </Text>
-		</Flex>
-
 		<Flex ref="chartBlocksEl" align="end" :class="$style.chart">
 			<Tooltip
 				v-for="(b, index) in pause ? blocksSnapshot : blocks"

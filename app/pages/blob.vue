@@ -13,7 +13,7 @@ import Button from "~/components/ui/Button.vue"
 import Tooltip from "~/components/ui/Tooltip.vue"
 
 /** Services */
-import { space, formatBytes, comma, strToHex } from "~/services/utils/index.js"
+import { formatBytes, comma, strToHex } from "~/services/utils/index.js"
 
 /** Stores */
 import { useCacheStore } from "~/store/cache.store.js"

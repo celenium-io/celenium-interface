@@ -1,6 +1,8 @@
 const origins = [
 	"https://mocha.celenium.io/",
 	"https://mocha-5.celenium.io/",
+	"https://staging.preview.celenium.io/",
+	"https://dev.preview.celenium.io/",
 ]
 
 export default defineNitroPlugin((nitroApp) => {
