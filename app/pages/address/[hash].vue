@@ -34,9 +34,7 @@ if (isValidId(route.params.hash, "address")) {
 defineOgImage("AddressImage", {
 	title: "Address",
 	address: address.value,
-	cacheKey: `${address.value?.hash?.slice(-4)}-${address.value?.balance?.spendable}-${address.value?.first_height}-${
-		address.value?.last_height
-	}`,
+	cacheKey: address.value?.hash,
 })
 
 useHead({
