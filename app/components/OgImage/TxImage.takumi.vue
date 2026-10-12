@@ -14,22 +14,11 @@ const props = defineProps({
 	tx: Object,
 })
 
-const bgStyles = computed(() => {
-	return {
-		style: {
-			filter: "grayscale(1)",
-			opacity: "0.05",
-		},
-	}
-})
-
 const messages = computed(() => [...new Set(props.tx.message_types)])
 </script>
 
 <template>
 	<div class="wrapper w-full h-full">
-		<img src="/img/bg.png" width="1200" height="600" class="img" v-bind="bgStyles" />
-
 		<div class="content">
 			<div class="flex flex-row items-center" :style="{ gap: '24px' }">
 				<div class="flex items-center flex-nowrap">
@@ -93,8 +82,6 @@ const messages = computed(() => [...new Set(props.tx.message_types)])
 <style scoped>
 .wrapper {
 	position: relative;
-
-	font-family: "JetBrains Mono";
 
 	background: #111111;
 	overflow: hidden;
