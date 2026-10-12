@@ -10,21 +10,10 @@ const props = defineProps({
 	title: String,
 	validator: Object,
 })
-
-const bgStyles = computed(() => {
-	return {
-		style: {
-			filter: "grayscale(1)",
-			opacity: "0.05",
-		},
-	}
-})
 </script>
 
 <template>
 	<div class="wrapper w-full h-full">
-		<img src="/img/bg.png" width="1200" height="600" class="img" v-bind="bgStyles" />
-
 		<div class="content">
 			<div :style="{ display: 'flex', alignItems: 'center' }">
 				<span :style="{ fontSize: '60px', color: 'rgba(255,255,255, 0.9)' }">validator</span>
@@ -55,14 +44,8 @@ const bgStyles = computed(() => {
 .wrapper {
 	position: relative;
 
-	font-family: "JetBrains Mono";
-
 	background: #111111;
 	overflow: hidden;
-}
-
-.img {
-	position: absolute;
 }
 
 .content {
