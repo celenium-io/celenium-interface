@@ -56,7 +56,7 @@ export const fetchAvgBlockTime = async ({ from }) => {
 
 export const fetchBlockByHeight = async (height) => {
 	try {
-		return useFetch(`${useServerURL()}/block/${height}?stats=true&q=${new Date().getTime()}`)
+		return useFetch(`${useServerURL()}/block/${height}?stats=true`)
 	} catch (error) {
 		console.error(error)
 	}
