@@ -206,6 +206,20 @@ onMounted(() => {
 						</NuxtLink>
 					</Flex>
 
+					<Flex v-if="upgrade.status === 'waiting_upgrade'" direction="column" gap="10" :class="$style.key_value">
+						<Text size="12" weight="600" color="secondary">Expected at</Text>
+
+						<NuxtLink :to="`/block/${upgrade.expected_upgrade_height}`">
+							<Outline>
+								<Flex align="center" gap="6">
+									<Icon name="block" size="14" color="tertiary" />
+
+									<Text size="13" weight="600" color="primary">{{ comma(upgrade.expected_upgrade_height) }}</Text>
+								</Flex>
+							</Outline>
+						</NuxtLink>
+					</Flex>
+
 					<Flex v-if="upgrade.title" direction="column" gap="6" :class="$style.key_value">
 						<Text size="13" weight="600" color="primary"> {{ upgrade.title }} </Text>
 
