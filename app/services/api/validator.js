@@ -69,7 +69,7 @@ export const fetchValidatorJails = ({ id, limit, offset }) => {
 		if (limit) url.searchParams.append("limit", limit)
 		if (offset) url.searchParams.append("offset", offset)
 
-		return useFetch(encodeURI(url.href))
+		return $fetch(encodeURI(url.href))
 	} catch (error) {
 		console.error(error)
 	}
