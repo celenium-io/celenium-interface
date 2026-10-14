@@ -1,4 +1,7 @@
 <script setup>
+/** Vendor */
+import { DateTime } from "luxon"
+
 /** UI */
 import Button from "~/components/ui/Button.vue"
 import Tooltip from "~/components/ui/Tooltip.vue"
@@ -60,6 +63,11 @@ const StatusMap = {
 		color: "red",
 		icon: "lock",
 	},
+}
+
+const JailReasonMap = {
+	missing_signature: "Jailed for downtime; missed too many blocks",
+	double_sign: "Jailed for double signin",
 }
 
 const tabs = ref([
@@ -148,13 +156,13 @@ const getDelegators = async () => {
 const getJails = async () => {
 	isRefetching.value = true
 
-	const { data } = await fetchValidatorJails({
+	const data = await fetchValidatorJails({
 		id: props.validator.id,
 		limit: limit,
 		offset: (page.value - 1) * limit,
 	})
 
-	jails.value = data.value
+	jails.value = data
 	handleNextCondition.value = jails.value?.length < limit
 
 	isRefetching.value = false
@@ -221,6 +229,8 @@ onMounted(() => {
 			tab: activeTab.value?.toLowerCase(),
 		},
 	})
+
+	if (props.validator.status === "jailed") getJails()
 })
 
 const parsedContacts = computed(() => {
@@ -350,6 +360,9 @@ const handleDelegate = () => {
 									<Text size="13" weight="600" color="primary" style="text-transform: capitalize">
 										{{ StatusMap[validator.status].text }}
 									</Text>
+									<Text v-if="validator.status === 'jailed' && jails.length > 0" size="13" weight="600" color="tertiary">
+										{{ DateTime.fromISO(jails[0].time).toRelative({ locale: "en", style: "short" }) }}
+									</Text>
 								</Flex>
 							</Outline>
 							<Outline v-if="validator.version" :hoverEffect="false">
@@ -362,9 +375,18 @@ const handleDelegate = () => {
 
 						<Flex v-if="validator.details" align="center" gap="6">
 							<Text size="12" height="160" weight="500" color="tertiary" selectable :class="$style.memo">
-								{{ validator.details }}
+								{{}}
+									{{ validator.details }}
 							</Text>
 						</Flex>
+					</Flex>
+
+					<Flex v-if="validator.status === 'jailed' && jails.length > 0" direction="column" gap="8" :class="$style.key_value">
+						<Text size="12" weight="600" color="secondary">Jail Reason</Text>
+						<Text size="13" weight="600" color="primary"> {{ JailReasonMap[jails[0].reason] }} </Text>
+						<Text size="13" weight="500" color="tertiary" mono>
+							{{ jails[0].reason }}
+						</Text>
 					</Flex>
 
 					<Flex direction="column" gap="8" :class="$style.key_value">
@@ -626,6 +648,7 @@ const handleDelegate = () => {
 
 .data {
 	min-width: 384px;
+	max-width: 384px;
 
 	border-radius: 4px 4px 4px 8px;
 	background: var(--card-background);
