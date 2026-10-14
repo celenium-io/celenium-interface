@@ -204,7 +204,7 @@ onMounted(() => {
 								<td style="width: 1px">
 									<NuxtLink :to="`/upgrade/${u.version}`">
 										<Flex align="center" gap="6">
-											<Text size="13" weight="600" color="primary" mono>
+											<Text size="13" weight="600" color="primary">
 												{{ `Version ${u.version}` }}
 											</Text>
 										</Flex>
