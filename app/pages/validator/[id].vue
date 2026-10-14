@@ -101,7 +101,9 @@ useHead({
 			<ValidatorVotingPowerHistory v-if="validator" :validator />
 		</Flex>
 
-		<ValidatorCharts v-if="validator" :validator />
+		<ClientOnly>
+			<ValidatorCharts v-if="validator" :validator />
+		</ClientOnly>
 	</Flex>
 </template>
 

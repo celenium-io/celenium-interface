@@ -1,6 +1,8 @@
 <script setup>
 /** Vendor */
 import { DateTime } from "luxon"
+import { motion, useMotionValue, animate } from "motion-v"
+import NumberFlow from "@number-flow/vue"
 
 /** Services */
 import { comma, roundTo } from "~/services/utils/index.js"
@@ -14,42 +16,18 @@ const appStore = useAppStore()
 
 const lastBlock = computed(() => appStore.latestBlocks[0])
 
-const isInited = ref(false)
-
 let blockProgressInterval = null
-let delayInterval = null
 
 const avgBlockTime = ref(null)
 
-const delay = ref(0)
-const isDelayed = ref(false)
-
 const blockProgress = ref(0)
-const fillOffset = computed(() => {
-	if (!blockProgress.value) return 0
 
-	const offset = (100 * blockProgress.value) / avgBlockTime.value
-	return offset
-})
+const isInited = ref(false)
+const isAwaitingNewBlock = ref(false)
 
 const init = async () => {
 	const data = await fetchAvgBlockTime({ from: parseInt(DateTime.now().minus({ hours: 3 }).ts / 1_000) })
-	avgBlockTime.value = data / 1_000
-
-	if (avgBlockTime.value) {
-		const offsetSinceLastBlock = Math.abs(DateTime.fromISO(lastBlock.value.time).diffNow("seconds").values.seconds + avgBlockTime.value)
-
-		if (offsetSinceLastBlock > avgBlockTime.value) {
-			isDelayed.value = true
-			delay.value = Math.floor(offsetSinceLastBlock - avgBlockTime.value)
-			delayInterval = setInterval(() => {
-				delay.value += 1
-			}, 1_000)
-		}
-
-		blockProgress.value = Math.floor(offsetSinceLastBlock)
-		if (!isDelayed.value) startBlockProgress()
-	}
+	avgBlockTime.value = data ? data / 1_000 : 3
 
 	isInited.value = true
 }
@@ -65,19 +43,24 @@ watch(
 	},
 )
 
+const scaleX = useMotionValue(0)
+const controls = ref(null)
+const startAnimation = () => {
+	scaleX.set(0)
+
+	if (controls.value) controls.value.stop()
+	controls.value = animate(scaleX, 1.2, { duration: avgBlockTime.value, ease: "easeOut" })
+}
+
 const startBlockProgress = () => {
 	blockProgressInterval = setInterval(() => {
 		blockProgress.value += 1
 
-		if (blockProgress.value > avgBlockTime.value) {
-			isDelayed.value = true
+		if (blockProgress.value > Math.ceil(avgBlockTime.value)) {
+			isAwaitingNewBlock.value = true
 			clearInterval(blockProgressInterval)
-
-			delayInterval = setInterval(() => {
-				delay.value += 1
-			}, 1_000)
 		}
-	}, 1_000)
+	}, 1000)
 }
 
 watch(
@@ -85,14 +68,12 @@ watch(
 	() => {
 		if (!isInited.value) return
 
-		isDelayed.value = false
-
 		clearInterval(blockProgressInterval)
-		clearInterval(delayInterval)
 
 		blockProgress.value = 0
-		delay.value = 0
+		isAwaitingNewBlock.value = false
 
+		startAnimation()
 		startBlockProgress()
 	},
 )
@@ -106,10 +87,12 @@ onBeforeUnmount(() => {
 	<NuxtLink :to="lastBlock && `/block/${lastBlock.height}`" :class="$style.wrapper">
 		<Flex align="start" justify="between">
 			<Flex direction="column" gap="10">
-				<Flex align="center" gap="4">
+				<Flex align="center" gap="4" style="height: 24px; margin-top: -4px">
 					<Text size="16" weight="600" color="secondary"> Block </Text>
 
-					<Text v-if="lastBlock" size="16" weight="600" color="primary"> {{ comma(lastBlock.height) }}</Text>
+					<Text v-if="lastBlock" size="16" weight="600" color="primary" tabular>
+						<NumberFlow :value="lastBlock.height" />
+					</Text>
 					<Skeleton v-else w="88" h="12" />
 				</Flex>
 
@@ -132,28 +115,27 @@ onBeforeUnmount(() => {
 			<Transition name="fade">
 				<svg width="200%" height="28" :class="$style.lines">
 					<pattern id="diagonalHatch1" width="20" height="20" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
-						<line x1="0" y1="0" x2="0" y2="20" style="stroke: var(--op-10); stroke-width: 15" />
+						<line x1="0" y1="0" x2="0" y2="20" style="stroke: var(--op-5); stroke-width: 15" />
 					</pattern>
 					<rect x="0" y="0" width="100%" height="100%" fill="url(#diagonalHatch1)"></rect>
 				</svg>
 			</Transition>
 
-			<Flex v-if="!isDelayed" align="center" justify="between" wide>
-				<Icon name="block" size="16" color="primary" />
-
-				<div v-for="item in 14" :class="$style.dot" />
-
-				<Flex justify="end" :class="$style.timer">
-					<Text size="13" weight="600" color="primary">{{ blockProgress }}</Text>
-					<Text size="13" weight="600" color="tertiary">s</Text>
+			<Flex v-if="!isAwaitingNewBlock" align="center" justify="between" wide>
+				<Flex align="center" gap="8">
+					<Icon name="block" size="16" color="primary" />
+					<Text v-if="lastBlock" size="12" weight="600" color="secondary" :class="$style.block_time">
+						<NumberFlow :value="lastBlock.stats.block_time / 1_000" suffix="s" />
+					</Text>
 				</Flex>
+
+				<div v-for="item in 16" :class="$style.dot" />
 			</Flex>
 			<Flex v-else align="center" gap="4">
-				<Text size="13" weight="600" color="secondary">Delayed by </Text>
-				<Text size="13" weight="600" color="primary">{{ delay }}s</Text>
+				<Text size="13" weight="600" color="secondary">Awaiting New Block</Text>
 			</Flex>
 
-			<div v-if="!isDelayed" :style="{ transform: `scaleX(${fillOffset / 100})` }" :class="$style.fill"></div>
+			<motion.div v-if="!isAwaitingNewBlock" :style="{ originX: 0, scaleX }" :class="$style.fill" />
 			<div v-else :class="[$style.fill, $style.delayed]" />
 		</Flex>
 	</NuxtLink>
@@ -197,7 +179,7 @@ onBeforeUnmount(() => {
 	background: var(--block-progress-background);
 	overflow: hidden;
 
-	padding: 0 8px;
+	padding: 0 16px 0 8px;
 
 	.lines {
 		position: absolute;
@@ -234,8 +216,12 @@ onBeforeUnmount(() => {
 	background: var(--op-30);
 }
 
-.timer {
-	width: 22px;
+.block_time {
+	min-width: 44px;
+
+	& number-flow-vue::part(suffix) {
+		color: var(--txt-tertiary);
+	}
 }
 
 .fill {
@@ -246,12 +232,11 @@ onBeforeUnmount(() => {
 
 	width: 100%;
 
-	background: var(--neutral-mint);
+	background: linear-gradient(90deg, var(--neutral-mint), transparent);
 
 	z-index: -1;
 
 	will-change: transform;
-	transition: all 0.9s ease;
 	transform-origin: left;
 
 	&.delayed {

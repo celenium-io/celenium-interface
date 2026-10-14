@@ -35,6 +35,7 @@
 	"dependencies": {
 		"@codemirror/lang-json": "^6.0.1",
 		"@keplr-wallet/cosmos": "^0.12.70",
+		"@number-flow/vue": "^0.5.2",
 		"@openzeppelin/merkle-tree": "^1.0.6",
 		"@pinia/nuxt": "0.11.3",
 		"@posthog/nuxt": "1.7.91",
@@ -53,6 +54,7 @@
 		"long": "^5.2.3",
 		"lumina-node": "1.0.0",
 		"luxon": "3.4.3",
+		"motion-v": "^2.7.0",
 		"nuxt-og-image": "6.10.3",
 		"nuxt-site-config": "^3.2.21",
 		"pinia": "3.0.4",
