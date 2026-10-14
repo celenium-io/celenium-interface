@@ -111,7 +111,21 @@ const collapseDetails = ref(true)
 
 const page = ref(1)
 const limit = 10
-const handleNextCondition = ref(true)
+const rowsByTab = {
+	delegators,
+	"proposed blocks": blocks,
+	jails,
+	signals,
+	votes,
+}
+const handleNextCondition = computed(() => {
+	if (activeTab.value === "messages") {
+		const total = Number(props.validator.messages_count ?? 0)
+		return page.value >= Math.max(1, Math.ceil(total / limit))
+	}
+	const rows = rowsByTab[activeTab.value]?.value
+	return (rows?.length ?? 0) < limit
+})
 
 const handleNext = () => {
 	page.value += 1
@@ -132,7 +146,6 @@ const getBlocks = async () => {
 	if (data.value?.length) {
 		blocks.value = data.value
 		cacheStore.current.blocks = blocks.value
-		handleNextCondition.value = blocks.value?.length < limit
 	}
 
 	isRefetching.value = false
@@ -148,7 +161,6 @@ const getDelegators = async () => {
 	})
 
 	delegators.value = data.value
-	handleNextCondition.value = delegators.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -163,7 +175,6 @@ const getJails = async () => {
 	})
 
 	jails.value = data
-	handleNextCondition.value = jails.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -178,7 +189,6 @@ const getSignals = async () => {
 	})
 
 	signals.value = data.value
-	handleNextCondition.value = signals.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -193,7 +203,6 @@ const getVotes = async () => {
 	})
 
 	votes.value = data.value
-	handleNextCondition.value = votes.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -209,7 +218,6 @@ const getMessages = async () => {
 
 	if (data.value?.length) {
 		messages.value = data.value
-		handleNextCondition.value = blocks.value?.length < limit
 	}
 
 	isRefetching.value = false
