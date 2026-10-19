@@ -348,11 +348,11 @@ onMounted(() => {
 							</Flex>
 
 							<Flex gap="6">
+								<Text size="12" weight="600" color="tertiary">
+									{{ DateTime.fromISO(upgrade.time).setLocale("en").toFormat("LLL d, t") }}
+								</Text>
 								<Text size="12" weight="600" color="secondary">
 									{{ DateTime.fromISO(upgrade.time).toRelative({ locale: "en", style: "short" }) }}
-								</Text>
-								<Text size="12" weight="500" color="tertiary">
-									{{ DateTime.fromISO(upgrade.time).setLocale("en").toFormat("LLL d, t") }}
 								</Text>
 							</Flex>
 						</Flex>
@@ -409,7 +409,7 @@ onMounted(() => {
 							</Flex>
 
 							<Flex gap="6">
-								<AddressBadge :account="upgrade.signer" color="tertiary" />
+								<AddressBadge :account="upgrade.signer" color="secondary" />
 								<CopyButton :text="upgrade.signer.hash" />
 							</Flex>
 						</Flex>

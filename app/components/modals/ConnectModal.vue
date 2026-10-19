@@ -27,13 +27,11 @@ watch(
 )
 
 const hasKeplr = ref(false)
-const hasLeap = ref(false)
 
 const address = ref("")
 
 onMounted(() => {
 	hasKeplr.value = !!window.keplr
-	hasLeap.value = !!window.leap
 
 	address.value = location.hostname
 })
@@ -101,65 +99,24 @@ const handleConnect = async (target) => {
 				</Text>
 			</Flex>
 
-			<Flex direction="column" gap="8">
-				<Text size="12" weight="600" color="secondary">Select Wallet</Text>
+			<Tooltip wide>
+				<Flex @click="handleConnect('keplr')" wide align="center" justify="between" :class="$style.wallet">
+					<Flex align="center" gap="12">
+						<img src="@/assets/logos/keplr.png" />
+						<Text size="14" weight="600" color="primary">Keplr Wallet</Text>
+					</Flex>
 
-				<Flex align="center" gap="12">
-					<Tooltip wide>
-						<Flex @click="handleConnect('keplr')" wide align="center" justify="between" :class="$style.wallet">
-							<Flex align="center" gap="12">
-								<img src="@/assets/logos/keplr.png" />
-								<Text size="14" weight="600" color="primary">Keplr Wallet</Text>
-							</Flex>
-
-							<Icon
-								:name="hasKeplr ? 'check-circle' : 'arrow-narrow-up-right'"
-								size="12"
-								:color="hasKeplr ? 'brand' : 'secondary'"
-							/>
-						</Flex>
-
-						<template #content>
-							{{
-								hasKeplr
-									? "Keplr is found in your extensions and ready to connect."
-									: "Keplr is not found in your extensions, install it."
-							}}
-						</template>
-					</Tooltip>
-
-					<Tooltip wide>
-						<Flex
-							@click="handleConnect('leap')"
-							wide
-							align="center"
-							justify="between"
-							:class="[$style.wallet, !isMainnet() && $style.disabled]"
-						>
-							<Flex align="center" gap="12">
-								<img src="@/assets/logos/leap.png" />
-								<Text size="14" weight="600" color="primary">Leap Wallet</Text>
-							</Flex>
-
-							<Icon
-								:name="hasLeap ? 'check-circle' : 'arrow-narrow-up-right'"
-								size="12"
-								:color="hasLeap ? 'brand' : 'secondary'"
-							/>
-						</Flex>
-
-						<template #content>
-							{{
-								!isMainnet()
-									? "Temporarily unavailable for test networks."
-									: hasLeap
-										? "Leap is found in your extensions and ready to connect."
-										: "Leap is not found in your extensions, install it."
-							}}
-						</template>
-					</Tooltip>
+					<Icon :name="hasKeplr ? 'check-circle' : 'arrow-narrow-up-right'" size="12" :color="hasKeplr ? 'brand' : 'secondary'" />
 				</Flex>
-			</Flex>
+
+				<template #content>
+					{{
+						hasKeplr
+							? "Keplr is found in your extensions and ready to connect."
+							: "Keplr is not found in your extensions, install it."
+					}}
+				</template>
+			</Tooltip>
 
 			<Flex direction="column" gap="8">
 				<Text size="12" weight="600" color="secondary">By continue</Text>

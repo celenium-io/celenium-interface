@@ -86,11 +86,6 @@ export default defineNuxtConfig({
 		},
 	},
 
-	sourcemap: {
-		server: false,
-		client: "hidden",
-	},
-
 	posthogConfig: {
 		publicKey: "phc_tcqeIINi9GbfhqO7JwuIJc6YcbyEdhdiv1QKGNYi6MN",
 		host: "https://lt.celenium.io",
