@@ -50,10 +50,10 @@ const isActive = computed(() => {
 	} else {
 		if (route.path?.includes("/txs")) {
 			if (props.link.name === "Transactions") {
-				res = !route.fullPath?.includes("message_type=MsgPayForBlobs")
+				res = !route.fullPath?.includes("message_type=MsgPayForBlobs") && !route.fullPath?.includes("message_type=MsgPayForFibre")
 			} else if (props.link.name === "Pay for Blobs") {
 				res = route.fullPath?.includes("message_type=MsgPayForBlobs")
-			} else if (props.link.name === "Pay for Ашику") {
+			} else if (props.link.name === "Pay for Fibre") {
 				res = route.fullPath?.includes("message_type=MsgPayForFibre")
 			}
 		} else {
@@ -84,7 +84,7 @@ const handleClick = () => {
 			]"
 		>
 			<Flex align="center" gap="8">
-				<Icon :name="link.icon" size="14" :color="!link.highlight ? 'secondary' : 'orange'" :class="$style.link_icon" />
+				<Icon :name="link.icon" size="14" color="secondary" :class="[$style.link_icon, link.highlight && $style.highlighted]" />
 				<Text size="13" weight="600" color="secondary">{{ link.name }} </Text>
 			</Flex>
 
@@ -114,6 +114,10 @@ const handleClick = () => {
 
 	padding: 0 4px 0 8px;
 
+	& .link_icon.highlighted {
+		fill: var(--orange);
+	}
+
 	&:hover {
 		background: var(--op-5);
 	}
@@ -127,6 +131,10 @@ const handleClick = () => {
 
 		& .link_icon:first-of-type {
 			fill: var(--brand);
+		}
+
+		& .link_icon.highlighted:first-of-type {
+			fill: var(--orange);
 		}
 	}
 

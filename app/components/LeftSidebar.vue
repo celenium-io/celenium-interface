@@ -30,6 +30,13 @@ const settings = useCookie("localSettings", {
 })
 
 const head = computed(() => appStore.lastHead)
+watch(
+	() => head.value,
+	() => {
+		const fibreLink = modularLinks.find((link) => link.name === "Pay for Fibre")
+		if (head.value.version >= 10) fibreLink.disabled = false
+	},
+)
 
 const mainLinks = reactive([
 	{

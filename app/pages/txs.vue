@@ -335,6 +335,7 @@ watch(
 	async () => {
 		if (!isRefetching.value) {
 			if (Object.keys(route.query).length) {
+				resetFilters()
 				parseRouteQuery()
 			} else {
 				resetFilters()
