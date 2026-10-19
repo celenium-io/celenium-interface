@@ -8,4 +8,5 @@ export const MessageIconMap = {
 	beginredelegate: "hand",
 	withdrawdelegatorreward: "coins",
 	unjail: "hash",
+	payforfibre: "fibre",
 }
