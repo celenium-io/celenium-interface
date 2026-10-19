@@ -454,6 +454,29 @@ const handleDelegate = () => {
 						</Flex>
 					</Flex>
 
+					<!-- Fibre -->
+					<Flex v-if="validator.fibre" direction="column" gap="16">
+						<Text size="12" weight="600" color="secondary">Fibre</Text>
+
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Host</Text>
+							<Flex gap="6">
+								<Text size="12" weight="600" color="secondary">{{ validator.fibre.host }}</Text>
+								<CopyButton :text="validator.fibre.host" />
+							</Flex>
+						</Flex>
+
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Registration Height</Text>
+							<NuxtLink :to="`/block/${validator.fibre.height}`" target="_blank">
+								<Flex align="center" gap="6">
+									<Text size="12" weight="600" color="secondary">{{ comma(validator.fibre.height) }}</Text>
+									<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
+								</Flex>
+							</NuxtLink>
+						</Flex>
+					</Flex>
+
 					<!-- Details -->
 					<Flex direction="column" gap="16">
 						<Flex @click="collapseDetails = !collapseDetails" align="center" justify="between" gap="12" style="cursor: pointer">

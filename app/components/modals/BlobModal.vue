@@ -276,7 +276,7 @@ const handlePreviewContent = () => {
 				</Flex>
 
 				<Flex align="center" gap="12" wide :class="$style.badges">
-					<Flex direction="column" gap="8" :class="$style.badge">
+					<Flex v-if="cacheStore.selectedBlob.source !== 'fibre'" direction="column" gap="8" :class="$style.badge">
 						<Text size="12" weight="500" color="secondary"> Content Type </Text>
 
 						<Text v-if="cacheStore.selectedBlob.content_type" size="13" weight="600" color="primary">
@@ -429,6 +429,7 @@ const handlePreviewContent = () => {
 			<Flex align="center" gap="8" :class="$style.buttons">
 				<Flex gap="8" :class="$style.col">
 					<Button
+						v-if="cacheStore.selectedBlob.source !== 'fibre'"
 						:link="`/blob?commitment=${cacheStore.selectedBlob.commitment}&hash=${cacheStore.selectedBlob.hash}&height=${cacheStore.selectedBlob.height}`"
 						target="_blank"
 						type="secondary"
