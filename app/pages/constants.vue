@@ -68,8 +68,10 @@ const { data: constants } = await useAsyncData(`all-constants`, async () => {
 	return { mainnet, mocha }
 })
 
+console.log(constants)
+
 const networks = ["mainnet", "mocha"]
-const modules = Object.keys(constants.value.mainnet.module)
+const modules = Object.keys(constants.value.mocha.module)
 
 const constantsToMb = ["block_max_bytes", "evidence_max_bytes"]
 const constantsToDays = [
@@ -244,7 +246,7 @@ const handleCopy = (text) => {
 								<td module></td>
 							</tr>
 
-							<tr v-for="constant in Object.keys(constants.mainnet.module[module])">
+							<tr v-for="constant in Object.keys(constants.mocha.module[module])">
 								<td>
 									<Flex align="center" justify="between" gap="8">
 										<Flex align="center" gap="6">
