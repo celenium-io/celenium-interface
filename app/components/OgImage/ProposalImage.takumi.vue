@@ -11,15 +11,6 @@ const props = defineProps({
 	proposal: Object,
 })
 
-const bgStyles = computed(() => {
-	return {
-		style: {
-			filter: "grayscale(1)",
-			opacity: "0.05",
-		},
-	}
-})
-
 function truncateText(text = "", maxCharsPerLine = 30, maxLines = 2) {
 	if (!text) return ""
 
@@ -56,8 +47,6 @@ function truncateText(text = "", maxCharsPerLine = 30, maxLines = 2) {
 
 <template>
 	<div class="wrapper w-full h-full">
-		<img src="/img/bg.png" width="1200" height="600" class="img" v-bind="bgStyles" />
-
 		<div class="content">
 			<div :style="{ display: 'flex', alignItems: 'center' }">
 				<span :style="{ fontSize: '40px', color: 'rgba(255,255,255, 0.6)', textTransform: 'capitalize', marginRight: '24px;' }">
@@ -94,14 +83,8 @@ function truncateText(text = "", maxCharsPerLine = 30, maxLines = 2) {
 .wrapper {
 	position: relative;
 
-	font-family: "JetBrains Mono";
-
 	background: #111111;
 	overflow: hidden;
-}
-
-.img {
-	position: absolute;
 }
 
 .content {

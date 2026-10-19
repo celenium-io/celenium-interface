@@ -74,8 +74,16 @@ const networks = ["mainnet", "mocha"]
 const modules = Object.keys(constants.value.mocha.module)
 
 const constantsToMb = ["block_max_bytes", "evidence_max_bytes"]
-const constantsToDays = ["evidence_max_age_duration", "max_deposit_period", "voting_period", "downtime_jail_duration", "unbonding_time"]
-const constantsToTia = ["constant_fee", "min_deposit"]
+const constantsToDays = [
+	"evidence_max_age_duration",
+	"max_deposit_period",
+	"voting_period",
+	"downtime_jail_duration",
+	"unbonding_time",
+	"expedited_voting_period",
+]
+const constantsToHours = [""]
+const constantsToTia = ["constant_fee", "min_deposit", "expedited_min_deposit"]
 const constantsToPercentage = [
 	"community_tax",
 	"quorum",
@@ -85,10 +93,12 @@ const constantsToPercentage = [
 	"slash_fraction_double_sign",
 	"slash_fraction_downtime",
 	"min_commission_rate",
+	"expedited_threshold",
+	"max_commission_rate",
 ]
 const constantsPostfix = [{ network_min_gas_price: "utia" }]
 
-const constantsToFormat = [...constantsToMb, ...constantsToDays, ...constantsToTia, ...constantsToPercentage]
+const constantsToFormat = [...constantsToMb, ...constantsToDays, ...constantsToHours, ...constantsToTia, ...constantsToPercentage]
 
 const formatConstant = (key, value) => {
 	try {
@@ -106,6 +116,11 @@ const formatConstant = (key, value) => {
 			} else {
 				return `${dur.toFormat("s")} seconds`
 			}
+		}
+		if (constantsToHours.includes(key)) {
+			const dur = Duration.fromMillis(value / 1_000_000)
+
+			return `${dur.toFormat("h")} hour${dur.toFormat("h") > 1 ? "s" : ""}`
 		}
 		if (constantsToTia.includes(key)) return `${comma(value.replace("utia", "") / 1_000_000, ",", 8)} TIA`
 		if (constantsToPercentage.includes(key)) return `${round(value * 100, 6)}%`
@@ -162,6 +177,11 @@ const DescriptionMap = {
 	validator_pub_key_types: "The type of public key used by validators",
 	network_min_gas_price: "The network minimum gas price",
 	allow_messages: "An allowlist of Protobuf message type URLs that hosted interchain accounts are authorized to execute on a host chain",
+	expedited_min_deposit: "Coin specifying the minimum deposit required for an expedited governance proposal",
+	expedited_threshold: "The minimum proportion of 'Yes' votes (excluding 'NoWithVeto') required for an expedited proposal to pass",
+	expedited_voting_period:
+		"Param defining the duration an expedited proposal remains open for voting before tallying — shorter than the standard voting_period, to allow faster resolution for expedited proposals",
+	max_commission_rate: "It defines the maximum commission rate that validator can ever charge",
 }
 
 const handleCopy = (text) => {

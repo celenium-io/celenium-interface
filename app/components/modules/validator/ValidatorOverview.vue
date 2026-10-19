@@ -1,4 +1,7 @@
 <script setup>
+/** Vendor */
+import { DateTime } from "luxon"
+
 /** UI */
 import Button from "~/components/ui/Button.vue"
 import Tooltip from "~/components/ui/Tooltip.vue"
@@ -62,6 +65,11 @@ const StatusMap = {
 	},
 }
 
+const JailReasonMap = {
+	missing_signature: "Jailed for downtime; missed too many blocks",
+	double_sign: "Jailed for double signin",
+}
+
 const tabs = ref([
 	{
 		name: "delegators",
@@ -103,7 +111,21 @@ const collapseDetails = ref(true)
 
 const page = ref(1)
 const limit = 10
-const handleNextCondition = ref(true)
+const rowsByTab = {
+	delegators,
+	"proposed blocks": blocks,
+	jails,
+	signals,
+	votes,
+}
+const handleNextCondition = computed(() => {
+	if (activeTab.value === "messages") {
+		const total = Number(props.validator.messages_count ?? 0)
+		return page.value >= Math.max(1, Math.ceil(total / limit))
+	}
+	const rows = rowsByTab[activeTab.value]?.value
+	return (rows?.length ?? 0) < limit
+})
 
 const handleNext = () => {
 	page.value += 1
@@ -124,7 +146,6 @@ const getBlocks = async () => {
 	if (data.value?.length) {
 		blocks.value = data.value
 		cacheStore.current.blocks = blocks.value
-		handleNextCondition.value = blocks.value?.length < limit
 	}
 
 	isRefetching.value = false
@@ -140,7 +161,6 @@ const getDelegators = async () => {
 	})
 
 	delegators.value = data.value
-	handleNextCondition.value = delegators.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -148,14 +168,13 @@ const getDelegators = async () => {
 const getJails = async () => {
 	isRefetching.value = true
 
-	const { data } = await fetchValidatorJails({
+	const data = await fetchValidatorJails({
 		id: props.validator.id,
 		limit: limit,
 		offset: (page.value - 1) * limit,
 	})
 
-	jails.value = data.value
-	handleNextCondition.value = jails.value?.length < limit
+	jails.value = data
 
 	isRefetching.value = false
 }
@@ -170,7 +189,6 @@ const getSignals = async () => {
 	})
 
 	signals.value = data.value
-	handleNextCondition.value = signals.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -185,7 +203,6 @@ const getVotes = async () => {
 	})
 
 	votes.value = data.value
-	handleNextCondition.value = votes.value?.length < limit
 
 	isRefetching.value = false
 }
@@ -201,7 +218,6 @@ const getMessages = async () => {
 
 	if (data.value?.length) {
 		messages.value = data.value
-		handleNextCondition.value = blocks.value?.length < limit
 	}
 
 	isRefetching.value = false
@@ -221,6 +237,8 @@ onMounted(() => {
 			tab: activeTab.value?.toLowerCase(),
 		},
 	})
+
+	if (props.validator.status === "jailed") getJails()
 })
 
 const parsedContacts = computed(() => {
@@ -350,6 +368,9 @@ const handleDelegate = () => {
 									<Text size="13" weight="600" color="primary" style="text-transform: capitalize">
 										{{ StatusMap[validator.status].text }}
 									</Text>
+									<Text v-if="validator.status === 'jailed' && jails.length > 0" size="13" weight="600" color="tertiary">
+										{{ DateTime.fromISO(jails[0].time).toRelative({ locale: "en", style: "short" }) }}
+									</Text>
 								</Flex>
 							</Outline>
 							<Outline v-if="validator.version" :hoverEffect="false">
@@ -362,9 +383,18 @@ const handleDelegate = () => {
 
 						<Flex v-if="validator.details" align="center" gap="6">
 							<Text size="12" height="160" weight="500" color="tertiary" selectable :class="$style.memo">
-								{{ validator.details }}
+								{{}}
+									{{ validator.details }}
 							</Text>
 						</Flex>
+					</Flex>
+
+					<Flex v-if="validator.status === 'jailed' && jails.length > 0" direction="column" gap="8" :class="$style.key_value">
+						<Text size="12" weight="600" color="secondary">Jail Reason</Text>
+						<Text size="13" weight="600" color="primary"> {{ JailReasonMap[jails[0].reason] }} </Text>
+						<Text size="13" weight="500" color="tertiary" mono>
+							{{ jails[0].reason }}
+						</Text>
 					</Flex>
 
 					<Flex direction="column" gap="8" :class="$style.key_value">
@@ -626,6 +656,7 @@ const handleDelegate = () => {
 
 .data {
 	min-width: 384px;
+	max-width: 384px;
 
 	border-radius: 4px 4px 4px 8px;
 	background: var(--card-background);

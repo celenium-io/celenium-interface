@@ -1,6 +1,5 @@
 <script setup>
 /** Services */
-import Socket from "~/services/api/socket.js"
 import { watchForUpdate } from "~/services/version.js"
 import { DEFAULT_SETTINGS } from "~/services/constants/settings.js"
 import { isPrefersDarkScheme, getNetworkName } from "~/services/utils/index.js"
@@ -23,6 +22,10 @@ import { useSettingsStore } from "~/store/settings.store.js"
 import { useEnumStore } from "~/store/enums.store.js"
 import { useLegalStore } from "~/store/legal.store.js"
 import { useNotificationsStore } from "~/store/notifications.store.js"
+
+/** Composables */
+import { useSocket } from "~/composables/socket.js"
+const { open: openSocket } = useSocket()
 
 const nodeStore = useNodeStore()
 const appStore = useAppStore()
@@ -141,13 +144,13 @@ onMounted(async () => {
 	appStore.initGlobalUpdates()
 
 	const data = await fetchLatestBlocks({ limit: 100 })
-	appStore.latestBlocks = data
+	appStore.latestBlocks = data ?? []
 	appStore.isLatestBlocksLoaded = true
 
 	const head = await fetchHead()
 	if (head) appStore.lastHead = head
 
-	Socket.init()
+	openSocket()
 
 	const gasPrice = await fetchGasPrice()
 	appStore.gas = gasPrice
@@ -158,15 +161,14 @@ onMounted(async () => {
 	if (!legalStore.isAccepted()) {
 		notificationsStore.create({
 			notification: {
-				type: "warning",
 				icon: "info",
-				title: "Just so you know: we use analytics.",
+				title: "We use analytics.",
 				description: "privacy",
 				autoDestroy: false,
 				irremovable: true,
 				actions: [
 					{
-						name: "OK",
+						name: "Got it",
 						callback: () => {
 							legalStore.acceptLegal()
 						},
@@ -178,10 +180,6 @@ onMounted(async () => {
 
 	if (["Mocha"].includes(getNetworkName())) {
 		appStore.blobsState = await fetchBlobsState()
-	}
-
-	window.onbeforeunload = function () {
-		Socket.close()
 	}
 })
 

@@ -88,7 +88,7 @@ const transactions = ref([])
 const update = ref()
 
 const page = ref(1)
-const pages = computed(() => Math.ceil(props.block.stats.tx_count / 10))
+const pages = computed(() => (props.block ? Math.ceil(props.block.stats.tx_count / 10) : 1))
 const handleNext = () => {
 	page.value += 1
 }
@@ -348,25 +348,11 @@ const handleViewRawTransactions = () => {
 <template>
 	<Flex direction="column" gap="4">
 		<Flex align="center" justify="between" :class="$style.header">
-			<Flex align="center" gap="12">
-				<Flex align="center" gap="8">
-					<Icon name="block" size="14" color="primary" />
-					<Text as="h1" size="13" weight="600" color="primary">
-						Block <Text color="secondary">{{ comma(height) }} </Text>
-					</Text>
-				</Flex>
-
-				<Flex align="center" gap="8">
-					<Button @click="router.push(`/block/${height - 1}`)" type="secondary" size="mini" :disabled="height === 0">
-						<Icon name="arrow-redo-right" size="16" color="secondary" :style="{ transform: 'scaleX(-1)' }" />
-						<Text :class="$style.block_nav__txt">Prev</Text>
-					</Button>
-
-					<Button @click="router.push(`/block/${height + 1}`)" type="secondary" size="mini">
-						<Text :class="$style.block_nav__txt">Next</Text>
-						<Icon name="arrow-redo-right" size="16" color="secondary" />
-					</Button>
-				</Flex>
+			<Flex align="center" gap="8">
+				<Icon name="block" size="14" color="primary" />
+				<Text as="h1" size="13" weight="600" color="primary">
+					Block <Text color="secondary">{{ comma(height) }} </Text>
+				</Text>
 			</Flex>
 
 			<Flex align="center" gap="12">
@@ -524,19 +510,13 @@ const handleViewRawTransactions = () => {
 
 					<Flex align="center" gap="8">
 						<Button @click="router.push(`/block/${height - 1}`)" wide type="secondary" size="mini" :disabled="height === 0">
-							<Icon name="arrow-redo-right" size="16" color="tertiary" :style="{ transform: 'scaleX(-1)' }" />
-							<Text :class="$style.block_nav__txt"><Text color="secondary">Go to</Text> {{ comma(height - 1) }}</Text>
+							<Icon name="arrow-circle-broken-right" size="14" color="tertiary" :style="{ transform: 'scaleX(-1)' }" />
+							<Text :class="$style.block_nav__txt"><Text color="secondary">Back to</Text> {{ comma(height - 1) }}</Text>
 						</Button>
 
-						<Button
-							@click="router.push(`/block/${height + 1}`)"
-							wide
-							type="secondary"
-							size="mini"
-							:disabled="height === latestBlock?.height"
-						>
+						<Button @click="router.push(`/block/${height + 1}`)" wide type="secondary" size="mini">
 							<Text :class="$style.block_nav__txt"><Text color="secondary">Go to </Text>{{ comma(height + 1) }}</Text>
-							<Icon name="arrow-redo-right" size="16" color="tertiary" />
+							<Icon name="arrow-circle-broken-right" size="14" color="tertiary" />
 						</Button>
 					</Flex>
 				</Flex>

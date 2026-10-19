@@ -52,8 +52,7 @@ export const fetchProposalVotes = async ({ id, limit, offset, option, voter, val
 		if (validator) url.searchParams.append("validator", validator)
 		if (address) url.searchParams.append("address", address)
 
-		const data = await useAsyncData(`proposal-${id}-votes`, () => $fetch(url.href))
-		return data
+		return await useFetch(url.href)
 	} catch (error) {
 		console.error(error)
 	}

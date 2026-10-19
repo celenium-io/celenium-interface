@@ -115,7 +115,7 @@ const mainLinks = reactive([
 	},
 	{
 		icon: "node",
-		name: "Node Upgrades",
+		name: "Upgrades",
 		path: "/upgrades",
 	},
 ])
