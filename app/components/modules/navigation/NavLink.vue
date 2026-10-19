@@ -53,6 +53,8 @@ const isActive = computed(() => {
 				res = !route.fullPath?.includes("message_type=MsgPayForBlobs")
 			} else if (props.link.name === "Pay for Blobs") {
 				res = route.fullPath?.includes("message_type=MsgPayForBlobs")
+			} else if (props.link.name === "Pay for Ашику") {
+				res = route.fullPath?.includes("message_type=MsgPayForFibre")
 			}
 		} else {
 			res = route.path === props.link.path
@@ -69,7 +71,7 @@ const handleClick = () => {
 </script>
 
 <template>
-	<NuxtLink @click.stop="handleClick" :to="link.path" :target="link.external && '_blank'">
+	<NuxtLink @click.stop="handleClick" :to="!link.disabled && link.path" :target="link.external && '_blank'">
 		<Flex
 			align="center"
 			justify="between"
@@ -78,10 +80,11 @@ const handleClick = () => {
 				$style.link,
 				isActive && (!isAnyChildrenActive || !isExpanded) && $style.active,
 				isAnyChildrenActive && isExpanded && $style.parentActive,
+				link.disabled && $style.disabled,
 			]"
 		>
 			<Flex align="center" gap="8">
-				<Icon :name="link.icon" size="14" :color="!link.new ? 'secondary' : 'blue'" :class="$style.link_icon" />
+				<Icon :name="link.icon" size="14" :color="!link.highlight ? 'secondary' : 'orange'" :class="$style.link_icon" />
 				<Text size="13" weight="600" color="secondary">{{ link.name }} </Text>
 			</Flex>
 
@@ -125,6 +128,11 @@ const handleClick = () => {
 		& .link_icon:first-of-type {
 			fill: var(--brand);
 		}
+	}
+
+	&.disabled {
+		pointer-events: none;
+		opacity: 0.5;
 	}
 
 	&.parentActive {

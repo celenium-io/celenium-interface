@@ -123,6 +123,13 @@ const mainLinks = reactive([
 const isModularLinksCollapsed = ref(false)
 const modularLinks = reactive([
 	{
+		icon: "fibre",
+		name: "Pay for Fibre",
+		path: "/txs?message_type=MsgPayForFibre",
+		highlight: true,
+		disabled: head.value.version != 10,
+	},
+	{
 		icon: "rollup",
 		name: "Networks",
 		path: "/networks",
