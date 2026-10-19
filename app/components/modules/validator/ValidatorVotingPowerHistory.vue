@@ -21,9 +21,7 @@ const chartEl = ref()
 const { data: votingPowerSeries, pending } = await useAsyncData(
 	`voting-power-history-${props.validator.id}`,
 	() => fetchValidatorVotingPowerHistory({ id: props.validator.id, limit: 10, sort: "desc" }),
-	{
-		default: () => [],
-	},
+	{ default: () => [] },
 )
 
 const selectedItem = ref()
