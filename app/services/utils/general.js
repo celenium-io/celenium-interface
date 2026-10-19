@@ -300,3 +300,6 @@ export function isValidQueryParam(value, type = "page") {
 			return false
 	}
 }
+
+const regionNames = new Intl.DisplayNames(["en"], { type: "region" })
+export const getCountryByCode = (code) => regionNames.of(code)

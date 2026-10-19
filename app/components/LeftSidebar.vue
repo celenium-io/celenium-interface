@@ -1,4 +1,7 @@
 <script setup>
+/** Vendor */
+import { DateTime } from "luxon"
+
 /** UI */
 import Button from "~/components/ui/Button.vue"
 import { Dropdown, DropdownItem, DropdownTitle, DropdownDivider } from "~/components/ui/Dropdown/index.js"
@@ -30,13 +33,6 @@ const settings = useCookie("localSettings", {
 })
 
 const head = computed(() => appStore.lastHead)
-watch(
-	() => head.value,
-	() => {
-		const fibreLink = modularLinks.find((link) => link.name === "Pay for Fibre")
-		if (head.value.version >= 10) fibreLink.disabled = false
-	},
-)
 
 const mainLinks = reactive([
 	{
@@ -131,10 +127,9 @@ const isModularLinksCollapsed = ref(false)
 const modularLinks = reactive([
 	{
 		icon: "fibre",
-		name: "Pay for Fibre",
-		path: "/txs?message_type=MsgPayForFibre",
+		name: `Pay for Fibre`,
+		path: `/txs?message_type=MsgPayForFibre&from=1790197200&to=${parseInt(DateTime.now().endOf("day").toSeconds())}`,
 		highlight: true,
-		disabled: head.value.version != 10,
 	},
 	{
 		icon: "rollup",
