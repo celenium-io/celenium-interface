@@ -19,7 +19,7 @@ import SignalsTable from "./tables/SignalsTable.vue"
 import VotesTable from "./tables/VotesTable.vue"
 
 /** Services */
-import { capitilize, comma, numToPercent, shortHex, splitAddress } from "~/services/utils/index.js"
+import { capitilize, comma, numToPercent, shortHex, splitAddress, getCountryByCode } from "~/services/utils/index.js"
 
 /** API */
 import {
@@ -383,8 +383,7 @@ const handleDelegate = () => {
 
 						<Flex v-if="validator.details" align="center" gap="6">
 							<Text size="12" height="160" weight="500" color="tertiary" selectable :class="$style.memo">
-								{{}}
-									{{ validator.details }}
+								{{ validator.details }}
 							</Text>
 						</Flex>
 					</Flex>
@@ -474,6 +473,13 @@ const handleDelegate = () => {
 									<Icon name="arrow-narrow-up-right" size="12" color="tertiary" />
 								</Flex>
 							</NuxtLink>
+						</Flex>
+
+						<Flex v-if="validator.fibre.location" align="center" justify="between">
+							<Text size="12" weight="600" color="tertiary">Location</Text>
+							<Text size="12" weight="600" color="secondary">
+								{{ getCountryByCode(validator.fibre.location.country_code) }}
+							</Text>
 						</Flex>
 					</Flex>
 
