@@ -5,6 +5,9 @@ import { DateTime } from "luxon"
 /** UI */
 import Tooltip from "~/components/ui/Tooltip.vue"
 
+/** Components */
+import BlobSourceBadge from "~/components/shared/BlobSourceBadge.vue"
+
 /** Services */
 import { formatBytes, getNamespaceID, space } from "~/services/utils/index.js"
 
@@ -50,8 +53,8 @@ const handleViewBlob = (blob) => {
 					<th>
 						<Text size="12" weight="600" color="tertiary"> {{ source === "account" ? "Namespace" : "Signer" }} </Text>
 					</th>
+					<th><Text size="12" weight="600" color="tertiary">Source</Text></th>
 					<th><Text size="12" weight="600" color="tertiary">Time</Text></th>
-					<th><Text size="12" weight="600" color="tertiary">Share Commitments</Text></th>
 					<th><Text size="12" weight="600" color="tertiary">Size</Text></th>
 					<th><Text size="12" weight="600" color="tertiary">Version</Text></th>
 				</tr>
@@ -102,6 +105,9 @@ const handleViewBlob = (blob) => {
 						</Flex>
 					</td>
 					<td>
+						<BlobSourceBadge :source="blob.source" />
+					</td>
+					<td>
 						<Flex direction="column" justify="center" gap="4">
 							<Text size="12" weight="600" color="primary">
 								{{ DateTime.fromISO(blob.time).toRelative({ locale: "en", style: "short" }) }}
@@ -111,29 +117,6 @@ const handleViewBlob = (blob) => {
 								{{ DateTime.fromISO(blob.time).setLocale("en").toFormat("LLL d, t") }}
 							</Text>
 						</Flex>
-					</td>
-					<td>
-						<Tooltip position="start" delay="500">
-							<Flex align="center" gap="8">
-								<Text size="13" weight="600" color="primary">
-									{{ blob.commitment.slice(0, 4) }}
-								</Text>
-
-								<Flex align="center" gap="3">
-									<div v-for="dot in 3" class="dot" />
-								</Flex>
-
-								<Text size="13" weight="600" color="primary">
-									{{ blob.commitment.slice(blob.commitment.length - 4, blob.commitment.length) }}
-								</Text>
-
-								<CopyButton :text="blob.commitment" />
-							</Flex>
-
-							<template #content>
-								{{ blob.commitment }}
-							</template>
-						</Tooltip>
 					</td>
 					<td>
 						<Text size="13" weight="600" color="primary">

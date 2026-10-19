@@ -55,19 +55,10 @@ const updateUserSettings = () => {
 const isLoading = ref(false)
 const sizeSeries = ref([])
 const pfbSeries = ref([])
+const pffSeries = ref([])
 
 /** Series config */
 const seriesConfig = [
-	{
-		name: "size",
-		metric: "size",
-		series: sizeSeries,
-		title: "DA Usage",
-		tooltipLabel: "Usage",
-		yAxisFormatter: (value) => formatBytes(value, 0),
-		tooltipValueFormatter: formatBytes,
-		unit: null,
-	},
 	{
 		name: "pfb_count",
 		metric: "pfb",
@@ -78,10 +69,31 @@ const seriesConfig = [
 		tooltipValueFormatter: abbreviate,
 		unit: null,
 	},
+	{
+		name: "pff_count",
+		metric: "pff",
+		series: pffSeries,
+		title: "Pay For Fibre Count",
+		tooltipLabel: "Count",
+		yAxisFormatter: abbreviate,
+		tooltipValueFormatter: abbreviate,
+		unit: null,
+	},
+	{
+		name: "size",
+		metric: "size",
+		series: sizeSeries,
+		title: "DA Usage",
+		tooltipLabel: "Usage",
+		yAxisFormatter: (value) => formatBytes(value, 0),
+		tooltipValueFormatter: formatBytes,
+		unit: null,
+	},
 ]
 
 const sizeConfig = computed(() => seriesConfig.find((config) => config.metric === "size"))
 const pfbConfig = computed(() => seriesConfig.find((config) => config.metric === "pfb"))
+const pffConfig = computed(() => seriesConfig.find((config) => config.metric === "pff"))
 
 const fetchData = async (metric) => {
 	return await fetchNamespaceSeries({
@@ -218,19 +230,28 @@ onMounted(async () => {
 			</Flex>
 		</Flex>
 
-		<Flex justify="between" gap="32" :class="$style.data">
+		<Flex direction="column" gap="32" :class="$style.data">
+			<Flex justify="between" gap="32">
+				<ChartOnEntityPage
+					v-if="pfbSeries.length"
+					:series-config="pfbConfig"
+					:chart-view="chartView"
+					:load-last-value="loadLastValue"
+					:selected-period="selectedPeriod"
+					:isLoading="isLoading"
+				/>
+				<ChartOnEntityPage
+					v-if="pffSeries.length"
+					:series-config="pffConfig"
+					:chart-view="chartView"
+					:load-last-value="loadLastValue"
+					:selected-period="selectedPeriod"
+					:isLoading="isLoading"
+				/>
+			</Flex>
 			<ChartOnEntityPage
 				v-if="sizeSeries.length"
 				:series-config="sizeConfig"
-				:chart-view="chartView"
-				:load-last-value="loadLastValue"
-				:selected-period="selectedPeriod"
-				:isLoading="isLoading"
-			/>
-
-			<ChartOnEntityPage
-				v-if="pfbSeries.length"
-				:series-config="pfbConfig"
 				:chart-view="chartView"
 				:load-last-value="loadLastValue"
 				:selected-period="selectedPeriod"
