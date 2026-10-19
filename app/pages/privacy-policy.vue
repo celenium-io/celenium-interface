@@ -298,18 +298,6 @@ const lastUpdate = () => {
 				<ul>
 					<li>
 						<Flex direction="column">
-							<Text weight="600" :class="$style.section_paragraph">Google Analytics</Text>
-							<Text :class="$style.section_paragraph">Provider: Google Ireland Ltd.</Text>
-							<Text :class="$style.section_paragraph"
-								>Privacy policy:
-								<a href="https://support.google.com/analytics/answer/6004245" target="_blank" :class="$style.link"
-									>https://support.google.com/analytics/answer/6004245</a
-								></Text
-							>
-						</Flex>
-					</li>
-					<li>
-						<Flex direction="column">
 							<Text weight="600" :class="$style.section_paragraph">Google Fonts</Text>
 							<Text :class="$style.section_paragraph">Provider: Google Ireland Ltd.</Text>
 							<Text :class="$style.section_paragraph"
@@ -334,14 +322,12 @@ const lastUpdate = () => {
 					</li>
 					<li>
 						<Flex direction="column">
-							<Text weight="600" :class="$style.section_paragraph">Amplitude</Text>
-							<Text :class="$style.section_paragraph">Provider: Amplitude, Inc.</Text>
-							<Text :class="$style.section_paragraph"
-								>Privacy policy:
-								<a href="https://amplitude.com/privacy" target="_blank" :class="$style.link"
-									>https://amplitude.com/privacy</a
-								></Text
-							>
+							<Text weight="600" :class="$style.section_paragraph">PostHog</Text>
+							<Text :class="$style.section_paragraph">Provider: PostHog, Inc. (formerly known as Hiberly Inc.)</Text>
+							<Text :class="$style.section_paragraph">
+								Privacy policy:
+								<a href="https://posthog.com/privacy" target="_blank" :class="$style.link"> https://posthog.com/privacy </a>
+							</Text>
 						</Flex>
 					</li>
 					<li>
@@ -352,18 +338,6 @@ const lastUpdate = () => {
 								>Privacy policy:
 								<a href="https://wallet.keplr.app/privacy-policy.html" target="_blank" :class="$style.link"
 									>https://wallet.keplr.app/privacy-policy.html</a
-								></Text
-							>
-						</Flex>
-					</li>
-					<li>
-						<Flex direction="column">
-							<Text weight="600" :class="$style.section_paragraph">Leap</Text>
-							<Text :class="$style.section_paragraph">Provider: Hyphen Labs Ltd.</Text>
-							<Text :class="$style.section_paragraph"
-								>Privacy policy:
-								<a href="https://www.leapwallet.io/legal/privacy" target="_blank" :class="$style.link"
-									>https://www.leapwallet.io/legal/privacy</a
 								></Text
 							>
 						</Flex>

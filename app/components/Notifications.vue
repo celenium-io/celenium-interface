@@ -123,12 +123,12 @@ const handleActionCallback = (callback, notification) => {
 	width: 330px;
 	background: var(--card-background);
 	box-shadow:
-		inset 0 0 0 2px var(--op-5),
+		inset 0 0 0 1px var(--op-5),
 		0 14px 34px rgba(0, 0, 0, 15%),
 		0 4px 14px rgba(0, 0, 0, 5%);
 
-	border-radius: 8px;
-	padding: 12px;
+	border-radius: 12px;
+	padding: 16px;
 
 	transition: all 150ms ease;
 }

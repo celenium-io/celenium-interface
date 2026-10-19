@@ -161,15 +161,14 @@ onMounted(async () => {
 	if (!legalStore.isAccepted()) {
 		notificationsStore.create({
 			notification: {
-				type: "warning",
 				icon: "info",
-				title: "Just so you know: we use analytics.",
+				title: "We use analytics.",
 				description: "privacy",
 				autoDestroy: false,
 				irremovable: true,
 				actions: [
 					{
-						name: "OK",
+						name: "Got it",
 						callback: () => {
 							legalStore.acceptLegal()
 						},
