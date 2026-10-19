@@ -23,7 +23,7 @@
 		"@resvg/resvg-js": "^2.6.2",
 		"@resvg/resvg-wasm": "^2.6.2",
 		"cross-env": "^7.0.3",
-		"nuxt": "4.5.2",
+		"nuxt": "4.6.2",
 		"nuxtseo-layer-devtools": "^5.3.16",
 		"oxlint": "^1.56.0",
 		"prettier": "^3.8.1",
