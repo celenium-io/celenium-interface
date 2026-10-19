@@ -363,7 +363,8 @@ watch(
 watch(
 	() => msgTypes.value,
 	() => {
-		filters.message_type = msgTypes.value?.reduce((a, b) => ({ ...a, [b]: false }), {})
+		const selected = filters.message_type
+		filters.message_type = msgTypes.value?.reduce((acc, type) => ({ ...acc, [type]: !!selected[type] }), {})
 	},
 )
 
