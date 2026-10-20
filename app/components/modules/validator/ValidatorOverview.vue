@@ -801,6 +801,7 @@ const handleDelegate = () => {
 
 	.data {
 		min-width: initial;
+		max-width: initial;
 
 		border-radius: 4px;
 	}
