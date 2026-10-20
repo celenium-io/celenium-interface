@@ -10,6 +10,10 @@ const props = defineProps({
 		type: Object,
 		required: true,
 	},
+	labels: {
+		type: Object,
+		default: () => ({}),
+	},
 })
 
 const chartEl = ref()
@@ -18,6 +22,8 @@ const tooltip = ref({
 	data: [],
 	show: false,
 })
+
+const legendItems = ref(null)
 
 const buildChart = (chart) => {
 	const { width } = chart.getBoundingClientRect()
@@ -34,7 +40,8 @@ const buildChart = (chart) => {
 		feature: f,
 		angle: -Math.PI / 2 + (2 * Math.PI * i) / features.length,
 	}))
-	const legendItems = [{ name: props.series.mainData?.name || "Main", color: "var(--brand)" }]
+	legendItems.value = [{ name: props.series.mainData?.name || "Main", color: "var(--brand)" }]
+
 	const colors = ["var(--txt-primary)", "var(--blue)", "var(--yellow)", "var(--red)"]
 	const baseOpacity = 0.8
 	const hoverOpacity = 1
@@ -179,35 +186,37 @@ const buildChart = (chart) => {
 		const angle = -Math.PI / 2 + (2 * Math.PI * i) / features.length
 		const lineCoordinate = angleToCoordinate(angle, 100)
 		const labelCoordinate = angleToCoordinate(angle, 116)
-		let labelAnchor = "start"
 
-		if (angle < 0 && angle > -Math.PI / 4) {
-			labelCoordinate.x -= width > 400 ? 16 : 4
-		}
-		if (angle < 0 && angle < -Math.PI / 3) {
-			labelCoordinate.y -= 12
+		const labelText = props.labels[features[i]] ?? capitalizeAndReplace(features[i], "_")
+		const lines = labelText.split(" ")
+
+		const cos = Math.cos(angle)
+		const sin = Math.sin(angle)
+		const isSideLabel = Math.abs(cos) > Math.abs(sin)
+		let textAnchor = "middle"
+
+		if (i === 0) {
+			labelCoordinate.y -= 12 + (lines.length - 1) * 20
+		} else if (isSideLabel) {
+			textAnchor = cos > 0 ? "start" : "end"
+			labelCoordinate.x = Math.sign(cos) * (maxRadius + 8)
+			labelCoordinate.y += sin * 24
+		} else {
+			labelCoordinate.x += cos * 24
+			labelCoordinate.y += sin * 24
 		}
 
-		if (angle > Math.PI / 2) {
-			labelAnchor = "end"
-		} else if (angle < -Math.PI / 3) {
-			labelAnchor = "middle"
-		}
-
-		// Draw axis labels and values
 		const label = svg
 			.append("text")
-			.attr("text-anchor", labelAnchor)
 			.attr("x", labelCoordinate.x)
 			.attr("y", labelCoordinate.y)
 			.attr("font-size", "12px")
 			.attr("fill", "var(--txt-secondary)")
+			.attr("text-anchor", textAnchor)
 			.attr("opacity", baseOpacity)
 			.attr("pointer-events", "bounding-box")
 			.attr("data-feature", features[i])
 			.style("cursor", "default")
-
-		label.append("tspan").text(capitalizeAndReplace(features[i], "_")).attr("x", labelCoordinate.x)
 
 		label
 			.append("tspan")
@@ -216,7 +225,15 @@ const buildChart = (chart) => {
 			.attr("fill", "var(--brand)")
 			.attr("font-weight", "600")
 			.attr("x", labelCoordinate.x)
-			.attr("dy", "1.3em")
+			.attr("dy", 0)
+
+		lines.forEach((line, lineIdx) => {
+			label
+				.append("tspan")
+				.text(line)
+				.attr("x", labelCoordinate.x)
+				.attr("dy", lineIdx === 0 ? "1.2em" : "1.3em")
+		})
 
 		// Draw axis line
 		svg.append("line")
@@ -265,7 +282,7 @@ const buildChart = (chart) => {
 	props.series?.comparisonData?.forEach((data, i) => {
 		const coords = getPathCoordinates(data)
 		const color = colors[i]
-		legendItems.push({ name: data.name || `Set ${i + 1}`, color })
+		legendItems.value.push({ name: data.name || `Set ${i + 1}`, color })
 
 		svg.append("path")
 			.datum([...coords])
@@ -292,28 +309,6 @@ const buildChart = (chart) => {
 				.attr("opacity", baseOpacity)
 				.attr("data-feature", features[i])
 		})
-	})
-
-	// Draw legend
-	const legendSpacing = 22
-	const legendGroup = svg
-		.append("g")
-		.attr("class", "legend-group")
-		.attr("transform", `translate(${-width / 2 + 20}, ${width / 2 - 20})`)
-
-	legendItems.forEach((item, i) => {
-		const y = i * legendSpacing
-
-		legendGroup.append("circle").attr("cx", 0).attr("cy", y).attr("r", 6).attr("fill", item.color).attr("opacity", baseOpacity)
-
-		legendGroup
-			.append("text")
-			.attr("x", 14)
-			.attr("y", y + 1)
-			.attr("font-size", "12px")
-			.attr("fill", "var(--txt-secondary)")
-			.attr("alignment-baseline", "middle")
-			.text(item.name)
 	})
 
 	if (chart.children[0]) chart.children[0].remove()
@@ -376,12 +371,20 @@ onMounted(() => {
 			</Transition>
 
 			<Flex ref="chartEl" wide :class="$style.chart" />
+
+			<Flex align="center" gap="16" :class="$style.bottom_legend">
+				<Flex v-for="item in legendItems" align="center" gap="6">
+					<div :style="{ background: item.color }" :class="$style.legend_circle" />
+					<Text size="12" weight="600" color="secondary">{{ item.name }}</Text>
+				</Flex>
+			</Flex>
 		</Flex>
 	</Flex>
 </template>
 
 <style module lang="scss">
 .wrapper {
+	position: relative;
 	flex: 1;
 
 	aspect-ratio: 1 / 1;
@@ -398,11 +401,24 @@ onMounted(() => {
 .chart {
 	position: absolute;
 
-	overflow: hidden;
+	//overflow: hidden;
 
 	& svg {
 		overflow: visible;
 	}
+}
+
+.bottom_legend {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+}
+
+.legend_circle {
+	width: 6px;
+	height: 6px;
+
+	border-radius: 50px;
 }
 
 .tooltip_wrapper {

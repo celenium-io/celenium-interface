@@ -10,3 +10,11 @@ export const MessageIconMap = {
 	unjail: "hash",
 	payforfibre: "fibre",
 }
+
+export const ValidatorMetricLabelsMap = {
+	block_missed: "Signing Activity",
+	commission: "Commission Fairness",
+	operation_time: "Validator Age",
+	self_delegation: "Stake Decentralization",
+	votes: "Governance Involvement",
+}
