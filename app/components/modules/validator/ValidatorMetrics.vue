@@ -3,9 +3,13 @@
 import Input from "~/components/ui/Input.vue"
 import Button from "~/components/ui/Button.vue"
 import Popover from "~/components/ui/Popover.vue"
+import Tooltip from "~/components/ui/Tooltip.vue"
 
 /** Components */
 import RadarChart from "~/components/modules/stats/RadarChart.vue"
+
+/** Constants */
+import { ValidatorMetricLabelsMap } from "~/services/constants/mapping.js"
 
 /** Services */
 import { roundTo, sortArrayOfObjects } from "~/services/utils/index.js"
@@ -127,7 +131,50 @@ onBeforeMount(async () => {
 <template>
 	<Flex direction="column" justify="between" align="center" gap="12" wide :class="$style.wrapper">
 		<Flex align="center" justify="between" wide>
-			<Text size="13" weight="600" color="primary">Metrics Comparison</Text>
+			<Flex align="center" gap="6">
+				<Text size="13" weight="600" color="primary">Metrics Comparison</Text>
+
+				<Tooltip position="start" side="right" textAlign="left">
+					<Icon name="info" size="14" color="tertiary" />
+
+					<template #content>
+						<Flex direction="column" gap="16">
+							<Flex direction="column" gap="4">
+								<Text>Governance Participation</Text>
+								<Text height="120" color="tertiary">
+									Share of passed proposals the validator voted on.<br />
+									100% if no proposals have passed yet.
+								</Text>
+							</Flex>
+							<Flex direction="column" gap="4">
+								<Text>Commission Fairness</Text>
+								<Text height="120" color="tertiary">
+									Higher means lower max commission and <br />max daily change rate (weights 65% / 35%).
+								</Text>
+							</Flex>
+							<Flex direction="column" gap="4">
+								<Text>Validator Age</Text>
+								<Text height="120" color="tertiary">
+									Grows linearly over the first year of operation,<br />
+									then stays at 100%.
+								</Text>
+							</Flex>
+							<Flex direction="column" gap="4">
+								<Text>Stake Decentralization</Text>
+								<Text height="120" color="tertiary">
+									Share of stake (above the minimum self-delegation)<br />
+									that comes from external delegators.<br />
+									0% if self-delegation is at or below the minimum.
+								</Text>
+							</Flex>
+							<Flex direction="column" gap="4">
+								<Text>Signing Activity</Text>
+								<Text height="120" color="tertiary">Share of the last 1,000 blocks signed by the validator.</Text>
+							</Flex>
+						</Flex>
+					</template>
+				</Tooltip>
+			</Flex>
 
 			<Popover :open="isPopoverOpen" @on-close="handlePopoverClose" side="right" width="160">
 				<Button @click="isPopoverOpen = true" type="secondary" size="mini">
@@ -198,7 +245,7 @@ onBeforeMount(async () => {
 			</Popover>
 		</Flex>
 
-		<RadarChart :series="metricsSeries" :isLoading="isLoading" :class="$style.chart" />
+		<RadarChart :series="metricsSeries" :labels="ValidatorMetricLabelsMap" :isLoading="isLoading" :class="$style.chart" />
 	</Flex>
 </template>
 

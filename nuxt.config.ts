@@ -94,8 +94,7 @@ export default defineNuxtConfig({
 
 	runtimeConfig: {
 		public: {
-			AMP: process.env.AMP,
-			version: "1.26.0",
+			version: "1.30.0",
 
 			API_MAINNET: "",
 			API_MOCHA: "",
@@ -134,9 +133,9 @@ export default defineNuxtConfig({
 			],
 			link: [
 				{
-					id: "favicon",
 					rel: "icon",
-					type: "image/png",
+					type: "image/x-icon",
+					href: "/favicon.ico",
 				},
 			],
 		},
@@ -169,23 +168,14 @@ export default defineNuxtConfig({
 		],
 	},
 
-	pinia: {
-		autoImports: ["defineStore"],
-	},
-
 	devtools: {
 		enabled: true,
 	},
-
-	plugins: ["~/plugins/force.client.js"],
 
 	vite: {
 		plugins: [ignorePosthogSm(), wasm()],
 		build: {
 			target: "esnext",
-			rolldownOptions: {
-				devtools: true,
-			},
 		},
 		define: {
 			global: "globalThis",
