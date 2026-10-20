@@ -94,7 +94,7 @@ export default defineNuxtConfig({
 
 	runtimeConfig: {
 		public: {
-			version: "1.30.0",
+			version: "1.31.0",
 
 			API_MAINNET: "",
 			API_MOCHA: "",
