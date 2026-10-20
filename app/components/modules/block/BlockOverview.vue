@@ -88,7 +88,7 @@ const transactions = ref([])
 const update = ref()
 
 const page = ref(1)
-const pages = computed(() => (props.block ? Math.ceil(props.block.stats.tx_count / 10) : 1))
+const pages = computed(() => (props.block ? Math.max(1, Math.ceil(props.block.stats.tx_count / 10)) : 1))
 const handleNext = () => {
 	page.value += 1
 }
