@@ -69,30 +69,27 @@ switch (settings.value.appearance.general.theme) {
 		break
 }
 
+const applyTheme = () => {
+	const root = document.querySelector("html")
+	root.setAttribute("theme", appStore.theme === "system" ? (isPrefersDarkScheme() ? "dark" : "light") : appStore.theme)
+}
 watch(
 	() => settings.value.appearance.general.theme,
-	() => {
-		let root = document.querySelector("html")
-
-		if (appStore.theme === "system") {
-			window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (event) => {
-				root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
-			})
-		} else {
-			root.setAttribute("theme", settings.value.appearance.general.theme)
-		}
+	(newTheme) => {
+		appStore.theme = newTheme
+		applyTheme()
 	},
-	{ deep: true },
 )
 
+let colorSchemeQuery = null
+const handleColorSchemeChange = () => {
+	if (appStore.theme === "system") applyTheme()
+}
 onMounted(async () => {
-	let root = document.querySelector("html")
+	applyTheme()
 
-	if (appStore.theme === "system") {
-		root.setAttribute("theme", isPrefersDarkScheme() ? "dark" : "light")
-	} else {
-		root.setAttribute("theme", appStore.theme)
-	}
+	colorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)")
+	colorSchemeQuery.addEventListener("change", handleColorSchemeChange)
 
 	/**
 	 * Watch for package.json->version and notify users about the new version
@@ -185,6 +182,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
 	clearInterval(watchInterval)
+	colorSchemeQuery?.removeEventListener("change", handleColorSchemeChange)
 })
 </script>
 

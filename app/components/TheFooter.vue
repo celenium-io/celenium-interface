@@ -2,17 +2,30 @@
 /** UI */
 import { Dropdown, DropdownItem, DropdownTitle } from "~/components/ui/Dropdown/index.js"
 
+/** Services */
+import { DEFAULT_SETTINGS } from "~/services/constants/settings.js"
+import { isPrefersDarkScheme } from "~/services/utils/index.js"
+
+
 /** Store */
 import { useAppStore } from "~/store/app.store.js"
+import { useAuthStore } from "~/store/auth.store.js"
 
 const appStore = useAppStore()
+const authStore = useAuthStore()
+
+const settings = useCookie("localSettings", {
+	default: () => DEFAULT_SETTINGS,
+})
 
 const handleChangeTheme = (target) => {
-	const root = document.querySelector("html")
-
-	root.setAttribute("theme", target)
+	settings.value.appearance.general.theme = target
 	appStore.theme = target
-	theme.value = target
+
+	const root = document.querySelector("html")
+	root.setAttribute("theme", target === "system" ? (isPrefersDarkScheme() ? "dark" : "light") : target)
+
+	if (authStore.isAuthenticated) authStore.saveSettings(settings.value)
 }
 </script>
 
@@ -131,17 +144,17 @@ const handleChangeTheme = (target) => {
 						<Flex align="center" gap="6" :class="$style.btn">
 							<Icon
 								:name="
-									appStore.theme
-										? (appStore.theme === 'system' && 'settings') ||
-											(appStore.theme === 'light' && 'sun') ||
-											(['dark', 'dimmed'].includes(appStore.theme) && 'moon')
+									settings.appearance.general.theme
+										? (settings.appearance.general.theme === 'system' && 'settings') ||
+											(settings.appearance.general.theme === 'light' && 'sun') ||
+											(['dark', 'dimmed'].includes(settings.appearance.general.theme) && 'moon')
 										: ''
 								"
 								size="12"
 								color="secondary"
 							/>
 							<Text size="12" weight="600" color="secondary" :style="{ textTransform: 'capitalize' }">
-								{{ appStore.theme }}
+								{{ settings.appearance.general.theme }}
 							</Text>
 						</Flex>
 
