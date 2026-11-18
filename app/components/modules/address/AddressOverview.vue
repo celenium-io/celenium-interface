@@ -7,6 +7,7 @@ import { Dropdown, DropdownItem } from "~/components/ui/Dropdown/index.js"
 import Input from "~/components/ui/Input.vue"
 import Popover from "~/components/ui/Popover.vue"
 import Toggle from "~/components/ui/Toggle.vue"
+import Tooltip from "~/components/ui/Tooltip.vue"
 
 /** Components */
 import AmountInCurrency from "~/components/AmountInCurrency.vue"
@@ -727,7 +728,56 @@ const handleOpenQRModal = () => {
 						</Flex>
 					</Flex>
 					<Flex v-else direction="column" gap="8" :class="$style.key_value">
-						<Text size="12" weight="600" color="secondary">Address</Text>
+						<Flex align="center" justify="between">
+							<Text size="12" weight="600" color="secondary">Address</Text>
+
+							<Tooltip v-if="address.is_frozen" position="start" delay="500">
+								<Icon
+									name="snowflake"
+									size="16"
+									color="secondary"
+								/>
+
+								<template #content>
+									<Flex direction="column" gap="4" :style="{ width: '240px', textAlign: 'left' }">
+										<Text size="12" weight="600" color="primary">Frozen account.</Text>
+										<Text size="12" weight="500" color="secondary" height="120">
+											This account's private key was exposed. Since app v11 it can only send funds to the whitehat (
+											<Icon
+												name="chef-hat"
+												size="12"
+												color="secondary"
+											/>
+											) recovery address, and its fee is capped at 1 TIA.
+										</Text>
+									</Flex>
+								</template>
+							</Tooltip>
+							<Tooltip v-if="address.is_whitehat" position="start" delay="500">
+								<Icon
+									name="chef-hat"
+									size="16"
+									color="secondary"
+								/>
+
+								<template #content>
+									<Flex direction="column" gap="4" :style="{ width: '240px', textAlign: 'left' }">
+										<Text size="12" weight="600" color="primary">Whitehat recovery address.</Text>
+										<Text size="12" weight="500" color="secondary" height="120">
+											The only address frozen accounts (
+											<Icon
+												name="snowflake"
+												size="12"
+												color="secondary"
+												:style=" { verticalAlign: 'middle' }"
+											/>
+											) can send funds to.
+										</Text>
+									</Flex>
+								</template>
+							</Tooltip>
+						</Flex>
+						
 						<Text size="13" weight="600" color="primary" class="overflow_ellipsis"> {{ address.hash }} </Text>
 					</Flex>
 
